@@ -15,9 +15,6 @@ namespace RediSharp.Tests;
 
 public class UnitTest1
 {
-    static ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("127.0.0.1");
-    public static IDatabase db = redis.GetDatabase();
-
     Mock<IDatabase> _mock = new Mock<IDatabase>();
     public class Person
     {
@@ -35,14 +32,8 @@ public class UnitTest1
 
         db.JsonSet("Person:Shachar", "$", obj);
         //var expected = new[] {"JSON.SET", "Person:Shachar", "$", "{\"Name\":\"Shachar\",\"Age\":23}" };
-
-
-        //_mock.Setup(x => x.Execute("JSON.SET", It.IsAny<string[]>())).Returns(Redis));
-        //_mock.Verify(x => x.Execute("JSON.SET", "Person:Shachar", "$", "{\"Name\":\"Shachar\",\"Age\":23}" ));
+        //_mock.Setup(x => x.Execute("JSON.SET", It.IsAny<string[]>())).Returns());
+        _mock.Verify(x => x.Execute("JSON.SET", "Person:Shachar", "$", "{\"Name\":\"Shachar\",\"Age\":23}" ));
         // ADD MOCK and CHECK HOW THE JSON LOOKS AFTER PARSING
-        System.Console.WriteLine(JsonSerializer.Serialize(obj).ToString());
-
-
-
     }
 }
