@@ -25,15 +25,8 @@ public class UnitTest1
     [Fact]
     public void TestJsonSet()
     {
-        ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
-        IDatabase db = redis.GetDatabase();
-
         var obj = new Person { Name = "Shachar", Age = 23 };
-
-        db.JsonSet("Person:Shachar", "$", obj);
-        //var expected = new[] {"JSON.SET", "Person:Shachar", "$", "{\"Name\":\"Shachar\",\"Age\":23}" };
-        //_mock.Setup(x => x.Execute("JSON.SET", It.IsAny<string[]>())).Returns());
+        _mock.Object.JsonSet("Person:Shachar", "$", obj);
         _mock.Verify(x => x.Execute("JSON.SET", "Person:Shachar", "$", "{\"Name\":\"Shachar\",\"Age\":23}" ));
-        // ADD MOCK and CHECK HOW THE JSON LOOKS AFTER PARSING
     }
 }
