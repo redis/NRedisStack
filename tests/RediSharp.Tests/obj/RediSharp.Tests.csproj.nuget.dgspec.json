@@ -1,0 +1,156 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/shachar/repositories/RediSharp/tests/RediSharp.Tests/RediSharp.Tests.csproj": {}
+  },
+  "projects": {
+    "/home/shachar/repositories/RediSharp/src/RediSharp.Core/RediSharp.Core.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/shachar/repositories/RediSharp/src/RediSharp.Core/RediSharp.Core.csproj",
+        "projectName": "RediSharp.Core",
+        "projectPath": "/home/shachar/repositories/RediSharp/src/RediSharp.Core/RediSharp.Core.csproj",
+        "packagesPath": "/home/shachar/.nuget/packages/",
+        "outputPath": "/home/shachar/repositories/RediSharp/src/RediSharp.Core/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/shachar/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "StackExchange.Redis": {
+              "target": "Package",
+              "version": "[2.6.45, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/6.0.301/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/home/shachar/repositories/RediSharp/tests/RediSharp.Tests/RediSharp.Tests.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/shachar/repositories/RediSharp/tests/RediSharp.Tests/RediSharp.Tests.csproj",
+        "projectName": "RediSharp.Tests",
+        "projectPath": "/home/shachar/repositories/RediSharp/tests/RediSharp.Tests/RediSharp.Tests.csproj",
+        "packagesPath": "/home/shachar/.nuget/packages/",
+        "outputPath": "/home/shachar/repositories/RediSharp/tests/RediSharp.Tests/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/shachar/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "/home/shachar/repositories/RediSharp/src/RediSharp.Core/RediSharp.Core.csproj": {
+                "projectPath": "/home/shachar/repositories/RediSharp/src/RediSharp.Core/RediSharp.Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "MSTest.TestAdapter": {
+              "target": "Package",
+              "version": "[2.2.8, )"
+            },
+            "MSTest.TestFramework": {
+              "target": "Package",
+              "version": "[2.2.8, )"
+            },
+            "Microsoft.NET.Test.Sdk": {
+              "target": "Package",
+              "version": "[17.1.0, )"
+            },
+            "Moq": {
+              "target": "Package",
+              "version": "[4.18.1, )"
+            },
+            "StackExchange.Redis": {
+              "target": "Package",
+              "version": "[2.6.45, )"
+            },
+            "coverlet.collector": {
+              "target": "Package",
+              "version": "[3.1.2, )"
+            },
+            "xunit": {
+              "target": "Package",
+              "version": "[2.4.1, )"
+            },
+            "xunit.assert": {
+              "target": "Package",
+              "version": "[2.4.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/6.0.301/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

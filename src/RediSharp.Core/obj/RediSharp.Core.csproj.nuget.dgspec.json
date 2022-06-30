@@ -1,0 +1,66 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/shachar/repositories/RediSharp/src/RediSharp.Core/RediSharp.Core.csproj": {}
+  },
+  "projects": {
+    "/home/shachar/repositories/RediSharp/src/RediSharp.Core/RediSharp.Core.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/shachar/repositories/RediSharp/src/RediSharp.Core/RediSharp.Core.csproj",
+        "projectName": "RediSharp.Core",
+        "projectPath": "/home/shachar/repositories/RediSharp/src/RediSharp.Core/RediSharp.Core.csproj",
+        "packagesPath": "/home/shachar/.nuget/packages/",
+        "outputPath": "/home/shachar/repositories/RediSharp/src/RediSharp.Core/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/shachar/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "StackExchange.Redis": {
+              "target": "Package",
+              "version": "[2.6.45, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/6.0.301/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
