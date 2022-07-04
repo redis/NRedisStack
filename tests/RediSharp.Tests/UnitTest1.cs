@@ -27,6 +27,22 @@ public class UnitTest1
     {
         var obj = new Person { Name = "Shachar", Age = 23 };
         _mock.Object.JsonSet("Person:Shachar", "$", obj);
-        _mock.Verify(x => x.Execute("JSON.SET", "Person:Shachar", "$", "{\"Name\":\"Shachar\",\"Age\":23}" ));
+        _mock.Verify(x => x.Execute("JSON.SET", "Person:Shachar", "$", "{\"Name\":\"Shachar\",\"Age\":23}"));
+    }
+
+    [Fact]
+    public void TestJsonSetExist()
+    {
+        var obj = new Person { Name = "Shachar", Age = 23 };
+        _mock.Object.JsonSet("Person:Shachar", "$", obj, When.Exists);
+        _mock.Verify(x => x.Execute("JSON.SET", "Person:Shachar", "$", "{\"Name\":\"Shachar\",\"Age\":23}", "XX"));
+    }
+
+    [Fact]
+    public void TestJsonSetNotExist()
+    {
+        var obj = new Person { Name = "Shachar", Age = 23 };
+        _mock.Object.JsonSet("Person:Shachar", "$", obj, When.NotExists);
+        _mock.Verify(x => x.Execute("JSON.SET", "Person:Shachar", "$", "{\"Name\":\"Shachar\",\"Age\":23}", "NX"));
     }
 }

@@ -9,10 +9,17 @@ public static class RedisJsonCommands
     {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
-    public static RedisResult JsonSet(this IDatabase db, string key, string path, object obj)
+    public static RedisResult JsonSet(this IDatabase db, RedisKey key, string path, object obj, When when = When.Always)
     {
         var json = JsonSerializer.Serialize(obj);
-        var result = db.Execute("JSON.SET", key, path, json);
-        return result;
+        switch(when)
+        {
+            case When.Exists:
+                return db.Execute("JSON.SET", key, path, json, "XX");
+            case When.NotExists:
+                return db.Execute("JSON.SET", key, path, json, "NX");
+            default:
+                return db.Execute("JSON.SET", key, path, json);
+        }
     }
 }
