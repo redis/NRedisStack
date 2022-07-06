@@ -4,18 +4,26 @@ using System.Collections.Generic;
 using StackExchange.Redis;
 using System.Linq;
 using System.IO;
-using RediSharp.Core;
+using NRedisStack.Core;
 using Moq;
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 
-namespace RediSharp.Tests;
+namespace NRedisStack.Tests;
 
-public class UnitTest1
+public class JsonTests : AbstractNRedisStackTest, IDisposable
 {
     Mock<IDatabase> _mock = new Mock<IDatabase>();
+    private readonly string key = "JSON_TESTS";
+    public JsonTests(RedisFixture redisFixture) : base(redisFixture) { }
+
+    public void Dispose()
+    {
+        redisFixture.Redis.GetDatabase().KeyDelete(key);
+    }
+
     public class Person
     {
         public string Name { get; set; }
@@ -24,14 +32,6 @@ public class UnitTest1
 
     [Fact]
     public void TestJsonSet()
-    {
-        var obj = new Person { Name = "Shachar", Age = 23 };
-        _mock.Object.JsonSet("Person:Shachar", "$", obj);
-        _mock.Verify(x => x.Execute("JSON.SET", "Person:Shachar", "$", "{\"Name\":\"Shachar\",\"Age\":23}"));
-    }
-
-    [Fact]
-    public void TestJsonSetExist()
     {
         var obj = new Person { Name = "Shachar", Age = 23 };
         _mock.Object.JsonSet("Person:Shachar", "$", obj, When.Exists);
@@ -44,5 +44,16 @@ public class UnitTest1
         var obj = new Person { Name = "Shachar", Age = 23 };
         _mock.Object.JsonSet("Person:Shachar", "$", obj, When.NotExists);
         _mock.Verify(x => x.Execute("JSON.SET", "Person:Shachar", "$", "{\"Name\":\"Shachar\",\"Age\":23}", "NX"));
+    }
+
+    [Fact]
+    public void TestJsonGet()
+    {
+        var obj = new Person { Name = "Shachar", Age = 23 };
+        IDatabase db = redisFixture.Redis.GetDatabase();
+
+        db.JsonSet(key, "$", obj);
+        string expected = "{\"Name\":\"Shachar\",\"Age\":23}";
+        Assert.Equal(db.JsonGet(key).ToString(), expected);
     }
 }

@@ -8,8 +8,8 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
-  <ItemGroup>    
-    <PackageReference Include="Moq" Version="4.18.1" />    
+  <ItemGroup>
+    <PackageReference Include="Moq" Version="4.18.1" />
     <PackageReference Include="coverlet.collector" Version="3.1.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\RediSharp.Core\RediSharp.Core.csproj" />
+    <ProjectReference Include="..\..\src\NRedisStack.Core\NRedisStack.Core.csproj" />
   </ItemGroup>
 
 </Project>

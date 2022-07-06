@@ -1,7 +1,7 @@
 ﻿using StackExchange.Redis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-namespace RediSharp.Core;
+namespace NRedisStack.Core;
 
 public static class RedisJsonCommands
 {
@@ -11,7 +11,12 @@ public static class RedisJsonCommands
     };
     public static RedisResult JsonSet(this IDatabase db, RedisKey key, string path, object obj, When when = When.Always)
     {
-        var json = JsonSerializer.Serialize(obj);
+        string json = JsonSerializer.Serialize(obj);
+        return JsonSet(db, key, path, json, when);
+    }
+
+    public static RedisResult JsonSet(this IDatabase db, RedisKey key, string path, string json, When when = When.Always)
+    {
         switch(when)
         {
             case When.Exists:
@@ -21,5 +26,10 @@ public static class RedisJsonCommands
             default:
                 return db.Execute("JSON.SET", key, path, json);
         }
+    }
+
+    public static RedisResult JsonGet(this IDatabase db, RedisKey key)
+    {
+        return db.Execute("JSON.GET", key);
     }
 }

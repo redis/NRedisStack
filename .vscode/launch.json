@@ -9,9 +9,9 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/tests/RediSharp.Tests/bin/Debug/net6.0/RediSharp.Tests.dll",
+            "program": "${workspaceFolder}/tests/NRedisStack.Tests/bin/Debug/net6.0/NRedisStack.Tests.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/tests/RediSharp.Tests",
+            "cwd": "${workspaceFolder}/tests/NRedisStack.Tests",
             "console": "internalConsole",
             "stopAtEntry": false
         },
