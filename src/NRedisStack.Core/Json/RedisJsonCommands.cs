@@ -1,7 +1,7 @@
 ﻿using StackExchange.Redis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-namespace NRedisStack.Core;
+namespace NRedisStack.Core.Json;
 
 public static class RedisJsonCommands
 {
