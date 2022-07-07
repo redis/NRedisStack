@@ -5,6 +5,7 @@ using StackExchange.Redis;
 using System.Linq;
 using System.IO;
 using NRedisStack.Core;
+using NRedisStack.Core.Json;
 using Moq;
 
 using System.Text.Json;
