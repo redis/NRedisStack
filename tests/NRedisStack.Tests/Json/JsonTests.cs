@@ -25,12 +25,6 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         redisFixture.Redis.GetDatabase().KeyDelete(key);
     }
 
-    public class Person
-    {
-        public string Name { get; set; }
-        public int Age { get; set; }
-    }
-
     [Fact]
     public void TestJsonSet()
     {
@@ -48,7 +42,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void TestJsonGet()
+    public void TestSimpleJsonGet()
     {
         var obj = new Person { Name = "Shachar", Age = 23 };
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -56,5 +50,17 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         db.JsonSet(key, "$", obj);
         string expected = "{\"Name\":\"Shachar\",\"Age\":23}";
         Assert.Equal(db.JsonGet(key).ToString(), expected);
+    }
+
+    [Fact]
+    public void TestJsonGet()
+    {
+        var obj = new Person { Name = "Shachar", Age = 23 };
+        IDatabase db = redisFixture.Redis.GetDatabase();
+
+        db.JsonSet(key, "$", obj);
+
+        string expected = "[222111\"Shachar\"222]";
+        Assert.Equal(db.JsonGet(key, "111", "222", "333", "$.Name").ToString(), expected);
     }
 }

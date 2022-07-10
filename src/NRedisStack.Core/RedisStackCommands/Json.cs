@@ -1,9 +1,10 @@
 ﻿using StackExchange.Redis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+
 namespace NRedisStack.Core.Json;
 
-public static class RedisJsonCommands
+public static class JSON
 {
     private static readonly JsonSerializerOptions Options = new()
     {
@@ -17,7 +18,7 @@ public static class RedisJsonCommands
 
     public static RedisResult JsonSet(this IDatabase db, RedisKey key, string path, string json, When when = When.Always)
     {
-        switch(when)
+        switch (when)
         {
             case When.Exists:
                 return db.Execute("JSON.SET", key, path, json, "XX");
@@ -28,8 +29,33 @@ public static class RedisJsonCommands
         }
     }
 
-    public static RedisResult JsonGet(this IDatabase db, RedisKey key)
+    public static RedisResult JsonGet(this IDatabase db, RedisKey key, string indent = "",
+                                      string newLine = "", string space = "", string path = "")
     {
-        return db.Execute("JSON.GET", key);
+        List<object> subcommands = new List<object>();
+        subcommands.Add(key);
+        if (indent != "")
+        {
+            subcommands.Add("INDENT");
+            subcommands.Add(indent);
+        }
+
+        if (newLine != "")
+        {
+            subcommands.Add("NEWLINE");
+            subcommands.Add(newLine);
+        }
+
+        if (space != "")
+        {
+            subcommands.Add("SPACE");
+            subcommands.Add(space);
+        }
+
+        if (path != "")
+        {
+            subcommands.Add(path);
+        }
+        return db.Execute("JSON.GET", subcommands.ToArray());
     }
 }
