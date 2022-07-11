@@ -1,8 +1,13 @@
+using StackExchange.Redis;
 namespace NRedisStack.Core.RedisStackCommands
 {
-    public static class TS
+    public  class TimeSeriesCommands
     {
-        
+        IDatabase _db;
+        public TimeSeriesCommands(IDatabase db)
+        {
+            _db = db;
+        }
         //TODO: INFO, CREATE, ALTER
         /*public static string CREATE => "TS.CREATE";
         public static string ALTER => "TS.ALTER";

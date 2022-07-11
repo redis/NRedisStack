@@ -1,11 +1,16 @@
 using StackExchange.Redis;
-namespace NRedisStack.Core.Search
+namespace NRedisStack.Core.RedisStackCommands
 {
-    public static class FT
+    public class SearchCommands
     {
-        public static RedisResult FtInfo(this IDatabase db, string index)
+        IDatabase _db;
+        public SearchCommands(IDatabase db)
         {
-            return db.Execute("FT.INFO", index);
+            _db = db;
+        }
+        public RedisResult FtInfo(string index)
+        {
+            return _db.Execute("FT.INFO", index);
         }
     }
 }
