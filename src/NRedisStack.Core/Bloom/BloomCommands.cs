@@ -1,15 +1,23 @@
 using StackExchange.Redis;
-namespace NRedisStack.Core.RedisStackCommands
+namespace NRedisStack.Core
 {
-    public static class RedisBloomCommands
+
+    public class BloomCommands
     {
-        public static RedisResult BfAdd(this IDatabase db, RedisKey key, string item)
+        IDatabase _db;
+        public BloomCommands(IDatabase db)
         {
-            return db.Execute("BF.ADD", key, item);
+            _db = db;
         }
-        public static RedisResult BfExists(this IDatabase db, RedisKey key, string item)
+
+
+        public RedisResult Add(RedisKey key, string item)
         {
-            return db.Execute("BF.EXISTS", key, item);
+            return _db.Execute("BF.ADD", key, item);
+        }
+        public RedisResult Exists(RedisKey key, string item)
+        {
+            return _db.Execute("BF.EXISTS", key, item);
         }
         /*public static string ADD => "BF.ADD";
         public static string EXISTS => "BF.EXISTS";
@@ -21,4 +29,6 @@ namespace NRedisStack.Core.RedisStackCommands
         public static string RESERVE => "BF.RESERVE";
         public static string SCANDUMP => "BF.SCANDUMP";*/
     }
+
+
 }

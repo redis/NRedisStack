@@ -1,15 +1,7 @@
 using Xunit;
-using System;
-using System.Collections.Generic;
 using StackExchange.Redis;
-using System.Linq;
-using System.IO;
-using NRedisStack.Core;
 using NRedisStack.Core.RedisStackCommands;
 using Moq;
-
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 
 namespace NRedisStack.Tests.Bloom;
@@ -30,8 +22,8 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
 
-        Assert.True(db.BfAdd(key, "item1").ToString() == "1"); // first time
-        Assert.True(db.BfAdd(key, "item1").ToString() == "0"); // second time
+        Assert.True((db.BF().Add(key, "item1")).ToString() == "1"); // first time
+        Assert.True(db.BF().Add(key, "item1").ToString() == "0"); // second time
     }
 
     [Fact]
@@ -39,7 +31,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
 
-        db.BfAdd(key, "item1");
-        Assert.True(db.BfExists(key, "item1").ToString() == "1");
+        db.BF().Add(key, "item1");
+        Assert.True(db.BF().Exists(key, "item1").ToString() == "1");
     }
 }

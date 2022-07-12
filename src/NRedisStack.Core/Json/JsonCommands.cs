@@ -2,34 +2,39 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace NRedisStack.Core.Json;
+namespace NRedisStack.Core;
 
-public static class JSON
+public class JsonCommands
 {
-    private static readonly JsonSerializerOptions Options = new()
+    IDatabase _db;
+    public JsonCommands(IDatabase db)
+    {
+        _db = db;
+    }
+    private readonly JsonSerializerOptions Options = new()
     {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
-    public static RedisResult JsonSet(this IDatabase db, RedisKey key, string path, object obj, When when = When.Always)
+    public RedisResult Set(RedisKey key, string path, object obj, When when = When.Always)
     {
         string json = JsonSerializer.Serialize(obj);
-        return JsonSet(db, key, path, json, when);
+        return Set(key, path, json, when);
     }
 
-    public static RedisResult JsonSet(this IDatabase db, RedisKey key, string path, string json, When when = When.Always)
+    public RedisResult Set(RedisKey key, string path, string json, When when = When.Always)
     {
         switch (when)
         {
             case When.Exists:
-                return db.Execute("JSON.SET", key, path, json, "XX");
+                return _db.Execute("JSON.SET", key, path, json, "XX");
             case When.NotExists:
-                return db.Execute("JSON.SET", key, path, json, "NX");
+                return _db.Execute("JSON.SET", key, path, json, "NX");
             default:
-                return db.Execute("JSON.SET", key, path, json);
+                return _db.Execute("JSON.SET", key, path, json);
         }
     }
 
-    public static RedisResult JsonGet(this IDatabase db, RedisKey key, string indent = "",
+    public RedisResult Get(RedisKey key, string indent = "",
                                       string newLine = "", string space = "", string path = "")
     {
         List<object> subcommands = new List<object>();
@@ -56,6 +61,6 @@ public static class JSON
         {
             subcommands.Add(path);
         }
-        return db.Execute("JSON.GET", subcommands.ToArray());
+        return _db.Execute("JSON.GET", subcommands.ToArray());
     }
 }
