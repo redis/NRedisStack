@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace NRedisStack.Core.RedisStackCommands;
+namespace NRedisStack.Core;
 
 public class JsonCommands
 {

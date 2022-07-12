@@ -1,4 +1,4 @@
-namespace NRedisStack.Core.TimeSeries.Commands
+namespace NRedisStack.Core.Commands
 {
     internal class CommandArgs
     {
@@ -19,5 +19,6 @@ namespace NRedisStack.Core.TimeSeries.Commands
         public static string REDUCE => "REDUCE";
         public static string FILTER_BY_TS => "FILTER_BY_TS";
         public static string FILTER_BY_VALUE => "FILTER_BY_VALUE";
+
     }
 }

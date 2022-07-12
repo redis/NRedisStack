@@ -1,5 +1,5 @@
 using StackExchange.Redis;
-namespace NRedisStack.Core.RedisStackCommands
+namespace NRedisStack.Core
 {
     public class SearchCommands
     {
