@@ -1,7 +1,7 @@
 using System;
 using System.Text.Json;
 using System.Collections.Generic;
-using NRedisStack.Core.Commands.Enums;
+using NRedisStack.Core.Literals.Enums;
 
 
 namespace NRedisStack.Core.DataTypes

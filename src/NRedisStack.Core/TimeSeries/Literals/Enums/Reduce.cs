@@ -1,4 +1,4 @@
-namespace NRedisStack.Core.Commands.Enums
+namespace NRedisStack.Core.Literals.Enums
 {
     /// <summary>
     /// TODO: Add description

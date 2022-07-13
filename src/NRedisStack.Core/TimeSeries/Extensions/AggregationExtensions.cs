@@ -1,5 +1,5 @@
 ﻿using System;
-using NRedisStack.Core.Commands.Enums;
+using NRedisStack.Core.Literals.Enums;
 
 namespace NRedisStack.Core.Extensions
 {

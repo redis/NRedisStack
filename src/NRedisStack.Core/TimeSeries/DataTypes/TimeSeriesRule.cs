@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using NRedisStack.Core.Commands.Enums;
+using NRedisStack.Core.Literals.Enums;
 using NRedisStack.Core.Extensions;
 
 namespace NRedisStack.Core.DataTypes

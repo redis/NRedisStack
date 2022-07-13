@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using NRedisStack.Core.Commands;
-using NRedisStack.Core.Commands.Enums;
+using NRedisStack.Core.Literals;
+using NRedisStack.Core.Literals.Enums;
 using NRedisStack.Core.DataTypes;
 using NRedisStack.Core.Extensions;
 

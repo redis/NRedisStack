@@ -1,4 +1,4 @@
-﻿namespace NRedisStack.Core.Commands
+﻿namespace NRedisStack.Core.Literals
 {
     internal class TS
     {

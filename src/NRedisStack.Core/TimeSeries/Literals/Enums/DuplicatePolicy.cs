@@ -1,4 +1,4 @@
-namespace NRedisStack.Core.Commands.Enums
+namespace NRedisStack.Core.Literals.Enums
 {
     /// <summary>
     /// Policy to handle duplicate samples.
