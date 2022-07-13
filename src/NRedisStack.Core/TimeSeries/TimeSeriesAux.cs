@@ -13,7 +13,7 @@ namespace NRedisStack.Core
         {
             if (retentionTime.HasValue)
             {
-                args.Add(CommandArgs.RETENTION);
+                args.Add(TimeSeriesArgs.RETENTION);
                 args.Add(retentionTime);
             }
         }
@@ -22,7 +22,7 @@ namespace NRedisStack.Core
         {
             if (chunkSize.HasValue)
             {
-                args.Add(CommandArgs.CHUNK_SIZE);
+                args.Add(TimeSeriesArgs.CHUNK_SIZE);
                 args.Add(chunkSize);
             }
         }
@@ -31,7 +31,7 @@ namespace NRedisStack.Core
         {
             if (labels != null)
             {
-                args.Add(CommandArgs.LABELS);
+                args.Add(TimeSeriesArgs.LABELS);
                 foreach (var label in labels)
                 {
                     args.Add(label.Key);
@@ -44,7 +44,7 @@ namespace NRedisStack.Core
         {
             if (uncompressed.HasValue)
             {
-                args.Add(CommandArgs.UNCOMPRESSED);
+                args.Add(TimeSeriesArgs.UNCOMPRESSED);
             }
         }
 
@@ -52,7 +52,7 @@ namespace NRedisStack.Core
         {
             if (count.HasValue)
             {
-                args.Add(CommandArgs.COUNT);
+                args.Add(TimeSeriesArgs.COUNT);
                 args.Add(count.Value);
             }
         }
@@ -61,7 +61,7 @@ namespace NRedisStack.Core
         {
             if (policy.HasValue)
             {
-                args.Add(CommandArgs.DUPLICATE_POLICY);
+                args.Add(TimeSeriesArgs.DUPLICATE_POLICY);
                 args.Add(policy.Value.AsArg());
             }
         }
@@ -71,7 +71,7 @@ namespace NRedisStack.Core
         {
             if (policy.HasValue)
             {
-                args.Add(CommandArgs.ON_DUPLICATE);
+                args.Add(TimeSeriesArgs.ON_DUPLICATE);
                 args.Add(policy.Value.AsArg());
             }
         }
@@ -80,7 +80,7 @@ namespace NRedisStack.Core
         {
             if(align != null)
             {
-                args.Add(CommandArgs.ALIGN);
+                args.Add(TimeSeriesArgs.ALIGN);
                 args.Add(align.Value);
             }
         }
@@ -89,7 +89,7 @@ namespace NRedisStack.Core
         {
             if(aggregation != null)
             {
-                args.Add(CommandArgs.AGGREGATION);
+                args.Add(TimeSeriesArgs.AGGREGATION);
                 args.Add(aggregation.Value.AsArg());
                 if (!timeBucket.HasValue)
                 {
@@ -105,7 +105,7 @@ namespace NRedisStack.Core
             {
                 throw new ArgumentException("There should be at least one filter on MRANGE/MREVRANGE");
             }
-            args.Add(CommandArgs.FILTER);
+            args.Add(TimeSeriesArgs.FILTER);
             foreach(string f in filter)
             {
                 args.Add(f);
@@ -116,7 +116,7 @@ namespace NRedisStack.Core
         {
             if (filter != null)
             {
-                args.Add(CommandArgs.FILTER_BY_TS);
+                args.Add(TimeSeriesArgs.FILTER_BY_TS);
                 foreach (var ts in filter)
                 {
                     args.Add(ts.Value);
@@ -128,7 +128,7 @@ namespace NRedisStack.Core
         {
             if (filter != null)
             {
-                args.Add(CommandArgs.FILTER_BY_VALUE);
+                args.Add(TimeSeriesArgs.FILTER_BY_VALUE);
                 args.Add(filter.Value.Item1);
                 args.Add(filter.Value.Item2);
             }
@@ -142,11 +142,11 @@ namespace NRedisStack.Core
 
             if(withLabels.HasValue && withLabels.Value)
             {
-                args.Add(CommandArgs.WITHLABELS);
+                args.Add(TimeSeriesArgs.WITHLABELS);
             }
 
             if(selectLabels != null){
-                args.Add(CommandArgs.SELECTEDLABELS);
+                args.Add(TimeSeriesArgs.SELECTEDLABELS);
                 foreach(string label in selectLabels){
                     args.Add(label);
                 }
@@ -157,9 +157,9 @@ namespace NRedisStack.Core
         {
             if (groupbyTuple.HasValue)
             {
-                args.Add(CommandArgs.GROPUBY);
+                args.Add(TimeSeriesArgs.GROPUBY);
                 args.Add(groupbyTuple.Value.groupby);
-                args.Add(CommandArgs.REDUCE);
+                args.Add(TimeSeriesArgs.REDUCE);
                 args.Add(groupbyTuple.Value.reduce.AsArg());
             }
         }
@@ -168,7 +168,7 @@ namespace NRedisStack.Core
         {
             if(timeStamp != null)
             {
-                args.Add(CommandArgs.TIMESTAMP);
+                args.Add(TimeSeriesArgs.TIMESTAMP);
                 args.Add(timeStamp.Value);
             }
         }
@@ -176,7 +176,7 @@ namespace NRedisStack.Core
         public static void AddRule(this IList<object> args, TimeSeriesRule rule)
         {
             args.Add(rule.DestKey);
-            args.Add(CommandArgs.AGGREGATION);
+            args.Add(TimeSeriesArgs.AGGREGATION);
             args.Add(rule.Aggregation.AsArg());
             args.Add(rule.TimeBucket);
         }

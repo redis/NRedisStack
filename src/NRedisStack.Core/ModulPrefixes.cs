@@ -4,6 +4,7 @@ namespace NRedisStack.Core.RedisStackCommands
 {
     public static class ModulPrefixes
     {
+        // Every call, new instance is being created. need to be fix
         static public BloomCommands BF(this IDatabase db)
         {
             return new BloomCommands(db);

@@ -1,6 +1,6 @@
 namespace NRedisStack.Core.Literals
 {
-    internal class CommandArgs
+    internal class TimeSeriesArgs
     {
         public static string RETENTION => "RETENTION";
         public static string LABELS => "LABELS";

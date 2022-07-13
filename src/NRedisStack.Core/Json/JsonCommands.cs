@@ -1,4 +1,5 @@
-﻿using StackExchange.Redis;
+﻿using NRedisStack.Core.Literals;
+using StackExchange.Redis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -26,11 +27,11 @@ public class JsonCommands
         switch (when)
         {
             case When.Exists:
-                return _db.Execute("JSON.SET", key, path, json, "XX");
+                return _db.Execute(JSON.SET, key, path, json, "XX");
             case When.NotExists:
-                return _db.Execute("JSON.SET", key, path, json, "NX");
+                return _db.Execute(JSON.SET, key, path, json, "NX");
             default:
-                return _db.Execute("JSON.SET", key, path, json);
+                return _db.Execute(JSON.SET, key, path, json);
         }
     }
 
@@ -41,19 +42,19 @@ public class JsonCommands
         subcommands.Add(key);
         if (indent != "")
         {
-            subcommands.Add("INDENT");
+            subcommands.Add(JsonArgs.INDENT);
             subcommands.Add(indent);
         }
 
         if (newLine != "")
         {
-            subcommands.Add("NEWLINE");
+            subcommands.Add(JsonArgs.NEWLINE);
             subcommands.Add(newLine);
         }
 
         if (space != "")
         {
-            subcommands.Add("SPACE");
+            subcommands.Add(JsonArgs.SPACE);
             subcommands.Add(space);
         }
 
@@ -61,6 +62,6 @@ public class JsonCommands
         {
             subcommands.Add(path);
         }
-        return _db.Execute("JSON.GET", subcommands.ToArray());
+        return _db.Execute(JSON.GET, subcommands.ToArray());
     }
 }
