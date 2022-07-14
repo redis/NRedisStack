@@ -4,24 +4,60 @@ namespace NRedisStack.Core.RedisStackCommands
 {
     public static class ModulPrefixes
     {
+        static bool bloomCreated = false;
+        static BloomCommands bloomCommands;
+
+        static bool searchCreated = false;
+        static SearchCommands searchCommands;
+
+        static bool jsonCreated = false;
+        static JsonCommands jsonCommands;
+
+        static bool timeSeriesCreated = false;
+        static TimeSeriesCommands timeSeriesCommands;
+
         static public BloomCommands BF(this IDatabase db)
         {
-            return new BloomCommands(db);
+            if (!bloomCreated)
+            {
+                bloomCommands = new BloomCommands(db);
+                bloomCreated = true;
+            }
+
+            return bloomCommands;
         }
 
         static public SearchCommands FT(this IDatabase db)
         {
-            return new SearchCommands(db);
+            if (!searchCreated)
+            {
+                searchCommands = new SearchCommands(db);
+                searchCreated = true;
+            }
+
+            return searchCommands;
         }
 
         static public JsonCommands JSON(this IDatabase db)
         {
-            return new JsonCommands(db);
+            if (!jsonCreated)
+            {
+                jsonCommands = new JsonCommands(db);
+                jsonCreated = true;
+            }
+
+            return jsonCommands;
         }
 
         static public TimeSeriesCommands TS(this IDatabase db)
         {
-            return new TimeSeriesCommands(db);
+            if (!jsonCreated)
+            {
+                timeSeriesCommands = new TimeSeriesCommands(db);
+                timeSeriesCreated = true;
+            }
+
+            return timeSeriesCommands;
         }
     }
 }

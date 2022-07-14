@@ -1,3 +1,4 @@
+using NRedisStack.Core.Literals;
 using StackExchange.Redis;
 namespace NRedisStack.Core
 {
@@ -8,9 +9,9 @@ namespace NRedisStack.Core
         {
             _db = db;
         }
-        public RedisResult FtInfo(string index)
+        public RedisResult Info(string index)
         {
-            return _db.Execute("FT.INFO", index);
+            return _db.Execute(FT.INFO, index);
         }
     }
 }

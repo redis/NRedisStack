@@ -1,3 +1,4 @@
+using NRedisStack.Core.Literals;
 using StackExchange.Redis;
 namespace NRedisStack.Core
 {
@@ -10,25 +11,35 @@ namespace NRedisStack.Core
             _db = db;
         }
 
-
         public RedisResult Add(RedisKey key, string item)
         {
-            return _db.Execute("BF.ADD", key, item);
+            return _db.Execute(BF.ADD, key, item);
         }
+
         public RedisResult Exists(RedisKey key, string item)
         {
-            return _db.Execute("BF.EXISTS", key, item);
+            return _db.Execute(BF.EXISTS, key, item);
         }
-        /*public static string ADD => "BF.ADD";
-        public static string EXISTS => "BF.EXISTS";
-        public static string INFO => "BF.INFO";
-        public static string INSERT => "BF.INSERT";
-        public static string LOADCHUNK => "BF.LOADCHUNK";
-        public static string MADD => "BF.MADD";
-        public static string MEXISTS => "BF.MEXISTS";
-        public static string RESERVE => "BF.RESERVE";
-        public static string SCANDUMP => "BF.SCANDUMP";*/
+
+        public RedisResult Info(RedisKey key)
+        {
+            return _db.Execute(BF.INFO, key);
+        }
+
+        public RedisResult Insert(RedisKey key)
+        {
+            return _db.Execute(BF.INFO, key);
+        }
+
+        public RedisResult ScanDump(RedisKey key, int iterator)
+        {
+            return _db.Execute(BF.SCANDUMP, key, iterator);
+        }
+
+        public RedisResult LoadChunk(RedisKey key, int iterator, string data)
+        {
+            return _db.Execute(BF.INFO, key, iterator, data);
+        }
+
     }
-
-
 }
