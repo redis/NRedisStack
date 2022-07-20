@@ -32,6 +32,19 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = redisFixture.Redis.GetDatabase();
 
         db.BF().Add(key, "item1");
-        Assert.True(db.BF().Exists(key, "item1").ToString() == "1");
+        Assert.True(db.BF().Exists(key, "item1"));
+    }
+
+    [Fact]
+    public void TestBfInsert()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        RedisValue[] items = new RedisValue[] { "item1" , "item2", "item3"};
+
+        db.BF().Insert("key", items);
+
+        Assert.True(db.BF().Exists("key", "item1"));
+        Assert.True(db.BF().Exists("key", "item2"));
+        Assert.True(db.BF().Exists("key", "item3"));
     }
 }

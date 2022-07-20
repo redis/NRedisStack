@@ -16,13 +16,13 @@ public class JsonCommands
     {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
-    public RedisResult Set(RedisKey key, string path, object obj, When when = When.Always)
+    public RedisResult Set(RedisKey key, RedisValue path, object obj, When when = When.Always)
     {
         string json = JsonSerializer.Serialize(obj);
         return Set(key, path, json, when);
     }
 
-    public RedisResult Set(RedisKey key, string path, string json, When when = When.Always)
+    public RedisResult Set(RedisKey key, RedisValue path, RedisValue json, When when = When.Always)
     {
         switch (when)
         {
@@ -35,33 +35,34 @@ public class JsonCommands
         }
     }
 
-    public RedisResult Get(RedisKey key, string indent = "",
-                                      string newLine = "", string space = "", string path = "")
+    public RedisResult Get(RedisKey key, RedisValue? indent = null,
+                                      RedisValue? newLine = null, RedisValue? space = null, RedisValue? path = null)
     {
-        List<object> subcommands = new List<object>();
-        subcommands.Add(key);
-        if (indent != "")
+        List<object> args = new List<object>();
+        args.Add(key);
+        if (indent != null)
         {
-            subcommands.Add(JsonArgs.INDENT);
-            subcommands.Add(indent);
+            args.Add(JsonArgs.INDENT);
+            args.Add(indent);
         }
 
-        if (newLine != "")
+        if (newLine != null)
         {
-            subcommands.Add(JsonArgs.NEWLINE);
-            subcommands.Add(newLine);
+            args.Add(JsonArgs.NEWLINE);
+            args.Add(newLine);
         }
 
-        if (space != "")
+        if (space != null)
         {
-            subcommands.Add(JsonArgs.SPACE);
-            subcommands.Add(space);
+            args.Add(JsonArgs.SPACE);
+            args.Add(space);
         }
 
-        if (path != "")
+        if (path != null)
         {
-            subcommands.Add(path);
+            args.Add(path);
         }
-        return _db.Execute(JSON.GET, subcommands.ToArray());
+
+        return _db.Execute(JSON.GET, args);
     }
 }

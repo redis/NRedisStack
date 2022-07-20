@@ -9,7 +9,7 @@ namespace NRedisStack.Core
         {
             _db = db;
         }
-        public RedisResult Info(string index)
+        public RedisResult Info(RedisValue index)
         {
             return _db.Execute(FT.INFO, index);
         }
