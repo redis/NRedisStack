@@ -8,6 +8,5 @@ namespace NRedisStack.Core.Literals
         public static string NOCREATE => "NOCREATE";
         public static string NONSCALING => "NONSCALING";
         public static string ITEMS => "ITEMS";
-
     }
 }
