@@ -10,7 +10,7 @@ on:
     - cron: "0 1 * * *"
 
 env:
-  redis_stack_server: 6.2.2-v5
+  redis_stack_version: 6.2.2-v5
 
 jobs:
 
