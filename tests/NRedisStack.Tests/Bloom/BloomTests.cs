@@ -18,7 +18,19 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void TestBfAddWhenExist()
+    public void TestReserveBasic()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+
+        db.BF().Reserve(key, 0.001, 100L);
+
+        Assert.True((db.BF().Add(key, "item1")));
+        Assert.True(db.BF().Exists(key, "item1"));
+        Assert.False(db.BF().Exists(key, "item2"));
+    }
+
+    [Fact]
+    public void TestAddWhenExist()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
 
@@ -27,7 +39,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void TestBfAddExists()
+    public void TestAddExists()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
 
@@ -36,15 +48,47 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void TestBfInsert()
+    public void TestAddExistsMulti()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        RedisValue[] items = new RedisValue[] { "item1" , "item2", "item3"};
+        var items = new RedisValue[]{"foo", "bar", "baz"};
+        var items2 = new RedisValue[]{"newElement", "bar", "baz"};
+
+        var result = db.BF().MAdd(key, items);
+        Assert.Equal(new bool[] {true, true, true}, result);
+
+        result = db.BF().MAdd(key, items);
+        Assert.Equal(new bool[] {true, false, false}, result);
+    }
+
+    [Fact]
+    public void TestInsert()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
 
         db.BF().Insert("key", items);
 
         Assert.True(db.BF().Exists("key", "item1"));
         Assert.True(db.BF().Exists("key", "item2"));
         Assert.True(db.BF().Exists("key", "item3"));
+    }
+
+    [Fact]
+    public void TestExistsNonExist()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+
+        RedisValue item = new RedisValue("item");
+        Assert.False(db.BF().Exists("NonExistKey", item));
+    }
+
+    [Fact]
+    public void TestInfo() //TODO: finish this Test
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.BF().Add(key, "item");
+        var info = db.BF().Info(key);
+        Assert.True(true);
     }
 }

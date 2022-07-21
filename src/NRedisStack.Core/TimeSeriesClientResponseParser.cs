@@ -9,9 +9,29 @@ namespace NRedisStack.Core
 {
     public static class ResponseParser
     {
-        public static bool ParseBoolean(RedisResult result)
+
+        //TODO: Change to more relevant names, somthing like: Parse.ToBool(RedisResult)
+        //TODO: See if I can change the code to remove the warnings
+        public static bool ParseOKtoBoolean(RedisResult result)
         {
             return (string)result == "OK";
+        }
+
+        public static bool[] ParseBooleanArray(RedisResult result)
+        {
+            RedisResult[] redisResults = (RedisResult[])result;
+            bool[] boolArr = new bool[redisResults.Length];
+            for(int i = 0 ; i < redisResults.Length ; i++)
+            {
+                boolArr[i] = redisResults[i].ToString() == "1";
+            }
+
+            return boolArr;
+        }
+
+        public static RedisResult[] ParseArray(RedisResult result)
+        {
+            return (RedisResult[])result;
         }
 
         public static long ParseLong(RedisResult result)

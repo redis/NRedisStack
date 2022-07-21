@@ -17,7 +17,7 @@ namespace NRedisStack.Core
         public bool Create(string key, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel> labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
         {
             var args = TimeSeriesAux.BuildTsCreateArgs(key, retentionTime, labels, uncompressed, chunkSizeBytes, duplicatePolicy);
-            return ResponseParser.ParseBoolean(_db.Execute(TS.CREATE, args));
+            return ResponseParser.ParseOKtoBoolean(_db.Execute(TS.CREATE, args));
         }
 
         public TimeSeriesInformation Info(string key)
@@ -28,7 +28,7 @@ namespace NRedisStack.Core
         public bool TimeSeriesAlter(string key, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel> labels = null)
         {
             var args = TimeSeriesAux.BuildTsAlterArgs(key, retentionTime, labels);
-            return ResponseParser.ParseBoolean(_db.Execute(TS.ALTER, args));
+            return ResponseParser.ParseOKtoBoolean(_db.Execute(TS.ALTER, args));
         }
 
     }
