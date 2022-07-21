@@ -34,8 +34,8 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
 
-        Assert.True((db.BF().Add(key, "item1")).ToString() == "1"); // first time
-        Assert.True(db.BF().Add(key, "item1").ToString() == "0"); // second time
+        Assert.True((db.BF().Add(key, "item1"))); // first time
+        Assert.False(db.BF().Add(key, "item1")); // second time
     }
 
     [Fact]
@@ -57,7 +57,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         var result = db.BF().MAdd(key, items);
         Assert.Equal(new bool[] {true, true, true}, result);
 
-        result = db.BF().MAdd(key, items);
+        result = db.BF().MAdd(key, items2);
         Assert.Equal(new bool[] {true, false, false}, result);
     }
 

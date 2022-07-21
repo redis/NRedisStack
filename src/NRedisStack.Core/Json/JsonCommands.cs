@@ -35,11 +35,15 @@ public class JsonCommands
         }
     }
 
-    public RedisResult Get(RedisKey key, RedisValue? indent = null,
-                                      RedisValue? newLine = null, RedisValue? space = null, RedisValue? path = null)
+    public RedisResult Get(RedisKey key,
+                           RedisValue? indent = null,
+                           RedisValue? newLine = null,
+                           RedisValue? space = null,
+                           RedisValue? path = null)
     {
-        List<object> args = new List<object>();
-        args.Add(key);
+
+        List<object> args = new List<object>(){key};
+
         if (indent != null)
         {
             args.Add(JsonArgs.INDENT);
