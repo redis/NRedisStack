@@ -12,23 +12,60 @@ namespace NRedisStack.Core
             _db = db;
         }
 
+        /// <summary>
+        /// Adds an item to a Bloom Filter.
+        /// </summary>
+        /// <param name="key">The key under which the filter is found.</param>
+        /// <param name="item">The item to add.</param>
+        /// <returns><see langword="true"/> if the item did not exist in the filter, <see langword="false"/> otherwise.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/bf.add"/></remarks>
         public bool Add(RedisKey key, RedisValue item)
         {
             return _db.Execute(BF.ADD, key, item).ToString() == "1";
         }
 
+        /// <summary>
+        /// Checks whether an item exist in the Bloom Filter or not.
+        /// </summary>
+        /// <param name="key">The name of the filter.</param>
+        /// <param name="item">The item to check for.</param>
+        /// <returns><see langword="true"/> means the item may exist in the filter,
+        /// and <see langword="false"/> means the item may exist in the filter.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/bf.exists"/></remarks>
         public bool Exists(RedisKey key, RedisValue item)
         {
             return _db.Execute(BF.EXISTS, key, item).ToString() == "1";
         }
 
+        /// <summary>
+        /// Return information about a bloom filter.
+        /// </summary>
+        /// <param name="key">Name of the key to return information about.</param>
+        /// <returns>Array with information of the filter.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/bf.info"/></remarks>
         public RedisResult[]? Info(RedisKey key)
         {
             var info = _db.Execute(BF.INFO, key);
             return ResponseParser.ParseArray(info);
         }
 
-        public RedisResult Insert(RedisKey key, RedisValue[] items, int? capacity = null,
+        /// <summary>
+        /// Adds one or more items to a Bloom Filter. A filter will be created if it does not exist.
+        /// </summary>
+        /// <param name="key">The name of the filter.</param>
+        /// <param name="items">One or more items to add.</param>
+        /// <param name="capacity">(Optional) Specifies the desired capacity for the filter to be created.</param>
+        /// <param name="error">(Optional) Specifies the error ratio of the newly created filter if it does not yet exist.</param>
+        /// <param name="expansion">(Optional) When capacity is reached, an additional sub-filter is
+        /// created in size of the last sub-filter multiplied by expansion.</param>
+        /// <param name="nocreate">(Optional) <see langword="true"/> to indicates that the
+        /// filter should not be created if it does not already exist.</param>
+        /// <param name="nonscaling">(Optional) <see langword="true"/> toprevent the filter
+        /// from creating additional sub-filters if initial capacity is reached.</param>
+        /// <returns>An array of booleans. Each element is either true or false depending on whether the
+        /// corresponding input element was newly added to the filter or may have previously existed.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/bf.insert"/></remarks>
+        public bool[] Insert(RedisKey key, RedisValue[] items, int? capacity = null,
                                   double? error = null, int? expansion = null,
                                   bool nocreate = false, bool nonscaling = false)
         {
@@ -72,14 +109,30 @@ namespace NRedisStack.Core
                 args.Add(item);
             }
 
-            return _db.Execute(BF.INSERT, args);
+            return ResponseParser.ParseBooleanArray(_db.Execute(BF.INSERT, args));
         }
 
+        /// <summary>
+        /// Restores a filter previosly saved using SCANDUMP.
+        /// </summary>
+        /// <param name="key">Name of the key to restore.</param>
+        /// <param name="iterator">Iterator value associated with data (returned by SCANDUMP).</param>
+        /// <param name="data">Current data chunk (returned by SCANDUMP).</param>
+        /// <returns>Array with information of the filter.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/bf.loadchunk"/></remarks>
         public RedisResult LoadChunk(RedisKey key, int iterator, RedisValue data)
         {
             return _db.Execute(BF.LOADCHUNK, key, iterator, data);
         }
 
+        /// <summary>
+        /// Adds one or more items to the Bloom Filter. A filter will be created if it does not exist yet.
+        /// </summary>
+        /// <param name="key">The name of the filter.</param>
+        /// <param name="items">One or more items to add.</param>
+        /// <returns>An array of booleans. Each element is either true or false depending on whether the
+        /// corresponding input element was newly added to the filter or may have previously existed.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/bf.madd"/></remarks>
         public bool[] MAdd(RedisKey key, RedisValue[] items)
         {
             if (items == null)
@@ -93,10 +146,17 @@ namespace NRedisStack.Core
             }
 
             return ResponseParser.ParseBooleanArray(_db.Execute(BF.MADD, args));
-
         }
 
-        public RedisResult MExists(RedisKey key, RedisValue[] items, int? expansion = null)
+        /// <summary>
+        /// Checks whether one or more items may exist in the filter or not.
+        /// </summary>
+        /// <param name="key">The name of the filter.</param>
+        /// <param name="items">One or more items to check.</param>
+        /// <returns>An array of booleans, for each item <see langword="true"/> means the item may exist in the filter,
+        /// and <see langword="false"/> means the item may exist in the filter.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/bf.mexists"/></remarks>
+        public bool[] MExists(RedisKey key, RedisValue[] items)
         {
             if (items == null)
                 throw new ArgumentNullException(nameof(items));
@@ -108,11 +168,23 @@ namespace NRedisStack.Core
                 args.Add(item);
             }
 
-            return _db.Execute(BF.MEXISTS, args);
+            return ResponseParser.ParseBooleanArray(_db.Execute(BF.MEXISTS, args));
 
         }
 
-        public RedisResult Reserve(RedisKey key, double errorRate, long capacity,
+        /// <summary>
+        /// Creates a new Bloom Filter.
+        /// </summary>
+        /// <param name="key">The key under which the filter is found.</param>
+        /// <param name="errorRate">The desired probability for false positives (value between 0 to 1).</param>
+        /// <param name="capacity">The number of entries intended to be added to the filter.</param>
+        /// <param name="expansion">(Optional) When capacity is reached, an additional sub-filter is
+        /// created in size of the last sub-filter multiplied by expansion.</param>
+        /// <param name="nonscaling">(Optional) <see langword="true"/> toprevent the filter
+        /// from creating additional sub-filters if initial capacity is reached.</param>
+        /// <returns><see langword="true"/> if the filter did not exist, <see langword="false"/> otherwise.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/bf.reserve"/></remarks>
+        public bool Reserve(RedisKey key, double errorRate, long capacity,
                                    int? expansion = null, bool nonscaling = false)
         {
             List<object> args = new List<object> { key, errorRate, capacity };
@@ -127,9 +199,17 @@ namespace NRedisStack.Core
                 args.Add(BloomArgs.NONSCALING);
             }
 
-            return _db.Execute(BF.RESERVE, args);
+            return ResponseParser.ParseOKtoBoolean(_db.Execute(BF.RESERVE, args));
         }
 
+        // TODO: check what SCANDUMP and LOADCHUNK & RESERVE returns
+        /// <summary>
+        /// Restores a filter previosly saved using SCANDUMP.
+        /// </summary>
+        /// <param name="key">Name of the filter.</param>
+        /// <param name="iterator">Iterator value; either 0 or the iterator from a previous invocation of this command.</param>
+        /// <returns>.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/bf.scandump"/></remarks>
         public RedisResult ScanDump(RedisKey key, int iterator)
         {
             return _db.Execute(BF.SCANDUMP, key, iterator);

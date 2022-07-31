@@ -3,7 +3,6 @@ using StackExchange.Redis;
 using NRedisStack.Core.RedisStackCommands;
 using Moq;
 
-
 namespace NRedisStack.Tests.Bloom;
 
 public class BloomTests : AbstractNRedisStackTest, IDisposable
