@@ -83,11 +83,14 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void TestInfo() //TODO: finish this Test
+    public void TestInfo() //TODO: think again about the returned value of BF.INFO
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.BF().Add(key, "item");
         var info = db.BF().Info(key);
-        Assert.True(true);
+        var dictionary = info.ToDictionary();
+        Assert.Equal(dictionary["Number of items inserted"].ToString(), "1");
+
+        // TODO: Check fail when doing db.BF().Info("notExistKey");
     }
 }

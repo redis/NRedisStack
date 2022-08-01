@@ -55,11 +55,31 @@ namespace NRedisStack.Core
             return list;
         }
 
-        public static TimeSeriesTuple ToTimeSeriesTuple(RedisResult result)
+        public static TimeSeriesTuple? ToTimeSeriesTuple(RedisResult result)
         {
-            RedisResult[] redisResults = (RedisResult[])result;
+            RedisResult[]? redisResults = (RedisResult[]?)result;
             if (redisResults.Length == 0) return null;
             return new TimeSeriesTuple(ToTimeStamp(redisResults[0]), (double)redisResults[1]);
+        }
+
+        public static HashEntry? ToHashEntry(RedisResult result)
+        {
+            RedisValue[]? redisResults = (RedisValue[]?)result;
+            if (redisResults.Length == 0) return null;
+            return new HashEntry(redisResults[0], redisResults[1]);
+
+        }
+
+        public static HashEntry[]? ToHashEntryArray(RedisResult result)
+        {
+            RedisValue[]? redisResults = (RedisValue[]?)result;
+
+            var hash = new HashEntry[redisResults.Length/2];
+            if (redisResults.Length == 0 ) return hash;
+
+            for(int i = 0 ; i < redisResults.Length - 1; i += 2)
+                hash[i/2] = new HashEntry(redisResults[i], redisResults[i+1]);
+            return hash;
         }
 
         public static IReadOnlyList<TimeSeriesTuple> ToTimeSeriesTupleArray(RedisResult result)

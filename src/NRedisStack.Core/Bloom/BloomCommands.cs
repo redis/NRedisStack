@@ -42,10 +42,10 @@ namespace NRedisStack.Core
         /// <param name="key">Name of the key to return information about.</param>
         /// <returns>Array with information of the filter.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.info"/></remarks>
-        public RedisResult[]? Info(RedisKey key)
+        public HashEntry[]? Info(RedisKey key)
         {
             var info = _db.Execute(BF.INFO, key);
-            return ResponseParser.ToArray(info);
+            return ResponseParser.ToHashEntryArray(info);
         }
 
         /// <summary>
