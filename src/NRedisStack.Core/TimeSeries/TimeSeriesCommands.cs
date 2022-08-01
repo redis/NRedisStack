@@ -22,7 +22,7 @@ namespace NRedisStack.Core
 
         public TimeSeriesInformation Info(string key)
         {
-            return ResponseParser.ParseInfo(_db.Execute(TS.INFO, key));
+            return ResponseParser.ToTimeSeriesInfo(_db.Execute(TS.INFO, key));
         }
 
         public bool TimeSeriesAlter(string key, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel> labels = null)

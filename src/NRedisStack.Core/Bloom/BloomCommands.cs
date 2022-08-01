@@ -5,7 +5,6 @@ namespace NRedisStack.Core
 
     public class BloomCommands
     {
-        //TODO: Check all the returned value of the commands and change if needed (Can add more parse methods)
         IDatabase _db;
         public BloomCommands(IDatabase db)
         {
@@ -46,7 +45,7 @@ namespace NRedisStack.Core
         public RedisResult[]? Info(RedisKey key)
         {
             var info = _db.Execute(BF.INFO, key);
-            return ResponseParser.ParseArray(info);
+            return ResponseParser.ToArray(info);
         }
 
         /// <summary>
@@ -109,7 +108,7 @@ namespace NRedisStack.Core
                 args.Add(item);
             }
 
-            return ResponseParser.ParseBooleanArray(_db.Execute(BF.INSERT, args));
+            return ResponseParser.ToBooleanArray(_db.Execute(BF.INSERT, args));
         }
 
         /// <summary>
@@ -120,9 +119,9 @@ namespace NRedisStack.Core
         /// <param name="data">Current data chunk (returned by SCANDUMP).</param>
         /// <returns>Array with information of the filter.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.loadchunk"/></remarks>
-        public RedisResult LoadChunk(RedisKey key, int iterator, RedisValue data)
+        public bool LoadChunk(RedisKey key, int iterator, RedisValue data)
         {
-            return _db.Execute(BF.LOADCHUNK, key, iterator, data);
+            return ResponseParser.ParseOKtoBoolean(_db.Execute(BF.LOADCHUNK, key, iterator, data));
         }
 
         /// <summary>
@@ -145,7 +144,7 @@ namespace NRedisStack.Core
                 args.Add(item);
             }
 
-            return ResponseParser.ParseBooleanArray(_db.Execute(BF.MADD, args));
+            return ResponseParser.ToBooleanArray(_db.Execute(BF.MADD, args));
         }
 
         /// <summary>
@@ -168,7 +167,7 @@ namespace NRedisStack.Core
                 args.Add(item);
             }
 
-            return ResponseParser.ParseBooleanArray(_db.Execute(BF.MEXISTS, args));
+            return ResponseParser.ToBooleanArray(_db.Execute(BF.MEXISTS, args));
 
         }
 
@@ -182,7 +181,7 @@ namespace NRedisStack.Core
         /// created in size of the last sub-filter multiplied by expansion.</param>
         /// <param name="nonscaling">(Optional) <see langword="true"/> toprevent the filter
         /// from creating additional sub-filters if initial capacity is reached.</param>
-        /// <returns><see langword="true"/> if the filter did not exist, <see langword="false"/> otherwise.</returns>
+        /// <returns><see langword="true"/> if executed correctly, <see langword="false"/> otherwise.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.reserve"/></remarks>
         public bool Reserve(RedisKey key, double errorRate, long capacity,
                                    int? expansion = null, bool nonscaling = false)
@@ -202,17 +201,16 @@ namespace NRedisStack.Core
             return ResponseParser.ParseOKtoBoolean(_db.Execute(BF.RESERVE, args));
         }
 
-        // TODO: check what SCANDUMP and LOADCHUNK & RESERVE returns
         /// <summary>
         /// Restores a filter previosly saved using SCANDUMP.
         /// </summary>
         /// <param name="key">Name of the filter.</param>
         /// <param name="iterator">Iterator value; either 0 or the iterator from a previous invocation of this command.</param>
-        /// <returns>.</returns>
+        /// <returns>Array of iterator and data.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.scandump"/></remarks>
-        public RedisResult ScanDump(RedisKey key, int iterator)
+        public RedisResult[] ScanDump(RedisKey key, int iterator)
         {
-            return _db.Execute(BF.SCANDUMP, key, iterator);
+            return ResponseParser.ToArray(_db.Execute(BF.SCANDUMP, key, iterator));
         }
     }
 }

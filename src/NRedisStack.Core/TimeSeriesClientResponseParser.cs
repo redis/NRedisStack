@@ -14,10 +14,10 @@ namespace NRedisStack.Core
         //TODO: See if I can change the code to remove the warnings
         public static bool ParseOKtoBoolean(RedisResult result)
         {
-            return (string)result == "OK";
+            return result.ToString() == "OK";
         }
 
-        public static bool[] ParseBooleanArray(RedisResult result)
+        public static bool[] ToBooleanArray(RedisResult result)
         {
             RedisResult[] redisResults = (RedisResult[])result;
             bool[] boolArr = new bool[redisResults.Length];
@@ -29,49 +29,49 @@ namespace NRedisStack.Core
             return boolArr;
         }
 
-        public static RedisResult[] ParseArray(RedisResult result)
+        public static RedisResult[] ToArray(RedisResult result)
         {
             return (RedisResult[])result;
         }
 
-        public static long ParseLong(RedisResult result)
+        public static long ToLong(RedisResult result)
         {
             if (result.Type == ResultType.None) return 0;
             return (long)result;
         }
 
-        public static TimeStamp ParseTimeStamp(RedisResult result)
+        public static TimeStamp ToTimeStamp(RedisResult result)
         {
             if (result.Type == ResultType.None) return null;
             return new TimeStamp((long)result);
         }
 
-        public static IReadOnlyList<TimeStamp> ParseTimeStampArray(RedisResult result)
+        public static IReadOnlyList<TimeStamp> ToTimeStampArray(RedisResult result)
         {
             RedisResult[] redisResults = (RedisResult[])result;
             var list = new List<TimeStamp>(redisResults.Length);
             if (redisResults.Length == 0) return list;
-            Array.ForEach(redisResults, timestamp => list.Add(ParseTimeStamp(timestamp)));
+            Array.ForEach(redisResults, timestamp => list.Add(ToTimeStamp(timestamp)));
             return list;
         }
 
-        public static TimeSeriesTuple ParseTimeSeriesTuple(RedisResult result)
+        public static TimeSeriesTuple ToTimeSeriesTuple(RedisResult result)
         {
             RedisResult[] redisResults = (RedisResult[])result;
             if (redisResults.Length == 0) return null;
-            return new TimeSeriesTuple(ParseTimeStamp(redisResults[0]), (double)redisResults[1]);
+            return new TimeSeriesTuple(ToTimeStamp(redisResults[0]), (double)redisResults[1]);
         }
 
-        public static IReadOnlyList<TimeSeriesTuple> ParseTimeSeriesTupleArray(RedisResult result)
+        public static IReadOnlyList<TimeSeriesTuple> ToTimeSeriesTupleArray(RedisResult result)
         {
             RedisResult[] redisResults = (RedisResult[])result;
             var list = new List<TimeSeriesTuple>(redisResults.Length);
             if (redisResults.Length == 0) return list;
-            Array.ForEach(redisResults, tuple => list.Add(ParseTimeSeriesTuple(tuple)));
+            Array.ForEach(redisResults, tuple => list.Add(ToTimeSeriesTuple(tuple)));
             return list;
         }
 
-        public static IReadOnlyList<TimeSeriesLabel> ParseLabelArray(RedisResult result)
+        public static IReadOnlyList<TimeSeriesLabel> ToLabelArray(RedisResult result)
         {
             RedisResult[] redisResults = (RedisResult[])result;
             var list = new List<TimeSeriesLabel>(redisResults.Length);
@@ -93,8 +93,8 @@ namespace NRedisStack.Core
             {
                 RedisResult[] MRangeTuple = (RedisResult[])MRangeValue;
                 string key = (string)MRangeTuple[0];
-                IReadOnlyList<TimeSeriesLabel> labels = ParseLabelArray(MRangeTuple[1]);
-                TimeSeriesTuple value = ParseTimeSeriesTuple(MRangeTuple[2]);
+                IReadOnlyList<TimeSeriesLabel> labels = ToLabelArray(MRangeTuple[1]);
+                TimeSeriesTuple value = ToTimeSeriesTuple(MRangeTuple[2]);
                 list.Add((key, labels, value));
             });
             return list;
@@ -109,14 +109,14 @@ namespace NRedisStack.Core
             {
                 RedisResult[] MRangeTuple = (RedisResult[])MRangeValue;
                 string key = (string)MRangeTuple[0];
-                IReadOnlyList<TimeSeriesLabel> labels = ParseLabelArray(MRangeTuple[1]);
-                IReadOnlyList<TimeSeriesTuple> values = ParseTimeSeriesTupleArray(MRangeTuple[2]);
+                IReadOnlyList<TimeSeriesLabel> labels = ToLabelArray(MRangeTuple[1]);
+                IReadOnlyList<TimeSeriesTuple> values = ToTimeSeriesTupleArray(MRangeTuple[2]);
                 list.Add((key, labels, values));
             });
             return list;
         }
 
-        public static TimeSeriesRule ParseRule(RedisResult result)
+        public static TimeSeriesRule ToRule(RedisResult result)
         {
             RedisResult[] redisResults = (RedisResult[])result;
             string destKey = (string)redisResults[0];
@@ -125,16 +125,16 @@ namespace NRedisStack.Core
             return new TimeSeriesRule(destKey, bucketTime, aggregation);
         }
 
-        public static IReadOnlyList<TimeSeriesRule> ParseRuleArray(RedisResult result)
+        public static IReadOnlyList<TimeSeriesRule> ToRuleArray(RedisResult result)
         {
             RedisResult[] redisResults = (RedisResult[])result;
             var list = new List<TimeSeriesRule>();
             if (redisResults.Length == 0) return list;
-            Array.ForEach(redisResults, rule => list.Add(ParseRule(rule)));
+            Array.ForEach(redisResults, rule => list.Add(ToRule(rule)));
             return list;
         }
 
-        public static TsDuplicatePolicy? ParsePolicy(RedisResult result)
+        public static TsDuplicatePolicy? ToPolicy(RedisResult result)
         {
             var policyStatus = (string) result;
             if (String.IsNullOrEmpty(policyStatus) || policyStatus == "(nil)") {
@@ -144,7 +144,7 @@ namespace NRedisStack.Core
             return DuplicatePolicyExtensions.AsPolicy(policyStatus.ToUpper());
         }
 
-        public static TimeSeriesInformation ParseInfo(RedisResult result)
+        public static TimeSeriesInformation ToTimeSeriesInfo(RedisResult result)
         {
             long totalSamples = -1, memoryUsage = -1, retentionTime = -1, chunkSize=-1, chunkCount = -1;
             TimeStamp firstTimestamp = null, lastTimestamp = null;
@@ -177,23 +177,23 @@ namespace NRedisStack.Core
                         chunkSize = chunkSize * 16;
                         break;
                     case "firstTimestamp":
-                        firstTimestamp = ParseTimeStamp(redisResults[i]);
+                        firstTimestamp = ToTimeStamp(redisResults[i]);
                         break;
                     case "lastTimestamp":
-                        lastTimestamp = ParseTimeStamp(redisResults[i]);
+                        lastTimestamp = ToTimeStamp(redisResults[i]);
                         break;
                     case "labels":
-                        labels = ParseLabelArray(redisResults[i]);
+                        labels = ToLabelArray(redisResults[i]);
                         break;
                     case "sourceKey":
                         sourceKey = (string)redisResults[i];
                         break;
                     case "rules":
-                        rules = ParseRuleArray(redisResults[i]);
+                        rules = ToRuleArray(redisResults[i]);
                         break;
                     case "duplicatePolicy":
                         // Avalible for > v1.4
-                        duplicatePolicy = ParsePolicy(redisResults[i]);
+                        duplicatePolicy = ToPolicy(redisResults[i]);
                         break;
                 }
             }
@@ -202,7 +202,7 @@ namespace NRedisStack.Core
             lastTimestamp, retentionTime, chunkCount, chunkSize, labels, sourceKey, rules, duplicatePolicy);
         }
 
-        public static IReadOnlyList<string> ParseStringArray(RedisResult result)
+        public static IReadOnlyList<string> ToStringArray(RedisResult result)
         {
             RedisResult[] redisResults = (RedisResult[])result;
             var list = new List<string>();
