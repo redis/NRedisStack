@@ -10,7 +10,6 @@ namespace NRedisStack.Core
     public static class ResponseParser
     {
 
-        //TODO: Change to more relevant names, somthing like: Parse.ToBool(RedisResult)
         //TODO: See if I can change the code to remove the warnings
         public static bool ParseOKtoBoolean(RedisResult result)
         {

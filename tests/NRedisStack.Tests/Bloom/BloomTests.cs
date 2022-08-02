@@ -91,6 +91,6 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         var dictionary = info.ToDictionary();
         Assert.Equal(dictionary["Number of items inserted"].ToString(), "1");
 
-        // TODO: Check fail when doing db.BF().Info("notExistKey");
+        Assert.Throws<RedisServerException>( () => db.BF().Info("notExistKey"));
     }
 }
