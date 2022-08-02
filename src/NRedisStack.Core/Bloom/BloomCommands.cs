@@ -120,7 +120,7 @@ namespace NRedisStack.Core
         /// <param name="data">Current data chunk (returned by SCANDUMP).</param>
         /// <returns>Array with information of the filter.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.loadchunk"/></remarks>
-        public bool LoadChunk(RedisKey key, int iterator, RedisValue data)
+        public bool LoadChunk(RedisKey key, long iterator, Byte[] data)
         {
             return ResponseParser.ParseOKtoBoolean(_db.Execute(BF.LOADCHUNK, key, iterator, data));
         }
@@ -207,11 +207,11 @@ namespace NRedisStack.Core
         /// </summary>
         /// <param name="key">Name of the filter.</param>
         /// <param name="iterator">Iterator value; either 0 or the iterator from a previous invocation of this command.</param>
-        /// <returns>Array of iterator and data.</returns>
+        /// <returns>Tuple of iterator and data.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.scandump"/></remarks>
-        public RedisResult[] ScanDump(RedisKey key, int iterator)
+        public Tuple<long,Byte[]>? ScanDump(RedisKey key, long iterator)
         {
-            return ResponseParser.ToArray(_db.Execute(BF.SCANDUMP, key, iterator));
+            return ResponseParser.ToScanDumpTuple(_db.Execute(BF.SCANDUMP, key, iterator));
         }
     }
 }

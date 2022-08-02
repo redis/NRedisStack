@@ -61,6 +61,32 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    public void TestExample() {
+                IDatabase db = redisFixture.Redis.GetDatabase();
+
+    // Simple bloom filter using default module settings
+     db.BF().Add("simpleBloom", "Mark");
+    // Does "Mark" now exist?
+     db.BF().Exists("simpleBloom", "Mark"); // true
+     db.BF().Exists("simpleBloom", "Farnsworth"); // False
+
+    // If you have a long list of items to check/add, you can use the
+    // "multi" methods
+    var items = new RedisValue[]{"foo", "bar", "baz", "bat", "bag"};
+     db.BF().MAdd("simpleBloom", items);
+
+    // Check if they exist:
+    var allItems = new RedisValue[]{"foo", "bar", "baz", "bat", "Mark", "nonexist"};
+    var rv =  db.BF().MExists("simpleBloom", allItems);
+    // All items except the last one will be 'true'
+    Assert.Equal(new bool[] {true, true, true, true, true, false}, rv);
+
+    // Reserve a "customized" bloom filter
+     db.BF().Reserve("specialBloom", 0.0001, 10000);
+     db.BF().Add("specialBloom", "foo");
+  }
+
+    [Fact]
     public void TestInsert()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -83,7 +109,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void TestInfo() //TODO: think again about the returned value of BF.INFO
+    public void TestInfo() //TODO: think again about the returned value of BF.INFO, maybe creating a new returned type
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.BF().Add(key, "item");
@@ -93,5 +119,27 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(info.NumberOfItemsInserted, (long)1);
 
         Assert.Throws<RedisServerException>( () => db.BF().Info("notExistKey"));
+    }
+
+    [Fact (Timeout = 2000)]
+    public void TestScanDumpAndLoadChunk() //TODO: Fininsh this Test
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.BF().Reserve("bloom-dump",0.1, 10);
+        db.BF().Add("bloom-dump", "a");
+
+        long iterator = 0;
+        while(true)
+        {
+            var chunkData = db.BF().ScanDump("bloom-dump", iterator);
+            iterator = chunkData.Item1;
+            if(iterator == 0) break;
+            Assert.True(db.BF().LoadChunk("bloom-load", iterator, chunkData.Item2));
+        }
+
+        // check for properties
+        Assert.Equal(db.BF().Info("bloom-dump"), db.BF().Info("bloom-load"));
+        // check for existing items
+        Assert.True(db.BF().Exists("bloom-load", "a"));
     }
 }

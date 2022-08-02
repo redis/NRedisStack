@@ -62,6 +62,13 @@ namespace NRedisStack.Core
             return new TimeSeriesTuple(ToTimeStamp(redisResults[0]), (double)redisResults[1]);
         }
 
+        public static Tuple<long, Byte[]>? ToScanDumpTuple(RedisResult result)
+        {
+            RedisResult[]? redisResults = (RedisResult[]?)result;
+            if (redisResults == null || redisResults.Length == 0) return null;
+            return new Tuple<long, Byte[]>((long)redisResults[0], (Byte[])redisResults[1]);
+        }
+
         public static HashEntry? ToHashEntry(RedisResult result)
         {
             RedisValue[]? redisResults = (RedisValue[]?)result;
