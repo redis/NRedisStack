@@ -4,6 +4,7 @@ using NRedisStack.Core.Literals.Enums;
 using NRedisStack.Core.DataTypes;
 using NRedisStack.Core.Extensions;
 using StackExchange.Redis;
+using NRedisStack.Core.Bloom.DataTypes;
 
 namespace NRedisStack.Core
 {
@@ -20,7 +21,7 @@ namespace NRedisStack.Core
         {
             RedisResult[] redisResults = (RedisResult[])result;
             bool[] boolArr = new bool[redisResults.Length];
-            for(int i = 0 ; i < redisResults.Length ; i++)
+            for (int i = 0; i < redisResults.Length; i++)
             {
                 boolArr[i] = redisResults[i].ToString() == "1";
             }
@@ -73,11 +74,11 @@ namespace NRedisStack.Core
         {
             RedisValue[]? redisResults = (RedisValue[]?)result;
 
-            var hash = new HashEntry[redisResults.Length/2];
-            if (redisResults.Length == 0 ) return hash;
+            var hash = new HashEntry[redisResults.Length / 2];
+            if (redisResults.Length == 0) return hash;
 
-            for(int i = 0 ; i < redisResults.Length - 1; i += 2)
-                hash[i/2] = new HashEntry(redisResults[i], redisResults[i+1]);
+            for (int i = 0; i < redisResults.Length - 1; i += 2)
+                hash[i / 2] = new HashEntry(redisResults[i], redisResults[i + 1]);
             return hash;
         }
 
@@ -155,26 +156,63 @@ namespace NRedisStack.Core
 
         public static TsDuplicatePolicy? ToPolicy(RedisResult result)
         {
-            var policyStatus = (string) result;
-            if (String.IsNullOrEmpty(policyStatus) || policyStatus == "(nil)") {
+            var policyStatus = (string)result;
+            if (String.IsNullOrEmpty(policyStatus) || policyStatus == "(nil)")
+            {
                 return null;
             }
 
             return DuplicatePolicyExtensions.AsPolicy(policyStatus.ToUpper());
         }
 
+        public static BloomInformation? ToBloomInfo(RedisResult result) //TODO: Think about a different implementation, because if the output of BF.INFO changes or even just the names of the labels then the parsing will not work
+        {
+            long capacity, size, numberOfFilters, numberOfItemsInserted, expansionRate;
+            capacity = size = numberOfFilters = numberOfItemsInserted = expansionRate = -1;
+            RedisResult[]? redisResults = (RedisResult[]?)result;
+
+            if (redisResults == null) return null;
+
+            for (int i = 0; i < redisResults.Length; ++i)
+            {
+                string? label = redisResults[i++].ToString();
+                switch (label)
+                {
+                    case "Capacity":
+                        capacity = (long)redisResults[i];
+                        break;
+                    case "Size":
+                        size = (long)redisResults[i];
+                        break;
+                    case "Number of filters":
+                        numberOfFilters = (long)redisResults[i];
+                        break;
+                    case "Number of items inserted":
+                        numberOfItemsInserted = (long)redisResults[i];
+                        break;
+                    case "Expansion rate":
+                        expansionRate = (long)redisResults[i];
+                        break;
+                }
+            }
+
+            return new BloomInformation(capacity, size, numberOfFilters, numberOfItemsInserted, expansionRate);
+        }
+
         public static TimeSeriesInformation ToTimeSeriesInfo(RedisResult result)
         {
-            long totalSamples = -1, memoryUsage = -1, retentionTime = -1, chunkSize=-1, chunkCount = -1;
+            long totalSamples = -1, memoryUsage = -1, retentionTime = -1, chunkSize = -1, chunkCount = -1;
             TimeStamp firstTimestamp = null, lastTimestamp = null;
             IReadOnlyList<TimeSeriesLabel> labels = null;
-            IReadOnlyList <TimeSeriesRule> rules = null;
+            IReadOnlyList<TimeSeriesRule> rules = null;
             string sourceKey = null;
             TsDuplicatePolicy? duplicatePolicy = null;
             RedisResult[] redisResults = (RedisResult[])result;
-            for(int i=0; i<redisResults.Length ; ++i){
+            for (int i = 0; i < redisResults.Length; ++i)
+            {
                 string label = (string)redisResults[i++];
-                switch (label) {
+                switch (label)
+                {
                     case "totalSamples":
                         totalSamples = (long)redisResults[i];
                         break;

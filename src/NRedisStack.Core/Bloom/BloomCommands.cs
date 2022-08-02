@@ -1,3 +1,4 @@
+using NRedisStack.Core.Bloom.DataTypes;
 using NRedisStack.Core.Literals;
 using StackExchange.Redis;
 namespace NRedisStack.Core
@@ -42,10 +43,10 @@ namespace NRedisStack.Core
         /// <param name="key">Name of the key to return information about.</param>
         /// <returns>Array with information of the filter.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.info"/></remarks>
-        public HashEntry[]? Info(RedisKey key)
+        public BloomInformation? Info(RedisKey key)
         {
             var info = _db.Execute(BF.INFO, key);
-            return ResponseParser.ToHashEntryArray(info);
+            return ResponseParser.ToBloomInfo(info);
         }
 
         /// <summary>

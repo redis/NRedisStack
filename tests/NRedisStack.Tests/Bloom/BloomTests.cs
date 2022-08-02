@@ -88,8 +88,9 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.BF().Add(key, "item");
         var info = db.BF().Info(key);
-        var dictionary = info.ToDictionary();
-        Assert.Equal(dictionary["Number of items inserted"].ToString(), "1");
+
+        Assert.NotNull(info);
+        Assert.Equal(info.NumberOfItemsInserted, (long)1);
 
         Assert.Throws<RedisServerException>( () => db.BF().Info("notExistKey"));
     }
