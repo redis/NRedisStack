@@ -121,10 +121,12 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.Throws<RedisServerException>( () => db.BF().Info("notExistKey"));
     }
 
-    [Fact (Timeout = 2000)]
+    [Fact]
     public void TestScanDumpAndLoadChunk() //TODO: Fininsh this Test
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+
         db.BF().Reserve("bloom-dump",0.1, 10);
         db.BF().Add("bloom-dump", "a");
 
@@ -138,7 +140,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         }
 
         // check for properties
-        Assert.Equal(db.BF().Info("bloom-dump"), db.BF().Info("bloom-load"));
+        Assert.Equal(db.BF().Info("bloom-dump").NumberOfItemsInserted, db.BF().Info("bloom-load").NumberOfItemsInserted);
         // check for existing items
         Assert.True(db.BF().Exists("bloom-load", "a"));
     }
