@@ -5,6 +5,7 @@ using NRedisStack.Core.DataTypes;
 using NRedisStack.Core.Extensions;
 using StackExchange.Redis;
 using NRedisStack.Core.Bloom.DataTypes;
+using NRedisStack.Core.CuckooFilter.DataTypes;
 
 namespace NRedisStack.Core
 {
@@ -204,6 +205,55 @@ namespace NRedisStack.Core
             }
 
             return new BloomInformation(capacity, size, numberOfFilters, numberOfItemsInserted, expansionRate);
+        }
+        public static CuckooInformation? ToCuckooInfo(RedisResult result) //TODO: Think about a different implementation, because if the output of BF.INFO changes or even just the names of the labels then the parsing will not work
+        {
+            long size, numberOfBuckets, numberOfFilter, numberOfItemsInserted,
+                 numberOfItemsDeleted, bucketSize, expansionRate, maxIteration;
+
+            size = numberOfBuckets = numberOfFilter =
+            numberOfItemsInserted = numberOfItemsDeleted =
+            bucketSize = expansionRate = maxIteration = -1;
+
+            RedisResult[]? redisResults = (RedisResult[]?)result;
+
+            if (redisResults == null) return null;
+
+            for (int i = 0; i < redisResults.Length; ++i)
+            {
+                string? label = redisResults[i++].ToString();
+
+                switch (label)
+                {
+                    case "Size":
+                        size = (long)redisResults[i];
+                        break;
+                    case "Number of buckets":
+                        numberOfBuckets = (long)redisResults[i];
+                        break;
+                    case "Number of filter":
+                        numberOfFilter = (long)redisResults[i];
+                        break;
+                    case "Number of items inserted":
+                        numberOfItemsInserted = (long)redisResults[i];
+                        break;
+                    case "Number of items deleted":
+                        numberOfItemsDeleted = (long)redisResults[i];
+                        break;
+                    case "Bucket size":
+                        bucketSize = (long)redisResults[i];
+                        break;
+                    case "Expansion rate":
+                        expansionRate = (long)redisResults[i];
+                        break;
+                    case "Max iteration":
+                        maxIteration = (long)redisResults[i];
+                        break;
+                }
+            }
+
+            return new CuckooInformation(size, numberOfBuckets, numberOfFilter, numberOfItemsInserted,
+                                        numberOfItemsDeleted, bucketSize, expansionRate, maxIteration);
         }
 
         public static TimeSeriesInformation ToTimeSeriesInfo(RedisResult result)
