@@ -4,54 +4,101 @@ using NRedisStack.Core.Literals.Enums;
 using NRedisStack.Core.DataTypes;
 using NRedisStack.Core.Extensions;
 using StackExchange.Redis;
+using NRedisStack.Core.Bloom.DataTypes;
 
 namespace NRedisStack.Core
 {
     public static class ResponseParser
     {
-        public static bool ParseBoolean(RedisResult result)
+
+        //TODO: See if I can change the code to remove the warnings
+        public static bool ParseOKtoBoolean(RedisResult result)
         {
-            return (string)result == "OK";
+            return result.ToString() == "OK";
         }
 
-        public static long ParseLong(RedisResult result)
+        public static bool[] ToBooleanArray(RedisResult result)
+        {
+            RedisResult[] redisResults = (RedisResult[])result;
+            bool[] boolArr = new bool[redisResults.Length];
+            for (int i = 0; i < redisResults.Length; i++)
+            {
+                boolArr[i] = redisResults[i].ToString() == "1";
+            }
+
+            return boolArr;
+        }
+
+        public static RedisResult[] ToArray(RedisResult result)
+        {
+            return (RedisResult[])result;
+        }
+
+        public static long ToLong(RedisResult result)
         {
             if (result.Type == ResultType.None) return 0;
             return (long)result;
         }
 
-        public static TimeStamp ParseTimeStamp(RedisResult result)
+        public static TimeStamp ToTimeStamp(RedisResult result)
         {
             if (result.Type == ResultType.None) return null;
             return new TimeStamp((long)result);
         }
 
-        public static IReadOnlyList<TimeStamp> ParseTimeStampArray(RedisResult result)
+        public static IReadOnlyList<TimeStamp> ToTimeStampArray(RedisResult result)
         {
             RedisResult[] redisResults = (RedisResult[])result;
             var list = new List<TimeStamp>(redisResults.Length);
             if (redisResults.Length == 0) return list;
-            Array.ForEach(redisResults, timestamp => list.Add(ParseTimeStamp(timestamp)));
+            Array.ForEach(redisResults, timestamp => list.Add(ToTimeStamp(timestamp)));
             return list;
         }
 
-        public static TimeSeriesTuple ParseTimeSeriesTuple(RedisResult result)
+        public static TimeSeriesTuple? ToTimeSeriesTuple(RedisResult result)
         {
-            RedisResult[] redisResults = (RedisResult[])result;
+            RedisResult[]? redisResults = (RedisResult[]?)result;
             if (redisResults.Length == 0) return null;
-            return new TimeSeriesTuple(ParseTimeStamp(redisResults[0]), (double)redisResults[1]);
+            return new TimeSeriesTuple(ToTimeStamp(redisResults[0]), (double)redisResults[1]);
         }
 
-        public static IReadOnlyList<TimeSeriesTuple> ParseTimeSeriesTupleArray(RedisResult result)
+        public static Tuple<long, Byte[]>? ToScanDumpTuple(RedisResult result)
+        {
+            RedisResult[]? redisResults = (RedisResult[]?)result;
+            if (redisResults == null || redisResults.Length == 0) return null;
+            return new Tuple<long, Byte[]>((long)redisResults[0], (Byte[])redisResults[1]);
+        }
+
+        public static HashEntry? ToHashEntry(RedisResult result)
+        {
+            RedisValue[]? redisResults = (RedisValue[]?)result;
+            if (redisResults.Length == 0) return null;
+            return new HashEntry(redisResults[0], redisResults[1]);
+
+        }
+
+        public static HashEntry[]? ToHashEntryArray(RedisResult result)
+        {
+            RedisValue[]? redisResults = (RedisValue[]?)result;
+
+            var hash = new HashEntry[redisResults.Length / 2];
+            if (redisResults.Length == 0) return hash;
+
+            for (int i = 0; i < redisResults.Length - 1; i += 2)
+                hash[i / 2] = new HashEntry(redisResults[i], redisResults[i + 1]);
+            return hash;
+        }
+
+        public static IReadOnlyList<TimeSeriesTuple> ToTimeSeriesTupleArray(RedisResult result)
         {
             RedisResult[] redisResults = (RedisResult[])result;
             var list = new List<TimeSeriesTuple>(redisResults.Length);
             if (redisResults.Length == 0) return list;
-            Array.ForEach(redisResults, tuple => list.Add(ParseTimeSeriesTuple(tuple)));
+            Array.ForEach(redisResults, tuple => list.Add(ToTimeSeriesTuple(tuple)));
             return list;
         }
 
-        public static IReadOnlyList<TimeSeriesLabel> ParseLabelArray(RedisResult result)
+        public static IReadOnlyList<TimeSeriesLabel> ToLabelArray(RedisResult result)
         {
             RedisResult[] redisResults = (RedisResult[])result;
             var list = new List<TimeSeriesLabel>(redisResults.Length);
@@ -73,8 +120,8 @@ namespace NRedisStack.Core
             {
                 RedisResult[] MRangeTuple = (RedisResult[])MRangeValue;
                 string key = (string)MRangeTuple[0];
-                IReadOnlyList<TimeSeriesLabel> labels = ParseLabelArray(MRangeTuple[1]);
-                TimeSeriesTuple value = ParseTimeSeriesTuple(MRangeTuple[2]);
+                IReadOnlyList<TimeSeriesLabel> labels = ToLabelArray(MRangeTuple[1]);
+                TimeSeriesTuple value = ToTimeSeriesTuple(MRangeTuple[2]);
                 list.Add((key, labels, value));
             });
             return list;
@@ -89,14 +136,14 @@ namespace NRedisStack.Core
             {
                 RedisResult[] MRangeTuple = (RedisResult[])MRangeValue;
                 string key = (string)MRangeTuple[0];
-                IReadOnlyList<TimeSeriesLabel> labels = ParseLabelArray(MRangeTuple[1]);
-                IReadOnlyList<TimeSeriesTuple> values = ParseTimeSeriesTupleArray(MRangeTuple[2]);
+                IReadOnlyList<TimeSeriesLabel> labels = ToLabelArray(MRangeTuple[1]);
+                IReadOnlyList<TimeSeriesTuple> values = ToTimeSeriesTupleArray(MRangeTuple[2]);
                 list.Add((key, labels, values));
             });
             return list;
         }
 
-        public static TimeSeriesRule ParseRule(RedisResult result)
+        public static TimeSeriesRule ToRule(RedisResult result)
         {
             RedisResult[] redisResults = (RedisResult[])result;
             string destKey = (string)redisResults[0];
@@ -105,37 +152,74 @@ namespace NRedisStack.Core
             return new TimeSeriesRule(destKey, bucketTime, aggregation);
         }
 
-        public static IReadOnlyList<TimeSeriesRule> ParseRuleArray(RedisResult result)
+        public static IReadOnlyList<TimeSeriesRule> ToRuleArray(RedisResult result)
         {
             RedisResult[] redisResults = (RedisResult[])result;
             var list = new List<TimeSeriesRule>();
             if (redisResults.Length == 0) return list;
-            Array.ForEach(redisResults, rule => list.Add(ParseRule(rule)));
+            Array.ForEach(redisResults, rule => list.Add(ToRule(rule)));
             return list;
         }
 
-        public static TsDuplicatePolicy? ParsePolicy(RedisResult result)
+        public static TsDuplicatePolicy? ToPolicy(RedisResult result)
         {
-            var policyStatus = (string) result;
-            if (String.IsNullOrEmpty(policyStatus) || policyStatus == "(nil)") {
+            var policyStatus = (string)result;
+            if (String.IsNullOrEmpty(policyStatus) || policyStatus == "(nil)")
+            {
                 return null;
             }
 
             return DuplicatePolicyExtensions.AsPolicy(policyStatus.ToUpper());
         }
 
-        public static TimeSeriesInformation ParseInfo(RedisResult result)
+        public static BloomInformation? ToBloomInfo(RedisResult result) //TODO: Think about a different implementation, because if the output of BF.INFO changes or even just the names of the labels then the parsing will not work
         {
-            long totalSamples = -1, memoryUsage = -1, retentionTime = -1, chunkSize=-1, chunkCount = -1;
+            long capacity, size, numberOfFilters, numberOfItemsInserted, expansionRate;
+            capacity = size = numberOfFilters = numberOfItemsInserted = expansionRate = -1;
+            RedisResult[]? redisResults = (RedisResult[]?)result;
+
+            if (redisResults == null) return null;
+
+            for (int i = 0; i < redisResults.Length; ++i)
+            {
+                string? label = redisResults[i++].ToString();
+                switch (label)
+                {
+                    case "Capacity":
+                        capacity = (long)redisResults[i];
+                        break;
+                    case "Size":
+                        size = (long)redisResults[i];
+                        break;
+                    case "Number of filters":
+                        numberOfFilters = (long)redisResults[i];
+                        break;
+                    case "Number of items inserted":
+                        numberOfItemsInserted = (long)redisResults[i];
+                        break;
+                    case "Expansion rate":
+                        expansionRate = (long)redisResults[i];
+                        break;
+                }
+            }
+
+            return new BloomInformation(capacity, size, numberOfFilters, numberOfItemsInserted, expansionRate);
+        }
+
+        public static TimeSeriesInformation ToTimeSeriesInfo(RedisResult result)
+        {
+            long totalSamples = -1, memoryUsage = -1, retentionTime = -1, chunkSize = -1, chunkCount = -1;
             TimeStamp firstTimestamp = null, lastTimestamp = null;
             IReadOnlyList<TimeSeriesLabel> labels = null;
-            IReadOnlyList <TimeSeriesRule> rules = null;
+            IReadOnlyList<TimeSeriesRule> rules = null;
             string sourceKey = null;
             TsDuplicatePolicy? duplicatePolicy = null;
             RedisResult[] redisResults = (RedisResult[])result;
-            for(int i=0; i<redisResults.Length ; ++i){
+            for (int i = 0; i < redisResults.Length; ++i)
+            {
                 string label = (string)redisResults[i++];
-                switch (label) {
+                switch (label)
+                {
                     case "totalSamples":
                         totalSamples = (long)redisResults[i];
                         break;
@@ -157,23 +241,23 @@ namespace NRedisStack.Core
                         chunkSize = chunkSize * 16;
                         break;
                     case "firstTimestamp":
-                        firstTimestamp = ParseTimeStamp(redisResults[i]);
+                        firstTimestamp = ToTimeStamp(redisResults[i]);
                         break;
                     case "lastTimestamp":
-                        lastTimestamp = ParseTimeStamp(redisResults[i]);
+                        lastTimestamp = ToTimeStamp(redisResults[i]);
                         break;
                     case "labels":
-                        labels = ParseLabelArray(redisResults[i]);
+                        labels = ToLabelArray(redisResults[i]);
                         break;
                     case "sourceKey":
                         sourceKey = (string)redisResults[i];
                         break;
                     case "rules":
-                        rules = ParseRuleArray(redisResults[i]);
+                        rules = ToRuleArray(redisResults[i]);
                         break;
                     case "duplicatePolicy":
                         // Avalible for > v1.4
-                        duplicatePolicy = ParsePolicy(redisResults[i]);
+                        duplicatePolicy = ToPolicy(redisResults[i]);
                         break;
                 }
             }
@@ -182,7 +266,7 @@ namespace NRedisStack.Core
             lastTimestamp, retentionTime, chunkCount, chunkSize, labels, sourceKey, rules, duplicatePolicy);
         }
 
-        public static IReadOnlyList<string> ParseStringArray(RedisResult result)
+        public static IReadOnlyList<string> ToStringArray(RedisResult result)
         {
             RedisResult[] redisResults = (RedisResult[])result;
             var list = new List<string>();
