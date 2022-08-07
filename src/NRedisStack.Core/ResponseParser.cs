@@ -6,6 +6,7 @@ using NRedisStack.Core.Extensions;
 using StackExchange.Redis;
 using NRedisStack.Core.Bloom.DataTypes;
 using NRedisStack.Core.CuckooFilter.DataTypes;
+using NRedisStack.Core.CountMinSketch.DataTypes;
 
 namespace NRedisStack.Core
 {
@@ -39,6 +40,12 @@ namespace NRedisStack.Core
         {
             if (result.Type == ResultType.None) return 0;
             return (long)result;
+        }
+
+        public static long[]? ToLongArray(RedisResult result)
+        {
+            if (result.Type == ResultType.None) return null;
+            return (long[])result;
         }
 
         public static TimeStamp ToTimeStamp(RedisResult result)
@@ -206,6 +213,7 @@ namespace NRedisStack.Core
 
             return new BloomInformation(capacity, size, numberOfFilters, numberOfItemsInserted, expansionRate);
         }
+
         public static CuckooInformation? ToCuckooInfo(RedisResult result) //TODO: Think about a different implementation, because if the output of BF.INFO changes or even just the names of the labels then the parsing will not work
         {
             long size, numberOfBuckets, numberOfFilter, numberOfItemsInserted,
@@ -254,6 +262,37 @@ namespace NRedisStack.Core
 
             return new CuckooInformation(size, numberOfBuckets, numberOfFilter, numberOfItemsInserted,
                                         numberOfItemsDeleted, bucketSize, expansionRate, maxIteration);
+        }
+
+        public static CmsInformation? ToCmsInfo(RedisResult result) //TODO: Think about a different implementation, because if the output of CMS.INFO changes or even just the names of the labels then the parsing will not work
+        {
+            long width, depth, count;
+
+            width = depth = count = -1;
+
+            RedisResult[]? redisResults = (RedisResult[]?)result;
+
+            if (redisResults == null) return null;
+
+            for (int i = 0; i < redisResults.Length; ++i)
+            {
+                string? label = redisResults[i++].ToString();
+
+                switch (label)
+                {
+                    case "width":
+                        width = (long)redisResults[i];
+                        break;
+                    case "depth":
+                        depth = (long)redisResults[i];
+                        break;
+                    case "count":
+                        count = (long)redisResults[i];
+                        break;
+                }
+            }
+
+            return new CmsInformation(width, depth, count);
         }
 
         public static TimeSeriesInformation ToTimeSeriesInfo(RedisResult result)

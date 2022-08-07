@@ -65,7 +65,7 @@ namespace NRedisStack.Core
         /// <returns>An array of booleans. Each element is either true or false depending on whether the
         /// corresponding input element was newly added to the filter or may have previously existed.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.insert"/></remarks>
-        public bool[] Insert(RedisKey key, RedisValue[] items, int? capacity = null,
+        public bool[] Insert(RedisKey key, RedisValue[] items, int? capacity = null, //TODO: create enother function that get one item, because right now if the user want to insert one item he needs to insert this as RedisValue[]
                                   double? error = null, int? expansion = null,
                                   bool nocreate = false, bool nonscaling = false)
         {
