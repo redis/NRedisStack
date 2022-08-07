@@ -70,7 +70,7 @@ namespace NRedisStack.Core
         /// <remarks><seealso href="https://redis.io/commands/cf.exists"/></remarks>
         public bool Exists(RedisKey key, RedisValue item)
         {
-            return _db.Execute(BF.EXISTS, key, item).ToString() == "1";
+            return _db.Execute(CF.EXISTS, key, item).ToString() == "1";
         }
 
         /// <summary>

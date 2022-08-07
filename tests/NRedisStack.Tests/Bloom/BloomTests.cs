@@ -122,7 +122,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void TestScanDumpAndLoadChunk() //TODO: Fininsh this Test
+    public void TestScanDumpAndLoadChunk()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
