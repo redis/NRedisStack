@@ -30,7 +30,7 @@ namespace NRedisStack.Core
         /// <param name="key">The name of the filter.</param>
         /// <param name="item">The item to check for.</param>
         /// <returns><see langword="true"/> means the item may exist in the filter,
-        /// and <see langword="false"/> means the item may exist in the filter.</returns>
+        /// and <see langword="false"/> means it does not exist in the filter.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.exists"/></remarks>
         public bool Exists(RedisKey key, RedisValue item)
         {
@@ -41,7 +41,7 @@ namespace NRedisStack.Core
         /// Return information about a bloom filter.
         /// </summary>
         /// <param name="key">Name of the key to return information about.</param>
-        /// <returns>Array with information of the filter.</returns>
+        /// <returns>Information of the filter.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.info"/></remarks>
         public BloomInformation? Info(RedisKey key)
         {

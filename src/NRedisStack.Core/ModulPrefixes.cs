@@ -7,6 +7,9 @@ namespace NRedisStack.Core.RedisStackCommands
         static bool bloomCreated = false;
         static BloomCommands bloomCommands;
 
+        static bool cuckooCreated = false;
+        static CuckooCommands cuckooCommands;
+
         static bool searchCreated = false;
         static SearchCommands searchCommands;
 
@@ -25,6 +28,17 @@ namespace NRedisStack.Core.RedisStackCommands
             }
 
             return bloomCommands;
+        }
+
+        static public CuckooCommands CF(this IDatabase db)
+        {
+            if (!cuckooCreated)
+            {
+                cuckooCommands = new CuckooCommands(db);
+                cuckooCreated = true;
+            }
+
+            return cuckooCommands;
         }
 
         static public SearchCommands FT(this IDatabase db)
