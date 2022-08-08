@@ -10,6 +10,9 @@ namespace NRedisStack.Core.RedisStackCommands
         static bool cuckooCreated = false;
         static CuckooCommands cuckooCommands;
 
+        static bool cmsCreated = false;
+        static CmsCommands cmsCommands;
+
         static bool searchCreated = false;
         static SearchCommands searchCommands;
 
@@ -39,6 +42,17 @@ namespace NRedisStack.Core.RedisStackCommands
             }
 
             return cuckooCommands;
+        }
+
+        static public CmsCommands CMS(this IDatabase db)
+        {
+            if (!cmsCreated)
+            {
+                cmsCommands = new CmsCommands(db);
+                cmsCreated = true;
+            }
+
+            return cmsCommands;
         }
 
         static public SearchCommands FT(this IDatabase db)
