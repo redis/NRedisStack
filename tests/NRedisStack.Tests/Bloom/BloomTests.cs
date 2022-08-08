@@ -20,6 +20,8 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     public void TestReserveBasic()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+
 
         db.BF().Reserve(key, 0.001, 100L);
 
@@ -32,6 +34,8 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     public void TestAddWhenExist()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+
 
         Assert.True((db.BF().Add(key, "item1"))); // first time
         Assert.False(db.BF().Add(key, "item1")); // second time
@@ -41,6 +45,8 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     public void TestAddExists()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+
 
         db.BF().Add(key, "item1");
         Assert.True(db.BF().Exists(key, "item1"));
@@ -50,46 +56,51 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     public void TestAddExistsMulti()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        var items = new RedisValue[]{"foo", "bar", "baz"};
-        var items2 = new RedisValue[]{"newElement", "bar", "baz"};
+        db.Execute("FLUSHALL");
+        var items = new RedisValue[] { "foo", "bar", "baz" };
+        var items2 = new RedisValue[] { "newElement", "bar", "baz" };
 
         var result = db.BF().MAdd(key, items);
-        Assert.Equal(new bool[] {true, true, true}, result);
+        Assert.Equal(new bool[] { true, true, true }, result);
 
         result = db.BF().MAdd(key, items2);
-        Assert.Equal(new bool[] {true, false, false}, result);
+        Assert.Equal(new bool[] { true, false, false }, result);
     }
 
     [Fact]
-    public void TestExample() {
-                IDatabase db = redisFixture.Redis.GetDatabase();
+    public void TestExample()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
 
-    // Simple bloom filter using default module settings
-     db.BF().Add("simpleBloom", "Mark");
-    // Does "Mark" now exist?
-     db.BF().Exists("simpleBloom", "Mark"); // true
-     db.BF().Exists("simpleBloom", "Farnsworth"); // False
+        // Simple bloom filter using default module settings
+        db.BF().Add("simpleBloom", "Mark");
+        // Does "Mark" now exist?
+        db.BF().Exists("simpleBloom", "Mark"); // true
+        db.BF().Exists("simpleBloom", "Farnsworth"); // False
 
-    // If you have a long list of items to check/add, you can use the
-    // "multi" methods
-    var items = new RedisValue[]{"foo", "bar", "baz", "bat", "bag"};
-     db.BF().MAdd("simpleBloom", items);
+        // If you have a long list of items to check/add, you can use the
+        // "multi" methods
+        var items = new RedisValue[] { "foo", "bar", "baz", "bat", "bag" };
+        db.BF().MAdd("simpleBloom", items);
 
-    // Check if they exist:
-    var allItems = new RedisValue[]{"foo", "bar", "baz", "bat", "Mark", "nonexist"};
-    var rv =  db.BF().MExists("simpleBloom", allItems);
-    // All items except the last one will be 'true'
-    Assert.Equal(new bool[] {true, true, true, true, true, false}, rv);
+        // Check if they exist:
+        var allItems = new RedisValue[] { "foo", "bar", "baz", "bat", "Mark", "nonexist" };
+        var rv = db.BF().MExists("simpleBloom", allItems);
+        // All items except the last one will be 'true'
+        Assert.Equal(new bool[] { true, true, true, true, true, false }, rv);
 
-    // Reserve a "customized" bloom filter
-     db.BF().Reserve("specialBloom", 0.0001, 10000);
-     db.BF().Add("specialBloom", "foo");
-  }
+        // Reserve a "customized" bloom filter
+        db.BF().Reserve("specialBloom", 0.0001, 10000);
+        db.BF().Add("specialBloom", "foo");
+    }
 
     [Fact]
     public void TestInsert()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+
         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
 
         db.BF().Insert("key", items);
@@ -103,6 +114,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     public void TestExistsNonExist()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
 
         RedisValue item = new RedisValue("item");
         Assert.False(db.BF().Exists("NonExistKey", item));
@@ -112,13 +124,15 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     public void TestInfo() //TODO: think again about the returned value of BF.INFO, maybe creating a new returned type
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        
         db.BF().Add(key, "item");
         var info = db.BF().Info(key);
 
         Assert.NotNull(info);
         Assert.Equal(info.NumberOfItemsInserted, (long)1);
 
-        Assert.Throws<RedisServerException>( () => db.BF().Info("notExistKey"));
+        Assert.Throws<RedisServerException>(() => db.BF().Info("notExistKey"));
     }
 
     [Fact]
@@ -127,15 +141,15 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
 
-        db.BF().Reserve("bloom-dump",0.1, 10);
+        db.BF().Reserve("bloom-dump", 0.1, 10);
         db.BF().Add("bloom-dump", "a");
 
         long iterator = 0;
-        while(true)
+        while (true)
         {
             var chunkData = db.BF().ScanDump("bloom-dump", iterator);
             iterator = chunkData.Item1;
-            if(iterator == 0) break;
+            if (iterator == 0) break;
             Assert.True(db.BF().LoadChunk("bloom-load", iterator, chunkData.Item2));
         }
 

@@ -55,6 +55,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+
         Assert.Equal(db.CF().Count("notExistFilter", "notExistItem"), 0);
     }
 
@@ -63,6 +64,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+
         db.CF().Insert(key, new RedisValue[]{"foo"});
         Assert.Equal(db.CF().Count(key, "notExistItem"), 0);
     }
@@ -95,6 +97,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        
         db.CF().Add(key, "item");
         var info = db.CF().Info(key);
 
@@ -108,6 +111,8 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public void TestInsert()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+
         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
 
         db.CF().Insert("key", items);
@@ -121,8 +126,9 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public void TestInsertNX()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
         db.Execute("FLUSHALL");
+
+        RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
 
         var result = db.CF().InsertNX(key, items);
         var trues = new bool[] {true, true, true};
@@ -142,6 +148,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public void TestExistsNonExist()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
 
         RedisValue item = new RedisValue("item");
         Assert.False(db.CF().Exists("NonExistKey", item));

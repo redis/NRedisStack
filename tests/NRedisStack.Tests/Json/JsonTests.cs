@@ -40,6 +40,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     // {
     //     var obj = new Person { Name = "Shachar", Age = 23 };
     //     IDatabase db = redisFixture.Redis.GetDatabase();
+    //     db.Execute("FLUSHALL");
 
     //     db.JSON().Set(key, "$", obj);
     //     string expected = "{\"Name\":\"Shachar\",\"Age\":23}";
@@ -55,6 +56,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     // {
     //     var obj = new Person { Name = "Shachar", Age = 23 };
     //     IDatabase db = redisFixture.Redis.GetDatabase();
+    //     db.Execute("FLUSHALL");
 
     //     db.JSON().Set(key, "$", obj);
 
