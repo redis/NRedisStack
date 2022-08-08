@@ -13,6 +13,9 @@ namespace NRedisStack.Core.RedisStackCommands
         static bool cmsCreated = false;
         static CmsCommands cmsCommands;
 
+        static bool topKCreated = false;
+        static TopKCommands topKCommands;
+
         static bool searchCreated = false;
         static SearchCommands searchCommands;
 
@@ -53,6 +56,17 @@ namespace NRedisStack.Core.RedisStackCommands
             }
 
             return cmsCommands;
+        }
+
+        static public TopKCommands TopK(this IDatabase db)
+        {
+            if (!topKCreated)
+            {
+                topKCommands = new TopKCommands(db);
+                topKCreated = true;
+            }
+
+            return topKCommands;
         }
 
         static public SearchCommands FT(this IDatabase db)
