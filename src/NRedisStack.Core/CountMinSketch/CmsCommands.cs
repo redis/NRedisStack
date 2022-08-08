@@ -20,9 +20,31 @@ namespace NRedisStack.Core
         /// <param name="increment">Amount by which the item counter is to be increased.</param>
         /// <returns>Count of each item after increment.</returns>
         /// <remarks><seealso href="https://redis.io/commands/cms.incrby"/></remarks>
-        public long[]? IncrBy(RedisKey key, RedisValue item, long increment)
+        public long IncrBy(RedisKey key, RedisValue item, long increment)
         {
-            return ResponseParser.ToLongArray(_db.Execute(CMS.INCRBY, key, item, increment));
+            return ResponseParser.ToLong(_db.Execute(CMS.INCRBY, key, item, increment));
+        }
+
+        /// <summary>
+        /// Increases the count of item by increment.
+        /// </summary>
+        /// <param name="key">The name of the sketch.</param>
+        /// <param name="itemIncrements">Tuple of The items which counter is to be increased
+        /// and the Amount by which the item counter is to be increased.</param>
+        /// <returns>Count of each item after increment.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/cms.incrby"/></remarks>
+        public long[]? IncrBy(RedisKey key, Tuple<RedisValue, long>[] itemIncrements)
+        {
+            if (itemIncrements.Length < 1)
+                throw new ArgumentException(nameof(itemIncrements));
+
+            List<object> args = new List<object> { key };
+            foreach (var pair in itemIncrements)
+            {
+                args.Add(pair.Item1);
+                args.Add(pair.Item2);
+            }
+            return ResponseParser.ToLongArray(_db.Execute(CMS.INCRBY, args));
         }
 
         /// <summary>
@@ -62,7 +84,7 @@ namespace NRedisStack.Core
         /// <remarks><seealso href="https://redis.io/commands/cms.initbyprob"/></remarks>
         public bool InitByProb(RedisKey key, double error, double probability)
         {
-            return ResponseParser.ParseOKtoBoolean(_db.Execute(CMS.INITBYDIM, key, error, probability));
+            return ResponseParser.ParseOKtoBoolean(_db.Execute(CMS.INITBYPROB, key, error, probability));
         }
 
         /// <summary>
@@ -99,7 +121,7 @@ namespace NRedisStack.Core
         /// <param name="items">One or more items for which to return the count.</param>
         /// <returns>Array with a min-count of each of the items in the sketch</returns>
         /// <remarks><seealso href="https://redis.io/commands/cms.merge"/></remarks>
-        public long[]? Query(RedisKey key, RedisValue[] items)
+        public long[]? Query(RedisKey key, RedisValue[] items) //TODO: Create second version of this function using params for items input
         {
             if (items.Length < 1)
                 throw new ArgumentNullException(nameof(items));

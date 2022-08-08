@@ -1,168 +1,162 @@
-// using Xunit;
-// using StackExchange.Redis;
-// using NRedisStack.Core.RedisStackCommands;
-// using Moq;
+using Xunit;
+using StackExchange.Redis;
+using NRedisStack.Core.RedisStackCommands;
+using Moq;
 
-// namespace NRedisStack.Tests.CuckooFilter;
+namespace NRedisStack.Tests.CuckooFilter;
 
-// public class CmsTests : AbstractNRedisStackTest, IDisposable
-// {
-//     Mock<IDatabase> _mock = new Mock<IDatabase>();
-//     private readonly string key = "CMS_TESTS";
-//     public CmsTests(RedisFixture redisFixture) : base(redisFixture) { }
+public class CmsTests : AbstractNRedisStackTest, IDisposable
+{
+    Mock<IDatabase> _mock = new Mock<IDatabase>();
+    private readonly string key = "CMS_TESTS";
+    public CmsTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-//     public void Dispose()
-//     {
-//         redisFixture.Redis.GetDatabase().KeyDelete(key);
-//     }
+    public void Dispose()
+    {
+        redisFixture.Redis.GetDatabase().KeyDelete(key);
+    }
 
-//     [Fact]
-//     public void TestIncrBy()
-//     {
+    [Fact]
+    public void TestInitByDim()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
 
-//     }
+        db.CMS().InitByDim(key, 16, 4);
+        var info = db.CMS().Info(key);
 
-//     [Fact]
-//     public void TestAddExists()
-//     {
-//         IDatabase db = redisFixture.Redis.GetDatabase();
-//         db.Execute("FLUSHALL");
+        Assert.Equal(16, info.Width);
+        Assert.Equal(4, info.Depth);
+        Assert.Equal(0, info.Count);
+    }
 
-//         Assert.True(db.CF().Add(key, "item1"));
-//         Assert.True(db.CF().Exists(key, "item1"));
-//     }
+    [Fact]
+    public void TestInitByProb()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
 
-//     [Fact]
-//     public void TestAddNX()
-//     {
-//         IDatabase db = redisFixture.Redis.GetDatabase();
-//         db.Execute("FLUSHALL");
+        db.CMS().InitByProb(key, 0.01, 0.01);
+        var info = db.CMS().Info(key);
 
-//         Assert.True(db.CF().AddNX(key, "item1"));
-//         Assert.False(db.CF().AddNX(key, "item1"));
-//         Assert.True(db.CF().Exists(key, "item1"));
-//     }
+        Assert.Equal(200, info.Width);
+        Assert.Equal(7, info.Depth);
+        Assert.Equal(0, info.Count);
+    }
 
-//     [Fact]
-//     public void TestCountFilterDoesNotExist()
-//     {
-//         IDatabase db = redisFixture.Redis.GetDatabase();
-//         db.Execute("FLUSHALL");
-//         Assert.Equal(db.CF().Count("notExistFilter", "notExistItem"), 0);
-//     }
+    [Fact]
+    public void TestKeyAlreadyExists()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
 
-//     [Fact]
-//     public void TestCountFilterExist()
-//     {
-//         IDatabase db = redisFixture.Redis.GetDatabase();
-//         db.Execute("FLUSHALL");
-//         db.CF().Insert(key, new RedisValue[]{"foo"});
-//         Assert.Equal(db.CF().Count(key, "notExistItem"), 0);
-//     }
+        db.CMS().InitByDim("dup", 16, 4);
+        Assert.Throws<RedisServerException>(() => db.CMS().InitByDim("dup", 8, 6));
+    }
 
-//     [Fact]
-//     public void TestCountItemExist()
-//     {
-//         IDatabase db = redisFixture.Redis.GetDatabase();
-//         db.Execute("FLUSHALL");
+    [Fact]
+    public void TestIncrBy()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
 
-//         db.CF().Insert(key, new RedisValue[]{"foo"});
-//         Assert.Equal(db.CF().Count(key, "foo"), 1);
-//     }
+        db.CMS().InitByDim(key, 1000, 5);
+        var resp = db.CMS().IncrBy(key, "foo", 5);
+        Assert.Equal(5, resp);
 
-//     [Fact]
-//     public void TestDelete()
-//     {
-//         IDatabase db = redisFixture.Redis.GetDatabase();
-//         db.Execute("FLUSHALL");
+        var info = db.CMS().Info(key);
+        Assert.Equal(1000, info.Width);
+        Assert.Equal(5, info.Depth);
+        Assert.Equal(5, info.Count);
 
-//         db.CF().Add(key, "item");
-//         Assert.False(db.CF().Del(key, "notExistsItem"));
-//         Assert.True(db.CF().Del(key, "item"));
+    }
 
-//         Assert.Throws<RedisServerException>( () => db.CF().Del("notExistKey", "item"));
-//     }
+    [Fact]
+    public void TestIncrByMultipleArgs()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
 
-//     [Fact]
-//     public void TestInfo() //TODO: think again about the returned value of CF.INFO, maybe creating a new returned type
-//     {
-//         IDatabase db = redisFixture.Redis.GetDatabase();
-//         db.Execute("FLUSHALL");
-//         db.CF().Add(key, "item");
-//         var info = db.CF().Info(key);
+        db.CMS().InitByDim(key, 1000, 5);
+        db.CMS().IncrBy(key, "foo", 5L);
 
-//         Assert.NotNull(info);
-//         Assert.Equal(info.NumberOfItemsInserted, (long)1);
+        var itemIncrements = new Tuple<RedisValue, long>[2];
+        itemIncrements[0] = new Tuple<RedisValue, long>("foo", 5);
+        itemIncrements[1] = new Tuple<RedisValue, long>("bar", 15);
 
-//         Assert.Throws<RedisServerException>( () => db.CF().Info("notExistKey"));
-//     }
+        var resp = db.CMS().IncrBy(key, itemIncrements);
+        Assert.Equal(new long[] { 10, 15 }, resp);
 
-//     [Fact]
-//     public void TestInsert()
-//     {
-//         IDatabase db = redisFixture.Redis.GetDatabase();
-//         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
+        var info = db.CMS().Info(key);
+        Assert.Equal(1000, info.Width);
+        Assert.Equal(5, info.Depth);
+        Assert.Equal(25, info.Count);
 
-//         db.CF().Insert("key", items);
-
-//         Assert.True(db.CF().Exists("key", "item1"));
-//         Assert.True(db.CF().Exists("key", "item2"));
-//         Assert.True(db.CF().Exists("key", "item3"));
-//     }
-
-//     [Fact]
-//     public void TestInsertNX()
-//     {
-//         IDatabase db = redisFixture.Redis.GetDatabase();
-//         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
-//         db.Execute("FLUSHALL");
-
-//         var result = db.CF().InsertNX(key, items);
-//         var trues = new bool[] {true, true, true};
-//         Assert.Equal(result, trues);
-
-//         Assert.True(db.CF().Exists(key, "item1"));
-//         Assert.True(db.CF().Exists(key, "item2"));
-//         Assert.True(db.CF().Exists(key, "item3"));
-
-//         Assert.Equal(db.CF().MExists(key, items), trues);
-
-//         result = db.CF().InsertNX(key, items);
-//         Assert.Equal(result, new bool[] {false, false, false});
-//     }
-
-//     [Fact]
-//     public void TestExistsNonExist()
-//     {
-//         IDatabase db = redisFixture.Redis.GetDatabase();
-
-//         RedisValue item = new RedisValue("item");
-//         Assert.False(db.CF().Exists("NonExistKey", item));
-//     }
+    }
 
 
+    [Fact]
+    public void TestQuery()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        db.CMS().InitByDim(key, 1000, 5);
 
-//     [Fact]
-//     public void TestScanDumpAndLoadChunk()
-//     {
-//         IDatabase db = redisFixture.Redis.GetDatabase();
-//         db.Execute("FLUSHALL");
+        var itemIncrements = new Tuple<RedisValue, long>[2];
+        itemIncrements[0] = new Tuple<RedisValue, long>("foo", 10);
+        itemIncrements[1] = new Tuple<RedisValue, long>("bar", 15);
 
-//         db.CF().Reserve("cuckoo",100, 50);
-//         db.CF().Add("cuckoo-dump", "a");
+        db.CMS().IncrBy(key, itemIncrements);
 
-//         long iterator = 0;
-//         while(true)
-//         {
-//             var chunkData = db.CF().ScanDump("cuckoo-dump", iterator);
-//             iterator = chunkData.Item1;
-//             if(iterator == 0) break;
-//             Assert.True(db.CF().LoadChunk("cuckoo-load", iterator, chunkData.Item2));
-//         }
+        var resp = db.CMS().Query(key, new RedisValue[] { "foo", "bar" });
+        Assert.Equal(new long[] { 10, 15 }, resp);
+    }
 
-//         // check for properties
-//         Assert.Equal(db.CF().Info("cuckoo-dump").NumberOfItemsInserted, db.CF().Info("cuckoo-load").NumberOfItemsInserted);
-//         // check for existing items
-//         Assert.True(db.CF().Exists("cuckoo-load", "a"));
-//     }
-// }
+    [Fact]
+    public void TestMerge()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+
+        db.CMS().InitByDim("A", 1000, 5);
+        db.CMS().InitByDim("B", 1000, 5);
+        db.CMS().InitByDim("C", 1000, 5);
+
+        var aValues = new Tuple<RedisValue, long>[3];
+        aValues[0] = new Tuple<RedisValue, long>("foo", 5);
+        aValues[1] = new Tuple<RedisValue, long>("bar", 3);
+        aValues[2] = new Tuple<RedisValue, long>("baz", 9);
+
+        db.CMS().IncrBy("A", aValues);
+
+        var bValues = new Tuple<RedisValue, long>[3];
+        bValues[0] = new Tuple<RedisValue, long>("foo", 2);
+        bValues[1] = new Tuple<RedisValue, long>("bar", 3);
+        bValues[2] = new Tuple<RedisValue, long>("baz", 1);
+
+        db.CMS().IncrBy("B", bValues);
+
+        var q1 = db.CMS().Query("A", new RedisValue[] { "foo", "bar", "baz" });
+        Assert.Equal(new long[] { 5L, 3L, 9L }, q1);
+
+        var q2 = db.CMS().Query("B", new RedisValue[] { "foo", "bar", "baz" });
+        Assert.Equal(new long[] { 2L, 3L, 1L }, q2);
+
+        db.CMS().Merge("C", 2, new RedisValue[] { "A", "B" });
+
+        var q3 = db.CMS().Query("C", new RedisValue[] { "foo", "bar", "baz" });
+        Assert.Equal(new long[] { 7L, 6L, 10L }, q3);
+
+        db.CMS().Merge("C", 2, new RedisValue[] { "A", "B" }, new long[] { 1, 2 });
+
+        var q4 = db.CMS().Query("C", new RedisValue[] { "foo", "bar", "baz" });
+        Assert.Equal(new long[] { 9L, 9L, 11L }, q4);
+
+        db.CMS().Merge("C", 2, new RedisValue[] { "A", "B" }, new long[] { 2, 3 });
+
+
+        var q5 = db.CMS().Query("C", new RedisValue[] { "foo", "bar", "baz" });
+        Assert.Equal(new long[] { 16L, 15L, 21L }, q5);
+    }
+}
+
