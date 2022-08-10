@@ -7,6 +7,7 @@ using StackExchange.Redis;
 using NRedisStack.Core.Bloom.DataTypes;
 using NRedisStack.Core.CuckooFilter.DataTypes;
 using NRedisStack.Core.CountMinSketch.DataTypes;
+using NRedisStack.Core.TopK.DataTypes;
 
 namespace NRedisStack.Core
 {
@@ -31,9 +32,9 @@ namespace NRedisStack.Core
             return boolArr;
         }
 
-        public static RedisResult[] ToArray(RedisResult result)
+        public static RedisResult[]? ToArray(RedisResult result)
         {
-            return (RedisResult[])result;
+            return (RedisResult[]?)result;
         }
 
         public static long ToLong(RedisResult result)
@@ -293,6 +294,42 @@ namespace NRedisStack.Core
             }
 
             return new CmsInformation(width, depth, count);
+        }
+
+        public static TopKInformation? ToTopKInfo(RedisResult result) //TODO: Think about a different implementation, because if the output of CMS.INFO changes or even just the names of the labels then the parsing will not work
+        {
+            long k, width, depth;
+            double decay;
+
+            k = width = depth = -1;
+            decay = -1.0;
+
+            RedisResult[]? redisResults = (RedisResult[]?)result;
+
+            if (redisResults == null) return null;
+
+            for (int i = 0; i < redisResults.Length; ++i)
+            {
+                string? label = redisResults[i++].ToString();
+
+                switch (label)
+                {
+                    case "k":
+                        k = (long)redisResults[i];
+                        break;
+                    case "width":
+                        width = (long)redisResults[i];
+                        break;
+                    case "depth":
+                        depth = (long)redisResults[i];
+                        break;
+                    case "decay":
+                        decay = (double)redisResults[i];
+                        break;
+                }
+            }
+
+            return new TopKInformation(k, width, depth, decay);
         }
 
         public static TimeSeriesInformation ToTimeSeriesInfo(RedisResult result)
