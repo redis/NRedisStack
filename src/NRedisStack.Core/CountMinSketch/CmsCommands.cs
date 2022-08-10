@@ -120,7 +120,7 @@ namespace NRedisStack.Core
         /// <param name="key">The name of the sketch</param>
         /// <param name="items">One or more items for which to return the count.</param>
         /// <returns>Array with a min-count of each of the items in the sketch</returns>
-        /// <remarks><seealso href="https://redis.io/commands/cms.merge"/></remarks>
+        /// <remarks><seealso href="https://redis.io/commands/cms.query"/></remarks>
         public long[]? Query(RedisKey key, RedisValue[] items) //TODO: Create second version of this function using params for items input
         {
             if (items.Length < 1)

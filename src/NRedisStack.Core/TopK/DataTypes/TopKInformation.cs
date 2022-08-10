@@ -12,7 +12,7 @@ namespace NRedisStack.Core.TopK.DataTypes
         public double Decay { get; private set; }
 
 
-        internal TopKInformation(long k,long width, long depth, long decay)
+        internal TopKInformation(long k, long width, long depth, double decay)
         {
             K = k;
             Width = width;

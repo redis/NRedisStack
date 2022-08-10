@@ -58,7 +58,7 @@ namespace NRedisStack.Core.RedisStackCommands
             return cmsCommands;
         }
 
-        static public TopKCommands TopK(this IDatabase db)
+        static public TopKCommands TOPK(this IDatabase db)
         {
             if (!topKCreated)
             {
