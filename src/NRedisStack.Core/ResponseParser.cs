@@ -8,6 +8,7 @@ using NRedisStack.Core.Bloom.DataTypes;
 using NRedisStack.Core.CuckooFilter.DataTypes;
 using NRedisStack.Core.CountMinSketch.DataTypes;
 using NRedisStack.Core.TopK.DataTypes;
+using NRedisStack.Core.Tdigest.DataTypes;
 
 namespace NRedisStack.Core
 {
@@ -41,6 +42,12 @@ namespace NRedisStack.Core
         {
             if (result.Type == ResultType.None) return 0;
             return (long)result;
+        }
+
+        public static double? ToDouble(RedisResult result)
+        {
+            if (result.IsNull) return null;
+            return (double) result;
         }
 
         public static long[]? ToLongArray(RedisResult result)
@@ -330,6 +337,52 @@ namespace NRedisStack.Core
             }
 
             return new TopKInformation(k, width, depth, decay);
+        }
+
+        public static TdigestInformation? ToTdigestInfo(RedisResult result) //TODO: Think about a different implementation, because if the output of CMS.INFO changes or even just the names of the labels then the parsing will not work
+        {
+            long compression, capacity, mergedNodes, unmergedNodes, totalCompressions;
+            string mergedWeight, unmergedWeight;
+
+            compression = capacity = mergedNodes = unmergedNodes = totalCompressions = -1;
+            mergedWeight = unmergedWeight = "";
+
+            RedisResult[]? redisResults = (RedisResult[]?)result;
+
+            if (redisResults == null) return null;
+
+            for (int i = 0; i < redisResults.Length; ++i)
+            {
+                string? label = redisResults[i++].ToString();
+
+                switch (label)
+                {
+                    case "Compression":
+                        compression = (long)redisResults[i];
+                        break;
+                    case "Capacity":
+                        capacity = (long)redisResults[i];
+                        break;
+                    case "Merged nodes":
+                        mergedNodes = (long)redisResults[i];
+                        break;
+                    case "Unmerged nodes":
+                        unmergedNodes = (long)redisResults[i];
+                        break;
+                    case "Merged weight":
+                        mergedWeight = (string)redisResults[i];
+                        break;
+                    case "Unmerged weight":
+                        unmergedWeight = (string)redisResults[i];
+                        break;
+                    case "Total compressions":
+                        totalCompressions = (long)redisResults[i];
+                        break;
+                }
+            }
+
+            return new TdigestInformation(compression, capacity, mergedNodes, unmergedNodes,
+                                          mergedWeight, unmergedWeight, totalCompressions);
         }
 
         public static TimeSeriesInformation ToTimeSeriesInfo(RedisResult result)
