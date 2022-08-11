@@ -49,7 +49,7 @@ public class TopKTests : AbstractNRedisStackTest, IDisposable
     public async void CreateTopKFilterAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        await db.ExecuteAsync("FLUSHALL");
+        db.Execute("FLUSHALL");
 
         db.TOPK().ReserveAsync("aaa", 30, 2000, 7, 0.925);
 

@@ -56,7 +56,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public async void TestAddExistsAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        await db.ExecuteAsync("FLUSHALL");
+        db.Execute("FLUSHALL");
 
         Assert.True(await db.CF().AddAsync(key, "item1"));
         Assert.True(await db.CF().ExistsAsync(key, "item1"));
@@ -77,7 +77,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public async void TestAddNXAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        await db.ExecuteAsync("FLUSHALL");
+        db.Execute("FLUSHALL");
 
         Assert.True(await db.CF().AddNXAsync(key, "item1"));
         Assert.False(await db.CF().AddNXAsync(key, "item1"));
@@ -97,7 +97,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public async void TestCountFilterDoesNotExistAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        await db.ExecuteAsync("FLUSHALL");
+        db.Execute("FLUSHALL");
 
         Assert.Equal(await db.CF().CountAsync("notExistFilter", "notExistItem"), 0);
     }
@@ -116,7 +116,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public async void TestCountFilterExistAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        await db.ExecuteAsync("FLUSHALL");
+        db.Execute("FLUSHALL");
 
         await db.CF().InsertAsync(key, new RedisValue[]{"foo"});
         Assert.Equal(await db.CF().CountAsync(key, "notExistItem"), 0);
@@ -136,7 +136,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public async void TestCountItemExistAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        await db.ExecuteAsync("FLUSHALL");
+        db.Execute("FLUSHALL");
 
         await db.CF().InsertAsync(key, new RedisValue[]{"foo"});
         Assert.Equal(await db.CF().CountAsync(key, "foo"), 1);
@@ -159,7 +159,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public async void TestDeleteAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        await db.ExecuteAsync("FLUSHALL");
+        db.Execute("FLUSHALL");
 
         await db.CF().AddAsync(key, "item");
         Assert.False(await db.CF().DelAsync(key, "notExistsItem"));
@@ -187,7 +187,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public async void TestInfoAsync() //TODO: think again about the returned value of CF.INFO, maybe creating a new returned type
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        await db.ExecuteAsync("FLUSHALL");
+        db.Execute("FLUSHALL");
 
         await db.CF().AddAsync(key, "item");
         var info = await db.CF().InfoAsync(key);
@@ -217,7 +217,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public async void TestInsertAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        await db.ExecuteAsync("FLUSHALL");
+        db.Execute("FLUSHALL");
 
         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
 
@@ -254,7 +254,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public async void TestInsertNXAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        await db.ExecuteAsync("FLUSHALL");
+        db.Execute("FLUSHALL");
 
         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
 
@@ -286,7 +286,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public async void TestExistsNonExistAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        await db.ExecuteAsync("FLUSHALL");
+        db.Execute("FLUSHALL");
 
         RedisValue item = new RedisValue("item");
         Assert.False(await db.CF().ExistsAsync("NonExistKey", item));
@@ -320,7 +320,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public async void TestScanDumpAndLoadChunkAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        await db.ExecuteAsync("FLUSHALL");
+        db.Execute("FLUSHALL");
 
         await db.CF().ReserveAsync("cuckoo",100, 50);
         await db.CF().AddAsync("cuckoo-dump", "a");

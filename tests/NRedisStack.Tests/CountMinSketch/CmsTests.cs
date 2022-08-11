@@ -34,7 +34,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     public async void TestInitByDimAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        await db.ExecuteAsync("FLUSHALL");
+        db.Execute("FLUSHALL");
 
         await db.CMS().InitByDimAsync(key, 16, 4);
         var info = await db.CMS().InfoAsync(key);
@@ -62,7 +62,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     public async void TestInitByProbAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        await db.ExecuteAsync("FLUSHALL");
+        db.Execute("FLUSHALL");
 
         await db.CMS().InitByProbAsync(key, 0.01, 0.01);
         var info = await db.CMS().InfoAsync(key);
