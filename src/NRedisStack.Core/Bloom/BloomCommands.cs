@@ -70,7 +70,7 @@ namespace NRedisStack.Core
         /// <param name="key">Name of the key to return information about.</param>
         /// <returns>Information of the filter.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.info"/></remarks>
-        public BloomInformation? Info(RedisKey key)
+        public BloomInformation Info(RedisKey key)
         {
             var info = _db.Execute(BF.INFO, key);
             return ResponseParser.ToBloomInfo(info);
@@ -82,7 +82,7 @@ namespace NRedisStack.Core
         /// <param name="key">Name of the key to return information about.</param>
         /// <returns>Information of the filter.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.info"/></remarks>
-        public async Task<BloomInformation?> InfoAsync(RedisKey key)
+        public async Task<BloomInformation> InfoAsync(RedisKey key)
         {
             var info = await _db.ExecuteAsync(BF.INFO, key);
             return ResponseParser.ToBloomInfo(info);
@@ -108,8 +108,8 @@ namespace NRedisStack.Core
                                   double? error = null, int? expansion = null,
                                   bool nocreate = false, bool nonscaling = false)
         {
-            if (items == null)
-                throw new ArgumentNullException(nameof(items));
+            if (items.Length < 1)
+                throw new ArgumentOutOfRangeException(nameof(items));
 
             List<object> args = new List<object> { key };
 
@@ -118,6 +118,7 @@ namespace NRedisStack.Core
                 args.Add(BloomArgs.CAPACITY);
                 args.Add(capacity);
             }
+
 
             if (error != null)
             {
@@ -171,8 +172,8 @@ namespace NRedisStack.Core
                                   double? error = null, int? expansion = null,
                                   bool nocreate = false, bool nonscaling = false)
         {
-            if (items == null)
-                throw new ArgumentNullException(nameof(items));
+            if (items.Length < 1)
+                throw new ArgumentOutOfRangeException(nameof(items));
 
             List<object> args = new List<object> { key };
 
@@ -221,11 +222,11 @@ namespace NRedisStack.Core
         /// <param name="key">Name of the key to restore.</param>
         /// <param name="iterator">Iterator value associated with data (returned by SCANDUMP).</param>
         /// <param name="data">Current data chunk (returned by SCANDUMP).</param>
-        /// <returns>Array with information of the filter.</returns>
+        /// <returns><see langword="true"/> if executed correctly, error otherwise/></returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.loadchunk"/></remarks>
         public bool LoadChunk(RedisKey key, long iterator, Byte[] data)
         {
-            return ResponseParser.ParseOKtoBoolean(_db.Execute(BF.LOADCHUNK, key, iterator, data));
+            return ResponseParser.OKtoBoolean(_db.Execute(BF.LOADCHUNK, key, iterator, data));
         }
 
         /// <summary>
@@ -234,12 +235,12 @@ namespace NRedisStack.Core
         /// <param name="key">Name of the key to restore.</param>
         /// <param name="iterator">Iterator value associated with data (returned by SCANDUMP).</param>
         /// <param name="data">Current data chunk (returned by SCANDUMP).</param>
-        /// <returns>Array with information of the filter.</returns>
+        /// <returns><see langword="true"/> if executed correctly, error otherwise/></returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.loadchunk"/></remarks>
         public async Task<bool> LoadChunkAsync(RedisKey key, long iterator, Byte[] data)
         {
             var result = await _db.ExecuteAsync(BF.LOADCHUNK, key, iterator, data);
-            return ResponseParser.ParseOKtoBoolean(result);
+            return ResponseParser.OKtoBoolean(result);
         }
 
         /// <summary>
@@ -250,10 +251,10 @@ namespace NRedisStack.Core
         /// <returns>An array of booleans. Each element is either true or false depending on whether the
         /// corresponding input element was newly added to the filter or may have previously existed.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.madd"/></remarks>
-        public bool[] MAdd(RedisKey key, RedisValue[] items)
+        public bool[] MAdd(RedisKey key, params RedisValue[] items)
         {
-            if (items == null)
-                throw new ArgumentNullException(nameof(items));
+            if (items.Length < 1)
+                throw new ArgumentOutOfRangeException(nameof(items));
 
             List<object> args = new List<object> { key };
 
@@ -273,10 +274,10 @@ namespace NRedisStack.Core
         /// <returns>An array of booleans. Each element is either true or false depending on whether the
         /// corresponding input element was newly added to the filter or may have previously existed.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.madd"/></remarks>
-        public async Task<bool[]> MAddAsync(RedisKey key, RedisValue[] items)
+        public async Task<bool[]> MAddAsync(RedisKey key, params RedisValue[] items)
         {
-            if (items == null)
-                throw new ArgumentNullException(nameof(items));
+            if (items.Length < 1)
+                throw new ArgumentOutOfRangeException(nameof(items));
 
             List<object> args = new List<object> { key };
 
@@ -299,8 +300,8 @@ namespace NRedisStack.Core
         /// <remarks><seealso href="https://redis.io/commands/bf.mexists"/></remarks>
         public bool[] MExists(RedisKey key, RedisValue[] items)
         {
-            if (items == null)
-                throw new ArgumentNullException(nameof(items));
+            if (items.Length < 1)
+                throw new ArgumentOutOfRangeException(nameof(items));
 
             List<object> args = new List<object> { key };
 
@@ -323,8 +324,8 @@ namespace NRedisStack.Core
         /// <remarks><seealso href="https://redis.io/commands/bf.mexists"/></remarks>
         public async Task<bool[]> MExistsAsync(RedisKey key, RedisValue[] items)
         {
-            if (items == null)
-                throw new ArgumentNullException(nameof(items));
+            if (items.Length < 1)
+                throw new ArgumentOutOfRangeException(nameof(items));
 
             List<object> args = new List<object> { key };
 
@@ -348,7 +349,7 @@ namespace NRedisStack.Core
         /// created in size of the last sub-filter multiplied by expansion.</param>
         /// <param name="nonscaling">(Optional) <see langword="true"/> toprevent the filter
         /// from creating additional sub-filters if initial capacity is reached.</param>
-        /// <returns><see langword="true"/> if executed correctly, <see langword="false"/> otherwise.</returns>
+        /// <returns><see langword="true"/> if executed correctly, error otherwise/></returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.reserve"/></remarks>
         public bool Reserve(RedisKey key, double errorRate, long capacity,
                                    int? expansion = null, bool nonscaling = false)
@@ -365,7 +366,7 @@ namespace NRedisStack.Core
                 args.Add(BloomArgs.NONSCALING);
             }
 
-            return ResponseParser.ParseOKtoBoolean(_db.Execute(BF.RESERVE, args));
+            return ResponseParser.OKtoBoolean(_db.Execute(BF.RESERVE, args));
         }
 
         /// <summary>
@@ -378,7 +379,7 @@ namespace NRedisStack.Core
         /// created in size of the last sub-filter multiplied by expansion.</param>
         /// <param name="nonscaling">(Optional) <see langword="true"/> toprevent the filter
         /// from creating additional sub-filters if initial capacity is reached.</param>
-        /// <returns><see langword="true"/> if executed correctly, <see langword="false"/> otherwise.</returns>
+        /// <returns><see langword="true"/> if executed correctly, Error otherwise.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.reserve"/></remarks>
         public async Task<bool> ReserveAsync(RedisKey key, double errorRate, long capacity,
                                    int? expansion = null, bool nonscaling = false)
@@ -396,7 +397,7 @@ namespace NRedisStack.Core
             }
 
             var result = await _db.ExecuteAsync(BF.RESERVE, args);
-            return ResponseParser.ParseOKtoBoolean(result);
+            return ResponseParser.OKtoBoolean(result);
         }
 
         /// <summary>
@@ -406,7 +407,7 @@ namespace NRedisStack.Core
         /// <param name="iterator">Iterator value; either 0 or the iterator from a previous invocation of this command.</param>
         /// <returns>Tuple of iterator and data.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.scandump"/></remarks>
-        public Tuple<long,Byte[]>? ScanDump(RedisKey key, long iterator)
+        public Tuple<long,Byte[]> ScanDump(RedisKey key, long iterator)
         {
             return ResponseParser.ToScanDumpTuple(_db.Execute(BF.SCANDUMP, key, iterator));
         }
@@ -418,7 +419,7 @@ namespace NRedisStack.Core
         /// <param name="iterator">Iterator value; either 0 or the iterator from a previous invocation of this command.</param>
         /// <returns>Tuple of iterator and data.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.scandump"/></remarks>
-        public async Task<Tuple<long,Byte[]>?> ScanDumpAsync(RedisKey key, long iterator)
+        public async Task<Tuple<long,Byte[]>> ScanDumpAsync(RedisKey key, long iterator)
         {
             var result = await _db.ExecuteAsync(BF.SCANDUMP, key, iterator);
             return ResponseParser.ToScanDumpTuple(result);

@@ -47,7 +47,7 @@ namespace NRedisStack.Core
         /// and the Amount by which the item counter is to be increased.</param>
         /// <returns>Count of each item after increment.</returns>
         /// <remarks><seealso href="https://redis.io/commands/cms.incrby"/></remarks>
-        public long[]? IncrBy(RedisKey key, Tuple<RedisValue, long>[] itemIncrements)
+        public long[] IncrBy(RedisKey key, Tuple<RedisValue, long>[] itemIncrements)
         {
             if (itemIncrements.Length < 1)
                 throw new ArgumentException(nameof(itemIncrements));
@@ -69,7 +69,7 @@ namespace NRedisStack.Core
         /// and the Amount by which the item counter is to be increased.</param>
         /// <returns>Count of each item after increment.</returns>
         /// <remarks><seealso href="https://redis.io/commands/cms.incrby"/></remarks>
-        public async Task<long[]?> IncrByAsync(RedisKey key, Tuple<RedisValue, long>[] itemIncrements)
+        public async Task<long[]> IncrByAsync(RedisKey key, Tuple<RedisValue, long>[] itemIncrements)
         {
             if (itemIncrements.Length < 1)
                 throw new ArgumentException(nameof(itemIncrements));
@@ -91,7 +91,7 @@ namespace NRedisStack.Core
         /// <param name="key">Name of the key to return information about.</param>
         /// <returns>Information of the sketch.</returns>
         /// <remarks><seealso href="https://redis.io/commands/cms.info"/></remarks>
-        public CmsInformation? Info(RedisKey key)
+        public CmsInformation Info(RedisKey key)
         {
             var info = _db.Execute(CMS.INFO, key);
             return ResponseParser.ToCmsInfo(info);
@@ -103,13 +103,12 @@ namespace NRedisStack.Core
         /// <param name="key">Name of the key to return information about.</param>
         /// <returns>Information of the sketch.</returns>
         /// <remarks><seealso href="https://redis.io/commands/cms.info"/></remarks>
-        public async Task<CmsInformation?> InfoAsync(RedisKey key)
+        public async Task<CmsInformation> InfoAsync(RedisKey key)
         {
             var info = await _db.ExecuteAsync(CMS.INFO, key);
             return ResponseParser.ToCmsInfo(info);
         }
 
-        //TODO: functions that returns OK cannot return false, they return OK or ERROR. fix this (the Redis functions that can return also false - will return 1 for true ans 0 for false)
         /// <summary>
         /// Initializes a Count-Min Sketch to dimensions specified by user.
         /// </summary>
@@ -121,7 +120,7 @@ namespace NRedisStack.Core
         /// <remarks><seealso href="https://redis.io/commands/cms.initbydim"/></remarks>
         public bool InitByDim(RedisKey key, long width, long depth)
         {
-            return ResponseParser.ParseOKtoBoolean(_db.Execute(CMS.INITBYDIM, key, width, depth));
+            return ResponseParser.OKtoBoolean(_db.Execute(CMS.INITBYDIM, key, width, depth));
         }
 
         /// <summary>
@@ -136,7 +135,7 @@ namespace NRedisStack.Core
         public async Task<bool> InitByDimAsync(RedisKey key, long width, long depth)
         {
             var result = await _db.ExecuteAsync(CMS.INITBYDIM, key, width, depth);
-            return ResponseParser.ParseOKtoBoolean(result);
+            return ResponseParser.OKtoBoolean(result);
         }
 
         /// <summary>
@@ -149,7 +148,7 @@ namespace NRedisStack.Core
         /// <remarks><seealso href="https://redis.io/commands/cms.initbyprob"/></remarks>
         public bool InitByProb(RedisKey key, double error, double probability)
         {
-            return ResponseParser.ParseOKtoBoolean(_db.Execute(CMS.INITBYPROB, key, error, probability));
+            return ResponseParser.OKtoBoolean(_db.Execute(CMS.INITBYPROB, key, error, probability));
         }
 
         /// <summary>
@@ -163,7 +162,7 @@ namespace NRedisStack.Core
         public async Task<bool> InitByProbAsync(RedisKey key, double error, double probability)
         {
             var result = await _db.ExecuteAsync(CMS.INITBYPROB, key, error, probability);
-            return ResponseParser.ParseOKtoBoolean(result);
+            return ResponseParser.OKtoBoolean(result);
         }
 
         /// <summary>
@@ -178,7 +177,7 @@ namespace NRedisStack.Core
         public bool Merge(RedisValue destination, long numKeys, RedisValue[] source, long[]? weight = null)
         {
             if (source.Length < 1)
-                throw new ArgumentNullException(nameof(source));
+                throw new ArgumentOutOfRangeException(nameof(source));
 
             List<object> args = new List<object> { destination, numKeys };
 
@@ -190,7 +189,7 @@ namespace NRedisStack.Core
                 foreach (var w in weight) args.Add(w);
             }
 
-            return ResponseParser.ParseOKtoBoolean(_db.Execute(CMS.MERGE, args));
+            return ResponseParser.OKtoBoolean(_db.Execute(CMS.MERGE, args));
         }
 
         /// <summary>
@@ -205,7 +204,7 @@ namespace NRedisStack.Core
         public async Task<bool> MergeAsync(RedisValue destination, long numKeys, RedisValue[] source, long[]? weight = null)
         {
             if (source.Length < 1)
-                throw new ArgumentNullException(nameof(source));
+                throw new ArgumentOutOfRangeException(nameof(source));
 
             List<object> args = new List<object> { destination, numKeys };
 
@@ -218,7 +217,7 @@ namespace NRedisStack.Core
             }
 
             var result = await _db.ExecuteAsync(CMS.MERGE, args);
-            return ResponseParser.ParseOKtoBoolean(result);
+            return ResponseParser.OKtoBoolean(result);
         }
 
         /// <summary>
@@ -228,10 +227,10 @@ namespace NRedisStack.Core
         /// <param name="items">One or more items for which to return the count.</param>
         /// <returns>Array with a min-count of each of the items in the sketch</returns>
         /// <remarks><seealso href="https://redis.io/commands/cms.query"/></remarks>
-        public long[]? Query(RedisKey key, RedisValue[] items) //TODO: Create second version of this function using params for items input
+        public long[] Query(RedisKey key, params RedisValue[] items)
         {
             if (items.Length < 1)
-                throw new ArgumentNullException(nameof(items));
+                throw new ArgumentOutOfRangeException(nameof(items));
 
             List<object> args = new List<object> { key };
             foreach (var item in items) args.Add(item);
@@ -247,10 +246,10 @@ namespace NRedisStack.Core
         /// <param name="items">One or more items for which to return the count.</param>
         /// <returns>Array with a min-count of each of the items in the sketch</returns>
         /// <remarks><seealso href="https://redis.io/commands/cms.query"/></remarks>
-        public async Task<long[]?> QueryAsync(RedisKey key, RedisValue[] items) //TODO: Create second version of this function using params for items input
+        public async Task<long[]> QueryAsync(RedisKey key, params RedisValue[] items)
         {
             if (items.Length < 1)
-                throw new ArgumentNullException(nameof(items));
+                throw new ArgumentOutOfRangeException(nameof(items));
 
             List<object> args = new List<object> { key };
             foreach (var item in items) args.Add(item);

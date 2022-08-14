@@ -1,8 +1,8 @@
 namespace NRedisStack.Core.TopK.DataTypes
 {
     /// <summary>
-    /// This class represents the response for CMS.INFO command.
-    /// This object has Read-only properties and cannot be generated outside a CMS.INFO response.
+    /// This class represents the response for TOPK.INFO command.
+    /// This object has Read-only properties and cannot be generated outside a TOPK.INFO response.
     /// </summary>
     public class TopKInformation
     {

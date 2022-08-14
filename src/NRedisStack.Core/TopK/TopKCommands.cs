@@ -4,7 +4,7 @@ using StackExchange.Redis;
 namespace NRedisStack.Core
 {
 
-    public class TopKCommands //TODO: Finish this
+    public class TopKCommands
     {
         IDatabase _db;
         public TopKCommands(IDatabase db)
@@ -12,24 +12,24 @@ namespace NRedisStack.Core
             _db = db;
         }
 
-        /// <summary>
-        /// Increases the count of item by increment.
-        /// </summary>
-        /// <param name="key">The name of the sketch.</param>
-        /// <param name="item">Item to be added.</param>
-        /// <returns>Array of simple-string-reply - if an element was dropped from the TopK list, null otherwise</returns>
-        /// <remarks><seealso href="https://redis.io/commands/topk.add"/></remarks>
-        public RedisResult[]? Add(RedisKey key, RedisValue item)
-        {
-            return ResponseParser.ToArray(_db.Execute(TOPK.ADD, key, item));
-        }
+        // /// <summary>
+        // /// Increases the count of item by increment.
+        // /// </summary>
+        // /// <param name="key">The name of the sketch.</param>
+        // /// <param name="item">Item to be added.</param>
+        // /// <returns>Array of simple-string-reply - if an element was dropped from the TopK list, null otherwise</returns>
+        // /// <remarks><seealso href="https://redis.io/commands/topk.add"/></remarks>
+        // public RedisResult[] Add(RedisKey key, RedisValue item)
+        // {
+        //     return ResponseParser.ToArray(_db.Execute(TOPK.ADD, key, item));
+        // }
 
-        /// <inheritdoc cref="Add(RedisKey, RedisValue)"/>
-        public async Task<RedisResult[]?> AddAsync(RedisKey key, RedisValue item)
-        {
-            var result = await _db.ExecuteAsync(TOPK.ADD, key, item);
-            return ResponseParser.ToArray(result);
-        }
+        // /// <inheritdoc cref="Add(RedisKey, RedisValue)"/>
+        // public async Task<RedisResult[]> AddAsync(RedisKey key, RedisValue item)
+        // {
+        //     var result = await _db.ExecuteAsync(TOPK.ADD, key, item);
+        //     return ResponseParser.ToArray(result);
+        // }
 
         /// <summary>
         /// Increases the count of item by increment.
@@ -40,38 +40,43 @@ namespace NRedisStack.Core
         /// <remarks><seealso href="https://redis.io/commands/topk.add"/></remarks>
         public RedisResult[]? Add(RedisKey key, params RedisValue[] items)
         {
-            var args = Auxiliary.MergeArgs(key, items);
+            if (items.Length < 1)
+                throw new ArgumentOutOfRangeException(nameof(items));
 
+            var args = Auxiliary.MergeArgs(key, items);
             return (RedisResult[]?)_db.Execute(TOPK.ADD, args);
         }
 
         /// <inheritdoc cref="Add(RedisKey, RedisValue[])"/>
         public async Task<RedisResult[]?> AddAsync(RedisKey key, params RedisValue[] items)
         {
+            if (items.Length < 1)
+                throw new ArgumentOutOfRangeException(nameof(items));
+
             var args = Auxiliary.MergeArgs(key, items);
 
             var result = await _db.ExecuteAsync(TOPK.ADD, args);
             return (RedisResult[]?)result;
         }
 
-        /// <summary>
-        /// Returns count for an item.
-        /// </summary>
-        /// <param name="key">Name of sketch where item is counted</param>
-        /// <param name="item">Item to be counted.</param>
-        /// <returns>count for responding item.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/cf.count"/></remarks>
-        public long Count(RedisKey key, RedisValue item)
-        {
-            return ResponseParser.ToLong(_db.Execute(TOPK.COUNT, key, item));
-        }
+        // /// <summary>
+        // /// Returns count for an item.
+        // /// </summary>
+        // /// <param name="key">Name of sketch where item is counted</param>
+        // /// <param name="item">Item to be counted.</param>
+        // /// <returns>count for responding item.</returns>
+        // /// <remarks><seealso href="https://redis.io/commands/cf.count"/></remarks>
+        // public long Count(RedisKey key, RedisValue item)
+        // {
+        //     return ResponseParser.ToLong(_db.Execute(TOPK.COUNT, key, item));
+        // }
 
-        /// <inheritdoc cref="Count(RedisKey, RedisValue)"/>
-        public async Task<long> CountAsync(RedisKey key, RedisValue item)
-        {
-            var result = await _db.ExecuteAsync(TOPK.COUNT, key, item);
-            return ResponseParser.ToLong(result);
-        }
+        // /// <inheritdoc cref="Count(RedisKey, RedisValue)"/>
+        // public async Task<long> CountAsync(RedisKey key, RedisValue item)
+        // {
+        //     var result = await _db.ExecuteAsync(TOPK.COUNT, key, item);
+        //     return ResponseParser.ToLong(result);
+        // }
 
         /// <summary>
         /// Returns count for an items.
@@ -80,15 +85,21 @@ namespace NRedisStack.Core
         /// <param name="item">Items to be counted.</param>
         /// <returns>count for responding item.</returns>
         /// <remarks><seealso href="https://redis.io/commands/cf.count"/></remarks>
-        public long[]? Count(RedisKey key, params RedisValue[] items)
+        public long[] Count(RedisKey key, params RedisValue[] items)
         {
+            if (items.Length < 1)
+                throw new ArgumentOutOfRangeException(nameof(items));
+
             var args = Auxiliary.MergeArgs(key, items);
             return ResponseParser.ToLongArray(_db.Execute(TOPK.COUNT, args));
         }
 
         /// <inheritdoc cref="Count(RedisKey, RedisValue[])"/>
-        public async Task<long[]?> CountAsync(RedisKey key, params RedisValue[] items)
+        public async Task<long[]> CountAsync(RedisKey key, params RedisValue[] items)
         {
+            if (items.Length < 1)
+                throw new ArgumentOutOfRangeException(nameof(items));
+
             var args = Auxiliary.MergeArgs(key, items);
             var result = await _db.ExecuteAsync(TOPK.COUNT, args);
             return ResponseParser.ToLongArray(result);
@@ -103,7 +114,7 @@ namespace NRedisStack.Core
         /// and the Amount by which the item score is to be increased.</param>
         /// <returns>Score of each item after increment.</returns>
         /// <remarks><seealso href="https://redis.io/commands/topk.incrby"/></remarks>
-        public RedisResult[]? IncrBy(RedisKey key, params Tuple<RedisValue, long>[] itemIncrements)
+        public RedisResult[] IncrBy(RedisKey key, params Tuple<RedisValue, long>[] itemIncrements)
         {
             if (itemIncrements.Length < 1)
                 throw new ArgumentException(nameof(itemIncrements));
@@ -125,7 +136,7 @@ namespace NRedisStack.Core
         /// and the Amount by which the item score is to be increased.</param>
         /// <returns>Score of each item after increment.</returns>
         /// <remarks><seealso href="https://redis.io/commands/topk.incrby"/></remarks>
-        public async Task<RedisResult[]?> IncrByAsync(RedisKey key, params Tuple<RedisValue, long>[] itemIncrements)
+        public async Task<RedisResult[]> IncrByAsync(RedisKey key, params Tuple<RedisValue, long>[] itemIncrements)
         {
             if (itemIncrements.Length < 1)
                 throw new ArgumentException(nameof(itemIncrements));
@@ -141,27 +152,25 @@ namespace NRedisStack.Core
             return ResponseParser.ToArray(result);
         }
 
-        // //TODO: information about what?
         /// <summary>
         /// Return TopK information.
         /// </summary>
         /// <param name="key">Name of the key to return information about.</param>
         /// <returns>TopK Information.</returns>
         /// <remarks><seealso href="https://redis.io/commands/topk.info"/></remarks>
-        public TopKInformation? Info(RedisKey key)
+        public TopKInformation Info(RedisKey key)
         {
             var info = _db.Execute(TOPK.INFO, key);
             return ResponseParser.ToTopKInfo(info);
         }
 
-        // //TODO: information about what?
         /// <summary>
         /// Return TopK information.
         /// </summary>
         /// <param name="key">Name of the key to return information about.</param>
         /// <returns>TopK Information.</returns>
         /// <remarks><seealso href="https://redis.io/commands/topk.info"/></remarks>
-        public async Task<TopKInformation?> InfoAsync(RedisKey key)
+        public async Task<TopKInformation> InfoAsync(RedisKey key)
         {
             var info = await _db.ExecuteAsync(TOPK.INFO, key);
             return ResponseParser.ToTopKInfo(info);
@@ -174,7 +183,7 @@ namespace NRedisStack.Core
         /// <param name="withcount">return Count of each element is returned.</param>
         /// <returns>Full list of items in Top K list</returns>
         /// <remarks><seealso href="https://redis.io/commands/topk.list"/></remarks>
-        public RedisResult[]? List(RedisKey key, bool withcount = false)
+        public RedisResult[] List(RedisKey key, bool withcount = false)
         {
             var result = (withcount) ? _db.Execute(TOPK.LIST, key, "WITHCOUNT")
                                      : _db.Execute(TOPK.LIST, key);
@@ -188,7 +197,7 @@ namespace NRedisStack.Core
         /// <param name="withcount">return Count of each element is returned.</param>
         /// <returns>Full list of items in Top K list</returns>
         /// <remarks><seealso href="https://redis.io/commands/topk.list"/></remarks>
-        public async Task<RedisResult[]?> ListAsync(RedisKey key, bool withcount = false)
+        public async Task<RedisResult[]> ListAsync(RedisKey key, bool withcount = false)
         {
             var result = await ((withcount) ? _db.ExecuteAsync(TOPK.LIST, key, "WITHCOUNT")
                                             : _db.ExecuteAsync(TOPK.LIST, key));
@@ -202,7 +211,7 @@ namespace NRedisStack.Core
         /// <param name="item">Item to be queried.</param>
         /// <returns><see langword="true"/> if item is in Top-K, <see langword="false"/> otherwise/></returns>
         /// <remarks><seealso href="https://redis.io/commands/topk.query"/></remarks>
-        public bool? Query(RedisKey key, RedisValue item)
+        public bool Query(RedisKey key, RedisValue item)
         {
             return _db.Execute(TOPK.QUERY, key, item).ToString() == "1";
         }
@@ -214,7 +223,7 @@ namespace NRedisStack.Core
         /// <param name="item">Item to be queried.</param>
         /// <returns><see langword="true"/> if item is in Top-K, <see langword="false"/> otherwise/></returns>
         /// <remarks><seealso href="https://redis.io/commands/topk.query"/></remarks>
-        public async Task<bool?> QueryAsync(RedisKey key, RedisValue item)
+        public async Task<bool> QueryAsync(RedisKey key, RedisValue item)
         {
             var result = await _db.ExecuteAsync(TOPK.QUERY, key, item);
             return result.ToString() == "1";
@@ -227,10 +236,10 @@ namespace NRedisStack.Core
         /// <param name="items">Items to be queried.</param>
         /// <returns>Bolean Array where <see langword="true"/> if item is in Top-K, <see langword="false"/> otherwise/></returns>
         /// <remarks><seealso href="https://redis.io/commands/topk.query"/></remarks>
-        public bool[]? Query(RedisKey key, params RedisValue[] items)
+        public bool[] Query(RedisKey key, params RedisValue[] items)
         {
             if (items.Length < 1)
-                throw new ArgumentNullException(nameof(items));
+                throw new ArgumentOutOfRangeException(nameof(items));
 
             var args = Auxiliary.MergeArgs(key, items);
 
@@ -244,10 +253,10 @@ namespace NRedisStack.Core
         /// <param name="items">Items to be queried.</param>
         /// <returns>Bolean Array where <see langword="true"/> if item is in Top-K, <see langword="false"/> otherwise/></returns>
         /// <remarks><seealso href="https://redis.io/commands/topk.query"/></remarks>
-        public async Task<bool[]?> QueryAsync(RedisKey key, params RedisValue[] items)
+        public async Task<bool[]> QueryAsync(RedisKey key, params RedisValue[] items)
         {
             if (items.Length < 1)
-                throw new ArgumentNullException(nameof(items));
+                throw new ArgumentOutOfRangeException(nameof(items));
 
             var args = Auxiliary.MergeArgs(key, items);
 
@@ -265,9 +274,9 @@ namespace NRedisStack.Core
         /// <param name="decay">The probability of reducing a counter in an occupied bucket. (Default 0.9)</param>
         /// <returns><see langword="true"/> if executed correctly, error otherwise/></returns>
         /// <remarks><seealso href="https://redis.io/commands/topk.reserve"/></remarks>
-        public bool? Reserve(RedisKey key, long topk, long width = 7, long depth = 8, double decay = 0.9)
+        public bool Reserve(RedisKey key, long topk, long width = 7, long depth = 8, double decay = 0.9)
         {
-            return ResponseParser.ParseOKtoBoolean(_db.Execute(TOPK.RESERVE, key, topk, width, depth, decay));
+            return ResponseParser.OKtoBoolean(_db.Execute(TOPK.RESERVE, key, topk, width, depth, decay));
         }
 
         /// <summary>
@@ -280,10 +289,10 @@ namespace NRedisStack.Core
         /// <param name="decay">The probability of reducing a counter in an occupied bucket. (Default 0.9)</param>
         /// <returns><see langword="true"/> if executed correctly, error otherwise/></returns>
         /// <remarks><seealso href="https://redis.io/commands/topk.reserve"/></remarks>
-        public async Task<bool?> ReserveAsync(RedisKey key, long topk, long width = 7, long depth = 8, double decay = 0.9)
+        public async Task<bool> ReserveAsync(RedisKey key, long topk, long width = 7, long depth = 8, double decay = 0.9)
         {
             var result = await _db.ExecuteAsync(TOPK.RESERVE, key, topk, width, depth, decay);
-            return ResponseParser.ParseOKtoBoolean(result);
+            return ResponseParser.OKtoBoolean(result);
         }
     }
 }

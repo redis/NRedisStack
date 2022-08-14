@@ -86,7 +86,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     public async void TestKeyAlreadyExistsAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL"); //TODO: Check if I need Execute("FLUSHALL") to be Async in the async test
+        db.Execute("FLUSHALL");
 
         await db.CMS().InitByDimAsync("dup", 16, 4);
         await Assert.ThrowsAsync<RedisServerException>(() => db.CMS().InitByDimAsync("dup", 8, 6));

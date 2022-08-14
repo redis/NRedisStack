@@ -225,7 +225,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void TestInfo() //TODO: think again about the returned value of BF.INFO, maybe creating a new returned type
+    public void TestInfo()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
