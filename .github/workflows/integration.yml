@@ -1,3 +1,5 @@
+Name: Integration Tests
+
 on:
   push:
     paths-ignore:
@@ -15,7 +17,7 @@ env:
 jobs:
 
   build_and_test:
-    name: Build and Test
+    name: Build and test [dotnet ${{matrix.dotnet-version}}]
     runs-on: ubuntu-latest
     strategy:
       matrix:
