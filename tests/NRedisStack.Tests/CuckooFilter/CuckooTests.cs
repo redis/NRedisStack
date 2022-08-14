@@ -169,7 +169,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void TestInfo() //TODO: think again about the returned value of CF.INFO, maybe creating a new returned type
+    public void TestInfo()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -184,7 +184,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async void TestInfoAsync() //TODO: think again about the returned value of CF.INFO, maybe creating a new returned type
+    public async void TestInfoAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
