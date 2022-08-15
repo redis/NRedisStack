@@ -10,14 +10,16 @@ namespace NRedisStack.Core.Tdigest.DataTypes
         public long Capacity { get; private set; }
         public long MergedNodes { get; private set; }
         public long UnmergedNodes { get; private set; }
-        public string MergedWeight { get; private set; }
-        public string UnmergedWeight { get; private set; }
+        public double MergedWeight { get; private set; }
+        public double UnmergedWeight { get; private set; }
+
         public long TotalCompressions { get; private set; }
 
 
         internal TdigestInformation(long compression, long capacity, long mergedNodes,
-                                    long unmergedNodes, string mergedWeight,
-                                    string unmergedWeight, long totalCompressions)
+                                    long unmergedNodes, double mergedWeight,
+                                    double unmergedWeight, long totalCompressions)
+
         {
             Compression = compression;
             Capacity = capacity;
