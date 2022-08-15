@@ -16,6 +16,9 @@ namespace NRedisStack.Core.RedisStackCommands
         static bool topKCreated = false;
         static TopKCommands topKCommands;
 
+        static bool tdigestCreated = false;
+        static TdigestCommands tdigestCommands;
+
         static bool searchCreated = false;
         static SearchCommands searchCommands;
 
@@ -67,6 +70,17 @@ namespace NRedisStack.Core.RedisStackCommands
             }
 
             return topKCommands;
+        }
+
+        static public TdigestCommands TDIGEST(this IDatabase db)
+        {
+            if (!tdigestCreated)
+            {
+                tdigestCommands = new TdigestCommands(db);
+                tdigestCreated = true;
+            }
+
+            return tdigestCommands;
         }
 
         static public SearchCommands FT(this IDatabase db)

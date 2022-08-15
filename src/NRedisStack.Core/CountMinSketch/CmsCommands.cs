@@ -234,7 +234,6 @@ namespace NRedisStack.Core
 
             List<object> args = new List<object> { key };
             foreach (var item in items) args.Add(item);
-            foreach (var item in items) args.Add(item);
 
             return ResponseParser.ToLongArray(_db.Execute(CMS.QUERY, args));
         }
@@ -252,7 +251,6 @@ namespace NRedisStack.Core
                 throw new ArgumentOutOfRangeException(nameof(items));
 
             List<object> args = new List<object> { key };
-            foreach (var item in items) args.Add(item);
             foreach (var item in items) args.Add(item);
 
             var result = await _db.ExecuteAsync(CMS.QUERY, args);

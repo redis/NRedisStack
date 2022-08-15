@@ -184,7 +184,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
 
         db.CMS().IncrBy(key, itemIncrements);
 
-        var resp = db.CMS().Query(key, new RedisValue[] { "foo", "bar" });
+        var resp = db.CMS().Query(key, "foo", "bar");
         Assert.Equal(new long[] { 10, 15 }, resp);
     }
 

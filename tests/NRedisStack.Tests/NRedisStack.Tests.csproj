@@ -22,4 +22,10 @@
     <ProjectReference Include="..\..\src\NRedisStack.Core\NRedisStack.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="xunit.runner.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

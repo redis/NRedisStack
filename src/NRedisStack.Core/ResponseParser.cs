@@ -357,10 +357,10 @@ namespace NRedisStack.Core
         public static TdigestInformation ToTdigestInfo(RedisResult result) //TODO: Think about a different implementation, because if the output of CMS.INFO changes or even just the names of the labels then the parsing will not work
         {
             long compression, capacity, mergedNodes, unmergedNodes, totalCompressions;
-            string? mergedWeight, unmergedWeight;
+            double mergedWeight, unmergedWeight;
 
             compression = capacity = mergedNodes = unmergedNodes = totalCompressions = -1;
-            mergedWeight = unmergedWeight = "";
+            mergedWeight = unmergedWeight = -1.0;
 
             RedisResult[] redisResults = ToArray(result);
 
@@ -383,10 +383,10 @@ namespace NRedisStack.Core
                         unmergedNodes = (long)redisResults[i];
                         break;
                     case "Merged weight":
-                        mergedWeight = redisResults[i].ToString();
+                        mergedWeight = (double)redisResults[i];
                         break;
                     case "Unmerged weight":
-                        unmergedWeight = redisResults[i].ToString();
+                        unmergedWeight = (double)redisResults[i];
                         break;
                     case "Total compressions":
                         totalCompressions = (long)redisResults[i];
