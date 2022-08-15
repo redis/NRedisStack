@@ -361,7 +361,7 @@ namespace NRedisStack.Core
 
             compression = capacity = mergedNodes = unmergedNodes = totalCompressions = -1;
             mergedWeight = unmergedWeight = -1.0;
-
+            
             RedisResult[] redisResults = ToArray(result);
 
             for (int i = 0; i < redisResults.Length; ++i)
@@ -383,6 +383,7 @@ namespace NRedisStack.Core
                         unmergedNodes = (long)redisResults[i];
                         break;
                     case "Merged weight":
+
                         mergedWeight = (double)redisResults[i];
                         break;
                     case "Unmerged weight":

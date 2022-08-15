@@ -1,0 +1,23 @@
+name: Nuget Release
+
+on:
+  release:
+    types: [ publihsed]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
+      - name: Build
+        run: dotnet pack --configure Release --output .
+
+      - name: Publish
+        uses: rohitch/publish-nuget@v2
+        with:
+          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+          PROJECT_FILE_PATH: src/NRedisStack.Core/NRedisStack.Core.csproj
