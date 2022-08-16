@@ -31,7 +31,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async void TestReserveBasicAsync()
+    public async Task TestReserveBasicAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -56,7 +56,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async void TestAddWhenExistAsync()
+    public async Task TestAddWhenExistAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -78,7 +78,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async void TestAddExistsAsync()
+    public async Task TestAddExistsAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -104,7 +104,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async void TestAddExistsMultiAsync()
+    public async Task TestAddExistsMultiAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -147,7 +147,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async void TestExampleAsync()
+    public async Task TestExampleAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -190,7 +190,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async void TestInsertAsync()
+    public async Task TestInsertAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -215,7 +215,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async void TestExistsNonExistAsync()
+    public async Task TestExistsNonExistAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -240,7 +240,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async void TestInfoAsync()
+    public async Task TestInfoAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -279,7 +279,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async void TestScanDumpAndLoadChunkAsync()
+    public async Task TestScanDumpAndLoadChunkAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");

@@ -31,7 +31,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async void TestInitByDimAsync()
+    public async Task TestInitByDimAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -59,7 +59,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async void TestInitByProbAsync()
+    public async Task TestInitByProbAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -83,7 +83,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async void TestKeyAlreadyExistsAsync()
+    public async Task TestKeyAlreadyExistsAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -110,7 +110,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async void TestIncrByAsync()
+    public async Task TestIncrByAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -149,7 +149,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async void TestIncrByMultipleArgsAsync()
+    public async Task TestIncrByMultipleArgsAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -189,7 +189,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async void TestQueryAsync()
+    public async Task TestQueryAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -254,7 +254,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
 
 
     [Fact]
-    public async void TestMergeAsync()
+    public async Task TestMergeAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
