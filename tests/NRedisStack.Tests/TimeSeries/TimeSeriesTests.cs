@@ -17,13 +17,13 @@ public class TimeSeriesTests : AbstractNRedisStackTest, IDisposable
         redisFixture.Redis.GetDatabase().KeyDelete(key);
     }
 
-    [Fact]
-    public void TestCreateOK()
-    {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        var result = db.TS().Create(key);
-        Assert.True(result);
-        //TimeSeriesInformation info = db.TS().Info(key);
-    }
+    // [Fact]
+    // public void TestCreateOK()
+    // {
+    //     IDatabase db = redisFixture.Redis.GetDatabase();
+    //     var result = db.TS().Create(key);
+    //     Assert.True(result);
+    //     //TimeSeriesInformation info = db.TS().Info(key);
+    // }
 
 }

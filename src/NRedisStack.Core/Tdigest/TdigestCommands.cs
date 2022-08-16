@@ -39,7 +39,7 @@ namespace NRedisStack.Core
         {
             if (weight < 0) throw new ArgumentException(nameof(weight));
 
-            var result = await _db.ExecuteAsync(TDIGEST.ADD, key, item);
+            var result = await _db.ExecuteAsync(TDIGEST.ADD, key, item, weight);
             return ResponseParser.OKtoBoolean(result);
         }
 
@@ -50,8 +50,11 @@ namespace NRedisStack.Core
         /// <param name="valueWeight">Tuple of the value of the observation and The weight of this observation.</param>
         /// <returns><see langword="true"/> if executed correctly, error otherwise</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.add"/></remarks>
-        public bool Add(RedisKey key, Tuple<double, double>[] valueWeight)
+        public bool Add(RedisKey key, params Tuple<double, double>[] valueWeight)
         {
+            if (valueWeight.Length < 1)
+                throw new ArgumentOutOfRangeException(nameof(valueWeight));
+
             var args = new List<object> { key };
 
             foreach (var pair in valueWeight)
@@ -70,8 +73,11 @@ namespace NRedisStack.Core
         /// <param name="valueWeight">Tuple of the value of the observation and The weight of this observation.</param>
         /// <returns><see langword="true"/> if executed correctly, error otherwise</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.add"/></remarks>
-        public async Task<bool> AddAsync(RedisKey key, Tuple<double, double>[] valueWeight)
+        public async Task<bool> AddAsync(RedisKey key, params Tuple<double, double>[] valueWeight)
         {
+            if (valueWeight.Length < 1)
+                throw new ArgumentOutOfRangeException(nameof(valueWeight));
+
             var args = new List<object> { key };
 
             foreach (var pair in valueWeight)
@@ -90,9 +96,9 @@ namespace NRedisStack.Core
         /// <param name="value">upper limit of observation value.</param>
         /// <returns>double-reply - estimation of the fraction of all observations added which are <= value</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.cdf"/></remarks>
-        public double CDF(RedisKey key, double item)
+        public double CDF(RedisKey key, double value)
         {
-            return ResponseParser.ToDouble(_db.Execute(TDIGEST.ADD, key, item));
+            return ResponseParser.ToDouble(_db.Execute(TDIGEST.CDF, key, value));
         }
 
         /// <summary>
@@ -102,9 +108,9 @@ namespace NRedisStack.Core
         /// <param name="value">upper limit of observation value.</param>
         /// <returns>double-reply - estimation of the fraction of all observations added which are <= value</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.cdf"/></remarks>
-        public async Task<double> CDF(RedisKey key, double item, double weight)
+        public async Task<double> CDFAsync(RedisKey key, double value)
         {
-            var result = await _db.ExecuteAsync(TDIGEST.ADD, key, item);
+            var result = await _db.ExecuteAsync(TDIGEST.CDF, key, value);
             return ResponseParser.ToDouble(result);
         }
 
@@ -113,11 +119,11 @@ namespace NRedisStack.Core
         /// </summary>
         /// <param name="key">The name of the sketch.</param>
         /// <param name="compression">The compression parameter.</param>
-        /// <returns>double-reply - estimation of the fraction of all observations added which are <= value</returns>
+        /// <returns><see langword="true"/> if executed correctly, error otherwise</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.create"/></remarks>
-        public double Create(RedisKey key, long compression = 100)
+        public bool Create(RedisKey key, long compression = 100)
         {
-            return ResponseParser.ToDouble(_db.Execute(TDIGEST.CREATE, key, compression));
+            return ResponseParser.OKtoBoolean(_db.Execute(TDIGEST.CREATE, key, compression));
         }
 
         /// <summary>
@@ -125,11 +131,11 @@ namespace NRedisStack.Core
         /// </summary>
         /// <param name="key">The name of the sketch.</param>
         /// <param name="compression">The compression parameter.</param>
-        /// <returns>double-reply - estimation of the fraction of all observations added which are <= value</returns>
+        /// <returns><see langword="true"/> if executed correctly, error otherwise</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.create"/></remarks>
-        public async Task<double> CreateAsync(RedisKey key, long compression = 100)
+        public async Task<bool> CreateAsync(RedisKey key, long compression = 100)
         {
-            return ResponseParser.ToDouble(await _db.ExecuteAsync(TDIGEST.CREATE, key, compression));
+            return ResponseParser.OKtoBoolean(await _db.ExecuteAsync(TDIGEST.CREATE, key, compression));
         }
 
         /// <summary>
@@ -161,9 +167,9 @@ namespace NRedisStack.Core
         /// <param name="key">The name of the sketch.</param>
         /// <returns>the maximum observation value from the sketch</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.max"/></remarks>
-        public RedisResult Max(RedisKey key)
+        public double Max(RedisKey key)
         {
-            return _db.Execute(TDIGEST.MAX, key);
+            return ResponseParser.ToDouble(_db.Execute(TDIGEST.MAX, key));
         }
 
         /// <summary>
@@ -172,9 +178,9 @@ namespace NRedisStack.Core
         /// <param name="key">The name of the sketch.</param>
         /// <returns>the maximum observation value from the sketch</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.max"/></remarks>
-        public async Task<RedisResult> MaxAsync(RedisKey key)
+        public async Task<double> MaxAsync(RedisKey key)
         {
-            return await _db.ExecuteAsync(TDIGEST.MAX, key);
+            return ResponseParser.ToDouble(await _db.ExecuteAsync(TDIGEST.MAX, key));
         }
 
         /// <summary>
@@ -183,9 +189,9 @@ namespace NRedisStack.Core
         /// <param name="key">The name of the sketch.</param>
         /// <returns>the minimum observation value from the sketch</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.min"/></remarks>
-        public RedisResult Min(RedisKey key)
+        public double Min(RedisKey key)
         {
-            return _db.Execute(TDIGEST.MIN, key);
+            return ResponseParser.ToDouble(_db.Execute(TDIGEST.MIN, key));
         }
 
         /// <summary>
@@ -194,9 +200,9 @@ namespace NRedisStack.Core
         /// <param name="key">The name of the sketch.</param>
         /// <returns>the minimum observation value from the sketch</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.min"/></remarks>
-        public async Task<RedisResult> MinAsync(RedisKey key)
+        public async Task<double> MinAsync(RedisKey key)
         {
-            return await _db.ExecuteAsync(TDIGEST.MIN, key);
+            return ResponseParser.ToDouble(await _db.ExecuteAsync(TDIGEST.MIN, key));
         }
 
         /// <summary>
@@ -277,7 +283,7 @@ namespace NRedisStack.Core
             args.Add(TdigestArgs.COMPRESSION);
             args.Add(compression);
 
-            return ResponseParser.OKtoBoolean(_db.Execute(TDIGEST.MERGE, args));
+            return ResponseParser.OKtoBoolean(_db.Execute(TDIGEST.MERGESTORE, args));
         }
 
         /// <summary>
@@ -298,7 +304,7 @@ namespace NRedisStack.Core
             args.Add(TdigestArgs.COMPRESSION);
             args.Add(compression);
 
-            var result = await _db.ExecuteAsync(TDIGEST.MERGE, args);
+            var result = await _db.ExecuteAsync(TDIGEST.MERGESTORE, args);
             return ResponseParser.OKtoBoolean(result);
         }
 
@@ -368,9 +374,9 @@ namespace NRedisStack.Core
         /// <param name="highCutQuantile">Exclude observation values higher than this quantile.</param>
         /// <returns>estimation of the mean value. Will return DBL_MAX if the sketch is empty.</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.reset"/></remarks>
-        public RedisResult TrimmedMean(RedisKey key, double lowCutQuantile, double highCutQuantile)
+        public double TrimmedMean(RedisKey key, double lowCutQuantile, double highCutQuantile)
         {
-            return _db.Execute(TDIGEST.RESET, key, lowCutQuantile, highCutQuantile);
+            return ResponseParser.ToDouble(_db.Execute(TDIGEST.TRIMMED_MEAN, key, lowCutQuantile, highCutQuantile));
         }
 
         /// <summary>
@@ -381,9 +387,9 @@ namespace NRedisStack.Core
         /// <param name="highCutQuantile">Exclude observation values higher than this quantile.</param>
         /// <returns>estimation of the mean value. Will return DBL_MAX if the sketch is empty.</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.reset"/></remarks>
-        public async Task<RedisResult> TrimmedMeanAsync(RedisKey key, double lowCutQuantile, double highCutQuantile)
+        public async Task<double> TrimmedMeanAsync(RedisKey key, double lowCutQuantile, double highCutQuantile)
         {
-            return await _db.ExecuteAsync(TDIGEST.RESET, key, lowCutQuantile, highCutQuantile);
+            return ResponseParser.ToDouble(await _db.ExecuteAsync(TDIGEST.TRIMMED_MEAN, key, lowCutQuantile, highCutQuantile));
         }
 
 

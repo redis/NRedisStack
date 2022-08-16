@@ -46,7 +46,7 @@ public class TopKTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async void CreateTopKFilterAsync()
+    public async Task CreateTopKFilterAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
