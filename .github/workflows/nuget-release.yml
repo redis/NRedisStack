@@ -2,7 +2,7 @@ name: Nuget Release
 
 on:
   release:
-    types: [ publihsed]
+    types: [ published ]
 
 jobs:
   build:
