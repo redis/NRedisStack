@@ -1,4 +1,4 @@
-Name: Integration Tests
+name: Integration Tests
 
 on:
   push:
@@ -29,7 +29,7 @@ jobs:
         with:
           dotnet-version: ${{matrix.dotnet-version}}
       - name: run redis-stack-server docker
-        run: docker run -p 6379:6379 -d redis/redis-stack-server:${{env.redis_stack_version}}
+        run: docker run -p 6379:6379 -d redislabs/redismod:edge
       - name: compile
         run: dotnet build
       - name: run tests
