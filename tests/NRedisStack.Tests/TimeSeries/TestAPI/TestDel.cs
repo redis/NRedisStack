@@ -8,7 +8,7 @@ using Xunit;
 
 namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
-    public class TestDel : AbstractTimeSeriesTest, IDisposable
+    public class TestDel : AbstractNRedisStackTest, IDisposable
     {
         private readonly string key = "DEL_TESTS";
 

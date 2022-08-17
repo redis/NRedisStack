@@ -6,7 +6,7 @@ using Xunit;
 
 namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
-    public class TestQueryIndex : AbstractTimeSeriesTest, IDisposable
+    public class TestQueryIndex : AbstractNRedisStackTest, IDisposable
     {
         private readonly string[] keys = { "QUERYINDEX_TESTS_1", "QUERYINDEX_TESTS_2" };
 

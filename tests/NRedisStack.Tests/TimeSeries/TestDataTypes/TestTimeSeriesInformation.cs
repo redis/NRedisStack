@@ -5,12 +5,14 @@ using System.Threading.Tasks;
 using Xunit;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Tests.TimeSeries.TestAPI;
+using NRedisStack.Tests;
+
 
 namespace NRedisTimeSeries.Test.TestDataTypes
 {
-    public class TestInformation : AbstractTimeSeriesTest
+    public class TestInformation : AbstractNRedisStackTest
     {
-        public TestInformation(RedisFixture redisFixture) : base(redisFixture) { }
+        public TestInformation(NRedisStack.Tests.RedisFixture redisFixture) : base(redisFixture) { }
 
         [Fact]
         public async Task TestInformationToStringAsync()

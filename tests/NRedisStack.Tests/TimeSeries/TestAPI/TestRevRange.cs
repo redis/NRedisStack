@@ -8,7 +8,7 @@ using NRedisStack.RedisStackCommands;
 
 namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
-    public class TestRevRange : AbstractTimeSeriesTest
+    public class TestRevRange : AbstractNRedisStackTest
     {
         public TestRevRange(RedisFixture redisFixture) : base(redisFixture) { }
 

@@ -8,7 +8,7 @@ using NRedisStack.RedisStackCommands;
 
 namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
-    public class TestRules : AbstractTimeSeriesTest, IDisposable
+    public class TestRules : AbstractNRedisStackTest, IDisposable
     {
         private string srcKey = "RULES_TEST_SRC";
 

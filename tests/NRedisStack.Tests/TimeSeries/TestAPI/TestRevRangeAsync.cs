@@ -9,7 +9,7 @@ using NRedisStack.RedisStackCommands;
 
 namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
-    public class TestRevRangeAsync : AbstractTimeSeriesTest
+    public class TestRevRangeAsync : AbstractNRedisStackTest
     {
         public TestRevRangeAsync(RedisFixture redisFixture) : base(redisFixture) { }
 

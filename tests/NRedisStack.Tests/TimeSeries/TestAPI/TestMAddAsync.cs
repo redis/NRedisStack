@@ -8,7 +8,7 @@ using Xunit;
 
 namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
-    public class TestMAddAsync : AbstractTimeSeriesTest
+    public class TestMAddAsync : AbstractNRedisStackTest
     {
         public TestMAddAsync(RedisFixture redisFixture) : base(redisFixture) { }
 

@@ -1,4 +1,5 @@
 
+using NRedisStack.DataTypes;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
@@ -31,6 +32,17 @@ namespace NRedisStack.Tests
             keyNames.AddRange(newKeys);
 
             return newKeys;
+        }
+
+        protected internal static List<TimeSeriesTuple> ReverseData(List<TimeSeriesTuple> data)
+        {
+            var tuples = new List<TimeSeriesTuple>(data.Count);
+            for (var i = data.Count - 1; i >= 0; i--)
+            {
+                tuples.Add(data[i]);
+            }
+
+            return tuples;
         }
 
         public Task InitializeAsync() => Task.CompletedTask;
