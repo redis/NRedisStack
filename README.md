@@ -1,8 +1,6 @@
-[![license](https://img.shields.io/github/license/RedisTimeSeries/NRedisTimeSeries.svg)](https://github.com/RedisTimeSeries/NRedisTimeSeries)
+[![license](https://img.shields.io/github/license/redis/NRedisStack.svg)](https://github.com/redis/NRedisStack)
 [![.github/workflows/integration.yml](https://github.com/redis/NRedisStack/actions/workflows/integration.yml/badge.svg)](https://github.com/redis/NRedisStack/actions/workflows/integration.yml)
-[![GitHub issues](https://img.shields.io/github/release/RedisTimeSeries/NRedisTimeSeries.svg)](https://github.com/RedisTimeSeries/NRedisTimeSeries/releases/latest)
-[![Codecov](https://codecov.io/gh/RedisTimeSeries/NRedisTimeSeries/branch/master/graph/badge.svg)](https://codecov.io/gh/RedisTimeSeries/NRedisTimeSeries)
-[![Known Vulnerabilities](https://snyk.io/test/github/redis/NRedisStack/badge.svg?targetFile=NRedisStack/NRedisStack.csproj)](https://snyk.io/test/github/RedisTimeSeries/NRedisTimeSeries?targetFile=NRedisTimeSeries/NRedisTimeSeries.csproj)
+[![GitHub issues](https://img.shields.io/github/release/redis/NRedisStack.svg)](https://github.com/redis/NRedisStack/releases/latest)
 
 # NRedisStack
 
