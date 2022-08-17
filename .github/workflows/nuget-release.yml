@@ -14,7 +14,7 @@ jobs:
         with:
           dotnet-version: '6.0.x'
       - name: Build
-        run: dotnet pack --configure Release --output .
+        run: dotnet pack -c Release --output .
 
       - name: Publish
         uses: brandedoutcast/publish-nuget@v2
