@@ -3,7 +3,12 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+	<Nullable>enable</Nullable>
+	<ReleaseVersion>0.1.0</ReleaseVersion>
+	<Authors>Redis Open Source</Authors>
+	<Owners>Redis OSS</Owners>
+	<Description>.Net Client for Redis Stack</Description>
+	<PackageVersion>0.1.0</PackageVersion>
   </PropertyGroup>
 
   <ItemGroup>

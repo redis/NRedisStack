@@ -17,7 +17,7 @@ jobs:
         run: dotnet pack --configure Release --output .
 
       - name: Publish
-        uses: rohitch/publish-nuget@v2
+        uses: brandedoutcast/publish-nuget@v2
         with:
           NUGET_KEY: ${{secrets.NUGET_API_KEY}}
           PROJECT_FILE_PATH: src/NRedisStack.Core/NRedisStack.Core.csproj
