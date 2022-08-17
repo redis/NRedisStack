@@ -20,6 +20,6 @@ jobs:
         uses: brandedoutcast/publish-nuget@v2
         with:
           NUGET_KEY: ${{secrets.NUGET_API_KEY}}
-          PROJECT_FILE_PATH: src/NRedisStack.Core/NRedisStack.Core.csproj
+          PROJECT_FILE_PATH: src/NRedisStack/NRedisStack.csproj
           PROJECT_NAME: NRedisStack
           TAG_COMMIT: false

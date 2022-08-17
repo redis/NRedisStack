@@ -1,6 +1,6 @@
 using Xunit;
 using StackExchange.Redis;
-using NRedisStack.Core.RedisStackCommands;
+using NRedisStack.RedisStackCommands;
 using Moq;
 
 namespace NRedisStack.Tests.Tdigest;
