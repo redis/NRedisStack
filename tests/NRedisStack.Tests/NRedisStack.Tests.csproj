@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\NRedisStack.Core\NRedisStack.Core.csproj" />
+    <ProjectReference Include="..\..\src\NRedisStack\NRedisStack.csproj" />
   </ItemGroup>
 
   <ItemGroup>

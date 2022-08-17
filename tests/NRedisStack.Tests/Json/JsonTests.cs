@@ -1,7 +1,7 @@
 using Xunit;
 using StackExchange.Redis;
 using Moq;
-using NRedisStack.Core.RedisStackCommands;
+using NRedisStack.RedisStackCommands;
 
 
 namespace NRedisStack.Tests;
