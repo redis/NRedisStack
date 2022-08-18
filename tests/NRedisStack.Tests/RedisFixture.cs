@@ -9,7 +9,7 @@ namespace NRedisStack.Tests
 
         public void Dispose()
         {
-            Redis.Close();
+            //Redis.Close();
         }
 
         public ConnectionMultiplexer Redis { get; private set; }
