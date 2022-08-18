@@ -193,11 +193,11 @@ namespace NRedisStack
             return args;
         }
 
-        public static List<object> BuildTsAlterArgs(string key, long? retentionTime, IReadOnlyCollection<TimeSeriesLabel> labels)
+        public static List<object> BuildTsAlterArgs(string key, long? retentionTime, IReadOnlyCollection<TimeSeriesLabel>? labels)
         {
             var args = new List<object> {key};
             args.AddRetentionTime(retentionTime);
-            args.AddLabels(labels);
+            if (labels != null) args.AddLabels(labels);
             return args;
         }
 
@@ -213,14 +213,14 @@ namespace NRedisStack
             return args;
         }
 
-        public static List<object> BuildTsIncrDecrByArgs(string key, double value, TimeStamp timestamp, long? retentionTime,
-            IReadOnlyCollection<TimeSeriesLabel> labels, bool? uncompressed, long? chunkSizeBytes)
+        public static List<object> BuildTsIncrDecrByArgs(string key, double value, TimeStamp? timestamp, long? retentionTime,
+            IReadOnlyCollection<TimeSeriesLabel>? labels, bool? uncompressed, long? chunkSizeBytes)
         {
             var args = new List<object> {key, value};
-            args.AddTimeStamp(timestamp);
+            if (timestamp != null) args.AddTimeStamp(timestamp);
             args.AddRetentionTime(retentionTime);
             args.AddChunkSize(chunkSizeBytes);
-            args.AddLabels(labels);
+            if (labels != null) args.AddLabels(labels);
             args.AddUncompressed(uncompressed);
             return args;
         }
@@ -252,16 +252,23 @@ namespace NRedisStack
             return args;
         }
 
-        public static List<object> BuildRangeArgs(string key, TimeStamp fromTimeStamp, TimeStamp toTimeStamp, long? count,
-            TsAggregation? aggregation, long? timeBucket, IReadOnlyCollection<TimeStamp> filterByTs, (long, long)? filterByValue,
-            TimeStamp align)
+        public static List<object> BuildRangeArgs(string key,
+                                                  TimeStamp fromTimeStamp,
+                                                  TimeStamp toTimeStamp,
+                                                  long? count,
+                                                  TsAggregation? aggregation,
+                                                  long? timeBucket,
+                                                  IReadOnlyCollection<TimeStamp>? filterByTs,
+                                                  (long, long)? filterByValue,
+                                                  TimeStamp? align)
         {
             var args = new List<object>()
                 {key, fromTimeStamp.Value, toTimeStamp.Value};
-            args.AddFilterByTs(filterByTs);
+
+            if (filterByTs != null) args.AddFilterByTs(filterByTs);
             args.AddFilterByValue(filterByValue);
             args.AddCount(count);
-            args.AddAlign(align);
+            if (align != null) args.AddAlign(align);
             args.AddAggregation(aggregation, timeBucket);
             return args;
         }
@@ -269,16 +276,16 @@ namespace NRedisStack
 
         public static List<object> BuildMultiRangeArgs(TimeStamp fromTimeStamp, TimeStamp toTimeStamp,
             IReadOnlyCollection<string> filter, long? count, TsAggregation? aggregation, long? timeBucket,
-            bool? withLabels, (string, TsReduce)? groupbyTuple, IReadOnlyCollection<TimeStamp> filterByTs,
-            (long, long)? filterByValue, IReadOnlyCollection<string> selectLabels, TimeStamp align)
+            bool? withLabels, (string, TsReduce)? groupbyTuple, IReadOnlyCollection<TimeStamp>? filterByTs,
+            (long, long)? filterByValue, IReadOnlyCollection<string>? selectLabels, TimeStamp? align)
         {
             var args = new List<object>() {fromTimeStamp.Value, toTimeStamp.Value};
-            args.AddFilterByTs(filterByTs);
+            if (filterByTs != null) args.AddFilterByTs(filterByTs);
             args.AddFilterByValue(filterByValue);
             args.AddCount(count);
-            args.AddAlign(align);
+            if (align != null) args.AddAlign(align);
             args.AddAggregation(aggregation, timeBucket);
-            args.AddWithLabels(withLabels, selectLabels);
+            if (selectLabels != null) args.AddWithLabels(withLabels, selectLabels);
             args.AddFilters(filter);
             args.AddGroupby(groupbyTuple);
             return args;

@@ -150,7 +150,7 @@ namespace NRedisStack
             return list;
         }
 
-        public static IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, TimeSeriesTuple value)> ParseMGetesponse(RedisResult result)
+        public static IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, TimeSeriesTuple value)> ParseMGetResponse(RedisResult result)
         {
             RedisResult[] redisResults = (RedisResult[])result;
             var list = new List<(string key, IReadOnlyList<TimeSeriesLabel> labels, TimeSeriesTuple values)>(redisResults.Length);
@@ -361,7 +361,7 @@ namespace NRedisStack
 
             compression = capacity = mergedNodes = unmergedNodes = totalCompressions = -1;
             mergedWeight = unmergedWeight = -1.0;
-            
+
             RedisResult[] redisResults = ToArray(result);
 
             for (int i = 0; i < redisResults.Length; ++i)
@@ -402,10 +402,10 @@ namespace NRedisStack
         public static TimeSeriesInformation ToTimeSeriesInfo(RedisResult result)
         {
             long totalSamples = -1, memoryUsage = -1, retentionTime = -1, chunkSize = -1, chunkCount = -1;
-            TimeStamp firstTimestamp = null, lastTimestamp = null;
-            IReadOnlyList<TimeSeriesLabel> labels = null;
-            IReadOnlyList<TimeSeriesRule> rules = null;
-            string sourceKey = null;
+            TimeStamp? firstTimestamp = null, lastTimestamp = null;
+            IReadOnlyList<TimeSeriesLabel>? labels = null;
+            IReadOnlyList<TimeSeriesRule>? rules = null;
+            string? sourceKey = null;
             TsDuplicatePolicy? duplicatePolicy = null;
             RedisResult[] redisResults = (RedisResult[])result;
             for (int i = 0; i < redisResults.Length; ++i)
@@ -459,7 +459,7 @@ namespace NRedisStack
             lastTimestamp, retentionTime, chunkCount, chunkSize, labels, sourceKey, rules, duplicatePolicy);
         }
 
-        public static IReadOnlyList<string>? ToStringArray(RedisResult result)
+        public static IReadOnlyList<string> ToStringArray(RedisResult result)
         {
             RedisResult[] redisResults = ToArray(result);
 
