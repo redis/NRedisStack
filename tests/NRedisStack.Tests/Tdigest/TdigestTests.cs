@@ -86,7 +86,6 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         }
     }
 
-    //TODO: start async methods from here:
     [Fact]
     public void TestReset()
     {
