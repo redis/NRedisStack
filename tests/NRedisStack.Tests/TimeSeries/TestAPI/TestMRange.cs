@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;
