@@ -518,7 +518,8 @@ namespace NRedisStack
             IReadOnlyCollection<string>? selectLabels = null,
             TimeStamp? align = null)
         {
-            var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, count, aggregation, timeBucket, withLabels, groupbyTuple, filterByTs, filterByValue, selectLabels, align);
+            var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, count, aggregation, timeBucket,
+                                                         withLabels, groupbyTuple, filterByTs, filterByValue, selectLabels, align);
             return ResponseParser.ParseMRangeResponse(await _db.ExecuteAsync(TS.MRANGE, args));
         }
 

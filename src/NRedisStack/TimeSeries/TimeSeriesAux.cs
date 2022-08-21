@@ -285,7 +285,7 @@ namespace NRedisStack
             args.AddCount(count);
             if (align != null) args.AddAlign(align);
             args.AddAggregation(aggregation, timeBucket);
-            if (selectLabels != null) args.AddWithLabels(withLabels, selectLabels);
+            args.AddWithLabels(withLabels, selectLabels);
             args.AddFilters(filter);
             args.AddGroupby(groupbyTuple);
             return args;
