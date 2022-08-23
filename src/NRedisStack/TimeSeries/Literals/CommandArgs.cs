@@ -19,6 +19,9 @@ namespace NRedisStack.Literals
         public static string REDUCE => "REDUCE";
         public static string FILTER_BY_TS => "FILTER_BY_TS";
         public static string FILTER_BY_VALUE => "FILTER_BY_VALUE";
-
+        public static string LATEST => "LATEST";
+        public static string DEBUG => "DEBUG";
+        public static string BUCKETTIMESTAMP => "BUCKETTIMESTAMP";
+        public static string EMPTY => "EMPTY";
     }
 }

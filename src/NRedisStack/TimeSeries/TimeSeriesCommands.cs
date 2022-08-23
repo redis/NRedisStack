@@ -14,7 +14,7 @@ namespace NRedisStack
             _db = db;
         }
 
-         #region Create
+        #region Create
 
         /// <summary>
         /// Create a new time-series.
@@ -27,6 +27,7 @@ namespace NRedisStack
         /// You can alter the default TS_db chunk size by passing the chunk_size argument (in Bytes)</param>
         /// <param name="duplicatePolicy">Optinal: Define handling of duplicate samples behavior (avalible for RedisTimeseries >= 1.4)</param>
         /// <returns>If the operation executed successfully</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ts.create"/></remarks>
         public bool Create(string key, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel> labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
         {
             var args = TimeSeriesAux.BuildTsCreateArgs(key, retentionTime, labels, uncompressed, chunkSizeBytes, duplicatePolicy);
@@ -44,6 +45,7 @@ namespace NRedisStack
         /// You can alter the default TS_db chunk size by passing the chunk_size argument (in Bytes)</param>
         /// <param name="duplicatePolicy">Optinal: Define handling of duplicate samples behavior (avalible for RedisTimeseries >= 1.4)</param>
         /// <returns>If the operation executed successfully</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ts.create"/></remarks>
         public async Task<bool> CreateAsync(string key, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel> labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
         {
             var args = TimeSeriesAux.BuildTsCreateArgs(key, retentionTime, labels, uncompressed, chunkSizeBytes, duplicatePolicy);
@@ -59,11 +61,15 @@ namespace NRedisStack
         /// </summary>
         /// <param name="key">Key name for timeseries</param>
         /// <param name="retentionTime">Optional: Maximum age for samples compared to last event time (in milliseconds)</param>
+        /// <param name="chunkSizeBytes">Optional: Each time-series uses chunks of memory of fixed size for time series samples.
+        /// You can alter the default TS_db chunk size by passing the chunk_size argument (in Bytes)</param>
+        /// <param name="duplicatePolicy">Optinal: Define handling of duplicate samples behavior (avalible for RedisTimeseries >= 1.4)</param>
         /// <param name="labels">Optional: Collaction of label-value pairs that represent metadata labels of the key</param>
         /// <returns>If the operation executed successfully</returns>
-        public bool Alter(string key, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null)
+        /// <remarks><seealso href="https://redis.io/commands/ts.alter"/></remarks>
+        public bool Alter(string key, long? retentionTime = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null)
         {
-            var args = TimeSeriesAux.BuildTsAlterArgs(key, retentionTime, labels);
+            var args = TimeSeriesAux.BuildTsAlterArgs(key, retentionTime, chunkSizeBytes, duplicatePolicy, labels);
             return ResponseParser.OKtoBoolean(_db.Execute(TS.ALTER, args));
         }
 
@@ -72,11 +78,15 @@ namespace NRedisStack
         /// </summary>
         /// <param name="key">Key name for timeseries</param>
         /// <param name="retentionTime">Optional: Maximum age for samples compared to last event time (in milliseconds)</param>
+        /// <param name="chunkSizeBytes">Optional: Each time-series uses chunks of memory of fixed size for time series samples.
+        /// You can alter the default TS_db chunk size by passing the chunk_size argument (in Bytes)</param>
+        /// <param name="duplicatePolicy">Optinal: Define handling of duplicate samples behavior (avalible for RedisTimeseries >= 1.4)</param>
         /// <param name="labels">Optional: Collaction of label-value pairs that represent metadata labels of the key</param>
         /// <returns>If the operation executed successfully</returns>
-        public async Task<bool> AlterAsync(string key, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null)
+        /// <remarks><seealso href="https://redis.io/commands/ts.alter"/></remarks>
+        public async Task<bool> AlterAsync(string key, long? retentionTime = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null)
         {
-            var args = TimeSeriesAux.BuildTsAlterArgs(key, retentionTime, labels);
+            var args = TimeSeriesAux.BuildTsAlterArgs(key, retentionTime, chunkSizeBytes, duplicatePolicy, labels);
             return ResponseParser.OKtoBoolean(await _db.ExecuteAsync(TS.ALTER, args));
         }
 
@@ -93,7 +103,10 @@ namespace NRedisStack
         /// You can alter the default TS_db chunk size by passing the chunk_size argument (in Bytes)</param>
         /// <param name="duplicatePolicy">Optioal: overwrite key and database configuration for DUPLICATE_POLICY</param>
         /// <returns>The timestamp value of the new sample</returns>
-        public TimeStamp Add(string key, TimeStamp timestamp, double value, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel> labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
+        /// <remarks><seealso href="https://redis.io/commands/ts.add"/></remarks>
+        public TimeStamp Add(string key, TimeStamp timestamp, double value, long? retentionTime = null,
+                             IReadOnlyCollection<TimeSeriesLabel> labels = null, bool? uncompressed = null,
+                             long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
         {
             var args = TimeSeriesAux.BuildTsAddArgs(key, timestamp, value, retentionTime, labels, uncompressed, chunkSizeBytes, duplicatePolicy);
             return ResponseParser.ToTimeStamp(_db.Execute(TS.ADD, args));
@@ -112,6 +125,7 @@ namespace NRedisStack
         /// You can alter the default TS_db chunk size by passing the chunk_size argument (in Bytes)</param>
         /// <param name="duplicatePolicy">Optioal: overwrite key and database configuration for DUPLICATE_POLICY</param>
         /// <returns>The timestamp value of the new sample</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ts.add"/></remarks>
         public async Task<TimeStamp> AddAsync(string key, TimeStamp timestamp, double value, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel> labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
         {
             var args = TimeSeriesAux.BuildTsAddArgs(key, timestamp, value, retentionTime, labels, uncompressed, chunkSizeBytes, duplicatePolicy);
@@ -123,6 +137,7 @@ namespace NRedisStack
         /// </summary>
         /// <param name="sequence">An Collection of (key, timestamp, value) tuples </param>
         /// <returns>List of timestamps of the new samples</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ts.madd"/></remarks>
         public IReadOnlyList<TimeStamp> MAdd(IReadOnlyCollection<(string key, TimeStamp timestamp, double value)> sequence)
         {
             var args = TimeSeriesAux.BuildTsMaddArgs(sequence);
@@ -134,6 +149,7 @@ namespace NRedisStack
         /// </summary>
         /// <param name="sequence">An Collection of (key, timestamp, value) tuples </param>
         /// <returns>List of timestamps of the new samples</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ts.madd"/></remarks>
         public async Task<IReadOnlyList<TimeStamp>> MAddAsync(IReadOnlyCollection<(string key, TimeStamp timestamp, double value)> sequence)
         {
             var args = TimeSeriesAux.BuildTsMaddArgs(sequence);
@@ -152,6 +168,7 @@ namespace NRedisStack
         /// <param name="chunkSizeBytes">Optional: Each time-series uses chunks of memory of fixed size for time series samples.
         /// You can alter the default TS_db chunk size by passing the chunk_size argument (in Bytes)</param>
         /// <returns>The latests sample timestamp (updated sample)</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ts.incrby"/></remarks>
         public TimeStamp IncrBy(string key, double value, TimeStamp? timestamp = null, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null)
         {
             var args = TimeSeriesAux.BuildTsIncrDecrByArgs(key, value, timestamp, retentionTime, labels, uncompressed, chunkSizeBytes);
@@ -170,6 +187,7 @@ namespace NRedisStack
         /// <param name="chunkSizeBytes">Optional: Each time-series uses chunks of memory of fixed size for time series samples.
         /// You can alter the default TS_db chunk size by passing the chunk_size argument (in Bytes)</param>
         /// <returns>The latests sample timestamp (updated sample)</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ts.incrby"/></remarks>
         public async Task<TimeStamp> IncrByAsync(string key, double value, TimeStamp? timestamp = null, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null)
         {
             var args = TimeSeriesAux.BuildTsIncrDecrByArgs(key, value, timestamp, retentionTime, labels, uncompressed, chunkSizeBytes);
@@ -188,6 +206,7 @@ namespace NRedisStack
         /// <param name="chunkSizeBytes">Optional: Each time-series uses chunks of memory of fixed size for time series samples.
         /// You can alter the default TS_db chunk size by passing the chunk_size argument (in Bytes)</param>
         /// <returns>The latests sample timestamp (updated sample)</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ts.decrby"/></remarks>
         public TimeStamp DecrBy(string key, double value, TimeStamp? timestamp = null, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null)
         {
             var args = TimeSeriesAux.BuildTsIncrDecrByArgs(key, value, timestamp, retentionTime, labels, uncompressed, chunkSizeBytes);
@@ -206,6 +225,7 @@ namespace NRedisStack
         /// <param name="chunkSizeBytes">Optional: Each time-series uses chunks of memory of fixed size for time series samples.
         /// You can alter the default TS_db chunk size by passing the chunk_size argument (in Bytes)</param>
         /// <returns>The latests sample timestamp (updated sample)</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ts.decrby"/></remarks>
         public async Task<TimeStamp> DecrByAsync(string key, double value, TimeStamp? timestamp = null, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null)
         {
             var args = TimeSeriesAux.BuildTsIncrDecrByArgs(key, value, timestamp, retentionTime, labels, uncompressed, chunkSizeBytes);
@@ -220,6 +240,7 @@ namespace NRedisStack
         /// <param name="fromTimeStamp">Start timestamp for the range deletion.</param>
         /// <param name="toTimeStamp">End timestamp for the range deletion.</param>
         /// <returns>The count of deleted items</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ts.del"/></remarks>
         public long Del(string key, TimeStamp fromTimeStamp, TimeStamp toTimeStamp)
         {
             var args = TimeSeriesAux.BuildTsDelArgs(key, fromTimeStamp, toTimeStamp);
@@ -234,6 +255,7 @@ namespace NRedisStack
         /// <param name="fromTimeStamp">Start timestamp for the range deletion.</param>
         /// <param name="toTimeStamp">End timestamp for the range deletion.</param>
         /// <returns>The count of deleted items</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ts.del"/></remarks>
         public async Task<long> DelAsync(string key, TimeStamp fromTimeStamp, TimeStamp toTimeStamp)
         {
             var args = TimeSeriesAux.BuildTsDelArgs(key, fromTimeStamp, toTimeStamp);
@@ -250,11 +272,16 @@ namespace NRedisStack
         /// <param name="sourceKey">Key name for source time series</param>
         /// <param name="rule">TimeSeries rule:
         /// Key name for destination time series, Aggregation type and Time bucket for aggregation in milliseconds</param>
+        /// <param name="alignTimestamp">ensures that there is a bucket that starts
+        /// exactly at alignTimestamp and aligns all other buckets accordingly.
+        /// It is expressed in milliseconds. The default value is 0 aligned with the epoch</param>
         /// <returns>If the operation executed successfully</returns>
-        public bool CreateRule(string sourceKey, TimeSeriesRule rule)
+        /// <remarks><seealso href="https://redis.io/commands/ts.createrule"/></remarks>
+        public bool CreateRule(string sourceKey, TimeSeriesRule rule, long alignTimestamp = 0)
         {
             var args = new List<object> { sourceKey };
             args.AddRule(rule);
+            args.Add(alignTimestamp);
             return ResponseParser.OKtoBoolean(_db.Execute(TS.CREATERULE, args));
         }
 
@@ -264,11 +291,16 @@ namespace NRedisStack
         /// <param name="sourceKey">Key name for source time series</param>
         /// <param name="rule">TimeSeries rule:
         /// Key name for destination time series, Aggregation type and Time bucket for aggregation in milliseconds</param>
+        /// <param name="alignTimestamp">ensures that there is a bucket that starts
+        /// exactly at alignTimestamp and aligns all other buckets accordingly.
+        /// It is expressed in milliseconds. The default value is 0 aligned with the epoch</param>
         /// <returns>If the operation executed successfully</returns>
-        public async Task<bool> CreateRuleAsync(string sourceKey, TimeSeriesRule rule)
+        /// <remarks><seealso href="https://redis.io/commands/ts.createrule"/></remarks>
+        public async Task<bool> CreateRuleAsync(string sourceKey, TimeSeriesRule rule, long alignTimestamp = 0)
         {
             var args = new List<object> { sourceKey };
             args.AddRule(rule);
+            args.Add(alignTimestamp);
             return ResponseParser.OKtoBoolean(await _db.ExecuteAsync(TS.CREATERULE, args));
         }
 
@@ -278,6 +310,7 @@ namespace NRedisStack
         /// <param name="sourceKey">Key name for source time series</param>
         /// <param name="destKey">Key name for destination time series</param>
         /// <returns>If the operation executed successfully</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ts.deleterule"/></remarks>
         public bool DeleteRule(string sourceKey, string destKey)
         {
             var args = new List<object> { sourceKey, destKey };
@@ -290,6 +323,7 @@ namespace NRedisStack
         /// <param name="sourceKey">Key name for source time series</param>
         /// <param name="destKey">Key name for destination time series</param>
         /// <returns>If the operation executed successfully</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ts.deleterule"/></remarks>
         public async Task<bool> DeleteRuleAsync(string sourceKey, string destKey)
         {
             var args = new List<object> { sourceKey, destKey };
@@ -304,43 +338,69 @@ namespace NRedisStack
         /// Get the last sample.
         /// </summary>
         /// <param name="key">Key name for timeseries</param>
+        /// <param name="latest">is used when a time series is a compaction. With LATEST, TS.MRANGE also reports
+        /// the compacted value of the latest possibly partial bucket, given that this bucket's start time falls
+        /// within [fromTimestamp, toTimestamp]. Without LATEST, TS.MRANGE does not report the latest possibly partial bucket.
+        // When a time series is not a compaction, LATEST is ignored.</param>
         /// <returns>TimeSeriesTuple that represents the last sample. Null if the series is empty. </returns>
-        public TimeSeriesTuple? Get(string key)
+        /// <remarks><seealso href="https://redis.io/commands/ts.get"/></remarks>
+        public TimeSeriesTuple? Get(string key, bool latest = false)
         {
-            return ResponseParser.ToTimeSeriesTuple(_db.Execute(TS.GET, key));
+            return ResponseParser.ToTimeSeriesTuple((latest) ? _db.Execute(TS.GET, key)
+                                                             : _db.Execute(TS.GET, key, TimeSeriesArgs.LATEST));
         }
 
         /// <summary>
         /// Get the last sample.
         /// </summary>
         /// <param name="key">Key name for timeseries</param>
+        /// <param name="latest">is used when a time series is a compaction. With LATEST, TS.MRANGE also reports
+        /// the compacted value of the latest possibly partial bucket, given that this bucket's start time falls
+        /// within [fromTimestamp, toTimestamp]. Without LATEST, TS.MRANGE does not report the latest possibly partial bucket.
+        // When a time series is not a compaction, LATEST is ignored.</param>
         /// <returns>TimeSeriesTuple that represents the last sample. Null if the series is empty. </returns>
-        public async Task<TimeSeriesTuple?> GetAsync(string key)
+        /// <remarks><seealso href="https://redis.io/commands/ts.get"/></remarks>
+        public async Task<TimeSeriesTuple?> GetAsync(string key, bool latest = false)
         {
-            return ResponseParser.ToTimeSeriesTuple(await _db.ExecuteAsync(TS.GET, key));
+            return ResponseParser.ToTimeSeriesTuple(await ((latest) ? _db.ExecuteAsync(TS.GET, key)
+                                                                    : _db.ExecuteAsync(TS.GET, key, TimeSeriesArgs.LATEST)));
         }
 
         /// <summary>
         /// Get the last samples matching the specific filter.
         /// </summary>
+        /// <param name="latest">is used when a time series is a compaction. With LATEST, TS.MRANGE also reports
+        /// the compacted value of the latest possibly partial bucket, given that this bucket's start time falls
+        /// within [fromTimestamp, toTimestamp]. Without LATEST, TS.MRANGE does not report the latest possibly partial bucket.
+        // When a time series is not a compaction, LATEST is ignored.</param>
         /// <param name="filter">A sequence of filters</param>
         /// <param name="withLabels">Optional: Include in the reply the label-value pairs that represent metadata labels of the time-series</param>
+        ///<param name="selectedLabels">Optional: returns a subset of the label-value pairs that represent metadata labels of the time series</param>
         /// <returns>The command returns the last sample for entries with labels matching the specified filter.</returns>
-        public IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, TimeSeriesTuple value)> MGet(IReadOnlyCollection<string> filter, bool? withLabels = null)
+        /// <remarks><seealso href="https://redis.io/commands/ts.mget"/></remarks>
+        public IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, TimeSeriesTuple value)> MGet(IReadOnlyCollection<string> filter, bool latest = false,
+                                                                                                              bool? withLabels = null, IReadOnlyCollection<string>? selectedLabels = null)
         {
-            var args = TimeSeriesAux.BuildTsMgetArgs(filter, withLabels);
+            var args = TimeSeriesAux.BuildTsMgetArgs(latest, filter, withLabels, selectedLabels);
             return ResponseParser.ParseMGetResponse(_db.Execute(TS.MGET, args));
         }
 
         /// <summary>
         /// Get the last samples matching the specific filter.
         /// </summary>
+        /// <param name="latest">is used when a time series is a compaction. With LATEST, TS.MRANGE also reports
+        /// the compacted value of the latest possibly partial bucket, given that this bucket's start time falls
+        /// within [fromTimestamp, toTimestamp]. Without LATEST, TS.MRANGE does not report the latest possibly partial bucket.
+        // When a time series is not a compaction, LATEST is ignored.</param>
         /// <param name="filter">A sequence of filters</param>
         /// <param name="withLabels">Optional: Include in the reply the label-value pairs that represent metadata labels of the time-series</param>
+        ///<param name="selectedLabels">Optional: returns a subset of the label-value pairs that represent metadata labels of the time series</param>
         /// <returns>The command returns the last sample for entries with labels matching the specified filter.</returns>
-        public async Task<IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, TimeSeriesTuple value)>> MGetAsync(IReadOnlyCollection<string> filter, bool? withLabels = null)
+        /// <remarks><seealso href="https://redis.io/commands/ts.mget"/></remarks>
+        public async Task<IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, TimeSeriesTuple value)>> MGetAsync(IReadOnlyCollection<string> filter, bool latest = false,
+                                                                                                                               bool? withLabels = null, IReadOnlyCollection<string>? selectedLabels = null)
         {
-            var args = TimeSeriesAux.BuildTsMgetArgs(filter, withLabels);
+            var args = TimeSeriesAux.BuildTsMgetArgs(latest, filter, withLabels, selectedLabels);
             return ResponseParser.ParseMGetResponse(await _db.ExecuteAsync(TS.MGET, args));
         }
 
@@ -350,24 +410,37 @@ namespace NRedisStack
         /// <param name="key">Key name for timeseries</param>
         /// <param name="fromTimeStamp">Start timestamp for the range query. "-" can be used to express the minimum possible timestamp.</param>
         /// <param name="toTimeStamp">End timestamp for range query, + can be used to express the maximum possible timestamp.</param>
-        /// <param name="count">Optional: Returned list size.</param>
-        /// <param name="aggregation">Optional: Aggregation type</param>
-        /// <param name="timeBucket">Optional: Time bucket for aggregation in milliseconds</param>
+        /// <param name="latest">is used when a time series is a compaction. With LATEST, TS.MRANGE also reports
+        /// the compacted value of the latest possibly partial bucket, given that this bucket's start time falls
+        /// within [fromTimestamp, toTimestamp]. Without LATEST, TS.MRANGE does not report the latest possibly partial bucket.
+        // When a time series is not a compaction, LATEST is ignored.</param>        /// <param name="filterByTs">Optional: List of timestamps to filter the result by specific timestamps</param>
         /// <param name="filterByTs">Optional: List of timestamps to filter the result by specific timestamps</param>
         /// <param name="filterByValue">Optional: Filter result by value using minimum and maximum</param>
+        /// <param name="count">Optional: Returned list size.</param>
         /// <param name="align">Optional: Timestamp for alignment control for aggregation.</param>
+        /// <param name="aggregation">Optional: Aggregation type</param>
+        /// <param name="timeBucket">Optional: Time bucket for aggregation in milliseconds</param>
+        /// <param name="bt">Optional: controls how bucket timestamps are reported.</param>
+        /// <param name="empty">Optional: when specified, reports aggregations also for empty buckets</param>
         /// <returns>A list of TimeSeriesTuple</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ts.range"/></remarks>
         public IReadOnlyList<TimeSeriesTuple> Range(string key,
                                                     TimeStamp fromTimeStamp,
                                                     TimeStamp toTimeStamp,
-                                                    long? count = null,
-                                                    TsAggregation? aggregation = null,
-                                                    long? timeBucket = null,
+                                                    bool latest = false,
                                                     IReadOnlyCollection<TimeStamp>? filterByTs = null,
                                                     (long, long)? filterByValue = null,
-                                                    TimeStamp? align = null)
+                                                    long? count = null,
+                                                    TimeStamp? align = null,
+                                                    TsAggregation? aggregation = null,
+                                                    long? timeBucket = null,
+                                                    TsBucketTimestamps? bt = null,
+                                                    bool empty = false)
         {
-            var args = TimeSeriesAux.BuildRangeArgs(key, fromTimeStamp, toTimeStamp, count, aggregation, timeBucket, filterByTs, filterByValue, align);
+            var args = TimeSeriesAux.BuildRangeArgs(key, fromTimeStamp, toTimeStamp,
+                                                    latest, filterByTs, filterByValue, count, align,
+                                                    aggregation, timeBucket, bt, empty);
+
             return ResponseParser.ToTimeSeriesTupleArray(_db.Execute(TS.RANGE, args));
         }
 
@@ -377,80 +450,117 @@ namespace NRedisStack
         /// <param name="key">Key name for timeseries</param>
         /// <param name="fromTimeStamp">Start timestamp for the range query. "-" can be used to express the minimum possible timestamp.</param>
         /// <param name="toTimeStamp">End timestamp for range query, + can be used to express the maximum possible timestamp.</param>
-        /// <param name="count">Optional: Returned list size.</param>
-        /// <param name="aggregation">Optional: Aggregation type</param>
-        /// <param name="timeBucket">Optional: Time bucket for aggregation in milliseconds</param>
+        /// <param name="latest">is used when a time series is a compaction. With LATEST, TS.MRANGE also reports
+        /// the compacted value of the latest possibly partial bucket, given that this bucket's start time falls
+        /// within [fromTimestamp, toTimestamp]. Without LATEST, TS.MRANGE does not report the latest possibly partial bucket.
+        // When a time series is not a compaction, LATEST is ignored.</param>        /// <param name="filterByTs">Optional: List of timestamps to filter the result by specific timestamps</param>
         /// <param name="filterByTs">Optional: List of timestamps to filter the result by specific timestamps</param>
         /// <param name="filterByValue">Optional: Filter result by value using minimum and maximum</param>
+        /// <param name="count">Optional: Returned list size.</param>
         /// <param name="align">Optional: Timestamp for alignment control for aggregation.</param>
+        /// <param name="aggregation">Optional: Aggregation type</param>
+        /// <param name="timeBucket">Optional: Time bucket for aggregation in milliseconds</param>
+        /// <param name="bt">Optional: controls how bucket timestamps are reported.</param>
+        /// <param name="empty">Optional: when specified, reports aggregations also for empty buckets</param>
         /// <returns>A list of TimeSeriesTuple</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ts.range"/></remarks>
         public async Task<IReadOnlyList<TimeSeriesTuple>> RangeAsync(string key,
                                                     TimeStamp fromTimeStamp,
                                                     TimeStamp toTimeStamp,
-                                                    long? count = null,
-                                                    TsAggregation? aggregation = null,
-                                                    long? timeBucket = null,
+                                                    bool latest = false,
                                                     IReadOnlyCollection<TimeStamp>? filterByTs = null,
                                                     (long, long)? filterByValue = null,
-                                                    TimeStamp? align = null)
+                                                    long? count = null,
+                                                    TimeStamp? align = null,
+                                                    TsAggregation? aggregation = null,
+                                                    long? timeBucket = null,
+                                                    TsBucketTimestamps? bt = null,
+                                                    bool empty = false)
         {
-            var args = TimeSeriesAux.BuildRangeArgs(key, fromTimeStamp, toTimeStamp, count, aggregation, timeBucket, filterByTs, filterByValue, align);
+            var args = TimeSeriesAux.BuildRangeArgs(key, fromTimeStamp, toTimeStamp,
+                                                    latest, filterByTs, filterByValue, count, align,
+                                                    aggregation, timeBucket, bt, empty);
+
             return ResponseParser.ToTimeSeriesTupleArray(await _db.ExecuteAsync(TS.RANGE, args));
         }
 
         /// <summary>
-        /// Query a range in reverse order.
+        /// Query a range in reverse direction.
         /// </summary>
         /// <param name="key">Key name for timeseries</param>
         /// <param name="fromTimeStamp">Start timestamp for the range query. "-" can be used to express the minimum possible timestamp.</param>
         /// <param name="toTimeStamp">End timestamp for range query, + can be used to express the maximum possible timestamp.</param>
-        /// <param name="count">Optional: Returned list size.</param>
-        /// <param name="aggregation">Optional: Aggregation type</param>
-        /// <param name="timeBucket">Optional: Time bucket for aggregation in milliseconds</param>
+        /// <param name="latest">is used when a time series is a compaction. With LATEST, TS.MRANGE also reports
+        /// the compacted value of the latest possibly partial bucket, given that this bucket's start time falls
+        /// within [fromTimestamp, toTimestamp]. Without LATEST, TS.MRANGE does not report the latest possibly partial bucket.
+        // When a time series is not a compaction, LATEST is ignored.</param>        /// <param name="filterByTs">Optional: List of timestamps to filter the result by specific timestamps</param>
         /// <param name="filterByTs">Optional: List of timestamps to filter the result by specific timestamps</param>
         /// <param name="filterByValue">Optional: Filter result by value using minimum and maximum</param>
+        /// <param name="count">Optional: Returned list size.</param>
         /// <param name="align">Optional: Timestamp for alignment control for aggregation.</param>
+        /// <param name="aggregation">Optional: Aggregation type</param>
+        /// <param name="timeBucket">Optional: Time bucket for aggregation in milliseconds</param>
+        /// <param name="bt">Optional: controls how bucket timestamps are reported.</param>
+        /// <param name="empty">Optional: when specified, reports aggregations also for empty buckets</param>
         /// <returns>A list of TimeSeriesTuple</returns>
-        public IReadOnlyList<TimeSeriesTuple> RevRange(
-            string key,
-            TimeStamp fromTimeStamp,
-            TimeStamp toTimeStamp,
-            long? count = null,
-            TsAggregation? aggregation = null,
-            long? timeBucket = null,
-            IReadOnlyCollection<TimeStamp>? filterByTs = null,
-            (long, long)? filterByValue = null,
-            TimeStamp? align = null)
+        /// <remarks><seealso href="https://redis.io/commands/ts.revrange"/></remarks>
+        public IReadOnlyList<TimeSeriesTuple> RevRange(string key,
+                                                    TimeStamp fromTimeStamp,
+                                                    TimeStamp toTimeStamp,
+                                                    bool latest = false,
+                                                    IReadOnlyCollection<TimeStamp>? filterByTs = null,
+                                                    (long, long)? filterByValue = null,
+                                                    long? count = null,
+                                                    TimeStamp? align = null,
+                                                    TsAggregation? aggregation = null,
+                                                    long? timeBucket = null,
+                                                    TsBucketTimestamps? bt = null,
+                                                    bool empty = false)
         {
-            var args = TimeSeriesAux.BuildRangeArgs(key, fromTimeStamp, toTimeStamp, count, aggregation, timeBucket, filterByTs, filterByValue, align);
+            var args = TimeSeriesAux.BuildRangeArgs(key, fromTimeStamp, toTimeStamp,
+                                                    latest, filterByTs, filterByValue, count, align,
+                                                    aggregation, timeBucket, bt, empty);
+
             return ResponseParser.ToTimeSeriesTupleArray(_db.Execute(TS.REVRANGE, args));
         }
 
         /// <summary>
-        /// Query a range in reverse order.
+        /// Query a range in reverse direction.
         /// </summary>
         /// <param name="key">Key name for timeseries</param>
         /// <param name="fromTimeStamp">Start timestamp for the range query. "-" can be used to express the minimum possible timestamp.</param>
         /// <param name="toTimeStamp">End timestamp for range query, + can be used to express the maximum possible timestamp.</param>
-        /// <param name="count">Optional: Returned list size.</param>
-        /// <param name="aggregation">Optional: Aggregation type</param>
-        /// <param name="timeBucket">Optional: Time bucket for aggregation in milliseconds</param>
+        /// <param name="latest">is used when a time series is a compaction. With LATEST, TS.MRANGE also reports
+        /// the compacted value of the latest possibly partial bucket, given that this bucket's start time falls
+        /// within [fromTimestamp, toTimestamp]. Without LATEST, TS.MRANGE does not report the latest possibly partial bucket.
+        // When a time series is not a compaction, LATEST is ignored.</param>
         /// <param name="filterByTs">Optional: List of timestamps to filter the result by specific timestamps</param>
         /// <param name="filterByValue">Optional: Filter result by value using minimum and maximum</param>
+        /// <param name="count">Optional: Returned list size.</param>
         /// <param name="align">Optional: Timestamp for alignment control for aggregation.</param>
+        /// <param name="aggregation">Optional: Aggregation type</param>
+        /// <param name="timeBucket">Optional: Time bucket for aggregation in milliseconds</param>
+        /// <param name="bt">Optional: controls how bucket timestamps are reported.</param>
+        /// <param name="empty">Optional: when specified, reports aggregations also for empty buckets</param>
         /// <returns>A list of TimeSeriesTuple</returns>
-        public async Task<IReadOnlyList<TimeSeriesTuple>> RevRangeAsync(
-            string key,
-            TimeStamp fromTimeStamp,
-            TimeStamp toTimeStamp,
-            long? count = null,
-            TsAggregation? aggregation = null,
-            long? timeBucket = null,
-            IReadOnlyCollection<TimeStamp>? filterByTs = null,
-            (long, long)? filterByValue = null,
-            TimeStamp? align = null)
+        /// <remarks><seealso href="https://redis.io/commands/ts.revrange"/></remarks>
+        public async Task<IReadOnlyList<TimeSeriesTuple>> RevRangeAsync(string key,
+                                                    TimeStamp fromTimeStamp,
+                                                    TimeStamp toTimeStamp,
+                                                    bool latest = false,
+                                                    IReadOnlyCollection<TimeStamp>? filterByTs = null,
+                                                    (long, long)? filterByValue = null,
+                                                    long? count = null,
+                                                    TimeStamp? align = null,
+                                                    TsAggregation? aggregation = null,
+                                                    long? timeBucket = null,
+                                                    TsBucketTimestamps? bt = null,
+                                                    bool empty = false)
         {
-            var args = TimeSeriesAux.BuildRangeArgs(key, fromTimeStamp, toTimeStamp, count, aggregation, timeBucket, filterByTs, filterByValue, align);
+            var args = TimeSeriesAux.BuildRangeArgs(key, fromTimeStamp, toTimeStamp,
+                                                    latest, filterByTs, filterByValue, count, align,
+                                                    aggregation, timeBucket, bt, empty);
+
             return ResponseParser.ToTimeSeriesTupleArray(await _db.ExecuteAsync(TS.REVRANGE, args));
         }
 
@@ -460,31 +570,43 @@ namespace NRedisStack
         /// <param name="fromTimeStamp"> Start timestamp for the range query. - can be used to express the minimum possible timestamp.</param>
         /// <param name="toTimeStamp">End timestamp for range query, + can be used to express the maximum possible timestamp.</param>
         /// <param name="filter">A sequence of filters</param>
-        /// <param name="count">Optional: Maximum number of returned results per time-series.</param>
-        /// <param name="aggregation">Optional: Aggregation type</param>
-        /// <param name="timeBucket">Optional: Time bucket for aggregation in milliseconds</param>
-        /// <param name="withLabels">Optional: Include in the reply the label-value pairs that represent metadata labels of the time-series</param>
-        /// <param name="groupbyTuple">Optional: Grouping by fields the results, and applying reducer functions on each group.</param>
+        /// <param name="latest">is used when a time series is a compaction. With LATEST, TS.MRANGE also reports
+        /// the compacted value of the latest possibly partial bucket, given that this bucket's start time falls
+        /// within [fromTimestamp, toTimestamp]. Without LATEST, TS.MRANGE does not report the latest possibly partial bucket.
+        // When a time series is not a compaction, LATEST is ignored.</param>
         /// <param name="filterByTs">Optional: List of timestamps to filter the result by specific timestamps</param>
         /// <param name="filterByValue">Optional: Filter result by value using minimum and maximum</param>
+        /// <param name="withLabels">Optional: Include in the reply the label-value pairs that represent metadata labels of the time-series</param>
         /// <param name="selectLabels">Optional: Include in the reply only a subset of the key-value pair labels of a series.</param>
+        /// <param name="count">Optional: Maximum number of returned results per time-series.</param>
         /// <param name="align">Optional: Timestamp for alignment control for aggregation.</param>
+        /// <param name="aggregation">Optional: Aggregation type</param>
+        /// <param name="timeBucket">Optional: Time bucket for aggregation in milliseconds</param>
+        /// <param name="bt">Optional: controls how bucket timestamps are reported.</param>
+        /// <param name="empty">Optional: when specified, reports aggregations also for empty buckets</param>
+        /// <param name="groupbyTuple">Optional: Grouping by fields the results, and applying reducer functions on each group.</param>
         /// <returns>A list of (key, labels, values) tuples. Each tuple contains the key name, its labels and the values which satisfies the given range and filters.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ts.mrange"/></remarks>
         public IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)> MRange(
             TimeStamp fromTimeStamp,
             TimeStamp toTimeStamp,
             IReadOnlyCollection<string> filter,
-            long? count = null,
-            TsAggregation? aggregation = null,
-            long? timeBucket = null,
-            bool? withLabels = null,
-            (string, TsReduce)? groupbyTuple = null,
+            bool latest = false,
             IReadOnlyCollection<TimeStamp>? filterByTs = null,
             (long, long)? filterByValue = null,
+            bool? withLabels = null,
             IReadOnlyCollection<string>? selectLabels = null,
-            TimeStamp? align = null)
+            long? count = null,
+            TimeStamp? align = null,
+            TsAggregation? aggregation = null,
+            long? timeBucket = null,
+            TsBucketTimestamps? bt = null,
+            bool empty = false,
+            (string, TsReduce)? groupbyTuple = null)
         {
-            var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, count, aggregation, timeBucket, withLabels, groupbyTuple, filterByTs, filterByValue, selectLabels, align);
+            var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, latest, filterByTs,
+                                                         filterByValue, withLabels, selectLabels, count,
+                                                         align, aggregation, timeBucket, bt, empty, groupbyTuple);
             return ResponseParser.ParseMRangeResponse(_db.Execute(TS.MRANGE, args));
         }
 
@@ -494,32 +616,43 @@ namespace NRedisStack
         /// <param name="fromTimeStamp"> Start timestamp for the range query. - can be used to express the minimum possible timestamp.</param>
         /// <param name="toTimeStamp">End timestamp for range query, + can be used to express the maximum possible timestamp.</param>
         /// <param name="filter">A sequence of filters</param>
-        /// <param name="count">Optional: Maximum number of returned results per time-series.</param>
-        /// <param name="aggregation">Optional: Aggregation type</param>
-        /// <param name="timeBucket">Optional: Time bucket for aggregation in milliseconds</param>
-        /// <param name="withLabels">Optional: Include in the reply the label-value pairs that represent metadata labels of the time-series</param>
-        /// <param name="groupbyTuple">Optional: Grouping by fields the results, and applying reducer functions on each group.</param>
+        /// <param name="latest">is used when a time series is a compaction. With LATEST, TS.MRANGE also reports
+        /// the compacted value of the latest possibly partial bucket, given that this bucket's start time falls
+        /// within [fromTimestamp, toTimestamp]. Without LATEST, TS.MRANGE does not report the latest possibly partial bucket.
+        // When a time series is not a compaction, LATEST is ignored.</param>
         /// <param name="filterByTs">Optional: List of timestamps to filter the result by specific timestamps</param>
         /// <param name="filterByValue">Optional: Filter result by value using minimum and maximum</param>
+        /// <param name="withLabels">Optional: Include in the reply the label-value pairs that represent metadata labels of the time-series</param>
         /// <param name="selectLabels">Optional: Include in the reply only a subset of the key-value pair labels of a series.</param>
+        /// <param name="count">Optional: Maximum number of returned results per time-series.</param>
         /// <param name="align">Optional: Timestamp for alignment control for aggregation.</param>
+        /// <param name="aggregation">Optional: Aggregation type</param>
+        /// <param name="timeBucket">Optional: Time bucket for aggregation in milliseconds</param>
+        /// <param name="bt">Optional: controls how bucket timestamps are reported.</param>
+        /// <param name="empty">Optional: when specified, reports aggregations also for empty buckets</param>
+        /// <param name="groupbyTuple">Optional: Grouping by fields the results, and applying reducer functions on each group.</param>
         /// <returns>A list of (key, labels, values) tuples. Each tuple contains the key name, its labels and the values which satisfies the given range and filters.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ts.mrange"/></remarks>
         public async Task<IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)>> MRangeAsync(
             TimeStamp fromTimeStamp,
             TimeStamp toTimeStamp,
             IReadOnlyCollection<string> filter,
-            long? count = null,
-            TsAggregation? aggregation = null,
-            long? timeBucket = null,
-            bool? withLabels = null,
-            (string, TsReduce)? groupbyTuple = null,
+            bool latest = false,
             IReadOnlyCollection<TimeStamp>? filterByTs = null,
             (long, long)? filterByValue = null,
+            bool? withLabels = null,
             IReadOnlyCollection<string>? selectLabels = null,
-            TimeStamp? align = null)
+            long? count = null,
+            TimeStamp? align = null,
+            TsAggregation? aggregation = null,
+            long? timeBucket = null,
+            TsBucketTimestamps? bt = null,
+            bool empty = false,
+            (string, TsReduce)? groupbyTuple = null)
         {
-            var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, count, aggregation, timeBucket,
-                                                         withLabels, groupbyTuple, filterByTs, filterByValue, selectLabels, align);
+            var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, latest, filterByTs,
+                                                         filterByValue, withLabels, selectLabels, count,
+                                                         align, aggregation, timeBucket, bt, empty, groupbyTuple);
             return ResponseParser.ParseMRangeResponse(await _db.ExecuteAsync(TS.MRANGE, args));
         }
 
@@ -529,31 +662,43 @@ namespace NRedisStack
         /// <param name="fromTimeStamp"> Start timestamp for the range query. - can be used to express the minimum possible timestamp.</param>
         /// <param name="toTimeStamp">End timestamp for range query, + can be used to express the maximum possible timestamp.</param>
         /// <param name="filter">A sequence of filters</param>
-        /// <param name="count">Optional: Maximum number of returned results per time-series.</param>
-        /// <param name="aggregation">Optional: Aggregation type</param>
-        /// <param name="timeBucket">Optional: Time bucket for aggregation in milliseconds</param>
-        /// <param name="withLabels">Optional: Include in the reply the label-value pairs that represent metadata labels of the time-series</param>
-        /// <param name="groupbyTuple">Optional: Grouping by fields the results, and applying reducer functions on each group.</param>
+        /// <param name="latest">is used when a time series is a compaction. With LATEST, TS.MRANGE also reports
+        /// the compacted value of the latest possibly partial bucket, given that this bucket's start time falls
+        /// within [fromTimestamp, toTimestamp]. Without LATEST, TS.MRANGE does not report the latest possibly partial bucket.
+        // When a time series is not a compaction, LATEST is ignored.</param>
         /// <param name="filterByTs">Optional: List of timestamps to filter the result by specific timestamps</param>
         /// <param name="filterByValue">Optional: Filter result by value using minimum and maximum</param>
+        /// <param name="withLabels">Optional: Include in the reply the label-value pairs that represent metadata labels of the time-series</param>
         /// <param name="selectLabels">Optional: Include in the reply only a subset of the key-value pair labels of a series.</param>
+        /// <param name="count">Optional: Maximum number of returned results per time-series.</param>
         /// <param name="align">Optional: Timestamp for alignment control for aggregation.</param>
+        /// <param name="aggregation">Optional: Aggregation type</param>
+        /// <param name="timeBucket">Optional: Time bucket for aggregation in milliseconds</param>
+        /// <param name="bt">Optional: controls how bucket timestamps are reported.</param>
+        /// <param name="empty">Optional: when specified, reports aggregations also for empty buckets</param>
+        /// <param name="groupbyTuple">Optional: Grouping by fields the results, and applying reducer functions on each group.</param>
         /// <returns>A list of (key, labels, values) tuples. Each tuple contains the key name, its labels and the values which satisfies the given range and filters.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ts.mrevrange"/></remarks>
         public IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)> MRevRange(
             TimeStamp fromTimeStamp,
             TimeStamp toTimeStamp,
             IReadOnlyCollection<string> filter,
-            long? count = null,
-            TsAggregation? aggregation = null,
-            long? timeBucket = null,
-            bool? withLabels = null,
-            (string, TsReduce)? groupbyTuple = null,
+            bool latest = false,
             IReadOnlyCollection<TimeStamp>? filterByTs = null,
             (long, long)? filterByValue = null,
+            bool? withLabels = null,
             IReadOnlyCollection<string>? selectLabels = null,
-            TimeStamp? align = null)
+            long? count = null,
+            TimeStamp? align = null,
+            TsAggregation? aggregation = null,
+            long? timeBucket = null,
+            TsBucketTimestamps? bt = null,
+            bool empty = false,
+            (string, TsReduce)? groupbyTuple = null)
         {
-            var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, count, aggregation, timeBucket, withLabels, groupbyTuple, filterByTs, filterByValue, selectLabels, align);
+            var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, latest, filterByTs,
+                                                         filterByValue, withLabels, selectLabels, count,
+                                                         align, aggregation, timeBucket, bt, empty, groupbyTuple);
             return ResponseParser.ParseMRangeResponse(_db.Execute(TS.MREVRANGE, args));
         }
 
@@ -563,31 +708,43 @@ namespace NRedisStack
         /// <param name="fromTimeStamp"> Start timestamp for the range query. - can be used to express the minimum possible timestamp.</param>
         /// <param name="toTimeStamp">End timestamp for range query, + can be used to express the maximum possible timestamp.</param>
         /// <param name="filter">A sequence of filters</param>
-        /// <param name="count">Optional: Maximum number of returned results per time-series.</param>
-        /// <param name="aggregation">Optional: Aggregation type</param>
-        /// <param name="timeBucket">Optional: Time bucket for aggregation in milliseconds</param>
-        /// <param name="withLabels">Optional: Include in the reply the label-value pairs that represent metadata labels of the time-series</param>
-        /// <param name="groupbyTuple">Optional: Grouping by fields the results, and applying reducer functions on each group.</param>
+        /// <param name="latest">is used when a time series is a compaction. With LATEST, TS.MRANGE also reports
+        /// the compacted value of the latest possibly partial bucket, given that this bucket's start time falls
+        /// within [fromTimestamp, toTimestamp]. Without LATEST, TS.MRANGE does not report the latest possibly partial bucket.
+        // When a time series is not a compaction, LATEST is ignored.</param>
         /// <param name="filterByTs">Optional: List of timestamps to filter the result by specific timestamps</param>
         /// <param name="filterByValue">Optional: Filter result by value using minimum and maximum</param>
+        /// <param name="withLabels">Optional: Include in the reply the label-value pairs that represent metadata labels of the time-series</param>
         /// <param name="selectLabels">Optional: Include in the reply only a subset of the key-value pair labels of a series.</param>
+        /// <param name="count">Optional: Maximum number of returned results per time-series.</param>
         /// <param name="align">Optional: Timestamp for alignment control for aggregation.</param>
+        /// <param name="aggregation">Optional: Aggregation type</param>
+        /// <param name="timeBucket">Optional: Time bucket for aggregation in milliseconds</param>
+        /// <param name="bt">Optional: controls how bucket timestamps are reported.</param>
+        /// <param name="empty">Optional: when specified, reports aggregations also for empty buckets</param>
+        /// <param name="groupbyTuple">Optional: Grouping by fields the results, and applying reducer functions on each group.</param>
         /// <returns>A list of (key, labels, values) tuples. Each tuple contains the key name, its labels and the values which satisfies the given range and filters.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ts.mrevrange"/></remarks>
         public async Task<IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)>> MRevRangeAsync(
             TimeStamp fromTimeStamp,
             TimeStamp toTimeStamp,
             IReadOnlyCollection<string> filter,
-            long? count = null,
-            TsAggregation? aggregation = null,
-            long? timeBucket = null,
-            bool? withLabels = null,
-            (string, TsReduce)? groupbyTuple = null,
+            bool latest = false,
             IReadOnlyCollection<TimeStamp>? filterByTs = null,
             (long, long)? filterByValue = null,
+            bool? withLabels = null,
             IReadOnlyCollection<string>? selectLabels = null,
-            TimeStamp? align = null)
+            long? count = null,
+            TimeStamp? align = null,
+            TsAggregation? aggregation = null,
+            long? timeBucket = null,
+            TsBucketTimestamps? bt = null,
+            bool empty = false,
+            (string, TsReduce)? groupbyTuple = null)
         {
-            var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, count, aggregation, timeBucket, withLabels, groupbyTuple, filterByTs, filterByValue, selectLabels, align);
+            var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, latest, filterByTs,
+                                                         filterByValue, withLabels, selectLabels, count,
+                                                         align, aggregation, timeBucket, bt, empty, groupbyTuple);
             return ResponseParser.ParseMRangeResponse(await _db.ExecuteAsync(TS.MREVRANGE, args));
         }
 
@@ -599,20 +756,26 @@ namespace NRedisStack
         /// Returns the information for a specific time-series key.
         /// </summary>
         /// <param name="key">Key name for timeseries</param>
+        /// <param name="debug">An optional flag to get a more detailed information about the chunks.</param>
         /// <returns>TimeSeriesInformation for the specific key.</returns>
-        public TimeSeriesInformation Info(string key)
+        /// <remarks><seealso href="https://redis.io/commands/ts.info"/></remarks>
+        public TimeSeriesInformation Info(string key, bool debug = false)
         {
-            return ResponseParser.ToTimeSeriesInfo(_db.Execute(TS.INFO, key));
+            return ResponseParser.ToTimeSeriesInfo((debug) ? _db.Execute(TS.INFO, key, TimeSeriesArgs.DEBUG)
+                                                           : _db.Execute(TS.INFO, key));
         }
 
         /// <summary>
         /// Returns the information for a specific time-series key.
         /// </summary>
         /// <param name="key">Key name for timeseries</param>
+        /// <param name="debug">An optional flag to get a more detailed information about the chunks.</param>
         /// <returns>TimeSeriesInformation for the specific key.</returns>
-        public async Task<TimeSeriesInformation> InfoAsync(string key)
+        /// <remarks><seealso href="https://redis.io/commands/ts.info"/></remarks>
+        public async Task<TimeSeriesInformation> InfoAsync(string key, bool debug = false)
         {
-            return ResponseParser.ToTimeSeriesInfo(await _db.ExecuteAsync(TS.INFO, key));
+            return ResponseParser.ToTimeSeriesInfo(await ((debug) ? _db.ExecuteAsync(TS.INFO, key, TimeSeriesArgs.DEBUG)
+                                                                  : _db.ExecuteAsync(TS.INFO, key)));
         }
 
         /// <summary>
@@ -620,6 +783,7 @@ namespace NRedisStack
         /// </summary>
         /// <param name="filter">A sequence of filters</param>
         /// <returns>A list of keys with labels matching the filters.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ts.queryindex"/></remarks>
         public IReadOnlyList<string> QueryIndex(IReadOnlyCollection<string> filter)
         {
             var args = new List<object>(filter);
@@ -631,6 +795,7 @@ namespace NRedisStack
         /// </summary>
         /// <param name="filter">A sequence of filters</param>
         /// <returns>A list of keys with labels matching the filters.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ts.queryindex"/></remarks>
         public async Task<IReadOnlyList<string>> QueryIndexAsync(IReadOnlyCollection<string> filter)
         {
             var args = new List<object>(filter);
@@ -638,13 +803,5 @@ namespace NRedisStack
         }
 
         #endregion
-
-
-
     }
-
-
 }
-
-
-

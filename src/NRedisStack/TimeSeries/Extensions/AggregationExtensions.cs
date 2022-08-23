@@ -19,6 +19,7 @@ namespace NRedisStack.Extensions
             TsAggregation.StdS => "STD.S",
             TsAggregation.VarP => "VAR.P",
             TsAggregation.VarS => "VAR.S",
+            TsAggregation.Twa => "TWA",
             _ => throw new ArgumentOutOfRangeException(nameof(aggregation), "Invalid aggregation type"),
         };
 
@@ -36,6 +37,7 @@ namespace NRedisStack.Extensions
             "STD.S" => TsAggregation.StdS,
             "VAR.P" => TsAggregation.VarP,
             "VAR.S" => TsAggregation.VarS,
+            "TWA" => TsAggregation.Twa,
             _ => throw new ArgumentOutOfRangeException(nameof(aggregation), $"Invalid aggregation type '{aggregation}'"),
         };
     }
