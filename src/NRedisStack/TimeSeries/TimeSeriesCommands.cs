@@ -803,13 +803,5 @@ namespace NRedisStack
         }
 
         #endregion
-
-
-
     }
-
-
 }
-
-
-
