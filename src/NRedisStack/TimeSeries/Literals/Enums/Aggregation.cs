@@ -69,5 +69,10 @@
         /// The variance is the average of the squared differences from the mean
         /// </summary>
         VarS,
+
+        /// <summary>
+        /// Time-weighted average of all values
+        /// </summary>
+        Twa,
     }
 }
