@@ -123,7 +123,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/tdigest.create"/></remarks>
         public bool Create(RedisKey key, long compression = 100)
         {
-            return ResponseParser.OKtoBoolean(_db.Execute(TDIGEST.CREATE, key, compression));
+            return ResponseParser.OKtoBoolean(_db.Execute(TDIGEST.CREATE, key, TdigestArgs.COMPRESSION, compression));
         }
 
         /// <summary>
@@ -135,7 +135,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/tdigest.create"/></remarks>
         public async Task<bool> CreateAsync(RedisKey key, long compression = 100)
         {
-            return ResponseParser.OKtoBoolean(await _db.ExecuteAsync(TDIGEST.CREATE, key, compression));
+            return ResponseParser.OKtoBoolean(await _db.ExecuteAsync(TDIGEST.CREATE, key, TdigestArgs.COMPRESSION, compression));
         }
 
         /// <summary>
