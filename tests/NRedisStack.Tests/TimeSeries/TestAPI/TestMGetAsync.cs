@@ -63,5 +63,32 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(tuple2, results[1].value);
             Assert.Equal(labels2, results[1].labels);
         }
+
+        [Fact]
+        public async Task TestMGetQuerySelectedLabelsAsync()
+        {
+            var keys = CreateKeyNames(2);
+            var db = redisFixture.Redis.GetDatabase();
+            db.Execute("FLUSHALL");
+
+            var label1 = new TimeSeriesLabel("MGET_TESTS_1", "value");
+            var label2 = new TimeSeriesLabel("MGET_TESTS_2", "value2");
+            var labels1 = new List<TimeSeriesLabel> { label1, label2 };
+            var labels2 = new List<TimeSeriesLabel> { label1 };
+
+            TimeStamp ts1 = await db.TS().AddAsync(keys[0], "*", 1.1, labels: labels1);
+            TimeSeriesTuple tuple1 = new TimeSeriesTuple(ts1, 1.1);
+            TimeStamp ts2 = await db.TS().AddAsync(keys[1], "*", 2.2, labels: labels2);
+            TimeSeriesTuple tuple2 = new TimeSeriesTuple(ts2, 2.2);
+
+            var results = await db.TS().MGetAsync(new List<string> { "MGET_TESTS_1=value" }, selectedLabels: new List<string>{"MGET_TESTS_1"});
+            Assert.Equal(2, results.Count);
+            Assert.Equal(keys[0], results[0].key);
+            Assert.Equal(tuple1, results[0].value);
+            Assert.Equal(labels2, results[0].labels);
+            Assert.Equal(keys[1], results[1].key);
+            Assert.Equal(tuple2, results[1].value);
+            Assert.Equal(labels2, results[1].labels);
+        }
     }
 }

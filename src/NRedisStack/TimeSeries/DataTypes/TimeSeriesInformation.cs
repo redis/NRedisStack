@@ -73,6 +73,19 @@ namespace NRedisStack.DataTypes
         /// </summary>
         public TsDuplicatePolicy? DuplicatePolicy {  get; private set; }
 
+        /* TODO: add TS.INFO DEBUG Arguments (string keySelfName and Cunks:
+        27) Chunks
+        28) 1)  1) startTimestamp
+                2) (integer) 0
+                3) endTimestamp
+                4) (integer) 0
+                5) samples
+                6) (integer) 0
+                7) size
+                8) (integer) 4096
+                9) bytesPerSample
+                10) "inf"))*/
+
         internal TimeSeriesInformation(long totalSamples, long memoryUsage, TimeStamp firstTimeStamp, TimeStamp lastTimeStamp, long retentionTime, long chunkCount, long chunkSize, IReadOnlyList<TimeSeriesLabel> labels, string sourceKey, IReadOnlyList<TimeSeriesRule> rules, TsDuplicatePolicy? policy)
         {
             TotalSamples = totalSamples;

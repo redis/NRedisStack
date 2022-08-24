@@ -29,5 +29,7 @@ namespace NRedisTimeSeries.Test.TestDataTypes
             Assert.Equal(1, info.ChunkCount);
             Assert.Equal(null, info.DuplicatePolicy);
         }
+
+        // TODO: add test for TS.INFO DEBUG
     }
 }
