@@ -346,8 +346,8 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/ts.get"/></remarks>
         public TimeSeriesTuple? Get(string key, bool latest = false)
         {
-            return ResponseParser.ToTimeSeriesTuple((latest) ? _db.Execute(TS.GET, key)
-                                                             : _db.Execute(TS.GET, key, TimeSeriesArgs.LATEST));
+            return ResponseParser.ToTimeSeriesTuple((latest) ? _db.Execute(TS.GET, key, TimeSeriesArgs.LATEST)
+                                                             : _db.Execute(TS.GET, key));
         }
 
         /// <summary>
@@ -362,8 +362,8 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/ts.get"/></remarks>
         public async Task<TimeSeriesTuple?> GetAsync(string key, bool latest = false)
         {
-            return ResponseParser.ToTimeSeriesTuple(await ((latest) ? _db.ExecuteAsync(TS.GET, key)
-                                                                    : _db.ExecuteAsync(TS.GET, key, TimeSeriesArgs.LATEST)));
+            return ResponseParser.ToTimeSeriesTuple(await ((latest) ? _db.ExecuteAsync(TS.GET, key, TimeSeriesArgs.LATEST)
+                                                                    : _db.ExecuteAsync(TS.GET, key)));
         }
 
         /// <summary>

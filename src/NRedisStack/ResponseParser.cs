@@ -38,8 +38,6 @@ namespace NRedisStack
             if (redisResults != null)
                 return redisResults;
             throw new ArgumentNullException(nameof(redisResults));
-
-
         }
 
         public static long ToLong(RedisResult result)
