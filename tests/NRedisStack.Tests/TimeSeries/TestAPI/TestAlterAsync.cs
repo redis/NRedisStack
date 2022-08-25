@@ -1,4 +1,5 @@
 ﻿using NRedisStack.DataTypes;
+using NRedisStack.Literals.Enums;
 using NRedisStack.RedisStackCommands;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -43,6 +44,19 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
             info = await db.TS().InfoAsync(key);
             Assert.Equal(labels, info.Labels);
+        }
+
+        [Fact]
+        public async Task TestAlterPolicyAndChunkAsync()
+        {
+            var key = CreateKeyName();
+            var db = redisFixture.Redis.GetDatabase();
+            db.Execute("FLUSHALL");
+            db.TS().Create(key);
+            Assert.True(await db.TS().AlterAsync(key, chunkSizeBytes: 128, duplicatePolicy: TsDuplicatePolicy.MIN));
+            TimeSeriesInformation info = db.TS().Info(key);
+            Assert.Equal(info.ChunkSize, 128);
+            Assert.Equal(info.DuplicatePolicy, TsDuplicatePolicy.MIN);
         }
 
     }

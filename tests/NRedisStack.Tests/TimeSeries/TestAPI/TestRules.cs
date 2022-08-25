@@ -102,5 +102,28 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             ex = Assert.Throws<RedisServerException>(() => db.TS().DeleteRule(srcKey, destKey));
             Assert.Equal("ERR TSDB: compaction rule does not exist", ex.Message);
         }
+
+        [Fact]
+        public void TestAlignTimestamp()
+        {
+            IDatabase db = redisFixture.Redis.GetDatabase();
+            db.Execute("FLUSHALL");
+            db.TS().Create("ts1");
+            db.TS().Create("ts2");
+            db.TS().Create("ts3");
+
+            TimeSeriesRule rule1 = new TimeSeriesRule("ts2", 10, TsAggregation.Count);
+            db.TS().CreateRule("ts1", rule1, 0);
+
+            TimeSeriesRule rule2 = new TimeSeriesRule("ts3", 10, TsAggregation.Count);
+            db.TS().CreateRule("ts1", rule2, 1);
+
+            db.TS().Add("ts1", 1, 1);
+            db.TS().Add("ts1", 10, 3);
+            db.TS().Add("ts1", 21, 7);
+
+            Assert.Equal(2, db.TS().Range("ts2", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10).Count);
+            Assert.Equal(1, db.TS().Range("ts3", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10).Count);
+        }
     }
 }

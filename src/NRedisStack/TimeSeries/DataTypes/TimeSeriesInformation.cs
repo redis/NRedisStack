@@ -73,7 +73,20 @@ namespace NRedisStack.DataTypes
         /// </summary>
         public TsDuplicatePolicy? DuplicatePolicy {  get; private set; }
 
-        internal TimeSeriesInformation(long totalSamples, long memoryUsage, TimeStamp firstTimeStamp, TimeStamp lastTimeStamp, long retentionTime, long chunkCount, long chunkSize, IReadOnlyList<TimeSeriesLabel> labels, string sourceKey, IReadOnlyList<TimeSeriesRule> rules, TsDuplicatePolicy? policy)
+        /// <summary>
+        /// In DEBUG mode: Key self name.
+        /// </summary>
+        public string? KeySelfName {  get; private set; }
+
+        /// <summary>
+        /// In DEBUG mode: gives more information about the chunks
+        /// </summary>
+        public IReadOnlyList<TimeSeriesChunck>? Chunks { get; private set; }
+        internal TimeSeriesInformation(long totalSamples, long memoryUsage,
+                                    TimeStamp firstTimeStamp, TimeStamp lastTimeStamp, long retentionTime,
+                                    long chunkCount, long chunkSize, IReadOnlyList<TimeSeriesLabel> labels,
+                                    string sourceKey, IReadOnlyList<TimeSeriesRule> rules, TsDuplicatePolicy? policy,
+                                    string? keySelfName = null, IReadOnlyList<TimeSeriesChunck>? chunks = null)
         {
             TotalSamples = totalSamples;
             MemoryUsage = memoryUsage;
@@ -89,6 +102,11 @@ namespace NRedisStack.DataTypes
             ChunkSize = chunkSize;
             // configure what to do on duplicate sample > v1.4
             DuplicatePolicy = policy;
+
+            // Will be equal to null when DEBUG is not in use:
+            KeySelfName = keySelfName;
+            Chunks = chunks;
+
         }
 
         /// <summary>

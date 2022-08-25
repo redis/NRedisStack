@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using NRedisStack.DataTypes;
+using NRedisStack.Literals.Enums;
 using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
 using Xunit;
@@ -47,5 +48,16 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(labels, info.Labels);
         }
 
+        [Fact]
+        public void TestAlterPolicyAndChunk()
+        {
+            IDatabase db = redisFixture.Redis.GetDatabase();
+            db.Execute("FLUSHALL");
+            db.TS().Create(key);
+            Assert.True(db.TS().Alter(key, chunkSizeBytes: 128, duplicatePolicy: TsDuplicatePolicy.MIN));
+            TimeSeriesInformation info = db.TS().Info(key);
+            Assert.Equal(info.ChunkSize, 128);
+            Assert.Equal(info.DuplicatePolicy, TsDuplicatePolicy.MIN);
+        }
     }
 }

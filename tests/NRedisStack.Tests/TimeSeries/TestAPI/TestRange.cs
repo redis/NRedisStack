@@ -125,5 +125,56 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             res = db.TS().Range(key, "-", "+", filterByTs: filterTs, filterByValue: (2, 5)); // The third tuple
             Assert.Equal(tuples.GetRange(2, 1), res);
         }
+
+        [Fact]
+        public void latest()
+        {
+            IDatabase db = redisFixture.Redis.GetDatabase();
+            db.Execute("FLUSHALL");
+            db.TS().Create("ts1");
+            db.TS().Create("ts2");
+            db.TS().CreateRule("ts1", new TimeSeriesRule("ts2", 10, TsAggregation.Sum));
+            db.TS().Add("ts1", 1, 1);
+            db.TS().Add("ts1", 2, 3);
+            db.TS().Add("ts1", 11, 7);
+            db.TS().Add("ts1", 13, 1);
+            var range = db.TS().Range("ts1", 0, 20);
+            Assert.Equal(4, range.Count);
+
+            var compact = new TimeSeriesTuple(0, 4);
+            var latest = new TimeSeriesTuple(10, 8);
+
+            // get
+            Assert.Equal(compact, db.TS().Get("ts2"));
+
+            Assert.Equal(latest, db.TS().Get("ts2", true));
+
+            // range
+            Assert.Equal(new List<TimeSeriesTuple>() { compact }, db.TS().Range("ts2", 0, 10));
+
+            Assert.Equal(new List<TimeSeriesTuple>() { compact, latest }, db.TS().Range("ts2", 0, 10, true));
+
+            // revrange
+            Assert.Equal(new List<TimeSeriesTuple>() { compact }, db.TS().RevRange("ts2", 0, 10));
+
+            Assert.Equal(new List<TimeSeriesTuple>() { latest, compact }, db.TS().RevRange("ts2", 0, 10, true));
+        }
+
+        [Fact]
+        public void TestAlignTimestamp()
+        {
+            IDatabase db = redisFixture.Redis.GetDatabase();
+            db.Execute("FLUSHALL");
+            db.TS().Create("ts1");
+            db.TS().Create("ts2");
+            db.TS().Create("ts3");
+            db.TS().CreateRule("ts1", new TimeSeriesRule("ts2", 10, TsAggregation.Count), 0);
+            db.TS().CreateRule("ts1", new TimeSeriesRule("ts3", 10, TsAggregation.Count), 1);
+            db.TS().Add("ts1", 1, 1);
+            db.TS().Add("ts1", 10, 3);
+            db.TS().Add("ts1", 21, 7);
+            Assert.Equal(2, db.TS().Range("ts2", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10).Count);
+            Assert.Equal(1, db.TS().Range("ts3", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10).Count);
+        }
     }
 }
