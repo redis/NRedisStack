@@ -35,7 +35,7 @@ namespace NRedisStack
         public static RedisResult[] ToArray(RedisResult result)
         {
             var redisResults = (RedisResult[]?)result;
-            if(redisResults != null)
+            if (redisResults != null)
                 return redisResults;
             throw new ArgumentNullException(nameof(redisResults));
 
@@ -44,22 +44,22 @@ namespace NRedisStack
 
         public static long ToLong(RedisResult result)
         {
-            if((long?) result == null)
+            if ((long?)result == null)
                 throw new ArgumentNullException(nameof(result));
-            return (long) result;
+            return (long)result;
         }
 
         public static double ToDouble(RedisResult result)
         {
-            if((double?) result == null)
+            if ((double?)result == null)
                 throw new ArgumentNullException(nameof(result));
-            return (double) result;
+            return (double)result;
         }
 
         public static double[] ToDoubleArray(RedisResult result)
         {
             List<double> redisResults = new List<double>();
-            foreach(var res in ToArray(result))
+            foreach (var res in ToArray(result))
             {
                 redisResults.Add(ToDouble(res));
             }
@@ -70,7 +70,7 @@ namespace NRedisStack
         public static long[] ToLongArray(RedisResult result)
         {
             List<long> redisResults = new List<long>();
-            foreach(var res in ToArray(result))
+            foreach (var res in ToArray(result))
             {
                 redisResults.Add(ToLong(res));
             }
@@ -149,6 +149,19 @@ namespace NRedisStack
             });
             return list;
         }
+
+        // public static IReadOnlyList<TimeSeriesCunck> ToCunckArray(RedisResult result)
+        // {
+        //     RedisResult[] redisResults = (RedisResult[])result;
+        //     var list = new List<TimeSeriesCunck>(redisResults.Length);
+        //     if (redisResults.Length == 0) return list;
+        //     Array.ForEach(redisResults, chunckResult =>
+        //     {
+        //         RedisResult[] labelTuple = (RedisResult[])labelResult;
+        //         list.Add(new TimeSeriesCunck((string)labelTuple[0], (string)labelTuple[1]));
+        //     });
+        //     return list;
+        // }
 
         public static IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, TimeSeriesTuple value)> ParseMGetResponse(RedisResult result)
         {
@@ -405,8 +418,9 @@ namespace NRedisStack
             TimeStamp? firstTimestamp = null, lastTimestamp = null;
             IReadOnlyList<TimeSeriesLabel>? labels = null;
             IReadOnlyList<TimeSeriesRule>? rules = null;
-            string? sourceKey = null;
+            string? sourceKey = null, keySelfName = null;
             TsDuplicatePolicy? duplicatePolicy = null;
+            IReadOnlyList<TimeSeriesChunck>? chunks = null;
             RedisResult[] redisResults = (RedisResult[])result;
             for (int i = 0; i < redisResults.Length; ++i)
             {
@@ -452,11 +466,61 @@ namespace NRedisStack
                         // Avalible for > v1.4
                         duplicatePolicy = ToPolicy(redisResults[i]);
                         break;
+                    case "keySelfName":
+                        // Avalible for > v1.4
+                        keySelfName = redisResults[i].ToString();
+                        break;
+                    case "Chunks":
+                        // Avalible for > v1.4
+                        chunks = ToTimeSeriesChunkArray(redisResults[i]);
+                        break;
                 }
             }
 
             return new TimeSeriesInformation(totalSamples, memoryUsage, firstTimestamp,
-            lastTimestamp, retentionTime, chunkCount, chunkSize, labels, sourceKey, rules, duplicatePolicy);
+            lastTimestamp, retentionTime, chunkCount, chunkSize, labels, sourceKey, rules, duplicatePolicy, keySelfName, chunks);
+        }
+
+        public static IReadOnlyList<TimeSeriesChunck> ToTimeSeriesChunkArray(RedisResult result)
+        {
+            RedisResult[] redisResults = (RedisResult[])result;
+            var list = new List<TimeSeriesChunck>();
+            if (redisResults.Length == 0) return list;
+            Array.ForEach(redisResults, chunk => list.Add(ToTimeSeriesChunk(chunk)));
+            return list;
+        }
+
+        public static TimeSeriesChunck ToTimeSeriesChunk(RedisResult result)
+        {
+            long startTimestamp = -1, endTimestamp = -1, samples = -1, size = -1;
+            string bytesPerSample = "";
+            RedisResult[] redisResults = (RedisResult[])result;
+            for (int i = 0; i < redisResults.Length; ++i)
+            {
+                string label = (string)redisResults[i++];
+                switch (label)
+                {
+                    case "startTimestamp":
+                        startTimestamp = (long)redisResults[i];
+                        break;
+                    case "endTimestamp":
+                        endTimestamp = (long)redisResults[i];
+                        break;
+                    case "samples":
+                        samples = (long)redisResults[i];
+                        break;
+                    case "size":
+                        size = (long)redisResults[i];
+                        break;
+                    case "bytesPerSample":
+                        bytesPerSample = redisResults[i].ToString();
+                        break;
+                }
+            }
+
+            return new TimeSeriesChunck(startTimestamp, endTimestamp,
+                                        samples, size, bytesPerSample);
+
         }
 
         public static IReadOnlyList<string> ToStringArray(RedisResult result)
