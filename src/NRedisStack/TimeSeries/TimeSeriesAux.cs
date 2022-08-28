@@ -292,7 +292,6 @@ namespace NRedisStack
             return args;
         }
 
-        //TODO: add the new parameters to TS.RANGE
         public static List<object> BuildRangeArgs(string key,
                                                   TimeStamp fromTimeStamp,
                                                   TimeStamp toTimeStamp,

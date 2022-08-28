@@ -1,7 +1,7 @@
 namespace NRedisStack.Literals.Enums
 {
     /// <summary>
-    /// TODO: Add description
+    /// controls how bucket timestamps are reported.
     /// </summary>
     public enum TsBucketTimestamps
     {

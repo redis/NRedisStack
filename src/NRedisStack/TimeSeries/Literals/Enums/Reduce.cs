@@ -1,7 +1,7 @@
 namespace NRedisStack.Literals.Enums
 {
     /// <summary>
-    /// TODO: Add description
+    /// reducer type used to aggregate series that share the same label value.
     /// </summary>
     public enum TsReduce
     {
