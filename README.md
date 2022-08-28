@@ -1,4 +1,4 @@
-[![license](https://img.shields.io/github/license/redis/NRedisStack.svg)](https://github.com/redis/NRedisStack)
+[![license](https://img.shields.io/github/license/redis/NRedisStack.svg)](https://raw.githubusercontent.com/redis/NRedisStack/master/LICENSE)
 [![.github/workflows/integration.yml](https://github.com/redis/NRedisStack/actions/workflows/integration.yml/badge.svg)](https://github.com/redis/NRedisStack/actions/workflows/integration.yml)
 [![GitHub issues](https://img.shields.io/github/release/redis/NRedisStack.svg)](https://github.com/redis/NRedisStack/releases/latest)
 
