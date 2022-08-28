@@ -176,5 +176,91 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(2, (await db.TS().RangeAsync("ts2", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10)).Count);
             Assert.Equal(1, (await db.TS().RangeAsync("ts3", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10)).Count);
         }
+
+        [Fact]
+        public async Task TestBucketTimestampAsync()
+        {
+            IDatabase db = redisFixture.Redis.GetDatabase();
+            db.Execute("FLUSHALL");
+
+            db.TS().Create("t1");
+
+            db.TS().Add("t1",15,1);
+            db.TS().Add("t1",17,4);
+            db.TS().Add("t1",51,3);
+            db.TS().Add("t1",73,5);
+            db.TS().Add("t1",75,3);
+
+            var range = await db.TS().RangeAsync("t1", 0, 100,
+                                      align: 0,
+                                      aggregation: TsAggregation.Max,
+                                      timeBucket: 10);
+
+            var expected = new List<TimeSeriesTuple>();
+            expected.Add(new TimeSeriesTuple(10, 4.0));
+            expected.Add(new TimeSeriesTuple(50, 3.0));
+            expected.Add(new TimeSeriesTuple(70, 5.0));
+            Assert.Equal(range, expected);
+
+            range = await db.TS().RangeAsync("t1", 0, 100,
+                                  align: 0,
+                                  aggregation: TsAggregation.Max,
+                                  timeBucket: 10,
+                                  bt: TsBucketTimestamps.high);
+
+            expected.Clear();
+            expected.Add(new TimeSeriesTuple(20, 4.0));
+            expected.Add(new TimeSeriesTuple(60, 3.0));
+            expected.Add(new TimeSeriesTuple(80, 5.0));
+            Assert.Equal(range, expected);
+        }
+
+        [Fact]
+        public async Task TestEmptyAsync()
+        {
+            IDatabase db = redisFixture.Redis.GetDatabase();
+            db.Execute("FLUSHALL");
+
+            db.TS().Create("t1");
+
+            db.TS().Add("t1",15,1);
+            db.TS().Add("t1",17,4);
+            db.TS().Add("t1",51,3);
+            db.TS().Add("t1",73,5);
+            db.TS().Add("t1",75,3);
+
+            var range = await db.TS().RangeAsync("t1", 0, 100,
+                                      align: 0,
+                                      aggregation: TsAggregation.Max,
+                                      timeBucket: 10);
+
+            var expected = new List<TimeSeriesTuple>();
+            expected.Add(new TimeSeriesTuple(10, 4.0));
+            expected.Add(new TimeSeriesTuple(50, 3.0));
+            expected.Add(new TimeSeriesTuple(70, 5.0));
+            Assert.Equal(range, expected);
+
+            range = await db.TS().RangeAsync("t1", 0, 100,
+                                  align: 0,
+                                  aggregation: TsAggregation.Max,
+                                  timeBucket: 10,
+                                  empty: true);
+
+            expected.Clear();
+
+            expected.Add(new TimeSeriesTuple(10, 4.0));
+            expected.Add(new TimeSeriesTuple(20, double.NaN));
+            expected.Add(new TimeSeriesTuple(30, double.NaN));
+            expected.Add(new TimeSeriesTuple(40, double.NaN));
+            expected.Add(new TimeSeriesTuple(50, 3.0));
+            expected.Add(new TimeSeriesTuple(60, double.NaN));
+            expected.Add(new TimeSeriesTuple(70, 5.0));
+
+            for (int i = 0 ; i < range.Count() ; i++)
+            {
+                Assert.Equal(range[i].Time.Value, expected[i].Time.Value);
+                Assert.Equal(range[i].Val, expected[i].Val);
+            }
+        }
     }
 }

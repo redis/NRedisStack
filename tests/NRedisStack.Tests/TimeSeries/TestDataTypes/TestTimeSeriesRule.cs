@@ -55,7 +55,7 @@ namespace NRedisTimeSeries.Test.TestDataTypes
         public void TestRuleToString()
         {
             TimeSeriesRule rule = new TimeSeriesRule("key", 50, TsAggregation.Avg);
-            Assert.Equal("DestinationKey: key, TimeBucket: 50, Aggregation: AVG", (string)rule);
+            Assert.Equal("DestinationKey: key, TimeBucket: 50, Aggregation: avg", (string)rule);
         }
     }
 }
