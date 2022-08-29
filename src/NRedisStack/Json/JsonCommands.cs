@@ -16,30 +16,67 @@ public class JsonCommands
     {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
-    public RedisResult Set(RedisKey key, RedisValue path, object obj, When when = When.Always)
+
+
+    /// <summary>
+    /// Sets the JSON value at path in key.
+    /// </summary>
+    /// <param name="key">The key of the Json.</param>
+    /// <param name="path">Json path.</param>
+    /// <param name="obj">Json object.</param>
+    /// <param name="item">The item to add.</param>
+    /// <returns><see langword="true"/> if executed correctly, or Null reply if the specified NX or XX conditions were not met.</returns>
+    /// <remarks><seealso href="https://redis.io/commands/json.set"/></remarks>
+    public bool? Set(RedisKey key, string path, object obj, When when = When.Always)
     {
         string json = JsonSerializer.Serialize(obj);
         return Set(key, path, json, when);
     }
 
-    public RedisResult Set(RedisKey key, RedisValue path, RedisValue json, When when = When.Always)
+    /// <summary>
+    /// Sets the JSON value at path in key.
+    /// </summary>
+    /// <param name="key">The key of the Json.</param>
+    /// <param name="path">Json path.</param>
+    /// <param name="json">Json object.</param>
+    /// <param name="item">The item to add.</param>
+    /// <returns><see langword="true"/> if executed correctly, or Null reply if the specified NX or XX conditions were not met.</returns>
+    /// <remarks><seealso href="https://redis.io/commands/json.set"/></remarks>
+    public bool? Set(RedisKey key, string path, string json, When when = When.Always)
     {
+        RedisResult result;
         switch (when)
         {
             case When.Exists:
-                return _db.Execute(JSON.SET, key, path, json, "XX");
+                result = _db.Execute(JSON.SET, key, path, json, "XX");
+                break;
             case When.NotExists:
-                return _db.Execute(JSON.SET, key, path, json, "NX");
+                result = _db.Execute(JSON.SET, key, path, json, "NX");
+                break;
             default:
-                return _db.Execute(JSON.SET, key, path, json);
+                result = _db.Execute(JSON.SET, key, path, json);
+                break;
         }
+        return (result.IsNull) ? null
+                               : ResponseParser.OKtoBoolean(result);
+
     }
 
+    /// <summary>
+    /// Returns the value at path in JSON serialized form.
+    /// </summary>
+    /// <param name="key">The key of the Json.</param>
+    /// <param name="indent">Sets the indentation string for nested levels</param>
+    /// <param name="newLine">Sets the string that's printed at the end of each line.</param>
+    /// <param name="space">Sets the string that's put between a key and a value.</param>
+    /// <param name="paths">Paths in JSON serialized form</param>
+    /// <returns><see langword="true"/> if executed correctly, or Null reply if the specified NX or XX conditions were not met.</returns>
+    /// <remarks><seealso href="https://redis.io/commands/json.get"/></remarks>
     public RedisResult Get(RedisKey key,
                            RedisValue? indent = null,
                            RedisValue? newLine = null,
                            RedisValue? space = null,
-                           RedisValue? path = null)
+                           RedisValue[]? paths = null)
     {
 
         List<object> args = new List<object>(){key};
@@ -62,9 +99,12 @@ public class JsonCommands
             args.Add(space);
         }
 
-        if (path != null)
+        if (paths != null)
         {
-            args.Add(path);
+            foreach (var path in paths)
+            {
+                args.Add(path);
+            }
         }
 
         return _db.Execute(JSON.GET, args);
