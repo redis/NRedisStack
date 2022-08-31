@@ -13,13 +13,13 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
     {
         public TestRangeAsync(RedisFixture redisFixture) : base(redisFixture) { }
 
-        private async Task<List<TimeSeriesTuple>> CreateData(IDatabase db, string key, int timeBucket)
+        private async Task<List<TimeSeriesTuple>> CreateData(TimeSeriesCommands ts, string key, int timeBucket)
         {
             var tuples = new List<TimeSeriesTuple>();
             for (var i = 0; i < 10; i++)
             {
-                var ts = await db.TS().AddAsync(key, i * timeBucket, i);
-                tuples.Add(new TimeSeriesTuple(ts, i));
+                var timeStamp = await ts.AddAsync(key, i * timeBucket, i);
+                tuples.Add(new TimeSeriesTuple(timeStamp, i));
             }
             return tuples;
         }
@@ -30,8 +30,9 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            var tuples = await CreateData(db, key, 50);
-            Assert.Equal(tuples, await db.TS().RangeAsync(key, "-", "+"));
+            var ts = db.TS();
+            var tuples = await CreateData(ts, key, 50);
+            Assert.Equal(tuples, await ts.RangeAsync(key, "-", "+"));
         }
 
         [Fact]
@@ -40,8 +41,9 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            var tuples = await CreateData(db, key, 50);
-            Assert.Equal(tuples.GetRange(0, 5), await db.TS().RangeAsync(key, "-", "+", count: 5));
+            var ts = db.TS();
+            var tuples = await CreateData(ts, key, 50);
+            Assert.Equal(tuples.GetRange(0, 5), await ts.RangeAsync(key, "-", "+", count: 5));
         }
 
         [Fact]
@@ -50,8 +52,9 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            var tuples = await CreateData(db, key, 50);
-            Assert.Equal(tuples, await db.TS().RangeAsync(key, "-", "+", aggregation: TsAggregation.Min, timeBucket: 50));
+            var ts = db.TS();
+            var tuples = await CreateData(ts, key, 50);
+            Assert.Equal(tuples, await ts.RangeAsync(key, "-", "+", aggregation: TsAggregation.Min, timeBucket: 50));
         }
 
         [Fact]
@@ -60,6 +63,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var key = CreateKeyName();
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
             var tuples = new List<TimeSeriesTuple>()
             {
                 new TimeSeriesTuple(1, 10),
@@ -70,7 +74,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
             foreach (var tuple in tuples)
             {
-                await db.TS().AddAsync(key, tuple.Time, tuple.Val);
+                await ts.AddAsync(key, tuple.Time, tuple.Val);
             }
 
             // Aligh start
@@ -80,7 +84,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
                 new TimeSeriesTuple(11, 1),
                 new TimeSeriesTuple(21, 1)
             };
-            Assert.Equal(resStart, await db.TS().RangeAsync(key, 1, 30, align: "-", aggregation: TsAggregation.Count, timeBucket: 10));
+            Assert.Equal(resStart, await ts.RangeAsync(key, 1, 30, align: "-", aggregation: TsAggregation.Count, timeBucket: 10));
 
             // Aligh end
             var resEnd = new List<TimeSeriesTuple>()
@@ -89,10 +93,10 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
                 new TimeSeriesTuple(10, 1),
                 new TimeSeriesTuple(20, 1)
             };
-            Assert.Equal(resEnd, await db.TS().RangeAsync(key, 1, 30, align: "+", aggregation: TsAggregation.Count, timeBucket: 10));
+            Assert.Equal(resEnd, await ts.RangeAsync(key, 1, 30, align: "+", aggregation: TsAggregation.Count, timeBucket: 10));
 
             // Align 1
-            Assert.Equal(resStart, await db.TS().RangeAsync(key, 1, 30, align: 1, aggregation: TsAggregation.Count, timeBucket: 10));
+            Assert.Equal(resStart, await ts.RangeAsync(key, 1, 30, align: 1, aggregation: TsAggregation.Count, timeBucket: 10));
         }
 
         [Fact]
@@ -101,8 +105,9 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            var tuples = await CreateData(db, key, 50);
-            var ex = await Assert.ThrowsAsync<ArgumentException>(async () => await db.TS().RangeAsync(key, "-", "+", aggregation: TsAggregation.Avg));
+            var ts = db.TS();
+            var tuples = await CreateData(ts, key, 50);
+            var ex = await Assert.ThrowsAsync<ArgumentException>(async () => await ts.RangeAsync(key, "-", "+", aggregation: TsAggregation.Avg));
             Assert.Equal("RANGE Aggregation should have timeBucket value", ex.Message);
         }
 
@@ -112,17 +117,18 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            var tuples = await CreateData(db, key, 50);
+            var ts = db.TS();
+            var tuples = await CreateData(ts, key, 50);
 
-            var res = await db.TS().RangeAsync(key, "-", "+", filterByValue: (0, 2)); // The first 3 tuples
+            var res = await ts.RangeAsync(key, "-", "+", filterByValue: (0, 2)); // The first 3 tuples
             Assert.Equal(3, res.Count);
             Assert.Equal(tuples.GetRange(0, 3), res);
 
             var filterTs = new List<TimeStamp> { 0, 50, 100 }; // Also the first 3 tuples
-            res = await db.TS().RangeAsync(key, "-", "+", filterByTs: filterTs);
+            res = await ts.RangeAsync(key, "-", "+", filterByTs: filterTs);
             Assert.Equal(tuples.GetRange(0, 3), res);
 
-            res = await db.TS().RangeAsync(key, "-", "+", filterByTs: filterTs, filterByValue: (2, 5)); // The third tuple
+            res = await ts.RangeAsync(key, "-", "+", filterByTs: filterTs, filterByValue: (2, 5)); // The third tuple
             Assert.Equal(tuples.GetRange(2, 1), res);
         }
 
@@ -131,33 +137,34 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            await db.TS().CreateAsync("ts1");
-            await db.TS().CreateAsync("ts2");
-            await db.TS().CreateRuleAsync("ts1", new TimeSeriesRule("ts2", 10, TsAggregation.Sum));
-            await db.TS().AddAsync("ts1", 1, 1);
-            await db.TS().AddAsync("ts1", 2, 3);
-            await db.TS().AddAsync("ts1", 11, 7);
-            await db.TS().AddAsync("ts1", 13, 1);
-            var range = await db.TS().RangeAsync("ts1", 0, 20);
+            var ts = db.TS();
+            await ts.CreateAsync("ts1");
+            await ts.CreateAsync("ts2");
+            await ts.CreateRuleAsync("ts1", new TimeSeriesRule("ts2", 10, TsAggregation.Sum));
+            await ts.AddAsync("ts1", 1, 1);
+            await ts.AddAsync("ts1", 2, 3);
+            await ts.AddAsync("ts1", 11, 7);
+            await ts.AddAsync("ts1", 13, 1);
+            var range = await ts.RangeAsync("ts1", 0, 20);
             Assert.Equal(4, range.Count);
 
             var compact = new TimeSeriesTuple(0, 4);
             var latest = new TimeSeriesTuple(10, 8);
 
             // get
-            Assert.Equal(compact, await db.TS().GetAsync("ts2"));
+            Assert.Equal(compact, await ts.GetAsync("ts2"));
 
-            Assert.Equal(latest, await db.TS().GetAsync("ts2", true));
+            Assert.Equal(latest, await ts.GetAsync("ts2", true));
 
             // range
-            Assert.Equal(new List<TimeSeriesTuple>() { compact }, await db.TS().RangeAsync("ts2", 0, 10));
+            Assert.Equal(new List<TimeSeriesTuple>() { compact }, await ts.RangeAsync("ts2", 0, 10));
 
-            Assert.Equal(new List<TimeSeriesTuple>() { compact, latest }, await db.TS().RangeAsync("ts2", 0, 10, true));
+            Assert.Equal(new List<TimeSeriesTuple>() { compact, latest }, await ts.RangeAsync("ts2", 0, 10, true));
 
             // revrange
-            Assert.Equal(new List<TimeSeriesTuple>() { compact }, await db.TS().RevRangeAsync("ts2", 0, 10));
+            Assert.Equal(new List<TimeSeriesTuple>() { compact }, await ts.RevRangeAsync("ts2", 0, 10));
 
-            Assert.Equal(new List<TimeSeriesTuple>() { latest, compact }, await db.TS().RevRangeAsync("ts2", 0, 10, true));
+            Assert.Equal(new List<TimeSeriesTuple>() { latest, compact }, await ts.RevRangeAsync("ts2", 0, 10, true));
         }
 
         [Fact]
@@ -165,16 +172,17 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            db.TS().Create("ts1");
-            db.TS().Create("ts2");
-            db.TS().Create("ts3");
-            db.TS().CreateRule("ts1", new TimeSeriesRule("ts2", 10, TsAggregation.Count), 0);
-            db.TS().CreateRule("ts1", new TimeSeriesRule("ts3", 10, TsAggregation.Count), 1);
-            db.TS().Add("ts1", 1, 1);
-            db.TS().Add("ts1", 10, 3);
-            db.TS().Add("ts1", 21, 7);
-            Assert.Equal(2, (await db.TS().RangeAsync("ts2", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10)).Count);
-            Assert.Equal(1, (await db.TS().RangeAsync("ts3", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10)).Count);
+            var ts = db.TS();
+            ts.Create("ts1");
+            ts.Create("ts2");
+            ts.Create("ts3");
+            ts.CreateRule("ts1", new TimeSeriesRule("ts2", 10, TsAggregation.Count), 0);
+            ts.CreateRule("ts1", new TimeSeriesRule("ts3", 10, TsAggregation.Count), 1);
+            ts.Add("ts1", 1, 1);
+            ts.Add("ts1", 10, 3);
+            ts.Add("ts1", 21, 7);
+            Assert.Equal(2, (await ts.RangeAsync("ts2", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10)).Count);
+            Assert.Equal(1, (await ts.RangeAsync("ts3", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10)).Count);
         }
 
         [Fact]
@@ -182,16 +190,17 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
 
-            db.TS().Create("t1");
+            ts.Create("t1");
 
-            db.TS().Add("t1",15,1);
-            db.TS().Add("t1",17,4);
-            db.TS().Add("t1",51,3);
-            db.TS().Add("t1",73,5);
-            db.TS().Add("t1",75,3);
+            ts.Add("t1", 15, 1);
+            ts.Add("t1", 17, 4);
+            ts.Add("t1", 51, 3);
+            ts.Add("t1", 73, 5);
+            ts.Add("t1", 75, 3);
 
-            var range = await db.TS().RangeAsync("t1", 0, 100,
+            var range = await ts.RangeAsync("t1", 0, 100,
                                       align: 0,
                                       aggregation: TsAggregation.Max,
                                       timeBucket: 10);
@@ -202,7 +211,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             expected.Add(new TimeSeriesTuple(70, 5.0));
             Assert.Equal(range, expected);
 
-            range = await db.TS().RangeAsync("t1", 0, 100,
+            range = await ts.RangeAsync("t1", 0, 100,
                                   align: 0,
                                   aggregation: TsAggregation.Max,
                                   timeBucket: 10,
@@ -220,16 +229,17 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
 
-            db.TS().Create("t1");
+            ts.Create("t1");
 
-            db.TS().Add("t1",15,1);
-            db.TS().Add("t1",17,4);
-            db.TS().Add("t1",51,3);
-            db.TS().Add("t1",73,5);
-            db.TS().Add("t1",75,3);
+            ts.Add("t1", 15, 1);
+            ts.Add("t1", 17, 4);
+            ts.Add("t1", 51, 3);
+            ts.Add("t1", 73, 5);
+            ts.Add("t1", 75, 3);
 
-            var range = await db.TS().RangeAsync("t1", 0, 100,
+            var range = await ts.RangeAsync("t1", 0, 100,
                                       align: 0,
                                       aggregation: TsAggregation.Max,
                                       timeBucket: 10);
@@ -240,7 +250,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             expected.Add(new TimeSeriesTuple(70, 5.0));
             Assert.Equal(range, expected);
 
-            range = await db.TS().RangeAsync("t1", 0, 100,
+            range = await ts.RangeAsync("t1", 0, 100,
                                   align: 0,
                                   aggregation: TsAggregation.Max,
                                   timeBucket: 10,
@@ -256,7 +266,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             expected.Add(new TimeSeriesTuple(60, double.NaN));
             expected.Add(new TimeSeriesTuple(70, 5.0));
 
-            for (int i = 0 ; i < range.Count() ; i++)
+            for (int i = 0; i < range.Count(); i++)
             {
                 Assert.Equal(range[i].Time.Value, expected[i].Time.Value);
                 Assert.Equal(range[i].Val, expected[i].Val);

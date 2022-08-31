@@ -2,11 +2,11 @@
 {
     internal class CMS
     {
-        public static string INITBYDIM => "CMS.INITBYDIM";
-        public static string INITBYPROB => "CMS.INITBYPROB";
-        public static string INCRBY => "CMS.INCRBY";
-        public static string QUERY => "CMS.QUERY";
-        public static string MERGE => "CMS.MERGE";
-        public static string INFO => "CMS.INFO";
+        public const string INITBYDIM = "CMS.INITBYDIM";
+        public const string INITBYPROB = "CMS.INITBYPROB";
+        public const string INCRBY = "CMS.INCRBY";
+        public const string QUERY = "CMS.QUERY";
+        public const string MERGE = "CMS.MERGE";
+        public const string INFO = "CMS.INFO";
     }
 }

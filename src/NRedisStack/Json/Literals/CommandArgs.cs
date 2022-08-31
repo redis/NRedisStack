@@ -2,9 +2,9 @@ namespace NRedisStack.Literals
 {
     internal class JsonArgs
     {
-        public static string INDENT => "INDENT";
-        public static string NEWLINE => "NEWLINE";
-        public static string SPACE => "SPACE";
+        public const string INDENT = "INDENT";
+        public const string NEWLINE = "NEWLINE";
+        public const string SPACE = "SPACE";
 
     }
 }

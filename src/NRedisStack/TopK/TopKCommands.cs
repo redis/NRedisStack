@@ -21,14 +21,14 @@ namespace NRedisStack
         // /// <remarks><seealso href="https://redis.io/commands/topk.add"/></remarks>
         // public RedisResult[] Add(RedisKey key, RedisValue item)
         // {
-        //     return ResponseParser.ToArray(_db.Execute(TOPK.ADD, key, item));
+        //     return _db.Execute(TOPK.ADD, key, item).ToArray();
         // }
 
         // /// <inheritdoc cref="Add(RedisKey, RedisValue)"/>
         // public async Task<RedisResult[]> AddAsync(RedisKey key, RedisValue item)
         // {
         //     var result = await _db.ExecuteAsync(TOPK.ADD, key, item);
-        //     return ResponseParser.ToArray(result);
+        //     return result.ToArray();
         // }
 
         /// <summary>
@@ -68,14 +68,14 @@ namespace NRedisStack
         // /// <remarks><seealso href="https://redis.io/commands/cf.count"/></remarks>
         // public long Count(RedisKey key, RedisValue item)
         // {
-        //     return ResponseParser.ToLong(_db.Execute(TOPK.COUNT, key, item));
+        //     return _db.Execute(TOPK.COUNT, key, item).ToLong();
         // }
 
         // /// <inheritdoc cref="Count(RedisKey, RedisValue)"/>
         // public async Task<long> CountAsync(RedisKey key, RedisValue item)
         // {
         //     var result = await _db.ExecuteAsync(TOPK.COUNT, key, item);
-        //     return ResponseParser.ToLong(result);
+        //     return result.ToLong();
         // }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace NRedisStack
                 throw new ArgumentOutOfRangeException(nameof(items));
 
             var args = Auxiliary.MergeArgs(key, items);
-            return ResponseParser.ToLongArray(_db.Execute(TOPK.COUNT, args));
+            return _db.Execute(TOPK.COUNT, args).ToLongArray();
         }
 
         /// <inheritdoc cref="Count(RedisKey, RedisValue[])"/>
@@ -102,7 +102,7 @@ namespace NRedisStack
 
             var args = Auxiliary.MergeArgs(key, items);
             var result = await _db.ExecuteAsync(TOPK.COUNT, args);
-            return ResponseParser.ToLongArray(result);
+            return result.ToLongArray();
         }
 
 
@@ -117,7 +117,7 @@ namespace NRedisStack
         public RedisResult[] IncrBy(RedisKey key, params Tuple<RedisValue, long>[] itemIncrements)
         {
             if (itemIncrements.Length < 1)
-                throw new ArgumentException(nameof(itemIncrements));
+                throw new ArgumentOutOfRangeException(nameof(itemIncrements));
 
             List<object> args = new List<object> { key };
             foreach (var pair in itemIncrements)
@@ -125,7 +125,7 @@ namespace NRedisStack
                 args.Add(pair.Item1);
                 args.Add(pair.Item2);
             }
-            return ResponseParser.ToArray(_db.Execute(TOPK.INCRBY, args));
+            return _db.Execute(TOPK.INCRBY, args).ToArray();
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace NRedisStack
         public async Task<RedisResult[]> IncrByAsync(RedisKey key, params Tuple<RedisValue, long>[] itemIncrements)
         {
             if (itemIncrements.Length < 1)
-                throw new ArgumentException(nameof(itemIncrements));
+                throw new ArgumentOutOfRangeException(nameof(itemIncrements));
 
             List<object> args = new List<object> { key };
             foreach (var pair in itemIncrements)
@@ -149,7 +149,7 @@ namespace NRedisStack
             }
 
             var result = await _db.ExecuteAsync(TOPK.INCRBY, args);
-            return ResponseParser.ToArray(result);
+            return result.ToArray();
         }
 
         /// <summary>
@@ -161,7 +161,7 @@ namespace NRedisStack
         public TopKInformation Info(RedisKey key)
         {
             var info = _db.Execute(TOPK.INFO, key);
-            return ResponseParser.ToTopKInfo(info);
+            return info.ToTopKInfo();
         }
 
         /// <summary>
@@ -173,7 +173,7 @@ namespace NRedisStack
         public async Task<TopKInformation> InfoAsync(RedisKey key)
         {
             var info = await _db.ExecuteAsync(TOPK.INFO, key);
-            return ResponseParser.ToTopKInfo(info);
+            return info.ToTopKInfo();
         }
 
         /// <summary>
@@ -187,7 +187,7 @@ namespace NRedisStack
         {
             var result = (withcount) ? _db.Execute(TOPK.LIST, key, "WITHCOUNT")
                                      : _db.Execute(TOPK.LIST, key);
-            return ResponseParser.ToArray(result);
+            return result.ToArray();
         }
 
         /// <summary>
@@ -201,7 +201,7 @@ namespace NRedisStack
         {
             var result = await ((withcount) ? _db.ExecuteAsync(TOPK.LIST, key, "WITHCOUNT")
                                             : _db.ExecuteAsync(TOPK.LIST, key));
-            return ResponseParser.ToArray(result);
+            return result.ToArray();
         }
 
         /// <summary>
@@ -243,7 +243,7 @@ namespace NRedisStack
 
             var args = Auxiliary.MergeArgs(key, items);
 
-            return ResponseParser.ToBooleanArray(_db.Execute(TOPK.QUERY, args));
+            return _db.Execute(TOPK.QUERY, args).ToBooleanArray();
         }
 
         /// <summary>
@@ -261,7 +261,7 @@ namespace NRedisStack
             var args = Auxiliary.MergeArgs(key, items);
 
             var result = await _db.ExecuteAsync(TOPK.QUERY, args);
-            return ResponseParser.ToBooleanArray(result);
+            return result.ToBooleanArray();
         }
 
         /// <summary>
@@ -276,7 +276,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/topk.reserve"/></remarks>
         public bool Reserve(RedisKey key, long topk, long width = 7, long depth = 8, double decay = 0.9)
         {
-            return ResponseParser.OKtoBoolean(_db.Execute(TOPK.RESERVE, key, topk, width, depth, decay));
+            return _db.Execute(TOPK.RESERVE, key, topk, width, depth, decay).OKtoBoolean();
         }
 
         /// <summary>
@@ -292,7 +292,7 @@ namespace NRedisStack
         public async Task<bool> ReserveAsync(RedisKey key, long topk, long width = 7, long depth = 8, double decay = 0.9)
         {
             var result = await _db.ExecuteAsync(TOPK.RESERVE, key, topk, width, depth, decay);
-            return ResponseParser.OKtoBoolean(result);
+            return result.OKtoBoolean();
         }
     }
 }

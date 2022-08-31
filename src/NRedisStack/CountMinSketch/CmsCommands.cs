@@ -22,7 +22,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/cms.incrby"/></remarks>
         public long IncrBy(RedisKey key, RedisValue item, long increment)
         {
-            return ResponseParser.ToLong(_db.Execute(CMS.INCRBY, key, item, increment));
+            return _db.Execute(CMS.INCRBY, key, item, increment).ToLong();
         }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace NRedisStack
         public async Task<long> IncrByAsync(RedisKey key, RedisValue item, long increment)
         {
             var result = await _db.ExecuteAsync(CMS.INCRBY, key, item, increment);
-            return ResponseParser.ToLong(result);
+            return result.ToLong();
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace NRedisStack
         public long[] IncrBy(RedisKey key, Tuple<RedisValue, long>[] itemIncrements)
         {
             if (itemIncrements.Length < 1)
-                throw new ArgumentException(nameof(itemIncrements));
+                throw new ArgumentOutOfRangeException(nameof(itemIncrements));
 
             List<object> args = new List<object> { key };
             foreach (var pair in itemIncrements)
@@ -58,7 +58,7 @@ namespace NRedisStack
                 args.Add(pair.Item1);
                 args.Add(pair.Item2);
             }
-            return ResponseParser.ToLongArray(_db.Execute(CMS.INCRBY, args));
+            return _db.Execute(CMS.INCRBY, args).ToLongArray();
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace NRedisStack
         public async Task<long[]> IncrByAsync(RedisKey key, Tuple<RedisValue, long>[] itemIncrements)
         {
             if (itemIncrements.Length < 1)
-                throw new ArgumentException(nameof(itemIncrements));
+                throw new ArgumentOutOfRangeException(nameof(itemIncrements));
 
             List<object> args = new List<object> { key };
             foreach (var pair in itemIncrements)
@@ -82,7 +82,7 @@ namespace NRedisStack
             }
 
             var result = await _db.ExecuteAsync(CMS.INCRBY, args);
-            return ResponseParser.ToLongArray(result);
+            return result.ToLongArray();
         }
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace NRedisStack
         public CmsInformation Info(RedisKey key)
         {
             var info = _db.Execute(CMS.INFO, key);
-            return ResponseParser.ToCmsInfo(info);
+            return info.ToCmsInfo();
         }
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace NRedisStack
         public async Task<CmsInformation> InfoAsync(RedisKey key)
         {
             var info = await _db.ExecuteAsync(CMS.INFO, key);
-            return ResponseParser.ToCmsInfo(info);
+            return info.ToCmsInfo();
         }
 
         /// <summary>
@@ -120,7 +120,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/cms.initbydim"/></remarks>
         public bool InitByDim(RedisKey key, long width, long depth)
         {
-            return ResponseParser.OKtoBoolean(_db.Execute(CMS.INITBYDIM, key, width, depth));
+            return _db.Execute(CMS.INITBYDIM, key, width, depth).OKtoBoolean();
         }
 
         /// <summary>
@@ -135,7 +135,7 @@ namespace NRedisStack
         public async Task<bool> InitByDimAsync(RedisKey key, long width, long depth)
         {
             var result = await _db.ExecuteAsync(CMS.INITBYDIM, key, width, depth);
-            return ResponseParser.OKtoBoolean(result);
+            return result.OKtoBoolean();
         }
 
         /// <summary>
@@ -148,7 +148,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/cms.initbyprob"/></remarks>
         public bool InitByProb(RedisKey key, double error, double probability)
         {
-            return ResponseParser.OKtoBoolean(_db.Execute(CMS.INITBYPROB, key, error, probability));
+            return _db.Execute(CMS.INITBYPROB, key, error, probability).OKtoBoolean();
         }
 
         /// <summary>
@@ -162,7 +162,7 @@ namespace NRedisStack
         public async Task<bool> InitByProbAsync(RedisKey key, double error, double probability)
         {
             var result = await _db.ExecuteAsync(CMS.INITBYPROB, key, error, probability);
-            return ResponseParser.OKtoBoolean(result);
+            return result.OKtoBoolean();
         }
 
         /// <summary>
@@ -189,7 +189,7 @@ namespace NRedisStack
                 foreach (var w in weight) args.Add(w);
             }
 
-            return ResponseParser.OKtoBoolean(_db.Execute(CMS.MERGE, args));
+            return _db.Execute(CMS.MERGE, args).OKtoBoolean();
         }
 
         /// <summary>
@@ -217,7 +217,7 @@ namespace NRedisStack
             }
 
             var result = await _db.ExecuteAsync(CMS.MERGE, args);
-            return ResponseParser.OKtoBoolean(result);
+            return result.OKtoBoolean();
         }
 
         /// <summary>
@@ -235,7 +235,7 @@ namespace NRedisStack
             List<object> args = new List<object> { key };
             foreach (var item in items) args.Add(item);
 
-            return ResponseParser.ToLongArray(_db.Execute(CMS.QUERY, args));
+            return _db.Execute(CMS.QUERY, args).ToLongArray();
         }
 
         /// <summary>
@@ -254,7 +254,7 @@ namespace NRedisStack
             foreach (var item in items) args.Add(item);
 
             var result = await _db.ExecuteAsync(CMS.QUERY, args);
-            return ResponseParser.ToLongArray(result);
+            return result.ToLongArray();
         }
     }
 }

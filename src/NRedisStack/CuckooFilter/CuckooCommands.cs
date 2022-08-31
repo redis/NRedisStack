@@ -71,7 +71,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/cf.count"/></remarks>
         public long Count(RedisKey key, RedisValue item)
         {
-            return ResponseParser.ToLong(_db.Execute(CF.COUNT, key, item));
+            return _db.Execute(CF.COUNT, key, item).ToLong();
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace NRedisStack
         public async Task<long> CountAsync(RedisKey key, RedisValue item)
         {
             var result = await _db.ExecuteAsync(CF.COUNT, key, item);
-            return ResponseParser.ToLong(result);
+            return result.ToLong();
         }
 
         /// <summary>
@@ -148,7 +148,7 @@ namespace NRedisStack
         public CuckooInformation Info(RedisKey key)
         {
             var info = _db.Execute(CF.INFO, key);
-            return ResponseParser.ToCuckooInfo(info);
+            return info.ToCuckooInfo();
         }
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace NRedisStack
         public async Task<CuckooInformation> InfoAsync(RedisKey key)
         {
             var info = await _db.ExecuteAsync(CF.INFO, key);
-            return ResponseParser.ToCuckooInfo(info);
+            return info.ToCuckooInfo();
         }
 
         /// <summary>
@@ -196,7 +196,7 @@ namespace NRedisStack
                 args.Add(item);
             }
 
-            return ResponseParser.ToBooleanArray(_db.Execute(CF.INSERT, args));
+            return _db.Execute(CF.INSERT, args).ToBooleanArray();
         }
 
         /// <summary>
@@ -233,7 +233,7 @@ namespace NRedisStack
             }
 
             var result = await _db.ExecuteAsync(CF.INSERT, args);
-            return ResponseParser.ToBooleanArray(result);
+            return result.ToBooleanArray();
         }
 
         /// <summary>
@@ -271,7 +271,7 @@ namespace NRedisStack
                 args.Add(item);
             }
 
-            return ResponseParser.ToBooleanArray(_db.Execute(CF.INSERTNX, args));
+            return _db.Execute(CF.INSERTNX, args).ToBooleanArray();
         }
 
         /// <summary>
@@ -310,7 +310,7 @@ namespace NRedisStack
             }
 
             var result = await _db.ExecuteAsync(CF.INSERTNX, args);
-            return ResponseParser.ToBooleanArray(result);
+            return result.ToBooleanArray();
         }
 
         /// <summary>
@@ -323,7 +323,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/cf.loadchunk"/></remarks>
         public bool LoadChunk(RedisKey key, long iterator, Byte[] data)
         {
-            return ResponseParser.OKtoBoolean(_db.Execute(CF.LOADCHUNK, key, iterator, data));
+            return _db.Execute(CF.LOADCHUNK, key, iterator, data).OKtoBoolean();
         }
 
         /// <summary>
@@ -337,7 +337,7 @@ namespace NRedisStack
         public async Task<bool> LoadChunkAsync(RedisKey key, long iterator, Byte[] data)
         {
             var result = await _db.ExecuteAsync(CF.LOADCHUNK, key, iterator, data);
-            return ResponseParser.OKtoBoolean(result);
+            return result.OKtoBoolean();
         }
 
         /// <summary>
@@ -360,7 +360,7 @@ namespace NRedisStack
                 args.Add(item);
             }
 
-            return ResponseParser.ToBooleanArray(_db.Execute(CF.MEXISTS, args));
+            return _db.Execute(CF.MEXISTS, args).ToBooleanArray();
         }
 
         /// <summary>
@@ -384,7 +384,7 @@ namespace NRedisStack
             }
 
             var result = await _db.ExecuteAsync(CF.MEXISTS, args);
-            return ResponseParser.ToBooleanArray(result);
+            return result.ToBooleanArray();
         }
 
         /// <summary>
@@ -422,7 +422,7 @@ namespace NRedisStack
                 args.Add(expansion);
             }
 
-            return ResponseParser.OKtoBoolean(_db.Execute(CF.RESERVE, args));
+            return _db.Execute(CF.RESERVE, args).OKtoBoolean();
         }
 
         /// <summary>
@@ -461,7 +461,7 @@ namespace NRedisStack
             }
 
             var result = await _db.ExecuteAsync(CF.RESERVE, args);
-            return ResponseParser.OKtoBoolean(result);
+            return result.OKtoBoolean();
         }
 
         /// <summary>
@@ -473,7 +473,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/cf.scandump"/></remarks>
         public Tuple<long,Byte[]> ScanDump(RedisKey key, long iterator)
         {
-            return ResponseParser.ToScanDumpTuple(_db.Execute(CF.SCANDUMP, key, iterator));
+            return _db.Execute(CF.SCANDUMP, key, iterator).ToScanDumpTuple();
         }
 
         /// <summary>
@@ -486,7 +486,7 @@ namespace NRedisStack
         public async Task<Tuple<long,Byte[]>> ScanDumpAsync(RedisKey key, long iterator)
         {
             var result = await _db.ExecuteAsync(CF.SCANDUMP, key, iterator);
-            return ResponseParser.ToScanDumpTuple(result);
+            return result.ToScanDumpTuple();
         }
     }
 }

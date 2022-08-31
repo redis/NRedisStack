@@ -72,8 +72,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/bf.info"/></remarks>
         public BloomInformation Info(RedisKey key)
         {
-            var info = _db.Execute(BF.INFO, key);
-            return ResponseParser.ToBloomInfo(info);
+            return _db.Execute(BF.INFO, key).ToBloomInfo();
         }
 
         /// <summary>
@@ -85,7 +84,7 @@ namespace NRedisStack
         public async Task<BloomInformation> InfoAsync(RedisKey key)
         {
             var info = await _db.ExecuteAsync(BF.INFO, key);
-            return ResponseParser.ToBloomInfo(info);
+            return info.ToBloomInfo();
         }
 
         /// <summary>
@@ -111,45 +110,9 @@ namespace NRedisStack
             if (items.Length < 1)
                 throw new ArgumentOutOfRangeException(nameof(items));
 
-            List<object> args = new List<object> { key };
-
-            if (capacity != null)
-            {
-                args.Add(BloomArgs.CAPACITY);
-                args.Add(capacity);
-            }
-
-
-            if (error != null)
-            {
-                args.Add(BloomArgs.ERROR);
-                args.Add(error);
-            }
-
-            if (expansion != null)
-            {
-                args.Add(BloomArgs.EXPANSION);
-                args.Add(expansion);
-            }
-
-            if (nocreate)
-            {
-                args.Add(BloomArgs.NOCREATE);
-
-            }
-
-            if (nonscaling)
-            {
-                args.Add(BloomArgs.NONSCALING);
-            }
-
-            args.Add(BloomArgs.ITEMS);
-            foreach (var item in items)
-            {
-                args.Add(item);
-            }
-
-            return ResponseParser.ToBooleanArray(_db.Execute(BF.INSERT, args));
+            var args = BloomAux.BuildInsertArgs(key, items, capacity, error, expansion, nocreate, nonscaling);
+            
+            return _db.Execute(BF.INSERT, args).ToBooleanArray();
         }
 
         /// <summary>
@@ -175,45 +138,10 @@ namespace NRedisStack
             if (items.Length < 1)
                 throw new ArgumentOutOfRangeException(nameof(items));
 
-            List<object> args = new List<object> { key };
-
-            if (capacity != null)
-            {
-                args.Add(BloomArgs.CAPACITY);
-                args.Add(capacity);
-            }
-
-            if (error != null)
-            {
-                args.Add(BloomArgs.ERROR);
-                args.Add(error);
-            }
-
-            if (expansion != null)
-            {
-                args.Add(BloomArgs.EXPANSION);
-                args.Add(expansion);
-            }
-
-            if (nocreate)
-            {
-                args.Add(BloomArgs.NOCREATE);
-
-            }
-
-            if (nonscaling)
-            {
-                args.Add(BloomArgs.NONSCALING);
-            }
-
-            args.Add(BloomArgs.ITEMS);
-            foreach (var item in items)
-            {
-                args.Add(item);
-            }
+            var args = BloomAux.BuildInsertArgs(key, items, capacity, error, expansion, nocreate, nonscaling);
 
             var result = await _db.ExecuteAsync(BF.INSERT, args);
-            return ResponseParser.ToBooleanArray(result);
+            return result.ToBooleanArray();
         }
 
         /// <summary>
@@ -226,7 +154,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/bf.loadchunk"/></remarks>
         public bool LoadChunk(RedisKey key, long iterator, Byte[] data)
         {
-            return ResponseParser.OKtoBoolean(_db.Execute(BF.LOADCHUNK, key, iterator, data));
+            return _db.Execute(BF.LOADCHUNK, key, iterator, data).OKtoBoolean();
         }
 
         /// <summary>
@@ -240,7 +168,7 @@ namespace NRedisStack
         public async Task<bool> LoadChunkAsync(RedisKey key, long iterator, Byte[] data)
         {
             var result = await _db.ExecuteAsync(BF.LOADCHUNK, key, iterator, data);
-            return ResponseParser.OKtoBoolean(result);
+            return result.OKtoBoolean();
         }
 
         /// <summary>
@@ -263,7 +191,7 @@ namespace NRedisStack
                 args.Add(item);
             }
 
-            return ResponseParser.ToBooleanArray(_db.Execute(BF.MADD, args));
+            return _db.Execute(BF.MADD, args).ToBooleanArray();
         }
 
         /// <summary>
@@ -287,7 +215,7 @@ namespace NRedisStack
             }
 
             var result = await _db.ExecuteAsync(BF.MADD, args);
-            return ResponseParser.ToBooleanArray(result);
+            return result.ToBooleanArray();
         }
 
         /// <summary>
@@ -310,7 +238,7 @@ namespace NRedisStack
                 args.Add(item);
             }
 
-            return ResponseParser.ToBooleanArray(_db.Execute(BF.MEXISTS, args));
+            return _db.Execute(BF.MEXISTS, args).ToBooleanArray();
 
         }
 
@@ -335,7 +263,7 @@ namespace NRedisStack
             }
 
             var result = await _db.ExecuteAsync(BF.MEXISTS, args);
-            return ResponseParser.ToBooleanArray(result);
+            return result.ToBooleanArray();
 
         }
 
@@ -366,7 +294,7 @@ namespace NRedisStack
                 args.Add(BloomArgs.NONSCALING);
             }
 
-            return ResponseParser.OKtoBoolean(_db.Execute(BF.RESERVE, args));
+            return _db.Execute(BF.RESERVE, args).OKtoBoolean();
         }
 
         /// <summary>
@@ -397,7 +325,7 @@ namespace NRedisStack
             }
 
             var result = await _db.ExecuteAsync(BF.RESERVE, args);
-            return ResponseParser.OKtoBoolean(result);
+            return result.OKtoBoolean();
         }
 
         /// <summary>
@@ -409,7 +337,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/bf.scandump"/></remarks>
         public Tuple<long,Byte[]> ScanDump(RedisKey key, long iterator)
         {
-            return ResponseParser.ToScanDumpTuple(_db.Execute(BF.SCANDUMP, key, iterator));
+            return _db.Execute(BF.SCANDUMP, key, iterator).ToScanDumpTuple();
         }
 
         /// <summary>
@@ -422,7 +350,7 @@ namespace NRedisStack
         public async Task<Tuple<long,Byte[]>> ScanDumpAsync(RedisKey key, long iterator)
         {
             var result = await _db.ExecuteAsync(BF.SCANDUMP, key, iterator);
-            return ResponseParser.ToScanDumpTuple(result);
+            return result.ToScanDumpTuple();
         }
     }
 }

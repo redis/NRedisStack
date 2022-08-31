@@ -25,10 +25,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
 
             TimeStamp now = DateTime.UtcNow;
-            Assert.Equal(now, db.TS().Add(key, now, 1.1));
-            TimeSeriesInformation info = db.TS().Info(key);
+            Assert.Equal(now, ts.Add(key, now, 1.1));
+            TimeSeriesInformation info = ts.Info(key);
             Assert.Equal(now, info.FirstTimeStamp);
             Assert.Equal(now, info.LastTimeStamp);
         }
@@ -38,11 +39,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
 
-            db.TS().Create(key);
+            ts.Create(key);
             TimeStamp now = DateTime.UtcNow;
-            Assert.Equal(now, db.TS().Add(key, now, 1.1));
-            TimeSeriesInformation info = db.TS().Info(key);
+            Assert.Equal(now, ts.Add(key, now, 1.1));
+            TimeSeriesInformation info = ts.Info(key);
             Assert.Equal(now, info.FirstTimeStamp);
             Assert.Equal(now, info.LastTimeStamp);
         }
@@ -52,9 +54,10 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
 
-            db.TS().Add(key, "*", 1.1);
-            TimeSeriesInformation info = db.TS().Info(key);
+            ts.Add(key, "*", 1.1);
+            TimeSeriesInformation info = ts.Info(key);
             Assert.True(info.FirstTimeStamp > 0);
             Assert.Equal(info.FirstTimeStamp, info.LastTimeStamp);
         }
@@ -64,10 +67,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
             TimeStamp now = DateTime.UtcNow;
             long retentionTime = 5000;
-            Assert.Equal(now, db.TS().Add(key, now, 1.1, retentionTime: retentionTime));
-            TimeSeriesInformation info = db.TS().Info(key);
+            Assert.Equal(now, ts.Add(key, now, 1.1, retentionTime: retentionTime));
+            TimeSeriesInformation info = ts.Info(key);
             Assert.Equal(now, info.FirstTimeStamp);
             Assert.Equal(now, info.LastTimeStamp);
             Assert.Equal(retentionTime, info.RetentionTime);
@@ -78,11 +82,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
             TimeStamp now = DateTime.UtcNow;
             TimeSeriesLabel label = new TimeSeriesLabel("key", "value");
             var labels = new List<TimeSeriesLabel> { label };
-            Assert.Equal(now, db.TS().Add(key, now, 1.1, labels: labels));
-            TimeSeriesInformation info = db.TS().Info(key);
+            Assert.Equal(now, ts.Add(key, now, 1.1, labels: labels));
+            TimeSeriesInformation info = ts.Info(key);
             Assert.Equal(now, info.FirstTimeStamp);
             Assert.Equal(now, info.LastTimeStamp);
             Assert.Equal(labels, info.Labels);
@@ -93,10 +98,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            db.TS().Create(key);
+            var ts = db.TS();
+            ts.Create(key);
             TimeStamp now = DateTime.UtcNow;
-            Assert.Equal(now, db.TS().Add(key, now, 1.1, uncompressed: true));
-            TimeSeriesInformation info = db.TS().Info(key);
+            Assert.Equal(now, ts.Add(key, now, 1.1, uncompressed: true));
+            TimeSeriesInformation info = ts.Info(key);
             Assert.Equal(now, info.FirstTimeStamp);
             Assert.Equal(now, info.LastTimeStamp);
         }
@@ -106,9 +112,10 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
             TimeStamp now = DateTime.UtcNow;
-            Assert.Equal(now, db.TS().Add(key, now, 1.1, chunkSizeBytes: 128));
-            TimeSeriesInformation info = db.TS().Info(key);
+            Assert.Equal(now, ts.Add(key, now, 1.1, chunkSizeBytes: 128));
+            TimeSeriesInformation info = ts.Info(key);
             Assert.Equal(now, info.FirstTimeStamp);
             Assert.Equal(now, info.LastTimeStamp);
             Assert.Equal(128, info.ChunkSize);
@@ -119,9 +126,10 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
             TimeStamp now = DateTime.UtcNow;
-            Assert.Equal(now, db.TS().Add(key, now, 1.1));
-            Assert.Throws<RedisServerException>(() => db.TS().Add(key, now, 1.2));
+            Assert.Equal(now, ts.Add(key, now, 1.1));
+            Assert.Throws<RedisServerException>(() => ts.Add(key, now, 1.2));
         }
 
         [Fact]
@@ -129,15 +137,16 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
             TimeStamp now = DateTime.UtcNow;
-            Assert.Equal(now, db.TS().Add(key, now, 1.1));
+            Assert.Equal(now, ts.Add(key, now, 1.1));
 
             // Insert a bigger number and check that it did not change the value.
-            Assert.Equal(now, db.TS().Add(key, now, 1.2, duplicatePolicy: TsDuplicatePolicy.MIN));
-            Assert.Equal(1.1, db.TS().Range(key, now, now)[0].Val);
+            Assert.Equal(now, ts.Add(key, now, 1.2, duplicatePolicy: TsDuplicatePolicy.MIN));
+            Assert.Equal(1.1, ts.Range(key, now, now)[0].Val);
             // Insert a smaller number and check that it changed.
-            Assert.Equal(now, db.TS().Add(key, now, 1.0, duplicatePolicy: TsDuplicatePolicy.MIN));
-            Assert.Equal(1.0, db.TS().Range(key, now, now)[0].Val);
+            Assert.Equal(now, ts.Add(key, now, 1.0, duplicatePolicy: TsDuplicatePolicy.MIN));
+            Assert.Equal(1.0, ts.Range(key, now, now)[0].Val);
         }
 
         [Fact]
@@ -145,15 +154,16 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
             TimeStamp now = DateTime.UtcNow;
-            Assert.Equal(now, db.TS().Add(key, now, 1.1));
+            Assert.Equal(now, ts.Add(key, now, 1.1));
 
             // Insert a smaller number and check that it did not change the value.
-            Assert.Equal(now, db.TS().Add(key, now, 1.0, duplicatePolicy: TsDuplicatePolicy.MAX));
-            Assert.Equal(1.1, db.TS().Range(key, now, now)[0].Val);
+            Assert.Equal(now, ts.Add(key, now, 1.0, duplicatePolicy: TsDuplicatePolicy.MAX));
+            Assert.Equal(1.1, ts.Range(key, now, now)[0].Val);
             // Insert a bigger number and check that it changed.
-            Assert.Equal(now, db.TS().Add(key, now, 1.2, duplicatePolicy: TsDuplicatePolicy.MAX));
-            Assert.Equal(1.2, db.TS().Range(key, now, now)[0].Val);
+            Assert.Equal(now, ts.Add(key, now, 1.2, duplicatePolicy: TsDuplicatePolicy.MAX));
+            Assert.Equal(1.2, ts.Range(key, now, now)[0].Val);
         }
 
         [Fact]
@@ -161,10 +171,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
             TimeStamp now = DateTime.UtcNow;
-            Assert.Equal(now, db.TS().Add(key, now, 1.1));
-            Assert.Equal(now, db.TS().Add(key, now, 1.0, duplicatePolicy: TsDuplicatePolicy.SUM));
-            Assert.Equal(2.1, db.TS().Range(key, now, now)[0].Val);
+            Assert.Equal(now, ts.Add(key, now, 1.1));
+            Assert.Equal(now, ts.Add(key, now, 1.0, duplicatePolicy: TsDuplicatePolicy.SUM));
+            Assert.Equal(2.1, ts.Range(key, now, now)[0].Val);
         }
 
         [Fact]
@@ -172,10 +183,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
             TimeStamp now = DateTime.UtcNow;
-            Assert.Equal(now, db.TS().Add(key, now, 1.1));
-            Assert.Equal(now, db.TS().Add(key, now, 1.0, duplicatePolicy: TsDuplicatePolicy.FIRST));
-            Assert.Equal(1.1, db.TS().Range(key, now, now)[0].Val);
+            Assert.Equal(now, ts.Add(key, now, 1.1));
+            Assert.Equal(now, ts.Add(key, now, 1.0, duplicatePolicy: TsDuplicatePolicy.FIRST));
+            Assert.Equal(1.1, ts.Range(key, now, now)[0].Val);
         }
 
         [Fact]
@@ -183,10 +195,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
             TimeStamp now = DateTime.UtcNow;
-            Assert.Equal(now, db.TS().Add(key, now, 1.1));
-            Assert.Equal(now, db.TS().Add(key, now, 1.0, duplicatePolicy: TsDuplicatePolicy.LAST));
-            Assert.Equal(1.0, db.TS().Range(key, now, now)[0].Val);
+            Assert.Equal(now, ts.Add(key, now, 1.1));
+            Assert.Equal(now, ts.Add(key, now, 1.0, duplicatePolicy: TsDuplicatePolicy.LAST));
+            Assert.Equal(1.0, ts.Range(key, now, now)[0].Val);
         }
 
         [Fact]
@@ -197,10 +210,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             TimeStamp new_dt = DateTime.UtcNow;
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            db.TS().Create(key);
-            db.TS().Add(key, new_dt, 1.1);
+            var ts = db.TS();
+            ts.Create(key);
+            ts.Add(key, new_dt, 1.1);
             // Adding old event
-            Assert.Equal(old_dt, db.TS().Add(key, old_dt, 1.1));
+            Assert.Equal(old_dt, ts.Add(key, old_dt, 1.1));
         }
 
         [Fact]
@@ -209,9 +223,10 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             double value = 1.1;
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            var ex = Assert.Throws<RedisServerException>(() => db.TS().Add(key, "+", value));
+            var ts = db.TS();
+            var ex = Assert.Throws<RedisServerException>(() => ts.Add(key, "+", value));
             Assert.Equal("ERR TSDB: invalid timestamp", ex.Message);
-            ex = Assert.Throws<RedisServerException>(() => db.TS().Add(key, "-", value));
+            ex = Assert.Throws<RedisServerException>(() => ts.Add(key, "-", value));
             Assert.Equal("ERR TSDB: invalid timestamp", ex.Message);
         }
     }

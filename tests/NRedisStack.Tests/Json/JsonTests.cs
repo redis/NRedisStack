@@ -41,10 +41,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     //     var obj = new Person { Name = "Shachar", Age = 23 };
     //     IDatabase db = redisFixture.Redis.GetDatabase();
     //     db.Execute("FLUSHALL");
+    //     var cf = db.JSON();
 
-    //     db.JSON().Set(key, "$", obj);
+    //     json.Set(key, "$", obj);
     //     string expected = "{\"Name\":\"Shachar\",\"Age\":23}";
-    //     var result = db.JSON().Get(key).ToString();
+    //     var result = json.Get(key).ToString();
     //     if(result == null)
     //         throw new ArgumentNullException(nameof(result));
 
@@ -57,13 +58,50 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     //     var obj = new Person { Name = "Shachar", Age = 23 };
     //     IDatabase db = redisFixture.Redis.GetDatabase();
     //     db.Execute("FLUSHALL");
+    //     var cf = db.JSON();
 
-    //     db.JSON().Set(key, "$", obj);
+    //     json.Set(key, "$", obj);
 
     //     var expected = "[222111\"Shachar\"222]";
-    //     var result = db.JSON().Get(key, "111", "222", "333", "$.Name");
+    //     var result = json.Get(key, "111", "222", "333", "$.Name");
     //     // if(result == null)
     //     //     throw new ArgumentNullException(nameof(result));
     //     Assert.Equal(result.ToString(), expected);
     // }
+
+
+    [Fact]
+    public void TestModulePrefixs()
+    {
+        IDatabase db1 = redisFixture.Redis.GetDatabase();
+        IDatabase db2 = redisFixture.Redis.GetDatabase();
+
+        var json1 = db1.JSON();
+        var json2 = db2.JSON();
+
+        Assert.NotEqual(json1.GetHashCode(), json2.GetHashCode());
+    }
+
+    [Fact]
+    public void TestModulePrefixs1()
+    {
+        {
+            var conn = ConnectionMultiplexer.Connect("localhost");
+            IDatabase db = conn.GetDatabase();
+
+            var json = db.JSON();
+            // ...
+            conn.Dispose();
+        }
+
+        {
+            var conn = ConnectionMultiplexer.Connect("localhost");
+            IDatabase db = conn.GetDatabase();
+
+            var json = db.JSON();
+            // ...
+            conn.Dispose();
+        }
+
+    }
 }

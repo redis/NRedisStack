@@ -25,9 +25,10 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             long retentionTime = 5000;
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            db.TS().Create(key);
-            Assert.True(db.TS().Alter(key, retentionTime: retentionTime));
-            TimeSeriesInformation info = db.TS().Info(key);
+            var ts = db.TS();
+            ts.Create(key);
+            Assert.True(ts.Alter(key, retentionTime: retentionTime));
+            TimeSeriesInformation info = ts.Info(key);
             Assert.Equal(retentionTime, info.RetentionTime);
         }
 
@@ -38,13 +39,14 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var labels = new List<TimeSeriesLabel> { label };
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            db.TS().Create(key);
-            Assert.True(db.TS().Alter(key, labels: labels));
-            TimeSeriesInformation info = db.TS().Info(key);
+            var ts = db.TS();
+            ts.Create(key);
+            Assert.True(ts.Alter(key, labels: labels));
+            TimeSeriesInformation info = ts.Info(key);
             Assert.Equal(labels, info.Labels);
             labels.Clear();
-            Assert.True(db.TS().Alter(key, labels: labels));
-            info = db.TS().Info(key);
+            Assert.True(ts.Alter(key, labels: labels));
+            info = ts.Info(key);
             Assert.Equal(labels, info.Labels);
         }
 
@@ -53,9 +55,10 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            db.TS().Create(key);
-            Assert.True(db.TS().Alter(key, chunkSizeBytes: 128, duplicatePolicy: TsDuplicatePolicy.MIN));
-            TimeSeriesInformation info = db.TS().Info(key);
+            var ts = db.TS();
+            ts.Create(key);
+            Assert.True(ts.Alter(key, chunkSizeBytes: 128, duplicatePolicy: TsDuplicatePolicy.MIN));
+            TimeSeriesInformation info = ts.Info(key);
             Assert.Equal(info.ChunkSize, 128);
             Assert.Equal(info.DuplicatePolicy, TsDuplicatePolicy.MIN);
         }

@@ -31,7 +31,7 @@ namespace NRedisStack
         public bool Create(string key, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel> labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
         {
             var args = TimeSeriesAux.BuildTsCreateArgs(key, retentionTime, labels, uncompressed, chunkSizeBytes, duplicatePolicy);
-            return ResponseParser.OKtoBoolean(_db.Execute(TS.CREATE, args));
+            return _db.Execute(TS.CREATE, args).OKtoBoolean();
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace NRedisStack
         public async Task<bool> CreateAsync(string key, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel> labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
         {
             var args = TimeSeriesAux.BuildTsCreateArgs(key, retentionTime, labels, uncompressed, chunkSizeBytes, duplicatePolicy);
-            return ResponseParser.OKtoBoolean(await _db.ExecuteAsync(TS.CREATE, args));
+            return (await _db.ExecuteAsync(TS.CREATE, args)).OKtoBoolean();
         }
 
         #endregion
@@ -70,7 +70,7 @@ namespace NRedisStack
         public bool Alter(string key, long? retentionTime = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null)
         {
             var args = TimeSeriesAux.BuildTsAlterArgs(key, retentionTime, chunkSizeBytes, duplicatePolicy, labels);
-            return ResponseParser.OKtoBoolean(_db.Execute(TS.ALTER, args));
+            return _db.Execute(TS.ALTER, args).OKtoBoolean();
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace NRedisStack
         public async Task<bool> AlterAsync(string key, long? retentionTime = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null)
         {
             var args = TimeSeriesAux.BuildTsAlterArgs(key, retentionTime, chunkSizeBytes, duplicatePolicy, labels);
-            return ResponseParser.OKtoBoolean(await _db.ExecuteAsync(TS.ALTER, args));
+            return (await _db.ExecuteAsync(TS.ALTER, args)).OKtoBoolean();
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace NRedisStack
                              long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
         {
             var args = TimeSeriesAux.BuildTsAddArgs(key, timestamp, value, retentionTime, labels, uncompressed, chunkSizeBytes, duplicatePolicy);
-            return ResponseParser.ToTimeStamp(_db.Execute(TS.ADD, args));
+            return _db.Execute(TS.ADD, args).ToTimeStamp();
         }
 
         /// <summary>
@@ -129,7 +129,7 @@ namespace NRedisStack
         public async Task<TimeStamp> AddAsync(string key, TimeStamp timestamp, double value, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel> labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
         {
             var args = TimeSeriesAux.BuildTsAddArgs(key, timestamp, value, retentionTime, labels, uncompressed, chunkSizeBytes, duplicatePolicy);
-            return ResponseParser.ToTimeStamp(await _db.ExecuteAsync(TS.ADD, args));
+            return (await _db.ExecuteAsync(TS.ADD, args)).ToTimeStamp();
         }
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace NRedisStack
         public IReadOnlyList<TimeStamp> MAdd(IReadOnlyCollection<(string key, TimeStamp timestamp, double value)> sequence)
         {
             var args = TimeSeriesAux.BuildTsMaddArgs(sequence);
-            return ResponseParser.ToTimeStampArray(_db.Execute(TS.MADD, args));
+            return _db.Execute(TS.MADD, args).ToTimeStampArray();
         }
 
         /// <summary>
@@ -153,7 +153,7 @@ namespace NRedisStack
         public async Task<IReadOnlyList<TimeStamp>> MAddAsync(IReadOnlyCollection<(string key, TimeStamp timestamp, double value)> sequence)
         {
             var args = TimeSeriesAux.BuildTsMaddArgs(sequence);
-            return ResponseParser.ToTimeStampArray(await _db.ExecuteAsync(TS.MADD, args));
+            return (await _db.ExecuteAsync(TS.MADD, args)).ToTimeStampArray();
         }
 
         /// <summary>
@@ -172,7 +172,7 @@ namespace NRedisStack
         public TimeStamp IncrBy(string key, double value, TimeStamp? timestamp = null, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null)
         {
             var args = TimeSeriesAux.BuildTsIncrDecrByArgs(key, value, timestamp, retentionTime, labels, uncompressed, chunkSizeBytes);
-            return ResponseParser.ToTimeStamp(_db.Execute(TS.INCRBY, args));
+            return _db.Execute(TS.INCRBY, args).ToTimeStamp();
         }
 
         /// <summary>
@@ -191,7 +191,7 @@ namespace NRedisStack
         public async Task<TimeStamp> IncrByAsync(string key, double value, TimeStamp? timestamp = null, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null)
         {
             var args = TimeSeriesAux.BuildTsIncrDecrByArgs(key, value, timestamp, retentionTime, labels, uncompressed, chunkSizeBytes);
-            return ResponseParser.ToTimeStamp(await _db.ExecuteAsync(TS.INCRBY, args));
+            return (await _db.ExecuteAsync(TS.INCRBY, args)).ToTimeStamp();
         }
 
         /// <summary>
@@ -210,7 +210,7 @@ namespace NRedisStack
         public TimeStamp DecrBy(string key, double value, TimeStamp? timestamp = null, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null)
         {
             var args = TimeSeriesAux.BuildTsIncrDecrByArgs(key, value, timestamp, retentionTime, labels, uncompressed, chunkSizeBytes);
-            return ResponseParser.ToTimeStamp(_db.Execute(TS.DECRBY, args));
+            return _db.Execute(TS.DECRBY, args).ToTimeStamp();
         }
 
         /// <summary>
@@ -229,7 +229,7 @@ namespace NRedisStack
         public async Task<TimeStamp> DecrByAsync(string key, double value, TimeStamp? timestamp = null, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null)
         {
             var args = TimeSeriesAux.BuildTsIncrDecrByArgs(key, value, timestamp, retentionTime, labels, uncompressed, chunkSizeBytes);
-            return ResponseParser.ToTimeStamp(await _db.ExecuteAsync(TS.DECRBY, args));
+            return (await _db.ExecuteAsync(TS.DECRBY, args)).ToTimeStamp();
         }
 
         /// <summary>
@@ -244,7 +244,7 @@ namespace NRedisStack
         public long Del(string key, TimeStamp fromTimeStamp, TimeStamp toTimeStamp)
         {
             var args = TimeSeriesAux.BuildTsDelArgs(key, fromTimeStamp, toTimeStamp);
-            return ResponseParser.ToLong(_db.Execute(TS.DEL, args));
+            return _db.Execute(TS.DEL, args).ToLong();
         }
 
         /// <summary>
@@ -259,7 +259,7 @@ namespace NRedisStack
         public async Task<long> DelAsync(string key, TimeStamp fromTimeStamp, TimeStamp toTimeStamp)
         {
             var args = TimeSeriesAux.BuildTsDelArgs(key, fromTimeStamp, toTimeStamp);
-            return ResponseParser.ToLong(await _db.ExecuteAsync(TS.DEL, args));
+            return (await _db.ExecuteAsync(TS.DEL, args)).ToLong();
         }
 
         #endregion
@@ -282,7 +282,7 @@ namespace NRedisStack
             var args = new List<object> { sourceKey };
             args.AddRule(rule);
             args.Add(alignTimestamp);
-            return ResponseParser.OKtoBoolean(_db.Execute(TS.CREATERULE, args));
+            return _db.Execute(TS.CREATERULE, args).OKtoBoolean();
         }
 
         /// <summary>
@@ -301,7 +301,7 @@ namespace NRedisStack
             var args = new List<object> { sourceKey };
             args.AddRule(rule);
             args.Add(alignTimestamp);
-            return ResponseParser.OKtoBoolean(await _db.ExecuteAsync(TS.CREATERULE, args));
+            return (await _db.ExecuteAsync(TS.CREATERULE, args)).OKtoBoolean();
         }
 
         /// <summary>
@@ -314,7 +314,7 @@ namespace NRedisStack
         public bool DeleteRule(string sourceKey, string destKey)
         {
             var args = new List<object> { sourceKey, destKey };
-            return ResponseParser.OKtoBoolean(_db.Execute(TS.DELETERULE, args));
+            return _db.Execute(TS.DELETERULE, args).OKtoBoolean();
         }
 
         /// <summary>
@@ -327,7 +327,7 @@ namespace NRedisStack
         public async Task<bool> DeleteRuleAsync(string sourceKey, string destKey)
         {
             var args = new List<object> { sourceKey, destKey };
-            return ResponseParser.OKtoBoolean(await _db.ExecuteAsync(TS.DELETERULE, args));
+            return (await _db.ExecuteAsync(TS.DELETERULE, args)).OKtoBoolean();
         }
 
         #endregion
@@ -346,8 +346,9 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/ts.get"/></remarks>
         public TimeSeriesTuple? Get(string key, bool latest = false)
         {
-            return ResponseParser.ToTimeSeriesTuple((latest) ? _db.Execute(TS.GET, key, TimeSeriesArgs.LATEST)
-                                                             : _db.Execute(TS.GET, key));
+            var result = (latest) ? _db.Execute(TS.GET, key, TimeSeriesArgs.LATEST)
+                                  : _db.Execute(TS.GET, key);
+            return result.ToTimeSeriesTuple();
         }
 
         /// <summary>
@@ -362,8 +363,9 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/ts.get"/></remarks>
         public async Task<TimeSeriesTuple?> GetAsync(string key, bool latest = false)
         {
-            return ResponseParser.ToTimeSeriesTuple(await ((latest) ? _db.ExecuteAsync(TS.GET, key, TimeSeriesArgs.LATEST)
+            var result = (await ((latest) ? _db.ExecuteAsync(TS.GET, key, TimeSeriesArgs.LATEST)
                                                                     : _db.ExecuteAsync(TS.GET, key)));
+            return result.ToTimeSeriesTuple();
         }
 
         /// <summary>
@@ -382,7 +384,7 @@ namespace NRedisStack
                                                                                                               bool? withLabels = null, IReadOnlyCollection<string>? selectedLabels = null)
         {
             var args = TimeSeriesAux.BuildTsMgetArgs(latest, filter, withLabels, selectedLabels);
-            return ResponseParser.ParseMGetResponse(_db.Execute(TS.MGET, args));
+            return _db.Execute(TS.MGET, args).ParseMGetResponse();
         }
 
         /// <summary>
@@ -401,7 +403,7 @@ namespace NRedisStack
                                                                                                                                bool? withLabels = null, IReadOnlyCollection<string>? selectedLabels = null)
         {
             var args = TimeSeriesAux.BuildTsMgetArgs(latest, filter, withLabels, selectedLabels);
-            return ResponseParser.ParseMGetResponse(await _db.ExecuteAsync(TS.MGET, args));
+            return (await _db.ExecuteAsync(TS.MGET, args)).ParseMGetResponse();
         }
 
         /// <summary>
@@ -441,7 +443,7 @@ namespace NRedisStack
                                                     latest, filterByTs, filterByValue, count, align,
                                                     aggregation, timeBucket, bt, empty);
 
-            return ResponseParser.ToTimeSeriesTupleArray(_db.Execute(TS.RANGE, args));
+            return _db.Execute(TS.RANGE, args).ToTimeSeriesTupleArray();
         }
 
         /// <summary>
@@ -481,7 +483,7 @@ namespace NRedisStack
                                                     latest, filterByTs, filterByValue, count, align,
                                                     aggregation, timeBucket, bt, empty);
 
-            return ResponseParser.ToTimeSeriesTupleArray(await _db.ExecuteAsync(TS.RANGE, args));
+            return (await _db.ExecuteAsync(TS.RANGE, args)).ToTimeSeriesTupleArray();
         }
 
         /// <summary>
@@ -521,7 +523,7 @@ namespace NRedisStack
                                                     latest, filterByTs, filterByValue, count, align,
                                                     aggregation, timeBucket, bt, empty);
 
-            return ResponseParser.ToTimeSeriesTupleArray(_db.Execute(TS.REVRANGE, args));
+            return _db.Execute(TS.REVRANGE, args).ToTimeSeriesTupleArray();
         }
 
         /// <summary>
@@ -561,7 +563,7 @@ namespace NRedisStack
                                                     latest, filterByTs, filterByValue, count, align,
                                                     aggregation, timeBucket, bt, empty);
 
-            return ResponseParser.ToTimeSeriesTupleArray(await _db.ExecuteAsync(TS.REVRANGE, args));
+            return (await _db.ExecuteAsync(TS.REVRANGE, args)).ToTimeSeriesTupleArray();
         }
 
         /// <summary>
@@ -607,7 +609,7 @@ namespace NRedisStack
             var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, latest, filterByTs,
                                                          filterByValue, withLabels, selectLabels, count,
                                                          align, aggregation, timeBucket, bt, empty, groupbyTuple);
-            return ResponseParser.ParseMRangeResponse(_db.Execute(TS.MRANGE, args));
+            return _db.Execute(TS.MRANGE, args).ParseMRangeResponse();
         }
 
         /// <summary>
@@ -653,7 +655,7 @@ namespace NRedisStack
             var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, latest, filterByTs,
                                                          filterByValue, withLabels, selectLabels, count,
                                                          align, aggregation, timeBucket, bt, empty, groupbyTuple);
-            return ResponseParser.ParseMRangeResponse(await _db.ExecuteAsync(TS.MRANGE, args));
+            return (await _db.ExecuteAsync(TS.MRANGE, args)).ParseMRangeResponse();
         }
 
         /// <summary>
@@ -699,7 +701,7 @@ namespace NRedisStack
             var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, latest, filterByTs,
                                                          filterByValue, withLabels, selectLabels, count,
                                                          align, aggregation, timeBucket, bt, empty, groupbyTuple);
-            return ResponseParser.ParseMRangeResponse(_db.Execute(TS.MREVRANGE, args));
+            return _db.Execute(TS.MREVRANGE, args).ParseMRangeResponse();
         }
 
         /// <summary>
@@ -745,7 +747,7 @@ namespace NRedisStack
             var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, latest, filterByTs,
                                                          filterByValue, withLabels, selectLabels, count,
                                                          align, aggregation, timeBucket, bt, empty, groupbyTuple);
-            return ResponseParser.ParseMRangeResponse(await _db.ExecuteAsync(TS.MREVRANGE, args));
+            return (await _db.ExecuteAsync(TS.MREVRANGE, args)).ParseMRangeResponse();
         }
 
         #endregion
@@ -761,8 +763,9 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/ts.info"/></remarks>
         public TimeSeriesInformation Info(string key, bool debug = false)
         {
-            return ResponseParser.ToTimeSeriesInfo((debug) ? _db.Execute(TS.INFO, key, TimeSeriesArgs.DEBUG)
-                                                           : _db.Execute(TS.INFO, key));
+            var result = (debug) ? _db.Execute(TS.INFO, key, TimeSeriesArgs.DEBUG)
+                                                           : _db.Execute(TS.INFO, key);
+            return result.ToTimeSeriesInfo();
         }
 
         /// <summary>
@@ -774,8 +777,9 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/ts.info"/></remarks>
         public async Task<TimeSeriesInformation> InfoAsync(string key, bool debug = false)
         {
-            return ResponseParser.ToTimeSeriesInfo(await ((debug) ? _db.ExecuteAsync(TS.INFO, key, TimeSeriesArgs.DEBUG)
+            var result = (await ((debug) ? _db.ExecuteAsync(TS.INFO, key, TimeSeriesArgs.DEBUG)
                                                                   : _db.ExecuteAsync(TS.INFO, key)));
+            return result.ToTimeSeriesInfo();
         }
 
         /// <summary>
@@ -787,7 +791,7 @@ namespace NRedisStack
         public IReadOnlyList<string> QueryIndex(IReadOnlyCollection<string> filter)
         {
             var args = new List<object>(filter);
-            return ResponseParser.ToStringArray(_db.Execute(TS.QUERYINDEX, args));
+            return _db.Execute(TS.QUERYINDEX, args).ToStringArray();
         }
 
         /// <summary>
@@ -799,7 +803,7 @@ namespace NRedisStack
         public async Task<IReadOnlyList<string>> QueryIndexAsync(IReadOnlyCollection<string> filter)
         {
             var args = new List<object>(filter);
-            return ResponseParser.ToStringArray(await _db.ExecuteAsync(TS.QUERYINDEX, args));
+            return (await _db.ExecuteAsync(TS.QUERYINDEX, args)).ToStringArray();
         }
 
         #endregion

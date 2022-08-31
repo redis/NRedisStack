@@ -21,25 +21,27 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
-        Assert.True(db.CF().Reserve(key, 100L));
-        Assert.Throws<RedisServerException>(() => db.CF().Reserve(key, 100L));
+        var cf = db.CF();
+        Assert.True(cf.Reserve(key, 100L));
+        Assert.Throws<RedisServerException>(() => cf.Reserve(key, 100L));
 
-        Assert.True((db.CF().Add(key, "item1")));
-        Assert.True(db.CF().Exists(key, "item1"));
-        Assert.False(db.CF().Exists(key, "item2"));
+        Assert.True((cf.Add(key, "item1")));
+        Assert.True(cf.Exists(key, "item1"));
+        Assert.False(cf.Exists(key, "item2"));
     }
 
     [Fact]
     public async Task TestReserveBasicAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.ExecuteAsync("FLUSHALL");
-        Assert.True(await db.CF().ReserveAsync(key, 100L));
-        Assert.ThrowsAsync<RedisServerException>(async () => await db.CF().ReserveAsync(key, 100L));
+        db.Execute("FLUSHALL");
+        var cf = db.CF();
+        Assert.True(await cf.ReserveAsync(key, 100L));
+        Assert.ThrowsAsync<RedisServerException>(async () => await cf.ReserveAsync(key, 100L));
 
-        Assert.True(await (db.CF().AddAsync(key, "item1")));
-        Assert.True(await db.CF().ExistsAsync(key, "item1"));
-        Assert.False(await db.CF().ExistsAsync(key, "item2"));
+        Assert.True(await (cf.AddAsync(key, "item1")));
+        Assert.True(await cf.ExistsAsync(key, "item1"));
+        Assert.False(await cf.ExistsAsync(key, "item2"));
     }
 
     [Fact]
@@ -47,9 +49,10 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cf = db.CF();
 
-        Assert.True(db.CF().Add(key, "item1"));
-        Assert.True(db.CF().Exists(key, "item1"));
+        Assert.True(cf.Add(key, "item1"));
+        Assert.True(cf.Exists(key, "item1"));
     }
 
     [Fact]
@@ -57,9 +60,10 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cf = db.CF();
 
-        Assert.True(await db.CF().AddAsync(key, "item1"));
-        Assert.True(await db.CF().ExistsAsync(key, "item1"));
+        Assert.True(await cf.AddAsync(key, "item1"));
+        Assert.True(await cf.ExistsAsync(key, "item1"));
     }
 
     [Fact]
@@ -67,10 +71,11 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cf = db.CF();
 
-        Assert.True(db.CF().AddNX(key, "item1"));
-        Assert.False(db.CF().AddNX(key, "item1"));
-        Assert.True(db.CF().Exists(key, "item1"));
+        Assert.True(cf.AddNX(key, "item1"));
+        Assert.False(cf.AddNX(key, "item1"));
+        Assert.True(cf.Exists(key, "item1"));
     }
 
     [Fact]
@@ -78,10 +83,11 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cf = db.CF();
 
-        Assert.True(await db.CF().AddNXAsync(key, "item1"));
-        Assert.False(await db.CF().AddNXAsync(key, "item1"));
-        Assert.True(await db.CF().ExistsAsync(key, "item1"));
+        Assert.True(await cf.AddNXAsync(key, "item1"));
+        Assert.False(await cf.AddNXAsync(key, "item1"));
+        Assert.True(await cf.ExistsAsync(key, "item1"));
     }
 
     [Fact]
@@ -89,8 +95,9 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cf = db.CF();
 
-        Assert.Equal(db.CF().Count("notExistFilter", "notExistItem"), 0);
+        Assert.Equal(cf.Count("notExistFilter", "notExistItem"), 0);
     }
 
     [Fact]
@@ -98,8 +105,9 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cf = db.CF();
 
-        Assert.Equal(await db.CF().CountAsync("notExistFilter", "notExistItem"), 0);
+        Assert.Equal(await cf.CountAsync("notExistFilter", "notExistItem"), 0);
     }
 
     [Fact]
@@ -107,9 +115,10 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cf = db.CF();
 
-        db.CF().Insert(key, new RedisValue[]{"foo"});
-        Assert.Equal(db.CF().Count(key, "notExistItem"), 0);
+        cf.Insert(key, new RedisValue[] { "foo" });
+        Assert.Equal(cf.Count(key, "notExistItem"), 0);
     }
 
     [Fact]
@@ -117,9 +126,10 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cf = db.CF();
 
-        await db.CF().InsertAsync(key, new RedisValue[]{"foo"});
-        Assert.Equal(await db.CF().CountAsync(key, "notExistItem"), 0);
+        await cf.InsertAsync(key, new RedisValue[] { "foo" });
+        Assert.Equal(await cf.CountAsync(key, "notExistItem"), 0);
     }
 
     [Fact]
@@ -127,9 +137,10 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cf = db.CF();
 
-        db.CF().Insert(key, new RedisValue[]{"foo"});
-        Assert.Equal(db.CF().Count(key, "foo"), 1);
+        cf.Insert(key, new RedisValue[] { "foo" });
+        Assert.Equal(cf.Count(key, "foo"), 1);
     }
 
     [Fact]
@@ -137,9 +148,10 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cf = db.CF();
 
-        await db.CF().InsertAsync(key, new RedisValue[]{"foo"});
-        Assert.Equal(await db.CF().CountAsync(key, "foo"), 1);
+        await cf.InsertAsync(key, new RedisValue[] { "foo" });
+        Assert.Equal(await cf.CountAsync(key, "foo"), 1);
     }
 
     [Fact]
@@ -147,12 +159,13 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cf = db.CF();
 
-        db.CF().Add(key, "item");
-        Assert.False(db.CF().Del(key, "notExistsItem"));
-        Assert.True(db.CF().Del(key, "item"));
+        cf.Add(key, "item");
+        Assert.False(cf.Del(key, "notExistsItem"));
+        Assert.True(cf.Del(key, "item"));
 
-        Assert.Throws<RedisServerException>( () => db.CF().Del("notExistKey", "item"));
+        Assert.Throws<RedisServerException>(() => cf.Del("notExistKey", "item"));
     }
 
     [Fact]
@@ -160,12 +173,13 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cf = db.CF();
 
-        await db.CF().AddAsync(key, "item");
-        Assert.False(await db.CF().DelAsync(key, "notExistsItem"));
-        Assert.True(await db.CF().DelAsync(key, "item"));
+        await cf.AddAsync(key, "item");
+        Assert.False(await cf.DelAsync(key, "notExistsItem"));
+        Assert.True(await cf.DelAsync(key, "item"));
 
-        await Assert.ThrowsAsync<RedisServerException>( () => db.CF().DelAsync("notExistKey", "item"));
+        await Assert.ThrowsAsync<RedisServerException>(() => cf.DelAsync("notExistKey", "item"));
     }
 
     [Fact]
@@ -173,14 +187,15 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cf = db.CF();
 
-        db.CF().Add(key, "item");
-        var info = db.CF().Info(key);
+        cf.Add(key, "item");
+        var info = cf.Info(key);
 
         Assert.NotNull(info);
         Assert.Equal(info.NumberOfItemsInserted, (long)1);
 
-        Assert.Throws<RedisServerException>( () => db.CF().Info("notExistKey"));
+        Assert.Throws<RedisServerException>(() => cf.Info("notExistKey"));
     }
 
     [Fact]
@@ -188,14 +203,15 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cf = db.CF();
 
-        await db.CF().AddAsync(key, "item");
-        var info = await db.CF().InfoAsync(key);
+        await cf.AddAsync(key, "item");
+        var info = await cf.InfoAsync(key);
 
         Assert.NotNull(info);
         Assert.Equal(info.NumberOfItemsInserted, (long)1);
 
-        await Assert.ThrowsAsync<RedisServerException>( () => db.CF().InfoAsync("notExistKey"));
+        await Assert.ThrowsAsync<RedisServerException>(() => cf.InfoAsync("notExistKey"));
     }
 
     [Fact]
@@ -203,14 +219,15 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cf = db.CF();
 
         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
 
-        db.CF().Insert("key", items);
+        cf.Insert("key", items);
 
-        Assert.True(db.CF().Exists("key", "item1"));
-        Assert.True(db.CF().Exists("key", "item2"));
-        Assert.True(db.CF().Exists("key", "item3"));
+        Assert.True(cf.Exists("key", "item1"));
+        Assert.True(cf.Exists("key", "item2"));
+        Assert.True(cf.Exists("key", "item3"));
     }
 
     [Fact]
@@ -218,14 +235,15 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cf = db.CF();
 
         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
 
-        await db.CF().InsertAsync("key", items);
+        await cf.InsertAsync("key", items);
 
-        Assert.True(await db.CF().ExistsAsync("key", "item1"));
-        Assert.True(await db.CF().ExistsAsync("key", "item2"));
-        Assert.True(await db.CF().ExistsAsync("key", "item3"));
+        Assert.True(await cf.ExistsAsync("key", "item1"));
+        Assert.True(await cf.ExistsAsync("key", "item2"));
+        Assert.True(await cf.ExistsAsync("key", "item3"));
     }
 
     [Fact]
@@ -233,21 +251,22 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cf = db.CF();
 
         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
 
-        var result = db.CF().InsertNX(key, items);
-        var trues = new bool[] {true, true, true};
+        var result = cf.InsertNX(key, items);
+        var trues = new bool[] { true, true, true };
         Assert.Equal(result, trues);
 
-        Assert.True(db.CF().Exists(key, "item1"));
-        Assert.True(db.CF().Exists(key, "item2"));
-        Assert.True(db.CF().Exists(key, "item3"));
+        Assert.True(cf.Exists(key, "item1"));
+        Assert.True(cf.Exists(key, "item2"));
+        Assert.True(cf.Exists(key, "item3"));
 
-        Assert.Equal(db.CF().MExists(key, items), trues);
+        Assert.Equal(cf.MExists(key, items), trues);
 
-        result = db.CF().InsertNX(key, items);
-        Assert.Equal(result, new bool[] {false, false, false});
+        result = cf.InsertNX(key, items);
+        Assert.Equal(result, new bool[] { false, false, false });
     }
 
     [Fact]
@@ -255,21 +274,22 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cf = db.CF();
 
         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
 
-        var result = await  db.CF().InsertNXAsync(key, items);
-        var trues = new bool[] {true, true, true};
+        var result = await cf.InsertNXAsync(key, items);
+        var trues = new bool[] { true, true, true };
         Assert.Equal(result, trues);
 
-        Assert.True(await db.CF().ExistsAsync(key, "item1"));
-        Assert.True(await db.CF().ExistsAsync(key, "item2"));
-        Assert.True(await db.CF().ExistsAsync(key, "item3"));
+        Assert.True(await cf.ExistsAsync(key, "item1"));
+        Assert.True(await cf.ExistsAsync(key, "item2"));
+        Assert.True(await cf.ExistsAsync(key, "item3"));
 
-        Assert.Equal(await db.CF().MExistsAsync(key, items), trues);
+        Assert.Equal(await cf.MExistsAsync(key, items), trues);
 
-        result = await db.CF().InsertNXAsync(key, items);
-        Assert.Equal(result, new bool[] {false, false, false});
+        result = await cf.InsertNXAsync(key, items);
+        Assert.Equal(result, new bool[] { false, false, false });
     }
 
     [Fact]
@@ -277,9 +297,10 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cf = db.CF();
 
         RedisValue item = new RedisValue("item");
-        Assert.False(db.CF().Exists("NonExistKey", item));
+        Assert.False(cf.Exists("NonExistKey", item));
     }
 
     [Fact]
@@ -287,9 +308,10 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cf = db.CF();
 
         RedisValue item = new RedisValue("item");
-        Assert.False(await db.CF().ExistsAsync("NonExistKey", item));
+        Assert.False(await cf.ExistsAsync("NonExistKey", item));
     }
 
     [Fact]
@@ -297,23 +319,24 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cf = db.CF();
 
-        db.CF().Reserve("cuckoo",100, 50);
-        db.CF().Add("cuckoo-dump", "a");
+        cf.Reserve("cuckoo", 100, 50);
+        cf.Add("cuckoo-dump", "a");
 
         long iterator = 0;
-        while(true)
+        while (true)
         {
-            var chunkData = db.CF().ScanDump("cuckoo-dump", iterator);
+            var chunkData = cf.ScanDump("cuckoo-dump", iterator);
             iterator = chunkData.Item1;
-            if(iterator == 0) break;
-            Assert.True(db.CF().LoadChunk("cuckoo-load", iterator, chunkData.Item2));
+            if (iterator == 0) break;
+            Assert.True(cf.LoadChunk("cuckoo-load", iterator, chunkData.Item2));
         }
 
         // check for properties
-        Assert.Equal(db.CF().Info("cuckoo-dump").NumberOfItemsInserted, db.CF().Info("cuckoo-load").NumberOfItemsInserted);
+        Assert.Equal(cf.Info("cuckoo-dump").NumberOfItemsInserted, cf.Info("cuckoo-load").NumberOfItemsInserted);
         // check for existing items
-        Assert.True(db.CF().Exists("cuckoo-load", "a"));
+        Assert.True(cf.Exists("cuckoo-load", "a"));
     }
 
     [Fact]
@@ -321,22 +344,59 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cf = db.CF();
 
-        await db.CF().ReserveAsync("cuckoo",100, 50);
-        await db.CF().AddAsync("cuckoo-dump", "a");
+        await cf.ReserveAsync("cuckoo", 100, 50);
+        await cf.AddAsync("cuckoo-dump", "a");
 
         long iterator = 0;
-        while(true)
+        while (true)
         {
-            var chunkData = await db.CF().ScanDumpAsync("cuckoo-dump", iterator);
+            var chunkData = await cf.ScanDumpAsync("cuckoo-dump", iterator);
             iterator = chunkData.Item1;
-            if(iterator == 0) break;
-            Assert.True(await db.CF().LoadChunkAsync("cuckoo-load", iterator, chunkData.Item2));
+            if (iterator == 0) break;
+            Assert.True(await cf.LoadChunkAsync("cuckoo-load", iterator, chunkData.Item2));
         }
 
         // check for properties
-        Assert.Equal((await db.CF().InfoAsync("cuckoo-dump")).NumberOfItemsInserted, (await db.CF().InfoAsync("cuckoo-load")).NumberOfItemsInserted);
+        Assert.Equal((await cf.InfoAsync("cuckoo-dump")).NumberOfItemsInserted, (await cf.InfoAsync("cuckoo-load")).NumberOfItemsInserted);
         // check for existing items
-        Assert.True(await db.CF().ExistsAsync("cuckoo-load", "a"));
+        Assert.True(await cf.ExistsAsync("cuckoo-load", "a"));
+    }
+
+
+    [Fact]
+    public void TestModulePrefixs()
+    {
+        IDatabase db1 = redisFixture.Redis.GetDatabase();
+        IDatabase db2 = redisFixture.Redis.GetDatabase();
+
+        var cf1 = db1.CF();
+        var cf2 = db2.CF();
+
+        Assert.NotEqual(cf1.GetHashCode(), cf2.GetHashCode());
+    }
+
+    [Fact]
+    public void TestModulePrefixs1()
+    {
+        {
+            var conn = ConnectionMultiplexer.Connect("localhost");
+            IDatabase db = conn.GetDatabase();
+
+            var cf = db.CF();
+            // ...
+            conn.Dispose();
+        }
+
+        {
+            var conn = ConnectionMultiplexer.Connect("localhost");
+            IDatabase db = conn.GetDatabase();
+
+            var cf = db.CF();
+            // ...
+            conn.Dispose();
+        }
+
     }
 }

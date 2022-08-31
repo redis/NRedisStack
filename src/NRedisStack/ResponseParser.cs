@@ -12,16 +12,16 @@ using NRedisStack.Tdigest.DataTypes;
 
 namespace NRedisStack
 {
-    public static class ResponseParser
+    internal static class ResponseParser
     {
-        public static bool OKtoBoolean(RedisResult result)
+        public static bool OKtoBoolean(this RedisResult result)
         {
             return result.ToString() == "OK";
         }
 
-        public static bool[] ToBooleanArray(RedisResult result)
+        public static bool[] ToBooleanArray(this RedisResult result)
         {
-            RedisResult[]? redisResults = ToArray(result);
+            RedisResult[]? redisResults = result.ToArray();
 
             bool[] boolArr = new bool[redisResults.Length];
             for (int i = 0; i < redisResults.Length; i++)
@@ -32,7 +32,7 @@ namespace NRedisStack
             return boolArr;
         }
 
-        public static RedisResult[] ToArray(RedisResult result)
+        public static RedisResult[] ToArray(this RedisResult result)
         {
             var redisResults = (RedisResult[]?)result;
             if (redisResults != null)
@@ -40,24 +40,24 @@ namespace NRedisStack
             throw new ArgumentNullException(nameof(redisResults));
         }
 
-        public static long ToLong(RedisResult result)
+        public static long ToLong(this RedisResult result)
         {
             if ((long?)result == null)
                 throw new ArgumentNullException(nameof(result));
             return (long)result;
         }
 
-        public static double ToDouble(RedisResult result)
+        public static double ToDouble(this RedisResult result)
         {
             if ((double?)result == null)
                 throw new ArgumentNullException(nameof(result));
             return (double)result;
         }
 
-        public static double[] ToDoubleArray(RedisResult result)
+        public static double[] ToDoubleArray(this RedisResult result)
         {
             List<double> redisResults = new List<double>();
-            foreach (var res in ToArray(result))
+            foreach (var res in result.ToArray())
             {
                 redisResults.Add(ToDouble(res));
             }
@@ -65,10 +65,10 @@ namespace NRedisStack
             return redisResults.ToArray();
         }
 
-        public static long[] ToLongArray(RedisResult result)
+        public static long[] ToLongArray(this RedisResult result)
         {
             List<long> redisResults = new List<long>();
-            foreach (var res in ToArray(result))
+            foreach (var res in result.ToArray())
             {
                 redisResults.Add(ToLong(res));
             }
@@ -76,13 +76,13 @@ namespace NRedisStack
             return redisResults.ToArray();
         }
 
-        public static TimeStamp ToTimeStamp(RedisResult result)
+        public static TimeStamp ToTimeStamp(this RedisResult result)
         {
             if (result.Type == ResultType.None) return null;
             return new TimeStamp((long)result);
         }
 
-        public static IReadOnlyList<TimeStamp> ToTimeStampArray(RedisResult result)
+        public static IReadOnlyList<TimeStamp> ToTimeStampArray(this RedisResult result)
         {
             RedisResult[] redisResults = (RedisResult[])result;
             var list = new List<TimeStamp>(redisResults.Length);
@@ -91,32 +91,32 @@ namespace NRedisStack
             return list;
         }
 
-        public static TimeSeriesTuple? ToTimeSeriesTuple(RedisResult result)
+        public static TimeSeriesTuple? ToTimeSeriesTuple(this RedisResult result)
         {
-            RedisResult[] redisResults = ToArray(result);
+            RedisResult[] redisResults = result.ToArray();
             if (redisResults.Length == 0) return null;
             return new TimeSeriesTuple(ToTimeStamp(redisResults[0]), (double)redisResults[1]);
         }
 
-        public static Tuple<long, Byte[]> ToScanDumpTuple(RedisResult result)
+        public static Tuple<long, Byte[]> ToScanDumpTuple(this RedisResult result)
         {
-            RedisResult[] redisResults = ToArray(result);
+            RedisResult[] redisResults = result.ToArray();
             if (redisResults == null || redisResults.Length == 0) return null;
             return new Tuple<long, Byte[]>((long)redisResults[0], (Byte[])redisResults[1]);
         }
 
-        public static HashEntry ToHashEntry(RedisResult result)
+        public static HashEntry ToHashEntry(this RedisResult result)
         {
-            RedisResult[] redisResults = ToArray(result);
+            RedisResult[] redisResults = result.ToArray();
             if (redisResults.Length < 2)
                 throw new ArgumentOutOfRangeException(nameof(result));
 
             return new HashEntry((RedisValue)(redisResults[0]), ((RedisValue)redisResults[1]));
         }
 
-        public static HashEntry[] ToHashEntryArray(RedisResult result)
+        public static HashEntry[] ToHashEntryArray(this RedisResult result)
         {
-            RedisResult[] redisResults = ToArray(result);
+            RedisResult[] redisResults = result.ToArray();
 
             var hash = new HashEntry[redisResults.Length / 2];
             if (redisResults.Length == 0) return hash;
@@ -126,7 +126,7 @@ namespace NRedisStack
             return hash;
         }
 
-        public static IReadOnlyList<TimeSeriesTuple> ToTimeSeriesTupleArray(RedisResult result)
+        public static IReadOnlyList<TimeSeriesTuple> ToTimeSeriesTupleArray(this RedisResult result)
         {
             RedisResult[] redisResults = (RedisResult[])result;
             var list = new List<TimeSeriesTuple>(redisResults.Length);
@@ -135,7 +135,7 @@ namespace NRedisStack
             return list;
         }
 
-        public static IReadOnlyList<TimeSeriesLabel> ToLabelArray(RedisResult result)
+        public static IReadOnlyList<TimeSeriesLabel> ToLabelArray(this RedisResult result)
         {
             RedisResult[] redisResults = (RedisResult[])result;
             var list = new List<TimeSeriesLabel>(redisResults.Length);
@@ -148,7 +148,7 @@ namespace NRedisStack
             return list;
         }
 
-        // public static IReadOnlyList<TimeSeriesCunck> ToCunckArray(RedisResult result)
+        // public static IReadOnlyList<TimeSeriesCunck> ToCunckArray(this RedisResult result)
         // {
         //     RedisResult[] redisResults = (RedisResult[])result;
         //     var list = new List<TimeSeriesCunck>(redisResults.Length);
@@ -161,7 +161,7 @@ namespace NRedisStack
         //     return list;
         // }
 
-        public static IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, TimeSeriesTuple value)> ParseMGetResponse(RedisResult result)
+        public static IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, TimeSeriesTuple value)> ParseMGetResponse(this RedisResult result)
         {
             RedisResult[] redisResults = (RedisResult[])result;
             var list = new List<(string key, IReadOnlyList<TimeSeriesLabel> labels, TimeSeriesTuple values)>(redisResults.Length);
@@ -177,7 +177,7 @@ namespace NRedisStack
             return list;
         }
 
-        public static IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)> ParseMRangeResponse(RedisResult result)
+        public static IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)> ParseMRangeResponse(this RedisResult result)
         {
             RedisResult[] redisResults = (RedisResult[])result;
             var list = new List<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)>(redisResults.Length);
@@ -193,7 +193,7 @@ namespace NRedisStack
             return list;
         }
 
-        public static TimeSeriesRule ToRule(RedisResult result)
+        public static TimeSeriesRule ToRule(this RedisResult result)
         {
             RedisResult[] redisResults = (RedisResult[])result;
             string destKey = (string)redisResults[0];
@@ -202,7 +202,7 @@ namespace NRedisStack
             return new TimeSeriesRule(destKey, bucketTime, aggregation);
         }
 
-        public static IReadOnlyList<TimeSeriesRule> ToRuleArray(RedisResult result)
+        public static IReadOnlyList<TimeSeriesRule> ToRuleArray(this RedisResult result)
         {
             RedisResult[] redisResults = (RedisResult[])result;
             var list = new List<TimeSeriesRule>();
@@ -211,7 +211,7 @@ namespace NRedisStack
             return list;
         }
 
-        public static TsDuplicatePolicy? ToPolicy(RedisResult result)
+        public static TsDuplicatePolicy? ToPolicy(this RedisResult result)
         {
             var policyStatus = (string)result;
             if (String.IsNullOrEmpty(policyStatus) || policyStatus == "(nil)")
@@ -222,15 +222,16 @@ namespace NRedisStack
             return DuplicatePolicyExtensions.AsPolicy(policyStatus.ToUpper());
         }
 
-        public static BloomInformation ToBloomInfo(RedisResult result) //TODO: Think about a different implementation, because if the output of BF.INFO changes or even just the names of the labels then the parsing will not work
+        public static BloomInformation ToBloomInfo(this RedisResult result) //TODO: Think about a different implementation, because if the output of BF.INFO changes or even just the names of the labels then the parsing will not work
         {
             long capacity, size, numberOfFilters, numberOfItemsInserted, expansionRate;
             capacity = size = numberOfFilters = numberOfItemsInserted = expansionRate = -1;
-            RedisResult[] redisResults = ToArray(result);
+            RedisResult[] redisResults = result.ToArray();
 
             for (int i = 0; i < redisResults.Length; ++i)
             {
                 string? label = redisResults[i++].ToString();
+                // string.Compare(label, "Capacity", true)
                 switch (label)
                 {
                     case "Capacity":
@@ -254,7 +255,7 @@ namespace NRedisStack
             return new BloomInformation(capacity, size, numberOfFilters, numberOfItemsInserted, expansionRate);
         }
 
-        public static CuckooInformation ToCuckooInfo(RedisResult result) //TODO: Think about a different implementation, because if the output of BF.INFO changes or even just the names of the labels then the parsing will not work
+        public static CuckooInformation ToCuckooInfo(this RedisResult result) //TODO: Think about a different implementation, because if the output of BF.INFO changes or even just the names of the labels then the parsing will not work
         {
             long size, numberOfBuckets, numberOfFilter, numberOfItemsInserted,
                  numberOfItemsDeleted, bucketSize, expansionRate, maxIteration;
@@ -263,7 +264,7 @@ namespace NRedisStack
             numberOfItemsInserted = numberOfItemsDeleted =
             bucketSize = expansionRate = maxIteration = -1;
 
-            RedisResult[] redisResults = ToArray(result);
+            RedisResult[] redisResults = result.ToArray();
 
             for (int i = 0; i < redisResults.Length; ++i)
             {
@@ -302,13 +303,13 @@ namespace NRedisStack
                                         numberOfItemsDeleted, bucketSize, expansionRate, maxIteration);
         }
 
-        public static CmsInformation ToCmsInfo(RedisResult result) //TODO: Think about a different implementation, because if the output of CMS.INFO changes or even just the names of the labels then the parsing will not work
+        public static CmsInformation ToCmsInfo(this RedisResult result) //TODO: Think about a different implementation, because if the output of CMS.INFO changes or even just the names of the labels then the parsing will not work
         {
             long width, depth, count;
 
             width = depth = count = -1;
 
-            RedisResult[] redisResults = ToArray(result);
+            RedisResult[] redisResults = result.ToArray();
 
             for (int i = 0; i < redisResults.Length; ++i)
             {
@@ -331,7 +332,7 @@ namespace NRedisStack
             return new CmsInformation(width, depth, count);
         }
 
-        public static TopKInformation ToTopKInfo(RedisResult result) //TODO: Think about a different implementation, because if the output of CMS.INFO changes or even just the names of the labels then the parsing will not work
+        public static TopKInformation ToTopKInfo(this RedisResult result) //TODO: Think about a different implementation, because if the output of CMS.INFO changes or even just the names of the labels then the parsing will not work
         {
             long k, width, depth;
             double decay;
@@ -339,7 +340,7 @@ namespace NRedisStack
             k = width = depth = -1;
             decay = -1.0;
 
-            RedisResult[] redisResults = ToArray(result);
+            RedisResult[] redisResults = result.ToArray();
 
             for (int i = 0; i < redisResults.Length; ++i)
             {
@@ -365,7 +366,7 @@ namespace NRedisStack
             return new TopKInformation(k, width, depth, decay);
         }
 
-        public static TdigestInformation ToTdigestInfo(RedisResult result) //TODO: Think about a different implementation, because if the output of CMS.INFO changes or even just the names of the labels then the parsing will not work
+        public static TdigestInformation ToTdigestInfo(this RedisResult result) //TODO: Think about a different implementation, because if the output of CMS.INFO changes or even just the names of the labels then the parsing will not work
         {
             long compression, capacity, mergedNodes, unmergedNodes, totalCompressions;
             double mergedWeight, unmergedWeight;
@@ -373,7 +374,7 @@ namespace NRedisStack
             compression = capacity = mergedNodes = unmergedNodes = totalCompressions = -1;
             mergedWeight = unmergedWeight = -1.0;
 
-            RedisResult[] redisResults = ToArray(result);
+            RedisResult[] redisResults = result.ToArray();
 
             for (int i = 0; i < redisResults.Length; ++i)
             {
@@ -410,7 +411,7 @@ namespace NRedisStack
                                           mergedWeight, unmergedWeight, totalCompressions);
         }
 
-        public static TimeSeriesInformation ToTimeSeriesInfo(RedisResult result)
+        public static TimeSeriesInformation ToTimeSeriesInfo(this RedisResult result)
         {
             long totalSamples = -1, memoryUsage = -1, retentionTime = -1, chunkSize = -1, chunkCount = -1;
             TimeStamp? firstTimestamp = null, lastTimestamp = null;
@@ -479,7 +480,7 @@ namespace NRedisStack
             lastTimestamp, retentionTime, chunkCount, chunkSize, labels, sourceKey, rules, duplicatePolicy, keySelfName, chunks);
         }
 
-        public static IReadOnlyList<TimeSeriesChunck> ToTimeSeriesChunkArray(RedisResult result)
+        public static IReadOnlyList<TimeSeriesChunck> ToTimeSeriesChunkArray(this RedisResult result)
         {
             RedisResult[] redisResults = (RedisResult[])result;
             var list = new List<TimeSeriesChunck>();
@@ -488,7 +489,7 @@ namespace NRedisStack
             return list;
         }
 
-        public static TimeSeriesChunck ToTimeSeriesChunk(RedisResult result)
+        public static TimeSeriesChunck ToTimeSeriesChunk(this RedisResult result)
         {
             long startTimestamp = -1, endTimestamp = -1, samples = -1, size = -1;
             string bytesPerSample = "";
@@ -521,9 +522,9 @@ namespace NRedisStack
 
         }
 
-        public static IReadOnlyList<string> ToStringArray(RedisResult result)
+        public static IReadOnlyList<string> ToStringArray(this RedisResult result)
         {
-            RedisResult[] redisResults = ToArray(result);
+            RedisResult[] redisResults = result.ToArray();
 
             var list = new List<string>();
             if (redisResults.Length == 0) return list;

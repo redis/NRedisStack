@@ -72,4 +72,39 @@ public class TopKTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(res2[1].ToString(), "bb");
         Assert.Equal(res2[2].ToString(), "cc");
     }
+
+    [Fact]
+    public void TestModulePrefixs()
+    {
+        IDatabase db1 = redisFixture.Redis.GetDatabase();
+        IDatabase db2 = redisFixture.Redis.GetDatabase();
+
+        var topk1 = db1.TOPK();
+        var topk2 = db2.TOPK();
+
+        Assert.NotEqual(topk1.GetHashCode(), topk2.GetHashCode());
+    }
+
+    [Fact]
+    public void TestModulePrefixs1()
+    {
+        {
+            var conn = ConnectionMultiplexer.Connect("localhost");
+            IDatabase db = conn.GetDatabase();
+
+            var topk = db.TOPK();
+            // ...
+            conn.Dispose();
+        }
+
+        {
+            var conn = ConnectionMultiplexer.Connect("localhost");
+            IDatabase db = conn.GetDatabase();
+
+            var topk = db.TOPK();
+            // ...
+            conn.Dispose();
+        }
+
+    }
 }
