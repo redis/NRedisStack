@@ -117,7 +117,7 @@ namespace NRedisStack
         public RedisResult[] IncrBy(RedisKey key, params Tuple<RedisValue, long>[] itemIncrements)
         {
             if (itemIncrements.Length < 1)
-                throw new ArgumentException(nameof(itemIncrements));
+                throw new ArgumentOutOfRangeException(nameof(itemIncrements));
 
             List<object> args = new List<object> { key };
             foreach (var pair in itemIncrements)
@@ -139,7 +139,7 @@ namespace NRedisStack
         public async Task<RedisResult[]> IncrByAsync(RedisKey key, params Tuple<RedisValue, long>[] itemIncrements)
         {
             if (itemIncrements.Length < 1)
-                throw new ArgumentException(nameof(itemIncrements));
+                throw new ArgumentOutOfRangeException(nameof(itemIncrements));
 
             List<object> args = new List<object> { key };
             foreach (var pair in itemIncrements)

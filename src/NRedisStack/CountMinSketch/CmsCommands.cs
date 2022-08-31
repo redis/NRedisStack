@@ -50,7 +50,7 @@ namespace NRedisStack
         public long[] IncrBy(RedisKey key, Tuple<RedisValue, long>[] itemIncrements)
         {
             if (itemIncrements.Length < 1)
-                throw new ArgumentException(nameof(itemIncrements));
+                throw new ArgumentOutOfRangeException(nameof(itemIncrements));
 
             List<object> args = new List<object> { key };
             foreach (var pair in itemIncrements)
@@ -72,7 +72,7 @@ namespace NRedisStack
         public async Task<long[]> IncrByAsync(RedisKey key, Tuple<RedisValue, long>[] itemIncrements)
         {
             if (itemIncrements.Length < 1)
-                throw new ArgumentException(nameof(itemIncrements));
+                throw new ArgumentOutOfRangeException(nameof(itemIncrements));
 
             List<object> args = new List<object> { key };
             foreach (var pair in itemIncrements)

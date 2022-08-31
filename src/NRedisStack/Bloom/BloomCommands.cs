@@ -107,48 +107,11 @@ namespace NRedisStack
                                   double? error = null, int? expansion = null,
                                   bool nocreate = false, bool nonscaling = false)
         {
-            // TODO: extract common logic to a new method
             if (items.Length < 1)
                 throw new ArgumentOutOfRangeException(nameof(items));
 
-            List<object> args = new List<object> { key };
-
-            if (capacity != null)
-            {
-                args.Add(BloomArgs.CAPACITY);
-                args.Add(capacity);
-            }
-
-
-            if (error != null)
-            {
-                args.Add(BloomArgs.ERROR);
-                args.Add(error);
-            }
-
-            if (expansion != null)
-            {
-                args.Add(BloomArgs.EXPANSION);
-                args.Add(expansion);
-            }
-
-            if (nocreate)
-            {
-                args.Add(BloomArgs.NOCREATE);
-
-            }
-
-            if (nonscaling)
-            {
-                args.Add(BloomArgs.NONSCALING);
-            }
-
-            args.Add(BloomArgs.ITEMS);
-            foreach (var item in items)
-            {
-                args.Add(item);
-            }
-
+            var args = BloomAux.BuildInsertArgs(key, items, capacity, error, expansion, nocreate, nonscaling);
+            
             return _db.Execute(BF.INSERT, args).ToBooleanArray();
         }
 
@@ -175,42 +138,7 @@ namespace NRedisStack
             if (items.Length < 1)
                 throw new ArgumentOutOfRangeException(nameof(items));
 
-            List<object> args = new List<object> { key };
-
-            if (capacity != null)
-            {
-                args.Add(BloomArgs.CAPACITY);
-                args.Add(capacity);
-            }
-
-            if (error != null)
-            {
-                args.Add(BloomArgs.ERROR);
-                args.Add(error);
-            }
-
-            if (expansion != null)
-            {
-                args.Add(BloomArgs.EXPANSION);
-                args.Add(expansion);
-            }
-
-            if (nocreate)
-            {
-                args.Add(BloomArgs.NOCREATE);
-
-            }
-
-            if (nonscaling)
-            {
-                args.Add(BloomArgs.NONSCALING);
-            }
-
-            args.Add(BloomArgs.ITEMS);
-            foreach (var item in items)
-            {
-                args.Add(item);
-            }
+            var args = BloomAux.BuildInsertArgs(key, items, capacity, error, expansion, nocreate, nonscaling);
 
             var result = await _db.ExecuteAsync(BF.INSERT, args);
             return result.ToBooleanArray();

@@ -22,7 +22,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/tdigest.add"/></remarks>
         public bool Add(RedisKey key, double item, double weight)
         {
-            if (weight < 0) throw new ArgumentException(nameof(weight));
+            if (weight < 0) throw new ArgumentOutOfRangeException(nameof(weight));
 
             return _db.Execute(TDIGEST.ADD, key, item, weight).OKtoBoolean();
         }
@@ -37,7 +37,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/tdigest.add"/></remarks>
         public async Task<bool> AddAsync(RedisKey key, double item, double weight)
         {
-            if (weight < 0) throw new ArgumentException(nameof(weight));
+            if (weight < 0) throw new ArgumentOutOfRangeException(nameof(weight));
 
             var result = await _db.ExecuteAsync(TDIGEST.ADD, key, item, weight);
             return result.OKtoBoolean();
@@ -59,7 +59,7 @@ namespace NRedisStack
 
             foreach (var pair in valueWeight)
             {
-                if (pair.Item2 < 0) throw new ArgumentException(nameof(pair.Item2));
+                if (pair.Item2 < 0) throw new ArgumentOutOfRangeException(nameof(pair.Item2));
                 args.Add(pair.Item1);
                 args.Add(pair.Item2);
             }
@@ -82,7 +82,7 @@ namespace NRedisStack
 
             foreach (var pair in valueWeight)
             {
-                if (pair.Item2 < 0) throw new ArgumentException(nameof(pair.Item2));
+                if (pair.Item2 < 0) throw new ArgumentOutOfRangeException(nameof(pair.Item2));
                 args.Add(pair.Item1);
                 args.Add(pair.Item2);
             }
@@ -239,7 +239,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/tdigest.merge"/></remarks>
         public bool Merge(RedisKey destinationKey, params RedisKey[] sourceKeys)
         {
-            if (sourceKeys.Length < 1) throw new ArgumentException(nameof(sourceKeys));
+            if (sourceKeys.Length < 1) throw new ArgumentOutOfRangeException(nameof(sourceKeys));
 
             var args = sourceKeys.ToList();
             args.Insert(0, destinationKey);
@@ -256,7 +256,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/tdigest.merge"/></remarks>
         public async Task<bool> MergeAsync(RedisKey destinationKey, params RedisKey[] sourceKeys)
         {
-            if (sourceKeys.Length < 1) throw new ArgumentException(nameof(sourceKeys));
+            if (sourceKeys.Length < 1) throw new ArgumentOutOfRangeException(nameof(sourceKeys));
 
             var args = sourceKeys.ToList();
             args.Insert(0, destinationKey);
@@ -276,7 +276,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/tdigest.mergestore"/></remarks>
         public bool MergeStore(RedisKey destinationKey, long numkeys, long compression = 100, params RedisKey[] sourceKeys)
         {
-            if (sourceKeys.Length < 1) throw new ArgumentException(nameof(sourceKeys));
+            if (sourceKeys.Length < 1) throw new ArgumentOutOfRangeException(nameof(sourceKeys));
 
             var args = new List<object> { destinationKey, numkeys };
             foreach (var key in sourceKeys) args.Add(key);
@@ -297,7 +297,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/tdigest.mergestore"/></remarks>
         public async Task<bool> MergeStoreAsync(RedisKey destinationKey, long numkeys, long compression = 100, params RedisKey[] sourceKeys)
         {
-            if (sourceKeys.Length < 1) throw new ArgumentException(nameof(sourceKeys));
+            if (sourceKeys.Length < 1) throw new ArgumentOutOfRangeException(nameof(sourceKeys));
 
             var args = new List<object> { destinationKey, numkeys };
             foreach (var key in sourceKeys) args.Add(key);
@@ -318,7 +318,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/tdigest.quantile"/></remarks>
         public double[] Quantile(RedisKey key, params double[] quantile)
         {
-            if (quantile.Length < 1) throw new ArgumentException(nameof(quantile));
+            if (quantile.Length < 1) throw new ArgumentOutOfRangeException(nameof(quantile));
 
             var args = new List<object> { key };
             foreach (var q in quantile) args.Add(q);
@@ -336,7 +336,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/tdigest.quantile"/></remarks>
         public async Task<double[]> QuantileAsync(RedisKey key, params double[] quantile)
         {
-            if (quantile.Length < 1) throw new ArgumentException(nameof(quantile));
+            if (quantile.Length < 1) throw new ArgumentOutOfRangeException(nameof(quantile));
 
             var args = new List<object> { key };
             foreach (var q in quantile) args.Add(q);
