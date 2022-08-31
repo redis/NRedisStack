@@ -12,7 +12,7 @@ using NRedisStack.Tdigest.DataTypes;
 
 namespace NRedisStack
 {
-    public static class ResponseParser
+    internal static class ResponseParser
     {
         public static bool OKtoBoolean(RedisResult result)
         {
@@ -222,7 +222,7 @@ namespace NRedisStack
             return DuplicatePolicyExtensions.AsPolicy(policyStatus.ToUpper());
         }
 
-        public static BloomInformation ToBloomInfo(RedisResult result) //TODO: Think about a different implementation, because if the output of BF.INFO changes or even just the names of the labels then the parsing will not work
+        public static BloomInformation ToBloomInfo(this RedisResult result) //TODO: Think about a different implementation, because if the output of BF.INFO changes or even just the names of the labels then the parsing will not work
         {
             long capacity, size, numberOfFilters, numberOfItemsInserted, expansionRate;
             capacity = size = numberOfFilters = numberOfItemsInserted = expansionRate = -1;
@@ -231,6 +231,7 @@ namespace NRedisStack
             for (int i = 0; i < redisResults.Length; ++i)
             {
                 string? label = redisResults[i++].ToString();
+                // string.Compare(label, "Capacity", true)
                 switch (label)
                 {
                     case "Capacity":

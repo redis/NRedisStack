@@ -34,14 +34,15 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     public async Task TestReserveBasicAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
+        var bf = db.BF();
         db.Execute("FLUSHALL");
 
 
         await db.BF().ReserveAsync(key, 0.001, 100L);
 
-        Assert.True(await (db.BF().AddAsync(key, "item1")));
-        Assert.True(await db.BF().ExistsAsync(key, "item1"));
-        Assert.False(await db.BF().ExistsAsync(key, "item2"));
+        Assert.True(await (bf.AddAsync(key, "item1")));
+        Assert.True(await bf.ExistsAsync(key, "item1"));
+        Assert.False(await bf.ExistsAsync(key, "item2"));
     }
 
     [Fact]

@@ -72,8 +72,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/bf.info"/></remarks>
         public BloomInformation Info(RedisKey key)
         {
-            var info = _db.Execute(BF.INFO, key);
-            return ResponseParser.ToBloomInfo(info);
+            return _db.Execute(BF.INFO, key).ToBloomInfo();
         }
 
         /// <summary>
@@ -85,7 +84,7 @@ namespace NRedisStack
         public async Task<BloomInformation> InfoAsync(RedisKey key)
         {
             var info = await _db.ExecuteAsync(BF.INFO, key);
-            return ResponseParser.ToBloomInfo(info);
+            return info.ToBloomInfo();
         }
 
         /// <summary>
@@ -108,6 +107,7 @@ namespace NRedisStack
                                   double? error = null, int? expansion = null,
                                   bool nocreate = false, bool nonscaling = false)
         {
+            // TODO: extract common logic to a new method
             if (items.Length < 1)
                 throw new ArgumentOutOfRangeException(nameof(items));
 
