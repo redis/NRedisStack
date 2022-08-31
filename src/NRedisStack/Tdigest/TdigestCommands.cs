@@ -24,7 +24,7 @@ namespace NRedisStack
         {
             if (weight < 0) throw new ArgumentException(nameof(weight));
 
-            return ResponseParser.OKtoBoolean(_db.Execute(TDIGEST.ADD, key, item, weight));
+            return _db.Execute(TDIGEST.ADD, key, item, weight).OKtoBoolean();
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace NRedisStack
             if (weight < 0) throw new ArgumentException(nameof(weight));
 
             var result = await _db.ExecuteAsync(TDIGEST.ADD, key, item, weight);
-            return ResponseParser.OKtoBoolean(result);
+            return result.OKtoBoolean();
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace NRedisStack
                 args.Add(pair.Item1);
                 args.Add(pair.Item2);
             }
-            return ResponseParser.OKtoBoolean(_db.Execute(TDIGEST.ADD, args));
+            return _db.Execute(TDIGEST.ADD, args).OKtoBoolean();
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace NRedisStack
                 args.Add(pair.Item1);
                 args.Add(pair.Item2);
             }
-            return ResponseParser.OKtoBoolean(await _db.ExecuteAsync(TDIGEST.ADD, args));
+            return (await _db.ExecuteAsync(TDIGEST.ADD, args)).OKtoBoolean();
         }
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/tdigest.cdf"/></remarks>
         public double CDF(RedisKey key, double value)
         {
-            return ResponseParser.ToDouble(_db.Execute(TDIGEST.CDF, key, value));
+            return _db.Execute(TDIGEST.CDF, key, value).ToDouble();
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace NRedisStack
         public async Task<double> CDFAsync(RedisKey key, double value)
         {
             var result = await _db.ExecuteAsync(TDIGEST.CDF, key, value);
-            return ResponseParser.ToDouble(result);
+            return result.ToDouble();
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/tdigest.create"/></remarks>
         public bool Create(RedisKey key, long compression = 100)
         {
-            return ResponseParser.OKtoBoolean(_db.Execute(TDIGEST.CREATE, key, TdigestArgs.COMPRESSION, compression));
+            return _db.Execute(TDIGEST.CREATE, key, TdigestArgs.COMPRESSION, compression).OKtoBoolean();
         }
 
         /// <summary>
@@ -135,7 +135,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/tdigest.create"/></remarks>
         public async Task<bool> CreateAsync(RedisKey key, long compression = 100)
         {
-            return ResponseParser.OKtoBoolean(await _db.ExecuteAsync(TDIGEST.CREATE, key, TdigestArgs.COMPRESSION, compression));
+            return (await _db.ExecuteAsync(TDIGEST.CREATE, key, TdigestArgs.COMPRESSION, compression)).OKtoBoolean();
         }
 
         /// <summary>
@@ -146,7 +146,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/tdigest.info"/></remarks>
         public TdigestInformation Info(RedisKey key)
         {
-            return ResponseParser.ToTdigestInfo(_db.Execute(TDIGEST.INFO, key));
+            return _db.Execute(TDIGEST.INFO, key).ToTdigestInfo();
         }
 
         /// <summary>
@@ -157,7 +157,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/tdigest.info"/></remarks>
         public async Task<TdigestInformation> InfoAsync(RedisKey key)
         {
-            return ResponseParser.ToTdigestInfo(await _db.ExecuteAsync(TDIGEST.INFO, key));
+            return (await _db.ExecuteAsync(TDIGEST.INFO, key)).ToTdigestInfo();
         }
 
 
@@ -169,7 +169,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/tdigest.max"/></remarks>
         public double Max(RedisKey key)
         {
-            return ResponseParser.ToDouble(_db.Execute(TDIGEST.MAX, key));
+            return _db.Execute(TDIGEST.MAX, key).ToDouble();
         }
 
         /// <summary>
@@ -180,7 +180,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/tdigest.max"/></remarks>
         public async Task<double> MaxAsync(RedisKey key)
         {
-            return ResponseParser.ToDouble(await _db.ExecuteAsync(TDIGEST.MAX, key));
+            return (await _db.ExecuteAsync(TDIGEST.MAX, key)).ToDouble();
         }
 
         /// <summary>
@@ -191,7 +191,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/tdigest.min"/></remarks>
         public double Min(RedisKey key)
         {
-            return ResponseParser.ToDouble(_db.Execute(TDIGEST.MIN, key));
+            return _db.Execute(TDIGEST.MIN, key).ToDouble();
         }
 
         /// <summary>
@@ -202,7 +202,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/tdigest.min"/></remarks>
         public async Task<double> MinAsync(RedisKey key)
         {
-            return ResponseParser.ToDouble(await _db.ExecuteAsync(TDIGEST.MIN, key));
+            return (await _db.ExecuteAsync(TDIGEST.MIN, key)).ToDouble();
         }
 
         /// <summary>
@@ -214,7 +214,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/tdigest.merge"/></remarks>
         public bool Merge(RedisKey destinationKey, RedisKey sourceKey)
         {
-            return ResponseParser.OKtoBoolean(_db.Execute(TDIGEST.MERGE, destinationKey, sourceKey));
+            return _db.Execute(TDIGEST.MERGE, destinationKey, sourceKey).OKtoBoolean();
         }
 
         /// <summary>
@@ -227,7 +227,7 @@ namespace NRedisStack
         public async Task<bool> MergeAsync(RedisKey destinationKey, RedisKey sourceKey)
         {
             var result = await _db.ExecuteAsync(TDIGEST.MERGE, destinationKey, sourceKey);
-            return ResponseParser.OKtoBoolean(result);
+            return result.OKtoBoolean();
         }
 
         /// <summary>
@@ -244,7 +244,7 @@ namespace NRedisStack
             var args = sourceKeys.ToList();
             args.Insert(0, destinationKey);
 
-            return ResponseParser.OKtoBoolean(_db.Execute(TDIGEST.MERGE, args));
+            return _db.Execute(TDIGEST.MERGE, args).OKtoBoolean();
         }
 
         /// <summary>
@@ -262,7 +262,7 @@ namespace NRedisStack
             args.Insert(0, destinationKey);
 
             var result = await _db.ExecuteAsync(TDIGEST.MERGE, args);
-            return ResponseParser.OKtoBoolean(result);
+            return result.OKtoBoolean();
         }
 
         /// <summary>
@@ -283,7 +283,7 @@ namespace NRedisStack
             args.Add(TdigestArgs.COMPRESSION);
             args.Add(compression);
 
-            return ResponseParser.OKtoBoolean(_db.Execute(TDIGEST.MERGESTORE, args));
+            return _db.Execute(TDIGEST.MERGESTORE, args).OKtoBoolean();
         }
 
         /// <summary>
@@ -305,7 +305,7 @@ namespace NRedisStack
             args.Add(compression);
 
             var result = await _db.ExecuteAsync(TDIGEST.MERGESTORE, args);
-            return ResponseParser.OKtoBoolean(result);
+            return result.OKtoBoolean();
         }
 
         /// <summary>
@@ -323,7 +323,7 @@ namespace NRedisStack
             var args = new List<object> { key };
             foreach (var q in quantile) args.Add(q);
 
-            return ResponseParser.ToDoubleArray(_db.Execute(TDIGEST.QUANTILE, args));
+            return _db.Execute(TDIGEST.QUANTILE, args).ToDoubleArray();
         }
 
         /// <summary>
@@ -341,7 +341,7 @@ namespace NRedisStack
             var args = new List<object> { key };
             foreach (var q in quantile) args.Add(q);
 
-            return ResponseParser.ToDoubleArray(await _db.ExecuteAsync(TDIGEST.QUANTILE, args));
+            return (await _db.ExecuteAsync(TDIGEST.QUANTILE, args)).ToDoubleArray();
         }
 
         /// <summary>
@@ -352,7 +352,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/tdigest.reset"/></remarks>
         public bool Reset(RedisKey key, params double[] quantile)
         {
-            return ResponseParser.OKtoBoolean(_db.Execute(TDIGEST.RESET, key));
+            return _db.Execute(TDIGEST.RESET, key).OKtoBoolean();
         }
 
         /// <summary>
@@ -363,7 +363,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/tdigest.reset"/></remarks>
         public async Task<bool> ResetAsync(RedisKey key, params double[] quantile)
         {
-            return ResponseParser.OKtoBoolean(await _db.ExecuteAsync(TDIGEST.RESET, key));
+            return (await _db.ExecuteAsync(TDIGEST.RESET, key)).OKtoBoolean();
         }
 
         /// <summary>
@@ -376,7 +376,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/tdigest.reset"/></remarks>
         public double TrimmedMean(RedisKey key, double lowCutQuantile, double highCutQuantile)
         {
-            return ResponseParser.ToDouble(_db.Execute(TDIGEST.TRIMMED_MEAN, key, lowCutQuantile, highCutQuantile));
+            return _db.Execute(TDIGEST.TRIMMED_MEAN, key, lowCutQuantile, highCutQuantile).ToDouble();
         }
 
         /// <summary>
@@ -389,7 +389,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/tdigest.reset"/></remarks>
         public async Task<double> TrimmedMeanAsync(RedisKey key, double lowCutQuantile, double highCutQuantile)
         {
-            return ResponseParser.ToDouble(await _db.ExecuteAsync(TDIGEST.TRIMMED_MEAN, key, lowCutQuantile, highCutQuantile));
+            return (await _db.ExecuteAsync(TDIGEST.TRIMMED_MEAN, key, lowCutQuantile, highCutQuantile)).ToDouble();
         }
 
 

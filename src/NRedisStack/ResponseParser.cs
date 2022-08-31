@@ -21,7 +21,7 @@ namespace NRedisStack
 
         public static bool[] ToBooleanArray(this RedisResult result)
         {
-            RedisResult[]? redisResults = ToArray(result);
+            RedisResult[]? redisResults = result.ToArray();
 
             bool[] boolArr = new bool[redisResults.Length];
             for (int i = 0; i < redisResults.Length; i++)
@@ -57,7 +57,7 @@ namespace NRedisStack
         public static double[] ToDoubleArray(this RedisResult result)
         {
             List<double> redisResults = new List<double>();
-            foreach (var res in ToArray(result))
+            foreach (var res in result.ToArray())
             {
                 redisResults.Add(ToDouble(res));
             }
@@ -68,7 +68,7 @@ namespace NRedisStack
         public static long[] ToLongArray(this RedisResult result)
         {
             List<long> redisResults = new List<long>();
-            foreach (var res in ToArray(result))
+            foreach (var res in result.ToArray())
             {
                 redisResults.Add(ToLong(res));
             }
@@ -93,21 +93,21 @@ namespace NRedisStack
 
         public static TimeSeriesTuple? ToTimeSeriesTuple(this RedisResult result)
         {
-            RedisResult[] redisResults = ToArray(result);
+            RedisResult[] redisResults = result.ToArray();
             if (redisResults.Length == 0) return null;
             return new TimeSeriesTuple(ToTimeStamp(redisResults[0]), (double)redisResults[1]);
         }
 
         public static Tuple<long, Byte[]> ToScanDumpTuple(this RedisResult result)
         {
-            RedisResult[] redisResults = ToArray(result);
+            RedisResult[] redisResults = result.ToArray();
             if (redisResults == null || redisResults.Length == 0) return null;
             return new Tuple<long, Byte[]>((long)redisResults[0], (Byte[])redisResults[1]);
         }
 
         public static HashEntry ToHashEntry(this RedisResult result)
         {
-            RedisResult[] redisResults = ToArray(result);
+            RedisResult[] redisResults = result.ToArray();
             if (redisResults.Length < 2)
                 throw new ArgumentOutOfRangeException(nameof(result));
 
@@ -116,7 +116,7 @@ namespace NRedisStack
 
         public static HashEntry[] ToHashEntryArray(this RedisResult result)
         {
-            RedisResult[] redisResults = ToArray(result);
+            RedisResult[] redisResults = result.ToArray();
 
             var hash = new HashEntry[redisResults.Length / 2];
             if (redisResults.Length == 0) return hash;
@@ -226,7 +226,7 @@ namespace NRedisStack
         {
             long capacity, size, numberOfFilters, numberOfItemsInserted, expansionRate;
             capacity = size = numberOfFilters = numberOfItemsInserted = expansionRate = -1;
-            RedisResult[] redisResults = ToArray(result);
+            RedisResult[] redisResults = result.ToArray();
 
             for (int i = 0; i < redisResults.Length; ++i)
             {
@@ -264,7 +264,7 @@ namespace NRedisStack
             numberOfItemsInserted = numberOfItemsDeleted =
             bucketSize = expansionRate = maxIteration = -1;
 
-            RedisResult[] redisResults = ToArray(result);
+            RedisResult[] redisResults = result.ToArray();
 
             for (int i = 0; i < redisResults.Length; ++i)
             {
@@ -309,7 +309,7 @@ namespace NRedisStack
 
             width = depth = count = -1;
 
-            RedisResult[] redisResults = ToArray(result);
+            RedisResult[] redisResults = result.ToArray();
 
             for (int i = 0; i < redisResults.Length; ++i)
             {
@@ -340,7 +340,7 @@ namespace NRedisStack
             k = width = depth = -1;
             decay = -1.0;
 
-            RedisResult[] redisResults = ToArray(result);
+            RedisResult[] redisResults = result.ToArray();
 
             for (int i = 0; i < redisResults.Length; ++i)
             {
@@ -374,7 +374,7 @@ namespace NRedisStack
             compression = capacity = mergedNodes = unmergedNodes = totalCompressions = -1;
             mergedWeight = unmergedWeight = -1.0;
 
-            RedisResult[] redisResults = ToArray(result);
+            RedisResult[] redisResults = result.ToArray();
 
             for (int i = 0; i < redisResults.Length; ++i)
             {
@@ -524,7 +524,7 @@ namespace NRedisStack
 
         public static IReadOnlyList<string> ToStringArray(this RedisResult result)
         {
-            RedisResult[] redisResults = ToArray(result);
+            RedisResult[] redisResults = result.ToArray();
 
             var list = new List<string>();
             if (redisResults.Length == 0) return list;
