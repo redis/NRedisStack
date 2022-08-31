@@ -17,7 +17,8 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            Assert.True(await db.TS().CreateAsync(key));
+            var ts = db.TS();
+            Assert.True(await ts.CreateAsync(key));
         }
 
         [Fact]
@@ -27,9 +28,10 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             long retentionTime = 5000;
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            Assert.True(await db.TS().CreateAsync(key, retentionTime: retentionTime));
+            var ts = db.TS();
+            Assert.True(await ts.CreateAsync(key, retentionTime: retentionTime));
 
-            var info = await db.TS().InfoAsync(key);
+            var info = await ts.InfoAsync(key);
             Assert.Equal(retentionTime, info.RetentionTime);
         }
 
@@ -41,9 +43,10 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var labels = new List<TimeSeriesLabel> { label };
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            Assert.True(await db.TS().CreateAsync(key, labels: labels));
+            var ts = db.TS();
+            Assert.True(await ts.CreateAsync(key, labels: labels));
 
-            var info = await db.TS().InfoAsync(key);
+            var info = await ts.InfoAsync(key);
             Assert.Equal(labels, info.Labels);
         }
 
@@ -54,9 +57,10 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var labels = new List<TimeSeriesLabel>();
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            Assert.True(await db.TS().CreateAsync(key, labels: labels));
+            var ts = db.TS();
+            Assert.True(await ts.CreateAsync(key, labels: labels));
 
-            var info = await db.TS().InfoAsync(key);
+            var info = await ts.InfoAsync(key);
             Assert.Equal(labels, info.Labels);
         }
 
@@ -66,7 +70,8 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            Assert.True(await db.TS().CreateAsync(key, uncompressed: true));
+            var ts = db.TS();
+            Assert.True(await ts.CreateAsync(key, uncompressed: true));
         }
 
         [Fact]
@@ -75,7 +80,8 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            Assert.True(await db.TS().CreateAsync(key, duplicatePolicy: TsDuplicatePolicy.FIRST));
+            var ts = db.TS();
+            Assert.True(await ts.CreateAsync(key, duplicatePolicy: TsDuplicatePolicy.FIRST));
         }
 
         [Fact]
@@ -84,7 +90,8 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            Assert.True(await db.TS().CreateAsync(key, duplicatePolicy: TsDuplicatePolicy.LAST));
+            var ts = db.TS();
+            Assert.True(await ts.CreateAsync(key, duplicatePolicy: TsDuplicatePolicy.LAST));
         }
 
         [Fact]
@@ -93,7 +100,8 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            Assert.True(await db.TS().CreateAsync(key, duplicatePolicy: TsDuplicatePolicy.MIN));
+            var ts = db.TS();
+            Assert.True(await ts.CreateAsync(key, duplicatePolicy: TsDuplicatePolicy.MIN));
         }
 
         [Fact]
@@ -102,7 +110,8 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            Assert.True(await db.TS().CreateAsync(key, duplicatePolicy: TsDuplicatePolicy.MAX));
+            var ts = db.TS();
+            Assert.True(await ts.CreateAsync(key, duplicatePolicy: TsDuplicatePolicy.MAX));
         }
 
         [Fact]
@@ -111,7 +120,8 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            Assert.True(await db.TS().CreateAsync(key, duplicatePolicy: TsDuplicatePolicy.SUM));
+            var ts = db.TS();
+            Assert.True(await ts.CreateAsync(key, duplicatePolicy: TsDuplicatePolicy.SUM));
         }
     }
 }

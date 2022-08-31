@@ -18,10 +18,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             long retentionTime = 5000;
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            await db.TS().CreateAsync(key);
-            Assert.True(await db.TS().AlterAsync(key, retentionTime: retentionTime));
+            var ts = db.TS();
+            await ts.CreateAsync(key);
+            Assert.True(await ts.AlterAsync(key, retentionTime: retentionTime));
 
-            var info = await db.TS().InfoAsync(key);
+            var info = await ts.InfoAsync(key);
             Assert.Equal(retentionTime, info.RetentionTime);
         }
 
@@ -31,18 +32,19 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
             var label = new TimeSeriesLabel("key", "value");
             var labels = new List<TimeSeriesLabel> { label };
-            await db.TS().CreateAsync(key);
-            Assert.True(await db.TS().AlterAsync(key, labels: labels));
+            await ts.CreateAsync(key);
+            Assert.True(await ts.AlterAsync(key, labels: labels));
 
-            var info = await db.TS().InfoAsync(key);
+            var info = await ts.InfoAsync(key);
             Assert.Equal(labels, info.Labels);
 
             labels.Clear();
-            Assert.True(await db.TS().AlterAsync(key, labels: labels));
+            Assert.True(await ts.AlterAsync(key, labels: labels));
 
-            info = await db.TS().InfoAsync(key);
+            info = await ts.InfoAsync(key);
             Assert.Equal(labels, info.Labels);
         }
 
@@ -52,9 +54,10 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            db.TS().Create(key);
-            Assert.True(await db.TS().AlterAsync(key, chunkSizeBytes: 128, duplicatePolicy: TsDuplicatePolicy.MIN));
-            TimeSeriesInformation info = db.TS().Info(key);
+            var ts = db.TS();
+            ts.Create(key);
+            Assert.True(await ts.AlterAsync(key, chunkSizeBytes: 128, duplicatePolicy: TsDuplicatePolicy.MIN));
+            TimeSeriesInformation info = ts.Info(key);
             Assert.Equal(info.ChunkSize, 128);
             Assert.Equal(info.DuplicatePolicy, TsDuplicatePolicy.MIN);
         }

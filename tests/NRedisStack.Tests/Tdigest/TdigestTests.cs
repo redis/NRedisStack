@@ -16,16 +16,16 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         redisFixture.Redis.GetDatabase().KeyDelete(key);
     }
 
-    private void AssertMergedUnmergedNodes(IDatabase db, string key, int mergedNodes, int unmergedNodes)
+    private void AssertMergedUnmergedNodes(TdigestCommands tdigest, string key, int mergedNodes, int unmergedNodes)
     {
-        var info = db.TDIGEST().Info(key);
+        var info = tdigest.Info(key);
         Assert.Equal((long)mergedNodes, info.MergedNodes);
         Assert.Equal((long)unmergedNodes, info.UnmergedNodes);
     }
 
-    private void AssertTotalWeight(IDatabase db, string key, double totalWeight)
+    private void AssertTotalWeight(TdigestCommands tdigest, string key, double totalWeight)
     {
-        var info = db.TDIGEST().Info(key);
+        var info = tdigest.Info(key);
         Assert.Equal(totalWeight, info.MergedWeight + info.UnmergedWeight);
         //Assert.Equal(totalWeight, 0.01);
     }
@@ -35,10 +35,11 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var tdigest = db.TDIGEST();
 
-        Assert.True(db.TDIGEST().Create(key));
+        Assert.True(tdigest.Create(key));
 
-        var info = db.TDIGEST().Info(key);
+        var info = tdigest.Info(key);
         Assert.Equal(100, info.Compression);
     }
 
@@ -47,10 +48,11 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var tdigest = db.TDIGEST();
 
-        Assert.True(await db.TDIGEST().CreateAsync(key));
+        Assert.True(await tdigest.CreateAsync(key));
 
-        var info = await db.TDIGEST().InfoAsync(key);
+        var info = await tdigest.InfoAsync(key);
         Assert.Equal(100, info.Compression);
     }
 
@@ -59,13 +61,14 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var tdigest = db.TDIGEST();
 
         for (int i = 100; i < 1000; i += 100)
         {
             string myKey = "td-" + i;
-            Assert.True(db.TDIGEST().Create(myKey, i));
+            Assert.True(tdigest.Create(myKey, i));
 
-            var info = db.TDIGEST().Info(myKey);
+            var info = tdigest.Info(myKey);
             Assert.Equal(i, info.Compression);
         }
     }
@@ -75,13 +78,14 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var tdigest = db.TDIGEST();
 
         for (int i = 100; i < 1000; i += 100)
         {
             string myKey = "td-" + i;
-            Assert.True(await db.TDIGEST().CreateAsync(myKey, i));
+            Assert.True(await tdigest.CreateAsync(myKey, i));
 
-            var info = await db.TDIGEST().InfoAsync(myKey);
+            var info = await tdigest.InfoAsync(myKey);
             Assert.Equal(i, info.Compression);
         }
     }
@@ -91,19 +95,20 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var tdigest = db.TDIGEST();
 
-        db.TDIGEST().Create("reset", 100);
-        AssertMergedUnmergedNodes(db, "reset", 0, 0);
+        tdigest.Create("reset", 100);
+        AssertMergedUnmergedNodes(tdigest, "reset", 0, 0);
 
         // on empty
-        Assert.True(db.TDIGEST().Reset("reset"));
-        AssertMergedUnmergedNodes(db, "reset", 0, 0);
+        Assert.True(tdigest.Reset("reset"));
+        AssertMergedUnmergedNodes(tdigest, "reset", 0, 0);
 
-        db.TDIGEST().Add("reset", RandomValueWeight(), RandomValueWeight(), RandomValueWeight());
-        AssertMergedUnmergedNodes(db, "reset", 0, 3);
+        tdigest.Add("reset", RandomValueWeight(), RandomValueWeight(), RandomValueWeight());
+        AssertMergedUnmergedNodes(tdigest, "reset", 0, 3);
 
-        Assert.True(db.TDIGEST().Reset("reset"));
-        AssertMergedUnmergedNodes(db, "reset", 0, 0);
+        Assert.True(tdigest.Reset("reset"));
+        AssertMergedUnmergedNodes(tdigest, "reset", 0, 0);
     }
 
     [Fact]
@@ -111,19 +116,20 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var tdigest = db.TDIGEST();
 
-        await db.TDIGEST().CreateAsync("reset", 100);
-        AssertMergedUnmergedNodes(db, "reset", 0, 0);
+        await tdigest.CreateAsync("reset", 100);
+        AssertMergedUnmergedNodes(tdigest, "reset", 0, 0);
 
         // on empty
-        Assert.True(await db.TDIGEST().ResetAsync("reset"));
-        AssertMergedUnmergedNodes(db, "reset", 0, 0);
+        Assert.True(await tdigest.ResetAsync("reset"));
+        AssertMergedUnmergedNodes(tdigest, "reset", 0, 0);
 
-        await db.TDIGEST().AddAsync("reset", RandomValueWeight(), RandomValueWeight(), RandomValueWeight());
-        AssertMergedUnmergedNodes(db, "reset", 0, 3);
+        await tdigest.AddAsync("reset", RandomValueWeight(), RandomValueWeight(), RandomValueWeight());
+        AssertMergedUnmergedNodes(tdigest, "reset", 0, 3);
 
-        Assert.True(await db.TDIGEST().ResetAsync("reset"));
-        AssertMergedUnmergedNodes(db, "reset", 0, 0);
+        Assert.True(await tdigest.ResetAsync("reset"));
+        AssertMergedUnmergedNodes(tdigest, "reset", 0, 0);
     }
 
     [Fact]
@@ -131,14 +137,15 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var tdigest = db.TDIGEST();
 
-        db.TDIGEST().Create("tdadd", 100);
+        tdigest.Create("tdadd", 100);
 
-        Assert.True(db.TDIGEST().Add("tdadd", RandomValueWeight()));
-        AssertMergedUnmergedNodes(db, "tdadd", 0, 1);
+        Assert.True(tdigest.Add("tdadd", RandomValueWeight()));
+        AssertMergedUnmergedNodes(tdigest, "tdadd", 0, 1);
 
-        Assert.True(db.TDIGEST().Add("tdadd", RandomValueWeight(), RandomValueWeight(), RandomValueWeight(), RandomValueWeight()));
-        AssertMergedUnmergedNodes(db, "tdadd", 0, 5);
+        Assert.True(tdigest.Add("tdadd", RandomValueWeight(), RandomValueWeight(), RandomValueWeight(), RandomValueWeight()));
+        AssertMergedUnmergedNodes(tdigest, "tdadd", 0, 5);
     }
 
     [Fact]
@@ -146,14 +153,15 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var tdigest = db.TDIGEST();
 
-        await db.TDIGEST().CreateAsync("tdadd", 100);
+        await tdigest.CreateAsync("tdadd", 100);
 
-        Assert.True(await db.TDIGEST().AddAsync("tdadd", RandomValueWeight()));
-        AssertMergedUnmergedNodes(db, "tdadd", 0, 1);
+        Assert.True(await tdigest.AddAsync("tdadd", RandomValueWeight()));
+        AssertMergedUnmergedNodes(tdigest, "tdadd", 0, 1);
 
-        Assert.True(await db.TDIGEST().AddAsync("tdadd", RandomValueWeight(), RandomValueWeight(), RandomValueWeight(), RandomValueWeight()));
-        AssertMergedUnmergedNodes(db, "tdadd", 0, 5);
+        Assert.True(await tdigest.AddAsync("tdadd", RandomValueWeight(), RandomValueWeight(), RandomValueWeight(), RandomValueWeight()));
+        AssertMergedUnmergedNodes(tdigest, "tdadd", 0, 5);
     }
 
 
@@ -162,18 +170,19 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var tdigest = db.TDIGEST();
 
-        db.TDIGEST().Create("td2", 100);
-        db.TDIGEST().Create("td4m", 100);
+        tdigest.Create("td2", 100);
+        tdigest.Create("td4m", 100);
 
-        Assert.True(db.TDIGEST().Merge("td2", "td4m"));
-        AssertMergedUnmergedNodes(db, "td2", 0, 0);
+        Assert.True(tdigest.Merge("td2", "td4m"));
+        AssertMergedUnmergedNodes(tdigest, "td2", 0, 0);
 
-        db.TDIGEST().Add("td2", DefinedValueWeight(1, 1), DefinedValueWeight(1, 1), DefinedValueWeight(1, 1));
-        db.TDIGEST().Add("td4m", DefinedValueWeight(1, 100), DefinedValueWeight(1, 100));
+        tdigest.Add("td2", DefinedValueWeight(1, 1), DefinedValueWeight(1, 1), DefinedValueWeight(1, 1));
+        tdigest.Add("td4m", DefinedValueWeight(1, 100), DefinedValueWeight(1, 100));
 
-        Assert.True(db.TDIGEST().Merge("td2", "td4m"));
-        AssertMergedUnmergedNodes(db, "td2", 3, 2);
+        Assert.True(tdigest.Merge("td2", "td4m"));
+        AssertMergedUnmergedNodes(tdigest, "td2", 3, 2);
     }
 
 
@@ -182,18 +191,19 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var tdigest = db.TDIGEST();
 
-        await db.TDIGEST().CreateAsync("td2", 100);
-        await db.TDIGEST().CreateAsync("td4m", 100);
+        await tdigest.CreateAsync("td2", 100);
+        await tdigest.CreateAsync("td4m", 100);
 
-        Assert.True(await db.TDIGEST().MergeAsync("td2", "td4m"));
-        AssertMergedUnmergedNodes(db, "td2", 0, 0);
+        Assert.True(await tdigest.MergeAsync("td2", "td4m"));
+        AssertMergedUnmergedNodes(tdigest, "td2", 0, 0);
 
-        await db.TDIGEST().AddAsync("td2", DefinedValueWeight(1, 1), DefinedValueWeight(1, 1), DefinedValueWeight(1, 1));
-        await db.TDIGEST().AddAsync("td4m", DefinedValueWeight(1, 100), DefinedValueWeight(1, 100));
+        await tdigest.AddAsync("td2", DefinedValueWeight(1, 1), DefinedValueWeight(1, 1), DefinedValueWeight(1, 1));
+        await tdigest.AddAsync("td4m", DefinedValueWeight(1, 100), DefinedValueWeight(1, 100));
 
-        Assert.True(await db.TDIGEST().MergeAsync("td2", "td4m"));
-        AssertMergedUnmergedNodes(db, "td2", 3, 2);
+        Assert.True(await tdigest.MergeAsync("td2", "td4m"));
+        AssertMergedUnmergedNodes(tdigest, "td2", 3, 2);
     }
 
     [Fact]
@@ -201,18 +211,19 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var tdigest = db.TDIGEST();
 
-        db.TDIGEST().Create("from1", 100);
-        db.TDIGEST().Create("from2", 200);
+        tdigest.Create("from1", 100);
+        tdigest.Create("from2", 200);
 
-        db.TDIGEST().Add("from1", 1, 1);
-        db.TDIGEST().Add("from2", 1, 10);
+        tdigest.Add("from1", 1, 1);
+        tdigest.Add("from2", 1, 10);
 
-        Assert.True(db.TDIGEST().MergeStore("to", 2, 100, "from1", "from2"));
-        AssertTotalWeight(db, "to", 11d);
+        Assert.True(tdigest.MergeStore("to", 2, 100, "from1", "from2"));
+        AssertTotalWeight(tdigest, "to", 11d);
 
-        Assert.True(db.TDIGEST().MergeStore("to50", 2, 50, "from1", "from2"));
-        Assert.Equal(50, db.TDIGEST().Info("to50").Compression);
+        Assert.True(tdigest.MergeStore("to50", 2, 50, "from1", "from2"));
+        Assert.Equal(50, tdigest.Info("to50").Compression);
     }
 
     [Fact]
@@ -220,18 +231,19 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var tdigest = db.TDIGEST();
 
-        await db.TDIGEST().CreateAsync("from1", 100);
-        await db.TDIGEST().CreateAsync("from2", 200);
+        await tdigest.CreateAsync("from1", 100);
+        await tdigest.CreateAsync("from2", 200);
 
-        await db.TDIGEST().AddAsync("from1", 1, 1);
-        await db.TDIGEST().AddAsync("from2", 1, 10);
+        await tdigest.AddAsync("from1", 1, 1);
+        await tdigest.AddAsync("from2", 1, 10);
 
-        Assert.True(await db.TDIGEST().MergeStoreAsync("to", 2, 100, "from1", "from2"));
-        AssertTotalWeight(db, "to", 11d);
+        Assert.True(await tdigest.MergeStoreAsync("to", 2, 100, "from1", "from2"));
+        AssertTotalWeight(tdigest, "to", 11d);
 
-        Assert.True(await db.TDIGEST().MergeStoreAsync("to50", 2, 50, "from1", "from2"));
-        Assert.Equal(50, (await db.TDIGEST().InfoAsync("to50")).Compression);
+        Assert.True(await tdigest.MergeStoreAsync("to50", 2, 50, "from1", "from2"));
+        Assert.Equal(50, (await tdigest.InfoAsync("to50")).Compression);
     }
 
     [Fact]
@@ -239,13 +251,14 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var tdigest = db.TDIGEST();
 
-        db.TDIGEST().Create("tdcdf", 100);
-        Assert.Equal(double.NaN, db.TDIGEST().CDF("tdcdf", 50));
+        tdigest.Create("tdcdf", 100);
+        Assert.Equal(double.NaN, tdigest.CDF("tdcdf", 50));
 
-        db.TDIGEST().Add("tdcdf", DefinedValueWeight(1, 1), DefinedValueWeight(1, 1), DefinedValueWeight(1, 1));
-        db.TDIGEST().Add("tdcdf", DefinedValueWeight(100, 1), DefinedValueWeight(100, 1));
-        Assert.Equal(0.6, db.TDIGEST().CDF("tdcdf", 50));
+        tdigest.Add("tdcdf", DefinedValueWeight(1, 1), DefinedValueWeight(1, 1), DefinedValueWeight(1, 1));
+        tdigest.Add("tdcdf", DefinedValueWeight(100, 1), DefinedValueWeight(100, 1));
+        Assert.Equal(0.6, tdigest.CDF("tdcdf", 50));
     }
 
     [Fact]
@@ -253,13 +266,14 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var tdigest = db.TDIGEST();
 
-        await db.TDIGEST().CreateAsync("tdcdf", 100);
-        Assert.Equal(double.NaN, await db.TDIGEST().CDFAsync("tdcdf", 50));
+        await tdigest.CreateAsync("tdcdf", 100);
+        Assert.Equal(double.NaN, await tdigest.CDFAsync("tdcdf", 50));
 
-        await db.TDIGEST().AddAsync("tdcdf", DefinedValueWeight(1, 1), DefinedValueWeight(1, 1), DefinedValueWeight(1, 1));
-        await db.TDIGEST().AddAsync("tdcdf", DefinedValueWeight(100, 1), DefinedValueWeight(100, 1));
-        Assert.Equal(0.6, await db.TDIGEST().CDFAsync("tdcdf", 50));
+        await tdigest.AddAsync("tdcdf", DefinedValueWeight(1, 1), DefinedValueWeight(1, 1), DefinedValueWeight(1, 1));
+        await tdigest.AddAsync("tdcdf", DefinedValueWeight(100, 1), DefinedValueWeight(100, 1));
+        Assert.Equal(0.6, await tdigest.CDFAsync("tdcdf", 50));
     }
 
     [Fact]
@@ -267,14 +281,15 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var tdigest = db.TDIGEST();
 
-        db.TDIGEST().Create("tdqnt", 100);
-        var resDelete = db.TDIGEST().Quantile("tdqnt", 0.5);
-        Assert.Equal(new double[] { double.NaN }, db.TDIGEST().Quantile("tdqnt", 0.5));
+        tdigest.Create("tdqnt", 100);
+        var resDelete = tdigest.Quantile("tdqnt", 0.5);
+        Assert.Equal(new double[] { double.NaN }, tdigest.Quantile("tdqnt", 0.5));
 
-        db.TDIGEST().Add("tdqnt", DefinedValueWeight(1, 1), DefinedValueWeight(1, 1), DefinedValueWeight(1, 1));
-        db.TDIGEST().Add("tdqnt", DefinedValueWeight(100, 1), DefinedValueWeight(100, 1));
-        Assert.Equal(new double[] { 1 }, db.TDIGEST().Quantile("tdqnt", 0.5));
+        tdigest.Add("tdqnt", DefinedValueWeight(1, 1), DefinedValueWeight(1, 1), DefinedValueWeight(1, 1));
+        tdigest.Add("tdqnt", DefinedValueWeight(100, 1), DefinedValueWeight(100, 1));
+        Assert.Equal(new double[] { 1 }, tdigest.Quantile("tdqnt", 0.5));
     }
 
     [Fact]
@@ -282,14 +297,15 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var tdigest = db.TDIGEST();
 
-        db.TDIGEST().Create("tdqnt", 100);
-        var resDelete = await db.TDIGEST().QuantileAsync("tdqnt", 0.5);
-        Assert.Equal(new double[] { double.NaN }, await db.TDIGEST().QuantileAsync("tdqnt", 0.5));
+        tdigest.Create("tdqnt", 100);
+        var resDelete = await tdigest.QuantileAsync("tdqnt", 0.5);
+        Assert.Equal(new double[] { double.NaN }, await tdigest.QuantileAsync("tdqnt", 0.5));
 
-        await db.TDIGEST().AddAsync("tdqnt", DefinedValueWeight(1, 1), DefinedValueWeight(1, 1), DefinedValueWeight(1, 1));
-        await db.TDIGEST().AddAsync("tdqnt", DefinedValueWeight(100, 1), DefinedValueWeight(100, 1));
-        Assert.Equal(new double[] { 1 }, await db.TDIGEST().QuantileAsync("tdqnt", 0.5));
+        await tdigest.AddAsync("tdqnt", DefinedValueWeight(1, 1), DefinedValueWeight(1, 1), DefinedValueWeight(1, 1));
+        await tdigest.AddAsync("tdqnt", DefinedValueWeight(100, 1), DefinedValueWeight(100, 1));
+        Assert.Equal(new double[] { 1 }, await tdigest.QuantileAsync("tdqnt", 0.5));
     }
 
     [Fact]
@@ -297,15 +313,16 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var tdigest = db.TDIGEST();
 
-        db.TDIGEST().Create(key, 100);
-        Assert.Equal(double.MaxValue, db.TDIGEST().Min(key));
-        Assert.Equal(-double.MaxValue, db.TDIGEST().Max(key));
+        tdigest.Create(key, 100);
+        Assert.Equal(double.MaxValue, tdigest.Min(key));
+        Assert.Equal(-double.MaxValue, tdigest.Max(key));
 
-        db.TDIGEST().Add(key, DefinedValueWeight(2, 1));
-        db.TDIGEST().Add(key, DefinedValueWeight(5, 1));
-        Assert.Equal(2d, db.TDIGEST().Min(key));
-        Assert.Equal(5d, db.TDIGEST().Max(key));
+        tdigest.Add(key, DefinedValueWeight(2, 1));
+        tdigest.Add(key, DefinedValueWeight(5, 1));
+        Assert.Equal(2d, tdigest.Min(key));
+        Assert.Equal(5d, tdigest.Max(key));
     }
 
     [Fact]
@@ -313,15 +330,16 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var tdigest = db.TDIGEST();
 
-        await db.TDIGEST().CreateAsync(key, 100);
-        Assert.Equal(double.MaxValue, await db.TDIGEST().MinAsync(key));
-        Assert.Equal(-double.MaxValue, await db.TDIGEST().MaxAsync(key));
+        await tdigest.CreateAsync(key, 100);
+        Assert.Equal(double.MaxValue, await tdigest.MinAsync(key));
+        Assert.Equal(-double.MaxValue, await tdigest.MaxAsync(key));
 
-        await db.TDIGEST().AddAsync(key, DefinedValueWeight(2, 1));
-        await db.TDIGEST().AddAsync(key, DefinedValueWeight(5, 1));
-        Assert.Equal(2d, await db.TDIGEST().MinAsync(key));
-        Assert.Equal(5d, await db.TDIGEST().MaxAsync(key));
+        await tdigest.AddAsync(key, DefinedValueWeight(2, 1));
+        await tdigest.AddAsync(key, DefinedValueWeight(5, 1));
+        Assert.Equal(2d, await tdigest.MinAsync(key));
+        Assert.Equal(5d, await tdigest.MaxAsync(key));
     }
 
     [Fact]
@@ -329,18 +347,19 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var tdigest = db.TDIGEST();
 
-        db.TDIGEST().Create(key, 500);
+        tdigest.Create(key, 500);
 
         for (int i = 0; i < 20; i++)
         {
-            db.TDIGEST().Add(key, new Tuple<double, double>(i, 1));
+            tdigest.Add(key, new Tuple<double, double>(i, 1));
         }
 
-        Assert.Equal(9.5, db.TDIGEST().TrimmedMean(key, 0.1, 0.9));
-        Assert.Equal(9.5, db.TDIGEST().TrimmedMean(key, 0.0, 1.0));
-        Assert.Equal(4.5, db.TDIGEST().TrimmedMean(key, 0.0, 0.5));
-        Assert.Equal(14.5, db.TDIGEST().TrimmedMean(key, 0.5, 1.0));
+        Assert.Equal(9.5, tdigest.TrimmedMean(key, 0.1, 0.9));
+        Assert.Equal(9.5, tdigest.TrimmedMean(key, 0.0, 1.0));
+        Assert.Equal(4.5, tdigest.TrimmedMean(key, 0.0, 0.5));
+        Assert.Equal(14.5, tdigest.TrimmedMean(key, 0.5, 1.0));
     }
 
     [Fact]
@@ -348,18 +367,19 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var tdigest = db.TDIGEST();
 
-        await db.TDIGEST().CreateAsync(key, 500);
+        await tdigest.CreateAsync(key, 500);
 
         for (int i = 0; i < 20; i++)
         {
-            await db.TDIGEST().AddAsync(key, new Tuple<double, double>(i, 1));
+            await tdigest.AddAsync(key, new Tuple<double, double>(i, 1));
         }
 
-        Assert.Equal(9.5, await db.TDIGEST().TrimmedMeanAsync(key, 0.1, 0.9));
-        Assert.Equal(9.5, await db.TDIGEST().TrimmedMeanAsync(key, 0.0, 1.0));
-        Assert.Equal(4.5, await db.TDIGEST().TrimmedMeanAsync(key, 0.0, 0.5));
-        Assert.Equal(14.5, await db.TDIGEST().TrimmedMeanAsync(key, 0.5, 1.0));
+        Assert.Equal(9.5, await tdigest.TrimmedMeanAsync(key, 0.1, 0.9));
+        Assert.Equal(9.5, await tdigest.TrimmedMeanAsync(key, 0.0, 1.0));
+        Assert.Equal(4.5, await tdigest.TrimmedMeanAsync(key, 0.0, 0.5));
+        Assert.Equal(14.5, await tdigest.TrimmedMeanAsync(key, 0.5, 1.0));
     }
 
     static Tuple<double, double> RandomValueWeight()

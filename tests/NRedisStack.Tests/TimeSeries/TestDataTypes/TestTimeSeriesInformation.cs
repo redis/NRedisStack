@@ -20,11 +20,12 @@ namespace NRedisTimeSeries.Test.TestDataTypes
             string key = CreateKeyName();
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            db.TS().Add(key, "*", 1.1);
-            db.TS().Add(key, "*", 1.3, duplicatePolicy: TsDuplicatePolicy.LAST);
+            var ts = db.TS();
+            ts.Add(key, "*", 1.1);
+            ts.Add(key, "*", 1.3, duplicatePolicy: TsDuplicatePolicy.LAST);
 
-            TimeSeriesInformation info = db.TS().Info(key);
-            TimeSeriesInformation infoDebug = db.TS().Info(key, debug: true);
+            TimeSeriesInformation info = ts.Info(key);
+            TimeSeriesInformation infoDebug = ts.Info(key, debug: true);
 
             Assert.Equal(4184, info.MemoryUsage);
             Assert.Equal(0, info.RetentionTime);
@@ -47,11 +48,12 @@ namespace NRedisTimeSeries.Test.TestDataTypes
             string key = CreateKeyName();
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            await db.TS().AddAsync(key, "*", 1.1);
-            await db.TS().AddAsync(key, "*", 1.3, duplicatePolicy: TsDuplicatePolicy.LAST);
+            var ts = db.TS();
+            await ts.AddAsync(key, "*", 1.1);
+            await ts.AddAsync(key, "*", 1.3, duplicatePolicy: TsDuplicatePolicy.LAST);
 
-            TimeSeriesInformation info = await db.TS().InfoAsync(key);
-            TimeSeriesInformation infoDebug = await db.TS().InfoAsync(key, debug: true);
+            TimeSeriesInformation info = await ts.InfoAsync(key);
+            TimeSeriesInformation infoDebug = await ts.InfoAsync(key, debug: true);
 
             Assert.Equal(4184, info.MemoryUsage);
             Assert.Equal(0, info.RetentionTime);

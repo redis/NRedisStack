@@ -20,10 +20,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
 
             foreach (string key in keys)
             {
-                await db.TS().CreateAsync(key);
+                await ts.CreateAsync(key);
             }
 
             List<(string, TimeStamp, double)> sequence = new List<(string, TimeStamp, double)>(keys.Length);
@@ -31,13 +32,13 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             {
                 sequence.Add((keyname, "*", 1.1));
             }
-            var response = await db.TS().MAddAsync(sequence);
+            var response = await ts.MAddAsync(sequence);
 
             Assert.Equal(keys.Length, response.Count);
 
             foreach (var key in keys)
             {
-                TimeSeriesInformation info = await db.TS().InfoAsync(key);
+                TimeSeriesInformation info = await ts.InfoAsync(key);
                 Assert.True(info.FirstTimeStamp > 0);
                 Assert.Equal(info.FirstTimeStamp, info.LastTimeStamp);
             }
@@ -50,10 +51,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var keys = CreateKeyNames(2);
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
 
             foreach (var key in keys)
             {
-                await db.TS().CreateAsync(key);
+                await ts.CreateAsync(key);
             }
 
             var sequence = new List<(string, TimeStamp, double)>(keys.Length);
@@ -65,7 +67,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
                 sequence.Add((keyname, now, 1.1));
             }
 
-            var response = await db.TS().MAddAsync(sequence);
+            var response = await ts.MAddAsync(sequence);
             Assert.Equal(timestamps.Count, response.Count);
             for (var i = 0; i < response.Count; i++)
             {
@@ -79,10 +81,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var keys = CreateKeyNames(2);
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
 
             foreach (var key in keys)
             {
-                await db.TS().CreateAsync(key);
+                await ts.CreateAsync(key);
             }
 
             var oldTimeStamps = new List<DateTime>();
@@ -97,7 +100,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
                 sequence.Add((keyname, DateTime.UtcNow, 1.1));
             }
 
-            await db.TS().MAddAsync(sequence);
+            await ts.MAddAsync(sequence);
             sequence.Clear();
 
             // Override the same events should not throw an error
@@ -106,7 +109,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
                 sequence.Add((keys[i], oldTimeStamps[i], 1.1));
             }
 
-            var response = await db.TS().MAddAsync(sequence);
+            var response = await ts.MAddAsync(sequence);
 
             Assert.Equal(oldTimeStamps.Count, response.Count);
             for (int i = 0; i < response.Count; i++)

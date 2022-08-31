@@ -21,9 +21,10 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cms = db.CMS();
 
-        db.CMS().InitByDim(key, 16, 4);
-        var info = db.CMS().Info(key);
+        cms.InitByDim(key, 16, 4);
+        var info = cms.Info(key);
 
         Assert.Equal(16, info.Width);
         Assert.Equal(4, info.Depth);
@@ -35,9 +36,10 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cms = db.CMS();
 
-        await db.CMS().InitByDimAsync(key, 16, 4);
-        var info = await db.CMS().InfoAsync(key);
+        await cms.InitByDimAsync(key, 16, 4);
+        var info = await cms.InfoAsync(key);
 
         Assert.Equal(16, info.Width);
         Assert.Equal(4, info.Depth);
@@ -49,9 +51,10 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cms = db.CMS();
 
-        db.CMS().InitByProb(key, 0.01, 0.01);
-        var info = db.CMS().Info(key);
+        cms.InitByProb(key, 0.01, 0.01);
+        var info = cms.Info(key);
 
         Assert.Equal(200, info.Width);
         Assert.Equal(7, info.Depth);
@@ -63,9 +66,10 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cms = db.CMS();
 
-        await db.CMS().InitByProbAsync(key, 0.01, 0.01);
-        var info = await db.CMS().InfoAsync(key);
+        await cms.InitByProbAsync(key, 0.01, 0.01);
+        var info = await cms.InfoAsync(key);
 
         Assert.Equal(200, info.Width);
         Assert.Equal(7, info.Depth);
@@ -77,9 +81,10 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cms = db.CMS();
 
-        db.CMS().InitByDim("dup", 16, 4);
-        Assert.Throws<RedisServerException>(() => db.CMS().InitByDim("dup", 8, 6));
+        cms.InitByDim("dup", 16, 4);
+        Assert.Throws<RedisServerException>(() => cms.InitByDim("dup", 8, 6));
     }
 
     [Fact]
@@ -87,9 +92,10 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cms = db.CMS();
 
-        await db.CMS().InitByDimAsync("dup", 16, 4);
-        await Assert.ThrowsAsync<RedisServerException>(() => db.CMS().InitByDimAsync("dup", 8, 6));
+        await cms.InitByDimAsync("dup", 16, 4);
+        await Assert.ThrowsAsync<RedisServerException>(() => cms.InitByDimAsync("dup", 8, 6));
     }
 
     [Fact]
@@ -97,12 +103,13 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cms = db.CMS();
 
-        db.CMS().InitByDim(key, 1000, 5);
-        var resp = db.CMS().IncrBy(key, "foo", 5);
+        cms.InitByDim(key, 1000, 5);
+        var resp = cms.IncrBy(key, "foo", 5);
         Assert.Equal(5, resp);
 
-        var info = db.CMS().Info(key);
+        var info = cms.Info(key);
         Assert.Equal(1000, info.Width);
         Assert.Equal(5, info.Depth);
         Assert.Equal(5, info.Count);
@@ -114,12 +121,13 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cms = db.CMS();
 
-        await db.CMS().InitByDimAsync(key, 1000, 5);
-        var resp = await db.CMS().IncrByAsync(key, "foo", 5);
+        await cms.InitByDimAsync(key, 1000, 5);
+        var resp = await cms.IncrByAsync(key, "foo", 5);
         Assert.Equal(5, resp);
 
-        var info = await db.CMS().InfoAsync(key);
+        var info = await cms.InfoAsync(key);
         Assert.Equal(1000, info.Width);
         Assert.Equal(5, info.Depth);
         Assert.Equal(5, info.Count);
@@ -131,18 +139,19 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cms = db.CMS();
 
-        db.CMS().InitByDim(key, 1000, 5);
-        db.CMS().IncrBy(key, "foo", 5L);
+        cms.InitByDim(key, 1000, 5);
+        cms.IncrBy(key, "foo", 5L);
 
         var itemIncrements = new Tuple<RedisValue, long>[2];
         itemIncrements[0] = new Tuple<RedisValue, long>("foo", 5);
         itemIncrements[1] = new Tuple<RedisValue, long>("bar", 15);
 
-        var resp = db.CMS().IncrBy(key, itemIncrements);
+        var resp = cms.IncrBy(key, itemIncrements);
         Assert.Equal(new long[] { 10, 15 }, resp);
 
-        var info = db.CMS().Info(key);
+        var info = cms.Info(key);
         Assert.Equal(1000, info.Width);
         Assert.Equal(5, info.Depth);
         Assert.Equal(25, info.Count);
@@ -153,18 +162,19 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cms = db.CMS();
 
-        await db.CMS().InitByDimAsync(key, 1000, 5);
-        await db.CMS().IncrByAsync(key, "foo", 5L);
+        await cms.InitByDimAsync(key, 1000, 5);
+        await cms.IncrByAsync(key, "foo", 5L);
 
         var itemIncrements = new Tuple<RedisValue, long>[2];
         itemIncrements[0] = new Tuple<RedisValue, long>("foo", 5);
         itemIncrements[1] = new Tuple<RedisValue, long>("bar", 15);
 
-        var resp = await db.CMS().IncrByAsync(key, itemIncrements);
+        var resp = await cms.IncrByAsync(key, itemIncrements);
         Assert.Equal(new long[] { 10, 15 }, resp);
 
-        var info = await db.CMS().InfoAsync(key);
+        var info = await cms.InfoAsync(key);
         Assert.Equal(1000, info.Width);
         Assert.Equal(5, info.Depth);
         Assert.Equal(25, info.Count);
@@ -176,15 +186,16 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
-        db.CMS().InitByDim(key, 1000, 5);
+        var cms = db.CMS();
+        cms.InitByDim(key, 1000, 5);
 
         var itemIncrements = new Tuple<RedisValue, long>[2];
         itemIncrements[0] = new Tuple<RedisValue, long>("foo", 10);
         itemIncrements[1] = new Tuple<RedisValue, long>("bar", 15);
 
-        db.CMS().IncrBy(key, itemIncrements);
+        cms.IncrBy(key, itemIncrements);
 
-        var resp = db.CMS().Query(key, "foo", "bar");
+        var resp = cms.Query(key, "foo", "bar");
         Assert.Equal(new long[] { 10, 15 }, resp);
     }
 
@@ -193,15 +204,16 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
-        await db.CMS().InitByDimAsync(key, 1000, 5);
+        var cms = db.CMS();
+        await cms.InitByDimAsync(key, 1000, 5);
 
         var itemIncrements = new Tuple<RedisValue, long>[2];
         itemIncrements[0] = new Tuple<RedisValue, long>("foo", 10);
         itemIncrements[1] = new Tuple<RedisValue, long>("bar", 15);
 
-        await db.CMS().IncrByAsync(key, itemIncrements);
+        await cms.IncrByAsync(key, itemIncrements);
 
-        var resp = await db.CMS().QueryAsync(key, new RedisValue[] { "foo", "bar" });
+        var resp = await cms.QueryAsync(key, new RedisValue[] { "foo", "bar" });
         Assert.Equal(new long[] { 10, 15 }, resp);
     }
 
@@ -210,45 +222,46 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cms = db.CMS();
 
-        db.CMS().InitByDim("A", 1000, 5);
-        db.CMS().InitByDim("B", 1000, 5);
-        db.CMS().InitByDim("C", 1000, 5);
+        cms.InitByDim("A", 1000, 5);
+        cms.InitByDim("B", 1000, 5);
+        cms.InitByDim("C", 1000, 5);
 
         var aValues = new Tuple<RedisValue, long>[3];
         aValues[0] = new Tuple<RedisValue, long>("foo", 5);
         aValues[1] = new Tuple<RedisValue, long>("bar", 3);
         aValues[2] = new Tuple<RedisValue, long>("baz", 9);
 
-        db.CMS().IncrBy("A", aValues);
+        cms.IncrBy("A", aValues);
 
         var bValues = new Tuple<RedisValue, long>[3];
         bValues[0] = new Tuple<RedisValue, long>("foo", 2);
         bValues[1] = new Tuple<RedisValue, long>("bar", 3);
         bValues[2] = new Tuple<RedisValue, long>("baz", 1);
 
-        db.CMS().IncrBy("B", bValues);
+        cms.IncrBy("B", bValues);
 
-        var q1 = db.CMS().Query("A", new RedisValue[] { "foo", "bar", "baz" });
+        var q1 = cms.Query("A", new RedisValue[] { "foo", "bar", "baz" });
         Assert.Equal(new long[] { 5L, 3L, 9L }, q1);
 
-        var q2 = db.CMS().Query("B", new RedisValue[] { "foo", "bar", "baz" });
+        var q2 = cms.Query("B", new RedisValue[] { "foo", "bar", "baz" });
         Assert.Equal(new long[] { 2L, 3L, 1L }, q2);
 
-        db.CMS().Merge("C", 2, new RedisValue[] { "A", "B" });
+        cms.Merge("C", 2, new RedisValue[] { "A", "B" });
 
-        var q3 = db.CMS().Query("C", new RedisValue[] { "foo", "bar", "baz" });
+        var q3 = cms.Query("C", new RedisValue[] { "foo", "bar", "baz" });
         Assert.Equal(new long[] { 7L, 6L, 10L }, q3);
 
-        db.CMS().Merge("C", 2, new RedisValue[] { "A", "B" }, new long[] { 1, 2 });
+        cms.Merge("C", 2, new RedisValue[] { "A", "B" }, new long[] { 1, 2 });
 
-        var q4 = db.CMS().Query("C", new RedisValue[] { "foo", "bar", "baz" });
+        var q4 = cms.Query("C", new RedisValue[] { "foo", "bar", "baz" });
         Assert.Equal(new long[] { 9L, 9L, 11L }, q4);
 
-        db.CMS().Merge("C", 2, new RedisValue[] { "A", "B" }, new long[] { 2, 3 });
+        cms.Merge("C", 2, new RedisValue[] { "A", "B" }, new long[] { 2, 3 });
 
 
-        var q5 = db.CMS().Query("C", new RedisValue[] { "foo", "bar", "baz" });
+        var q5 = cms.Query("C", new RedisValue[] { "foo", "bar", "baz" });
         Assert.Equal(new long[] { 16L, 15L, 21L }, q5);
     }
 
@@ -258,45 +271,46 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var cms = db.CMS();
 
-        await db.CMS().InitByDimAsync("A", 1000, 5);
-        await db.CMS().InitByDimAsync("B", 1000, 5);
-        await db.CMS().InitByDimAsync("C", 1000, 5);
+        await cms.InitByDimAsync("A", 1000, 5);
+        await cms.InitByDimAsync("B", 1000, 5);
+        await cms.InitByDimAsync("C", 1000, 5);
 
         var aValues = new Tuple<RedisValue, long>[3];
         aValues[0] = new Tuple<RedisValue, long>("foo", 5);
         aValues[1] = new Tuple<RedisValue, long>("bar", 3);
         aValues[2] = new Tuple<RedisValue, long>("baz", 9);
 
-        await db.CMS().IncrByAsync("A", aValues);
+        await cms.IncrByAsync("A", aValues);
 
         var bValues = new Tuple<RedisValue, long>[3];
         bValues[0] = new Tuple<RedisValue, long>("foo", 2);
         bValues[1] = new Tuple<RedisValue, long>("bar", 3);
         bValues[2] = new Tuple<RedisValue, long>("baz", 1);
 
-        await db.CMS().IncrByAsync("B", bValues);
+        await cms.IncrByAsync("B", bValues);
 
-        var q1 = await db.CMS().QueryAsync("A", new RedisValue[] { "foo", "bar", "baz" });
+        var q1 = await cms.QueryAsync("A", new RedisValue[] { "foo", "bar", "baz" });
         Assert.Equal(new long[] { 5L, 3L, 9L }, q1);
 
-        var q2 = await db.CMS().QueryAsync("B", new RedisValue[] { "foo", "bar", "baz" });
+        var q2 = await cms.QueryAsync("B", new RedisValue[] { "foo", "bar", "baz" });
         Assert.Equal(new long[] { 2L, 3L, 1L }, q2);
 
-        await db.CMS().MergeAsync("C", 2, new RedisValue[] { "A", "B" });
+        await cms.MergeAsync("C", 2, new RedisValue[] { "A", "B" });
 
-        var q3 = await db.CMS().QueryAsync("C", new RedisValue[] { "foo", "bar", "baz" });
+        var q3 = await cms.QueryAsync("C", new RedisValue[] { "foo", "bar", "baz" });
         Assert.Equal(new long[] { 7L, 6L, 10L }, q3);
 
-        await db.CMS().MergeAsync("C", 2, new RedisValue[] { "A", "B" }, new long[] { 1, 2 });
+        await cms.MergeAsync("C", 2, new RedisValue[] { "A", "B" }, new long[] { 1, 2 });
 
-        var q4 = await db.CMS().QueryAsync("C", new RedisValue[] { "foo", "bar", "baz" });
+        var q4 = await cms.QueryAsync("C", new RedisValue[] { "foo", "bar", "baz" });
         Assert.Equal(new long[] { 9L, 9L, 11L }, q4);
 
-        await db.CMS().MergeAsync("C", 2, new RedisValue[] { "A", "B" }, new long[] { 2, 3 });
+        await cms.MergeAsync("C", 2, new RedisValue[] { "A", "B" }, new long[] { 2, 3 });
 
 
-        var q5 = await db.CMS().QueryAsync("C", new RedisValue[] { "foo", "bar", "baz" });
+        var q5 = await cms.QueryAsync("C", new RedisValue[] { "foo", "bar", "baz" });
         Assert.Equal(new long[] { 16L, 15L, 21L }, q5);
     }
 }

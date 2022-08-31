@@ -24,8 +24,9 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             double value = 5.5;
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            Assert.True(db.TS().IncrBy(key, value) > 0);
-            Assert.Equal(value, db.TS().Get(key).Val);
+            var ts = db.TS();
+            Assert.True(ts.IncrBy(key, value) > 0);
+            Assert.Equal(value, ts.Get(key).Val);
         }
 
         [Fact]
@@ -34,8 +35,9 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             double value = 5.5;
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            Assert.True(db.TS().IncrBy(key, value, timestamp: "*") > 0);
-            Assert.Equal(value, db.TS().Get(key).Val);
+            var ts = db.TS();
+            Assert.True(ts.IncrBy(key, value, timestamp: "*") > 0);
+            Assert.Equal(value, ts.Get(key).Val);
         }
 
         [Fact]
@@ -44,9 +46,10 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             double value = 5.5;
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
             TimeStamp timeStamp = DateTime.UtcNow;
-            Assert.Equal(timeStamp, db.TS().IncrBy(key, value, timestamp: timeStamp));
-            Assert.Equal(new TimeSeriesTuple(timeStamp, value), db.TS().Get(key));
+            Assert.Equal(timeStamp, ts.IncrBy(key, value, timestamp: timeStamp));
+            Assert.Equal(new TimeSeriesTuple(timeStamp, value), ts.Get(key));
         }
 
         [Fact]
@@ -56,9 +59,10 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             long retentionTime = 5000;
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            Assert.True(db.TS().IncrBy(key, value, retentionTime: retentionTime) > 0);
-            Assert.Equal(value, db.TS().Get(key).Val);
-            TimeSeriesInformation info = db.TS().Info(key);
+            var ts = db.TS();
+            Assert.True(ts.IncrBy(key, value, retentionTime: retentionTime) > 0);
+            Assert.Equal(value, ts.Get(key).Val);
+            TimeSeriesInformation info = ts.Info(key);
             Assert.Equal(retentionTime, info.RetentionTime);
         }
 
@@ -69,10 +73,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             TimeSeriesLabel label = new TimeSeriesLabel("key", "value");
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
             var labels = new List<TimeSeriesLabel> { label };
-            Assert.True(db.TS().IncrBy(key, value, labels: labels) > 0);
-            Assert.Equal(value, db.TS().Get(key).Val);
-            TimeSeriesInformation info = db.TS().Info(key);
+            Assert.True(ts.IncrBy(key, value, labels: labels) > 0);
+            Assert.Equal(value, ts.Get(key).Val);
+            TimeSeriesInformation info = ts.Info(key);
             Assert.Equal(labels, info.Labels);
         }
 
@@ -82,8 +87,9 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             double value = 5.5;
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            Assert.True(db.TS().IncrBy(key, value, uncompressed: true) > 0);
-            Assert.Equal(value, db.TS().Get(key).Val);
+            var ts = db.TS();
+            Assert.True(ts.IncrBy(key, value, uncompressed: true) > 0);
+            Assert.Equal(value, ts.Get(key).Val);
         }
 
         [Fact]
@@ -92,9 +98,10 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             double value = 5.5;
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            var ex = Assert.Throws<RedisServerException>(() => db.TS().IncrBy(key, value, timestamp: "+"));
+            var ts = db.TS();
+            var ex = Assert.Throws<RedisServerException>(() => ts.IncrBy(key, value, timestamp: "+"));
             Assert.Equal("ERR TSDB: invalid timestamp", ex.Message);
-            ex = Assert.Throws<RedisServerException>(() => db.TS().IncrBy(key, value, timestamp: "-"));
+            ex = Assert.Throws<RedisServerException>(() => ts.IncrBy(key, value, timestamp: "-"));
             Assert.Equal("ERR TSDB: invalid timestamp", ex.Message);
         }
     }

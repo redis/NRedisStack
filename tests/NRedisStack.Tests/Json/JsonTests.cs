@@ -41,10 +41,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     //     var obj = new Person { Name = "Shachar", Age = 23 };
     //     IDatabase db = redisFixture.Redis.GetDatabase();
     //     db.Execute("FLUSHALL");
+    //     var cf = db.JSON();
 
-    //     db.JSON().Set(key, "$", obj);
+    //     json.Set(key, "$", obj);
     //     string expected = "{\"Name\":\"Shachar\",\"Age\":23}";
-    //     var result = db.JSON().Get(key).ToString();
+    //     var result = json.Get(key).ToString();
     //     if(result == null)
     //         throw new ArgumentNullException(nameof(result));
 
@@ -57,11 +58,12 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     //     var obj = new Person { Name = "Shachar", Age = 23 };
     //     IDatabase db = redisFixture.Redis.GetDatabase();
     //     db.Execute("FLUSHALL");
+    //     var cf = db.JSON();
 
-    //     db.JSON().Set(key, "$", obj);
+    //     json.Set(key, "$", obj);
 
     //     var expected = "[222111\"Shachar\"222]";
-    //     var result = db.JSON().Get(key, "111", "222", "333", "$.Name");
+    //     var result = json.Get(key, "111", "222", "333", "$.Name");
     //     // if(result == null)
     //     //     throw new ArgumentNullException(nameof(result));
     //     Assert.Equal(result.ToString(), expected);

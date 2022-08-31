@@ -21,9 +21,9 @@ public class TimeSeriesTests : AbstractNRedisStackTest, IDisposable
     // public void TestCreateOK()
     // {
     //     IDatabase db = redisFixture.Redis.GetDatabase();
-    //     var result = db.TS().Create(key);
+    //     var result =  ts.Create(key);
     //     Assert.True(result);
-    //     //TimeSeriesInformation info = db.TS().Info(key);
+    //     //TimeSeriesInformation info =  ts.Info(key);
     // }
 
 }

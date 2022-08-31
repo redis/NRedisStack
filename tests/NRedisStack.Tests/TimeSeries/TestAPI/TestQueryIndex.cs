@@ -25,15 +25,16 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
             var label1 = new TimeSeriesLabel("QUERYINDEX_TESTS_1", "value");
             var label2 = new TimeSeriesLabel("QUERYINDEX_TESTS_2", "value2");
             var labels1 = new List<TimeSeriesLabel> { label1, label2 };
             var labels2 = new List<TimeSeriesLabel> { label1 };
 
-            db.TS().Create(keys[0], labels: labels1);
-            db.TS().Create(keys[1], labels: labels2);
-            Assert.Equal(keys, db.TS().QueryIndex(new List<string> { "QUERYINDEX_TESTS_1=value" }));
-            Assert.Equal(new List<string> { keys[0] }, db.TS().QueryIndex(new List<string> { "QUERYINDEX_TESTS_2=value2" }));
+            ts.Create(keys[0], labels: labels1);
+            ts.Create(keys[1], labels: labels2);
+            Assert.Equal(keys, ts.QueryIndex(new List<string> { "QUERYINDEX_TESTS_1=value" }));
+            Assert.Equal(new List<string> { keys[0] }, ts.QueryIndex(new List<string> { "QUERYINDEX_TESTS_2=value2" }));
         }
     }
 }

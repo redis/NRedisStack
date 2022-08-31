@@ -23,7 +23,8 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            var ex = Assert.Throws<RedisServerException>(() => db.TS().Get(key));
+            var ts = db.TS();
+            var ex = Assert.Throws<RedisServerException>(() => ts.Get(key));
             Assert.Equal("ERR TSDB: the key does not exist", ex.Message);
         }
 
@@ -32,8 +33,9 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            db.TS().Create(key);
-            Assert.Null(db.TS().Get(key));
+            var ts = db.TS();
+            ts.Create(key);
+            Assert.Null(ts.Get(key));
         }
 
         [Fact]
@@ -43,9 +45,10 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             TimeSeriesTuple expected = new TimeSeriesTuple(now, 1.1);
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            db.TS().Create(key);
-            db.TS().Add(key, now, 1.1);
-            TimeSeriesTuple actual = db.TS().Get(key);
+            var ts = db.TS();
+            ts.Create(key);
+            ts.Add(key, now, 1.1);
+            TimeSeriesTuple actual = ts.Get(key);
             Assert.Equal(expected, actual);
         }
     }

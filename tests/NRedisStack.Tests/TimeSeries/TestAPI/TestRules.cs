@@ -48,10 +48,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            db.TS().Create(srcKey);
+            var ts = db.TS();
+            ts.Create(srcKey);
             foreach (var destKey in destKeys.Values)
             {
-                db.TS().Create(destKey);
+                ts.Create(destKey);
             }
             long timeBucket = 50;
             var rules = new List<TimeSeriesRule>();
@@ -61,16 +62,16 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
                 var rule = new TimeSeriesRule(destKeys[aggregation], timeBucket, aggregation);
                 rules.Add(rule);
                 rulesMap[aggregation] = rule;
-                Assert.True(db.TS().CreateRule(srcKey, rule));
-                TimeSeriesInformation info = db.TS().Info(srcKey);
+                Assert.True(ts.CreateRule(srcKey, rule));
+                TimeSeriesInformation info = ts.Info(srcKey);
                 Assert.Equal(rules, info.Rules);
             }
             foreach (var aggregation in destKeys.Keys)
             {
                 var rule = rulesMap[aggregation];
                 rules.Remove(rule);
-                Assert.True(db.TS().DeleteRule(srcKey, rule.DestKey));
-                TimeSeriesInformation info = db.TS().Info(srcKey);
+                Assert.True(ts.DeleteRule(srcKey, rule.DestKey));
+                TimeSeriesInformation info = ts.Info(srcKey);
                 Assert.Equal(rules, info.Rules);
             }
         }
@@ -80,12 +81,13 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
             string destKey = "RULES_DEST_" + TsAggregation.Avg;
-            db.TS().Create(destKey);
+            ts.Create(destKey);
             TimeSeriesRule rule = new TimeSeriesRule(destKey, 50, TsAggregation.Avg);
-            var ex = Assert.Throws<RedisServerException>(() => db.TS().CreateRule(srcKey, rule));
+            var ex = Assert.Throws<RedisServerException>(() => ts.CreateRule(srcKey, rule));
             Assert.Equal("ERR TSDB: the key does not exist", ex.Message);
-            ex = Assert.Throws<RedisServerException>(() => db.TS().DeleteRule(srcKey, destKey));
+            ex = Assert.Throws<RedisServerException>(() => ts.DeleteRule(srcKey, destKey));
             Assert.Equal("ERR TSDB: the key does not exist", ex.Message);
         }
 
@@ -94,12 +96,13 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
             string destKey = "RULES_DEST_" + TsAggregation.Avg;
-            db.TS().Create(srcKey);
+            ts.Create(srcKey);
             TimeSeriesRule rule = new TimeSeriesRule(destKey, 50, TsAggregation.Avg);
-            var ex = Assert.Throws<RedisServerException>(() => db.TS().CreateRule(srcKey, rule));
+            var ex = Assert.Throws<RedisServerException>(() => ts.CreateRule(srcKey, rule));
             Assert.Equal("ERR TSDB: the key does not exist", ex.Message);
-            ex = Assert.Throws<RedisServerException>(() => db.TS().DeleteRule(srcKey, destKey));
+            ex = Assert.Throws<RedisServerException>(() => ts.DeleteRule(srcKey, destKey));
             Assert.Equal("ERR TSDB: compaction rule does not exist", ex.Message);
         }
 
@@ -108,22 +111,23 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            db.TS().Create("ts1");
-            db.TS().Create("ts2");
-            db.TS().Create("ts3");
+            var ts = db.TS();
+            ts.Create("ts1");
+            ts.Create("ts2");
+            ts.Create("ts3");
 
             TimeSeriesRule rule1 = new TimeSeriesRule("ts2", 10, TsAggregation.Count);
-            db.TS().CreateRule("ts1", rule1, 0);
+            ts.CreateRule("ts1", rule1, 0);
 
             TimeSeriesRule rule2 = new TimeSeriesRule("ts3", 10, TsAggregation.Count);
-            db.TS().CreateRule("ts1", rule2, 1);
+            ts.CreateRule("ts1", rule2, 1);
 
-            db.TS().Add("ts1", 1, 1);
-            db.TS().Add("ts1", 10, 3);
-            db.TS().Add("ts1", 21, 7);
+            ts.Add("ts1", 1, 1);
+            ts.Add("ts1", 10, 3);
+            ts.Add("ts1", 21, 7);
 
-            Assert.Equal(2, db.TS().Range("ts2", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10).Count);
-            Assert.Equal(1, db.TS().Range("ts3", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10).Count);
+            Assert.Equal(2, ts.Range("ts2", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10).Count);
+            Assert.Equal(1, ts.Range("ts3", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10).Count);
         }
     }
 }

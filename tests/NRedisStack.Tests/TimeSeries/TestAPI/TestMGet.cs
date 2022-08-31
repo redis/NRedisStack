@@ -27,17 +27,18 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
 
             var label1 = new TimeSeriesLabel("MGET_TESTS_1", "value");
             var label2 = new TimeSeriesLabel("MGET_TESTS_2", "value2");
             var labels1 = new List<TimeSeriesLabel> { label1, label2 };
             var labels2 = new List<TimeSeriesLabel> { label1 };
 
-            TimeStamp ts1 = db.TS().Add(keys[0], "*", 1.1, labels: labels1);
+            TimeStamp ts1 = ts.Add(keys[0], "*", 1.1, labels: labels1);
             TimeSeriesTuple tuple1 = new TimeSeriesTuple(ts1, 1.1);
-            TimeStamp ts2 = db.TS().Add(keys[1], "*", 2.2, labels: labels2);
+            TimeStamp ts2 = ts.Add(keys[1], "*", 2.2, labels: labels2);
             TimeSeriesTuple tuple2 = new TimeSeriesTuple(ts2, 2.2);
-            var results = db.TS().MGet(new List<string> { "MGET_TESTS_1=value" });
+            var results = ts.MGet(new List<string> { "MGET_TESTS_1=value" });
             Assert.Equal(2, results.Count);
             Assert.Equal(keys[0], results[0].key);
             Assert.Equal(tuple1, results[0].value);
@@ -53,18 +54,19 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
 
             var label1 = new TimeSeriesLabel("MGET_TESTS_1", "value");
             var label2 = new TimeSeriesLabel("MGET_TESTS_2", "value2");
             var labels1 = new List<TimeSeriesLabel> { label1, label2 };
             var labels2 = new List<TimeSeriesLabel> { label1 };
 
-            TimeStamp ts1 = db.TS().Add(keys[0], "*", 1.1, labels: labels1);
+            TimeStamp ts1 = ts.Add(keys[0], "*", 1.1, labels: labels1);
             TimeSeriesTuple tuple1 = new TimeSeriesTuple(ts1, 1.1);
-            TimeStamp ts2 = db.TS().Add(keys[1], "*", 2.2, labels: labels2);
+            TimeStamp ts2 = ts.Add(keys[1], "*", 2.2, labels: labels2);
             TimeSeriesTuple tuple2 = new TimeSeriesTuple(ts2, 2.2);
 
-            var results = db.TS().MGet(new List<string> { "MGET_TESTS_1=value" }, withLabels: true);
+            var results = ts.MGet(new List<string> { "MGET_TESTS_1=value" }, withLabels: true);
             Assert.Equal(2, results.Count);
             Assert.Equal(keys[0], results[0].key);
             Assert.Equal(tuple1, results[0].value);
@@ -79,18 +81,19 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
 
             var label1 = new TimeSeriesLabel("MGET_TESTS_1", "value");
             var label2 = new TimeSeriesLabel("MGET_TESTS_2", "value2");
             var labels1 = new List<TimeSeriesLabel> { label1, label2 };
             var labels2 = new List<TimeSeriesLabel> { label1 };
 
-            TimeStamp ts1 = db.TS().Add(keys[0], "*", 1.1, labels: labels1);
+            TimeStamp ts1 = ts.Add(keys[0], "*", 1.1, labels: labels1);
             TimeSeriesTuple tuple1 = new TimeSeriesTuple(ts1, 1.1);
-            TimeStamp ts2 = db.TS().Add(keys[1], "*", 2.2, labels: labels2);
+            TimeStamp ts2 = ts.Add(keys[1], "*", 2.2, labels: labels2);
             TimeSeriesTuple tuple2 = new TimeSeriesTuple(ts2, 2.2);
 
-            var results = db.TS().MGet(new List<string> { "MGET_TESTS_1=value" }, selectedLabels: new List<string>{"MGET_TESTS_1"});
+            var results = ts.MGet(new List<string> { "MGET_TESTS_1=value" }, selectedLabels: new List<string> { "MGET_TESTS_1" });
             Assert.Equal(2, results.Count);
             Assert.Equal(keys[0], results[0].key);
             Assert.Equal(tuple1, results[0].value);

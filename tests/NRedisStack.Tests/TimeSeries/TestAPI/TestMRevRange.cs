@@ -12,19 +12,19 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
     {
         public TestMRevRange(RedisFixture redisFixture) : base(redisFixture) { }
 
-        private List<TimeSeriesTuple> CreateData(IDatabase db, string[] keys, int timeBucket)
+        private List<TimeSeriesTuple> CreateData(TimeSeriesCommands ts, string[] keys, int timeBucket)
         {
             var tuples = new List<TimeSeriesTuple>();
 
             for (var i = 0; i < 10; i++)
             {
-                var ts = new TimeStamp(i * timeBucket);
+                var timeStamp = new TimeStamp(i * timeBucket);
                 foreach (var key in keys)
                 {
-                    db.TS().Add(key, ts, i);
+                    ts.Add(key, timeStamp, i);
 
                 }
-                tuples.Add(new TimeSeriesTuple(ts, i));
+                tuples.Add(new TimeSeriesTuple(timeStamp, i));
             }
             return tuples;
         }
@@ -35,15 +35,16 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var keys = CreateKeyNames(2);
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
             var label = new TimeSeriesLabel(keys[0], "value");
             var labels = new List<TimeSeriesLabel> { label };
             foreach (var key in keys)
             {
-                db.TS().Create(key, labels: labels);
+                ts.Create(key, labels: labels);
             }
 
-            var tuples = CreateData(db, keys, 50);
-            var results = db.TS().MRevRange("-", "+", new List<string> { $"{keys[0]}=value" });
+            var tuples = CreateData(ts, keys, 50);
+            var results = ts.MRevRange("-", "+", new List<string> { $"{keys[0]}=value" });
             Assert.Equal(keys.Length, results.Count);
             for (var i = 0; i < results.Count; i++)
             {
@@ -52,22 +53,23 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
                 Assert.Equal(ReverseData(tuples), results[i].values);
             }
         }
-        
+
         [Fact]
         public void TestMRevRangeWithLabels()
         {
             var keys = CreateKeyNames(2);
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
             var label = new TimeSeriesLabel(keys[0], "value");
             var labels = new List<TimeSeriesLabel> { label };
             foreach (var key in keys)
             {
-                db.TS().Create(key, labels: labels);
+                ts.Create(key, labels: labels);
             }
 
-            var tuples = CreateData(db, keys, 50);
-            var results = db.TS().MRevRange("-", "+", new List<string> { $"{keys[0]}=value" }, withLabels: true);
+            var tuples = CreateData(ts, keys, 50);
+            var results = ts.MRevRange("-", "+", new List<string> { $"{keys[0]}=value" }, withLabels: true);
 
             Assert.Equal(keys.Length, results.Count);
             for (var i = 0; i < results.Count; i++)
@@ -84,15 +86,16 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var keys = CreateKeyNames(2);
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
             TimeSeriesLabel label1 = new TimeSeriesLabel("key", "MRangeSelectLabels");
             TimeSeriesLabel[] labels = new TimeSeriesLabel[] { new TimeSeriesLabel("team", "CTO"), new TimeSeriesLabel("team", "AUT") };
             for (int i = 0; i < keys.Length; i++)
             {
-                db.TS().Create(keys[i], labels: new List<TimeSeriesLabel> { label1, labels[i] });
+                ts.Create(keys[i], labels: new List<TimeSeriesLabel> { label1, labels[i] });
             }
 
-            var tuples = CreateData(db, keys, 50);
-            var results = db.TS().MRevRange("-", "+", new List<string> { "key=MRangeSelectLabels" }, selectLabels: new List<string> { "team" });
+            var tuples = CreateData(ts, keys, 50);
+            var results = ts.MRevRange("-", "+", new List<string> { "key=MRangeSelectLabels" }, selectLabels: new List<string> { "team" });
             Assert.Equal(keys.Length, results.Count);
             for (int i = 0; i < results.Count; i++)
             {
@@ -108,11 +111,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var keys = CreateKeyNames(2);
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
             var label = new TimeSeriesLabel(keys[0], "value");
             var labels = new List<TimeSeriesLabel> { label };
-            db.TS().Create(keys[0], labels: labels);
-            var tuples = CreateData(db, keys, 50);
-            var results = db.TS().MRevRange("-", "+", new List<string> { $"{keys[0]}=value" });
+            ts.Create(keys[0], labels: labels);
+            var tuples = CreateData(ts, keys, 50);
+            var results = ts.MRevRange("-", "+", new List<string> { $"{keys[0]}=value" });
             Assert.Equal(1, results.Count);
             Assert.Equal(keys[0], results[0].key);
             Assert.Equal(0, results[0].labels.Count);
@@ -125,16 +129,17 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var keys = CreateKeyNames(2);
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
             var label = new TimeSeriesLabel(keys[0], "value");
             var labels = new List<TimeSeriesLabel> { label };
             foreach (var key in keys)
             {
-                db.TS().Create(key, labels: labels);
+                ts.Create(key, labels: labels);
             }
 
-            var tuples = CreateData(db, keys, 50);
+            var tuples = CreateData(ts, keys, 50);
             var count = 5L;
-            var results = db.TS().MRevRange("-", "+", new List<string> { $"{keys[0]}=value" }, count: count);
+            var results = ts.MRevRange("-", "+", new List<string> { $"{keys[0]}=value" }, count: count);
             Assert.Equal(keys.Length, results.Count);
             for (var i = 0; i < results.Count; i++)
             {
@@ -150,15 +155,16 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var keys = CreateKeyNames(2);
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
             var label = new TimeSeriesLabel(keys[0], "value");
             var labels = new List<TimeSeriesLabel> { label };
             foreach (var key in keys)
             {
-                db.TS().Create(key, labels: labels);
+                ts.Create(key, labels: labels);
             }
 
-            var tuples = CreateData(db, keys, 50);
-            var results = db.TS().MRevRange("-", "+", new List<string> { $"{keys[0]}=value" }, aggregation: TsAggregation.Min, timeBucket: 50);
+            var tuples = CreateData(ts, keys, 50);
+            var results = ts.MRevRange("-", "+", new List<string> { $"{keys[0]}=value" }, aggregation: TsAggregation.Min, timeBucket: 50);
             Assert.Equal(keys.Length, results.Count);
             for (var i = 0; i < results.Count; i++)
             {
@@ -174,20 +180,21 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var keys = CreateKeyNames(2);
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
             var label = new TimeSeriesLabel(keys[0], "value");
             var labels = new List<TimeSeriesLabel> { label };
-            db.TS().Create(keys[0], labels: labels);
-            CreateData(db, keys, 50);
+            ts.Create(keys[0], labels: labels);
+            CreateData(ts, keys, 50);
             var expected = new List<TimeSeriesTuple> {
                 new TimeSeriesTuple(450,1),
                 new TimeSeriesTuple(400,1),
                 new TimeSeriesTuple(350,1)
             };
-            var results = db.TS().MRevRange(0, "+", new List<string> { $"{keys[0]}=value" }, align: "-", aggregation: TsAggregation.Count, timeBucket: 10, count: 3);
+            var results = ts.MRevRange(0, "+", new List<string> { $"{keys[0]}=value" }, align: "-", aggregation: TsAggregation.Count, timeBucket: 10, count: 3);
             Assert.Equal(1, results.Count);
             Assert.Equal(keys[0], results[0].key);
             Assert.Equal(expected, results[0].values);
-            results = db.TS().MRevRange(0, 500, new List<string> { $"{keys[0]}=value" }, align: "+", aggregation: TsAggregation.Count, timeBucket: 10, count: 1);
+            results = ts.MRevRange(0, 500, new List<string> { $"{keys[0]}=value" }, align: "+", aggregation: TsAggregation.Count, timeBucket: 10, count: 1);
             Assert.Equal(expected[0], results[0].values[0]);
         }
 
@@ -197,15 +204,16 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var keys = CreateKeyNames(2);
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
             var label = new TimeSeriesLabel(keys[0], "value");
             var labels = new List<TimeSeriesLabel> { label };
             foreach (var key in keys)
             {
-                db.TS().Create(key, labels: labels);
+                ts.Create(key, labels: labels);
             }
 
-            var tuples = CreateData(db, keys, 50);
-            var ex = Assert.Throws<ArgumentException>(() => db.TS().MRevRange("-", "+", new List<string>()));
+            var tuples = CreateData(ts, keys, 50);
+            var ex = Assert.Throws<ArgumentException>(() => ts.MRevRange("-", "+", new List<string>()));
             Assert.Equal("There should be at least one filter on MRANGE/MREVRANGE", ex.Message);
         }
 
@@ -215,15 +223,16 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var keys = CreateKeyNames(2);
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
             var label = new TimeSeriesLabel(keys[0], "value");
             var labels = new List<TimeSeriesLabel> { label };
             foreach (var key in keys)
             {
-                db.TS().Create(key, labels: labels);
+                ts.Create(key, labels: labels);
             }
 
-            var tuples = CreateData(db, keys, 50);
-            var ex = Assert.Throws<ArgumentException>(() => db.TS().MRevRange("-", "+", new List<string> { "key=MissingTimeBucket" }, aggregation: TsAggregation.Avg));
+            var tuples = CreateData(ts, keys, 50);
+            var ex = Assert.Throws<ArgumentException>(() => ts.MRevRange("-", "+", new List<string> { "key=MissingTimeBucket" }, aggregation: TsAggregation.Avg));
             Assert.Equal("RANGE Aggregation should have timeBucket value", ex.Message);
         }
 
@@ -233,15 +242,16 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var keys = CreateKeyNames(2);
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
             for (int i = 0; i < keys.Length; i++)
             {
                 var label1 = new TimeSeriesLabel(keys[0], "value");
                 var label2 = new TimeSeriesLabel("group", i.ToString());
-                db.TS().Create(keys[i], labels: new List<TimeSeriesLabel> { label1, label2 });
+                ts.Create(keys[i], labels: new List<TimeSeriesLabel> { label1, label2 });
             }
 
-            var tuples = CreateData(db, keys, 50);
-            var results = db.TS().MRevRange("-", "+", new List<string> { $"{keys[0]}=value" }, withLabels: true, groupbyTuple: ("group", TsReduce.Min));
+            var tuples = CreateData(ts, keys, 50);
+            var results = ts.MRevRange("-", "+", new List<string> { $"{keys[0]}=value" }, withLabels: true, groupbyTuple: ("group", TsReduce.Min));
             Assert.Equal(keys.Length, results.Count);
             for (var i = 0; i < results.Count; i++)
             {
@@ -251,7 +261,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
                 Assert.Equal(new TimeSeriesLabel("__source__", keys[i]), results[i].labels[2]);
                 Assert.Equal(ReverseData(tuples), results[i].values);
             }
-         }
+        }
 
         [Fact]
         public void TestMRevRangeReduce()
@@ -259,14 +269,15 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var keys = CreateKeyNames(2);
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
             foreach (var key in keys)
             {
                 var label = new TimeSeriesLabel(keys[0], "value");
-                db.TS().Create(key, labels: new List<TimeSeriesLabel> { label });
+                ts.Create(key, labels: new List<TimeSeriesLabel> { label });
             }
 
-            var tuples = CreateData(db, keys, 50);
-            var results = db.TS().MRevRange("-", "+", new List<string> { $"{keys[0]}=value" }, withLabels: true, groupbyTuple: (keys[0], TsReduce.Sum));
+            var tuples = CreateData(ts, keys, 50);
+            var results = ts.MRevRange("-", "+", new List<string> { $"{keys[0]}=value" }, withLabels: true, groupbyTuple: (keys[0], TsReduce.Sum));
             Assert.Equal(1, results.Count);
             Assert.Equal($"{keys[0]}=value", results[0].key);
             Assert.Equal(new TimeSeriesLabel(keys[0], "value"), results[0].labels[0]);
@@ -285,21 +296,22 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var keys = CreateKeyNames(2);
             var db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
             var label = new TimeSeriesLabel(keys[0], "value");
             var labels = new List<TimeSeriesLabel> { label };
             foreach (string key in keys)
             {
-                db.TS().Create(key, labels: labels);
+                ts.Create(key, labels: labels);
             }
 
-            var tuples = CreateData(db, keys, 50);
-            var results = db.TS().MRevRange("-", "+", new List<string> { "key=MRangeFilterBy" }, filterByValue: (0, 2));
+            var tuples = CreateData(ts, keys, 50);
+            var results = ts.MRevRange("-", "+", new List<string> { "key=MRangeFilterBy" }, filterByValue: (0, 2));
             for (int i = 0; i < results.Count; i++)
             {
                 Assert.Equal(ReverseData(tuples.GetRange(0, 3)), results[i].values);
             }
 
-            results = db.TS().MRevRange("-", "+", new List<string> { "key=MRangeFilterBy" }, filterByTs: new List<TimeStamp> { 0 }, filterByValue: (0, 2));
+            results = ts.MRevRange("-", "+", new List<string> { "key=MRangeFilterBy" }, filterByTs: new List<TimeStamp> { 0 }, filterByValue: (0, 2));
             for (int i = 0; i < results.Count; i++)
             {
                 Assert.Equal(ReverseData(tuples.GetRange(0, 1)), results[i].values);

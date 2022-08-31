@@ -28,23 +28,24 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
 
             foreach (string key in keys)
             {
-                db.TS().Create(key);
+                ts.Create(key);
             }
             List<(string, TimeStamp, double)> sequence = new List<(string, TimeStamp, double)>(keys.Length);
             foreach (var keyname in keys)
             {
                 sequence.Add((keyname, "*", 1.1));
             }
-            var response = db.TS().MAdd(sequence);
+            var response = ts.MAdd(sequence);
 
             Assert.Equal(keys.Length, response.Count);
 
             foreach (var key in keys)
             {
-                TimeSeriesInformation info = db.TS().Info(key);
+                TimeSeriesInformation info = ts.Info(key);
                 Assert.True(info.FirstTimeStamp > 0);
                 Assert.Equal(info.FirstTimeStamp, info.LastTimeStamp);
             }
@@ -56,10 +57,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
 
             foreach (string key in keys)
             {
-                db.TS().Create(key);
+                ts.Create(key);
             }
 
             List<(string, TimeStamp, double)> sequence = new List<(string, TimeStamp, double)>(keys.Length);
@@ -70,7 +72,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
                 timestamps.Add(now);
                 sequence.Add((keyname, now, 1.1));
             }
-            var response = db.TS().MAdd(sequence);
+            var response = ts.MAdd(sequence);
 
             Assert.Equal(timestamps.Count, response.Count);
             for (int i = 0; i < response.Count; i++)
@@ -84,10 +86,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
+            var ts = db.TS();
 
             foreach (string key in keys)
             {
-                db.TS().Create(key);
+                ts.Create(key);
             }
 
             List<DateTime> oldTimeStamps = new List<DateTime>();
@@ -101,7 +104,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             {
                 sequence.Add((keyname, DateTime.UtcNow, 1.1));
             }
-            db.TS().MAdd(sequence);
+            ts.MAdd(sequence);
 
             sequence.Clear();
 
@@ -110,7 +113,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             {
                 sequence.Add((keys[i], oldTimeStamps[i], 1.1));
             }
-            var response = db.TS().MAdd(sequence);
+            var response = ts.MAdd(sequence);
 
             Assert.Equal(oldTimeStamps.Count, response.Count);
             for (int i = 0; i < response.Count; i++)
