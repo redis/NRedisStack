@@ -313,5 +313,41 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
         var q5 = await cms.QueryAsync("C", new RedisValue[] { "foo", "bar", "baz" });
         Assert.Equal(new long[] { 16L, 15L, 21L }, q5);
     }
+
+
+    [Fact]
+    public void TestModulePrefixs()
+    {
+        IDatabase db1 = redisFixture.Redis.GetDatabase();
+        IDatabase db2 = redisFixture.Redis.GetDatabase();
+
+        var cms1 = db1.CMS();
+        var cms2 = db2.CMS();
+
+        Assert.NotEqual(cms1.GetHashCode(), cms2.GetHashCode());
+    }
+
+    [Fact]
+    public void TestModulePrefixs1()
+    {
+        {
+            var conn = ConnectionMultiplexer.Connect("localhost");
+            IDatabase db = conn.GetDatabase();
+
+            var cms = db.CMS();
+            // ...
+            conn.Dispose();
+        }
+
+        {
+            var conn = ConnectionMultiplexer.Connect("localhost");
+            IDatabase db = conn.GetDatabase();
+
+            var cms = db.CMS();
+            // ...
+            conn.Dispose();
+        }
+
+    }
 }
 

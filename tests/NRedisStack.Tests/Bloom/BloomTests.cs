@@ -317,4 +317,40 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         // check for existing items
         Assert.True(await bf.ExistsAsync("bloom-load", "a"));
     }
+
+
+    [Fact]
+    public void TestModulePrefixs()
+    {
+        IDatabase db1 = redisFixture.Redis.GetDatabase();
+        IDatabase db2 = redisFixture.Redis.GetDatabase();
+
+        var bf1 = db1.FT();
+        var bf2 = db2.FT();
+
+        Assert.NotEqual(bf1.GetHashCode(), bf2.GetHashCode());
+    }
+
+    [Fact]
+    public void TestModulePrefixs1()
+    {
+        {
+            var conn = ConnectionMultiplexer.Connect("localhost");
+            IDatabase db = conn.GetDatabase();
+
+            var bf  = db.FT();
+            // ...
+            conn.Dispose();
+        }
+
+        {
+            var conn = ConnectionMultiplexer.Connect("localhost");
+            IDatabase db = conn.GetDatabase();
+
+            var bf  = db.FT();
+            // ...
+            conn.Dispose();
+        }
+
+    }
 }

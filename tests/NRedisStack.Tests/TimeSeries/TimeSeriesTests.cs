@@ -26,4 +26,40 @@ public class TimeSeriesTests : AbstractNRedisStackTest, IDisposable
     //     //TimeSeriesInformation info =  ts.Info(key);
     // }
 
+
+    [Fact]
+    public void TestModulePrefixs()
+    {
+        IDatabase db1 = redisFixture.Redis.GetDatabase();
+        IDatabase db2 = redisFixture.Redis.GetDatabase();
+
+        var ts1 = db1.TS();
+        var ts2 = db2.TS();
+
+        Assert.NotEqual(ts1.GetHashCode(), ts2.GetHashCode());
+    }
+
+    [Fact]
+    public void TestModulePrefixs1()
+    {
+        {
+            var conn = ConnectionMultiplexer.Connect("localhost");
+            IDatabase db = conn.GetDatabase();
+
+            var ts = db.TS();
+            // ...
+            conn.Dispose();
+        }
+
+        {
+            var conn = ConnectionMultiplexer.Connect("localhost");
+            IDatabase db = conn.GetDatabase();
+
+            var ts = db.TS();
+            // ...
+            conn.Dispose();
+        }
+
+    }
+
 }

@@ -363,4 +363,40 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         // check for existing items
         Assert.True(await cf.ExistsAsync("cuckoo-load", "a"));
     }
+
+
+    [Fact]
+    public void TestModulePrefixs()
+    {
+        IDatabase db1 = redisFixture.Redis.GetDatabase();
+        IDatabase db2 = redisFixture.Redis.GetDatabase();
+
+        var cf1 = db1.CF();
+        var cf2 = db2.CF();
+
+        Assert.NotEqual(cf1.GetHashCode(), cf2.GetHashCode());
+    }
+
+    [Fact]
+    public void TestModulePrefixs1()
+    {
+        {
+            var conn = ConnectionMultiplexer.Connect("localhost");
+            IDatabase db = conn.GetDatabase();
+
+            var cf = db.CF();
+            // ...
+            conn.Dispose();
+        }
+
+        {
+            var conn = ConnectionMultiplexer.Connect("localhost");
+            IDatabase db = conn.GetDatabase();
+
+            var cf = db.CF();
+            // ...
+            conn.Dispose();
+        }
+
+    }
 }

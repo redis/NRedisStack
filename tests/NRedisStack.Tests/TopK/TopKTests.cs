@@ -79,10 +79,10 @@ public class TopKTests : AbstractNRedisStackTest, IDisposable
         IDatabase db1 = redisFixture.Redis.GetDatabase();
         IDatabase db2 = redisFixture.Redis.GetDatabase();
 
-        var ft1 = db1.FT();
-        var ft2 = db2.FT();
+        var topk1 = db1.TOPK();
+        var topk2 = db2.TOPK();
 
-        Assert.NotEqual(ft1.GetHashCode(), ft2.GetHashCode());
+        Assert.NotEqual(topk1.GetHashCode(), topk2.GetHashCode());
     }
 
     [Fact]
@@ -92,7 +92,7 @@ public class TopKTests : AbstractNRedisStackTest, IDisposable
             var conn = ConnectionMultiplexer.Connect("localhost");
             IDatabase db = conn.GetDatabase();
 
-            var ft = db.FT();
+            var topk = db.TOPK();
             // ...
             conn.Dispose();
         }
@@ -101,7 +101,7 @@ public class TopKTests : AbstractNRedisStackTest, IDisposable
             var conn = ConnectionMultiplexer.Connect("localhost");
             IDatabase db = conn.GetDatabase();
 
-            var ft = db.FT();
+            var topk = db.TOPK();
             // ...
             conn.Dispose();
         }

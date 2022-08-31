@@ -382,6 +382,42 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(14.5, await tdigest.TrimmedMeanAsync(key, 0.5, 1.0));
     }
 
+
+    [Fact]
+    public void TestModulePrefixs()
+    {
+        IDatabase db1 = redisFixture.Redis.GetDatabase();
+        IDatabase db2 = redisFixture.Redis.GetDatabase();
+
+        var tdigest1 = db1.TDIGEST();
+        var tdigest2 = db2.TDIGEST();
+
+        Assert.NotEqual(tdigest1.GetHashCode(), tdigest2.GetHashCode());
+    }
+
+    [Fact]
+    public void TestModulePrefixs1()
+    {
+        {
+            var conn = ConnectionMultiplexer.Connect("localhost");
+            IDatabase db = conn.GetDatabase();
+
+            var tdigest = db.TDIGEST();
+            // ...
+            conn.Dispose();
+        }
+
+        {
+            var conn = ConnectionMultiplexer.Connect("localhost");
+            IDatabase db = conn.GetDatabase();
+
+            var tdigest = db.TDIGEST();
+            // ...
+            conn.Dispose();
+        }
+
+    }
+
     static Tuple<double, double> RandomValueWeight()
     {
         Random random = new Random();

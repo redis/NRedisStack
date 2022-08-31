@@ -68,4 +68,40 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     //     //     throw new ArgumentNullException(nameof(result));
     //     Assert.Equal(result.ToString(), expected);
     // }
+
+
+    [Fact]
+    public void TestModulePrefixs()
+    {
+        IDatabase db1 = redisFixture.Redis.GetDatabase();
+        IDatabase db2 = redisFixture.Redis.GetDatabase();
+
+        var json1 = db1.JSON();
+        var json2 = db2.JSON();
+
+        Assert.NotEqual(json1.GetHashCode(), json2.GetHashCode());
+    }
+
+    [Fact]
+    public void TestModulePrefixs1()
+    {
+        {
+            var conn = ConnectionMultiplexer.Connect("localhost");
+            IDatabase db = conn.GetDatabase();
+
+            var json = db.JSON();
+            // ...
+            conn.Dispose();
+        }
+
+        {
+            var conn = ConnectionMultiplexer.Connect("localhost");
+            IDatabase db = conn.GetDatabase();
+
+            var json = db.JSON();
+            // ...
+            conn.Dispose();
+        }
+
+    }
 }
