@@ -2,12 +2,12 @@
 {
     internal class TOPK
     {
-        public static string RESERVE => "TOPK.RESERVE";
-        public static string ADD => "TOPK.ADD";
-        public static string INCRBY => "TOPK.INCRBY";
-        public static string QUERY => "TOPK.QUERY";
-        public static string COUNT => "TOPK.COUNT";
-        public static string LIST => "TOPK.LIST";
-        public static string INFO => "TOPK.INFO";
+        public const string RESERVE = "TOPK.RESERVE";
+        public const string ADD = "TOPK.ADD";
+        public const string INCRBY = "TOPK.INCRBY";
+        public const string QUERY = "TOPK.QUERY";
+        public const string COUNT = "TOPK.COUNT";
+        public const string LIST = "TOPK.LIST";
+        public const string INFO = "TOPK.INFO";
     }
 }

@@ -2,29 +2,29 @@
 {
     internal class JSON
     {
-        public static string ARRAPPEND => "JSON.ARRAPPEND";
-        public static string ARRINDEX => "JSON.ARRINDEX";
-        public static string ARRINSERT => "JSON.ARRINSERT";
-        public static string ARRLEN => "JSON.ARRLEN";
-        public static string ARRPOP => "JSON.ARRPOP";
-        public static string ARRTRIM => "JSON.ARRTRIM";
-        public static string CLEAR => "JSON.CLEAR";
-        public static string DEBUG => "JSON.DEBUG";
-        public static string DEBUG_HELP => "JSON.DEBUG HELP";
-        public static string DEBUG_MEMORY => "JSON.DEBUG MEMORY";
-        public static string DEL => "JSON.DEL";
-        public static string FORGET => "JSON.FORGET";
-        public static string GET => "JSON.GET";
-        public static string MGET => "JSON.MGET";
-        public static string NUMINCRBY => "JSON.NUMINCRBY";
-        public static string NUMMULTBY => "JSON.NUMMULTBY";
-        public static string OBJKEYS => "JSON.OBJKEYS";
-        public static string OBJLEN => "JSON.OBJLEN";
-        public static string RESP => "JSON.RESP";
-        public static string SET => "JSON.SET";
-        public static string STRAPPEND => "JSON.STRAPPEND";
-        public static string STRLEN => "JSON.STRLEN";
-        public static string TOGGLE => "JSON.TOGGLE";
-        public static string TYPE => "JSON.TYPE";
+        public const string ARRAPPEND = "JSON.ARRAPPEND";
+        public const string ARRINDEX = "JSON.ARRINDEX";
+        public const string ARRINSERT = "JSON.ARRINSERT";
+        public const string ARRLEN = "JSON.ARRLEN";
+        public const string ARRPOP = "JSON.ARRPOP";
+        public const string ARRTRIM = "JSON.ARRTRIM";
+        public const string CLEAR = "JSON.CLEAR";
+        public const string DEBUG = "JSON.DEBUG";
+        public const string DEBUG_HELP = "JSON.DEBUG HELP";
+        public const string DEBUG_MEMORY = "JSON.DEBUG MEMORY";
+        public const string DEL = "JSON.DEL";
+        public const string FORGET = "JSON.FORGET";
+        public const string GET = "JSON.GET";
+        public const string MGET = "JSON.MGET";
+        public const string NUMINCRBY = "JSON.NUMINCRBY";
+        public const string NUMMULTBY = "JSON.NUMMULTBY";
+        public const string OBJKEYS = "JSON.OBJKEYS";
+        public const string OBJLEN = "JSON.OBJLEN";
+        public const string RESP = "JSON.RESP";
+        public const string SET = "JSON.SET";
+        public const string STRAPPEND = "JSON.STRAPPEND";
+        public const string STRLEN = "JSON.STRLEN";
+        public const string TOGGLE = "JSON.TOGGLE";
+        public const string TYPE = "JSON.TYPE";
     }
 }

@@ -2,17 +2,17 @@
 {
     internal class CF
     {
-        public static string RESERVE => "CF.RESERVE";
-        public static string ADD => "CF.ADD";
-        public static string ADDNX => "CF.ADDNX";
-        public static string INSERT => "CF.INSERT";
-        public static string INSERTNX => "CF.INSERTNX";
-        public static string EXISTS => "CF.EXISTS";
-        public static string MEXISTS => "CF.MEXISTS";
-        public static string DEL => "CF.DEL";
-        public static string COUNT => "CF.COUNT";
-        public static string SCANDUMP => "CF.SCANDUMP";
-        public static string LOADCHUNK => "CF.LOADCHUNK";
-        public static string INFO => "CF.INFO";
+        public const string RESERVE = "CF.RESERVE";
+        public const string ADD = "CF.ADD";
+        public const string ADDNX = "CF.ADDNX";
+        public const string INSERT = "CF.INSERT";
+        public const string INSERTNX = "CF.INSERTNX";
+        public const string EXISTS = "CF.EXISTS";
+        public const string MEXISTS = "CF.MEXISTS";
+        public const string DEL = "CF.DEL";
+        public const string COUNT = "CF.COUNT";
+        public const string SCANDUMP = "CF.SCANDUMP";
+        public const string LOADCHUNK = "CF.LOADCHUNK";
+        public const string INFO = "CF.INFO";
     }
 }

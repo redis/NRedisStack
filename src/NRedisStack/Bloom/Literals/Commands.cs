@@ -2,14 +2,14 @@
 {
     internal class BF
     {
-        public static string ADD => "BF.ADD";
-        public static string EXISTS => "BF.EXISTS";
-        public static string INFO => "BF.INFO";
-        public static string INSERT => "BF.INSERT";
-        public static string LOADCHUNK => "BF.LOADCHUNK";
-        public static string MADD => "BF.MADD";
-        public static string MEXISTS => "BF.MEXISTS";
-        public static string RESERVE => "BF.RESERVE";
-        public static string SCANDUMP => "BF.SCANDUMP";
+        public const string ADD = "BF.ADD";
+        public const string EXISTS = "BF.EXISTS";
+        public const string INFO = "BF.INFO";
+        public const string INSERT = "BF.INSERT";
+        public const string LOADCHUNK = "BF.LOADCHUNK";
+        public const string MADD = "BF.MADD";
+        public const string MEXISTS = "BF.MEXISTS";
+        public const string RESERVE = "BF.RESERVE";
+        public const string SCANDUMP = "BF.SCANDUMP";
     }
 }

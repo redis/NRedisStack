@@ -2,11 +2,11 @@ namespace NRedisStack.Literals
 {
     internal class CuckooArgs
     {
-         public static string CAPACITY => "CAPACITY";
-         public static string EXPANSION => "EXPANSION";
-         public static string NOCREATE => "NOCREATE";
-         public static string ITEMS => "ITEMS";
-         public static string BUCKETSIZE => "BUCKETSIZE";
-         public static string MAXITERATIONS => "MAXITERATIONS";
+         public const string CAPACITY = "CAPACITY";
+         public const string EXPANSION = "EXPANSION";
+         public const string NOCREATE = "NOCREATE";
+         public const string ITEMS = "ITEMS";
+         public const string BUCKETSIZE = "BUCKETSIZE";
+         public const string MAXITERATIONS = "MAXITERATIONS";
     }
 }
