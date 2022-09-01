@@ -531,5 +531,20 @@ namespace NRedisStack
             Array.ForEach(redisResults, str => list.Add((string)str));
             return list;
         }
+        
+        public static long?[] ToNullableLongArray(this RedisResult result)
+        {
+            if (result.IsNull)
+            {
+                return Array.Empty<long?>();
+            }
+
+            if (result.Type == ResultType.Integer)
+            {
+                return new[] { (long?)result };
+            }
+
+            return ((RedisResult[])result!).Select(x=>(long?)x).ToArray();
+        }
     }
 }
