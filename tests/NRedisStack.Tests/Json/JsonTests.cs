@@ -145,9 +145,9 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         commands.Set(simpleStringKey, "$", "\"foo\"");
 
         //act
-        var nullResult = commands.StrAppend(key, "$.age", " Lorello");
-        var keyResult = commands.StrAppend(key, "$..name", " Lorello");
-        var simpleKeyResult = commands.StrAppend(simpleStringKey, null, "bar");
+        var nullResult = commands.StrAppend(key, " Lorello", "$.age");
+        var keyResult = commands.StrAppend(key, " Lorello", "$..name");
+        var simpleKeyResult = commands.StrAppend(simpleStringKey, "bar");
 
         //assert
         var i = 0;

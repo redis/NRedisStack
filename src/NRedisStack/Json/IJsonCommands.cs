@@ -12,7 +12,7 @@ public interface IJsonCommands
     /// <param name="values">the values to append</param>
     /// <returns>The new array sizes for the appended paths</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.arrappend"/></remarks>
-    public long?[] ArrAppend(RedisKey key, string? path, params object[] values);
+    public long?[] ArrAppend(RedisKey key, string? path = null, params object[] values);
 
     /// <summary>
     /// Finds the index of the provided item within the provided range
@@ -24,7 +24,8 @@ public interface IJsonCommands
     /// <param name="stop">The ending index within the array. Exclusive</param>
     /// <returns>The index of the value for each array the path resolved to.</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.arrindex"/></remarks>
-    public long?[] ArrIndex(RedisKey key, string? path, object value, long? start = null, long? stop = null);
+    public long?[] ArrIndex(RedisKey key, string path, object value, long? start = null, long? stop = null);
+
     /// <summary>
     /// Inserts the provided items at the provided index within a json array.
     /// </summary>
@@ -201,7 +202,7 @@ public interface IJsonCommands
     /// <param name="value">The value to append.</param>
     /// <returns>The new length of the string(s) appended to, those lengths will be null if the path did not resolve ot a string.</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.strappend"/></remarks>
-    public long?[] StrAppend(RedisKey key, string? path, string value);
+    public long?[] StrAppend(RedisKey key, string value, string? path = null);
 
     /// <summary>
     /// Check's the length of the string(s) at the provided path.

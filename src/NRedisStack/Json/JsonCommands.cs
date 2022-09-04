@@ -61,16 +61,16 @@ public class JsonCommands : IJsonCommands
     }
 
     /// <inheritdoc/>
-    public long?[] StrAppend(RedisKey key, string? path, string value)
+    public long?[] StrAppend(RedisKey key, string value, string? path = null)
     {
         RedisResult result;
         if (path == null)
         {
-            result = _db.Execute( JSON.STRAPPEND, key, JsonSerializer.Serialize(value));
+            result = _db.Execute(JSON.STRAPPEND, key, JsonSerializer.Serialize(value));
         }
         else
         {
-            result = _db.Execute( JSON.STRAPPEND, key, path, JsonSerializer.Serialize(value));
+            result = _db.Execute(JSON.STRAPPEND, key, path, JsonSerializer.Serialize(value));
         }
 
         return result.ToNullableLongArray();
@@ -112,7 +112,7 @@ public class JsonCommands : IJsonCommands
 
         if (result.Type == ResultType.Integer)
         {
-            return new bool?[] {(long)result == 1};
+            return new bool?[] { (long)result == 1 };
         }
 
         return ((RedisResult[])result!).Select(x => (bool?)((long)x == 1)).ToArray();
@@ -138,7 +138,7 @@ public class JsonCommands : IJsonCommands
 
         if (result.Type == ResultType.BulkString)
         {
-            return new [] {Enum.Parse<JsonType>(result.ToString()!.ToUpper())};
+            return new[] { Enum.Parse<JsonType>(result.ToString()!.ToUpper()) };
         }
 
         return Array.Empty<JsonType>();
@@ -146,24 +146,30 @@ public class JsonCommands : IJsonCommands
     }
 
     /// <inheritdoc/>
-    public long?[] ArrAppend(RedisKey key, string? path, params object[] values)
+    public long?[] ArrAppend(RedisKey key, string? path = null, params object[] values)
     {
-        var args = new List<object>{key};
+        if (values.Length < 1)
+            throw new ArgumentOutOfRangeException(nameof(values));
+
+        var args = new List<object> { key };
         if (path != null)
         {
             args.Add(path);
         }
 
-        args.AddRange(values.Select(x=>JsonSerializer.Serialize(x)));
+        args.AddRange(values.Select(x => JsonSerializer.Serialize(x)));
 
         var result = _db.Execute(JSON.ARRAPPEND, args.ToArray());
         return result.ToNullableLongArray();
     }
 
     /// <inheritdoc/>
-    public long?[] ArrIndex(RedisKey key, string? path, object value, long? start = null, long? stop = null)
+    public long?[] ArrIndex(RedisKey key, string path, object value, long? start = null, long? stop = null)
     {
-        var args = AssembleNonNullArguments(key, path,  JsonSerializer.Serialize(value), start, stop);
+        if (start == null && stop != null)
+            throw new ArgumentException("stop cannot be defined without start");
+
+        var args = AssembleNonNullArguments(key, path, JsonSerializer.Serialize(value), start, stop);
         var result = _db.Execute(JSON.ARRINDEX, args);
         return result.ToNullableLongArray();
     }
@@ -171,6 +177,8 @@ public class JsonCommands : IJsonCommands
     /// <inheritdoc/>
     public long?[] ArrInsert(RedisKey key, string path, long index, params object[] values)
     {
+        if (values.Length < 1)
+            throw new ArgumentOutOfRangeException(nameof(values));
         var args = new List<object> { key, path, index };
         foreach (var val in values)
         {
@@ -179,7 +187,7 @@ public class JsonCommands : IJsonCommands
 
         var result = _db.Execute(JSON.ARRINSERT, args);
         return result.ToNullableLongArray();
-   }
+    }
 
     /// <inheritdoc/>
     public long?[] ArrLen(RedisKey key, string? path = null)
@@ -192,6 +200,9 @@ public class JsonCommands : IJsonCommands
     /// <inheritdoc/>
     public RedisResult[] ArrPop(RedisKey key, string? path = null, long? index = null)
     {
+        if (path == null && index != null)
+            throw new ArgumentException("index cannot be defined without path");
+
         var args = AssembleNonNullArguments(key, path, index);
         var res = _db.Execute(JSON.ARRPOP, args)!;
 
@@ -202,7 +213,7 @@ public class JsonCommands : IJsonCommands
 
         if (res.Type == ResultType.BulkString)
         {
-            return new [] { res };
+            return new[] { res };
         }
 
         return Array.Empty<RedisResult>();
@@ -232,7 +243,7 @@ public class JsonCommands : IJsonCommands
     /// <inheritdoc/>
     public RedisResult Get(RedisKey key, RedisValue? indent = null, RedisValue? newLine = null, RedisValue? space = null, RedisValue? path = null)
     {
-        List<object> args = new List<object>(){key};
+        List<object> args = new List<object>() { key };
 
         if (indent != null)
         {
@@ -267,7 +278,7 @@ public class JsonCommands : IJsonCommands
         if (res.Type == ResultType.BulkString)
         {
             var arr = JsonSerializer.Deserialize<JsonArray>(res.ToString()!);
-            if(arr?.Count > 0 )
+            if (arr?.Count > 0)
             {
                 return JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(arr[0]));
             }
@@ -309,7 +320,7 @@ public class JsonCommands : IJsonCommands
         var sets = new List<HashSet<string>>();
         var args = AssembleNonNullArguments(key, path);
         var res = (RedisResult[])_db.Execute(JSON.OBJKEYS, args)!;
-        if (res.All(x=>x.Type!=ResultType.MultiBulk))
+        if (res.All(x => x.Type != ResultType.MultiBulk))
         {
             var keys = res.Select(x => x.ToString()!);
             sets.Add(keys.ToHashSet());

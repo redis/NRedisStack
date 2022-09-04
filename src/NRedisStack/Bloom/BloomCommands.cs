@@ -111,7 +111,7 @@ namespace NRedisStack
                 throw new ArgumentOutOfRangeException(nameof(items));
 
             var args = BloomAux.BuildInsertArgs(key, items, capacity, error, expansion, nocreate, nonscaling);
-            
+
             return _db.Execute(BF.INSERT, args).ToBooleanArray();
         }
 
@@ -335,7 +335,7 @@ namespace NRedisStack
         /// <param name="iterator">Iterator value; either 0 or the iterator from a previous invocation of this command.</param>
         /// <returns>Tuple of iterator and data.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.scandump"/></remarks>
-        public Tuple<long,Byte[]> ScanDump(RedisKey key, long iterator)
+        public Tuple<long, Byte[]> ScanDump(RedisKey key, long iterator)
         {
             return _db.Execute(BF.SCANDUMP, key, iterator).ToScanDumpTuple();
         }
@@ -347,7 +347,7 @@ namespace NRedisStack
         /// <param name="iterator">Iterator value; either 0 or the iterator from a previous invocation of this command.</param>
         /// <returns>Tuple of iterator and data.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.scandump"/></remarks>
-        public async Task<Tuple<long,Byte[]>> ScanDumpAsync(RedisKey key, long iterator)
+        public async Task<Tuple<long, Byte[]>> ScanDumpAsync(RedisKey key, long iterator)
         {
             var result = await _db.ExecuteAsync(BF.SCANDUMP, key, iterator);
             return result.ToScanDumpTuple();
