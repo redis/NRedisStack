@@ -71,7 +71,6 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     //     Assert.Equal(result.ToString(), expected);
     // }
 
-
     [Fact]
     public void TestModulePrefixs()
     {
@@ -117,10 +116,10 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
 
         var key = keys[0];
         commands.Set(key, "$", new { name = "Steve", age = 33 });
-        
+
         //act
         var respResult = commands.Resp(key);
-        
+
         //assert
         var i = 0;
         Assert.Equal("{", respResult[i++]!.ToString());
@@ -144,12 +143,12 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         commands.Set(key, "$", new { name = "Steve", sibling = new {name = "christopher"}, age = 33});
         var simpleStringKey = keys[1];
         commands.Set(simpleStringKey, "$", "\"foo\"");
-        
+
         //act
-        var nullResult = commands.StringAppend(key, "$.age", " Lorello");
-        var keyResult = commands.StringAppend(key, "$..name", " Lorello");
-        var simpleKeyResult = commands.StringAppend(simpleStringKey, null, "bar");
-        
+        var nullResult = commands.StrAppend(key, "$.age", " Lorello");
+        var keyResult = commands.StrAppend(key, "$..name", " Lorello");
+        var simpleKeyResult = commands.StrAppend(simpleStringKey, null, "bar");
+
         //assert
         var i = 0;
         Assert.Equal(2, keyResult.Length);
@@ -169,13 +168,13 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleStringKey = keys[1];
-        
+
         commands.Set(key, "$", new { name = "Steve", sibling = new {name = "christopher"}, age = 33});
         commands.Set(simpleStringKey, "$", "\"foo\"");
 
-        var normalResult = commands.StringLength(key, "$..name");
-        var nullResult = commands.StringLength(key, "$.age");
-        var simpleResult = commands.StringLength(simpleStringKey);
+        var normalResult = commands.StrLen(key, "$..name");
+        var nullResult = commands.StrLen(key, "$.age");
+        var simpleResult = commands.StrLen(simpleStringKey);
 
         var i = 0;
         Assert.Equal(5, normalResult[i++]);
@@ -200,7 +199,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
 
         var result = commands.Toggle(key, "$..bool");
         var simpleResult = commands.Toggle(simpleKey);
-        
+
         Assert.False(result[0]);
         Assert.True(result[1]);
         Assert.False(simpleResult[0]);
@@ -239,12 +238,12 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var complexKey = keys[1];
-        
+
         commands.Set(key, "$", new { name = "Elizabeth", nickNames = new[] { "Beth" } });
         commands.Set(complexKey, "$", new { name = "foo", people = new[] { new { name = "steve" } } });
-        var result = commands.ArrayAppend(key, "$.nickNames", "Elle", "Liz","Betty");
+        var result = commands.ArrAppend(key, "$.nickNames", "Elle", "Liz","Betty");
         Assert.Equal(4, result[0]);
-        result = commands.ArrayAppend(complexKey, "$.people", new { name = "bob" });
+        result = commands.ArrAppend(complexKey, "$.people", new { name = "bob" });
         Assert.Equal(2, result[0]);
     }
 
@@ -257,7 +256,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var keys = CreateKeyNames(1);
         var key = keys[0];
         commands.Set(key, "$", new { name = "Elizabeth", nicknames = new[] { "Beth", "Betty", "Liz" }, sibling = new {name="Johnathan", nicknames = new [] {"Jon", "Johnny"}} });
-        var res = commands.ArrayIndex(key, "$..nicknames", "Betty", 0,5);
+        var res = commands.ArrIndex(key, "$..nicknames", "Betty", 0,5);
         Assert.Equal(1,res[0]);
         Assert.Equal(-1,res[1]);
     }
@@ -273,9 +272,9 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         commands.Set(key, "$", new { name = "Alice", nicknames = new[] { "Al", "Ali", "Ally" } });
         commands.Set(simpleKey, "$", new[] { "Al", "Ali", "Ally" });
 
-        var result = commands.ArrayInsert(key, $"$.nicknames", 1, "Lys");
+        var result = commands.ArrInsert(key, $"$.nicknames", 1, "Lys");
         Assert.Equal(4,result[0]);
-        result = commands.ArrayInsert(simpleKey, "$", 1, "Lys");
+        result = commands.ArrInsert(simpleKey, "$", 1, "Lys");
         Assert.Equal(4, result[0]);
     }
 
@@ -289,9 +288,9 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         commands.Set(key, "$", new { name = "Alice", nicknames = new[] { "Al", "Ali", "Ally" } });
         commands.Set(simpleKey, "$", new[] { "Al", "Ali", "Ally" });
 
-        var result = commands.ArrayLength(key, $"$.nicknames");
+        var result = commands.ArrLen(key, $"$.nicknames");
         Assert.Equal(3, result[0]);
-        result = commands.ArrayLength(simpleKey);
+        result = commands.ArrLen(simpleKey);
         Assert.Equal(3, result[0]);
     }
 
@@ -305,11 +304,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         commands.Set(key, "$", new { name = "Alice", nicknames = new[] { "Al", "Ali", "Ally" } });
         commands.Set(simpleKey, "$", new[] { "Al", "Ali", "Ally" });
 
-        var result = commands.ArrayPop(key, "$.nicknames", 1);
+        var result = commands.ArrPop(key, "$.nicknames", 1);
         Assert.Equal("\"Ali\"", result[0].ToString());
-        result = commands.ArrayPop(key, "$.nicknames");
+        result = commands.ArrPop(key, "$.nicknames");
         Assert.Equal("\"Ally\"", result[0].ToString());
-        result = commands.ArrayPop(simpleKey);
+        result = commands.ArrPop(simpleKey);
         Assert.Equal("\"Ally\"", result[0].ToString());
     }
 
@@ -323,9 +322,9 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         commands.Set(key, "$", new { name = "Alice", nicknames = new[] { "Al", "Ali", "Ally" } });
         commands.Set(simpleKey, "$", new[] { "Al", "Ali", "Ally" });
 
-        var result = commands.ArrayTrim(key, "$.nicknames", 0, 0);
+        var result = commands.ArrTrim(key, "$.nicknames", 0, 0);
         Assert.Equal(1,result[0]);
-        result = commands.ArrayTrim(simpleKey, "$", 0, 1);
+        result = commands.ArrTrim(simpleKey, "$", 0, 1);
         Assert.Equal(2,result[0]);
     }
 
@@ -360,7 +359,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         result = commands.Del(simpleKey);
         Assert.Equal(1,result);
     }
-    
+
     [Fact]
     public void Forget()
     {
@@ -407,7 +406,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         commands.Set(key1, "$", new { a = "hello" });
         commands.Set(key2, "$", new { a = "world" });
         var result = commands.MGet(keys.Select(x => new RedisKey(x)).ToArray(), "$.a");
-        
+
         Assert.Equal("[\"hello\"]", result[0].ToString());
         Assert.Equal("[\"world\"]", result[1].ToString());
     }
@@ -432,12 +431,12 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var keys = CreateKeyNames(3);
         var key = keys[0];
         commands.Set(key, "$", new { a = 5, b = 10, c = "hello", d = new { a = new { a = 6, b = "hello" }, b = 7 } });
-        var result = commands.ObjectKeys(key).ToArray();
+        var result = commands.ObjKeys(key).ToArray();
         Assert.Contains("a", result[0]);
         Assert.Contains("b", result[0]);
         Assert.Contains("c", result[0]);
         Assert.Contains("d", result[0]);
-        result = commands.ObjectKeys(key, "$..a").ToArray();
+        result = commands.ObjKeys(key, "$..a").ToArray();
         Assert.Empty(result[0]);
         Assert.Contains("a", result[1]);
         Assert.Contains("b", result[1]);
@@ -450,12 +449,12 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var keys = CreateKeyNames(3);
         var key = keys[0];
         commands.Set(key, "$", new { a = 5, b = 10, c = "hello", d = new { a = new { a = 6, b = "hello" }, b = 7 } });
-        var result = commands.ObjectLength(key);
+        var result = commands.ObjLen(key);
         Assert.Equal(4, result[0]);
-        result = commands.ObjectLength(key, $"$..a");
+        result = commands.ObjLen(key, $"$..a");
         Assert.Null(result[0]);
         Assert.Equal(2, result[1]);
         Assert.Null(result[2]);
-        
+
     }
 }

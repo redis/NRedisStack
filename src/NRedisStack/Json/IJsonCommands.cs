@@ -12,8 +12,8 @@ public interface IJsonCommands
     /// <param name="values">the values to append</param>
     /// <returns>The new array sizes for the appended paths</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.arrappend"/></remarks>
-    public long?[] ArrayAppend(RedisKey key, string? path, params object[] values);
-    
+    public long?[] ArrAppend(RedisKey key, string? path, params object[] values);
+
     /// <summary>
     /// Finds the index of the provided item within the provided range
     /// </summary>
@@ -24,7 +24,7 @@ public interface IJsonCommands
     /// <param name="stop">The ending index within the array. Exclusive</param>
     /// <returns>The index of the value for each array the path resolved to.</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.arrindex"/></remarks>
-    public long?[] ArrayIndex(RedisKey key, string? path, object value, long? start = null, long? stop = null);
+    public long?[] ArrIndex(RedisKey key, string? path, object value, long? start = null, long? stop = null);
     /// <summary>
     /// Inserts the provided items at the provided index within a json array.
     /// </summary>
@@ -34,8 +34,8 @@ public interface IJsonCommands
     /// <param name="values">The values to insert</param>
     /// <returns>The new size of each array the item was inserted into.</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.arrinsert"/></remarks>
-    public long?[] ArrayInsert(RedisKey key, string path, long index, params object[] values);
-    
+    public long?[] ArrInsert(RedisKey key, string path, long index, params object[] values);
+
     /// <summary>
     /// Gets the length of the arrays resolved by the provided path.
     /// </summary>
@@ -43,8 +43,8 @@ public interface IJsonCommands
     /// <param name="path">The path to the array(s)</param>
     /// <returns>The length of each array resolved by the json path.</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.arrlen"/></remarks>
-    public long?[] ArrayLength(RedisKey key, string? path = null);
-    
+    public long?[] ArrLen(RedisKey key, string? path = null);
+
     /// <summary>
     /// Pops an item from the array(s) at the provided index. Or the last element if no index is provided.
     /// </summary>
@@ -53,8 +53,8 @@ public interface IJsonCommands
     /// <param name="index">The index to pop from</param>
     /// <returns>The items popped from the array</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.arrpop"/></remarks>
-    public RedisResult[] ArrayPop(RedisKey key, string? path = null, long? index = null);
-    
+    public RedisResult[] ArrPop(RedisKey key, string? path = null, long? index = null);
+
     /// <summary>
     /// Trims the array(s) at the provided path, leaving the range between the specified indexes (inclusive).
     /// </summary>
@@ -64,8 +64,8 @@ public interface IJsonCommands
     /// <param name="stop">The ending index to retain.</param>
     /// <returns>The new length of the array(s) after they're trimmed.</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.arrtrim"/></remarks>
-    public long?[] ArrayTrim(RedisKey key, string path, long start, long stop);
-    
+    public long?[] ArrTrim(RedisKey key, string path, long start, long stop);
+
     /// <summary>
     /// Clear's container values(arrays/objects), and sets numeric values to 0.
     /// </summary>
@@ -74,7 +74,7 @@ public interface IJsonCommands
     /// <returns>number of values cleared</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.clear"/></remarks>
     public long Clear(RedisKey key, string? path = null);
-    
+
     /// <summary>
     /// Deletes a json value.
     /// </summary>
@@ -83,7 +83,7 @@ public interface IJsonCommands
     /// <returns>number of path's deleted</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.del"/></remarks>
     public long Del(RedisKey key, string? path = null);
-    
+
     /// <summary>
     /// Deletes a json value.
     /// </summary>
@@ -92,7 +92,7 @@ public interface IJsonCommands
     /// <returns>number of path's deleted</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.forget"/></remarks>
     public long Forget(RedisKey key, string? path = null);
-    
+
     /// <summary>
     /// Gets the value stored at the key and path in redis.
     /// </summary>
@@ -104,7 +104,7 @@ public interface IJsonCommands
     /// <returns>The requested Items</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.get"/></remarks>
     public RedisResult Get(RedisKey key, RedisValue? indent = null, RedisValue? newLine = null, RedisValue? space = null, RedisValue? path = null);
-    
+
     /// <summary>
     /// Generically gets an Item stored in Redis.
     /// </summary>
@@ -114,7 +114,7 @@ public interface IJsonCommands
     /// <returns>The object requested</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.get"/></remarks>
     public T? Get<T>(RedisKey key, string path = "$");
-    
+
     /// <summary>
     /// retrieves a group of items stored in redis, appropriate if the path will  resolve to multiple records.
     /// </summary>
@@ -124,7 +124,7 @@ public interface IJsonCommands
     /// <returns>An enumerable of the requested tyep</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.get"/></remarks>
     public IEnumerable<T?> GetEnumerable<T>(RedisKey key, string path = "$");
-    
+
     /// <summary>
     /// Gets the provided path from multiple keys
     /// </summary>
@@ -133,7 +133,7 @@ public interface IJsonCommands
     /// <returns>An array of RedisResults with the requested data.</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.mget"/></remarks>
     public RedisResult[] MGet(RedisKey[] keys, string path);
-    
+
     /// <summary>
     /// Increments the fields at the provided path by the provided number.
     /// </summary>
@@ -143,7 +143,7 @@ public interface IJsonCommands
     /// <returns>The new values after being incremented, or null if the path resolved a non-numeric.</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.numincrby"/></remarks>
     public double?[] NumIncrby(RedisKey key, string path, double value);
-    
+
     /// <summary>
     /// Gets the keys of the object at the provided path.
     /// </summary>
@@ -151,7 +151,7 @@ public interface IJsonCommands
     /// <param name="path">The path of the object(s)</param>
     /// <returns>the keys of the resolved object(s)</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.objkeys"/></remarks>
-    public IEnumerable<HashSet<string>> ObjectKeys(RedisKey key, string? path = null);
+    public IEnumerable<HashSet<string>> ObjKeys(RedisKey key, string? path = null);
 
     /// <summary>
     /// returns the number of keys in the object(s) at the provided path.
@@ -160,7 +160,7 @@ public interface IJsonCommands
     /// <param name="path">The path of the object(s) to resolve.</param>
     /// <returns>The length of the object(s) keyspace.</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.objlen"/></remarks>
-    public long?[] ObjectLength(RedisKey key, string? path = null);
+    public long?[] ObjLen(RedisKey key, string? path = null);
 
     /// <summary>
     /// Gets the key in RESP(Redis Serialization Protocol) form.
@@ -170,7 +170,7 @@ public interface IJsonCommands
     /// <returns>the resultant resp</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.resp"/></remarks>
     public RedisResult[] Resp(RedisKey key, string? path = null);
-    
+
     /// <summary>
     /// Set's the key/path to the provided value.
     /// </summary>
@@ -181,7 +181,7 @@ public interface IJsonCommands
     /// <returns>The disposition of the command</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.set"/></remarks>
     public bool Set(RedisKey key, RedisValue path, object obj, When when = When.Always);
-    
+
     /// <summary>
     /// Set's the key/path to the provided value.
     /// </summary>
@@ -192,7 +192,7 @@ public interface IJsonCommands
     /// <returns>The disposition of the command</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.set"/></remarks>
     public bool  Set(RedisKey key, RedisValue path, RedisValue json, When when = When.Always);
-    
+
     /// <summary>
     /// Appends the provided string to the string(s) at the provided path.
     /// </summary>
@@ -201,8 +201,8 @@ public interface IJsonCommands
     /// <param name="value">The value to append.</param>
     /// <returns>The new length of the string(s) appended to, those lengths will be null if the path did not resolve ot a string.</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.strappend"/></remarks>
-    public long?[] StringAppend(RedisKey key, string? path, string value);
-    
+    public long?[] StrAppend(RedisKey key, string? path, string value);
+
     /// <summary>
     /// Check's the length of the string(s) at the provided path.
     /// </summary>
@@ -210,8 +210,8 @@ public interface IJsonCommands
     /// <param name="path">The path of the string(s) within the json object.</param>
     /// <returns>The length of the string(s) appended to, those lengths will be null if the path did not resolve ot a string.</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.strlen"/></remarks>
-    public long?[] StringLength(RedisKey key, string? path = null);
-    
+    public long?[] StrLen(RedisKey key, string? path = null);
+
     /// <summary>
     /// Toggles the boolean value(s) at the provided path.
     /// </summary>
@@ -220,7 +220,7 @@ public interface IJsonCommands
     /// <returns>the new value(s). Which will be null if the path did not resolve to a boolean.</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.toggle"/></remarks>
     public bool?[] Toggle(RedisKey key, string? path = null);
-    
+
     /// <summary>
     /// Gets the type(s) of the item(s) at the provided json path.
     /// </summary>

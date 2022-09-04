@@ -2,7 +2,7 @@
 using StackExchange.Redis;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using static NRedisStack.Auxiliary; 
+using static NRedisStack.Auxiliary;
 
 namespace NRedisStack;
 
@@ -13,14 +13,14 @@ public class JsonCommands : IJsonCommands
     {
         _db = db;
     }
-    
+
     /// <inheritdoc/>
     public RedisResult[] Resp(RedisKey key, string? path = null)
     {
         RedisResult result;
         if (string.IsNullOrEmpty(path))
         {
-            result = _db.Execute(JSON.RESP, key); 
+            result = _db.Execute(JSON.RESP, key);
         }
         else
         {
@@ -61,7 +61,7 @@ public class JsonCommands : IJsonCommands
     }
 
     /// <inheritdoc/>
-    public long?[] StringAppend(RedisKey key, string? path, string value)
+    public long?[] StrAppend(RedisKey key, string? path, string value)
     {
         RedisResult result;
         if (path == null)
@@ -77,12 +77,12 @@ public class JsonCommands : IJsonCommands
     }
 
     /// <inheritdoc/>
-    public long?[] StringLength(RedisKey key, string? path = null)
+    public long?[] StrLen(RedisKey key, string? path = null)
     {
         RedisResult result;
         if (path != null)
         {
-            result = _db.Execute(JSON.STRLEN, key, path); 
+            result = _db.Execute(JSON.STRLEN, key, path);
         }
         else
         {
@@ -98,7 +98,7 @@ public class JsonCommands : IJsonCommands
         RedisResult result;
         if (path != null)
         {
-            result = _db.Execute(JSON.TOGGLE, key, path); 
+            result = _db.Execute(JSON.TOGGLE, key, path);
         }
         else
         {
@@ -140,28 +140,28 @@ public class JsonCommands : IJsonCommands
         {
             return new [] {Enum.Parse<JsonType>(result.ToString()!.ToUpper())};
         }
-        
+
         return Array.Empty<JsonType>();
-        
+
     }
 
     /// <inheritdoc/>
-    public long?[] ArrayAppend(RedisKey key, string? path, params object[] values)
+    public long?[] ArrAppend(RedisKey key, string? path, params object[] values)
     {
         var args = new List<object>{key};
         if (path != null)
         {
             args.Add(path);
         }
-        
+
         args.AddRange(values.Select(x=>JsonSerializer.Serialize(x)));
 
         var result = _db.Execute(JSON.ARRAPPEND, args.ToArray());
         return result.ToNullableLongArray();
     }
-    
+
     /// <inheritdoc/>
-    public long?[] ArrayIndex(RedisKey key, string? path, object value, long? start = null, long? stop = null)
+    public long?[] ArrIndex(RedisKey key, string? path, object value, long? start = null, long? stop = null)
     {
         var args = AssembleNonNullArguments(key, path,  JsonSerializer.Serialize(value), start, stop);
         var result = _db.Execute(JSON.ARRINDEX, args);
@@ -169,20 +169,20 @@ public class JsonCommands : IJsonCommands
     }
 
     /// <inheritdoc/>
-    public long?[] ArrayInsert(RedisKey key, string path, long index, params object[] values)
+    public long?[] ArrInsert(RedisKey key, string path, long index, params object[] values)
     {
         var args = new List<object> { key, path, index };
         foreach (var val in values)
         {
             args.Add(JsonSerializer.Serialize(val));
         }
-            
+
         var result = _db.Execute(JSON.ARRINSERT, args);
         return result.ToNullableLongArray();
    }
 
     /// <inheritdoc/>
-    public long?[] ArrayLength(RedisKey key, string? path = null)
+    public long?[] ArrLen(RedisKey key, string? path = null)
     {
         var args = AssembleNonNullArguments(key, path);
         var result = _db.Execute(JSON.ARRLEN, args);
@@ -190,7 +190,7 @@ public class JsonCommands : IJsonCommands
     }
 
     /// <inheritdoc/>
-    public RedisResult[] ArrayPop(RedisKey key, string? path = null, long? index = null)
+    public RedisResult[] ArrPop(RedisKey key, string? path = null, long? index = null)
     {
         var args = AssembleNonNullArguments(key, path, index);
         var res = _db.Execute(JSON.ARRPOP, args)!;
@@ -209,7 +209,7 @@ public class JsonCommands : IJsonCommands
     }
 
     /// <inheritdoc/>
-    public long?[] ArrayTrim(RedisKey key, string path, long start, long stop) => 
+    public long?[] ArrTrim(RedisKey key, string path, long start, long stop) =>
         _db.Execute(JSON.ARRTRIM, key, path, start, stop).ToNullableLongArray();
 
     /// <inheritdoc/>
@@ -272,7 +272,7 @@ public class JsonCommands : IJsonCommands
                 return JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(arr[0]));
             }
         }
-        
+
         return default;
     }
 
@@ -304,7 +304,7 @@ public class JsonCommands : IJsonCommands
     }
 
     /// <inheritdoc/>
-    public IEnumerable<HashSet<string>> ObjectKeys(RedisKey key, string? path = null)
+    public IEnumerable<HashSet<string>> ObjKeys(RedisKey key, string? path = null)
     {
         var sets = new List<HashSet<string>>();
         var args = AssembleNonNullArguments(key, path);
@@ -334,7 +334,7 @@ public class JsonCommands : IJsonCommands
     }
 
     /// <inheritdoc/>
-    public long?[] ObjectLength(RedisKey key, string? path = null)
+    public long?[] ObjLen(RedisKey key, string? path = null)
     {
         var args = AssembleNonNullArguments(key, path);
         return _db.Execute(JSON.OBJLEN, args).ToNullableLongArray();
