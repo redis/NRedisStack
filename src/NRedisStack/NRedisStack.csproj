@@ -7,9 +7,9 @@
 	<Authors>Redis Open Source</Authors>
 	<Owners>Redis OSS</Owners>
 	<Description>.Net Client for Redis Stack</Description>
-	<Version>0.1.0</Version>
-	<ReleaseVersion>0.1.0</ReleaseVersion>
-	<PackageVersion>0.1.0</PackageVersion>
+	<Version>0.2.1</Version>
+	<ReleaseVersion>0.2.1</ReleaseVersion>
+	<PackageVersion>0.2.1</PackageVersion>
   </PropertyGroup>
 
   <ItemGroup>
