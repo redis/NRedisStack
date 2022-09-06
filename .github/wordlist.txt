@@ -3,3 +3,4 @@ NRedisStack
 github
 yml
 Codecov
+pre
