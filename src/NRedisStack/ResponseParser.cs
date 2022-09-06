@@ -546,5 +546,38 @@ namespace NRedisStack
 
             return ((RedisResult[])result!).Select(x=>(long?)x).ToArray();
         }
+
+        public static IEnumerable<HashSet<string>> ToHashSets(this RedisResult result)
+        {
+            if (result.IsNull)
+            {
+                return Array.Empty<HashSet<string>>();
+            }
+
+            var res = (RedisResult[])result!;
+            var sets = new List<HashSet<string>>();
+            if (res.All(x => x.Type != ResultType.MultiBulk))
+            {
+                var keys = res.Select(x => x.ToString()!);
+                sets.Add(keys.ToHashSet());
+                return sets;
+            }
+
+            foreach (var arr in res)
+            {
+                var set = new HashSet<string>();
+                if (arr.Type == ResultType.MultiBulk)
+                {
+                    var resultArr = (RedisResult[])arr!;
+                    foreach (var item in resultArr)
+                    {
+                        set.Add(item.ToString()!);
+                    }
+                }
+                sets.Add(set);
+            }
+
+            return sets;
+        }
     }
 }
