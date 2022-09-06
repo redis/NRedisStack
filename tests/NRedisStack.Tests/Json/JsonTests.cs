@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Xunit;
 using StackExchange.Redis;
 using Moq;
@@ -456,5 +458,43 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, result[1]);
         Assert.Null(result[2]);
 
+    }
+
+    [Fact]
+    public void TestMultiPathGet()
+    {
+        IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var keys = CreateKeyNames(1);
+        var key = keys[0];
+        commands.Set(key, "$", new { a = "hello", b = new { a = "world" } });
+        var res = commands.Get(key, new[] { "$..a", "$.b" }).ToString();
+        var obj = JsonSerializer.Deserialize<JsonObject>(res);
+        Assert.True(obj.ContainsKey("$..a"));
+        Assert.True(obj.ContainsKey("$.b"));
+        if (obj["$..a"] is JsonArray arr)
+        {
+            Assert.Equal("hello", arr[0]!.ToString());
+            Assert.Equal("world", arr[1]!.ToString());
+        }
+        else
+        {
+            Assert.True(false, "$..a was not a json array");
+        }
+
+        Assert.True(obj["$.b"]![0]!["a"]!.ToString() == "world");
+    }
+
+    [Fact]
+    public void Memory()
+    {
+        IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var keys = CreateKeyNames(1);
+        var key = keys[0];
+
+        commands.Set(key, "$", new {a="hello", b=new {a="world"}});
+        var res = commands.DebugMemory(key);
+        Assert.Equal(45, res);
+        res = commands.DebugMemory("non-existent key");
+        Assert.Equal(0,res);
     }
 }

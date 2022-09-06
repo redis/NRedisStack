@@ -11,10 +11,10 @@
         public const string CLEAR = "JSON.CLEAR";
         public const string DEBUG = "JSON.DEBUG";
         public const string DEBUG_HELP = "JSON.DEBUG HELP";
-        public const string DEBUG_MEMORY = "JSON.DEBUG MEMORY";
         public const string DEL = "JSON.DEL";
         public const string FORGET = "JSON.FORGET";
         public const string GET = "JSON.GET";
+        public const string MEMORY = "MEMORY";
         public const string MGET = "JSON.MGET";
         public const string NUMINCRBY = "JSON.NUMINCRBY";
         public const string NUMMULTBY = "JSON.NUMMULTBY";

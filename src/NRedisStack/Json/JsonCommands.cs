@@ -145,6 +145,15 @@ public class JsonCommands : IJsonCommands
 
     }
 
+    public long DebugMemory(string key, string? path = null)
+    {
+        if (path != null)
+        {
+            return (long)_db.Execute(JSON.DEBUG, JSON.MEMORY, key, path);
+        }
+        return (long)_db.Execute(JSON.DEBUG, JSON.MEMORY, key);
+    }
+
     /// <inheritdoc/>
     public long?[] ArrAppend(RedisKey key, string? path = null, params object[] values)
     {
@@ -266,6 +275,37 @@ public class JsonCommands : IJsonCommands
         if (path != null)
         {
             args.Add(path);
+        }
+
+        return _db.Execute(JSON.GET, args);
+    }
+
+    /// <inheritdoc/>
+    public RedisResult Get(RedisKey key, string[] paths, RedisValue? indent = null, RedisValue? newLine = null, RedisValue? space = null)
+    {
+        List<object> args = new List<object>() { key };
+
+        foreach (var path in paths)
+        {
+            args.Add(path);
+        }
+
+        if (indent != null)
+        {
+            args.Add(JsonArgs.INDENT);
+            args.Add(indent);
+        }
+
+        if (newLine != null)
+        {
+            args.Add(JsonArgs.NEWLINE);
+            args.Add(newLine);
+        }
+
+        if (space != null)
+        {
+            args.Add(JsonArgs.SPACE);
+            args.Add(space);
         }
 
         return _db.Execute(JSON.GET, args);
