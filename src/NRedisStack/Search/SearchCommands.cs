@@ -94,22 +94,23 @@ namespace NRedisStack
             return (await _db.ExecuteAsync(FT.ALIASUPDATE, alias, index)).OKtoBoolean();
         }
 
-        // TODO: finish this:
-        // /// <summary>
-        // /// Add a new attribute to the index
-        // /// </summary>
-        // /// <param name="alias">Alias to be removed.</param>
-        // /// <param name="index">The index name.</param>
-        // /// <returns><see langword="true"/> if executed correctly, error otherwise</returns>
-        // /// <remarks><seealso href="https://redis.io/commands/ft.aliasdel"/></remarks>
-        // public bool Alter(string alias, string index)
-        // {
-        //     return _db.Execute(FT.ALIASUPDATE, alias, index).OKtoBoolean();
-        // }
+        /// <summary>
+        /// Add a new attribute to the index
+        /// </summary>
+        /// <param name="index">The index name to create.</param>
+        /// <param name="skipInitialScan">If set, does not scan and index.</param>
+        /// <param name="attribute">attribute to add.</param>
+        /// <param name="options">attribute options.</param>
+        /// <returns><see langword="true"/> if executed correctly, error otherwise</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.aliasdel"/></remarks>
+        public bool Alter(string alias, string index)
+        {
+            return _db.Execute(FT.ALIASUPDATE, alias, index).OKtoBoolean();
+        }
 
-        // public RedisResult Info(RedisValue index)
-        // {
-        //     return _db.Execute(FT.INFO, index);
-        // }
+        public RedisResult Info(RedisValue index)
+        {
+            return _db.Execute(FT.INFO, index);
+        }
     }
 }
