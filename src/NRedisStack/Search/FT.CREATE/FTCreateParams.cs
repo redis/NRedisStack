@@ -1,11 +1,12 @@
+using NRedisStack.Literals;
 using NRedisStack.Literals.Enums;
-
+// TODO: look at NRediSearch
 namespace NRedisStack.Search.FT.CREATE
 {
     public class FTCreateParams
     {
         private IndexDataType dataType;
-        private List<string> prefix;
+        private List<string> prefixes;
         private string filter;
         private string language;
         private string languageField;
@@ -20,5 +21,301 @@ namespace NRedisStack.Search.FT.CREATE
         private bool noFreqs;
         private List<string> stopwords;
         private bool skipInitialScan;
+
+        public FTCreateParams()
+        {
+        }
+
+        public static FTCreateParams createParams()
+        {
+            return new FTCreateParams();
+        }
+
+        /* Currently supports HASH (default) and JSON. To index JSON, you must have the RedisJSON module
+         installed.
+        */
+        public FTCreateParams on(IndexDataType dataType)
+        {
+            this.dataType = dataType;
+            return this;
+        }
+
+        /**
+   * Tells the index which keys it should index. You can add several prefixes to index.
+   */
+        public FTCreateParams Prefix(params string[] prefixes)
+        {
+            if (this.prefixes == null)
+            {
+                this.prefixes = new List<string>(prefixes.Length);
+            }
+            this.prefixes.AddRange(prefixes);
+            return this;
+        }
+
+        /**
+         * This method can be chained to add multiple prefixes.
+         *
+         * @see FTCreateParams#prefix(java.lang.params string[])
+         */
+        public FTCreateParams AddPrefix(string prefix)
+        {
+            if (this.prefixes == null)
+            {
+                this.prefixes = new List<string>();
+            }
+            this.prefixes.Add(prefix);
+            return this;
+        }
+
+        /**
+         * A filter expression with the full RediSearch aggregation expression language.
+         */
+        public FTCreateParams Filter(string filter)
+        {
+            this.filter = filter;
+            return this;
+        }
+
+        /**
+         * Indicates the default language for documents in the index.
+         */
+        public FTCreateParams Language(string defaultLanguage)
+        {
+            this.language = defaultLanguage;
+            return this;
+        }
+
+        /**
+         * Document attribute set as the document language.
+         */
+        public FTCreateParams LanguageField(string languageAttribute)
+        {
+            this.languageField = languageAttribute;
+            return this;
+        }
+
+        /**
+         * Default score for documents in the index.
+         */
+        public FTCreateParams Score(double defaultScore)
+        {
+            this.score = defaultScore;
+            return this;
+        }
+
+        /**
+         * Document attribute that you use as the document rank based on the user ranking.
+         * Ranking must be between 0.0 and 1.0.
+         */
+        public FTCreateParams ScoreField(string scoreField)
+        {
+            this.scoreField = scoreField;
+            return this;
+        }
+
+        /**
+         * Document attribute that you use as a binary safe payload string to the document that can be
+         * evaluated at query time by a custom scoring function or retrieved to the client.
+         */
+        public FTCreateParams PayloadField(byte[] payloadAttribute)
+        {
+            Array.Copy(this.payloadField, payloadAttribute, payloadAttribute.Length);
+            return this;
+        }
+
+        /**
+         * Forces RediSearch to encode indexes as if there were more than 32 text attributes.
+         */
+        public FTCreateParams MaxTextFields()
+        {
+            this.maxTextFields = true;
+            return this;
+        }
+
+        /**
+         * Does not store term offsets for documents. It saves memory, but does not allow exact searches
+         * or highlighting.
+         */
+        public FTCreateParams NoOffsets()
+        {
+            this.noOffsets = true;
+            return this;
+        }
+
+        /**
+         * Creates a lightweight temporary index that expires after a specified period of inactivity.
+         */
+        public FTCreateParams Temporary(long seconds)
+        {
+            this.temporary = seconds;
+            return this;
+        }
+
+        /**
+         * Conserves storage space and memory by disabling highlighting support.
+         */
+        public FTCreateParams NoHL()
+        {
+            this.noHL = true;
+            return this;
+        }
+
+        /**
+         * @see FTCreateParams#noHL()
+         */
+        public FTCreateParams NoHighlights()
+        {
+            return NoHL();
+        }
+
+        /**
+         * Does not store attribute bits for each term. It saves memory, but it does not allow filtering
+         * by specific attributes.
+         */
+        public FTCreateParams NoFields()
+        {
+            this.noFields = true;
+            return this;
+        }
+
+        /**
+         * Avoids saving the term frequencies in the index. It saves memory, but does not allow sorting
+         * based on the frequencies of a given term within the document.
+         */
+        public FTCreateParams NoFreqs()
+        {
+            this.noFreqs = true;
+            return this;
+        }
+
+        /**
+         * Sets the index with a custom stopword list, to be ignored during indexing and search time.
+         */
+        public FTCreateParams topwords(params string[] stopwords)
+        {
+            this.stopwords = stopwords.ToList();
+            return this;
+        }
+
+        /**
+         * The index does not have stopwords, not even the default ones.
+         */
+        public FTCreateParams NoStopwords()
+        {
+            this.stopwords = new List<string> { };
+            return this;
+        }
+
+        /**
+         * Does not scan and index.
+         */
+        public FTCreateParams SkipInitialScan()
+        {
+            this.skipInitialScan = true;
+            return this;
+        }
+
+        public void AddParams(List<object> args)
+        {
+
+            if (dataType != null)
+            {
+                args.Add("ON");
+                args.Add(dataType);
+            }
+
+            if (prefixes != null)
+            {
+                args.Add(SearchArgs.PREFIX);
+                args.Add(prefixes.Count);
+                foreach(var prefix in prefixes)
+                    if(prefix != null)
+                        args.Add(prefix);
+            }
+
+            if (filter != null)
+            {
+                args.Add(SearchArgs.FILTER);
+                args.Add(filter);
+            }
+
+            if (language != null)
+            {
+                args.Add(SearchArgs.LANGUAGE);
+                args.Add(language);
+            }
+            if (languageField != null)
+            {
+                args.Add(SearchArgs.LANGUAGE_FIELD);
+                args.Add(languageField);
+            }
+
+            if (score != null)
+            {
+                args.Add(SearchArgs.SCORE);
+                args.Add(score);
+            }
+            if (scoreField != null)
+            {
+                args.Add(SearchArgs.SCORE_FIELD);
+                args.Add(scoreField);
+            }
+
+            if (payloadField != null)
+            {
+                args.Add(SearchArgs.PAYLOAD_FIELD);
+                args.Add(payloadField);
+            }
+
+            if (maxTextFields)
+            {
+                args.Add(SearchArgs.MAXTEXTFIELDS);
+            }
+            //[TEMPORARY seconds] seposed to be here
+            if (noOffsets)
+            {
+                args.Add(SearchArgs.NOOFFSETS);
+            }
+
+            if (temporary != null)
+            {
+                args.Add(SearchArgs.TEMPORARY);
+                args.Add(temporary);
+            }
+
+            if (noHL)
+            {
+                args.Add(SearchArgs.NOHL);
+            }
+
+            if (noFields)
+            {
+                args.Add(SearchArgs.NOFIELDS);
+            }
+
+            if (noFreqs)
+            {
+                args.Add(SearchArgs.NOFREQS);
+            }
+
+            if (stopwords != null)
+            {
+                args.Add(SearchArgs.STOPWORDS);
+                args.Add(stopwords.Count);
+                stopwords.ForEach(w => args.Add(w));
+            }
+
+            if (skipInitialScan)
+            {
+                args.Add(SearchArgs.SKIPINITIALSCAN);
+            }
+            /*
+            here sepose to be:
+            SCHEMA field_name [AS alias] TEXT | TAG | NUMERIC | GEO | VECTOR [ SORTABLE [UNF]]
+            [NOINDEX] [ field_name [AS alias] TEXT | TAG | NUMERIC | GEO | VECTOR [ SORTABLE [UNF]] [NOINDEX] ...]
+            */
+
+        }
     }
 }
