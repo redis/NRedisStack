@@ -1,4 +1,6 @@
 using NRedisStack.Literals;
+using NRedisStack.Search;
+using NRedisStack.Search.FT.CREATE;
 using StackExchange.Redis;
 namespace NRedisStack
 {
@@ -111,6 +113,29 @@ namespace NRedisStack
         public RedisResult Info(RedisValue index)
         {
             return _db.Execute(FT.INFO, index);
+        }
+
+        /// <summary>
+        /// Create an index with the given specification.
+        /// </summary>
+        /// <param name="indexName">The index name.</param>
+        /// <param name="parameters">Command's parameters.</param>
+        /// <param name="schema">The index schema.</param>
+        /// <returns><see langword="true"/> if executed correctly, error otherwise</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.create"/></remarks>
+        public bool Create(string indexName, FTCreateParams parameters, Schema schema)
+        {
+            var args = new List<object>() { indexName };
+            parameters.AddParams(args);
+
+            args.Add("SCHEMA");
+
+            foreach (var f in schema.Fields)
+            {
+                f.SerializeRedisArgs(args);
+            }
+
+            return _db.Execute(FT.CREATE, args).OKtoBoolean();
         }
     }
 }

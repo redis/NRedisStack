@@ -1,3 +1,4 @@
+using NRedisStack.Extensions;
 using NRedisStack.Literals;
 using NRedisStack.Literals.Enums;
 // TODO: look at NRediSearch
@@ -31,18 +32,19 @@ namespace NRedisStack.Search.FT.CREATE
             return new FTCreateParams();
         }
 
-        /* Currently supports HASH (default) and JSON. To index JSON, you must have the RedisJSON module
-         installed.
-        */
+        /// <summary>
+        /// Currently supports HASH (default) and JSON. To index JSON, you must have the RedisJSON module
+        /// installed.
+        /// </summary>
         public FTCreateParams on(IndexDataType dataType)
         {
             this.dataType = dataType;
             return this;
         }
 
-        /**
-   * Tells the index which keys it should index. You can add several prefixes to index.
-   */
+        /// <summary>
+        ///  Tells the index which keys it should index. You can add several prefixes to index.
+        /// </summary>
         public FTCreateParams Prefix(params string[] prefixes)
         {
             if (this.prefixes == null)
@@ -53,11 +55,10 @@ namespace NRedisStack.Search.FT.CREATE
             return this;
         }
 
-        /**
-         * This method can be chained to add multiple prefixes.
-         *
-         * @see FTCreateParams#prefix(java.lang.params string[])
-         */
+        /// <summary>
+        ///  This method can be chained to add multiple prefixes.
+        ///  @see FTCreateParams#prefix(java.lang.params string[])
+        /// </summary>
         public FTCreateParams AddPrefix(string prefix)
         {
             if (this.prefixes == null)
@@ -68,148 +69,148 @@ namespace NRedisStack.Search.FT.CREATE
             return this;
         }
 
-        /**
-         * A filter expression with the full RediSearch aggregation expression language.
-         */
+        /// <summary>
+        ///  A filter expression with the full RediSearch aggregation expression language.
+        /// </summary>
         public FTCreateParams Filter(string filter)
         {
             this.filter = filter;
             return this;
         }
 
-        /**
-         * Indicates the default language for documents in the index.
-         */
+        /// <summary>
+        /// default language for documents in the index.
+        /// </summary>
         public FTCreateParams Language(string defaultLanguage)
         {
             this.language = defaultLanguage;
             return this;
         }
 
-        /**
-         * Document attribute set as the document language.
-         */
+        /// <summary>
+        ///  Document attribute set as the document language.
+        /// </summary>
         public FTCreateParams LanguageField(string languageAttribute)
         {
             this.languageField = languageAttribute;
             return this;
         }
 
-        /**
-         * Default score for documents in the index.
-         */
+        /// <summary>
+        ///  Default score for documents in the index.
+        /// </summary>
         public FTCreateParams Score(double defaultScore)
         {
             this.score = defaultScore;
             return this;
         }
 
-        /**
-         * Document attribute that you use as the document rank based on the user ranking.
-         * Ranking must be between 0.0 and 1.0.
-         */
+        /// <summary>
+        ///  Document attribute that you use as the document rank based on the user ranking.
+        ///  Ranking must be between 0.0 and 1.0.
+        /// </summary>
         public FTCreateParams ScoreField(string scoreField)
         {
             this.scoreField = scoreField;
             return this;
         }
 
-        /**
-         * Document attribute that you use as a binary safe payload string to the document that can be
-         * evaluated at query time by a custom scoring function or retrieved to the client.
-         */
+        /// <summary>
+        ///  Document attribute that you use as a binary safe payload string to the document that can be
+        ///  evaluated at query time by a custom scoring function or retrieved to the client.
+        /// </summary>
         public FTCreateParams PayloadField(byte[] payloadAttribute)
         {
             Array.Copy(this.payloadField, payloadAttribute, payloadAttribute.Length);
             return this;
         }
 
-        /**
-         * Forces RediSearch to encode indexes as if there were more than 32 text attributes.
-         */
+        /// <summary>
+        ///  Forces RediSearch to encode indexes as if there were more than 32 text attributes.
+        /// </summary>
         public FTCreateParams MaxTextFields()
         {
             this.maxTextFields = true;
             return this;
         }
 
-        /**
-         * Does not store term offsets for documents. It saves memory, but does not allow exact searches
-         * or highlighting.
-         */
+        /// <summary>
+        ///  Does not store term offsets for documents. It saves memory, but does not allow exact searches
+        ///  or highlighting.
+        /// </summary>
         public FTCreateParams NoOffsets()
         {
             this.noOffsets = true;
             return this;
         }
 
-        /**
-         * Creates a lightweight temporary index that expires after a specified period of inactivity.
-         */
+        /// <summary>
+        ///  Creates a lightweight temporary index that expires after a specified period of inactivity.
+        /// </summary>
         public FTCreateParams Temporary(long seconds)
         {
             this.temporary = seconds;
             return this;
         }
 
-        /**
-         * Conserves storage space and memory by disabling highlighting support.
-         */
+        /// <summary>
+        ///  Conserves storage space and memory by disabling highlighting support.
+        /// </summary>
         public FTCreateParams NoHL()
         {
             this.noHL = true;
             return this;
         }
 
-        /**
-         * @see FTCreateParams#noHL()
-         */
+        /// <summary>
+        ///  @see FTCreateParams#noHL()
+        /// </summary>
         public FTCreateParams NoHighlights()
         {
             return NoHL();
         }
 
-        /**
-         * Does not store attribute bits for each term. It saves memory, but it does not allow filtering
-         * by specific attributes.
-         */
+        /// <summary>
+        ///  Does not store attribute bits for each term. It saves memory, but it does not allow filtering
+        ///  by specific attributes.
+        /// </summary>
         public FTCreateParams NoFields()
         {
             this.noFields = true;
             return this;
         }
 
-        /**
-         * Avoids saving the term frequencies in the index. It saves memory, but does not allow sorting
-         * based on the frequencies of a given term within the document.
-         */
+        /// <summary>
+        ///  Avoids saving the term frequencies in the index. It saves memory, but does not allow sorting
+        ///  based on the frequencies of a given term within the document.
+        /// </summary>
         public FTCreateParams NoFreqs()
         {
             this.noFreqs = true;
             return this;
         }
 
-        /**
-         * Sets the index with a custom stopword list, to be ignored during indexing and search time.
-         */
+        /// <summary>
+        ///  Sets the index with a custom stopword list, to be ignored during indexing and search time.
+        /// </summary>
         public FTCreateParams topwords(params string[] stopwords)
         {
             this.stopwords = stopwords.ToList();
             return this;
         }
 
-        /**
-         * The index does not have stopwords, not even the default ones.
-         */
+        /// <summary>
+        ///  The index does not have stopwords, not even the default ones.
+        /// </summary>
         public FTCreateParams NoStopwords()
         {
             this.stopwords = new List<string> { };
             return this;
         }
 
-        /**
-         * Does not scan and index.
-         */
+        /// <summary>
+        ///  Does not scan and index.
+        /// </summary>
         public FTCreateParams SkipInitialScan()
         {
             this.skipInitialScan = true;
@@ -222,15 +223,15 @@ namespace NRedisStack.Search.FT.CREATE
             if (dataType != null)
             {
                 args.Add("ON");
-                args.Add(dataType);
+                args.Add(dataType.AsArg());
             }
 
             if (prefixes != null)
             {
                 args.Add(SearchArgs.PREFIX);
                 args.Add(prefixes.Count);
-                foreach(var prefix in prefixes)
-                    if(prefix != null)
+                foreach (var prefix in prefixes)
+                    if (prefix != null)
                         args.Add(prefix);
             }
 
@@ -310,11 +311,10 @@ namespace NRedisStack.Search.FT.CREATE
             {
                 args.Add(SearchArgs.SKIPINITIALSCAN);
             }
-            /*
-            here sepose to be:
-            SCHEMA field_name [AS alias] TEXT | TAG | NUMERIC | GEO | VECTOR [ SORTABLE [UNF]]
-            [NOINDEX] [ field_name [AS alias] TEXT | TAG | NUMERIC | GEO | VECTOR [ SORTABLE [UNF]] [NOINDEX] ...]
-            */
+            // here sepose to be:
+            // SCHEMA field_name[AS alias] TEXT | TAG | NUMERIC | GEO | VECTOR[SORTABLE[UNF]]
+            // [NOINDEX][field_name[AS alias] TEXT | TAG | NUMERIC | GEO | VECTOR[SORTABLE[UNF]][NOINDEX]...]
+
 
         }
     }
