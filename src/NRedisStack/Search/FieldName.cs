@@ -1,41 +1,50 @@
 using System.Collections.Generic;
+using System.Text;
 
 namespace NRedisStack.Search
 {
-    public class FieldName {
-        private readonly string name;
-        private string attribute;
+    public class FieldName
+    {
+        private readonly string fieldName;
+        private string alias;
 
-        public FieldName(string name) : this(name, null) {
+        public FieldName(string name) : this(name, null)
+        {
 
         }
 
-        public FieldName(string name, string attribute) {
-            this.name = name;
-            this.attribute = attribute;
+        public FieldName(string name, string attribute)
+        {
+            this.fieldName = name;
+            this.alias = attribute;
         }
 
-        public int AddCommandArguments(List<object> args) {
-            args.Add(name);
-            if (attribute == null) {
+        public int AddCommandArguments(List<object> args)
+        {
+            args.Add(fieldName);
+            if (alias == null)
+            {
                 return 1;
             }
 
             args.Add("AS");
-            args.Add(attribute);
+            args.Add(alias);
             return 3;
         }
 
-        public static FieldName Of(string name) {
+        public static FieldName Of(string name)
+        {
             return new FieldName(name);
         }
 
-        public FieldName As(string attribute) {
-            this.attribute = attribute;
+        public FieldName As(string attribute)
+        {
+            this.alias = attribute;
             return this;
         }
 
-        public static FieldName[] convert(params string[] names) {
+        public static FieldName[] convert(params string[] names)
+        {
             if (names == null) return null;
             FieldName[] fields = new FieldName[names.Length];
             for (int i = 0; i < names.Length; i++)
