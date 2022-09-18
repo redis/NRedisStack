@@ -126,13 +126,13 @@ namespace NRedisStack
         public bool Create(string indexName, FTCreateParams parameters, Schema schema)
         {
             var args = new List<object>() { indexName };
-            parameters.AddParams(args);
+            parameters.AddParams(args); // TODO: Think of a better implementation
 
             args.Add("SCHEMA");
 
             foreach (var f in schema.Fields)
             {
-                f.SerializeRedisArgs(args);
+                f.AddSchemaArgs(args);
             }
 
             return _db.Execute(FT.CREATE, args).OKtoBoolean();

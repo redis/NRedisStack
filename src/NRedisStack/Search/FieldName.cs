@@ -8,10 +8,7 @@ namespace NRedisStack.Search
         private readonly string fieldName;
         private string alias;
 
-        public FieldName(string name) : this(name, null)
-        {
-
-        }
+        public FieldName(string name) : this(name, null) { }
 
         public FieldName(string name, string attribute)
         {
