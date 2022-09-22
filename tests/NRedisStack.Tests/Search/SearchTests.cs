@@ -113,6 +113,42 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    public void AlterAdd()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Schema sc = new Schema().AddTextField("title", 1.0);
+
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
+        var fields = new HashEntry("title", "hello world");
+        //fields.("title", "hello world");
+        for (int i = 0; i < 100; i++)
+        {
+            db.HashSet($"doc{i}", fields.Name, fields.Value);
+        }
+        SearchResult res = ft.Search(index, new Query("hello world"));
+        Assert.Equal(100, res.TotalResults);
+
+        Assert.True(ft.Alter(index, new Schema().AddTagField("tags").AddTextField("name", weight: 0.5)));
+        for (int i = 0; i < 100; i++)
+        {
+            var fields2 = new HashEntry[] { new("name", "name" + i),
+                                      new("tags", $"tagA,tagB,tag{i}") };
+            //      assertTrue(client.updateDocument(string.format("doc%d", i), 1.0, fields2));
+            db.HashSet($"doc{i}", fields2);
+        }
+        SearchResult res2 = ft.Search(index, new Query("@tags:{tagA}"));
+        Assert.Equal(100, res2.TotalResults);
+
+        //TODO: complete this test when I finish the command FT.INFO
+        // var info = ft.Info(index);
+        // Assert.Equal(index, info.get("index_name"));
+        // Assert.Equal("identifier", ((List)((List)info.get("attributes")).get(1)).get(0));
+        // Assert.Equal("attribute", ((List)((List)info.get("attributes")).get(1)).get(2));
+    }
+
+    [Fact]
     public void TestModulePrefixs()
     {
         IDatabase db1 = redisFixture.Redis.GetDatabase();

@@ -99,15 +99,22 @@ namespace NRedisStack
         /// <summary>
         /// Add a new attribute to the index
         /// </summary>
-        /// <param name="index">The index name to create.</param>
+        /// <param name="index">The index name.</param>
         /// <param name="skipInitialScan">If set, does not scan and index.</param>
-        /// <param name="attribute">attribute to add.</param>
-        /// <param name="options">attribute options.</param>
+        /// <param name="schema">the schema.</param>
         /// <returns><see langword="true"/> if executed correctly, error otherwise</returns>
-        /// <remarks><seealso href="https://redis.io/commands/ft.aliasdel"/></remarks>
-        public bool Alter(string alias, string index)
+        /// <remarks><seealso href="https://redis.io/commands/ft.alter"/></remarks>
+        public bool Alter(string index, Schema schema, bool skipInitialScan = false)
         {
-            return _db.Execute(FT.ALIASUPDATE, alias, index).OKtoBoolean();
+            List<object> args = new List<object>(){index};
+            if (skipInitialScan) args.Add("SKIPINITIALSCAN");
+            args.Add("SCHEMA");
+            args.Add("ADD");
+            foreach (var f in schema.Fields)
+            {
+                f.AddSchemaArgs(args);
+            }
+            return _db.Execute(FT.ALTER, args).OKtoBoolean();
         }
 
         public RedisResult Info(RedisValue index)
