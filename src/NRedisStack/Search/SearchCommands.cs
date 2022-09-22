@@ -137,5 +137,23 @@ namespace NRedisStack
 
             return _db.Execute(FT.CREATE, args).OKtoBoolean();
         }
+
+        /// <summary>
+        /// Search the index
+        /// </summary>
+        /// <param name="indexName">The index name</param>
+        /// <param name="q">a <see cref="Query"/> object with the query string and optional parameters</param>
+        /// <returns>a <see cref="SearchResult"/> object with the results</returns>
+        public SearchResult Search(string indexName, Query q)
+        {
+            var args = new List<object>{indexName};
+            // {
+            //     _boxedIndexName
+            // };
+            q.SerializeRedisArgs(args);
+
+            var resp = _db.Execute("FT.SEARCH", args).ToArray();
+            return new SearchResult(resp, !q.NoContent, q.WithScores, q.WithPayloads, q.ExplainScore);
+        }
     }
 }

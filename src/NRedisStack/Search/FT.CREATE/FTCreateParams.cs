@@ -27,7 +27,7 @@ namespace NRedisStack.Search.FT.CREATE
         {
         }
 
-        public static FTCreateParams createParams()
+        public static FTCreateParams CreateParams()
         {
             return new FTCreateParams();
         }
@@ -36,7 +36,7 @@ namespace NRedisStack.Search.FT.CREATE
         /// Currently supports HASH (default) and JSON. To index JSON, you must have the RedisJSON module
         /// installed.
         /// </summary>
-        public FTCreateParams on(IndexDataType dataType)
+        public FTCreateParams On(IndexDataType dataType)
         {
             this.dataType = dataType;
             return this;
@@ -220,7 +220,7 @@ namespace NRedisStack.Search.FT.CREATE
         public void AddParams(List<object> args)
         {
 
-            if (dataType != null)
+            if (dataType != default(IndexDataType))
             {
                 args.Add("ON");
                 args.Add(dataType.AsArg());
@@ -252,7 +252,7 @@ namespace NRedisStack.Search.FT.CREATE
                 args.Add(languageField);
             }
 
-            if (score != null)
+            if (score != default(double))
             {
                 args.Add(SearchArgs.SCORE);
                 args.Add(score);
@@ -279,7 +279,7 @@ namespace NRedisStack.Search.FT.CREATE
                 args.Add(SearchArgs.NOOFFSETS);
             }
 
-            if (temporary != null)
+            if (temporary != default(long))
             {
                 args.Add(SearchArgs.TEMPORARY);
                 args.Add(temporary);
@@ -311,11 +311,6 @@ namespace NRedisStack.Search.FT.CREATE
             {
                 args.Add(SearchArgs.SKIPINITIALSCAN);
             }
-            // here sepose to be:
-            // SCHEMA field_name[AS alias] TEXT | TAG | NUMERIC | GEO | VECTOR[SORTABLE[UNF]]
-            // [NOINDEX][field_name[AS alias] TEXT | TAG | NUMERIC | GEO | VECTOR[SORTABLE[UNF]][NOINDEX]...]
-
-
         }
     }
 }
