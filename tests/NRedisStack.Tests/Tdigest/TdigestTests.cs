@@ -91,6 +91,159 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    public void TestRank()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var tdigest = db.TDIGEST();
+
+        Assert.True(tdigest.Create("t-digest", 500));
+        var tuples = new Tuple<double, long>[20];
+        for (int i = 0; i < 20; i++)
+        {
+            tuples[i] = new(i, 1);
+        }
+        Assert.True(tdigest.Add("t-digest", tuples));
+        Assert.Equal(-1, tdigest.Rank("t-digest", -1)[0]);
+        Assert.Equal(1, tdigest.Rank("t-digest", 0)[0]);
+        Assert.Equal(11, tdigest.Rank("t-digest", 10)[0]);
+        Assert.Equal(new long[3] { -1, 20, 10 }, tdigest.Rank("t-digest", -20, 20, 9));
+    }
+
+    [Fact]
+    public async Task TestRankAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var tdigest = db.TDIGEST();
+
+        Assert.True(tdigest.Create("t-digest", 500));
+        var tuples = new Tuple<double, long>[20];
+        for (int i = 0; i < 20; i++)
+        {
+            tuples[i] = new(i, 1);
+        }
+        Assert.True(tdigest.Add("t-digest", tuples));
+        Assert.Equal(-1, (await tdigest.RankAsync("t-digest", -1))[0]);
+        Assert.Equal(1, (await tdigest.RankAsync("t-digest", 0))[0]);
+        Assert.Equal(11, (await tdigest.RankAsync("t-digest", 10))[0]);
+        Assert.Equal(new long[3] { -1, 20, 10 }, await tdigest.RankAsync("t-digest", -20, 20, 9));
+    }
+
+    [Fact]
+    public void TestRevRank()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var tdigest = db.TDIGEST();
+
+        Assert.True(tdigest.Create("t-digest", 500));
+        var tuples = new Tuple<double, long>[20];
+        for (int i = 0; i < 20; i++)
+        {
+            tuples[i] = new(i, 1);
+        }
+
+        Assert.True(tdigest.Add("t-digest", tuples));
+        Assert.Equal(-1, tdigest.RevRank("t-digest", 20)[0]);
+        Assert.Equal(20, tdigest.RevRank("t-digest", 0)[0]);
+        Assert.Equal(new long[3] { -1, 20, 10 }, tdigest.RevRank("t-digest", 21, 0, 10));
+    }
+
+    [Fact]
+    public async Task TestRevRankAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var tdigest = db.TDIGEST();
+
+        Assert.True(tdigest.Create("t-digest", 500));
+        var tuples = new Tuple<double, long>[20];
+        for (int i = 0; i < 20; i++)
+        {
+            tuples[i] = new(i, 1);
+        }
+
+        Assert.True(tdigest.Add("t-digest", tuples));
+        Assert.Equal(-1, (await tdigest.RevRankAsync("t-digest", 20))[0]);
+        Assert.Equal(20, (await tdigest.RevRankAsync("t-digest", 0))[0]);
+        Assert.Equal(new long[3] { -1, 20, 10 }, await tdigest.RevRankAsync("t-digest", 21, 0, 10));
+    }
+
+    // TODO: fix those tests:
+    // [Fact]
+    // public void TestByRanks()
+    // {
+    //     IDatabase db = redisFixture.Redis.GetDatabase();
+    //     db.Execute("FLUSHALL");
+    //     var tdigest = db.TDIGEST();
+
+    //     Assert.True(tdigest.Create("t-digest", 500));
+    //     var tuples = new Tuple<double, long>[20];
+    //     for (int i = 0; i < 20; i++)
+    //     {
+    //         tuples[i] = new(i, 1);
+    //     }
+    //     Assert.True(tdigest.Add("t-digest", tuples));
+    //     Assert.Equal(1, tdigest.ByRank("t-digest", 0)[0]);
+    //     Assert.Equal(10, tdigest.ByRank("t-digest", 9)[0]);
+    // }
+
+    // [Fact]
+    // public async Task TestByRanksAsync()
+    // {
+    //     IDatabase db = redisFixture.Redis.GetDatabase();
+    //     db.Execute("FLUSHALL");
+    //     var tdigest = db.TDIGEST();
+
+    //     Assert.True(tdigest.Create("t-digest", 500));
+    //     var tuples = new Tuple<double, long>[20];
+    //     for (int i = 0; i < 20; i++)
+    //     {
+    //         tuples[i] = new(i, 1);
+    //     }
+    //     Assert.True(tdigest.Add("t-digest", tuples));
+    //     Assert.Equal(1, (await tdigest.ByRankAsync("t-digest", 0))[0]);
+    //     Assert.Equal(10, (await tdigest.ByRankAsync("t-digest", 9))[0]);
+    // }
+
+    // [Fact]
+    // public void TestByRevRanks()
+    // {
+    //     IDatabase db = redisFixture.Redis.GetDatabase();
+    //     db.Execute("FLUSHALL");
+    //     var tdigest = db.TDIGEST();
+
+    //     Assert.True(tdigest.Create("t-digest", 500));
+    //     var tuples = new Tuple<double, long>[20];
+    //     for (int i = 0; i < 20; i++)
+    //     {
+    //         tuples[i] = new(i, 1);
+    //     }
+    //     Assert.True(tdigest.Add("t-digest", tuples));
+    //     Assert.Equal(10, tdigest.ByRevRank("t-digest", 0)[0]);
+    //     Assert.Equal(2, tdigest.ByRevRank("t-digest", 9)[0]);
+    // }
+
+    // [Fact]
+    // public async Task TestByRevRanksAsync()
+    // {
+    //     IDatabase db = redisFixture.Redis.GetDatabase();
+    //     db.Execute("FLUSHALL");
+    //     var tdigest = db.TDIGEST();
+
+    //     Assert.True(tdigest.Create("t-digest", 500));
+    //     var tuples = new Tuple<double, long>[20];
+    //     for (int i = 0; i < 20; i++)
+    //     {
+    //         tuples[i] = new(i, 1);
+    //     }
+    //     Assert.True(tdigest.Add("t-digest", tuples));
+    //     Assert.Equal(10, (await tdigest.ByRevRankAsync("t-digest", 0))[0]);
+    //     Assert.Equal(2, (await tdigest.ByRevRankAsync("t-digest", 9))[0]);
+    // }
+
+    [Fact]
     public void TestReset()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -164,7 +317,6 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         AssertMergedUnmergedNodes(tdigest, "tdadd", 0, 5);
     }
 
-
     [Fact]
     public void TestMerge()
     {
@@ -175,13 +327,13 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         tdigest.Create("td2", 100);
         tdigest.Create("td4m", 100);
 
-        Assert.True(tdigest.Merge("td2", "td4m"));
+        Assert.True(tdigest.Merge("td2", sourceKeys: "td4m"));
         AssertMergedUnmergedNodes(tdigest, "td2", 0, 0);
 
         tdigest.Add("td2", DefinedValueWeight(1, 1), DefinedValueWeight(1, 1), DefinedValueWeight(1, 1));
         tdigest.Add("td4m", DefinedValueWeight(1, 100), DefinedValueWeight(1, 100));
 
-        Assert.True(tdigest.Merge("td2", "td4m"));
+        Assert.True(tdigest.Merge("td2", sourceKeys: "td4m"));
         AssertMergedUnmergedNodes(tdigest, "td2", 3, 2);
     }
 
@@ -196,54 +348,52 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         await tdigest.CreateAsync("td2", 100);
         await tdigest.CreateAsync("td4m", 100);
 
-        Assert.True(await tdigest.MergeAsync("td2", "td4m"));
+        Assert.True(await tdigest.MergeAsync("td2", sourceKeys: "td4m"));
         AssertMergedUnmergedNodes(tdigest, "td2", 0, 0);
 
         await tdigest.AddAsync("td2", DefinedValueWeight(1, 1), DefinedValueWeight(1, 1), DefinedValueWeight(1, 1));
         await tdigest.AddAsync("td4m", DefinedValueWeight(1, 100), DefinedValueWeight(1, 100));
 
-        Assert.True(await tdigest.MergeAsync("td2", "td4m"));
+        Assert.True(await tdigest.MergeAsync("td2", sourceKeys: "td4m"));
         AssertMergedUnmergedNodes(tdigest, "td2", 3, 2);
     }
 
     [Fact]
-    public void TestMergeStore()
+    public void MergeMultiAndParams()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var tdigest = db.TDIGEST();
-
         tdigest.Create("from1", 100);
         tdigest.Create("from2", 200);
 
-        tdigest.Add("from1", 1, 1);
-        tdigest.Add("from2", 1, 10);
+        tdigest.Add("from1", 1d, 1);
+        tdigest.Add("from2", 1d, 10);
 
-        Assert.True(tdigest.MergeStore("to", 2, 100, "from1", "from2"));
+        Assert.True(tdigest.Merge("to", 2, sourceKeys: new RedisKey[] { "from1", "from2" }));
         AssertTotalWeight(tdigest, "to", 11d);
 
-        Assert.True(tdigest.MergeStore("to50", 2, 50, "from1", "from2"));
-        Assert.Equal(50, tdigest.Info("to50").Compression);
+        Assert.True(tdigest.Merge("to", 50, true, "from1", "from2"));
+        Assert.Equal(50, tdigest.Info("to").Compression);
     }
 
     [Fact]
-    public async Task TestMergeStoreAsync()
+    public async Task MergeMultiAndParamsAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var tdigest = db.TDIGEST();
+        tdigest.Create("from1", 100);
+        tdigest.Create("from2", 200);
 
-        await tdigest.CreateAsync("from1", 100);
-        await tdigest.CreateAsync("from2", 200);
+        tdigest.Add("from1", 1d, 1);
+        tdigest.Add("from2", 1d, 10);
 
-        await tdigest.AddAsync("from1", 1, 1);
-        await tdigest.AddAsync("from2", 1, 10);
-
-        Assert.True(await tdigest.MergeStoreAsync("to", 2, 100, "from1", "from2"));
+        Assert.True(await tdigest.MergeAsync("to", 2, sourceKeys: new RedisKey[] { "from1", "from2" }));
         AssertTotalWeight(tdigest, "to", 11d);
 
-        Assert.True(await tdigest.MergeStoreAsync("to50", 2, 50, "from1", "from2"));
-        Assert.Equal(50, (await tdigest.InfoAsync("to50")).Compression);
+        Assert.True(await tdigest.MergeAsync("to", 50, true, "from1", "from2"));
+        Assert.Equal(50, tdigest.Info("to").Compression);
     }
 
     [Fact]
@@ -254,11 +404,14 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         var tdigest = db.TDIGEST();
 
         tdigest.Create("tdcdf", 100);
-        Assert.Equal(double.NaN, tdigest.CDF("tdcdf", 50));
+        foreach(var item in tdigest.CDF("tdcdf", 50))
+        {
+            Assert.Equal(double.NaN, item);
+        }
 
         tdigest.Add("tdcdf", DefinedValueWeight(1, 1), DefinedValueWeight(1, 1), DefinedValueWeight(1, 1));
         tdigest.Add("tdcdf", DefinedValueWeight(100, 1), DefinedValueWeight(100, 1));
-        Assert.Equal(0.6, tdigest.CDF("tdcdf", 50));
+        Assert.Equal(new double[]{0.6}, tdigest.CDF("tdcdf", 50));
     }
 
     [Fact]
@@ -269,11 +422,14 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         var tdigest = db.TDIGEST();
 
         await tdigest.CreateAsync("tdcdf", 100);
-        Assert.Equal(double.NaN, await tdigest.CDFAsync("tdcdf", 50));
+        foreach (var item in (await tdigest.CDFAsync("tdcdf", 50)))
+        {
+            Assert.Equal(double.NaN, item);
+        }
 
         await tdigest.AddAsync("tdcdf", DefinedValueWeight(1, 1), DefinedValueWeight(1, 1), DefinedValueWeight(1, 1));
         await tdigest.AddAsync("tdcdf", DefinedValueWeight(100, 1), DefinedValueWeight(100, 1));
-        Assert.Equal(0.6, await tdigest.CDFAsync("tdcdf", 50));
+        Assert.Equal(new double[]{0.6}, await tdigest.CDFAsync("tdcdf", 50));
     }
 
     [Fact]
@@ -316,8 +472,8 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         var tdigest = db.TDIGEST();
 
         tdigest.Create(key, 100);
-        Assert.Equal(double.MaxValue, tdigest.Min(key));
-        Assert.Equal(-double.MaxValue, tdigest.Max(key));
+        Assert.Equal(double.NaN, tdigest.Min(key));
+        Assert.Equal(double.NaN, tdigest.Max(key));
 
         tdigest.Add(key, DefinedValueWeight(2, 1));
         tdigest.Add(key, DefinedValueWeight(5, 1));
@@ -333,8 +489,8 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         var tdigest = db.TDIGEST();
 
         await tdigest.CreateAsync(key, 100);
-        Assert.Equal(double.MaxValue, await tdigest.MinAsync(key));
-        Assert.Equal(-double.MaxValue, await tdigest.MaxAsync(key));
+        Assert.Equal(double.NaN, await tdigest.MinAsync(key));
+        Assert.Equal(double.NaN, await tdigest.MaxAsync(key));
 
         await tdigest.AddAsync(key, DefinedValueWeight(2, 1));
         await tdigest.AddAsync(key, DefinedValueWeight(5, 1));
@@ -353,7 +509,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
 
         for (int i = 0; i < 20; i++)
         {
-            tdigest.Add(key, new Tuple<double, double>(i, 1));
+            tdigest.Add(key, new Tuple<double, long>(i, 1));
         }
 
         Assert.Equal(9.5, tdigest.TrimmedMean(key, 0.1, 0.9));
@@ -373,7 +529,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
 
         for (int i = 0; i < 20; i++)
         {
-            await tdigest.AddAsync(key, new Tuple<double, double>(i, 1));
+            await tdigest.AddAsync(key, new Tuple<double, long>(i, 1));
         }
 
         Assert.Equal(9.5, await tdigest.TrimmedMeanAsync(key, 0.1, 0.9));
@@ -418,15 +574,25 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
 
     }
 
-    static Tuple<double, double> RandomValueWeight()
+    static Tuple<double, long> RandomValueWeight()
     {
         Random random = new Random();
 
-        return new Tuple<double, double>(random.NextDouble() * 10000, random.NextDouble() * 500 + 1);
+        return new Tuple<double, long>(random.NextDouble() * 10000, random.NextInt64() + 1);
     }
 
-    static Tuple<double, double> DefinedValueWeight(double value, double weight)
+    static Tuple<double, long>[] RandomValueWeightArray(int count)
     {
-        return new Tuple<double, double>(value, weight);
+        var arr = new Tuple<double, long>[count];
+        for (int i = 0; i < count; i++)
+        {
+            arr[i] = RandomValueWeight();
+        }
+        return arr;
+    }
+
+    static Tuple<double, long> DefinedValueWeight(double value, long weight)
+    {
+        return new Tuple<double, long>(value, weight);
     }
 }
