@@ -389,13 +389,13 @@ namespace NRedisStack
         /// <param name="ranks">input rank, for which the value will be determined.</param>
         /// <returns>an array of results populated with value_1, value_2, ..., value_N.</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.byrank"/></remarks>
-        public long[] ByRank(RedisKey key, params long[] ranks)
+        public double[] ByRank(RedisKey key, params long[] ranks)
         {
             if (ranks.Length < 1) throw new ArgumentOutOfRangeException(nameof(ranks));
 
             var args = new List<object>(ranks.Length + 1) { key };
             foreach (var v in ranks) args.Add(v);
-            return _db.Execute(TDIGEST.BYRANK, args).ToLongArray();
+            return _db.Execute(TDIGEST.BYRANK, args).ToDoubleArray();
         }
 
         /// <summary>
@@ -405,13 +405,13 @@ namespace NRedisStack
         /// <param name="ranks">input rank, for which the value will be determined.</param>
         /// <returns>an array of results populated with value_1, value_2, ..., value_N.</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.byrank"/></remarks>
-        public async Task<long[]> ByRankAsync(RedisKey key, params long[] ranks)
+        public async Task<double[]> ByRankAsync(RedisKey key, params long[] ranks)
         {
             if (ranks.Length < 1) throw new ArgumentOutOfRangeException(nameof(ranks));
 
             var args = new List<object>(ranks.Length + 1) { key };
             foreach (var v in ranks) args.Add(v);
-            return (await _db.ExecuteAsync(TDIGEST.BYRANK, args)).ToLongArray();
+            return (await _db.ExecuteAsync(TDIGEST.BYRANK, args)).ToDoubleArray();
         }
 
         /// <summary>
@@ -421,13 +421,13 @@ namespace NRedisStack
         /// <param name="ranks">input reverse rank, for which the value will be determined.</param>
         /// <returns>an array of results populated with value_1, value_2, ..., value_N.</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.byrevrank"/></remarks>
-        public long[] ByRevRank(RedisKey key, params long[] ranks)
+        public double[] ByRevRank(RedisKey key, params long[] ranks)
         {
             if (ranks.Length < 1) throw new ArgumentOutOfRangeException(nameof(ranks));
 
             var args = new List<object>(ranks.Length + 1) { key };
             foreach (var v in ranks) args.Add(v);
-            return _db.Execute(TDIGEST.BYREVRANK, args).ToLongArray();
+            return _db.Execute(TDIGEST.BYREVRANK, args).ToDoubleArray();
         }
 
         /// <summary>
@@ -437,13 +437,13 @@ namespace NRedisStack
         /// <param name="ranks">input reverse rank, for which the value will be determined.</param>
         /// <returns>an array of results populated with value_1, value_2, ..., value_N.</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.byrevrank"/></remarks>
-        public async Task<long[]> ByRevRankAsync(RedisKey key, params long[] ranks)
+        public async Task<double[]> ByRevRankAsync(RedisKey key, params long[] ranks)
         {
             if (ranks.Length < 1) throw new ArgumentOutOfRangeException(nameof(ranks));
 
             var args = new List<object>(ranks.Length + 1) { key };
             foreach (var v in ranks) args.Add(v);
-            return ( await _db.ExecuteAsync(TDIGEST.BYREVRANK, args)).ToLongArray();
+            return ( await _db.ExecuteAsync(TDIGEST.BYREVRANK, args)).ToDoubleArray();
         }
 
         /// <summary>
