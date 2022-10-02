@@ -22,6 +22,16 @@ namespace NRedisStack
             return _db.Execute(FT._LIST).ToArray();
         }
 
+        /// <summary>
+        /// Returns a list of all existing indexes.
+        /// </summary>
+        /// <returns>Array with index names.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft._list"/></remarks>
+        public async Task<RedisResult[]> _ListAsync()
+        {
+            return (await _db.ExecuteAsync(FT._LIST)).ToArray();
+        }
+
         // TODO: Aggregate
 
         /// <summary>
@@ -106,7 +116,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/ft.alter"/></remarks>
         public bool Alter(string index, Schema schema, bool skipInitialScan = false)
         {
-            List<object> args = new List<object>(){index};
+            List<object> args = new List<object>() { index };
             if (skipInitialScan) args.Add("SKIPINITIALSCAN");
             args.Add("SCHEMA");
             args.Add("ADD");
@@ -117,6 +127,28 @@ namespace NRedisStack
             return _db.Execute(FT.ALTER, args).OKtoBoolean();
         }
 
+        /// <summary>
+        /// Add a new attribute to the index
+        /// </summary>
+        /// <param name="index">The index name.</param>
+        /// <param name="skipInitialScan">If set, does not scan and index.</param>
+        /// <param name="schema">the schema.</param>
+        /// <returns><see langword="true"/> if executed correctly, error otherwise</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.alter"/></remarks>
+        public async Task<bool> AlterAsync(string index, Schema schema, bool skipInitialScan = false)
+        {
+            List<object> args = new List<object>() { index };
+            if (skipInitialScan) args.Add("SKIPINITIALSCAN");
+            args.Add("SCHEMA");
+            args.Add("ADD");
+            foreach (var f in schema.Fields)
+            {
+                f.AddSchemaArgs(args);
+            }
+            return (await _db.ExecuteAsync(FT.ALTER, args)).OKtoBoolean();
+        }
+
+        // TODO: finish this & add summary
         public RedisResult Info(RedisValue index)
         {
             return _db.Execute(FT.INFO, index);
@@ -146,6 +178,26 @@ namespace NRedisStack
         }
 
         /// <summary>
+        /// Create an index with the given specification.
+        /// </summary>
+        /// <param name="indexName">The index name.</param>
+        /// <param name="parameters">Command's parameters.</param>
+        /// <param name="schema">The index schema.</param>
+        /// <returns><see langword="true"/> if executed correctly, error otherwise</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.create"/></remarks>
+        public async Task<bool> CreateAsync(string indexName, FTCreateParams parameters, Schema schema)
+        {
+            var args = new List<object>() { indexName };
+            parameters.AddParams(args); // TODO: Think of a better implementation
+            args.Add("SCHEMA");
+            foreach (var f in schema.Fields)
+            {
+                f.AddSchemaArgs(args);
+            }
+            return (await _db.ExecuteAsync(FT.CREATE, args)).OKtoBoolean();
+        }
+
+        /// <summary>
         /// Search the index
         /// </summary>
         /// <param name="indexName">The index name</param>
@@ -153,13 +205,27 @@ namespace NRedisStack
         /// <returns>a <see cref="SearchResult"/> object with the results</returns>
         public SearchResult Search(string indexName, Query q)
         {
-            var args = new List<object>{indexName};
+            var args = new List<object> { indexName };
             // {
             //     _boxedIndexName
             // };
             q.SerializeRedisArgs(args);
 
             var resp = _db.Execute("FT.SEARCH", args).ToArray();
+            return new SearchResult(resp, !q.NoContent, q.WithScores, q.WithPayloads, q.ExplainScore);
+        }
+
+        /// <summary>
+        /// Search the index
+        /// </summary>
+        /// <param name="indexName">The index name</param>
+        /// <param name="q">a <see cref="Query"/> object with the query string and optional parameters</param>
+        /// <returns>a <see cref="SearchResult"/> object with the results</returns>
+        public async Task<SearchResult> SearchAsync(string indexName, Query q)
+        {
+            var args = new List<object> { indexName };
+            q.SerializeRedisArgs(args);
+            var resp = (await _db.ExecuteAsync("FT.SEARCH", args)).ToArray();
             return new SearchResult(resp, !q.NoContent, q.WithScores, q.WithPayloads, q.ExplainScore);
         }
     }
