@@ -12,13 +12,14 @@ namespace NRedisStack.Tdigest.DataTypes
         public long UnmergedNodes { get; private set; }
         public double MergedWeight { get; private set; }
         public double UnmergedWeight { get; private set; }
-
+        public double SumWeights { get; private set; }
         public long TotalCompressions { get; private set; }
+        public long MemoryUsage { get; private set; }
 
 
         internal TdigestInformation(long compression, long capacity, long mergedNodes,
                                     long unmergedNodes, double mergedWeight,
-                                    double unmergedWeight, long totalCompressions)
+                                    double unmergedWeight, double sumWeights, long totalCompressions, long memoryUsage)
 
         {
             Compression = compression;
@@ -27,7 +28,9 @@ namespace NRedisStack.Tdigest.DataTypes
             UnmergedNodes = unmergedNodes;
             MergedWeight = mergedWeight;
             UnmergedWeight = unmergedWeight;
+            SumWeights = sumWeights;
             TotalCompressions = totalCompressions;
+            MemoryUsage = memoryUsage;
         }
     }
 }

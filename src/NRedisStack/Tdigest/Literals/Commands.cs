@@ -13,5 +13,9 @@
         public const string CDF = "TDIGEST.CDF";
         public const string TRIMMED_MEAN = "TDIGEST.TRIMMED_MEAN";
         public const string INFO = "TDIGEST.INFO";
+        public const string RANK = "TDIGEST.RANK";
+        public const string REVRANK = "TDIGEST.REVRANK";
+        public const string BYRANK = "TDIGEST.BYRANK";
+        public const string BYREVRANK = "TDIGEST.BYREVRANK";
     }
 }
