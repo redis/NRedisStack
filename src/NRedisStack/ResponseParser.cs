@@ -368,11 +368,11 @@ namespace NRedisStack
 
         public static TdigestInformation ToTdigestInfo(this RedisResult result) //TODO: Think about a different implementation, because if the output of CMS.INFO changes or even just the names of the labels then the parsing will not work
         {
-            long compression, capacity, mergedNodes, unmergedNodes, totalCompressions;
-            double mergedWeight, unmergedWeight;
+            long compression, capacity, mergedNodes, unmergedNodes, totalCompressions, memoryUsage;
+            double mergedWeight, unmergedWeight, sumWeight;
 
-            compression = capacity = mergedNodes = unmergedNodes = totalCompressions = -1;
-            mergedWeight = unmergedWeight = -1.0;
+            compression = capacity = mergedNodes = unmergedNodes = totalCompressions = memoryUsage = -1;
+            mergedWeight = unmergedWeight = sumWeight = -1.0;
 
             RedisResult[] redisResults = result.ToArray();
 
@@ -395,20 +395,25 @@ namespace NRedisStack
                         unmergedNodes = (long)redisResults[i];
                         break;
                     case "Merged weight":
-
                         mergedWeight = (double)redisResults[i];
                         break;
                     case "Unmerged weight":
                         unmergedWeight = (double)redisResults[i];
                         break;
+                    case "Sum weights":
+                        sumWeight = (double)redisResults[i];
+                        break;
                     case "Total compressions":
                         totalCompressions = (long)redisResults[i];
+                        break;
+                    case "Memory usage":
+                        memoryUsage = (long)redisResults[i];
                         break;
                 }
             }
 
             return new TdigestInformation(compression, capacity, mergedNodes, unmergedNodes,
-                                          mergedWeight, unmergedWeight, totalCompressions);
+                                          mergedWeight, unmergedWeight, sumWeight, totalCompressions, memoryUsage);
         }
 
         public static TimeSeriesInformation ToTimeSeriesInfo(this RedisResult result)
@@ -531,7 +536,7 @@ namespace NRedisStack
             Array.ForEach(redisResults, str => list.Add((string)str));
             return list;
         }
-        
+
         public static long?[] ToNullableLongArray(this RedisResult result)
         {
             if (result.IsNull)
