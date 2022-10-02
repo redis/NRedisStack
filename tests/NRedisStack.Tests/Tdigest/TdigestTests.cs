@@ -170,7 +170,6 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(new long[3] { -1, 20, 10 }, await tdigest.RevRankAsync("t-digest", 21, 0, 10));
     }
 
-    // TODO: fix those tests:
     [Fact]
     public void TestByRank()
     {
