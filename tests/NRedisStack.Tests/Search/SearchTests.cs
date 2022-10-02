@@ -227,11 +227,12 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         SearchResult res2 = ft.Search(index, new Query("@tags:{tagA}"));
         Assert.Equal(100, res2.TotalResults);
 
-        //TODO: complete this test when I finish the command FT.INFO
-        // var info = ft.Info(index);
-        // Assert.Equal(index, info.get("index_name"));
-        // Assert.Equal("identifier", ((List)((List)info.get("attributes")).get(1)).get(0));
-        // Assert.Equal("attribute", ((List)((List)info.get("attributes")).get(1)).get(2));
+        //TODO: complete this test
+        var info = ft.Info(index);
+        Assert.Equal(index, info.IndexName);
+        //var result = info["attributes"];
+        // Assert.Equal("identifier", (info.Attributes[]);
+        // Assert.Equal("attribute", ((RedisValue[])((RedisValue[])info["attributes"])[1])[2]);
     }
 
     [Fact]
@@ -266,8 +267,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         //TODO: complete this test when I finish the command FT.INFO
         // var info = ft.Info(index);
         // Assert.Equal(index, info.get("index_name"));
-        // Assert.Equal("identifier", ((List)((List)info.get("attributes")).get(1)).get(0));
-        // Assert.Equal("attribute", ((List)((List)info.get("attributes")).get(1)).get(2));
+        // Assert.Equal("identifier", ((RedisValue[])((RedisValue[])info.get("attributes"))[1])[0]);
+        // Assert.Equal("attribute", ((RedisValue[])((RedisValue[])info.get("attributes"))[1])[2]);
     }
 
     [Fact]

@@ -1,5 +1,6 @@
 using NRedisStack.Literals;
 using NRedisStack.Search;
+using NRedisStack.Search.DataTypes;
 using NRedisStack.Search.FT.CREATE;
 using StackExchange.Redis;
 namespace NRedisStack
@@ -148,11 +149,26 @@ namespace NRedisStack
             return (await _db.ExecuteAsync(FT.ALTER, args)).OKtoBoolean();
         }
 
-        // TODO: finish this & add summary
-        public RedisResult Info(RedisValue index)
-        {
-            return _db.Execute(FT.INFO, index);
-        }
+        // /// <summary>
+        // /// Return information and statistics on the index.
+        // /// </summary>
+        // /// <param name="key">The name of the index.</param>
+        // /// <returns>Dictionary of key and value with information about the index</returns>
+        // /// <remarks><seealso href="https://redis.io/commands/ft.info"/></remarks>
+        // public Dictionary<string, RedisValue> Info(RedisValue index)
+        // {
+        //     return _db.Execute(FT.INFO, index).ToFtInfoAsDictionary();
+        // }
+
+        /// <summary>
+        /// Return information and statistics on the index.
+        /// </summary>
+        /// <param name="key">The name of the index.</param>
+        /// <returns>Dictionary of key and value with information about the index</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.info"/></remarks>
+        public InfoResult Info(RedisValue index) =>
+            new InfoResult(_db.Execute("FT.INFO", index));
+
 
         /// <summary>
         /// Create an index with the given specification.
