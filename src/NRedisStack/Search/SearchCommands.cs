@@ -169,6 +169,15 @@ namespace NRedisStack
         public InfoResult Info(RedisValue index) =>
             new InfoResult(_db.Execute("FT.INFO", index));
 
+        /// <summary>
+        /// Return information and statistics on the index.
+        /// </summary>
+        /// <param name="key">The name of the index.</param>
+        /// <returns>Dictionary of key and value with information about the index</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.info"/></remarks>
+        public async Task<InfoResult> InfoAsync(RedisValue index) =>
+            new InfoResult(await _db.ExecuteAsync("FT.INFO", index));
+
 
         /// <summary>
         /// Create an index with the given specification.

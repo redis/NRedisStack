@@ -11,7 +11,9 @@ namespace NRedisStack.Search.DataTypes
         public Dictionary<string, RedisResult> IndexOption => GetRedisResultDictionary("index_options");
         public Dictionary<string, RedisResult[]> IndexDefinition => GetRedisResultsDictionary("index_definition");
 
-        public Dictionary<string, RedisResult[]> Attributes => GetRedisResultsDictionary("attributes"); // TODO: check if this is correct
+        // public Dictionary<string, RedisResult[]> Attributes => GetRedisResultsDictionary("attributes"); // TODO: check if this is correct
+        public Dictionary<string, RedisResult>[] Attributes => GetRedisResultDictionaryArray("attributes"); // TODO: check if this is correct
+
 
         public long NumDocs => GetLong("num_docs");
 
@@ -138,5 +140,50 @@ namespace NRedisStack.Search.DataTypes
                 return default;
             }
         }
+
+        private Dictionary<string, RedisResult>[] GetRedisResultDictionaryArray(string key)
+        {
+            if (_all.TryGetValue(key, out var value))
+            {
+                var values = (RedisResult[])value;
+                var result = new Dictionary<string, RedisResult>[values.Length];
+                for (int i = 0; i < values.Length; i++)
+                {
+                    var fv = (RedisResult[])values[i];
+                    var dict = new Dictionary<string, RedisResult>();
+                    for (int j = 0; j < fv.Length; j += 2)
+                    {
+                        dict.Add((string)fv[j], fv[j + 1]);
+                    }
+                    result[i] = dict;
+                }
+                return result;
+            }
+
+            else
+            {
+                return default;
+            }
+        }
+        // private Dictionary<string, RedisResult>[] GetRedisResultsDictionaryTry(string key)
+        // {
+        //     if (_all.TryGetValue(key, out var value))
+        //     {
+        //         var result = new List<Dictionary<string, RedisResult>>();
+
+        //         int i = 0;
+        //         foreach (RedisResult[] fv in (RedisResult[])value)
+        //         {
+        //             var res = GetRedisResultDictionary((string)fv[i++]);
+        //             result.Add(res);
+        //         }
+
+        //         return result.ToArray();
+        //     }
+        //     else
+        //     {
+        //         return default;
+        //     }
+        // }
     }
 }
