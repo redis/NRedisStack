@@ -1,5 +1,6 @@
 using NRedisStack.Literals;
 using NRedisStack.Search;
+using NRedisStack.Search.Aggregation;
 using NRedisStack.Search.DataTypes;
 using NRedisStack.Search.FT.CREATE;
 using StackExchange.Redis;
@@ -33,7 +34,61 @@ namespace NRedisStack
             return (await _db.ExecuteAsync(FT._LIST)).ToArray();
         }
 
-        // TODO: Aggregate
+        /// <summary>
+        /// Run a search query on an index, and perform aggregate transformations on the results.
+        /// </summary>
+        /// <param name="index">The index name.</param>
+        /// <param name="query">The query</param>
+        /// <returns>An <see langword="AggregationResult"/> object</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.aggregate"/></remarks>
+        public AggregationResult Aggregate(string index, AggregationRequest query)
+        {
+            List<object> args = new List<object> { index };
+            //query.SerializeRedisArgs(args);
+            foreach(var arg in query.GetArgs())
+            {
+                args.Add(arg);
+            }
+            var result = _db.Execute(FT.AGGREGATE, args);
+            if (query.IsWithCursor())
+            {
+                var results = (RedisResult[])result;
+
+                return new AggregationResult(results[0], (long)results[1]);
+            }
+            else
+            {
+                return new AggregationResult(result);
+            }
+        }
+
+        /// <summary>
+        /// Run a search query on an index, and perform aggregate transformations on the results.
+        /// </summary>
+        /// <param name="index">The index name.</param>
+        /// <param name="query">The query</param>
+        /// <returns>An <see langword="AggregationResult"/> object</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.aggregate"/></remarks>
+        public async Task<AggregationResult> AggregateAsync(string index, AggregationRequest query)
+        {
+            List<object> args = new List<object> { index };
+            //query.SerializeRedisArgs(args);
+            foreach(var arg in query.GetArgs())
+            {
+                args.Add(arg);
+            }
+            var result = await _db.ExecuteAsync(FT.AGGREGATE, args);
+            if (query.IsWithCursor())
+            {
+                var results = (RedisResult[])result;
+
+                return new AggregationResult(results[0], (long)results[1]);
+            }
+            else
+            {
+                return new AggregationResult(result);
+            }
+        }
 
         /// <summary>
         /// Add an alias to an index.
