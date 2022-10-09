@@ -204,35 +204,8 @@ namespace NRedisStack
             return (await _db.ExecuteAsync(FT.ALTER, args)).OKtoBoolean();
         }
 
-        // /// <summary>
-        // /// Return information and statistics on the index.
-        // /// </summary>
-        // /// <param name="key">The name of the index.</param>
-        // /// <returns>Dictionary of key and value with information about the index</returns>
-        // /// <remarks><seealso href="https://redis.io/commands/ft.info"/></remarks>
-        // public Dictionary<string, RedisValue> Info(RedisValue index)
-        // {
-        //     return _db.Execute(FT.INFO, index).ToFtInfoAsDictionary();
-        // }
-
-        /// <summary>
-        /// Return information and statistics on the index.
-        /// </summary>
-        /// <param name="key">The name of the index.</param>
-        /// <returns>Dictionary of key and value with information about the index</returns>
-        /// <remarks><seealso href="https://redis.io/commands/ft.info"/></remarks>
-        public InfoResult Info(RedisValue index) =>
-            new InfoResult(_db.Execute("FT.INFO", index));
-
-        /// <summary>
-        /// Return information and statistics on the index.
-        /// </summary>
-        /// <param name="key">The name of the index.</param>
-        /// <returns>Dictionary of key and value with information about the index</returns>
-        /// <remarks><seealso href="https://redis.io/commands/ft.info"/></remarks>
-        public async Task<InfoResult> InfoAsync(RedisValue index) =>
-            new InfoResult(await _db.ExecuteAsync("FT.INFO", index));
-
+        // TODO: FT.CONFIG_GET
+        // TODO: FT.CONFIG_SET
 
         /// <summary>
         /// Create an index with the given specification.
@@ -277,6 +250,46 @@ namespace NRedisStack
             return (await _db.ExecuteAsync(FT.CREATE, args)).OKtoBoolean();
         }
 
+        // TODO: FT.CURSOR DEL
+        // TODO: FT.CURSOR READ
+        // TODO: FT.DICTADD
+        // TODO: FT.DICTDEL
+        // TODO: FT.DICTDUMP
+        // TODO: FT.DROPINDEX
+        // TODO: FT.EXPLAIN
+        // TODO: FT.EXPLAINCLI
+
+        // /// <summary>
+        // /// Return information and statistics on the index.
+        // /// </summary>
+        // /// <param name="key">The name of the index.</param>
+        // /// <returns>Dictionary of key and value with information about the index</returns>
+        // /// <remarks><seealso href="https://redis.io/commands/ft.info"/></remarks>
+        // public Dictionary<string, RedisValue> Info(RedisValue index)
+        // {
+        //     return _db.Execute(FT.INFO, index).ToFtInfoAsDictionary();
+        // }
+
+        /// <summary>
+        /// Return information and statistics on the index.
+        /// </summary>
+        /// <param name="key">The name of the index.</param>
+        /// <returns>Dictionary of key and value with information about the index</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.info"/></remarks>
+        public InfoResult Info(RedisValue index) =>
+            new InfoResult(_db.Execute("FT.INFO", index));
+
+        /// <summary>
+        /// Return information and statistics on the index.
+        /// </summary>
+        /// <param name="key">The name of the index.</param>
+        /// <returns>Dictionary of key and value with information about the index</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.info"/></remarks>
+        public async Task<InfoResult> InfoAsync(RedisValue index) =>
+            new InfoResult(await _db.ExecuteAsync("FT.INFO", index));
+
+        // TODO: FT.PROFILE
+
         /// <summary>
         /// Search the index
         /// </summary>
@@ -308,5 +321,10 @@ namespace NRedisStack
             var resp = (await _db.ExecuteAsync("FT.SEARCH", args)).ToArray();
             return new SearchResult(resp, !q.NoContent, q.WithScores, q.WithPayloads, q.ExplainScore);
         }
+
+        // TODO: FT.SPELLCHECK
+        // TODO: FT.SYNDUMP
+        // TODO: FT.SYNUPDATE
+        // TODO: FT.TAGVALS
     }
 }
