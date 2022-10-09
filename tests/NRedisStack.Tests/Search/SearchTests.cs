@@ -554,6 +554,96 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    public void TestConfig()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Assert.True(ft.ConfigSet("TIMEOUT", "100"));
+        Dictionary<string, string> configMap = ft.ConfigGet("*");
+        Assert.Equal("100", configMap["TIMEOUT"].ToString());
+    }
+
+    [Fact]
+    public async Task TestConfigAsnyc()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Assert.True(await ft.ConfigSetAsync("TIMEOUT", "100"));
+        Dictionary<string, string> configMap = await ft.ConfigGetAsync("*");
+        Assert.Equal("100", configMap["TIMEOUT"].ToString());
+    }
+
+    [Fact]
+    public void configOnTimeout()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Assert.True(ft.ConfigSet("ON_TIMEOUT", "fail"));
+        Assert.Equal("fail", ft.ConfigGet("ON_TIMEOUT")["ON_TIMEOUT"]);
+
+        try { ft.ConfigSet("ON_TIMEOUT", "null"); } catch (RedisServerException) { }
+    }
+
+    [Fact]
+    public async Task configOnTimeoutAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Assert.True(await ft.ConfigSetAsync("ON_TIMEOUT", "fail"));
+        Assert.Equal("fail", (await ft.ConfigGetAsync("ON_TIMEOUT"))["ON_TIMEOUT"]);
+
+        try { ft.ConfigSet("ON_TIMEOUT", "null"); } catch (RedisServerException) { }
+    }
+
+    [Fact]
+    public void TestDialectConfig()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        // confirm default
+        var result = ft.ConfigGet("DEFAULT_DIALECT");
+        Assert.Equal("1", result["DEFAULT_DIALECT"]); // TODO: should be "1" ?
+
+        Assert.True(ft.ConfigSet("DEFAULT_DIALECT", "2"));
+        Assert.Equal("2", ft.ConfigGet("DEFAULT_DIALECT")["DEFAULT_DIALECT"]);
+        try { ft.ConfigSet("DEFAULT_DIALECT", "0"); } catch (RedisServerException) { }
+        try { ft.ConfigSet("DEFAULT_DIALECT", "3"); } catch (RedisServerException) { }
+
+        // Assert.Throws<RedisServerException>(() => ft.ConfigSet("DEFAULT_DIALECT", "0"));
+        // Assert.Throws<RedisServerException>(() => ft.ConfigSet("DEFAULT_DIALECT", "3"));
+
+        // Restore to default
+        Assert.True(ft.ConfigSet("DEFAULT_DIALECT", "1"));
+    }
+
+    [Fact]
+    public async Task TestDialectConfigAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        // confirm default
+        var result = await ft.ConfigGetAsync("DEFAULT_DIALECT");
+        Assert.Equal("1", result["DEFAULT_DIALECT"]); // TODO: should be "1" ?
+
+        Assert.True(await ft.ConfigSetAsync("DEFAULT_DIALECT", "2"));
+        Assert.Equal("2", (await ft.ConfigGetAsync("DEFAULT_DIALECT"))["DEFAULT_DIALECT"]);
+        try { await ft.ConfigSetAsync("DEFAULT_DIALECT", "0"); } catch (RedisServerException) { }
+        try { await ft.ConfigSetAsync("DEFAULT_DIALECT", "3"); } catch (RedisServerException) { }
+
+        // Assert.Throws<RedisServerException>(() => ft.ConfigSet("DEFAULT_DIALECT", "0"));
+        // Assert.Throws<RedisServerException>(() => ft.ConfigSet("DEFAULT_DIALECT", "3"));
+
+        // Restore to default
+        Assert.True(ft.ConfigSet("DEFAULT_DIALECT", "1"));
+    }
+
+    [Fact]
     public void TestModulePrefixs()
     {
         IDatabase db1 = redisFixture.Redis.GetDatabase();

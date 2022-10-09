@@ -204,8 +204,52 @@ namespace NRedisStack
             return (await _db.ExecuteAsync(FT.ALTER, args)).OKtoBoolean();
         }
 
-        // TODO: FT.CONFIG_GET
-        // TODO: FT.CONFIG_SET
+        /// <summary>
+        /// Retrieve configuration options.
+        /// </summary>
+        /// <param name="option">is name of the configuration option, or '*' for all.</param>
+        /// <returns>An array reply of the configuration name and value.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.config-get"/></remarks>
+        public Dictionary<string, string> ConfigGet(string option)
+        {
+            var result = _db.Execute(FT.CONFIG, "GET", option);
+            return result.ToConfigDictionary(); // TODO: fix all tests to be like this
+        }
+
+        /// <summary>
+        /// Retrieve configuration options.
+        /// </summary>
+        /// <param name="option">is name of the configuration option, or '*' for all.</param>
+        /// <returns>An array reply of the configuration name and value.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.config-get"/></remarks>
+        public async Task<Dictionary<string, string>> ConfigGetAsync(string option)
+        {
+            return (await _db.ExecuteAsync(FT.CONFIG, "GET", option)).ToConfigDictionary();
+        }
+
+        /// <summary>
+        /// Describe configuration options.
+        /// </summary>
+        /// <param name="option">is name of the configuration option, or '*' for all.</param>
+        /// <param name="value">is value of the configuration option.</param>
+        /// <returns><see langword="true"/> if executed correctly, error otherwise.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.config-set"/></remarks>
+        public bool ConfigSet(string option, string value)
+        {
+            return _db.Execute(FT.CONFIG, "SET", option, value).OKtoBoolean();
+        }
+
+        /// <summary>
+        /// Describe configuration options.
+        /// </summary>
+        /// <param name="option">is name of the configuration option, or '*' for all.</param>
+        /// <param name="value">is value of the configuration option.</param>
+        /// <returns><see langword="true"/> if executed correctly, error otherwise.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.config-set"/></remarks>
+        public async Task<bool> ConfigSetAsync(string option, string value)
+        {
+            return (await _db.ExecuteAsync(FT.CONFIG, "SET", option, value)).OKtoBoolean();
+        }
 
         /// <summary>
         /// Create an index with the given specification.

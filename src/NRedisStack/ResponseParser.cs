@@ -500,6 +500,18 @@ namespace NRedisStack
             return info;
         }
 
+        public static Dictionary<string, string> ToConfigDictionary(this RedisResult value)
+        {
+            var res = (RedisResult[])value;
+            var dict = new Dictionary<string, string>();
+            foreach (var pair in res)
+            {
+                var arr = (RedisResult[])pair;
+                dict.Add(arr[0].ToString(), arr[1].ToString());
+            }
+            return dict;
+        }
+
         public static IReadOnlyList<TimeSeriesChunck> ToTimeSeriesChunkArray(this RedisResult result)
         {
             RedisResult[] redisResults = (RedisResult[])result;

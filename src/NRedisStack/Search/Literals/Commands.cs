@@ -8,6 +8,7 @@
         public const string ALIASDEL = "FT.ALIASDEL";
         public const string ALIASUPDATE = "FT.ALIASUPDATE";
         public const string ALTER = "FT.ALTER";
+        public const string CONFIG = "FT.CONFIG";
         public const string CONFIG_GET = "FT.CONFIG GET";
         public const string CONFIG_HELP = "FT.CONFIG HELP";
         public const string CONFIG_SET = "FT.CONFIG SET";
