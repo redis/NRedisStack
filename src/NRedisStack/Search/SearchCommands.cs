@@ -294,8 +294,66 @@ namespace NRedisStack
             return (await _db.ExecuteAsync(FT.CREATE, args)).OKtoBoolean();
         }
 
-        // TODO: FT.CURSOR DEL
-        // TODO: FT.CURSOR READ
+        // TODO: FT.CURSOR DEL test
+        /// <summary>
+        /// Delete a cursor from the index.
+        /// </summary>
+        /// <param name="indexName">The index name</param>
+        /// <param name="cursorId">The cursor's ID.</param>
+        /// <returns><see langword="true"/> if it has been deleted, <see langword="false"/> if it did not exist.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.cursor-del/"/></remarks>
+        public bool CursorDel(string indexName, long cursorId)
+        {
+            return _db.Execute(FT.CURSOR, "DEL", indexName, cursorId).OKtoBoolean();
+        }
+
+        /// <summary>
+        /// Delete a cursor from the index.
+        /// </summary>
+        /// <param name="indexName">The index name</param>
+        /// <param name="cursorId">The cursor's ID.</param>
+        /// <returns><see langword="true"/> if it has been deleted, <see langword="false"/> if it did not exist.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.cursor-del/"/></remarks>
+        public async Task<bool> CursorDelAsync(string indexName, long cursorId)
+        {
+            return (await _db.ExecuteAsync(FT.CURSOR, "DEL", indexName, cursorId)).OKtoBoolean();
+        }
+        // TODO: FT.CURSOR READ test
+
+        /// <summary>
+        /// Read next results from an existing cursor.
+        /// </summary>
+        /// <param name="indexName">The index name</param>
+        /// <param name="cursorId">The cursor's ID.</param>
+        /// <param name="count">Limit the amount of returned results.</param>
+        /// <returns>A AggregationResult object with the results</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.cursor-read/"/></remarks>
+        public AggregationResult CursorRead(string indexName, long cursorId, int? count = null)
+        {
+            RedisResult[] resp = ((count == null) ? _db.Execute(FT.CURSOR, "READ", indexName, cursorId)
+                                                  : _db.Execute(FT.CURSOR, "READ", indexName, cursorId, "COUNT", count))
+                                                  .ToArray();
+
+            return new AggregationResult(resp[0], (long)resp[1]);
+        }
+
+        /// <summary>
+        /// Read next results from an existing cursor.
+        /// </summary>
+        /// <param name="indexName">The index name</param>
+        /// <param name="cursorId">The cursor's ID.</param>
+        /// <param name="count">Limit the amount of returned results.</param>
+        /// <returns>A AggregationResult object with the results</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.cursor-read/"/></remarks>
+        public async Task<AggregationResult> CursorReadAsync(string indexName, long cursorId, int? count = null)
+        {
+            RedisResult[] resp = (await ((count == null) ? _db.ExecuteAsync(FT.CURSOR, "READ", indexName, cursorId)
+                                                         : _db.ExecuteAsync(FT.CURSOR, "READ", indexName, cursorId, "COUNT", count)))
+                                                         .ToArray();
+
+            return new AggregationResult(resp[0], (long)resp[1]);
+        }
+
         // TODO: FT.DICTADD
         // TODO: FT.DICTDEL
         // TODO: FT.DICTDUMP

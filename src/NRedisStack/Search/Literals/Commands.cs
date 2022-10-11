@@ -13,6 +13,7 @@
         public const string CONFIG_HELP = "FT.CONFIG HELP";
         public const string CONFIG_SET = "FT.CONFIG SET";
         public const string CREATE = "FT.CREATE";
+        public const string CURSOR = "FT.CURSOR";
         public const string CURSOR_DEL = "FT.CURSOR DEL";
         public const string CURSOR_READ = "FT.CURSOR READ";
         public const string DICTADD = "FT.DICTADD";
