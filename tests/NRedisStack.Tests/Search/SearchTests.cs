@@ -52,7 +52,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         //     hash[i] = new HashEntry(property.Key, property.Value.ToString());
         // }
         // db.HashSet(key, hash);
-        var nameValue = new List<object>();
+        var nameValue = new List<object>() { key };
         foreach (var item in objDictionary)
         {
             nameValue.Add(item.Key);
@@ -722,6 +722,124 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Assert.Equal(3L, ft.DictDel("dict", "foo", "bar", "hello world"));
         Assert.Equal(ft.DictDump("dict").Length, 0);
+    }
+
+    [Fact]
+    public void TestDropIndex()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Schema sc = new Schema().AddTextField("title", 1.0);
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
+
+        Dictionary<string, object> fields = new Dictionary<string, object>();
+        fields.Add("title", "hello world");
+        for (int i = 0; i < 100; i++)
+        {
+            AddDocument(db, $"doc{i}", fields);
+        }
+
+        SearchResult res = ft.Search(index, new Query("hello world"));
+        Assert.Equal(100, res.TotalResults);
+
+        Assert.True(ft.DropIndex(index));
+
+        try
+        {
+            ft.Search(index, new Query("hello world"));
+            //fail("Index should not exist.");
+        }
+        catch (RedisServerException ex)
+        {
+            Assert.True(ex.Message.Contains("no such index"));
+        }
+        Assert.Equal("100", db.Execute("DBSIZE").ToString());
+    }
+
+    [Fact]
+    public async Task TestDropIndexAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Schema sc = new Schema().AddTextField("title", 1.0);
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
+
+        Dictionary<string, object> fields = new Dictionary<string, object>();
+        fields.Add("title", "hello world");
+        for (int i = 0; i < 100; i++)
+        {
+            AddDocument(db, $"doc{i}", fields);
+        }
+
+        SearchResult res = ft.Search(index, new Query("hello world"));
+        Assert.Equal(100, res.TotalResults);
+
+        Assert.True(await ft.DropIndexAsync(index));
+
+        try
+        {
+            ft.Search(index, new Query("hello world"));
+            //fail("Index should not exist.");
+        }
+        catch (RedisServerException ex)
+        {
+            Assert.True(ex.Message.Contains("no such index"));
+        }
+        Assert.Equal("100", db.Execute("DBSIZE").ToString());
+    }
+
+    [Fact]
+    public void dropIndexDD()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Schema sc = new Schema().AddTextField("title", 1.0);
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
+
+        Dictionary<string, object> fields = new Dictionary<string, object>();
+        fields.Add("title", "hello world");
+        for (int i = 0; i < 100; i++)
+        {
+            AddDocument(db, $"doc{i}", fields);
+        }
+
+        SearchResult res = ft.Search(index, new Query("hello world"));
+        Assert.Equal(100, res.TotalResults);
+
+        Assert.True(ft.DropIndex(index, true));
+
+        RedisResult[] keys = (RedisResult[]) db.Execute("KEYS", "*");
+        Assert.True(keys.Length == 0);
+        Assert.Equal("0", db.Execute("DBSIZE").ToString());
+    }
+
+    [Fact]
+    public async Task dropIndexDDAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Schema sc = new Schema().AddTextField("title", 1.0);
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
+
+        Dictionary<string, object> fields = new Dictionary<string, object>();
+        fields.Add("title", "hello world");
+        for (int i = 0; i < 100; i++)
+        {
+            AddDocument(db, $"doc{i}", fields);
+        }
+
+        SearchResult res = ft.Search(index, new Query("hello world"));
+        Assert.Equal(100, res.TotalResults);
+
+        Assert.True(await ft.DropIndexAsync(index, true));
+
+        RedisResult[] keys = (RedisResult[]) db.Execute("KEYS", "*");
+        Assert.True(keys.Length == 0);
+        Assert.Equal("0", db.Execute("DBSIZE").ToString());
     }
 
     [Fact]

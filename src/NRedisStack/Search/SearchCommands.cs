@@ -468,6 +468,34 @@ namespace NRedisStack
             return (await _db.ExecuteAsync(FT.DICTDUMP, dict)).ToArray();
         }
 
+        /// <summary>
+        /// Delete an index.
+        /// </summary>
+        /// <param name="indexName">The index name</param>
+        /// <param name="dd">If set, deletes the actual document hashes.</param>
+        /// <returns><see langword="true"/> if executed correctly, error otherwise</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.dropindex/"/></remarks>
+        public bool DropIndex(string indexName, bool dd = false)
+        {
+            return ((dd) ? _db.Execute(FT.DROPINDEX, indexName, "DD")
+                         : _db.Execute(FT.DROPINDEX, indexName))
+                        .OKtoBoolean();
+        }
+
+        /// <summary>
+        /// Delete an index.
+        /// </summary>
+        /// <param name="indexName">The index name</param>
+        /// <param name="dd">If set, deletes the actual document hashes.</param>
+        /// <returns><see langword="true"/> if executed correctly, error otherwise</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.dropindex/"/></remarks>
+        public async Task<bool> DropIndexAsync(string indexName, bool dd = false)
+        {
+            return (await ((dd) ? _db.ExecuteAsync(FT.DROPINDEX, indexName, "DD")
+                                : _db.ExecuteAsync(FT.DROPINDEX, indexName)))
+                        .OKtoBoolean();
+        }
+
         // TODO: FT.DROPINDEX
         // TODO: FT.EXPLAIN
         // TODO: FT.EXPLAINCLI
