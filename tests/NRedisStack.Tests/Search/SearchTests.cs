@@ -711,15 +711,36 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var ft = db.FT();
+
         Assert.Equal(3L, ft.DictAdd("dict", "bar", "foo", "hello world"));
+
         var dumResult = ft.DictDump("dict");
         int i = 0;
-
         Assert.Equal("bar",dumResult[i++].ToString());
         Assert.Equal("foo",dumResult[i++].ToString());
         Assert.Equal("hello world",dumResult[i].ToString());
+
         Assert.Equal(3L, ft.DictDel("dict", "foo", "bar", "hello world"));
         Assert.Equal(ft.DictDump("dict").Length, 0);
+    }
+
+    [Fact]
+    public async Task TestDictionaryAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        Assert.Equal(3L, await ft.DictAddAsync("dict", "bar", "foo", "hello world"));
+
+        var dumResult = await ft.DictDumpAsync("dict");
+        int i = 0;
+        Assert.Equal("bar",dumResult[i++].ToString());
+        Assert.Equal("foo",dumResult[i++].ToString());
+        Assert.Equal("hello world",dumResult[i].ToString());
+
+        Assert.Equal(3L, await ft.DictDelAsync("dict", "foo", "bar", "hello world"));
+        Assert.Equal((await ft.DictDumpAsync("dict")).Length, 0);
     }
 
     [Fact]
