@@ -152,49 +152,46 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     // // TODO: underastant why its not working
-    // [Fact]
-    // public void TestAggregations()
-    // {
-    //     IDatabase db = redisFixture.Redis.GetDatabase();
-    //     db.Execute("FLUSHALL");
-    //     var ft = db.FT();
-    //     Schema sc = new Schema();
-    //     sc.AddTextField("name", 1.0, true);
-    //     sc.AddNumericField("count", true);
-    //     ft.Create(index, FTCreateParams.CreateParams(), sc);
-    //     //    client.AddDocument(new Document("data1").Set("name", "abc").Set("count", 10));
-    //     //    client.AddDocument(new Document("data2").Set("name", "def").Set("count", 5));
-    //     //    client.AddDocument(new Document("data3").Set("name", "def").Set("count", 25));
-    //     AddDocument(db, new Document("data1").Set("name", "abc").Set("count", 10));
-    //     AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
-    //     AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
+    [Fact]
+    public void TestAggregations()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Schema sc = new Schema();
+        sc.AddTextField("name", 1.0, true);
+        sc.AddNumericField("count", true);
+        ft.Create(index, FTCreateParams.CreateParams(), sc);
+        //    client.AddDocument(new Document("data1").Set("name", "abc").Set("count", 10));
+        //    client.AddDocument(new Document("data2").Set("name", "def").Set("count", 5));
+        //    client.AddDocument(new Document("data3").Set("name", "def").Set("count", 25));
+        AddDocument(db, new Document("data1").Set("name", "abc").Set("count", 10));
+        AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
+        AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
 
-    //     AggregationRequest r = new AggregationRequest()
-    //         .GroupBy("@name", Reducers.Sum("@count").As ("sum"))
-    //     .SortBy(10, SortedField.Desc("@sum"));
+        AggregationRequest r = new AggregationRequest()
+            .GroupBy("@name", Reducers.Sum("@count").As ("sum"))
+        .SortBy(10, SortedField.Desc("@sum"));
 
-    //     // actual search
-    //     // var resBefore = db.Execute("FT.AGGREGATE", index, "*", "GROUPBY", "1", "@name", "REDUCE", "SUM", "1", "@count", "AS", "sum", "SORTBY", "2", "@sum", "DESC", "MAX", "10");
-    //     //var res = new AggregationResult(resBefore);
+        // actual search
+        var res = ft.Aggregate(index, r);
+        Assert.Equal(2, res.TotalResults);
 
-    //     var res = ft.Aggregate(index, r);
-    //     Assert.Equal(2, res.TotalResults);
+        Row r1 = res.GetRow(0);
+        Assert.NotNull(r1);
+        Assert.Equal("def", r1.GetString("name"));
+        Assert.Equal(30, r1.GetLong("sum"));
+        Assert.Equal(30, r1.GetDouble("sum"), 0);
 
-    //     Row r1 = res.GetRow(0);
-    //     Assert.NotNull(r1);
-    //     Assert.Equal("def", r1.GetString("name"));
-    //     Assert.Equal(30, r1.GetLong("sum"));
-    //     Assert.Equal(30, r1.GetDouble("sum"), 0);
+        Assert.Equal(0L, r1.GetLong("nosuchcol"));
+        Assert.Equal(0.0, r1.GetDouble("nosuchcol"), 0);
+        Assert.Null(r1.GetString("nosuchcol"));
 
-    //     Assert.Equal(0L, r1.GetLong("nosuchcol"));
-    //     Assert.Equal(0.0, r1.GetDouble("nosuchcol"), 0);
-    //     Assert.Equal("", r1.GetString("nosuchcol"));
-
-    //     Row r2 = res.GetRow(1);
-    //     Assert.NotNull(r2);
-    //     Assert.Equal("abc", r2.GetString("name"));
-    //     Assert.Equal(10, r2.GetLong("sum"));
-    // }
+        Row r2 = res.GetRow(1);
+        Assert.NotNull(r2);
+        Assert.Equal("abc", r2.GetString("name"));
+        Assert.Equal(10, r2.GetLong("sum"));
+    }
 
     [Fact]
     public void TestAggregationRequestParamsDialect()
@@ -259,49 +256,49 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     // // TODO: underastant why its not working
-    // [Fact]
-    // public void TestApplyAndFilterAggregations()
-    // {
-    //     IDatabase db = redisFixture.Redis.GetDatabase();
-    //     db.Execute("FLUSHALL");
-    //     var ft = db.FT();
-    //     Schema sc = new Schema();
-    //     sc.AddTextField("name", 1.0, sortable: true);
-    //     sc.AddNumericField("subj1", sortable: true);
-    //     sc.AddNumericField("subj2", sortable: true);
-    //     ft.Create(index, FTCreateParams.CreateParams(), sc);
-    //     //    client.AddDocument(db, new Document("data1").Set("name", "abc").Set("subj1", 20).Set("subj2", 70));
-    //     //    client.AddDocument(db, new Document("data2").Set("name", "def").Set("subj1", 60).Set("subj2", 40));
-    //     //    client.AddDocument(db, new Document("data3").Set("name", "ghi").Set("subj1", 50).Set("subj2", 80));
-    //     //    client.AddDocument(db, new Document("data4").Set("name", "abc").Set("subj1", 30).Set("subj2", 20));
-    //     //    client.AddDocument(db, new Document("data5").Set("name", "def").Set("subj1", 65).Set("subj2", 45));
-    //     //    client.AddDocument(db, new Document("data6").Set("name", "ghi").Set("subj1", 70).Set("subj2", 70));
-    //     AddDocument(db, new Document("data1").Set("name", "abc").Set("subj1", 20).Set("subj2", 70));
-    //     AddDocument(db, new Document("data2").Set("name", "def").Set("subj1", 60).Set("subj2", 40));
-    //     AddDocument(db, new Document("data3").Set("name", "ghi").Set("subj1", 50).Set("subj2", 80));
-    //     AddDocument(db, new Document("data4").Set("name", "abc").Set("subj1", 30).Set("subj2", 20));
-    //     AddDocument(db, new Document("data5").Set("name", "def").Set("subj1", 65).Set("subj2", 45));
-    //     AddDocument(db, new Document("data6").Set("name", "ghi").Set("subj1", 70).Set("subj2", 70));
+    [Fact]
+    public void TestApplyAndFilterAggregations()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Schema sc = new Schema();
+        sc.AddTextField("name", 1.0, sortable: true);
+        sc.AddNumericField("subj1", sortable: true);
+        sc.AddNumericField("subj2", sortable: true);
+        ft.Create(index, FTCreateParams.CreateParams(), sc);
+        //    client.AddDocument(db, new Document("data1").Set("name", "abc").Set("subj1", 20).Set("subj2", 70));
+        //    client.AddDocument(db, new Document("data2").Set("name", "def").Set("subj1", 60).Set("subj2", 40));
+        //    client.AddDocument(db, new Document("data3").Set("name", "ghi").Set("subj1", 50).Set("subj2", 80));
+        //    client.AddDocument(db, new Document("data4").Set("name", "abc").Set("subj1", 30).Set("subj2", 20));
+        //    client.AddDocument(db, new Document("data5").Set("name", "def").Set("subj1", 65).Set("subj2", 45));
+        //    client.AddDocument(db, new Document("data6").Set("name", "ghi").Set("subj1", 70).Set("subj2", 70));
+        AddDocument(db, new Document("data1").Set("name", "abc").Set("subj1", 20).Set("subj2", 70));
+        AddDocument(db, new Document("data2").Set("name", "def").Set("subj1", 60).Set("subj2", 40));
+        AddDocument(db, new Document("data3").Set("name", "ghi").Set("subj1", 50).Set("subj2", 80));
+        AddDocument(db, new Document("data4").Set("name", "abc").Set("subj1", 30).Set("subj2", 20));
+        AddDocument(db, new Document("data5").Set("name", "def").Set("subj1", 65).Set("subj2", 45));
+        AddDocument(db, new Document("data6").Set("name", "ghi").Set("subj1", 70).Set("subj2", 70));
 
-    //     AggregationRequest r = new AggregationRequest().Apply("(@subj1+@subj2)/2", "attemptavg")
-    //         .GroupBy("@name", Reducers.Avg("@attemptavg").As("avgscore"))
-    //         .Filter("@avgscore>=50")
-    //         .SortBy(10, SortedField.Asc("@name"));
+        AggregationRequest r = new AggregationRequest().Apply("(@subj1+@subj2)/2", "attemptavg")
+            .GroupBy("@name", Reducers.Avg("@attemptavg").As("avgscore"))
+            .Filter("@avgscore>=50")
+            .SortBy(10, SortedField.Asc("@name"));
 
-    //     // actual search
-    //     AggregationResult res = ft.Aggregate(index, r);
-    //     Assert.Equal(3, res.TotalResults);
+        // actual search
+        AggregationResult res = ft.Aggregate(index, r);
+        Assert.Equal(3, res.TotalResults);
 
-    //     Row r1 = res.GetRow(0);
-    //     Assert.NotNull(r1);
-    //     Assert.Equal("def", r1.GetString("name"));
-    //     Assert.Equal(52.5, r1.GetDouble("avgscore"), 0);
+        Row r1 = res.GetRow(0);
+        Assert.NotNull(r1);
+        Assert.Equal("def", r1.GetString("name"));
+        Assert.Equal(52.5, r1.GetDouble("avgscore"), 0);
 
-    //     Row r2 = res.GetRow(1);
-    //     Assert.NotNull(r2);
-    //     Assert.Equal("ghi", r2.GetString("name"));
-    //     Assert.Equal(67.5, r2.GetDouble("avgscore"), 0);
-    // }
+        Row r2 = res.GetRow(1);
+        Assert.NotNull(r2);
+        Assert.Equal("ghi", r2.GetString("name"));
+        Assert.Equal(67.5, r2.GetDouble("avgscore"), 0);
+    }
 
     [Fact]
     public void TestCreate()
@@ -644,7 +641,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async Task TestCursor() // TODO: finish this test and understand whats the problem with aggregate (maybe related to the dispose?)
+    public async Task TestCursor()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -700,6 +697,68 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         try
         {
             ft.CursorRead(index, res.CursorId, 1);
+            Assert.True(false);
+        }
+        catch (RedisException) { }
+    }
+
+    [Fact]
+    public async Task TestCursorAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Schema sc = new Schema();
+        sc.AddTextField("name", 1.0, sortable: true);
+        sc.AddNumericField("count", sortable: true);
+        ft.Create(index, FTCreateParams.CreateParams(), sc);
+        AddDocument(db, new Document("data1").Set("name", "abc").Set("count", 10));
+        AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
+        AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
+
+        AggregationRequest r = new AggregationRequest()
+            .GroupBy("@name", Reducers.Sum("@count").As("sum"))
+            .SortBy(10, SortedField.Desc("@sum"))
+            .Cursor(1, 3000);
+
+        // actual search
+        AggregationResult res = ft.Aggregate(index, r);
+        Row? row = res.GetRow(0);
+        Assert.NotNull(row);
+        Assert.Equal("def", row.Value.GetString("name"));
+        Assert.Equal(30, row.Value.GetLong("sum"));
+        Assert.Equal(30.0, row.Value.GetDouble("sum"));
+
+        Assert.Equal(0L, row.Value.GetLong("nosuchcol"));
+        Assert.Equal(0.0, row.Value.GetDouble("nosuchcol"));
+        Assert.Null(row.Value.GetString("nosuchcol"));
+
+        res = await ft.CursorReadAsync(index, res.CursorId, 1);
+        Row? row2 = res.GetRow(0);
+
+        Assert.NotNull(row2);
+        Assert.Equal("abc", row2.Value.GetString("name"));
+        Assert.Equal(10, row2.Value.GetLong("sum"));
+
+        Assert.True(await ft.CursorDelAsync(index, res.CursorId));
+
+        try
+        {
+            await ft.CursorReadAsync(index, res.CursorId, 1);
+            Assert.True(false);
+        }
+        catch (RedisException) { }
+
+        _ = new AggregationRequest()
+            .GroupBy("@name", Reducers.Sum("@count").As("sum"))
+            .SortBy(10, SortedField.Desc("@sum"))
+            .Cursor(1, 1000);
+
+        await Task.Delay(1000).ConfigureAwait(false);
+
+        try
+        {
+            await ft.CursorReadAsync(index, res.CursorId, 1);
             Assert.True(false);
         }
         catch (RedisException) { }
@@ -859,6 +918,92 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Assert.Equal(3L, await ft.DictDelAsync("dict", "foo", "bar", "hello world"));
         Assert.Equal((await ft.DictDumpAsync("dict")).Length, 0);
+    }
+
+    [Fact]
+    public void TestExplain()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Schema sc = new Schema()
+            .AddTextField("f1", 1.0)
+            .AddTextField("f2", 1.0)
+            .AddTextField("f3", 1.0);
+        ft.Create(index, FTCreateParams.CreateParams(), sc);
+
+        String res = ft.Explain(index, new Query("@f3:f3_val @f2:f2_val @f1:f1_val"));
+        Assert.NotNull(res);
+        Assert.False(res.Length == 0);
+    }
+
+    [Fact]
+    public async Task TestExplainAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Schema sc = new Schema()
+            .AddTextField("f1", 1.0)
+            .AddTextField("f2", 1.0)
+            .AddTextField("f3", 1.0);
+        ft.Create(index, FTCreateParams.CreateParams(), sc);
+
+        String res = await ft.ExplainAsync(index, new Query("@f3:f3_val @f2:f2_val @f1:f1_val"));
+        Assert.NotNull(res);
+        Assert.False(res.Length == 0);
+    }
+
+    [Fact]
+    public void TestSynonym()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        var sc = new Schema().AddTextField("name", 1.0).AddTextField("addr", 1.0);
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
+
+        long group1 = 345L;
+        long group2 = 789L;
+        string group1_str = group1.ToString();
+        string group2_str = group2.ToString();
+        Assert.True(ft.SynUpdate(index, group1_str, false, "girl", "baby"));
+        Assert.True(ft.SynUpdate(index, group1_str, false, "child"));
+        Assert.True(ft.SynUpdate(index, group2_str, false, "child"));
+
+        Dictionary<string, List<string>> dump = ft.SynDump(index);
+
+        Dictionary<string, List<string>> expected = new Dictionary<string, List<string>>();
+        expected.Add("girl", new List<string>() { group1_str });
+        expected.Add("baby", new List<string>() { group1_str });
+        expected.Add("child", new List<string>() { group1_str, group2_str });
+        Assert.Equal(expected, dump);
+    }
+
+    [Fact]
+    public async Task TestSynonymAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        var sc = new Schema().AddTextField("name", 1.0).AddTextField("addr", 1.0);
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
+
+        long group1 = 345L;
+        long group2 = 789L;
+        string group1_str = group1.ToString();
+        string group2_str = group2.ToString();
+        Assert.True(await ft.SynUpdateAsync(index, group1_str, false, "girl", "baby"));
+        Assert.True(await ft.SynUpdateAsync(index, group1_str, false, "child"));
+        Assert.True(await ft.SynUpdateAsync(index, group2_str, false, "child"));
+
+        Dictionary<string, List<string>> dump = await ft.SynDumpAsync(index);
+
+        Dictionary<string, List<string>> expected = new Dictionary<string, List<string>>();
+        expected.Add("girl", new List<string>() { group1_str });
+        expected.Add("baby", new List<string>() { group1_str });
+        expected.Add("child", new List<string>() { group1_str, group2_str });
+        Assert.Equal(expected, dump);
     }
 
     [Fact]

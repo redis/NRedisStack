@@ -47,7 +47,7 @@ namespace NRedisStack
             //query.SerializeRedisArgs(args);
             foreach(var arg in query.GetArgs())
             {
-                args.Add(arg);
+                args.Add(arg.ToString());
             }
             var result = _db.Execute(FT.AGGREGATE, args);
             if (query.IsWithCursor())
@@ -294,7 +294,6 @@ namespace NRedisStack
             return (await _db.ExecuteAsync(FT.CREATE, args)).OKtoBoolean();
         }
 
-        // TODO: FT.CURSOR DEL test
         /// <summary>
         /// Delete a cursor from the index.
         /// </summary>
@@ -493,12 +492,65 @@ namespace NRedisStack
         {
             return (await ((dd) ? _db.ExecuteAsync(FT.DROPINDEX, indexName, "DD")
                                 : _db.ExecuteAsync(FT.DROPINDEX, indexName)))
-                        .OKtoBoolean();
+                                .OKtoBoolean();
         }
 
-        // TODO: FT.DROPINDEX
-        // TODO: FT.EXPLAIN
-        // TODO: FT.EXPLAINCLI
+        /// <summary>
+        /// Return the execution plan for a complex query
+        /// </summary>
+        /// <param name="indexName">The index name</param>
+        /// <param name="q">The query to explain</param>
+        /// <returns>String that representing the execution plan</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.explain/"/></remarks>
+        public string Explain(string indexName, Query q)
+        {
+            var args = new List<object> { indexName };
+            q.SerializeRedisArgs(args);
+            return _db.Execute(FT.EXPLAIN, args).ToString();
+        }
+
+        /// <summary>
+        /// Return the execution plan for a complex query
+        /// </summary>
+        /// <param name="indexName">The index name</param>
+        /// <param name="q">The query to explain</param>
+        /// <returns>String that representing the execution plan</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.explain/"/></remarks>
+        public async Task<string> ExplainAsync(string indexName, Query q)
+        {
+            var args = new List<object> { indexName };
+            q.SerializeRedisArgs(args);
+            return (await _db.ExecuteAsync(FT.EXPLAIN, args)).ToString();
+        }
+
+        // TODO: FT.EXPLAINCLI - finish this
+        /// <summary>
+        /// Return the execution plan for a complex query
+        /// </summary>
+        /// <param name="indexName">The index name</param>
+        /// <param name="q">The query to explain</param>
+        /// <returns>An array reply with a string representing the execution plan</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.explaincli/"/></remarks>
+        public RedisResult[] ExplainCli(string indexName, Query q)
+        {
+            var args = new List<object> { indexName };
+            q.SerializeRedisArgs(args);
+            return _db.Execute(FT.EXPLAINCLI, args).ToArray();
+        }
+
+        /// <summary>
+        /// Return the execution plan for a complex query
+        /// </summary>
+        /// <param name="indexName">The index name</param>
+        /// <param name="q">The query to explain</param>
+        /// <returns>An array reply with a string representing the execution plan</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.explaincli/"/></remarks>
+        public async Task<RedisResult[]> ExplainCliAsync(string indexName, Query q)
+        {
+            var args = new List<object> { indexName };
+            q.SerializeRedisArgs(args);
+            return (await _db.ExecuteAsync(FT.EXPLAINCLI, args)).ToArray();
+        }
 
         // /// <summary>
         // /// Return information and statistics on the index.
@@ -537,12 +589,10 @@ namespace NRedisStack
         /// <param name="indexName">The index name</param>
         /// <param name="q">a <see cref="Query"/> object with the query string and optional parameters</param>
         /// <returns>a <see cref="SearchResult"/> object with the results</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.search"/></remarks>
         public SearchResult Search(string indexName, Query q)
         {
             var args = new List<object> { indexName };
-            // {
-            //     _boxedIndexName
-            // };
             q.SerializeRedisArgs(args);
 
             var resp = _db.Execute("FT.SEARCH", args).ToArray();
@@ -555,6 +605,7 @@ namespace NRedisStack
         /// <param name="indexName">The index name</param>
         /// <param name="q">a <see cref="Query"/> object with the query string and optional parameters</param>
         /// <returns>a <see cref="SearchResult"/> object with the results</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.search"/></remarks>
         public async Task<SearchResult> SearchAsync(string indexName, Query q)
         {
             var args = new List<object> { indexName };
@@ -564,8 +615,91 @@ namespace NRedisStack
         }
 
         // TODO: FT.SPELLCHECK
-        // TODO: FT.SYNDUMP
-        // TODO: FT.SYNUPDATE
+
+        /// <summary>
+        /// Dump the contents of a synonym group.
+        /// </summary>
+        /// <param name="indexName">The index name</param>
+        /// <returns>Pairs of term and an array of synonym groups.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.syndump"/></remarks>
+        public Dictionary<string, List<string>> SynDump(string indexName)
+        {
+            var resp = _db.Execute(FT.SYNDUMP, indexName).ToArray();
+            var result = new Dictionary<string, List<string>>();
+            for (int i = 0; i < resp.Length; i += 2)
+            {
+                var term = resp[i].ToString();
+                var synonyms = (resp[i + 1]).ToArray().Select(x => x.ToString()).ToList(); // TODO: consider leave synonyms as RedisValue[]
+                result.Add(term, synonyms);
+            }
+            return result;
+        }
+
+        // TODO: FT.SPELLCHECK
+
+        /// <summary>
+        /// Dump the contents of a synonym group.
+        /// </summary>
+        /// <param name="indexName">The index name</param>
+        /// <returns>Pairs of term and an array of synonym groups.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.syndump"/></remarks>
+        public async Task<Dictionary<string, List<string>>> SynDumpAsync(string indexName)
+        {
+            var resp = (await _db.ExecuteAsync(FT.SYNDUMP, indexName)).ToArray();
+            var result = new Dictionary<string, List<string>>();
+            for (int i = 0; i < resp.Length; i += 2)
+            {
+                var term = resp[i].ToString();
+                var synonyms = (resp[i + 1]).ToArray().Select(x => x.ToString()).ToList(); // TODO: consider leave synonyms as RedisValue[]
+                result.Add(term, synonyms);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Update a synonym group.
+        /// </summary>
+        /// <param name="indexName">The index name</param>
+        /// <param name="synonymGroupId">Is synonym group to return</param>
+        /// <param name="skipInitialScan">does not scan and index, and only documents
+        /// that are indexed after the update are affected</param>
+        /// <param name="terms">The terms</param>
+        /// <returns>Pairs of term and an array of synonym groups.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.synupdate"/></remarks>
+        public bool SynUpdate(string indexName, string synonymGroupId, bool skipInitialScan = false, params string[] terms)
+        {
+            if(terms.Length < 1)
+            {
+                throw new ArgumentOutOfRangeException("terms must have at least one element");
+            }
+            var args = new List<object> { indexName, synonymGroupId };
+            if (skipInitialScan) { args.Add(SearchArgs.SKIPINITIALSCAN); }
+            args.AddRange(terms);
+            return _db.Execute(FT.SYNUPDATE, args).OKtoBoolean();
+        }
+
+        /// <summary>
+        /// Update a synonym group.
+        /// </summary>
+        /// <param name="indexName">The index name</param>
+        /// <param name="synonymGroupId">Is synonym group to return</param>
+        /// <param name="skipInitialScan">does not scan and index, and only documents
+        /// that are indexed after the update are affected</param>
+        /// <param name="terms">The terms</param>
+        /// <returns>Pairs of term and an array of synonym groups.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.synupdate"/></remarks>
+        public async Task<bool> SynUpdateAsync(string indexName, string synonymGroupId, bool skipInitialScan = false, params string[] terms)
+        {
+            if(terms.Length < 1)
+            {
+                throw new ArgumentOutOfRangeException("terms must have at least one element");
+            }
+            var args = new List<object> { indexName, synonymGroupId };
+            if (skipInitialScan) { args.Add(SearchArgs.SKIPINITIALSCAN); }
+            args.AddRange(terms);
+            return (await _db.ExecuteAsync(FT.SYNUPDATE, args)).OKtoBoolean();
+        }
+
         // TODO: FT.TAGVALS
     }
 }
