@@ -644,6 +644,85 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    public async Task TestCursor() // TODO: finish this test and understand whats the problem with aggregate (maybe related to the dispose?)
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Schema sc = new Schema();
+        sc.AddTextField("name", 1.0, sortable: true);
+        sc.AddNumericField("count", sortable: true);
+        ft.Create(index, FTCreateParams.CreateParams(), sc);
+        AddDocument(db, new Document("data1").Set("name", "abc").Set("count", 10));
+        AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
+        AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
+
+        AggregationRequest r = new AggregationRequest()
+            .GroupBy("@name", Reducers.Sum("@count").As("sum"))
+            .SortBy(10, SortedField.Desc("@sum"))
+            .Cursor(1, 3000);
+
+        // actual search
+        AggregationResult res = ft.Aggregate(index, r);
+        Row? row = res.GetRow(0);
+        Assert.NotNull(row);
+        Assert.Equal("def", row.Value.GetString("name"));
+        Assert.Equal(30, row.Value.GetLong("sum"));
+        Assert.Equal(30.0, row.Value.GetDouble("sum"));
+
+        Assert.Equal(0L, row.Value.GetLong("nosuchcol"));
+        Assert.Equal(0.0, row.Value.GetDouble("nosuchcol"));
+        Assert.Null(row.Value.GetString("nosuchcol"));
+
+        res = ft.CursorRead(index, res.CursorId, 1);
+        Row? row2 = res.GetRow(0);
+
+        Assert.NotNull(row2);
+        Assert.Equal("abc", row2.Value.GetString("name"));
+        Assert.Equal(10, row2.Value.GetLong("sum"));
+
+        Assert.True(ft.CursorDel(index, res.CursorId));
+
+        try
+        {
+            ft.CursorRead(index, res.CursorId, 1);
+            Assert.True(false);
+        }
+        catch (RedisException) { }
+
+        _ = new AggregationRequest()
+            .GroupBy("@name", Reducers.Sum("@count").As("sum"))
+            .SortBy(10, SortedField.Desc("@sum"))
+            .Cursor(1, 1000);
+
+        await Task.Delay(1000).ConfigureAwait(false);
+
+        try
+        {
+            ft.CursorRead(index, res.CursorId, 1);
+            Assert.True(false);
+        }
+        catch (RedisException) { }
+    }
+
+    [Fact]
+    public void TestDictionary()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Assert.Equal(3L, ft.DictAdd("dict", "bar", "foo", "hello world"));
+        var dumResult = ft.DictDump("dict");
+        int i = 0;
+
+        Assert.Equal("bar",dumResult[i++].ToString());
+        Assert.Equal("foo",dumResult[i++].ToString());
+        Assert.Equal("hello world",dumResult[i].ToString());
+        Assert.Equal(3L, ft.DictDel("dict", "foo", "bar", "hello world"));
+        Assert.Equal(ft.DictDump("dict").Length, 0);
+    }
+
+    [Fact]
     public void TestModulePrefixs()
     {
         IDatabase db1 = redisFixture.Redis.GetDatabase();

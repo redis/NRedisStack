@@ -355,8 +355,67 @@ namespace NRedisStack
         }
 
         // TODO: FT.DICTADD
+        /// <summary>
+        /// Add terms to a dictionary.
+        /// </summary>
+        /// <param name="dict">The dictionary name</param>
+        /// <param name="terms">Terms to add to the dictionary..</param>
+        /// <returns>The number of new terms that were added.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.dictadd/"/></remarks>
+        public long DictAdd(string dict, params string[] terms)
+        {
+            if(terms.Length < 1)
+            {
+                throw new ArgumentOutOfRangeException("At least one term must be provided");
+            }
+
+            var args = new List<object>(terms.Length + 1) { dict };
+            foreach (var t in terms)
+            {
+                args.Add(t);
+            }
+
+            return _db.Execute(FT.DICTADD, args).ToLong();
+        }
+
+        /// <summary>
+        /// Delete terms from a dictionary.
+        /// </summary>
+        /// <param name="dict">The dictionary name</param>
+        /// <param name="terms">Terms to delete to the dictionary..</param>
+        /// <returns>The number of new terms that were deleted.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.dictdel/"/></remarks>
+        public long DictDel(string dict, params string[] terms)
+        {
+            if(terms.Length < 1)
+            {
+                throw new ArgumentOutOfRangeException("At least one term must be provided");
+            }
+
+            var args = new List<object>(terms.Length + 1) { dict };
+            foreach (var t in terms)
+            {
+                args.Add(t);
+            }
+
+            return _db.Execute(FT.DICTDEL, args).ToLong();
+        }
+
+        /// <summary>
+        /// Dump all terms in the given dictionary.
+        /// </summary>
+        /// <param name="dict">The dictionary name</param>
+        /// <returns>An array, where each element is term.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.dictdump/"/></remarks>
+        public RedisResult[] DictDump(string dict)
+        {
+            return _db.Execute(FT.DICTDUMP, dict).ToArray();
+        }
+
+
         // TODO: FT.DICTDEL
         // TODO: FT.DICTDUMP
+
         // TODO: FT.DROPINDEX
         // TODO: FT.EXPLAIN
         // TODO: FT.EXPLAINCLI
