@@ -255,6 +255,64 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    public void TestAlias()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Schema sc = new Schema().AddTextField("field1");
+
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
+
+        Dictionary<string, object> doc = new Dictionary<string, object>();
+        doc.Add("field1", "value");
+        AddDocument(db, "doc1", doc);
+
+        Assert.True(ft.AliasAdd("ALIAS1", index));
+        SearchResult res1 = ft.Search("ALIAS1", new Query("*").ReturnFields("field1"));
+        Assert.Equal(1, res1.TotalResults);
+        Assert.Equal("value", res1.Documents[0]["field1"]);
+
+        Assert.True(ft.AliasUpdate("ALIAS2", index));
+        SearchResult res2 = ft.Search("ALIAS2", new Query("*").ReturnFields("field1"));
+        Assert.Equal(1, res2.TotalResults);
+        Assert.Equal("value", res2.Documents[0]["field1"]);
+
+        Assert.Throws<RedisServerException>(() => ft.AliasDel("ALIAS3"));
+        Assert.True(ft.AliasDel("ALIAS2"));
+        Assert.Throws<RedisServerException>(() => ft.AliasDel("ALIAS2"));
+    }
+
+    [Fact]
+    public async Task TestAliasAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Schema sc = new Schema().AddTextField("field1");
+
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
+
+        Dictionary<string, object> doc = new Dictionary<string, object>();
+        doc.Add("field1", "value");
+        AddDocument(db, "doc1", doc);
+
+        Assert.True(await ft.AliasAddAsync("ALIAS1", index));
+        SearchResult res1 = ft.Search("ALIAS1", new Query("*").ReturnFields("field1"));
+        Assert.Equal(1, res1.TotalResults);
+        Assert.Equal("value", res1.Documents[0]["field1"]);
+
+        Assert.True(await ft.AliasUpdateAsync("ALIAS2", index));
+        SearchResult res2 = ft.Search("ALIAS2", new Query("*").ReturnFields("field1"));
+        Assert.Equal(1, res2.TotalResults);
+        Assert.Equal("value", res2.Documents[0]["field1"]);
+
+        await Assert.ThrowsAsync<RedisServerException>(async () => await ft.AliasDelAsync("ALIAS3"));
+        Assert.True(await ft.AliasDelAsync("ALIAS2"));
+        await Assert.ThrowsAsync<RedisServerException>(async () => await ft.AliasDelAsync("ALIAS2"));
+    }
+
+    [Fact]
     public void TestApplyAndFilterAggregations()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -310,12 +368,12 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.True(ft.Create(index, parameters, schema));
 
         db.HashSet("profesor:5555", new HashEntry[] { new("first", "Albert"), new("last", "Blue"), new("age", "55") });
-        db.HashSet("student:1111",  new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", "18") });
-        db.HashSet("pupil:2222",    new HashEntry[] { new("first", "Jen"), new("last", "Rod"), new("age", "14") });
-        db.HashSet("student:3333",  new HashEntry[] { new("first", "El"), new("last", "Mark"), new("age", "17") });
-        db.HashSet("pupil:4444",    new HashEntry[] { new("first", "Pat"), new("last", "Shu"), new("age", "21") });
-        db.HashSet("student:5555",  new HashEntry[] { new("first", "Joen"), new("last", "Ko"), new("age", "20") });
-        db.HashSet("teacher:6666",  new HashEntry[] { new("first", "Pat"), new("last", "Rod"), new("age", "20") });
+        db.HashSet("student:1111", new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", "18") });
+        db.HashSet("pupil:2222", new HashEntry[] { new("first", "Jen"), new("last", "Rod"), new("age", "14") });
+        db.HashSet("student:3333", new HashEntry[] { new("first", "El"), new("last", "Mark"), new("age", "17") });
+        db.HashSet("pupil:4444", new HashEntry[] { new("first", "Pat"), new("last", "Shu"), new("age", "21") });
+        db.HashSet("student:5555", new HashEntry[] { new("first", "Joen"), new("last", "Ko"), new("age", "20") });
+        db.HashSet("teacher:6666", new HashEntry[] { new("first", "Pat"), new("last", "Rod"), new("age", "20") });
 
         var noFilters = ft.Search(index, new Query());
         Assert.Equal(4, noFilters.TotalResults);
@@ -609,8 +667,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         try { ft.ConfigSet("DEFAULT_DIALECT", "0"); } catch (RedisServerException) { }
         try { ft.ConfigSet("DEFAULT_DIALECT", "3"); } catch (RedisServerException) { }
 
-        // Assert.Throws<RedisServerException>(() => ft.ConfigSet("DEFAULT_DIALECT", "0"));
-        // Assert.Throws<RedisServerException>(() => ft.ConfigSet("DEFAULT_DIALECT", "3"));
+        Assert.Throws<RedisServerException>(() => ft.ConfigSet("DEFAULT_DIALECT", "0"));
+        Assert.Throws<RedisServerException>(() => ft.ConfigSet("DEFAULT_DIALECT", "3"));
 
         // Restore to default
         Assert.True(ft.ConfigSet("DEFAULT_DIALECT", "1"));
@@ -631,8 +689,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         try { await ft.ConfigSetAsync("DEFAULT_DIALECT", "0"); } catch (RedisServerException) { }
         try { await ft.ConfigSetAsync("DEFAULT_DIALECT", "3"); } catch (RedisServerException) { }
 
-        // Assert.Throws<RedisServerException>(() => ft.ConfigSet("DEFAULT_DIALECT", "0"));
-        // Assert.Throws<RedisServerException>(() => ft.ConfigSet("DEFAULT_DIALECT", "3"));
+        Assert.Throws<RedisServerException>(() => ft.ConfigSet("DEFAULT_DIALECT", "0"));
+        Assert.Throws<RedisServerException>(() => ft.ConfigSet("DEFAULT_DIALECT", "3"));
 
         // Restore to default
         Assert.True(ft.ConfigSet("DEFAULT_DIALECT", "1"));
