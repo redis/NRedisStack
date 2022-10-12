@@ -485,6 +485,33 @@ namespace NRedisStack
             lastTimestamp, retentionTime, chunkCount, chunkSize, labels, sourceKey, rules, duplicatePolicy, keySelfName, chunks);
         }
 
+        public static Dictionary<string, RedisValue> ToFtInfoAsDictionary(this RedisResult value)
+        {
+            var res = (RedisResult[])value;
+            var info = new Dictionary<string, RedisValue>();
+            for (int i = 0; i < res.Length; i += 2)
+            {
+                var val = res[i + 1];
+                if (val.Type != ResultType.MultiBulk)
+                {
+                    info.Add((string)res[i], (RedisValue)val);
+                }
+            }
+            return info;
+        }
+
+        public static Dictionary<string, string> ToConfigDictionary(this RedisResult value)
+        {
+            var res = (RedisResult[])value;
+            var dict = new Dictionary<string, string>();
+            foreach (var pair in res)
+            {
+                var arr = (RedisResult[])pair;
+                dict.Add(arr[0].ToString(), arr[1].ToString());
+            }
+            return dict;
+        }
+
         public static IReadOnlyList<TimeSeriesChunck> ToTimeSeriesChunkArray(this RedisResult result)
         {
             RedisResult[] redisResults = (RedisResult[])result;
