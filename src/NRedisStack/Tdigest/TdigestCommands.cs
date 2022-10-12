@@ -16,53 +16,19 @@ namespace NRedisStack
         /// Adds one or more observations to a t-digest sketch.
         /// </summary>
         /// <param name="key">The name of the sketch.</param>
-        /// <param name="value">The value of the observation.</param>
-        /// <param name="weight">The weight of this observation.</param>
+        /// <param name="values">The value of the observation.</param>
         /// <returns><see langword="true"/> if executed correctly, error otherwise</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.add"/></remarks>
-        public bool Add(RedisKey key, double item, long weight)
+        public bool Add(RedisKey key, params double[] values)
         {
-            if (weight < 0) throw new ArgumentOutOfRangeException(nameof(weight));
-
-            return _db.Execute(TDIGEST.ADD, key, item, weight).OKtoBoolean();
-        }
-
-        /// <summary>
-        /// Adds one or more observations to a t-digest sketch.
-        /// </summary>
-        /// <param name="key">The name of the sketch.</param>
-        /// <param name="value">The value of the observation.</param>
-        /// <param name="weight">The weight of this observation.</param>
-        /// <returns><see langword="true"/> if executed correctly, error otherwise</returns>
-        /// <remarks><seealso href="https://redis.io/commands/tdigest.add"/></remarks>
-        public async Task<bool> AddAsync(RedisKey key, double item, int weight)
-        {
-            if (weight < 0) throw new ArgumentOutOfRangeException(nameof(weight));
-
-            var result = await _db.ExecuteAsync(TDIGEST.ADD, key, item, weight);
-            return result.OKtoBoolean();
-        }
-
-        /// <summary>
-        /// Adds one or more observations to a t-digest sketch.
-        /// </summary>
-        /// <param name="key">The name of the sketch.</param>
-        /// <param name="valueWeight">Tuple of the value of the observation and The weight of this observation.</param>
-        /// <returns><see langword="true"/> if executed correctly, error otherwise</returns>
-        /// <remarks><seealso href="https://redis.io/commands/tdigest.add"/></remarks>
-        public bool Add(RedisKey key, params Tuple<double, long>[] valueWeight)
-        {
-            if (valueWeight.Length < 1)
-                throw new ArgumentOutOfRangeException(nameof(valueWeight));
-
-            var args = new List<object> { key };
-
-            foreach (var pair in valueWeight)
+            if (values.Length < 0) throw new ArgumentOutOfRangeException(nameof(values));
+            var args = new string[values.Length + 1];
+            args[0] = key.ToString();
+            for (int i = 0; i < values.Length; i++)
             {
-                if (pair.Item2 < 0) throw new ArgumentOutOfRangeException(nameof(pair.Item2));
-                args.Add(pair.Item1);
-                args.Add(pair.Item2);
+                args[i + 1] = values[i].ToString();
             }
+
             return _db.Execute(TDIGEST.ADD, args).OKtoBoolean();
         }
 
@@ -70,24 +36,98 @@ namespace NRedisStack
         /// Adds one or more observations to a t-digest sketch.
         /// </summary>
         /// <param name="key">The name of the sketch.</param>
-        /// <param name="valueWeight">Tuple of the value of the observation and The weight of this observation.</param>
+        /// <param name="values">The value of the observation.</param>
         /// <returns><see langword="true"/> if executed correctly, error otherwise</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.add"/></remarks>
-        public async Task<bool> AddAsync(RedisKey key, params Tuple<double, long>[] valueWeight)
+        public async Task<bool> AddAsync(RedisKey key, params double[] values)
         {
-            if (valueWeight.Length < 1)
-                throw new ArgumentOutOfRangeException(nameof(valueWeight));
-
-            var args = new List<object> { key };
-
-            foreach (var pair in valueWeight)
+            if (values.Length < 0) throw new ArgumentOutOfRangeException(nameof(values));
+            var args = new string[values.Length + 1];
+            args[0] = key;
+            for (int i = 0; i < values.Length; i++)
             {
-                if (pair.Item2 < 0) throw new ArgumentOutOfRangeException(nameof(pair.Item2));
-                args.Add(pair.Item1);
-                args.Add(pair.Item2);
+                args[i + 1] = values[i].ToString();
             }
+
             return (await _db.ExecuteAsync(TDIGEST.ADD, args)).OKtoBoolean();
         }
+
+        // /// <summary>
+        // /// Adds one or more observations to a t-digest sketch.
+        // /// </summary>
+        // /// <param name="key">The name of the sketch.</param>
+        // /// <param name="value">The value of the observation.</param>
+        // /// <param name="weight">The weight of this observation.</param>
+        // /// <returns><see langword="true"/> if executed correctly, error otherwise</returns>
+        // /// <remarks><seealso href="https://redis.io/commands/tdigest.add"/></remarks>
+        // public bool Add(RedisKey key, double item, long weight)
+        // {
+        //     if (weight < 0) throw new ArgumentOutOfRangeException(nameof(weight));
+
+        //     return _db.Execute(TDIGEST.ADD, key, item, weight).OKtoBoolean();
+        // }
+
+        // /// <summary>
+        // /// Adds one or more observations to a t-digest sketch.
+        // /// </summary>
+        // /// <param name="key">The name of the sketch.</param>
+        // /// <param name="value">The value of the observation.</param>
+        // /// <param name="weight">The weight of this observation.</param>
+        // /// <returns><see langword="true"/> if executed correctly, error otherwise</returns>
+        // /// <remarks><seealso href="https://redis.io/commands/tdigest.add"/></remarks>
+        // public async Task<bool> AddAsync(RedisKey key, double item, int weight)
+        // {
+        //     if (weight < 0) throw new ArgumentOutOfRangeException(nameof(weight));
+
+        //     var result = await _db.ExecuteAsync(TDIGEST.ADD, key, item, weight);
+        //     return result.OKtoBoolean();
+        // }
+
+        // /// <summary>
+        // /// Adds one or more observations to a t-digest sketch.
+        // /// </summary>
+        // /// <param name="key">The name of the sketch.</param>
+        // /// <param name="valueWeight">Tuple of the value of the observation and The weight of this observation.</param>
+        // /// <returns><see langword="true"/> if executed correctly, error otherwise</returns>
+        // /// <remarks><seealso href="https://redis.io/commands/tdigest.add"/></remarks>
+        // public bool Add(RedisKey key, params Tuple<double, long>[] valueWeight)
+        // {
+        //     if (valueWeight.Length < 1)
+        //         throw new ArgumentOutOfRangeException(nameof(valueWeight));
+
+        //     var args = new List<object> { key };
+
+        //     foreach (var pair in valueWeight)
+        //     {
+        //         if (pair.Item2 < 0) throw new ArgumentOutOfRangeException(nameof(pair.Item2));
+        //         args.Add(pair.Item1);
+        //         args.Add(pair.Item2);
+        //     }
+        //     return _db.Execute(TDIGEST.ADD, args).OKtoBoolean();
+        // }
+
+        // /// <summary>
+        // /// Adds one or more observations to a t-digest sketch.
+        // /// </summary>
+        // /// <param name="key">The name of the sketch.</param>
+        // /// <param name="valueWeight">Tuple of the value of the observation and The weight of this observation.</param>
+        // /// <returns><see langword="true"/> if executed correctly, error otherwise</returns>
+        // /// <remarks><seealso href="https://redis.io/commands/tdigest.add"/></remarks>
+        // public async Task<bool> AddAsync(RedisKey key, params Tuple<double, long>[] valueWeight)
+        // {
+        //     if (valueWeight.Length < 1)
+        //         throw new ArgumentOutOfRangeException(nameof(valueWeight));
+
+        //     var args = new List<object> { key };
+
+        //     foreach (var pair in valueWeight)
+        //     {
+        //         if (pair.Item2 < 0) throw new ArgumentOutOfRangeException(nameof(pair.Item2));
+        //         args.Add(pair.Item1);
+        //         args.Add(pair.Item2);
+        //     }
+        //     return (await _db.ExecuteAsync(TDIGEST.ADD, args)).OKtoBoolean();
+        // }
 
         /// <summary>
         /// Estimate the fraction of all observations added which are <= value.
