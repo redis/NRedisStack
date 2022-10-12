@@ -45,7 +45,7 @@ namespace NRedisStack
         {
             List<object> args = new List<object> { index };
             //query.SerializeRedisArgs(args);
-            foreach(var arg in query.GetArgs())
+            foreach (var arg in query.GetArgs())
             {
                 args.Add(arg.ToString());
             }
@@ -73,7 +73,7 @@ namespace NRedisStack
         {
             List<object> args = new List<object> { index };
             //query.SerializeRedisArgs(args);
-            foreach(var arg in query.GetArgs())
+            foreach (var arg in query.GetArgs())
             {
                 args.Add(arg);
             }
@@ -317,7 +317,6 @@ namespace NRedisStack
         {
             return (await _db.ExecuteAsync(FT.CURSOR, "DEL", indexName, cursorId)).OKtoBoolean();
         }
-        // TODO: FT.CURSOR READ test
 
         /// <summary>
         /// Read next results from an existing cursor.
@@ -362,7 +361,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/ft.dictadd/"/></remarks>
         public long DictAdd(string dict, params string[] terms)
         {
-            if(terms.Length < 1)
+            if (terms.Length < 1)
             {
                 throw new ArgumentOutOfRangeException("At least one term must be provided");
             }
@@ -385,7 +384,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/ft.dictadd/"/></remarks>
         public async Task<long> DictAddAsync(string dict, params string[] terms)
         {
-            if(terms.Length < 1)
+            if (terms.Length < 1)
             {
                 throw new ArgumentOutOfRangeException("At least one term must be provided");
             }
@@ -408,7 +407,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/ft.dictdel/"/></remarks>
         public long DictDel(string dict, params string[] terms)
         {
-            if(terms.Length < 1)
+            if (terms.Length < 1)
             {
                 throw new ArgumentOutOfRangeException("At least one term must be provided");
             }
@@ -431,7 +430,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/ft.dictdel/"/></remarks>
         public async Task<long> DictDelAsync(string dict, params string[] terms)
         {
-            if(terms.Length < 1)
+            if (terms.Length < 1)
             {
                 throw new ArgumentOutOfRangeException("At least one term must be provided");
             }
@@ -523,7 +522,6 @@ namespace NRedisStack
             return (await _db.ExecuteAsync(FT.EXPLAIN, args)).ToString();
         }
 
-        // TODO: FT.EXPLAINCLI - finish this
         /// <summary>
         /// Return the execution plan for a complex query
         /// </summary>
@@ -581,7 +579,7 @@ namespace NRedisStack
         public async Task<InfoResult> InfoAsync(RedisValue index) =>
             new InfoResult(await _db.ExecuteAsync("FT.INFO", index));
 
-        // TODO: FT.PROFILE
+        // TODO: FT.PROFILE (jedis doesn't have it)
 
         /// <summary>
         /// Search the index
@@ -614,8 +612,6 @@ namespace NRedisStack
             return new SearchResult(resp, !q.NoContent, q.WithScores, q.WithPayloads, q.ExplainScore);
         }
 
-        // TODO: FT.SPELLCHECK
-
         /// <summary>
         /// Dump the contents of a synonym group.
         /// </summary>
@@ -635,7 +631,7 @@ namespace NRedisStack
             return result;
         }
 
-        // TODO: FT.SPELLCHECK
+        // TODO: FT.SPELLCHECK (jedis doesn't have it)
 
         /// <summary>
         /// Dump the contents of a synonym group.
@@ -668,7 +664,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/ft.synupdate"/></remarks>
         public bool SynUpdate(string indexName, string synonymGroupId, bool skipInitialScan = false, params string[] terms)
         {
-            if(terms.Length < 1)
+            if (terms.Length < 1)
             {
                 throw new ArgumentOutOfRangeException("terms must have at least one element");
             }
@@ -690,7 +686,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/ft.synupdate"/></remarks>
         public async Task<bool> SynUpdateAsync(string indexName, string synonymGroupId, bool skipInitialScan = false, params string[] terms)
         {
-            if(terms.Length < 1)
+            if (terms.Length < 1)
             {
                 throw new ArgumentOutOfRangeException("terms must have at least one element");
             }
@@ -700,6 +696,24 @@ namespace NRedisStack
             return (await _db.ExecuteAsync(FT.SYNUPDATE, args)).OKtoBoolean();
         }
 
-        // TODO: FT.TAGVALS
+        /// <summary>
+        /// Return a distinct set of values indexed in a Tag field.
+        /// </summary>
+        /// <param name="indexName">The index name</param>
+        /// <param name="fieldName">TAG field name</param>
+        /// <returns>List of TAG field values</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.tagvals"/></remarks>
+        public RedisResult[] TagVals(string indexName, string fieldName) => //TODO: consider return Set
+            _db.Execute(FT.TAGVALS, indexName, fieldName).ToArray();
+
+        /// <summary>
+        /// Return a distinct set of values indexed in a Tag field.
+        /// </summary>
+        /// <param name="indexName">The index name</param>
+        /// <param name="fieldName">TAG field name</param>
+        /// <returns>List of TAG field values</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.tagvals"/></remarks>
+        public async Task<RedisResult[]> TagValsAsync(string indexName, string fieldName) => //TODO: consider return Set
+            (await _db.ExecuteAsync(FT.TAGVALS, indexName, fieldName)).ToArray();
     }
 }

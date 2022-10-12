@@ -151,7 +151,6 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, res.TotalResults);
     }
 
-    // // TODO: underastant why its not working
     [Fact]
     public void TestAggregations()
     {
@@ -255,7 +254,6 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(10, r1.GetLong("sum"));
     }
 
-    // // TODO: underastant why its not working
     [Fact]
     public void TestApplyAndFilterAggregations()
     {
@@ -1019,6 +1017,122 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    public async Task GetTagFieldSyncAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Schema sc = new Schema()
+            .AddTextField("title", 1.0)
+            .AddTagField("category");
+
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
+        Dictionary<string, object> fields1 = new Dictionary<string, object>();
+        fields1.Add("title", "hello world");
+        fields1.Add("category", "red");
+        //    assertTrue(client.AddDocument(db, "foo", fields1));
+        AddDocument(db, "foo", fields1);
+        Dictionary<string, object> fields2 = new Dictionary<string, object>();
+        fields2.Add("title", "hello world");
+        fields2.Add("category", "blue");
+        //    assertTrue(client.AddDocument(db, "bar", fields2));
+        AddDocument(db, "bar", fields2);
+        Dictionary<string, object> fields3 = new Dictionary<string, object>();
+        fields3.Add("title", "hello world");
+        fields3.Add("category", "green,yellow");
+        //    assertTrue(client.AddDocument(db, "baz", fields3));
+        AddDocument(db, "baz", fields3);
+        Dictionary<string, object> fields4 = new Dictionary<string, object>();
+        fields4.Add("title", "hello world");
+        fields4.Add("category", "orange;purple");
+        //    assertTrue(client.AddDocument(db, "qux", fields4));
+        AddDocument(db, "qux", fields4);
+
+        Assert.Equal(1, ft.Search(index, new Query("@category:{red}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new Query("@category:{blue}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new Query("hello @category:{red}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new Query("hello @category:{blue}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new Query("@category:{yellow}")).TotalResults);
+        Assert.Equal(0, ft.Search(index, new Query("@category:{purple}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new Query("@category:{orange\\;purple}")).TotalResults);
+        Assert.Equal(4, ft.Search(index, new Query("hello")).TotalResults);
+
+        var SyncRes = ft.TagVals(index, "category");
+        int i = 0;
+        Assert.Equal(SyncRes[i++].ToString(), "blue");
+        Assert.Equal(SyncRes[i++].ToString(), "green");
+        Assert.Equal(SyncRes[i++].ToString(), "orange;purple");
+        Assert.Equal(SyncRes[i++].ToString(), "red");
+        Assert.Equal(SyncRes[i++].ToString(), "yellow");
+
+        var AsyncRes = await ft.TagValsAsync(index, "category");
+        i = 0;
+        Assert.Equal(SyncRes[i++].ToString(), "blue");
+        Assert.Equal(SyncRes[i++].ToString(), "green");
+        Assert.Equal(SyncRes[i++].ToString(), "orange;purple");
+        Assert.Equal(SyncRes[i++].ToString(), "red");
+        Assert.Equal(SyncRes[i++].ToString(), "yellow");
+    }
+
+    [Fact]
+    public async Task TestGetTagFieldWithNonDefaultSeparatorSyncAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Schema sc = new Schema()
+            .AddTextField("title", 1.0)
+            .AddTagField("category", separator: ";");
+
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
+        Dictionary<string, object> fields1 = new Dictionary<string, object>();
+        fields1.Add("title", "hello world");
+        fields1.Add("category", "red");
+        //    assertTrue(client.AddDocument(db, "foo", fields1));
+        AddDocument(db, "foo", fields1);
+        Dictionary<string, object> fields2 = new Dictionary<string, object>();
+        fields2.Add("title", "hello world");
+        fields2.Add("category", "blue");
+        //    assertTrue(client.AddDocument(db, "bar", fields2));
+        AddDocument(db, "bar", fields2);
+        Dictionary<string, object> fields3 = new Dictionary<string, object>();
+        fields3.Add("title", "hello world");
+        fields3.Add("category", "green;yellow");
+        AddDocument(db, "baz", fields3);
+        //    assertTrue(client.AddDocument(db, "baz", fields3));
+        Dictionary<string, object> fields4 = new Dictionary<string, object>();
+        fields4.Add("title", "hello world");
+        fields4.Add("category", "orange,purple");
+        //    assertTrue(client.AddDocument(db, "qux", fields4));
+        AddDocument(db, "qux", fields4);
+
+        Assert.Equal(1, ft.Search(index, new Query("@category:{red}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new Query("@category:{blue}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new Query("hello @category:{red}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new Query("hello @category:{blue}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new Query("hello @category:{yellow}")).TotalResults);
+        Assert.Equal(0, ft.Search(index, new Query("@category:{purple}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new Query("@category:{orange\\,purple}")).TotalResults);
+        Assert.Equal(4, ft.Search(index, new Query("hello")).TotalResults);
+
+        var SyncRes = ft.TagVals(index, "category");
+        int i = 0;
+        Assert.Equal(SyncRes[i++].ToString(), "blue");
+        Assert.Equal(SyncRes[i++].ToString(), "green");
+        Assert.Equal(SyncRes[i++].ToString(), "orange,purple");
+        Assert.Equal(SyncRes[i++].ToString(), "red");
+        Assert.Equal(SyncRes[i++].ToString(), "yellow");
+
+        var AsyncRes = await ft.TagValsAsync(index, "category");
+        i = 0;
+        Assert.Equal(SyncRes[i++].ToString(), "blue");
+        Assert.Equal(SyncRes[i++].ToString(), "green");
+        Assert.Equal(SyncRes[i++].ToString(), "orange,purple");
+        Assert.Equal(SyncRes[i++].ToString(), "red");
+        Assert.Equal(SyncRes[i++].ToString(), "yellow");
+    }
+
+    [Fact]
     public void TestModulePrefixs1()
     {
         {
@@ -1038,7 +1152,5 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             // ...
             conn.Dispose();
         }
-
     }
-
 }
