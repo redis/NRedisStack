@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using NRedisStack.Literals;
 // using NRediSearch.Aggregation.Reducers;
 using StackExchange.Redis;
 
@@ -125,7 +126,7 @@ namespace NRedisStack.Search.Aggregation
 
         public AggregationRequest Filter(string expression)
         {
-            args.Add("FILTER");
+            args.Add(SearchArgs.FILTER);
             args.Add(expression);
             return this;
         }

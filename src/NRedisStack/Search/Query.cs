@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
+using NRedisStack.Literals;
 using NRedisStack.Search;
 using StackExchange.Redis;
 
@@ -45,7 +46,7 @@ namespace NRedisStack.Search
 
             internal override void SerializeRedisArgs(List<object> args)
             {
-                static RedisValue FormatNum(double num, bool exclude) //TODO: understand this:
+                static RedisValue FormatNum(double num, bool exclude)
                 {
                     if (!exclude || double.IsInfinity(num))
                     {
@@ -54,7 +55,7 @@ namespace NRedisStack.Search
                     // need to add leading bracket
                     return "(" + num.ToString("G17", NumberFormatInfo.InvariantInfo);
                 }
-                args.Add("FILTER");
+                args.Add(SearchArgs.FILTER);
                 args.Add(Property);
                 args.Add(FormatNum(min, exclusiveMin));
                 args.Add(FormatNum(max, exclusiveMax));
@@ -357,7 +358,7 @@ namespace NRedisStack.Search
                 args.Add(_returnFields.Length);
                 args.AddRange(_returnFields);
             }
-            else if (_returnFieldsNames?.Length > 0) // TODO: understad this
+            else if (_returnFieldsNames?.Length > 0)
             {
                 args.Add("RETURN");
                 int returnCountIndex = args.Count;
