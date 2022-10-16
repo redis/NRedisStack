@@ -213,7 +213,7 @@ namespace NRedisStack
         public Dictionary<string, string> ConfigGet(string option)
         {
             var result = _db.Execute(FT.CONFIG, "GET", option);
-            return result.ToConfigDictionary(); // TODO: fix all tests to be like this
+            return result.ToConfigDictionary();
         }
 
         /// <summary>
