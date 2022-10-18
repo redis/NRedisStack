@@ -18,29 +18,29 @@ namespace NRedisStack.Graph
             /// <summary>
             /// Who can say?
             /// </summary>
-            COLUMN_UNKNOWN,
+            UNKNOWN,
 
             /// <summary>
             /// A single value.
             /// </summary>
-            COLUMN_SCALAR,
+            SCALAR,
 
             /// <summary>
             /// Refers to an actual node.
             /// </summary>
-            COLUMN_NODE,
+            NODE,
 
             /// <summary>
             /// Refers to a relation.
             /// </summary>
-            COLUMN_RELATION
+            RELATION
         }
 
         /// <summary>
         /// Collection of the schema types present in the header.
         /// </summary>
         /// <value></value>
-        [Obsolete("SchemaType is no longer supported after RedisGraph 2.1 and will always return COLUMN_SCALAR")]
+        [Obsolete("SchemaType is no longer supported after RedisGraph 2.1 and will always return COLUMN_SCALAR")] // TODO: CHeck This
         public List<ResultSetColumnTypes> SchemaTypes { get; }
 
         /// <summary>

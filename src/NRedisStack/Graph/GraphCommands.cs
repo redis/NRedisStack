@@ -65,73 +65,115 @@ namespace NRedisStack
         /// <param name="graphId">A graph to perform the query on.</param>
         /// <param name="query">The Cypher query.</param>
         /// <param name="parameters">Parameters map.</param>
+        /// <param name="timeout">Timeout (optional).</param>
         /// <returns>A result set.</returns>
-        public ResultSet Query(string graphId, string query, IDictionary<string, object> parameters)
+        /// <remarks><seealso href="https://redis.io/commands/graph.query"/></remarks>
+        public ResultSet Query(string graphId, string query, IDictionary<string, object> parameters, long? timeout = null)
         {
             var preparedQuery = PrepareQuery(query, parameters);
 
-            return Query(graphId, preparedQuery);
+            return Query(graphId, preparedQuery, timeout);
         }
 
-        /// <summary>
-        /// Execute a Cypher query.
-        /// </summary>
-        /// <param name="graphId">A graph to perform the query on.</param>
-        /// <param name="query">The Cypher query.</param>
-        /// <returns>A result set.</returns>
-        public ResultSet GraphQuery(string graphId, string query) =>
-            Query(graphId, query);
+        // /// <summary>
+        // /// Execute a Cypher query.
+        // /// </summary>
+        // /// <param name="graphId">A graph to perform the query on.</param>
+        // /// <param name="query">The Cypher query.</param>
+        // /// <returns>A result set.</returns>
+        // public ResultSet GraphQuery(string graphId, string query) =>
+        //     Query(graphId, query);
 
         /// <summary>
         /// Execute a Cypher query.
         /// </summary>
         /// <param name="graphId">A graph to perform the query on.</param>
         /// <param name="query">The Cypher query.</param>
+        /// <param name="timeout">Timeout (optional).</param>
         /// <returns>A result set.</returns>
-        public ResultSet Query(string graphId, string query)
+        /// <remarks><seealso href="https://redis.io/commands/graph.query"/></remarks>
+        public ResultSet Query(string graphId, string query, long? timeout = null)
         {
             _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, this));
 
-            return new ResultSet(_db.Execute(GRAPH.QUERY, graphId, query, CompactQueryFlag), _graphCaches[graphId]);
+            var args = (timeout == null) ? new List<object> { graphId, query, CompactQueryFlag }
+                                         : new List<object> { graphId, query, CompactQueryFlag, GraphArgs.TIMEOUT, timeout };
+
+            return new ResultSet(_db.Execute(GRAPH.QUERY, args), _graphCaches[graphId]);
         }
 
         /// <summary>
-        /// Execute a Cypher query, preferring a read-only node.
+        /// Execute a Cypher query with parameters.
         /// </summary>
         /// <param name="graphId">A graph to perform the query on.</param>
         /// <param name="query">The Cypher query.</param>
         /// <param name="parameters">Parameters map.</param>
-        /// <param name="flags">Optional command flags. `PreferReplica` is set for you here.</param>
+        /// <param name="timeout">Timeout (optional).</param>
         /// <returns>A result set.</returns>
-        public ResultSet GraphReadOnlyQuery(string graphId, string query, IDictionary<string, object> parameters, CommandFlags flags = CommandFlags.None)
+        /// <remarks><seealso href="https://redis.io/commands/graph.query"/></remarks>
+        public ResultSet RO_Query(string graphId, string query, IDictionary<string, object> parameters, long? timeout = null)
         {
             var preparedQuery = PrepareQuery(query, parameters);
 
-            return GraphReadOnlyQuery(graphId, preparedQuery, flags);
+            return RO_Query(graphId, preparedQuery, timeout);
         }
 
         /// <summary>
-        /// Execute a Cypher query, preferring a read-only node.
+        /// Execute a Cypher query.
         /// </summary>
         /// <param name="graphId">A graph to perform the query on.</param>
         /// <param name="query">The Cypher query.</param>
-        /// <param name="flags">Optional command flags. `PreferReplica` is set for you here.</param>
+        /// <param name="timeout">Timeout (optional).</param>
         /// <returns>A result set.</returns>
-        public ResultSet GraphReadOnlyQuery(string graphId, string query, CommandFlags flags = CommandFlags.None)
+        /// <remarks><seealso href="https://redis.io/commands/graph.query"/></remarks>
+        public ResultSet RO_Query(string graphId, string query, long? timeout = null)
         {
-            _graphCaches.PutIfAbsent(graphId, new ReadOnlyGraphCache(graphId, this));
+            _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, this));
 
-            var parameters = new Collection<object>
-            {
-                graphId,
-                query,
-                CompactQueryFlag
-            };
+            var args = (timeout == null) ? new List<object> { graphId, query, CompactQueryFlag }
+                                         : new List<object> { graphId, query, CompactQueryFlag, GraphArgs.TIMEOUT, timeout };
 
-            var result = _db.Execute(GRAPH.RO_QUERY, parameters, (flags | CommandFlags.PreferReplica));
-
-            return new ResultSet(result, _graphCaches[graphId]);
+            return new ResultSet(_db.Execute(GRAPH.RO_QUERY, args), _graphCaches[graphId]);
         }
+
+        // // TODO: Check if this and the "CommandFlags flags" is needed
+        // /// <summary>
+        // /// Execute a Cypher query, preferring a read-only node.
+        // /// </summary>
+        // /// <param name="graphId">A graph to perform the query on.</param>
+        // /// <param name="query">The Cypher query.</param>
+        // /// <param name="parameters">Parameters map.</param>
+        // /// <param name="flags">Optional command flags. `PreferReplica` is set for you here.</param>
+        // /// <returns>A result set.</returns>
+        // public ResultSet RO_Query(string graphId, string query, IDictionary<string, object> parameters, CommandFlags flags = CommandFlags.None)
+        // {
+        //     var preparedQuery = PrepareQuery(query, parameters);
+
+        //     return RO_Query(graphId, preparedQuery, flags);
+        // }
+
+        // /// <summary>
+        // /// Execute a Cypher query, preferring a read-only node.
+        // /// </summary>
+        // /// <param name="graphId">A graph to perform the query on.</param>
+        // /// <param name="query">The Cypher query.</param>
+        // /// <param name="flags">Optional command flags. `PreferReplica` is set for you here.</param>
+        // /// <returns>A result set.</returns>
+        // public ResultSet RO_Query(string graphId, string query, CommandFlags flags = CommandFlags.None)
+        // {
+        //     _graphCaches.PutIfAbsent(graphId, new ReadOnlyGraphCache(graphId, this));
+
+        //     var parameters = new Collection<object>
+        //     {
+        //         graphId,
+        //         query,
+        //         CompactQueryFlag
+        //     };
+
+        //     var result = _db.Execute(GRAPH.RO_QUERY, parameters, (flags | CommandFlags.PreferReplica));
+
+        //     return new ResultSet(result, _graphCaches[graphId]);
+        // }
 
         internal static readonly Dictionary<string, List<string>> EmptyKwargsDictionary =
             new Dictionary<string, List<string>>();
@@ -245,7 +287,7 @@ namespace NRedisStack
                 queryBody.Append(string.Join(",", kwargsList));
             }
 
-            return GraphReadOnlyQuery(graphId, queryBody.ToString());
+            return RO_Query(graphId, queryBody.ToString());
         }
     }
 }

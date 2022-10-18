@@ -114,13 +114,13 @@ namespace NRedisStack.Graph
 
                         switch (objType)
                         {
-                            case Header.ResultSetColumnTypes.COLUMN_NODE:
+                            case Header.ResultSetColumnTypes.NODE:
                                 parsedRow.Add(DeserializeNode(obj));
                                 break;
-                            case Header.ResultSetColumnTypes.COLUMN_RELATION:
+                            case Header.ResultSetColumnTypes.RELATION:
                                 parsedRow.Add(DeserializeEdge(obj));
                                 break;
-                            case Header.ResultSetColumnTypes.COLUMN_SCALAR:
+                            case Header.ResultSetColumnTypes.SCALAR:
                                 parsedRow.Add(DeserializeScalar(obj));
                                 break;
                             default:
