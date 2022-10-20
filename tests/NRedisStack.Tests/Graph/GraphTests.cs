@@ -425,7 +425,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         expectedNode.RemoveProperty("name");
         expectedNode.RemoveProperty("age");
         expectedNode.AddProperty(lastNameProperty);
-        expectedNode.RemoveProperty("person");
+        expectedNode.RemoveLabel("person");
         expectedNode.AddLabel("worker");
         expectedNode.Id = 2;
         expectedEdge.RelationshipType = "worksWith";
@@ -484,8 +484,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         expectedANode.Id = 0;
         expectedANode.AddLabel("person");
         Property aNameProperty = new Property("name", "a");
-        Property aAgeProperty = new Property("age", 32);
-        var aListProperty = new Property("array", new List<long>() { 0L, 1L, 2L });
+        Property aAgeProperty = new Property("age", 32L);
+        var aListProperty = new Property("array", new object[] { 0L, 1L, 2L });
         expectedANode.AddProperty(aNameProperty);
         expectedANode.AddProperty(aAgeProperty);
         expectedANode.AddProperty(aListProperty);
@@ -494,8 +494,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         expectedBNode.Id = 1;
         expectedBNode.AddLabel("person");
         Property bNameProperty = new Property("name", "b");
-        Property bAgeProperty = new Property("age", 30);
-        var bListProperty = new Property("array", new List<long>() { 3L, 4L, 5L });
+        Property bAgeProperty = new Property("age", 30L);
+        var bListProperty = new Property("array", new object[] { 3L, 4L, 5L });
         expectedBNode.AddProperty(bNameProperty);
         expectedBNode.AddProperty(bAgeProperty);
         expectedBNode.AddProperty(bListProperty);
@@ -520,12 +520,14 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, resultSet.Count);
         var iterator = resultSet.GetEnumerator();
         Assert.True(iterator.MoveNext());
-        var record = iterator.Current;
+        NRedisStack.Graph.Record record = iterator.Current;
         Assert.False(iterator.MoveNext());
         Assert.Equal(new List<string>() { "x" }, record.Keys);
 
-        List<long> x = record.GetValue<List<long>>("x"); // TODO: Check This
-        Assert.Equal(new List<long>() { 0L, 1L, 2L }, x);
+        // List<long> x = record.GetValue<List<long>>("x"); // TODO: Check This
+        // Assert.Equal(new List<long>() { 0L, 1L, 2L }, x);
+        var x = record.GetValue<object[]>("x");
+        Assert.Equal(new object[] { 0L, 1L, 2L }, x);
 
         // test collect
         resultSet = graph.Query("social", "MATCH(n) return collect(n) as x");
@@ -545,9 +547,10 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         record = iterator.Current;
         Assert.False(iterator.MoveNext());
         Assert.Equal(new List<string>() { "x" }, record.Keys);
-        x = record.GetValue<List<long>>("x");
-        Assert.Equal(expectedANode.ToString(), x[0].ToString());
-        Assert.Equal(expectedBNode.ToString(), x[1].ToString());
+        var x2 = record.GetValue<object[]>("x");
+
+        Assert.Equal(expectedANode.ToString(), x2[0].ToString());
+        Assert.Equal(expectedBNode.ToString(), x2[1].ToString());
 
         // test unwind
         resultSet = graph.Query("social", "unwind([0,1,2]) as x return x");
