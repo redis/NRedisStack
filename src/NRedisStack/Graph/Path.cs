@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-[assembly: InternalsVisibleTo("NRedisGraph.Tests")]
+[assembly: InternalsVisibleTo("NRedisStack.Tests.Graph")]
 
 namespace NRedisStack.Graph
 {
@@ -16,7 +16,7 @@ namespace NRedisStack.Graph
         private readonly ReadOnlyCollection<Node> _nodes;
         private readonly ReadOnlyCollection<Edge> _edges;
 
-        internal Path(IList<Node> nodes, IList<Edge> edges)
+        public Path(IList<Node> nodes, IList<Edge> edges) // TODO: suppose to ne internal?
         {
             _nodes = new ReadOnlyCollection<Node>(nodes);
             _edges = new ReadOnlyCollection<Edge>(edges);
