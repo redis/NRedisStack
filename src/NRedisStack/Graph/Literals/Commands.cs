@@ -8,6 +8,7 @@
         public const string EXPLAIN = "GRAPH.EXPLAIN";
         public const string PROFILE = "GRAPH.PROFILE";
         public const string SLOWLOG = "GRAPH.SLOWLOG";
+        public const string CONFIG = "GRAPH.CONFIG";
         public const string CONFIG_SET = "GRAPH.CONFIG SET";
         public const string CONFIG_GET = "GRAPH.CONFIG GET";
         public const string LIST = "GRAPH.LIST";

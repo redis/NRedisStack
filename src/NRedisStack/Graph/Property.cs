@@ -34,25 +34,42 @@ namespace NRedisStack.Graph
             Value = value;
         }
 
-        /// <summary>
-        /// Overridden method that considers the equality of the name and the value of two property instances.
-        /// </summary>
-        /// <param name="obj">Another instance of the property class.</param>
-        /// <returns></returns>
-        public override bool Equals(object obj)
+        private bool ValueEquals(object value1, object value2) //TODO: check this
         {
-            if (this == obj)
-            {
-                return true;
-            }
-
-            if (!(obj is Property that))
-            {
-                return false;
-            }
-
-            return Name == that.Name && Object.Equals(Value, that.Value);
+            if (value1.GetType() == typeof(long)) value1 = ((long)value1);
+            if (value2.GetType() == typeof(long)) value2 = ((long)value2);
+            return object.Equals(value1, value2);
         }
+
+
+        public override bool Equals(object o)
+        {
+            if (this == o) return true;
+            if (!(o.GetType() == typeof(Property))) return false;
+            Property property = (Property)o;
+            return object.Equals(Name, property.Name)
+                && ValueEquals(Value, property.Value);
+        }
+
+        // /// <summary>
+        // /// Overridden method that considers the equality of the name and the value of two property instances.
+        // /// </summary>
+        // /// <param name="obj">Another instance of the property class.</param>
+        // /// <returns></returns>
+        // public override bool Equals(object obj)
+        // {
+        //     if (this == obj)
+        //     {
+        //         return true;
+        //     }
+
+        //     if (!(obj is Property that))
+        //     {
+        //         return false;
+        //     }
+
+        //     return Name == that.Name && Object.Equals(Value, that.Value);
+        // }
 
         /// <summary>
         /// Overridden method that computes the hash code of the class using the name and value of the property.

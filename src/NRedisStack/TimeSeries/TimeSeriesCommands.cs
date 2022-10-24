@@ -791,7 +791,7 @@ namespace NRedisStack
         public IReadOnlyList<string> QueryIndex(IReadOnlyCollection<string> filter)
         {
             var args = new List<object>(filter);
-            return _db.Execute(TS.QUERYINDEX, args).ToStringArray();
+            return _db.Execute(TS.QUERYINDEX, args).ToStringList();
         }
 
         /// <summary>
@@ -803,7 +803,7 @@ namespace NRedisStack
         public async Task<IReadOnlyList<string>> QueryIndexAsync(IReadOnlyCollection<string> filter)
         {
             var args = new List<object>(filter);
-            return (await _db.ExecuteAsync(TS.QUERYINDEX, args)).ToStringArray();
+            return (await _db.ExecuteAsync(TS.QUERYINDEX, args)).ToStringList();
         }
 
         #endregion

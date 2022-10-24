@@ -22,18 +22,9 @@ namespace NRedisStack
         {
             _db = db;
         }
-        /*
-        TODO:
-        GRAPH.QUERY
-        GRAPH.RO_QUERY
-        GRAPH.DELETE
-        GRAPH.EXPLAIN
-        GRAPH.PROFILE
-        GRAPH.SLOWLOG
-        GRAPH.CONFIG GET
-        GRAPH.CONFIG SET
-        GRAPH.LIST
-        */
+
+        // TODO:Async Commands
+
 
         internal static readonly object CompactQueryFlag = "--COMPACT";
         // private readonly IDatabase _db;
@@ -110,7 +101,7 @@ namespace NRedisStack
         /// <param name="parameters">Parameters map.</param>
         /// <param name="timeout">Timeout (optional).</param>
         /// <returns>A result set.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/graph.query"/></remarks>
+        /// <remarks><seealso href="https://redis.io/commands/graph.ro_query"/></remarks>
         public ResultSet RO_Query(string graphId, string query, IDictionary<string, object> parameters, long? timeout = null)
         {
             var preparedQuery = PrepareQuery(query, parameters);
@@ -125,7 +116,7 @@ namespace NRedisStack
         /// <param name="query">The Cypher query.</param>
         /// <param name="timeout">Timeout (optional).</param>
         /// <returns>A result set.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/graph.query"/></remarks>
+        /// <remarks><seealso href="https://redis.io/commands/graph.ro_query"/></remarks>
         public ResultSet RO_Query(string graphId, string query, long? timeout = null)
         {
             _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, this));
@@ -235,6 +226,7 @@ namespace NRedisStack
         /// </summary>
         /// <param name="graphId">The graph to delete.</param>
         /// <returns>A result set.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/graph.delete"/></remarks>
         public ResultSet DeleteGraph(string graphId)
         {
             var result = _db.Execute(GRAPH.DELETE, graphId);
@@ -289,123 +281,90 @@ namespace NRedisStack
 
             return RO_Query(graphId, queryBody.ToString());
         }
+
+        /// <summary>
+        /// Constructs a query execution plan but does not run it. Inspect this execution plan to better understand how your
+        /// query will get executed.
+        /// </summary>
+        /// <param name="graphName">The graph name.</param>
+        /// <param name="query">The query.</param>
+        /// <returns>String representation of a query execution plan.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/graph.explain"/></remarks>
+        public IReadOnlyList<string> Explain(string graphName, string query)
+        {
+             return _db.Execute(GRAPH.EXPLAIN, graphName, query).ToStringList();
+        }
+
+        /// <summary>
+        /// Executes a query and produces an execution plan augmented with metrics for each operation's execution.
+        /// </summary>
+        /// <param name="graphName">The graph name.</param>
+        /// <param name="query">The query.</param>
+        /// <param name="timeout">Timeout (optional).</param>
+        /// <returns>String representation of a query execution plan,
+        /// with details on results produced by and time spent in each operation.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/graph.profile"/></remarks>
+        public IReadOnlyList<string> Profile(string graphName, string query, long? timeout = null)
+        {
+            var args = new List<object> { graphName, query };
+            if (timeout.HasValue)
+            {
+                args.Add("TIMEOUT");
+                args.Add(timeout.Value);
+            }
+
+            return _db.Execute(GRAPH.PROFILE, args).ToStringList();
+        }
+
+        /// <summary>
+        /// Lists all graph keys in the keyspace.
+        /// </summary>
+        /// <returns>List of all graph keys in the keyspace.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/graph.list"/></remarks>
+        public IReadOnlyList<string> List()
+        {
+            return _db.Execute(GRAPH.LIST).ToStringList();
+        }
+
+        /// <summary>
+        /// Set the value of a RedisGraph configuration parameter.
+        /// </summary>
+        /// <param name="configName">The config name.</param>
+        /// <param name="value">Value to set.</param>
+        /// <returns><see langword="true"/> if executed correctly, error otherwise</returns>
+        /// <remarks><seealso href="https://redis.io/commands/graph.config-set"/></remarks>
+        public bool ConfigSet(string configName, object value)
+        {
+            return _db.Execute(GRAPH.CONFIG, "SET", configName, value).OKtoBoolean();
+        }
+
+        /// <summary>
+        /// Set the value of a RedisGraph configuration parameter.
+        /// </summary>
+        /// <param name="configName">The config name.</param>
+        /// <returns>Dictionary of <string, object>.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/graph.config-get"/></remarks>
+        public Dictionary<string, RedisResult> ConfigGet(string configName, string query)
+        {
+            return _db.Execute(GRAPH.CONFIG, "GET", configName, query).ToDictionary();
+        }
+
+        /// <summary>
+        /// Returns a list containing up to 10 of the slowest queries issued against the given graph ID.
+        /// </summary>
+        /// <param name="graphName">The graph name.</param>
+        /// <returns>Dictionary of <string, object>.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/graph.slowlog"/></remarks>
+        public List<List<string>> Slowlog(string graphName)
+        {
+            var result = _db.Execute(GRAPH.SLOWLOG, graphName).ToArray();
+            List<List<string>> slowlog = new List<List<string>>(result.Length);
+            for( int i = 0; i < result.Length; i ++)
+            {
+                slowlog[i] = result[i].ToStringList();
+            }
+
+            return slowlog;
+        }
     }
 }
-
-// /// <summary>
-// ///  Execute a Cypher query.
-// ///
-// ///  <param name="name a graph to perform the query on
-// ///  <param name="query Cypher query
-// ///  <returns> a result set
-// ///
-// ResultSet graphQuery(string name, string query);
-
-// /// <summary>
-// ///  Execute a Cypher read-only query.
-// ///
-// ///  <param name="name a graph to perform the query on
-// ///  <param name="query Cypher query
-// ///  <returns> a result set
-// ///
-// ResultSet graphReadonlyQuery(string name, string query);
-
-// /// <summary>
-// ///  Execute a Cypher query with timeout.
-// ///
-// ///  <param name="name a graph to perform the query on
-// ///  <param name="query Cypher query
-// ///  <param name="timeout
-// ///  <returns> a result set
-// ///
-// ResultSet graphQuery(string name, string query, long timeout);
-
-// /// <summary>
-// ///  Execute a Cypher read-only query with timeout.
-// ///
-// ///  <param name="name a graph to perform the query on
-// ///  <param name="query Cypher query
-// ///  <param name="timeout
-// ///  <returns> a result set
-// ///
-// ResultSet graphReadonlyQuery(string name, string query, long timeout);
-
-// /// <summary>
-// ///  Executes a cypher query with parameters.
-// ///
-// ///  <param name="name a graph to perform the query on.
-// ///  <param name="query Cypher query.
-// ///  <param name="params parameters map.
-// ///  <returns> a result set.
-// ///
-// ResultSet graphQuery(string name, string query, Dictionary<string, object> params);
-
-// /// <summary>
-// ///  Executes a cypher read-only query with parameters.
-// ///
-// ///  <param name="name a graph to perform the query on.
-// ///  <param name="query Cypher query.
-// ///  <param name="params parameters map.
-// ///  <returns> a result set.
-// ///
-// ResultSet graphReadonlyQuery(string name, string query, Dictionary<string, object> params);
-
-// /// <summary>
-// ///  Executes a cypher query with parameters and timeout.
-// ///
-// ///  <param name="name a graph to perform the query on.
-// ///  <param name="query Cypher query.
-// ///  <param name="params parameters map.
-// ///  <param name="timeout
-// ///  <returns> a result set.
-// ///
-// ResultSet graphQuery(string name, string query, Dictionary<string, object> params, long timeout);
-
-// /// <summary>
-// ///  Executes a cypher read-only query with parameters and timeout.
-// ///
-// ///  <param name="name a graph to perform the query on.
-// ///  <param name="query Cypher query.
-// ///  <param name="params parameters map.
-// ///  <param name="timeout
-// ///  <returns> a result set.
-// ///
-// ResultSet graphReadonlyQuery(string name, string query, Dictionary<string, object> params, long timeout);
-
-// /// <summary>
-// ///  Deletes the entire graph
-// ///
-// ///  <param name="name graph to delete
-// ///  <returns> delete running time statistics
-// ///
-// string graphDelete(string name);
-
-// /// <summary>
-// ///  Lists all graph keys in the keyspace.
-// ///  <returns> graph keys
-// ///
-// List<string> graphList();
-
-// /// <summary>
-// ///  Executes a query and produces an execution plan augmented with metrics for each operation's execution.
-// ///
-// List<string> graphProfile(string graphName, string query);
-
-// /// <summary>
-// ///  Constructs a query execution plan but does not run it. Inspect this execution plan to better understand how your
-// ///  query will get executed.
-// ///
-// List<string> graphExplain(string graphName, string query);
-
-// /// <summary>
-// ///  Returns a list containing up to 10 of the slowest queries issued against the given graph ID.
-// ///
-// List<List<string>> graphSlowlog(string graphName);
-
-// string graphConfigSet(string configName, object value);
-
-// Dictionary<string, object> graphConfigGet(string configName);
-
-
-
-

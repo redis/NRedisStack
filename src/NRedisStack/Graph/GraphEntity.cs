@@ -15,13 +15,17 @@ namespace NRedisStack.Graph
         /// </summary>
         /// <value></value>
         public int Id { get; set; }
+        public IDictionary<string, Property> PropertyMap { get; set; }
 
         /// <summary>
         /// The collection of properties associated with an entity.
         /// </summary>
         /// <returns></returns>
-        public IDictionary<string, Property> PropertyMap = new Dictionary<string, Property>();
-
+        public GraphEntity()
+        {
+            PropertyMap = new Dictionary<string, Property>();
+        }
+        
         /// <summary>
         /// Add a property to the entity.
         /// </summary>

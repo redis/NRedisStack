@@ -3,7 +3,6 @@ using StackExchange.Redis;
 using NRedisStack.RedisStackCommands;
 using Moq;
 using NRedisStack.Graph;
-using System.Drawing;
 
 namespace NRedisStack.Tests.Graph;
 
@@ -28,7 +27,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void testCreateNode()
+    public void TestCreateNode()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -56,7 +55,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void testCreateLabeledNode()
+    public void TestCreateLabeledNode()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -77,7 +76,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void testConnectNodes()
+    public void TestConnectNodes()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -105,7 +104,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void testDeleteNodes()
+    public void TestDeleteNodes()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -152,7 +151,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void testDeleteRelationship()
+    public void TestDeleteRelationship()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -182,7 +181,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void testIndex()
+    public void TestIndex()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -209,7 +208,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void testHeader()
+    public void TestHeader()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -241,7 +240,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
     // TODO: finish the tests
     [Fact]
-    public void testRecord()
+    public void TestRecord()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -259,7 +258,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Property doubleProperty = new Property("doubleValue", doubleValue);
         Property trueboolProperty = new Property("boolValue", true);
         Property falseboolProperty = new Property("boolValue", false);
-
         Property placeProperty = new Property("place", place);
         Property sinceProperty = new Property("since", since);
 
@@ -375,7 +373,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void testAdditionToProcedures()
+    public void TestAdditionToProcedures()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -455,7 +453,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void testEscapedQuery()
+    public void TestEscapedQuery()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -474,7 +472,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void testArraySupport()
+    public void TestArraySupport()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -576,7 +574,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void testPath()
+    public void TestPath()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -632,7 +630,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void testNullGraphEntities()
+    public void TestNullGraphEntities()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -686,7 +684,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void test64bitnumber()
+    public void Test64bitnumber()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -704,7 +702,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
         [Fact]
-        public void testCachedExecution()
+        public void TestCachedExecution()
     {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
@@ -735,7 +733,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
     // TODO: fix this test
     //     [Fact]
-    //     public void testMapDataType()
+    //     public void TestMapDataType()
     // {
     //         IDatabase db = redisFixture.Redis.GetDatabase();
     //         db.Execute("FLUSHALL");
@@ -783,22 +781,22 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     //         Assert.Equal(expected, actual);
     //     }
 
-    //     [Fact]
-    //     public void testGeoPointLatLon()
+    // [Fact]
+    // public void TestGeoPointLatLon()
     // {
-    //         IDatabase db = redisFixture.Redis.GetDatabase();
-    //         db.Execute("FLUSHALL");
-    //         var graph = db.GRAPH();
-    //         ResultSet rs = graph.Query("social", "CREATE (:restaurant"
-    //                 + " {location: point({latitude:30.27822306, longitude:-97.75134723})})");
-    //         Assert.Equal(1, rs.Statistics.NodesCreated);
-    //         Assert.Equal(1, rs.Statistics.PropertiesSet);
+    //     IDatabase db = redisFixture.Redis.GetDatabase();
+    //     db.Execute("FLUSHALL");
+    //     var graph = db.GRAPH();
+    //     ResultSet rs = graph.Query("social", "CREATE (:restaurant"
+    //             + " {location: point({latitude:30.27822306, longitude:-97.75134723})})");
+    //     Assert.Equal(1, rs.Statistics.NodesCreated);
+    //     Assert.Equal(1, rs.Statistics.PropertiesSet);
 
-    //         AssertTestGeoPoint();
-    //     }
+    //     AssertTestGeoPoint(graph);
+    // }
 
     //     [Fact]
-    //     public void testGeoPointLonLat()
+    //     public void TestGeoPointLonLat()
     // {
     //         IDatabase db = redisFixture.Redis.GetDatabase();
     //         db.Execute("FLUSHALL");
@@ -808,24 +806,31 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     //         Assert.Equal(1, rs.Statistics.NodesCreated);
     //         Assert.Equal(1, rs.Statistics.PropertiesSet);
 
-    //         AssertTestGeoPoint();
+    //         AssertTestGeoPoint(graph);
     //     }
 
-    //     private void AssertTestGeoPoint()
-    // {
-    //         IDatabase db = redisFixture.Redis.GetDatabase();
-    //         db.Execute("FLUSHALL");
-    //         var graph = db.GRAPH();
-    //         ResultSet results = graph.Query("social", "MATCH (restaurant) RETURN restaurant");
-    //         Assert.Equal(1, results.Count);
-    //         var record = results.GetEnumerator();
-    //         record.MoveNext();
-    //         Assert.Equal(1, record.Current.Size);
-    //         Assert.Equal(Collections.singletonList("restaurant"), record.Keys);
-    //         Node node = record.Values[0];
-    //         Property<?> property = node.getProperty("location");
-    //         Assert.Equal(new Point(30.27822306, -97.75134723), property.GetValue());
-    //     }
+    private void AssertTestGeoPoint(GraphCommands graph)
+    {
+        // IDatabase db = redisFixture.Redis.GetDatabase();
+        // db.Execute("FLUSHALL");
+        //var graph = db.GRAPH();
+        ResultSet results = graph.Query("social", "MATCH (restaurant) RETURN restaurant");
+        Assert.Equal(1, results.Count);
+        var record = results.GetEnumerator();
+        record.MoveNext();
+        Assert.Equal(1, record.Current.Size);
+        Assert.Equal(new List<string>() { "restaurant" }, record.Current.Keys);
+        Node node = record.Current.GetValue<Node>(0);
+        Property property = node.PropertyMap["location"];
+
+        object actualPoint = property.Value;
+        object expectedPoint = (object) new Point(30.27822306, -97.75134723);
+
+
+        Property expectedProperty = new Property("location", new Point(30.27822306, -97.75134723)); // TODO: Delete this line
+                                                                                                    // var expected2 = ((RedisResult[]) property.Value); // TODO: Delete this line
+        Assert.Equal(actualPoint, expectedPoint);
+    }
 
     //     [Fact]
     //     public void timeoutArgument()
@@ -839,8 +844,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     //         Assert.Equal(Long.valueOf(100), r.Values[0]);
     //     }
 
-        [Fact]
-        public void testCachedExecutionReadOnly()
+    [Fact]
+        public void TestCachedExecutionReadOnly()
     {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
@@ -872,7 +877,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         }
 
         [Fact]
-        public void testSimpleReadOnly()
+        public void TestSimpleReadOnly()
     {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
@@ -885,7 +890,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
             var r = iterator.Current;
             Assert.Equal("30", r.Values[0].ToString());
         }
-    // TODO: cpmplete this test after adding support for GRAPH.PROFILE/CONFIG/LIST
+    // TODO: complete this test after adding support for GRAPH.PROFILE/CONFIG/LIST
     //   [Fact]
     //   public void profile()
     // {
