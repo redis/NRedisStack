@@ -22,7 +22,9 @@ namespace NRedisStack.Graph
             VALUE_ARRAY,
             VALUE_EDGE,
             VALUE_NODE,
-            VALUE_PATH
+            VALUE_PATH,
+            VALUE_MAP,
+            VALUE_POINT
         }
 
         private readonly RedisResult[] _rawResults;
@@ -195,6 +197,10 @@ namespace NRedisStack.Graph
                     return DeserializeEdge((RedisResult[])rawScalarData[1]);
                 case ResultSetScalarType.VALUE_PATH:
                     return DeserializePath((RedisResult[])rawScalarData[1]);
+                case ResultSetScalarType.VALUE_MAP:
+                    return DeserializeDictionary(rawScalarData[1]);
+                case ResultSetScalarType.VALUE_POINT:
+                    return DeserializePoint((RedisResult[])rawScalarData[1]);
                 case ResultSetScalarType.VALUE_UNKNOWN:
                 default:
                     return (object)rawScalarData[1];
@@ -241,6 +247,44 @@ namespace NRedisStack.Graph
             return new Path(nodes, edges);
         }
 
+        private object DeserializePoint(RedisResult[] rawPath) // Should return Point?
+        {
+            if (null == rawPath)
+            {
+                return null;
+            }
+            // List<object> values = (List<object>)rawPath;
+            List<Double> doubles = new List<Double>(rawPath.Count());
+            foreach (var value in rawPath)
+            {
+                doubles.Add(((double)value));
+            }
+            return new Point(doubles);
+        }
+
+        // @SuppressWarnings("unchecked")
+        private Dictionary<string, object> DeserializeDictionary(RedisResult rawPath) // TODO: Check this
+        {
+            RedisResult[] keyTypeValueEntries = (RedisResult[])rawPath;
+
+            int size = keyTypeValueEntries.Length;
+            Dictionary<string, object> dict = new Dictionary<string, object>(size / 2); // set the capacity to half of the list
+
+            for (int i = 0; i < size; i += 2)
+            {
+                string key = keyTypeValueEntries[i].ToString();
+                object value = DeserializeScalar((RedisResult[])keyTypeValueEntries[i+1]);
+                dict.Add(key, value);
+            }
+            return dict;
+            // var dict = new Dictionary<string, object>(); // TODO: Consiter return Dictionary<string, object>
+            // foreach(var pair in rawPath.ToDictionary())
+            // {
+            //     dict.Add(pair.Key, pair.Value);
+            // }
+            // return dict;
+        }
+
         private static ResultSetScalarType GetValueTypeFromObject(RedisResult rawScalarType) =>
         (ResultSetScalarType)(int)rawScalarType;
 
@@ -254,5 +298,63 @@ namespace NRedisStack.Graph
                 }
             }
         }
+
+        // private List<Record> parseRecords(Header header, object data)
+        // {
+        //     List<List<object>> rawResultSet = (List<List<object>>)data;
+
+        //     if (rawResultSet == null || rawResultSet.isEmpty())
+        //     {
+        //         return new ArrayList<>(0);
+        //     }
+
+        //     List<Record> results = new ArrayList<>(rawResultSet.Count());
+        //     // go over each raw result
+        //     for (List<object> row : rawResultSet)
+        //     {
+
+        //         List<object> parsedRow = new ArrayList<>(row.Count());
+        //         // go over each object in the result
+        //         for (int i = 0; i < row.Count(); i++)
+        //         {
+        //             // get raw representation of the object
+        //             List<object> obj = (List<object>)row.get(i);
+        //             // get object type
+        //             ResultSet.ColumnType objType = header.getSchemaTypes().get(i);
+        //             // deserialize according to type and
+        //             switch (objType)
+        //             {
+        //                 case NODE:
+        //                     parsedRow.add(deserializeNode(obj));
+        //                     break;
+        //                 case RELATION:
+        //                     parsedRow.add(deserializeEdge(obj));
+        //                     break;
+        //                 case SCALAR:
+        //                     parsedRow.add(deserializeScalar(obj));
+        //                     break;
+        //                 default:
+        //                     parsedRow.add(null);
+        //                     break;
+        //             }
+        //         }
+
+        //         // create new record from deserialized objects
+        //         Record record = new Record(header.getSchemaNames(), parsedRow);
+        //         results.add(record);
+        //     }
+
+        //     return results;
+        // }
+
+
+        // private Statistics parseStatistics(object data)
+        // {
+        //     Map<String, String> map = ((List<byte[]>)data).stream()
+        //         .map(SafeEncoder::encode).map(s->s.split(": "))
+        //         .collect(Collectors.toMap(sa->sa[0], sa->sa[1]));
+        //     return new Statistics(map);
+        // }
+
     }
 }

@@ -732,88 +732,66 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         }
 
     // TODO: fix this test
-    //     [Fact]
-    //     public void TestMapDataType()
-    // {
-    //         IDatabase db = redisFixture.Redis.GetDatabase();
-    //         db.Execute("FLUSHALL");
-    //         var graph = db.GRAPH();
-    //         Dictionary<string, object> expected = new Dictionary<string, object>();
-    //         expected.Add("a", (long) 1);
-    //         expected.Add("b", "str");
-    //         expected.Add("c", null);
-    //         List<object> d = new List<object>();
-    //         d.Add((long) 1);
-    //         d.Add((long) 2);
-    //         d.Add((long) 3);
-    //         expected.Add("d", d);
-    //         expected.Add("e", true);
-    //         Dictionary<string, object> f = new Dictionary<string, object>();
-    //         f.Add("x", (long) 1);
-    //         f.Add("y", (long) 2);
-    //         expected.Add("f", f);
-    //         ResultSet res = graph.Query("social", "RETURN {a:1, b:'str', c:NULL, d:[1,2,3], e:True, f:{x:1, y:2}}");
-    //         Assert.Equal(1, res.Count);
+        [Fact]
+        public void TestMapDataType()
+    {
+            IDatabase db = redisFixture.Redis.GetDatabase();
+            db.Execute("FLUSHALL");
+            var graph = db.GRAPH();
+            Dictionary<string, object> expected = new Dictionary<string, object>();
+            expected.Add("a", (long) 1);
+            expected.Add("b", "str");
+            expected.Add("c", null);
+            List<object> d = new List<object>();
+            d.Add((long) 1);
+            d.Add((long) 2);
+            d.Add((long) 3);
+            expected.Add("d", d);
+            expected.Add("e", true);
+            Dictionary<string, object> f = new Dictionary<string, object>();
+            f.Add("x", (long) 1);
+            f.Add("y", (long) 2);
+            expected.Add("f", f);
+            ResultSet res = graph.Query("social", "RETURN {a:1, b:'str', c:NULL, d:[1,2,3], e:True, f:{x:1, y:2}}");
+            Assert.Equal(1, res.Count);
 
-    //         // var actual = res.First().Values[0];
+        var checkSomthing = res.GetEnumerator(); // TODO: delete this line
+        checkSomthing.MoveNext();
+        NRedisStack.Graph.Record r = checkSomthing.Current;
+        var actual = r.Values[0];
+        Assert.Equal((object)expected, actual);
+        }
 
-    //         // Record r = res.iterator().Current;
-    //         // var r2 = res.GetEnumerator().Current;
-    //         var r = res.GetEnumerator();
-    //         var firstCurrent = r.Current;
-    //         r.MoveNext();
-    //         var secondCurrent = r.Current;
-    //         Dictionary<string, object> actual = r.Current.GetValue<Dictionary<string,object>>(0);
-    //         // r.MoveNext();
-    //         // var thirdCurrent = r.Current;
-    //         // var check = r.Current.;
-    //         // var current = r.Current;
-    //         // var values = current.Values;
-    //         // var keys = current.Keys;
-    //         //var actual = current.Values[0];
-    //         // var actual2 = current.GetValue<Dictionary<string, object>>(0);
-    //         // Dictionary<string, object> actual = new Dictionary<string, object>();
-    //         // for(int i = 0; i < keys.Count; i++)
-    //         // {
-    //         //     actual.Add(keys[i], values[i]);
-    //         // }
-    //         // Dictionary<string, object> actual = r.Values[0];
-    //         Assert.Equal(expected, actual);
-    //     }
+    [Fact]
+    public void TestGeoPointLatLon()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var graph = db.GRAPH();
+        ResultSet rs = graph.Query("social", "CREATE (:restaurant"
+                + " {location: point({latitude:30.27822306, longitude:-97.75134723})})");
+        Assert.Equal(1, rs.Statistics.NodesCreated);
+        Assert.Equal(1, rs.Statistics.PropertiesSet);
 
-    // [Fact]
-    // public void TestGeoPointLatLon()
-    // {
-    //     IDatabase db = redisFixture.Redis.GetDatabase();
-    //     db.Execute("FLUSHALL");
-    //     var graph = db.GRAPH();
-    //     ResultSet rs = graph.Query("social", "CREATE (:restaurant"
-    //             + " {location: point({latitude:30.27822306, longitude:-97.75134723})})");
-    //     Assert.Equal(1, rs.Statistics.NodesCreated);
-    //     Assert.Equal(1, rs.Statistics.PropertiesSet);
+        AssertTestGeoPoint(graph);
+    }
 
-    //     AssertTestGeoPoint(graph);
-    // }
+        [Fact]
+        public void TestGeoPointLonLat()
+    {
+            IDatabase db = redisFixture.Redis.GetDatabase();
+            db.Execute("FLUSHALL");
+            var graph = db.GRAPH();
+            ResultSet rs = graph.Query("social", "CREATE (:restaurant"
+                    + " {location: point({longitude:-97.75134723, latitude:30.27822306})})");
+            Assert.Equal(1, rs.Statistics.NodesCreated);
+            Assert.Equal(1, rs.Statistics.PropertiesSet);
 
-    //     [Fact]
-    //     public void TestGeoPointLonLat()
-    // {
-    //         IDatabase db = redisFixture.Redis.GetDatabase();
-    //         db.Execute("FLUSHALL");
-    //         var graph = db.GRAPH();
-    //         ResultSet rs = graph.Query("social", "CREATE (:restaurant"
-    //                 + " {location: point({longitude:-97.75134723, latitude:30.27822306})})");
-    //         Assert.Equal(1, rs.Statistics.NodesCreated);
-    //         Assert.Equal(1, rs.Statistics.PropertiesSet);
-
-    //         AssertTestGeoPoint(graph);
-    //     }
+            AssertTestGeoPoint(graph);
+        }
 
     private void AssertTestGeoPoint(GraphCommands graph)
     {
-        // IDatabase db = redisFixture.Redis.GetDatabase();
-        // db.Execute("FLUSHALL");
-        //var graph = db.GRAPH();
         ResultSet results = graph.Query("social", "MATCH (restaurant) RETURN restaurant");
         Assert.Equal(1, results.Count);
         var record = results.GetEnumerator();
@@ -823,26 +801,22 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Node node = record.Current.GetValue<Node>(0);
         Property property = node.PropertyMap["location"];
 
-        object actualPoint = property.Value;
-        object expectedPoint = (object) new Point(30.27822306, -97.75134723);
-
-
-        Property expectedProperty = new Property("location", new Point(30.27822306, -97.75134723)); // TODO: Delete this line
-                                                                                                    // var expected2 = ((RedisResult[]) property.Value); // TODO: Delete this line
-        Assert.Equal(actualPoint, expectedPoint);
+        Assert.Equal((object)(new Point(30.27822306, -97.75134723)), property.Value);
     }
 
-    //     [Fact]
-    //     public void timeoutArgument()
-    // {
-    //         IDatabase db = redisFixture.Redis.GetDatabase();
-    //         db.Execute("FLUSHALL");
-    //         var graph = db.GRAPH();
-    //         ResultSet rs = graph.Query("social", "UNWIND range(0,100) AS x WITH x AS x WHERE x = 100 RETURN x", 1L);
-    //         Assert.Equal(1, rs.Count);
-    //         Record r = rs.iterator().Current;
-    //         Assert.Equal(Long.valueOf(100), r.Values[0]);
-    //     }
+        [Fact]
+        public void timeoutArgument()
+    {
+            IDatabase db = redisFixture.Redis.GetDatabase();
+            db.Execute("FLUSHALL");
+            var graph = db.GRAPH();
+            ResultSet rs = graph.Query("social", "UNWIND range(0,100) AS x WITH x AS x WHERE x = 100 RETURN x", 1L);
+            Assert.Equal(1, rs.Count);
+            var iterator = rs.GetEnumerator();
+            iterator.MoveNext();
+            var r = iterator.Current;
+            Assert.Equal(100l, (long) r.Values[0]);
+        }
 
     [Fact]
         public void TestCachedExecutionReadOnly()
