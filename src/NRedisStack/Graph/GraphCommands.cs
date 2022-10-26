@@ -344,9 +344,9 @@ namespace NRedisStack
         /// <param name="configName">The config name.</param>
         /// <returns>Dictionary of <string, object>.</returns>
         /// <remarks><seealso href="https://redis.io/commands/graph.config-get"/></remarks>
-        public Dictionary<string, RedisResult> ConfigGet(string configName, string query)
+        public Dictionary<string, RedisResult> ConfigGet(string configName)
         {
-            return _db.Execute(GRAPH.CONFIG, "GET", configName, query).ToDictionary();
+            return _db.Execute(GRAPH.CONFIG, "GET", configName).ToDictionary();
         }
 
         /// <summary>
@@ -359,9 +359,9 @@ namespace NRedisStack
         {
             var result = _db.Execute(GRAPH.SLOWLOG, graphName).ToArray();
             List<List<string>> slowlog = new List<List<string>>(result.Length);
-            for( int i = 0; i < result.Length; i ++)
+            foreach (var item in result)
             {
-                slowlog[i] = result[i].ToStringList();
+                slowlog.Add(item.ToStringList());
             }
 
             return slowlog;

@@ -865,80 +865,89 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
             Assert.Equal("30", r.Values[0].ToString());
         }
     // TODO: complete this test after adding support for GRAPH.PROFILE/CONFIG/LIST
-    //   [Fact]
-    //   public void profile()
-    // {
-    //         IDatabase db = redisFixture.Redis.GetDatabase();
-    //         db.Execute("FLUSHALL");
-    //         var graph = db.GRAPH();
-    //     Assert.NotNull(graph.Query("social", "CREATE (:person{name:'roi',age:32})"));
-    //     Assert.NotNull(graph.Query("social", "CREATE (:person{name:'amit',age:30})"));
+      [Fact]
+      public void profile()
+    {
+            IDatabase db = redisFixture.Redis.GetDatabase();
+            db.Execute("FLUSHALL");
+            var graph = db.GRAPH();
+        Assert.NotNull(graph.Query("social", "CREATE (:person{name:'roi',age:32})"));
+        Assert.NotNull(graph.Query("social", "CREATE (:person{name:'amit',age:30})"));
 
-    //     List<string> profile = graph.Profile("social",
-    //         "MATCH (a:person), (b:person) WHERE (a.name = 'roi' AND b.name='amit')  CREATE (a)-[:knows]->(b)");
-    //     Assert.False(profile.isEmpty());
-    //     profile.forEach(Assert::assertNotNull);
-    //   }
+        var profile = graph.Profile("social",
+            "MATCH (a:person), (b:person) WHERE (a.name = 'roi' AND b.name='amit')  CREATE (a)-[:knows]->(b)");
+        Assert.NotEmpty(profile);
+        foreach (var p in profile)
+        {
+            Assert.NotNull(p);
+        }
+      }
 
-    //   [Fact]
-    //   public void explain()
-    // {
-    //         IDatabase db = redisFixture.Redis.GetDatabase();
-    //         db.Execute("FLUSHALL");
-    //         var graph = db.GRAPH();
-    //     Assert.NotNull(graph.Profile("social", "CREATE (:person{name:'roi',age:32})"));
-    //     Assert.NotNull(graph.Profile("social", "CREATE (:person{name:'amit',age:30})"));
+      [Fact]
+      public void Explain()
+    {
+            IDatabase db = redisFixture.Redis.GetDatabase();
+            db.Execute("FLUSHALL");
+            var graph = db.GRAPH();
+        Assert.NotNull(graph.Profile("social", "CREATE (:person{name:'roi',age:32})"));
+        Assert.NotNull(graph.Profile("social", "CREATE (:person{name:'amit',age:30})"));
 
-    //     List<string> explain = graph.Explain("social",
-    //         "MATCH (a:person), (b:person) WHERE (a.name = 'roi' AND b.name='amit')  CREATE (a)-[:knows]->(b)");
-    //     Assert.False(explain.isEmpty());
-    //     explain.forEach(Assert::assertNotNull);
-    //   }
+        var explain = graph.Explain("social",
+            "MATCH (a:person), (b:person) WHERE (a.name = 'roi' AND b.name='amit')  CREATE (a)-[:knows]->(b)");
+        Assert.NotEmpty(explain);
+                        foreach (var e in explain)
+        {
+            Assert.NotNull(e);
+        }
+      }
 
-    //   [Fact]
-    //   public void slowlog()
-    // {
-    //         IDatabase db = redisFixture.Redis.GetDatabase();
-    //         db.Execute("FLUSHALL");
-    //         var graph = db.GRAPH();
-    //     Assert.NotNull(graph.Profile("social", "CREATE (:person{name:'roi',age:32})"));
-    //     Assert.NotNull(graph.Profile("social", "CREATE (:person{name:'amit',age:30})"));
+      [Fact]
+      public void Slowlog()
+    {
+            IDatabase db = redisFixture.Redis.GetDatabase();
+            db.Execute("FLUSHALL");
+            var graph = db.GRAPH();
+        Assert.NotNull(graph.Profile("social", "CREATE (:person{name:'roi',age:32})"));
+        Assert.NotNull(graph.Profile("social", "CREATE (:person{name:'amit',age:30})"));
 
-    //     List<List<string>> slowlogs = graph.Slowlog("social");
-    //     Assert.Equal(2, slowlogs.Count);
-    //     slowlogs.forEach(sl -> Assert.False(sl.isEmpty()));
-    //     slowlogs.forEach(sl -> sl.forEach(Assert::assertNotNull));
-    //   }
+        List<List<string>> slowlogs = graph.Slowlog("social");
+        Assert.Equal(2, slowlogs.Count);
+        slowlogs.ForEach(sl => Assert.NotEmpty(sl));
+        slowlogs.ForEach(sl => sl.ForEach(s => Assert.NotNull(s)));
+      }
 
-    //   [Fact]
-    //   public void list()
-    // {
-    //         IDatabase db = redisFixture.Redis.GetDatabase();
-    //         db.Execute("FLUSHALL");
-    //         var graph = db.GRAPH();
-    //     Assert.Equal(Collections.emptyList(), graph.List());
+      [Fact]
+      public void List()
+    {
+            IDatabase db = redisFixture.Redis.GetDatabase();
+            db.Execute("FLUSHALL");
+            var graph = db.GRAPH();
+        Assert.Empty(graph.List());
 
-    //     graph.Query("social", "CREATE (:person{name:'filipe',age:30})");
+        graph.Query("social", "CREATE (:person{name:'filipe',age:30})");
 
-    //     Assert.Equal(Collections.singletonList("social"), graph.List());
-    //   }
+        Assert.Equal(new List<string>(){"social"}, graph.List());
+      }
 
-    //   [Fact]
-    //   public void config()
-    // {
-    //         IDatabase db = redisFixture.Redis.GetDatabase();
-    //         db.Execute("FLUSHALL");
-    //         var graph = db.GRAPH();
-    //     graph.Query("social", "CREATE (:person{name:'filipe',age:30})");
+      [Fact]
+      public void Config()
+    {
+            IDatabase db = redisFixture.Redis.GetDatabase();
+            db.Execute("FLUSHALL");
+            var graph = db.GRAPH();
+        graph.Query("social", "CREATE (:person{name:'filipe',age:30})");
 
-    //     final string name = "RESULTSET_SIZE";
-    //     final object existingValue = graph.ConfigGet(name).get(name);
+        string name = "RESULTSET_SIZE";
+        var existingValue = graph.ConfigGet(name)[name];
 
-    //     Assert.Equal("OK", graph.ConfigSet(name, 250L));
-    //     Assert.Equal(Collections.singletonMap(name, 250L), graph.ConfigGet(name));
+        Assert.True(graph.ConfigSet(name, 250L));
 
-    //     graph.ConfigSet(name, existingValue != null ? existingValue : -1);
-    //   }
+        var actual  = graph.ConfigGet(name);
+        Assert.Equal(actual.Count, 1);
+        Assert.Equal("250", actual[name].ToString());
+
+        graph.ConfigSet(name, existingValue != null ? existingValue.ToString() : -1);
+      }
 
     [Fact]
     public void TestModulePrefixs()
