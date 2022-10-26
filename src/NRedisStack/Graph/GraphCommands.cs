@@ -23,9 +23,6 @@ namespace NRedisStack
             _db = db;
         }
 
-        // TODO:Async Commands
-
-
         internal static readonly object CompactQueryFlag = "--COMPACT";
         // private readonly IDatabase _db;
         private readonly IDictionary<string, IGraphCache> _graphCaches = new Dictionary<string, IGraphCache>();

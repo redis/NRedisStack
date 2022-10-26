@@ -263,7 +263,7 @@ namespace NRedisStack.Graph
         }
 
         // @SuppressWarnings("unchecked")
-        private Dictionary<string, object> DeserializeDictionary(RedisResult rawPath) // TODO: Check this
+        private Dictionary<string, object> DeserializeDictionary(RedisResult rawPath)
         {
             RedisResult[] keyTypeValueEntries = (RedisResult[])rawPath;
 
