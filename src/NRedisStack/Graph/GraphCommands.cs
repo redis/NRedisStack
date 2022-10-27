@@ -282,7 +282,7 @@ namespace NRedisStack
         /// This leverages the "Transaction" support present in StackExchange.Redis.
         /// </summary>
         /// <returns></returns>
-        public RedisGraphTransaction Multi() =>
+        public RedisGraphTransaction Multi() => // TODO: Check if this is needed (Jedis does not have it)
             new RedisGraphTransaction(_db.CreateTransaction(), this, _graphCaches);
 
         /// <summary>
@@ -291,7 +291,7 @@ namespace NRedisStack
         /// <param name="graphId">The graph to delete.</param>
         /// <returns>A result set.</returns>
         /// <remarks><seealso href="https://redis.io/commands/graph.delete"/></remarks>
-        public ResultSet DeleteGraph(string graphId)
+        public ResultSet Delete(string graphId)
         {
             var result = _db.Execute(GRAPH.DELETE, graphId);
 
@@ -308,7 +308,7 @@ namespace NRedisStack
         /// <param name="graphId">The graph to delete.</param>
         /// <returns>A result set.</returns>
         /// <remarks><seealso href="https://redis.io/commands/graph.delete"/></remarks>
-        public async Task<ResultSet> DeleteGraphAsync(string graphId)
+        public async Task<ResultSet> DeleteAsync(string graphId)
         {
             var result = await _db.ExecuteAsync(GRAPH.DELETE, graphId);
 
@@ -319,7 +319,7 @@ namespace NRedisStack
             return processedResult;
         }
 
-
+        // TODO: Check if this (CallProcedure) is needed
         /// <summary>
         /// Call a saved procedure against a read-only node.
         /// </summary>

@@ -17,6 +17,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         redisFixture.Redis.GetDatabase().KeyDelete(key);
     }
 
+    #region SyncTests
     [Fact]
     public void TestReserveBasic()
     {
@@ -863,7 +864,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void profile()
+    public void TestProfile()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -881,7 +882,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void Explain()
+    public void TestExplain()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -899,7 +900,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void Slowlog()
+    public void TestSlowlog()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -914,7 +915,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void List()
+    public void TestList()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -927,7 +928,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void Config()
+    public void TestConfig()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -980,7 +981,231 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         }
 
     }
-    public async Task DisposeAsync()
+
+//      [Fact]
+//   public void TestMultiExec() // TODO: understand how to implement this, compare with NRedisGraph, and after all add async commands
+// {
+//         IDatabase db = redisFixture.Redis.GetDatabase();
+//         db.Execute("FLUSHALL");
+//         var graph = db.GRAPH();
+
+//     RedisGraphTransaction transaction = graph.Multi();
+//     var transactionTow = db.CreateTransaction();
+//     transactionTow.graph.
+//     transaction.QueryAsync.
+
+//     transaction.Set("x", "1");
+//     transaction.graphQuery("social", "CREATE (:Person {name:'a'})");
+//     transaction.graphQuery("g", "CREATE (:Person {name:'a'})");
+//     transaction.incr("x");
+//     transaction.get("x");
+//     transaction.graphQuery("social", "MATCH (n:Person) RETURN n");
+//     transaction.graphDelete("g");
+// //    transaction.callProcedure("social", "db.labels");
+//     transaction.graphQuery("social", "CALL db.labels()");
+//     List<object> results = transaction.exec();
+
+//     // Redis set command
+//     Assert.Equal(string.class, results.get(0).getClass());
+//     Assert.Equal("OK", results[0].ToString());
+
+//     // Redis graph command
+// //    Assert.Equal(ResultSetImpl.class, results.get(1).getClass());
+//     ResultSet resultSet = (ResultSet) results.get(1);
+//     Assert.Equal(1, resultSet.getStatistics().nodesCreated());
+//     Assert.Equal(1, resultSet.getStatistics().propertiesSet());
+
+// //    Assert.Equal(ResultSetImpl.class, results.get(2).getClass());
+//     resultSet = (ResultSet) results.get(2);
+//     Assert.Equal(1, resultSet.getStatistics().nodesCreated());
+//     Assert.Equal(1, resultSet.getStatistics().propertiesSet());
+
+//     // Redis incr command
+//     Assert.Equal(Long.class, results.get(3).getClass());
+//     Assert.Equal(2L, results.get(3));
+
+//     // Redis get command
+//     Assert.Equal(string.class, results.get(4).getClass());
+//     Assert.Equal("2", results.get(4));
+
+//     // Graph query result
+// //    Assert.Equal(ResultSetImpl.class, results.get(5).getClass());
+//     resultSet = (ResultSet) results.get(5);
+
+//     assertNotNull(resultSet.getHeader());
+//     Header header = resultSet.getHeader();
+
+//     List<string> schemaNames = header.getSchemaNames();
+//     assertNotNull(schemaNames);
+//     Assert.Equal(1, schemaNames.size());
+//     Assert.Equal("n", schemaNames.get(0));
+
+//     Property<string> nameProperty = new Property<>("name", "a");
+
+//     Node expectedNode = new Node();
+//     expectedNode.setId(0);
+//     expectedNode.addLabel("Person");
+//     expectedNode.addProperty(nameProperty);
+//     // see that the result were pulled from the right graph
+//     Assert.Equal(1, resultSet.size());
+//     Iterator<Record> iterator = resultSet.iterator();
+//     assertTrue(iterator.hasNext());
+//     Record record = iterator.next();
+//     assertFalse(iterator.hasNext());
+//     Assert.Equal(Arrays.asList("n"), record.keys());
+//     Assert.Equal(expectedNode, record.getValue("n"));
+
+// //    Assert.Equal(ResultSetImpl.class, results.get(7).getClass());
+//     resultSet = (ResultSet) results.get(7);
+
+//     assertNotNull(resultSet.getHeader());
+//     header = resultSet.getHeader();
+
+//     schemaNames = header.getSchemaNames();
+//     assertNotNull(schemaNames);
+//     Assert.Equal(1, schemaNames.size());
+//     Assert.Equal("label", schemaNames.get(0));
+
+//     Assert.Equal(1, resultSet.size());
+//     iterator = resultSet.iterator();
+//     assertTrue(iterator.hasNext());
+//     record = iterator.next();
+//     assertFalse(iterator.hasNext());
+//     Assert.Equal(Arrays.asList("label"), record.keys());
+//     Assert.Equal("Person", record.getValue("label"));
+//   }
+// //
+// //  [Fact]
+// //  public void TestWriteTransactionWatch()
+// {
+//         IDatabase db = redisFixture.Redis.GetDatabase();
+//         db.Execute("FLUSHALL");
+//         var graph = db.GRAPH();
+
+// //
+// //    RedisGraphContext c1 = api.getContext();
+// //    RedisGraphContext c2 = api.getContext();
+// //
+// //    c1.watch("social");
+// //    RedisGraphTransaction t1 = c1.multi();
+// //
+// //    t1.graphQuery("social", "CREATE (:Person {name:'a'})");
+// //    c2.graphQuery("social", "CREATE (:Person {name:'b'})");
+// //    List<object> returnValue = t1.exec();
+// //    assertNull(returnValue);
+// //    c1.close();
+// //    c2.close();
+// //  }
+// //
+// //  [Fact]
+// //  public void TestReadTransactionWatch()
+// {
+//         IDatabase db = redisFixture.Redis.GetDatabase();
+//         db.Execute("FLUSHALL");
+//         var graph = db.GRAPH();
+
+// //
+// //    RedisGraphContext c1 = api.getContext();
+// //    RedisGraphContext c2 = api.getContext();
+// //    assertNotEquals(c1.getConnectionContext(), c2.getConnectionContext());
+// //    c1.graphQuery("social", "CREATE (:Person {name:'a'})");
+// //    c1.watch("social");
+// //    RedisGraphTransaction t1 = c1.multi();
+// //
+// //    Map<string, object> params = new HashMap<>();
+// //    params.put("name", 'b');
+// //    t1.graphQuery("social", "CREATE (:Person {name:$name})", params);
+// //    c2.graphQuery("social", "MATCH (n) return n");
+// //    List<object> returnValue = t1.exec();
+// //
+// //    assertNotNull(returnValue);
+// //    c1.close();
+// //    c2.close();
+// //  }
+
+//   [Fact]
+//   public void TestMultiExecWithReadOnlyQueries()
+// {
+//         IDatabase db = redisFixture.Redis.GetDatabase();
+//         db.Execute("FLUSHALL");
+//         var graph = db.GRAPH();
+
+//     Transaction transaction = new Transaction(c);
+
+//     transaction.set("x", "1");
+//     transaction.graphQuery("social", "CREATE (:Person {name:'a'})");
+//     transaction.graphQuery("g", "CREATE (:Person {name:'a'})");
+//     transaction.graphReadonlyQuery("social", "MATCH (n:Person) RETURN n");
+//     transaction.graphDelete("g");
+// //    transaction.callProcedure("social", "db.labels");
+//     transaction.graphQuery("social", "CALL db.labels()");
+//     List<object> results = transaction.exec();
+
+//     // Redis set command
+//     Assert.Equal(string.class, results.get(0).getClass());
+//     Assert.True(results.get(0));
+
+//     // Redis graph command
+// //    Assert.Equal(ResultSetImpl.class, results.get(1).getClass());
+//     ResultSet resultSet = (ResultSet) results.get(1);
+//     Assert.Equal(1, resultSet.getStatistics().nodesCreated());
+//     Assert.Equal(1, resultSet.getStatistics().propertiesSet());
+
+// //    Assert.Equal(ResultSetImpl.class, results.get(2).getClass());
+//     resultSet = (ResultSet) results.get(2);
+//     Assert.Equal(1, resultSet.getStatistics().nodesCreated());
+//     Assert.Equal(1, resultSet.getStatistics().propertiesSet());
+
+//     // Graph read-only query result
+// //    Assert.Equal(ResultSetImpl.class, results.get(5).getClass());
+//     resultSet = (ResultSet) results.get(3);
+
+//     assertNotNull(resultSet.getHeader());
+//     Header header = resultSet.getHeader();
+
+//     List<string> schemaNames = header.getSchemaNames();
+//     assertNotNull(schemaNames);
+//     Assert.Equal(1, schemaNames.size());
+//     Assert.Equal("n", schemaNames.get(0));
+
+//     Property<string> nameProperty = new Property<>("name", "a");
+
+//     Node expectedNode = new Node();
+//     expectedNode.setId(0);
+//     expectedNode.addLabel("Person");
+//     expectedNode.addProperty(nameProperty);
+//     // see that the result were pulled from the right graph
+//     Assert.Equal(1, resultSet.size());
+//     Iterator<Record> iterator = resultSet.iterator();
+//     assertTrue(iterator.hasNext());
+//     Record record = iterator.next();
+//     assertFalse(iterator.hasNext());
+//     Assert.Equal(Arrays.asList("n"), record.keys());
+//     Assert.Equal(expectedNode, record.getValue("n"));
+
+// //    Assert.Equal(ResultSetImpl.class, results.get(5).getClass());
+//     resultSet = (ResultSet) results.get(5);
+
+//     assertNotNull(resultSet.getHeader());
+//     header = resultSet.getHeader();
+
+//     schemaNames = header.getSchemaNames();
+//     assertNotNull(schemaNames);
+//     Assert.Equal(1, schemaNames.size());
+//     Assert.Equal("label", schemaNames.get(0));
+
+//     Assert.Equal(1, resultSet.size());
+//     iterator = resultSet.iterator();
+//     assertTrue(iterator.hasNext());
+//     record = iterator.next();
+//     assertFalse(iterator.hasNext());
+//     Assert.Equal(Arrays.asList("label"), record.keys());
+//     Assert.Equal("Person", record.getValue("label"));
+//   }
+
+    #endregion
+
+    public async Task DisposeAsync() // TODO: needed?
     {
         redisFixture.Redis.GetDatabase().KeyDelete(key);
     }
@@ -1831,7 +2056,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async Task profileAsync()
+    public async Task TestProfileAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -1849,7 +2074,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async Task ExplainAsync()
+    public async Task TestExplainAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -1867,7 +2092,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async Task SlowlogAsync()
+    public async Task TestSlowlogAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -1882,7 +2107,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async Task ListAsync()
+    public async Task TestListAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -1895,7 +2120,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async Task ConfigAsync()
+    public async Task TestConfigAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -1925,6 +2150,48 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         Assert.NotEqual(graph1.GetHashCode(), graph2.GetHashCode());
     }
+
+    // [Fact] // TODO: understeand if this tests needed:
+    // public void TestParseInfinity()
+    // {
+    //     IDatabase db = redisFixture.Redis.GetDatabase();
+    //     db.Execute("FLUSHALL");
+    //     var graph = db.GRAPH();
+    //     ResultSet rs = graph.Query("db", "RETURN 10^100000");
+    //     Assert.Equal(1, rs.Count());
+    //     var iterator = rs.GetEnumerator();
+    //     iterator.MoveNext();
+    //     var r = iterator.Current;
+    //     Assert.Equal(double.PositiveInfinity, r.Values[0]);
+    // }
+
+    // [Fact]
+    // public void TestParseInfinity2()
+    // {
+    //     IDatabase db = redisFixture.Redis.GetDatabase();
+    //     db.Execute("FLUSHALL");
+    //     var graph = db.GRAPH();
+    //     ResultSet rs = graph.Query("db", "RETURN cot(0)");
+    //     Assert.Equal(1, rs.Count());
+    //     var iterator = rs.GetEnumerator();
+    //     iterator.MoveNext();
+    //     var r = iterator.Current;
+    //     Assert.Equal(double.PositiveInfinity, (double) r.Values[0]);
+    // }
+
+    // [Fact]
+    // public void TestParseNaN()
+    // {
+    //     IDatabase db = redisFixture.Redis.GetDatabase();
+    //     db.Execute("FLUSHALL");
+    //     var graph = db.GRAPH();
+    //     ResultSet rs = graph.Query("db", "RETURN asin(-1.1)");
+    //     Assert.Equal(1, rs.Count());
+    //     var iterator = rs.GetEnumerator();
+    //     iterator.MoveNext();
+    //     var r = iterator.Current;
+    //     Assert.Equal(double.NaN, r.Values[0]);
+    // }
 
     [Fact]
     public async Task TestModulePrefixs1Async()
