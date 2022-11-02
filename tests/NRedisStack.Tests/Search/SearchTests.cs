@@ -660,7 +660,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT();
         // confirm default
         var result = ft.ConfigGet("DEFAULT_DIALECT");
-        Assert.Equal("1", result["DEFAULT_DIALECT"]); // TODO: should be "1" ?
+        Assert.Equal("3", result["DEFAULT_DIALECT"]); // TODO: should be "1" ?
 
         Assert.True(ft.ConfigSet("DEFAULT_DIALECT", "2"));
         Assert.Equal("2", ft.ConfigGet("DEFAULT_DIALECT")["DEFAULT_DIALECT"]);
@@ -682,7 +682,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT();
         // confirm default
         var result = await ft.ConfigGetAsync("DEFAULT_DIALECT");
-        Assert.Equal("1", result["DEFAULT_DIALECT"]); // TODO: should be "1" ?
+        Assert.Equal("3", result["DEFAULT_DIALECT"]); // TODO: should be "1" ?
 
         Assert.True(await ft.ConfigSetAsync("DEFAULT_DIALECT", "2"));
         Assert.Equal("2", (await ft.ConfigGetAsync("DEFAULT_DIALECT"))["DEFAULT_DIALECT"]);
