@@ -982,226 +982,324 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
     }
 
-//      [Fact]
-//   public void TestMultiExec() // TODO: understand how to implement this, compare with NRedisGraph, and after all add async commands
-// {
-//         IDatabase db = redisFixture.Redis.GetDatabase();
-//         db.Execute("FLUSHALL");
-//         var graph = db.GRAPH();
+    [Fact]
+    public void TestMultiExec() // TODO: Check if the test shoult look like this (NRedisGraph) or like Jedis
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var graph = db.GRAPH();
 
-//     RedisGraphTransaction transaction = graph.Multi();
-//     var transactionTow = db.CreateTransaction();
-//     transactionTow.graph.
-//     transaction.QueryAsync.
+        RedisGraphTransaction transaction = graph.Multi();
+        // transaction.SetAsync("x", "1");
+        transaction.QueryAsync("social", "CREATE (:Person {name:'a'})");
+        transaction.QueryAsync("g", "CREATE (:Person {name:'a'})");
+        // transaction.IncrAsync("x");
+        // transaction.GetAsync("x");
+        transaction.QueryAsync("social", "MATCH (n:Person) RETURN n");
+        transaction.DeleteGraphAsync("g");
+        transaction.CallProcedureAsync("social", "db.labels");
 
-//     transaction.Set("x", "1");
-//     transaction.graphQuery("social", "CREATE (:Person {name:'a'})");
-//     transaction.graphQuery("g", "CREATE (:Person {name:'a'})");
-//     transaction.incr("x");
-//     transaction.get("x");
-//     transaction.graphQuery("social", "MATCH (n:Person) RETURN n");
-//     transaction.graphDelete("g");
-// //    transaction.callProcedure("social", "db.labels");
-//     transaction.graphQuery("social", "CALL db.labels()");
-//     List<object> results = transaction.exec();
+        var results = transaction.Exec();
 
-//     // Redis set command
-//     Assert.Equal(string.class, results.get(0).getClass());
-//     Assert.Equal("OK", results[0].ToString());
+        // Skipping Redis SET command assetions...
 
-//     // Redis graph command
-// //    Assert.Equal(ResultSetImpl.class, results.get(1).getClass());
-//     ResultSet resultSet = (ResultSet) results.get(1);
-//     Assert.Equal(1, resultSet.getStatistics().nodesCreated());
-//     Assert.Equal(1, resultSet.getStatistics().propertiesSet());
+        // Redis Graph command
+        var resultSet = results[0];
+        Assert.Equal(1, resultSet.Statistics.NodesCreated);
+        Assert.Equal(1, resultSet.Statistics.PropertiesSet);
 
-// //    Assert.Equal(ResultSetImpl.class, results.get(2).getClass());
-//     resultSet = (ResultSet) results.get(2);
-//     Assert.Equal(1, resultSet.getStatistics().nodesCreated());
-//     Assert.Equal(1, resultSet.getStatistics().propertiesSet());
+        resultSet = results[1];
+        Assert.Equal(1, resultSet.Statistics.NodesCreated);
+        Assert.Equal(1, resultSet.Statistics.PropertiesSet);
 
-//     // Redis incr command
-//     Assert.Equal(Long.class, results.get(3).getClass());
-//     Assert.Equal(2L, results.get(3));
+        // Skipping Redis INCR command assertions...
 
-//     // Redis get command
-//     Assert.Equal(string.class, results.get(4).getClass());
-//     Assert.Equal("2", results.get(4));
+        // Skipping Redis GET command assertions...
 
-//     // Graph query result
-// //    Assert.Equal(ResultSetImpl.class, results.get(5).getClass());
-//     resultSet = (ResultSet) results.get(5);
+        // Graph Query Result
+        resultSet = results[2];
+        Assert.NotNull(resultSet.Header);
 
-//     assertNotNull(resultSet.getHeader());
-//     Header header = resultSet.getHeader();
+        var header = resultSet.Header;
 
-//     List<string> schemaNames = header.getSchemaNames();
-//     assertNotNull(schemaNames);
-//     Assert.Equal(1, schemaNames.size());
-//     Assert.Equal("n", schemaNames.get(0));
+        var schemaNames = header.SchemaNames;
+        var schemaTypes = header.SchemaTypes;
 
-//     Property<string> nameProperty = new Property<>("name", "a");
+        Assert.NotNull(schemaNames);
+        Assert.NotNull(schemaTypes);
 
-//     Node expectedNode = new Node();
-//     expectedNode.setId(0);
-//     expectedNode.addLabel("Person");
-//     expectedNode.addProperty(nameProperty);
-//     // see that the result were pulled from the right graph
-//     Assert.Equal(1, resultSet.size());
-//     Iterator<Record> iterator = resultSet.iterator();
-//     assertTrue(iterator.hasNext());
-//     Record record = iterator.next();
-//     assertFalse(iterator.hasNext());
-//     Assert.Equal(Arrays.asList("n"), record.keys());
-//     Assert.Equal(expectedNode, record.getValue("n"));
+        Assert.Single(schemaNames);
+        Assert.Single(schemaTypes);
 
-// //    Assert.Equal(ResultSetImpl.class, results.get(7).getClass());
-//     resultSet = (ResultSet) results.get(7);
+        Assert.Equal("n", schemaNames[0]);
 
-//     assertNotNull(resultSet.getHeader());
-//     header = resultSet.getHeader();
+        var nameProperty = new Property("name", "a");
 
-//     schemaNames = header.getSchemaNames();
-//     assertNotNull(schemaNames);
-//     Assert.Equal(1, schemaNames.size());
-//     Assert.Equal("label", schemaNames.get(0));
+        var expectedNode = new Node();
+        expectedNode.Id = 0;
+        expectedNode.AddLabel("Person");
+        expectedNode.AddProperty(nameProperty);
 
-//     Assert.Equal(1, resultSet.size());
-//     iterator = resultSet.iterator();
-//     assertTrue(iterator.hasNext());
-//     record = iterator.next();
-//     assertFalse(iterator.hasNext());
-//     Assert.Equal(Arrays.asList("label"), record.keys());
-//     Assert.Equal("Person", record.getValue("label"));
-//   }
-// //
-// //  [Fact]
-// //  public void TestWriteTransactionWatch()
-// {
-//         IDatabase db = redisFixture.Redis.GetDatabase();
-//         db.Execute("FLUSHALL");
-//         var graph = db.GRAPH();
+        // See that the result were pulled from the right graph.
 
-// //
-// //    RedisGraphContext c1 = api.getContext();
-// //    RedisGraphContext c2 = api.getContext();
-// //
-// //    c1.watch("social");
-// //    RedisGraphTransaction t1 = c1.multi();
-// //
-// //    t1.graphQuery("social", "CREATE (:Person {name:'a'})");
-// //    c2.graphQuery("social", "CREATE (:Person {name:'b'})");
-// //    List<object> returnValue = t1.exec();
-// //    assertNull(returnValue);
-// //    c1.close();
-// //    c2.close();
-// //  }
-// //
-// //  [Fact]
-// //  public void TestReadTransactionWatch()
-// {
-//         IDatabase db = redisFixture.Redis.GetDatabase();
-//         db.Execute("FLUSHALL");
-//         var graph = db.GRAPH();
+        Assert.Single(resultSet);
 
-// //
-// //    RedisGraphContext c1 = api.getContext();
-// //    RedisGraphContext c2 = api.getContext();
-// //    assertNotEquals(c1.getConnectionContext(), c2.getConnectionContext());
-// //    c1.graphQuery("social", "CREATE (:Person {name:'a'})");
-// //    c1.watch("social");
-// //    RedisGraphTransaction t1 = c1.multi();
-// //
-// //    Map<string, object> params = new HashMap<>();
-// //    params.put("name", 'b');
-// //    t1.graphQuery("social", "CREATE (:Person {name:$name})", params);
-// //    c2.graphQuery("social", "MATCH (n) return n");
-// //    List<object> returnValue = t1.exec();
-// //
-// //    assertNotNull(returnValue);
-// //    c1.close();
-// //    c2.close();
-// //  }
+        var record = resultSet.First();
+        Assert.Equal(new List<string> { "n" }, record.Keys);
+        Assert.Equal(expectedNode, record.GetValue<Node>("n"));
 
-//   [Fact]
-//   public void TestMultiExecWithReadOnlyQueries()
-// {
-//         IDatabase db = redisFixture.Redis.GetDatabase();
-//         db.Execute("FLUSHALL");
-//         var graph = db.GRAPH();
+        resultSet = results[4];
 
-//     Transaction transaction = new Transaction(c);
+        Assert.NotNull(resultSet.Header);
 
-//     transaction.set("x", "1");
-//     transaction.graphQuery("social", "CREATE (:Person {name:'a'})");
-//     transaction.graphQuery("g", "CREATE (:Person {name:'a'})");
-//     transaction.graphReadonlyQuery("social", "MATCH (n:Person) RETURN n");
-//     transaction.graphDelete("g");
-// //    transaction.callProcedure("social", "db.labels");
-//     transaction.graphQuery("social", "CALL db.labels()");
-//     List<object> results = transaction.exec();
+        schemaNames = header.SchemaNames;
+        schemaTypes = header.SchemaTypes;
 
-//     // Redis set command
-//     Assert.Equal(string.class, results.get(0).getClass());
-//     Assert.True(results.get(0));
+        Assert.NotNull(schemaNames);
+        Assert.NotNull(schemaTypes);
 
-//     // Redis graph command
-// //    Assert.Equal(ResultSetImpl.class, results.get(1).getClass());
-//     ResultSet resultSet = (ResultSet) results.get(1);
-//     Assert.Equal(1, resultSet.getStatistics().nodesCreated());
-//     Assert.Equal(1, resultSet.getStatistics().propertiesSet());
+        Assert.Single(schemaNames);
+        Assert.Single(schemaTypes);
 
-// //    Assert.Equal(ResultSetImpl.class, results.get(2).getClass());
-//     resultSet = (ResultSet) results.get(2);
-//     Assert.Equal(1, resultSet.getStatistics().nodesCreated());
-//     Assert.Equal(1, resultSet.getStatistics().propertiesSet());
+        Assert.Equal("n", schemaNames[0]);
 
-//     // Graph read-only query result
-// //    Assert.Equal(ResultSetImpl.class, results.get(5).getClass());
-//     resultSet = (ResultSet) results.get(3);
+        Assert.Single(resultSet);
 
-//     assertNotNull(resultSet.getHeader());
-//     Header header = resultSet.getHeader();
+        record = resultSet.First();
 
-//     List<string> schemaNames = header.getSchemaNames();
-//     assertNotNull(schemaNames);
-//     Assert.Equal(1, schemaNames.size());
-//     Assert.Equal("n", schemaNames.get(0));
+        Assert.Equal(new List<string> { "label" }, record.Keys);
+        Assert.Equal("Person", record.GetValue<string>("label"));
+    }
 
-//     Property<string> nameProperty = new Property<>("name", "a");
+    /*  TODO: This text is taken from NRedisGraph, check if it is correct and relevant
+        Since by default all commands executed by StackExchange.Redis travel through the same connection
+        we're going to skip the following "contexted" tests:
+        - testContextedAPI
+        - testWriteTransactionWatch
+        - testReadTransactionWatch
+*/
 
-//     Node expectedNode = new Node();
-//     expectedNode.setId(0);
-//     expectedNode.addLabel("Person");
-//     expectedNode.addProperty(nameProperty);
-//     // see that the result were pulled from the right graph
-//     Assert.Equal(1, resultSet.size());
-//     Iterator<Record> iterator = resultSet.iterator();
-//     assertTrue(iterator.hasNext());
-//     Record record = iterator.next();
-//     assertFalse(iterator.hasNext());
-//     Assert.Equal(Arrays.asList("n"), record.keys());
-//     Assert.Equal(expectedNode, record.getValue("n"));
 
-// //    Assert.Equal(ResultSetImpl.class, results.get(5).getClass());
-//     resultSet = (ResultSet) results.get(5);
+    //      [Fact]
+    //   public void TestMultiExec() // TODO: understand how to implement this, compare with NRedisGraph, and after all add async commands
+    // {
+    //         IDatabase db = redisFixture.Redis.GetDatabase();
+    //         db.Execute("FLUSHALL");
+    //         var graph = db.GRAPH();
 
-//     assertNotNull(resultSet.getHeader());
-//     header = resultSet.getHeader();
+    //     RedisGraphTransaction transaction = graph.Multi();
+    //     var transactionTow = db.CreateTransaction();
+    //     transactionTow.graph.
+    //     transaction.QueryAsync.
 
-//     schemaNames = header.getSchemaNames();
-//     assertNotNull(schemaNames);
-//     Assert.Equal(1, schemaNames.size());
-//     Assert.Equal("label", schemaNames.get(0));
+    //     transaction.Set("x", "1");
+    //     transaction.graphQuery("social", "CREATE (:Person {name:'a'})");
+    //     transaction.graphQuery("g", "CREATE (:Person {name:'a'})");
+    //     transaction.incr("x");
+    //     transaction.get("x");
+    //     transaction.graphQuery("social", "MATCH (n:Person) RETURN n");
+    //     transaction.graphDelete("g");
+    // //    transaction.callProcedure("social", "db.labels");
+    //     transaction.graphQuery("social", "CALL db.labels()");
+    //     List<object> results = transaction.exec();
 
-//     Assert.Equal(1, resultSet.size());
-//     iterator = resultSet.iterator();
-//     assertTrue(iterator.hasNext());
-//     record = iterator.next();
-//     assertFalse(iterator.hasNext());
-//     Assert.Equal(Arrays.asList("label"), record.keys());
-//     Assert.Equal("Person", record.getValue("label"));
-//   }
+    //     // Redis set command
+    //     Assert.Equal(string.class, results.get(0).getClass());
+    //     Assert.Equal("OK", results[0].ToString());
+
+    //     // Redis graph command
+    // //    Assert.Equal(ResultSetImpl.class, results.get(1).getClass());
+    //     ResultSet resultSet = (ResultSet) results.get(1);
+    //     Assert.Equal(1, resultSet.getStatistics().nodesCreated());
+    //     Assert.Equal(1, resultSet.getStatistics().propertiesSet());
+
+    // //    Assert.Equal(ResultSetImpl.class, results.get(2).getClass());
+    //     resultSet = (ResultSet) results.get(2);
+    //     Assert.Equal(1, resultSet.getStatistics().nodesCreated());
+    //     Assert.Equal(1, resultSet.getStatistics().propertiesSet());
+
+    //     // Redis incr command
+    //     Assert.Equal(Long.class, results.get(3).getClass());
+    //     Assert.Equal(2L, results.get(3));
+
+    //     // Redis get command
+    //     Assert.Equal(string.class, results.get(4).getClass());
+    //     Assert.Equal("2", results.get(4));
+
+    //     // Graph query result
+    // //    Assert.Equal(ResultSetImpl.class, results.get(5).getClass());
+    //     resultSet = (ResultSet) results.get(5);
+
+    //     assertNotNull(resultSet.getHeader());
+    //     Header header = resultSet.getHeader();
+
+    //     List<string> schemaNames = header.getSchemaNames();
+    //     assertNotNull(schemaNames);
+    //     Assert.Equal(1, schemaNames.size());
+    //     Assert.Equal("n", schemaNames.get(0));
+
+    //     Property<string> nameProperty = new Property<>("name", "a");
+
+    //     Node expectedNode = new Node();
+    //     expectedNode.setId(0);
+    //     expectedNode.addLabel("Person");
+    //     expectedNode.addProperty(nameProperty);
+    //     // see that the result were pulled from the right graph
+    //     Assert.Equal(1, resultSet.size());
+    //     Iterator<Record> iterator = resultSet.iterator();
+    //     assertTrue(iterator.hasNext());
+    //     Record record = iterator.next();
+    //     assertFalse(iterator.hasNext());
+    //     Assert.Equal(Arrays.asList("n"), record.keys());
+    //     Assert.Equal(expectedNode, record.getValue("n"));
+
+    // //    Assert.Equal(ResultSetImpl.class, results.get(7).getClass());
+    //     resultSet = (ResultSet) results.get(7);
+
+    //     assertNotNull(resultSet.getHeader());
+    //     header = resultSet.getHeader();
+
+    //     schemaNames = header.getSchemaNames();
+    //     assertNotNull(schemaNames);
+    //     Assert.Equal(1, schemaNames.size());
+    //     Assert.Equal("label", schemaNames.get(0));
+
+    //     Assert.Equal(1, resultSet.size());
+    //     iterator = resultSet.iterator();
+    //     assertTrue(iterator.hasNext());
+    //     record = iterator.next();
+    //     assertFalse(iterator.hasNext());
+    //     Assert.Equal(Arrays.asList("label"), record.keys());
+    //     Assert.Equal("Person", record.getValue("label"));
+    //   }
+    // //
+    //  [Fact]
+    //  public void TestWriteTransactionWatch()
+    // {
+    //         IDatabase db = redisFixture.Redis.GetDatabase();
+    //     db.Execute("FLUSHALL");
+    //         var graph = db.GRAPH();
+
+    //
+    //    RedisGraphContext c1 = api.getContext();
+    //    RedisGraphContext c2 = api.getContext();
+    //
+    //    c1.watch("social");
+    //    RedisGraphTransaction t1 = c1.multi();
+    //
+    //    t1.graphQuery("social", "CREATE (:Person {name:'a'})");
+    //    c2.graphQuery("social", "CREATE (:Person {name:'b'})");
+    //    List<object> returnValue = t1.exec();
+    //    assertNull(returnValue);
+    //    c1.close();
+    //    c2.close();
+    //  }
+    //
+    // //  [Fact]
+    // //  public void TestReadTransactionWatch()
+    // {
+    //         IDatabase db = redisFixture.Redis.GetDatabase();
+    //         db.Execute("FLUSHALL");
+    //         var graph = db.GRAPH();
+
+    // //
+    // //    RedisGraphContext c1 = api.getContext();
+    // //    RedisGraphContext c2 = api.getContext();
+    // //    assertNotEquals(c1.getConnectionContext(), c2.getConnectionContext());
+    // //    c1.graphQuery("social", "CREATE (:Person {name:'a'})");
+    // //    c1.watch("social");
+    // //    RedisGraphTransaction t1 = c1.multi();
+    // //
+    // //    Map<string, object> params = new HashMap<>();
+    // //    params.put("name", 'b');
+    // //    t1.graphQuery("social", "CREATE (:Person {name:$name})", params);
+    // //    c2.graphQuery("social", "MATCH (n) return n");
+    // //    List<object> returnValue = t1.exec();
+    // //
+    // //    assertNotNull(returnValue);
+    // //    c1.close();
+    // //    c2.close();
+    // //  }
+
+    //   [Fact]
+    //   public void TestMultiExecWithReadOnlyQueries()
+    // {
+    //         IDatabase db = redisFixture.Redis.GetDatabase();
+    //         db.Execute("FLUSHALL");
+    //         var graph = db.GRAPH();
+
+    //     Transaction transaction = new Transaction(c);
+
+    //     transaction.set("x", "1");
+    //     transaction.graphQuery("social", "CREATE (:Person {name:'a'})");
+    //     transaction.graphQuery("g", "CREATE (:Person {name:'a'})");
+    //     transaction.graphReadonlyQuery("social", "MATCH (n:Person) RETURN n");
+    //     transaction.graphDelete("g");
+    // //    transaction.callProcedure("social", "db.labels");
+    //     transaction.graphQuery("social", "CALL db.labels()");
+    //     List<object> results = transaction.exec();
+
+    //     // Redis set command
+    //     Assert.Equal(string.class, results.get(0).getClass());
+    //     Assert.True(results.get(0));
+
+    //     // Redis graph command
+    // //    Assert.Equal(ResultSetImpl.class, results.get(1).getClass());
+    //     ResultSet resultSet = (ResultSet) results.get(1);
+    //     Assert.Equal(1, resultSet.getStatistics().nodesCreated());
+    //     Assert.Equal(1, resultSet.getStatistics().propertiesSet());
+
+    // //    Assert.Equal(ResultSetImpl.class, results.get(2).getClass());
+    //     resultSet = (ResultSet) results.get(2);
+    //     Assert.Equal(1, resultSet.getStatistics().nodesCreated());
+    //     Assert.Equal(1, resultSet.getStatistics().propertiesSet());
+
+    //     // Graph read-only query result
+    // //    Assert.Equal(ResultSetImpl.class, results.get(5).getClass());
+    //     resultSet = (ResultSet) results.get(3);
+
+    //     assertNotNull(resultSet.getHeader());
+    //     Header header = resultSet.getHeader();
+
+    //     List<string> schemaNames = header.getSchemaNames();
+    //     assertNotNull(schemaNames);
+    //     Assert.Equal(1, schemaNames.size());
+    //     Assert.Equal("n", schemaNames.get(0));
+
+    //     Property<string> nameProperty = new Property<>("name", "a");
+
+    //     Node expectedNode = new Node();
+    //     expectedNode.setId(0);
+    //     expectedNode.addLabel("Person");
+    //     expectedNode.addProperty(nameProperty);
+    //     // see that the result were pulled from the right graph
+    //     Assert.Equal(1, resultSet.size());
+    //     Iterator<Record> iterator = resultSet.iterator();
+    //     assertTrue(iterator.hasNext());
+    //     Record record = iterator.next();
+    //     assertFalse(iterator.hasNext());
+    //     Assert.Equal(Arrays.asList("n"), record.keys());
+    //     Assert.Equal(expectedNode, record.getValue("n"));
+
+    // //    Assert.Equal(ResultSetImpl.class, results.get(5).getClass());
+    //     resultSet = (ResultSet) results.get(5);
+
+    //     assertNotNull(resultSet.getHeader());
+    //     header = resultSet.getHeader();
+
+    //     schemaNames = header.getSchemaNames();
+    //     assertNotNull(schemaNames);
+    //     Assert.Equal(1, schemaNames.size());
+    //     Assert.Equal("label", schemaNames.get(0));
+
+    //     Assert.Equal(1, resultSet.size());
+    //     iterator = resultSet.iterator();
+    //     assertTrue(iterator.hasNext());
+    //     record = iterator.next();
+    //     assertFalse(iterator.hasNext());
+    //     Assert.Equal(Arrays.asList("label"), record.keys());
+    //     Assert.Equal("Person", record.getValue("label"));
+    //   }
 
     #endregion
 
