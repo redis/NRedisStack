@@ -2151,21 +2151,21 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.NotEqual(graph1.GetHashCode(), graph2.GetHashCode());
     }
 
-    // [Fact] // TODO: understeand if this tests needed:
-    // public void TestParseInfinity()
-    // {
-    //     IDatabase db = redisFixture.Redis.GetDatabase();
-    //     db.Execute("FLUSHALL");
-    //     var graph = db.GRAPH();
-    //     ResultSet rs = graph.Query("db", "RETURN 10^100000");
-    //     Assert.Equal(1, rs.Count());
-    //     var iterator = rs.GetEnumerator();
-    //     iterator.MoveNext();
-    //     var r = iterator.Current;
-    //     Assert.Equal(double.PositiveInfinity, r.Values[0]);
-    // }
+    [Fact]
+    public void TestParseInfinity()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var graph = db.GRAPH();
+        ResultSet rs = graph.Query("db", "RETURN 10^100000");
+        Assert.Equal(1, rs.Count());
+        var iterator = rs.GetEnumerator();
+        iterator.MoveNext();
+        var r = iterator.Current;
+        Assert.Equal(double.PositiveInfinity, r.Values[0]);
+    }
 
-    // [Fact]
+    // [Fact] // TODO: understeand if this tests needed (it throws exception: Unknown function 'cot')
     // public void TestParseInfinity2()
     // {
     //     IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2179,7 +2179,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     //     Assert.Equal(double.PositiveInfinity, (double) r.Values[0]);
     // }
 
-    // [Fact]
+    // [Fact] // TODO: understeand if this tests needed (it throws exception: Unknown function 'asin')
     // public void TestParseNaN()
     // {
     //     IDatabase db = redisFixture.Redis.GetDatabase();
