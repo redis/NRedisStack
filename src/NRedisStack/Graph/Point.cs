@@ -55,11 +55,10 @@ namespace NRedisStack.Graph
                     Math.Abs(longitude - o.longitude) < EPSILON;
         }
 
-        // TODO: check if needed
-        // public override int GetHashCode()
-        //     {
-        //         return object.Hash(latitude, longitude);
-        //     }
+        public override int GetHashCode()
+        {
+            return latitude.GetHashCode() ^ longitude.GetHashCode();
+        }
 
 
         public override string ToString()

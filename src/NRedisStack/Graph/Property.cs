@@ -34,23 +34,6 @@ namespace NRedisStack.Graph
             Value = value;
         }
 
-        // private bool ValueEquals(object value1, object value2) //TODO: check this
-        // {
-        //     if (value1.GetType() == typeof(long)) value1 = ((long)value1);
-        //     if (value2.GetType() == typeof(long)) value2 = ((long)value2);
-        //     return object.Equals(value1, value2);
-        // }
-
-
-        // public override bool Equals(object o)
-        // {
-        //     if (this == o) return true;
-        //     if (!(o.GetType() == typeof(Property))) return false;
-        //     Property property = (Property)o;
-        //     return object.Equals(Name, property.Name)
-        //         && ValueEquals(Value, property.Value);
-        // }
-
         /// <summary>
         /// Overridden method that considers the equality of the name and the value of two property instances.
         /// </summary>

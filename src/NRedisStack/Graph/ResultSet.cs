@@ -277,12 +277,6 @@ namespace NRedisStack.Graph
                 dict.Add(key, value);
             }
             return dict;
-            // var dict = new Dictionary<string, object>(); // TODO: Consiter return Dictionary<string, object>
-            // foreach(var pair in rawPath.ToDictionary())
-            // {
-            //     dict.Add(pair.Key, pair.Value);
-            // }
-            // return dict;
         }
 
         private static ResultSetScalarType GetValueTypeFromObject(RedisResult rawScalarType) =>

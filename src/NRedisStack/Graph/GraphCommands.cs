@@ -282,7 +282,7 @@ namespace NRedisStack
         /// This leverages the "Transaction" support present in StackExchange.Redis.
         /// </summary>
         /// <returns></returns>
-        public RedisGraphTransaction Multi() => // TODO: Check if this is needed (Jedis does not have it)
+        public RedisGraphTransaction Multi() => 
             new RedisGraphTransaction(_db.CreateTransaction(), this, _graphCaches);
 
         /// <summary>

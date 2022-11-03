@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using StackExchange.Redis;
-// TODO: check if all of these are needed
 namespace NRedisStack.Graph
 {
     /// <summary>
