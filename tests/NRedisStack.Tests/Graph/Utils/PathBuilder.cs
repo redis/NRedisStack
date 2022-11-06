@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using NRedisStack.Graph;
-
+using NRedisStack.Graph.DataTypes;
 namespace NRedisStack.Tests.Graph
 {
     public sealed class PathBuilder
@@ -54,14 +51,14 @@ namespace NRedisStack.Tests.Graph
             return this;
         }
 
-        public NRedisStack.Graph.Path Build()
+        public NRedisStack.Graph.DataTypes.Path Build()
         {
             if (_nodes.Count != _edges.Count + 1)
             {
                 throw new ArgumentException("Path builder nodes count should be edge count + 1");
             }
 
-            return new NRedisStack.Graph.Path(_nodes, _edges);
+            return new NRedisStack.Graph.DataTypes.Path(_nodes, _edges);
         }
     }
 }

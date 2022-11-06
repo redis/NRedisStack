@@ -1,5 +1,4 @@
-using System;
-using NRedisStack.Graph;
+using NRedisStack.Graph.DataTypes;
 using Xunit;
 
 namespace NRedisStack.Tests.Graph

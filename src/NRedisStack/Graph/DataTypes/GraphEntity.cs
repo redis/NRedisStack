@@ -1,7 +1,7 @@
 using System.Text;
 using System.Collections.Generic;
 
-namespace NRedisStack.Graph
+namespace NRedisStack.Graph.DataTypes
 {
     /// <summary>
     /// An abstract representation of a graph entity.
@@ -25,7 +25,7 @@ namespace NRedisStack.Graph
         {
             PropertyMap = new Dictionary<string, Property>();
         }
-        
+
         /// <summary>
         /// Add a property to the entity.
         /// </summary>
@@ -69,7 +69,7 @@ namespace NRedisStack.Graph
                 return false;
             }
 
-            return Id == that.Id && PropertyMap.SequenceEqual(that.PropertyMap);
+            return Id == that.Id && (PropertyMap.SequenceEqual(that.PropertyMap));
         }
 
         /// <summary>

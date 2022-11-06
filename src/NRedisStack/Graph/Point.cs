@@ -22,6 +22,7 @@ namespace NRedisStack.Graph
             this.longitude = longitude;
         }
 
+// TODO: delete this:
         /**
          * @param values {@code [latitude, longitude]}
          */

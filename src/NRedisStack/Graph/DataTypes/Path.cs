@@ -1,71 +1,30 @@
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 
 [assembly: InternalsVisibleTo("NRedisStack.Tests.Graph")]
 
-namespace NRedisStack.Graph
+namespace NRedisStack.Graph.DataTypes
 {
     /// <summary>
     /// This class represents a path in the graph.
     /// </summary>
     public class Path
     {
-        private readonly ReadOnlyCollection<Node> _nodes;
-        private readonly ReadOnlyCollection<Edge> _edges;
+        public ReadOnlyCollection<Node> Nodes { get;}
+        public ReadOnlyCollection<Edge> Edges { get;}
 
         public Path(IList<Node> nodes, IList<Edge> edges) // TODO: suppose to ne internal?
         {
-            _nodes = new ReadOnlyCollection<Node>(nodes);
-            _edges = new ReadOnlyCollection<Edge>(edges);
+            Nodes = new ReadOnlyCollection<Node>(nodes);
+            Edges = new ReadOnlyCollection<Edge>(edges);
         }
 
-        /// <summary>
-        /// Nodes that exist on this path.
-        /// </summary>
-        public IEnumerable<Node> Nodes => _nodes;
-
-        /// <summary>
-        /// Edges that exist on this path.
-        /// </summary>
-        public IEnumerable<Edge> Edges => _edges;
 
         /// <summary>
         /// How many edges exist on this path.
         /// </summary>
-        public int Length => _edges.Count;
-
-        /// <summary>
-        /// How many nodes exist on this path.
-        /// </summary>
-        public int NodeCount => _nodes.Count;
-
-        /// <summary>
-        /// Get the first node on this path.
-        /// </summary>
-        public Node FirstNode => _nodes[0];
-
-        /// <summary>
-        /// Get the last node on this path.
-        /// </summary>
-        /// <returns></returns>
-        public Node LastNode => _nodes.Last();
-
-        /// <summary>
-        /// Get a node by index.
-        /// </summary>
-        /// <param name="index">The index of the node that you want to get.</param>
-        /// <returns></returns>
-        public Node GetNode(int index) => _nodes[index];
-
-        /// <summary>
-        /// Get an edge by index.
-        /// </summary>
-        /// <param name="index">The index of the edge that you want to get.</param>
-        /// <returns></returns>
-        public Edge GetEdge(int index) => _edges[index];
+        public int Length => Edges.Count;
 
         /// <summary>
         /// Overriden `Equals` method that will consider the equality of the Nodes and Edges between two paths.

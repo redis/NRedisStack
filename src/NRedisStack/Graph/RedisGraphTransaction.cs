@@ -27,12 +27,12 @@ namespace NRedisStack.Graph
         }
 
         private readonly ITransaction _transaction;
-        private readonly IDictionary<string, IGraphCache> _graphCaches;
+        private readonly IDictionary<string, GraphCache> _graphCaches;
         private readonly GraphCommands _redisGraph;
         private readonly List<TransactionResult> _pendingTasks = new List<TransactionResult>();
         private readonly List<string> _graphCachesToRemove = new List<string>();
 
-        internal RedisGraphTransaction(ITransaction transaction, GraphCommands redisGraph, IDictionary<string, IGraphCache> graphCaches)
+        internal RedisGraphTransaction(ITransaction transaction, GraphCommands redisGraph, IDictionary<string, GraphCache> graphCaches)
         {
             _graphCaches = graphCaches;
             _redisGraph = redisGraph;
@@ -61,7 +61,10 @@ namespace NRedisStack.Graph
         /// <returns>A ValueTask, the actual result isn't known until `Exec` or `ExecAsync` is invoked.</returns>
         public ValueTask QueryAsync(string graphId, string query)
         {
-            _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, _redisGraph));
+            if(!_graphCaches.ContainsKey(graphId))
+            {
+                _graphCaches.Add(graphId, new GraphCache(graphId, _redisGraph));
+            }
 
             _pendingTasks.Add(new TransactionResult(graphId, _transaction.ExecuteAsync(GRAPH.QUERY, graphId, query, GraphCommands.CompactQueryFlag)));
 

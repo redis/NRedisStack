@@ -3,6 +3,7 @@ using StackExchange.Redis;
 using NRedisStack.RedisStackCommands;
 using Moq;
 using NRedisStack.Graph;
+using NRedisStack.Graph.DataTypes;
 
 namespace NRedisStack.Tests.Graph;
 
@@ -597,11 +598,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
             edges.Add(edge);
         }
 
-        var expectedPaths = new HashSet<NRedisStack.Graph.Path>();
+        var expectedPaths = new HashSet<NRedisStack.Graph.DataTypes.Path>();
 
-        NRedisStack.Graph.Path path01 = new PathBuilder(2).Append(nodes[0]).Append(edges[0]).Append(nodes[1]).Build();
-        NRedisStack.Graph.Path path12 = new PathBuilder(2).Append(nodes[1]).Append(edges[1]).Append(nodes[2]).Build();
-        NRedisStack.Graph.Path path02 = new PathBuilder(3).Append(nodes[0]).Append(edges[0]).Append(nodes[1])
+        NRedisStack.Graph.DataTypes.Path path01 = new PathBuilder(2).Append(nodes[0]).Append(edges[0]).Append(nodes[1]).Build();
+        NRedisStack.Graph.DataTypes.Path path12 = new PathBuilder(2).Append(nodes[1]).Append(edges[1]).Append(nodes[2]).Build();
+        NRedisStack.Graph.DataTypes.Path path02 = new PathBuilder(3).Append(nodes[0]).Append(edges[0]).Append(nodes[1])
                 .Append(edges[1]).Append(nodes[2]).Build();
 
         expectedPaths.Add(path01);
@@ -615,13 +616,13 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expectedPaths.Count, resultSet.Count);
         var iterator = resultSet.GetEnumerator();
         // for (int i = 0; i < resultSet.Count; i++) {
-        // var p = iterator.Current.GetValue<NRedisStack.Graph.Path>("p");
+        // var p = iterator.Current.GetValue<Path>("p");
         //     Assert.True(expectedPaths.Contains(p));
         //     expectedPaths.Remove(p);
         // }
         for (int i = 0; i < resultSet.Count; i++)
         {
-            NRedisStack.Graph.Path p = resultSet.ElementAt(i).GetValue<NRedisStack.Graph.Path>("p");
+            NRedisStack.Graph.DataTypes.Path p = resultSet.ElementAt(i).GetValue<NRedisStack.Graph.DataTypes.Path>("p");
             Assert.Contains(p, expectedPaths);
             expectedPaths.Remove(p);
         }
@@ -1662,11 +1663,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
             edges.Add(edge);
         }
 
-        var expectedPaths = new HashSet<NRedisStack.Graph.Path>();
+        var expectedPaths = new HashSet<NRedisStack.Graph.DataTypes.Path>();
 
-        NRedisStack.Graph.Path path01 = new PathBuilder(2).Append(nodes[0]).Append(edges[0]).Append(nodes[1]).Build();
-        NRedisStack.Graph.Path path12 = new PathBuilder(2).Append(nodes[1]).Append(edges[1]).Append(nodes[2]).Build();
-        NRedisStack.Graph.Path path02 = new PathBuilder(3).Append(nodes[0]).Append(edges[0]).Append(nodes[1])
+        NRedisStack.Graph.DataTypes.Path path01 = new PathBuilder(2).Append(nodes[0]).Append(edges[0]).Append(nodes[1]).Build();
+        NRedisStack.Graph.DataTypes.Path path12 = new PathBuilder(2).Append(nodes[1]).Append(edges[1]).Append(nodes[2]).Build();
+        NRedisStack.Graph.DataTypes.Path path02 = new PathBuilder(3).Append(nodes[0]).Append(edges[0]).Append(nodes[1])
                 .Append(edges[1]).Append(nodes[2]).Build();
 
         expectedPaths.Add(path01);
@@ -1680,13 +1681,13 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expectedPaths.Count, resultSet.Count);
         var iterator = resultSet.GetEnumerator();
         // for (int i = 0; i < resultSet.Count; i++) {
-        // var p = iterator.Current.GetValue<NRedisStack.Graph.Path>("p");
+        // var p = iterator.Current.GetValue<Path>("p");
         //     Assert.True(expectedPaths.Contains(p));
         //     expectedPaths.Remove(p);
         // }
         for (int i = 0; i < resultSet.Count; i++)
         {
-            NRedisStack.Graph.Path p = resultSet.ElementAt(i).GetValue<NRedisStack.Graph.Path>("p");
+            NRedisStack.Graph.DataTypes.Path p = resultSet.ElementAt(i).GetValue<NRedisStack.Graph.DataTypes.Path>("p");
             Assert.Contains(p, expectedPaths);
             expectedPaths.Remove(p);
         }

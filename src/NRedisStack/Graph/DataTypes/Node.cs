@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NRedisStack.Graph
+namespace NRedisStack.Graph.DataTypes
 {
     /// <summary>
     /// A class representing a node (graph entity). In addition to the base class ID and properties, a node has labels.

@@ -25,9 +25,9 @@ namespace NRedisStack
 
         internal static readonly object CompactQueryFlag = "--COMPACT";
         // private readonly IDatabase _db;
-        private readonly IDictionary<string, IGraphCache> _graphCaches = new Dictionary<string, IGraphCache>();
+        private readonly IDictionary<string, GraphCache> _graphCaches = new Dictionary<string, GraphCache>();
 
-        private IGraphCache GetGraphCache(string graphId)
+        private GraphCache GetGraphCache(string graphId)
         {
             if (!_graphCaches.ContainsKey(graphId))
             {
@@ -98,10 +98,13 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/graph.query"/></remarks>
         public ResultSet Query(string graphId, string query, long? timeout = null)
         {
-            _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, this));
+            if(!_graphCaches.ContainsKey(graphId))
+            {
+                _graphCaches.Add(graphId, new GraphCache(graphId, this));
+            }
 
             var args = (timeout == null) ? new List<object> { graphId, query, CompactQueryFlag }
-                                         : new List<object> { graphId, query, CompactQueryFlag, GraphArgs.TIMEOUT, timeout };
+                                         : new List<object>(5) /*TODO: like this*/{ graphId, query, CompactQueryFlag, GraphArgs.TIMEOUT, timeout };
 
             return new ResultSet(_db.Execute(GRAPH.QUERY, args), _graphCaches[graphId]);
         }
@@ -116,7 +119,10 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/graph.query"/></remarks>
         public async Task<ResultSet> QueryAsync(string graphId, string query, long? timeout = null)
         {
-            _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, this));
+            if(!_graphCaches.ContainsKey(graphId))
+            {
+                _graphCaches.Add(graphId, new GraphCache(graphId, this));
+            }
 
             var args = (timeout == null) ? new List<object> { graphId, query, CompactQueryFlag }
                                          : new List<object> { graphId, query, CompactQueryFlag, GraphArgs.TIMEOUT, timeout };
@@ -166,7 +172,10 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/graph.ro_query"/></remarks>
         public ResultSet RO_Query(string graphId, string query, long? timeout = null)
         {
-            _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, this));
+            if(_graphCaches.ContainsKey(graphId) )
+            {
+                _graphCaches.Add(graphId, new GraphCache(graphId, this));
+            }
 
             var args = (timeout == null) ? new List<object> { graphId, query, CompactQueryFlag }
                                          : new List<object> { graphId, query, CompactQueryFlag, GraphArgs.TIMEOUT, timeout };
@@ -184,7 +193,10 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/graph.ro_query"/></remarks>
         public async Task<ResultSet> RO_QueryAsync(string graphId, string query, long? timeout = null)
         {
-            _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, this));
+            if(!_graphCaches.ContainsKey(graphId))
+            {
+                _graphCaches.Add(graphId, new GraphCache(graphId, this));
+            }
 
             var args = (timeout == null) ? new List<object> { graphId, query, CompactQueryFlag }
                                          : new List<object> { graphId, query, CompactQueryFlag, GraphArgs.TIMEOUT, timeout };
@@ -282,7 +294,7 @@ namespace NRedisStack
         /// This leverages the "Transaction" support present in StackExchange.Redis.
         /// </summary>
         /// <returns></returns>
-        public RedisGraphTransaction Multi() => 
+        public RedisGraphTransaction Multi() =>
             new RedisGraphTransaction(_db.CreateTransaction(), this, _graphCaches);
 
         /// <summary>

@@ -1,7 +1,8 @@
-using System;
+// using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using NRedisStack.Graph.DataTypes;
 using StackExchange.Redis;
 
 namespace NRedisStack.Graph
@@ -28,9 +29,9 @@ namespace NRedisStack.Graph
         }
 
         private readonly RedisResult[] _rawResults;
-        private readonly IGraphCache _graphCache;
+        private readonly GraphCache _graphCache;
 
-        internal ResultSet(RedisResult result, IGraphCache graphCache)
+        internal ResultSet(RedisResult result, GraphCache graphCache)
         {
             if (result.Type == ResultType.MultiBulk)
             {
@@ -236,7 +237,7 @@ namespace NRedisStack.Graph
             return result;
         }
 
-        private Path DeserializePath(RedisResult[] rawPath)
+        private DataTypes.Path DeserializePath(RedisResult[] rawPath)
         {
             var deserializedNodes = (object[])DeserializeScalar((RedisResult[])rawPath[0]);
             var nodes = Array.ConvertAll(deserializedNodes, n => (Node)n);
@@ -244,7 +245,7 @@ namespace NRedisStack.Graph
             var deserializedEdges = (object[])DeserializeScalar((RedisResult[])rawPath[1]);
             var edges = Array.ConvertAll(deserializedEdges, p => (Edge)p);
 
-            return new Path(nodes, edges);
+            return new DataTypes.Path(nodes, edges);
         }
 
         private object DeserializePoint(RedisResult[] rawPath) // Should return Point?
