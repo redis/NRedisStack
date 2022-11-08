@@ -6,26 +6,17 @@ namespace NRedisStack.Graph
 {
     public class Point
     {
-
         private static readonly double EPSILON = 1e-5;
 
         private double latitude { get; }
         private double longitude { get; }
 
-        /**
-         * @param latitude
-         * @param longitude
-         */
         public Point(double latitude, double longitude)
         {
             this.latitude = latitude;
             this.longitude = longitude;
         }
 
-// TODO: delete this:
-        /**
-         * @param values {@code [latitude, longitude]}
-         */
         public Point(List<double> values)
         {
             if (values == null || values.Count != 2)
@@ -35,17 +26,6 @@ namespace NRedisStack.Graph
             this.latitude = values[0];
             this.longitude = values[1];
         }
-
-        // public double getLatitude()
-        // {
-        //     return latitude;
-        // }
-
-        // public double getLongitude()
-        // {
-        //     return longitude;
-        // }
-
 
         public override bool Equals(object other)
         {

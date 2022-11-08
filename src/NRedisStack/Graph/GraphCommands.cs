@@ -14,17 +14,13 @@ namespace NRedisStack
     {
         IDatabase _db;
 
-        /// <summary>
-        /// Creates a RedisGraph client that leverages a specified instance of `IDatabase`.
-        /// </summary>
-        /// <param name="db"></param>
         public GraphCommands(IDatabase db)
         {
             _db = db;
         }
 
         internal static readonly object CompactQueryFlag = "--COMPACT";
-        // private readonly IDatabase _db;
+
         private readonly IDictionary<string, GraphCache> _graphCaches = new Dictionary<string, GraphCache>();
 
         private GraphCache GetGraphCache(string graphId)
@@ -36,16 +32,6 @@ namespace NRedisStack
 
             return _graphCaches[graphId];
         }
-
-        // /// <summary>
-        // /// Execute a Cypher query with parameters.
-        // /// </summary>
-        // /// <param name="graphId">A graph to perform the query on.</param>
-        // /// <param name="query">The Cypher query.</param>
-        // /// <param name="parameters">Parameters map.</param>
-        // /// <returns>A result set.</returns>
-        // public ResultSet GraphQuery(string graphId, string query, IDictionary<string, object> parameters) =>
-        //     Query(graphId, query, parameters);
 
         /// <summary>
         /// Execute a Cypher query with parameters.
@@ -78,15 +64,6 @@ namespace NRedisStack
 
             return await QueryAsync(graphId, preparedQuery, timeout);
         }
-
-        // /// <summary>
-        // /// Execute a Cypher query.
-        // /// </summary>
-        // /// <param name="graphId">A graph to perform the query on.</param>
-        // /// <param name="query">The Cypher query.</param>
-        // /// <returns>A result set.</returns>
-        // public ResultSet GraphQuery(string graphId, string query) =>
-        //     Query(graphId, query);
 
         /// <summary>
         /// Execute a Cypher query.
@@ -204,48 +181,10 @@ namespace NRedisStack
             return new ResultSet(await _db.ExecuteAsync(GRAPH.RO_QUERY, args), _graphCaches[graphId]);
         }
 
-        // // TODO: Check if this and the "CommandFlags flags" is needed
-        // /// <summary>
-        // /// Execute a Cypher query, preferring a read-only node.
-        // /// </summary>
-        // /// <param name="graphId">A graph to perform the query on.</param>
-        // /// <param name="query">The Cypher query.</param>
-        // /// <param name="parameters">Parameters map.</param>
-        // /// <param name="flags">Optional command flags. `PreferReplica` is set for you here.</param>
-        // /// <returns>A result set.</returns>
-        // public ResultSet RO_Query(string graphId, string query, IDictionary<string, object> parameters, CommandFlags flags = CommandFlags.None)
-        // {
-        //     var preparedQuery = PrepareQuery(query, parameters);
-
-        //     return RO_Query(graphId, preparedQuery, flags);
-        // }
-
-        // /// <summary>
-        // /// Execute a Cypher query, preferring a read-only node.
-        // /// </summary>
-        // /// <param name="graphId">A graph to perform the query on.</param>
-        // /// <param name="query">The Cypher query.</param>
-        // /// <param name="flags">Optional command flags. `PreferReplica` is set for you here.</param>
-        // /// <returns>A result set.</returns>
-        // public ResultSet RO_Query(string graphId, string query, CommandFlags flags = CommandFlags.None)
-        // {
-        //     _graphCaches.PutIfAbsent(graphId, new ReadOnlyGraphCache(graphId, this));
-
-        //     var parameters = new Collection<object>
-        //     {
-        //         graphId,
-        //         query,
-        //         CompactQueryFlag
-        //     };
-
-        //     var result = _db.Execute(GRAPH.RO_QUERY, parameters, (flags | CommandFlags.PreferReplica));
-
-        //     return new ResultSet(result, _graphCaches[graphId]);
-        // }
-
         internal static readonly Dictionary<string, List<string>> EmptyKwargsDictionary =
             new Dictionary<string, List<string>>();
 
+        // TODO: Check if needed
         /// <summary>
         /// Call a saved procedure.
         /// </summary>
@@ -293,7 +232,7 @@ namespace NRedisStack
         /// Create a RedisGraph transaction.
         /// This leverages the "Transaction" support present in StackExchange.Redis.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>RedisGraphTransaction object</returns>
         public RedisGraphTransaction Multi() =>
             new RedisGraphTransaction(_db.CreateTransaction(), this, _graphCaches);
 
