@@ -172,7 +172,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/graph.ro_query"/></remarks>
         public ResultSet RO_Query(string graphId, string query, long? timeout = null)
         {
-            if(_graphCaches.ContainsKey(graphId) )
+            if(!_graphCaches.ContainsKey(graphId))
             {
                 _graphCaches.Add(graphId, new GraphCache(graphId, this));
             }

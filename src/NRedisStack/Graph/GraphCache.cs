@@ -6,7 +6,7 @@ namespace NRedisStack.Graph
         public GraphCacheList Labels { get; set; }
         public GraphCacheList PropertyNames { get; set; }
         public GraphCacheList RelationshipTypes { get; set; }
-        
+
         public GraphCache(string graphId, GraphCommands redisGraph)
         {
             Labels = new GraphCacheList(graphId, "db.labels", redisGraph);

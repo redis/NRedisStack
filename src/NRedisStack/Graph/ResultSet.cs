@@ -31,6 +31,10 @@ namespace NRedisStack.Graph
         private readonly RedisResult[] _rawResults;
         private readonly GraphCache _graphCache;
 
+        public Statistics Statistics { get; }
+        public Header Header { get; }
+        public int Count { get; }
+
         internal ResultSet(RedisResult result, GraphCache graphCache)
         {
             if (result.Type == ResultType.MultiBulk)
@@ -44,7 +48,7 @@ namespace NRedisStack.Graph
                 if (resultArray.Length == 3)
                 {
                     Header = new Header(resultArray[0]);
-                    Statistics = new Statistics(resultArray[2]);
+                    Statistics = ParseStatistics(resultArray[2]);
 
                     _rawResults = (RedisResult[])resultArray[1];
 
@@ -52,7 +56,7 @@ namespace NRedisStack.Graph
                 }
                 else
                 {
-                    Statistics = new Statistics(resultArray[resultArray.Length - 1]);
+                    Statistics = ParseStatistics(resultArray[resultArray.Length - 1]);
                     Count = 0;
                 }
             }
@@ -63,28 +67,10 @@ namespace NRedisStack.Graph
                     throw new RedisServerException(result.ToString());
                 }
 
-                Statistics = new Statistics(result);
+                Statistics = ParseStatistics(result);
                 Count = 0;
             }
         }
-
-        /// <summary>
-        /// RedisGraph statistics associated with this result set.
-        /// </summary>
-        /// <value></value>
-        public Statistics Statistics { get; }
-
-        /// <summary>
-        /// RedisGraph header associated with this result set.
-        /// </summary>
-        /// <value></value>
-        public Header Header { get; }
-
-        /// <summary>
-        /// Number of records in the result.
-        /// </summary>
-        /// <value></value>
-        public int Count { get; }
 
         /// <summary>
         /// Get the enumerator for this result set.
@@ -292,6 +278,32 @@ namespace NRedisStack.Graph
                     throw new RedisServerException(result.ToString());
                 }
             }
+        }
+
+        private Statistics ParseStatistics(RedisResult result)
+        {
+            RedisResult[] statistics;
+
+            if (result.Type == ResultType.MultiBulk)
+            {
+                statistics = (RedisResult[])result;
+            }
+            else
+            {
+                statistics = new[] { result };
+            }
+
+            return new Statistics(
+                ((RedisResult[])statistics).Select(x =>
+                    {
+                        var s = ((string)x).Split(':');
+
+                        return new
+                        {
+                            Label = s[0].Trim(),
+                            Value = s[1].Trim()
+                        };
+                    }).ToDictionary(k => k.Label, v => v.Value));
         }
 
         // private List<Record> parseRecords(Header header, object data)
