@@ -254,44 +254,36 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         string place = "TLV";
         int since = 2000;
 
-        Property nameProperty = new Property("name", name);
-        Property ageProperty = new Property("age", age);
-        Property doubleProperty = new Property("doubleValue", doubleValue);
-        Property trueboolProperty = new Property("boolValue", true);
-        Property falseboolProperty = new Property("boolValue", false);
-        Property placeProperty = new Property("place", place);
-        Property sinceProperty = new Property("since", since);
+        var nameProperty = new KeyValuePair<string, object>("name", name);
+        var ageProperty = new KeyValuePair<string, object>("age", age);
+        var doubleProperty = new KeyValuePair<string, object>("doubleValue", doubleValue);
+        var trueboolProperty = new KeyValuePair<string, object>("boolValue", true);
+        var falseboolProperty = new KeyValuePair<string, object>("boolValue", false);
+        var placeProperty = new KeyValuePair<string, object>("place", place);
+        var sinceProperty = new KeyValuePair<string, object>("since", since);
 
         Node expectedNode = new Node();
         expectedNode.Id = 0;
         expectedNode.AddLabel("person");
-        expectedNode.AddProperty(nameProperty);
-        expectedNode.AddProperty(ageProperty);
-        expectedNode.AddProperty(doubleProperty);
-        expectedNode.AddProperty(trueboolProperty);
+        expectedNode.PropertyMap.Add(nameProperty);
+        expectedNode.PropertyMap.Add(ageProperty);
+        expectedNode.PropertyMap.Add(doubleProperty);
+        expectedNode.PropertyMap.Add(trueboolProperty);
         Assert.Equal(
                 "Node{labels=[person], id=0, "
-                        + "propertyMap={name=Property{name='name', value=roi}, "
-                        + "age=Property{name='age', value=32}, "
-                        + "doubleValue=Property{name='doubleValue', value=3.14}, "
-                        + "boolValue=Property{name='boolValue', value=True}}}",
+                        + "propertyMap={name=roi, age=32, doubleValue=3.14, boolValue=True}}",
                 expectedNode.ToString());
-        // "Node{labels=[person], id=0, propertyMap={name=Property{name='name', value=roi}, age=Property{name='age', value=32}, doubleValue=Property{name='doubleValue', value=3.14}, boolValue=Property{name='boolValue', value=True}}}"
-        // "Node{labels=[person], id=0, propertyMap={name=Property{name='name', value=roi}, boolValue=Property{name='boolValue', value=true}, doubleValue=Property{name='doubleValue', value=3.14}, age=Property{name='age', value=32}}}"
         Edge expectedEdge = new Edge();
         expectedEdge.Id = 0;
         expectedEdge.Source = 0;
         expectedEdge.Destination = 1;
         expectedEdge.RelationshipType = "knows";
-        expectedEdge.AddProperty(placeProperty);
-        expectedEdge.AddProperty(sinceProperty);
-        expectedEdge.AddProperty(doubleProperty);
-        expectedEdge.AddProperty(falseboolProperty);
+        expectedEdge.PropertyMap.Add(placeProperty);
+        expectedEdge.PropertyMap.Add(sinceProperty);
+        expectedEdge.PropertyMap.Add(doubleProperty);
+        expectedEdge.PropertyMap.Add(falseboolProperty);
         Assert.Equal("Edge{relationshipType='knows', source=0, destination=1, id=0, "
-                + "propertyMap={place=Property{name='place', value=TLV}, "
-                + "since=Property{name='since', value=2000}, "
-                + "doubleValue=Property{name='doubleValue', value=3.14}, "
-                + "boolValue=Property{name='boolValue', value=False}}}", expectedEdge.ToString());
+                + "propertyMap={place=TLV, since=2000, doubleValue=3.14, boolValue=False}}", expectedEdge.ToString());
 
         Dictionary<string, object> parameters = new Dictionary<string, object>();
         parameters.Add("name", name);
@@ -386,15 +378,15 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
                 "MATCH (a:person), (b:person) WHERE (a.name = 'roi' AND b.name='amit')  CREATE (a)-[:knows]->(b)"));
 
         // expected objects init
-        Property nameProperty = new Property("name", "roi");
-        Property ageProperty = new Property("age", 32);
-        Property lastNameProperty = new Property("lastName", "a");
+        var nameProperty = new KeyValuePair<string, object>("name", "roi");
+        var ageProperty = new KeyValuePair<string, object>("age", 32);
+        var lastNameProperty = new KeyValuePair<string, object>("lastName", "a");
 
         Node expectedNode = new Node();
         expectedNode.Id = 0;
         expectedNode.AddLabel("person");
-        expectedNode.AddProperty(nameProperty);
-        expectedNode.AddProperty(ageProperty);
+        expectedNode.PropertyMap.Add(nameProperty);
+        expectedNode.PropertyMap.Add(ageProperty);
 
         Edge expectedEdge = new Edge();
         expectedEdge.Id = 0;
@@ -421,9 +413,9 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         // test for local cache updates
 
-        expectedNode.RemoveProperty("name");
-        expectedNode.RemoveProperty("age");
-        expectedNode.AddProperty(lastNameProperty);
+        expectedNode.PropertyMap.Remove("name");
+        expectedNode.PropertyMap.Remove("age");
+        expectedNode.PropertyMap.Add(lastNameProperty);
         expectedNode.RemoveLabel("person");
         expectedNode.AddLabel("worker");
         expectedNode.Id = 2;
@@ -482,22 +474,22 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Node expectedANode = new Node();
         expectedANode.Id = 0;
         expectedANode.AddLabel("person");
-        Property aNameProperty = new Property("name", "a");
-        Property aAgeProperty = new Property("age", 32L);
-        var aListProperty = new Property("array", new object[] { 0L, 1L, 2L });
-        expectedANode.AddProperty(aNameProperty);
-        expectedANode.AddProperty(aAgeProperty);
-        expectedANode.AddProperty(aListProperty);
+        var aNameProperty = new KeyValuePair<string, object>("name", "a");
+        var aAgeProperty = new KeyValuePair<string, object>("age", 32L);
+        var aListProperty = new KeyValuePair<string, object>("array", new object[] { 0L, 1L, 2L });
+        expectedANode.PropertyMap.Add(aNameProperty);
+        expectedANode.PropertyMap.Add(aAgeProperty);
+        expectedANode.PropertyMap.Add(aListProperty);
 
         Node expectedBNode = new Node();
         expectedBNode.Id = 1;
         expectedBNode.AddLabel("person");
-        Property bNameProperty = new Property("name", "b");
-        Property bAgeProperty = new Property("age", 30L);
-        var bListProperty = new Property("array", new object[] { 3L, 4L, 5L });
-        expectedBNode.AddProperty(bNameProperty);
-        expectedBNode.AddProperty(bAgeProperty);
-        expectedBNode.AddProperty(bListProperty);
+        var bNameProperty = new KeyValuePair<string, object>("name", "b");
+        var bAgeProperty = new KeyValuePair<string, object>("age", 30L);
+        var bListProperty = new KeyValuePair<string, object>("array", new object[] { 3L, 4L, 5L });
+        expectedBNode.PropertyMap.Add(bNameProperty);
+        expectedBNode.PropertyMap.Add(bAgeProperty);
+        expectedBNode.PropertyMap.Add(bListProperty);
 
         Assert.NotNull(graph.Query("social", "CREATE (:person{name:'a',age:32,array:[0,1,2]})"));
         Assert.NotNull(graph.Query("social", "CREATE (:person{name:'b',age:30,array:[3,4,5]})"));
@@ -798,9 +790,9 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, record.Current.Size);
         Assert.Equal(new List<string>() { "restaurant" }, record.Current.Keys);
         Node node = record.Current.GetValue<Node>(0);
-        Property property = node.PropertyMap["location"];
+        var property = node.PropertyMap["location"];
 
-        Assert.Equal((object)(new Point(30.27822306, -97.75134723)), property.Value);
+        Assert.Equal((object)(new Point(30.27822306, -97.75134723)), property);
     }
 
     [Fact]
@@ -1037,12 +1029,12 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         Assert.Equal("n", schemaNames[0]);
 
-        var nameProperty = new Property("name", "a");
+        var nameProperty = new KeyValuePair<string, object>("name", "a");
 
         var expectedNode = new Node();
         expectedNode.Id = 0;
         expectedNode.AddLabel("Person");
-        expectedNode.AddProperty(nameProperty);
+        expectedNode.PropertyMap.Add(nameProperty);
 
         // See that the result were pulled from the right graph.
 
@@ -1319,27 +1311,24 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         string place = "TLV";
         int since = 2000;
 
-        Property nameProperty = new Property("name", name);
-        Property ageProperty = new Property("age", age);
-        Property doubleProperty = new Property("doubleValue", doubleValue);
-        Property trueboolProperty = new Property("boolValue", true);
-        Property falseboolProperty = new Property("boolValue", false);
-        Property placeProperty = new Property("place", place);
-        Property sinceProperty = new Property("since", since);
+        var nameProperty = new KeyValuePair<string, object>("name", name);
+        var ageProperty = new KeyValuePair<string, object>("age", age);
+        var doubleProperty = new KeyValuePair<string, object>("doubleValue", doubleValue);
+        var trueboolProperty = new KeyValuePair<string, object>("boolValue", true);
+        var falseboolProperty = new KeyValuePair<string, object>("boolValue", false);
+        var placeProperty = new KeyValuePair<string, object>("place", place);
+        var sinceProperty = new KeyValuePair<string, object>("since", since);
 
         Node expectedNode = new Node();
         expectedNode.Id = 0;
         expectedNode.AddLabel("person");
-        expectedNode.AddProperty(nameProperty);
-        expectedNode.AddProperty(ageProperty);
-        expectedNode.AddProperty(doubleProperty);
-        expectedNode.AddProperty(trueboolProperty);
+        expectedNode.PropertyMap.Add(nameProperty);
+        expectedNode.PropertyMap.Add(ageProperty);
+        expectedNode.PropertyMap.Add(doubleProperty);
+        expectedNode.PropertyMap.Add(trueboolProperty);
         Assert.Equal(
-                "Node{labels=[person], id=0, "
-                        + "propertyMap={name=Property{name='name', value=roi}, "
-                        + "age=Property{name='age', value=32}, "
-                        + "doubleValue=Property{name='doubleValue', value=3.14}, "
-                        + "boolValue=Property{name='boolValue', value=True}}}",
+               "Node{labels=[person], id=0, "
+                        + "propertyMap={name=roi, age=32, doubleValue=3.14, boolValue=True}}",
                 expectedNode.ToString());
         // "Node{labels=[person], id=0, propertyMap={name=Property{name='name', value=roi}, age=Property{name='age', value=32}, doubleValue=Property{name='doubleValue', value=3.14}, boolValue=Property{name='boolValue', value=True}}}"
         // "Node{labels=[person], id=0, propertyMap={name=Property{name='name', value=roi}, boolValue=Property{name='boolValue', value=true}, doubleValue=Property{name='doubleValue', value=3.14}, age=Property{name='age', value=32}}}"
@@ -1348,15 +1337,12 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         expectedEdge.Source = 0;
         expectedEdge.Destination = 1;
         expectedEdge.RelationshipType = "knows";
-        expectedEdge.AddProperty(placeProperty);
-        expectedEdge.AddProperty(sinceProperty);
-        expectedEdge.AddProperty(doubleProperty);
-        expectedEdge.AddProperty(falseboolProperty);
+        expectedEdge.PropertyMap.Add(placeProperty);
+        expectedEdge.PropertyMap.Add(sinceProperty);
+        expectedEdge.PropertyMap.Add(doubleProperty);
+        expectedEdge.PropertyMap.Add(falseboolProperty);
         Assert.Equal("Edge{relationshipType='knows', source=0, destination=1, id=0, "
-                + "propertyMap={place=Property{name='place', value=TLV}, "
-                + "since=Property{name='since', value=2000}, "
-                + "doubleValue=Property{name='doubleValue', value=3.14}, "
-                + "boolValue=Property{name='boolValue', value=False}}}", expectedEdge.ToString());
+                + "propertyMap={place=TLV, since=2000, doubleValue=3.14, boolValue=False}}", expectedEdge.ToString());
 
         Dictionary<string, object> parameters = new Dictionary<string, object>();
         parameters.Add("name", name);
@@ -1451,15 +1437,15 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
                 "MATCH (a:person), (b:person) WHERE (a.name = 'roi' AND b.name='amit')  CREATE (a)-[:knows]->(b)"));
 
         // expected objects init
-        Property nameProperty = new Property("name", "roi");
-        Property ageProperty = new Property("age", 32);
-        Property lastNameProperty = new Property("lastName", "a");
+        var nameProperty = new KeyValuePair<string, object>("name", "roi");
+        var ageProperty = new KeyValuePair<string, object>("age", 32);
+        var lastNameProperty = new KeyValuePair<string, object>("lastName", "a");
 
         Node expectedNode = new Node();
         expectedNode.Id = 0;
         expectedNode.AddLabel("person");
-        expectedNode.AddProperty(nameProperty);
-        expectedNode.AddProperty(ageProperty);
+        expectedNode.PropertyMap.Add(nameProperty);
+        expectedNode.PropertyMap.Add(ageProperty);
 
         Edge expectedEdge = new Edge();
         expectedEdge.Id = 0;
@@ -1486,9 +1472,9 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         // test for local cache updates
 
-        expectedNode.RemoveProperty("name");
-        expectedNode.RemoveProperty("age");
-        expectedNode.AddProperty(lastNameProperty);
+        expectedNode.PropertyMap.Remove("name");
+        expectedNode.PropertyMap.Remove("age");
+        expectedNode.PropertyMap.Add(lastNameProperty);
         expectedNode.RemoveLabel("person");
         expectedNode.AddLabel("worker");
         expectedNode.Id = 2;
@@ -1547,22 +1533,22 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Node expectedANode = new Node();
         expectedANode.Id = 0;
         expectedANode.AddLabel("person");
-        Property aNameProperty = new Property("name", "a");
-        Property aAgeProperty = new Property("age", 32L);
-        var aListProperty = new Property("array", new object[] { 0L, 1L, 2L });
-        expectedANode.AddProperty(aNameProperty);
-        expectedANode.AddProperty(aAgeProperty);
-        expectedANode.AddProperty(aListProperty);
+        var aNameProperty = new KeyValuePair<string, object>("name", "a");
+        var aAgeProperty = new KeyValuePair<string, object>("age", 32L);
+        var aListProperty = new KeyValuePair<string, object>("array", new object[] { 0L, 1L, 2L });
+        expectedANode.PropertyMap.Add(aNameProperty);
+        expectedANode.PropertyMap.Add(aAgeProperty);
+        expectedANode.PropertyMap.Add(aListProperty);
 
         Node expectedBNode = new Node();
         expectedBNode.Id = 1;
         expectedBNode.AddLabel("person");
-        Property bNameProperty = new Property("name", "b");
-        Property bAgeProperty = new Property("age", 30L);
-        var bListProperty = new Property("array", new object[] { 3L, 4L, 5L });
-        expectedBNode.AddProperty(bNameProperty);
-        expectedBNode.AddProperty(bAgeProperty);
-        expectedBNode.AddProperty(bListProperty);
+        var bNameProperty = new KeyValuePair<string, object>("name", "b");
+        var bAgeProperty = new KeyValuePair<string, object>("age", 30L);
+        var bListProperty = new KeyValuePair<string, object>("array", new object[] { 3L, 4L, 5L });
+        expectedBNode.PropertyMap.Add(bNameProperty);
+        expectedBNode.PropertyMap.Add(bAgeProperty);
+        expectedBNode.PropertyMap.Add(bListProperty);
 
         Assert.NotNull(await graph.QueryAsync("social", "CREATE (:person{name:'a',age:32,array:[0,1,2]})"));
         Assert.NotNull(await graph.QueryAsync("social", "CREATE (:person{name:'b',age:30,array:[3,4,5]})"));
@@ -1863,9 +1849,9 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, record.Current.Size);
         Assert.Equal(new List<string>() { "restaurant" }, record.Current.Keys);
         Node node = record.Current.GetValue<Node>(0);
-        Property property = node.PropertyMap["location"];
+        var property = node.PropertyMap["location"];
 
-        Assert.Equal((object)(new Point(30.27822306, -97.75134723)), property.Value);
+        Assert.Equal((object)(new Point(30.27822306, -97.75134723)), property);
     }
 
     [Fact]

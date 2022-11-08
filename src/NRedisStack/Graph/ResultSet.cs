@@ -201,13 +201,11 @@ namespace NRedisStack.Graph
         {
             foreach (RedisResult[] rawProperty in rawProperties)
             {
-                var property = new Property
-                {
-                    Name = _graphCache.GetPropertyName((int)rawProperty[0]),
-                    Value = DeserializeScalar(rawProperty.Skip(1).ToArray())
-                };
+                var Key = _graphCache.GetPropertyName((int)rawProperty[0]);
+                var Value = DeserializeScalar(rawProperty.Skip(1).ToArray());
 
-                graphEntity.AddProperty(property);
+                graphEntity.PropertyMap.Add(Key, Value);
+
             }
         }
 
