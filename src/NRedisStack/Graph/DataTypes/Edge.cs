@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Text;
 
 namespace NRedisStack.Graph.DataTypes
@@ -19,13 +18,13 @@ namespace NRedisStack.Graph.DataTypes
         /// The ID of the source node.
         /// </summary>
         /// <value></value>
-        public int Source { get; set; }
+        public long Source { get; set; }
 
         /// <summary>
         /// The ID of the desination node.
         /// </summary>
         /// <value></value>
-        public int Destination { get; set; }
+        public long Destination { get; set; }
 
         /// <summary>
         /// Overriden from the base `Equals` implementation. In addition to the expected behavior of checking

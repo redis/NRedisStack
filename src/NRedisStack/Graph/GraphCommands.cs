@@ -1,7 +1,5 @@
-using System.Collections.ObjectModel;
 using System.Text;
 using NRedisStack.Graph;
-using NRedisStack.Graph.DataTypes;
 using NRedisStack.Literals;
 using StackExchange.Redis;
 using static NRedisStack.Graph.RedisGraphUtilities;
@@ -228,6 +226,7 @@ namespace NRedisStack
             return Query(graphName, queryBody.ToString());
         }
 
+        // TODO: Check if needed
         /// <summary>
         /// Create a RedisGraph transaction.
         /// This leverages the "Transaction" support present in StackExchange.Redis.
@@ -403,7 +402,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/graph.config-set"/></remarks>
         public bool ConfigSet(string configName, object value)
         {
-            return _db.Execute(GRAPH.CONFIG, "SET", configName, value).OKtoBoolean();
+            return _db.Execute(GRAPH.CONFIG, GraphArgs.SET, configName, value).OKtoBoolean();
         }
 
         /// <summary>
@@ -415,7 +414,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/graph.config-set"/></remarks>
         public async Task<bool> ConfigSetAsync(string configName, object value)
         {
-            return (await _db.ExecuteAsync(GRAPH.CONFIG, "SET", configName, value)).OKtoBoolean();
+            return (await _db.ExecuteAsync(GRAPH.CONFIG, GraphArgs.SET, configName, value)).OKtoBoolean();
         }
 
         /// <summary>
@@ -426,7 +425,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/graph.config-get"/></remarks>
         public Dictionary<string, RedisResult> ConfigGet(string configName)
         {
-            return _db.Execute(GRAPH.CONFIG, "GET", configName).ToDictionary();
+            return _db.Execute(GRAPH.CONFIG, GraphArgs.GET, configName).ToDictionary();
         }
 
         /// <summary>
@@ -437,11 +436,11 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/graph.config-get"/></remarks>
         public async Task<Dictionary<string, RedisResult>> ConfigGetAsync(string configName)
         {
-            return (await _db.ExecuteAsync(GRAPH.CONFIG, "GET", configName)).ToDictionary();
+            return (await _db.ExecuteAsync(GRAPH.CONFIG, GraphArgs.GET, configName)).ToDictionary();
         }
 
         /// <summary>
-        /// Returns a list containing up to 10 of the slowest queries issued against the given graph ID.
+        /// Returns a list containing up to 10 of the slowest queries issued against the given graph Name.
         /// </summary>
         /// <param name="graphName">The graph name.</param>
         /// <returns>Dictionary of <string, object>.</returns>
@@ -459,7 +458,7 @@ namespace NRedisStack
         }
 
         /// <summary>
-        /// Returns a list containing up to 10 of the slowest queries issued against the given graph ID.
+        /// Returns a list containing up to 10 of the slowest queries issued against the given graph Name.
         /// </summary>
         /// <param name="graphName">The graph name.</param>
         /// <returns>Dictionary of <string, object>.</returns>

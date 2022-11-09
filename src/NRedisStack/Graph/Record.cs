@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace NRedisStack.Graph
@@ -9,21 +7,12 @@ namespace NRedisStack.Graph
     /// </summary>
     public sealed class Record
     {
-        /// <summary>
-        /// Keys associated with a record.
-        /// </summary>
-        /// <value></value>
-        public List<string> Keys { get; }
-
-        /// <summary>
-        /// Values associated with a record.
-        /// </summary>
-        /// <value></value>
+        public List<string> Header { get; }
         public List<object> Values { get; }
 
         internal Record(List<string> header, List<object> values)
         {
-            Keys = header;
+            Header = header;
             Values = values;
         }
 
@@ -41,7 +30,7 @@ namespace NRedisStack.Graph
         /// <param name="key">The key of the value you want to get.</param>
         /// <typeparam name="T">The type of the value that corresponds to the key that you specified.</typeparam>
         /// <returns>The value that corresponds to the key that you specified.</returns>
-        public T GetValue<T>(string key) => (T)Values[Keys.IndexOf(key)];
+        public T GetValue<T>(string key) => (T)Values[Header.IndexOf(key)];
 
         /// <summary>
         /// Gets the string representation of a value at the given index.
@@ -55,19 +44,19 @@ namespace NRedisStack.Graph
         /// </summary>
         /// <param name="key">The key of the value that you want to get.</param>
         /// <returns>The string value at the key that you specified.</returns>
-        public string GetString(string key) => Values[Keys.IndexOf(key)].ToString();
+        public string GetString(string key) => Values[Header.IndexOf(key)].ToString();
 
         /// <summary>
         /// Does the key exist in the record?
         /// </summary>
         /// <param name="key">The key to check.</param>
         /// <returns></returns>
-        public bool ContainsKey(string key) => Keys.Contains(key);
+        public bool ContainsKey(string key) => Header.Contains(key);
 
         /// <summary>
         /// How many keys are in the record?
         /// </summary>
-        public int Size => Keys.Count;
+        public int Size => Header.Count;
 
         /// <summary>
         /// Overridden method that compares the keys and values of a record with another record.
@@ -86,7 +75,7 @@ namespace NRedisStack.Graph
                 return false;
             }
 
-            return Enumerable.SequenceEqual(Keys, that.Keys) && Enumerable.SequenceEqual(Values, that.Values);
+            return Enumerable.SequenceEqual(Header, that.Header) && Enumerable.SequenceEqual(Values, that.Values);
         }
 
         /// <summary>
@@ -99,7 +88,7 @@ namespace NRedisStack.Graph
             {
                 int hash = 17;
 
-                hash = hash * 31 + Keys.GetHashCode();
+                hash = hash * 31 + Header.GetHashCode();
                 hash = hash * 31 + Values.GetHashCode();
 
                 return hash;

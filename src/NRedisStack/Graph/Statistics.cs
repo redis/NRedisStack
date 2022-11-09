@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using StackExchange.Redis;
 namespace NRedisStack.Graph
 {
     /// <summary>
@@ -14,14 +10,28 @@ namespace NRedisStack.Graph
         internal Statistics(Dictionary<string, string> statistics)
         {
             _statistics = statistics;
-        }
 
-        /// <summary>
-        /// Retrieves the relevant statistic.
-        /// </summary>
-        /// <param name="label">The requested statistic label.</param>
-        /// <returns>A string representation of the specific statistic or null</returns>
-        public string? GetStringValue(string label) =>
+        NodesCreated = GetIntValue("Nodes created");
+        NodesDeleted = GetIntValue("Nodes deleted");
+        IndicesAdded = GetIntValue("Indices added");
+        IndicesCreated = GetIntValue("Indices created");
+        IndicesDeleted = GetIntValue("Indices deleted");
+        LabelsAdded = GetIntValue("Labels added");
+        RelationshipsDeleted = GetIntValue("Relationships deleted");
+        RelationshipsCreated = GetIntValue("Relationships created");
+        PropertiesSet = GetIntValue("Properties set");
+        QueryInternalExecutionTime = GetStringValue("Query internal execution time");
+        GraphRemovedInternalExecutionTime = GetStringValue("Graph removed, internal execution time");
+        CachedExecution = (GetIntValue("Cached execution") == 1);
+
+    }
+
+    /// <summary>
+    /// Retrieves the relevant statistic.
+    /// </summary>
+    /// <param name="label">The requested statistic label.</param>
+    /// <returns>A string representation of the specific statistic or null</returns>
+    public string? GetStringValue(string label) =>
                 _statistics.TryGetValue(label, out string? value) ? value : null;
 
 
@@ -35,70 +45,70 @@ namespace NRedisStack.Graph
         /// Number of nodes created.
         /// </summary>
         /// <returns></returns>
-        public int NodesCreated => GetIntValue("Nodes created");
+        public int NodesCreated { get; }
 
         /// <summary>
         /// Number of nodes deleted.
         /// </summary>
         /// <returns></returns>
-        public int NodesDeleted => GetIntValue("Nodes deleted");
+        public int NodesDeleted { get; }
 
         /// <summary>
         /// Number of indices added.
         /// </summary>
         /// <returns></returns>
-        public int IndicesAdded => GetIntValue("Indices added");
+        public int IndicesAdded { get; }
 
         /// <summary>
         /// Number of indices created.
         /// </summary>
         /// <returns></returns>
-        public int IndicesCreated => GetIntValue("Indices created");
+        public int IndicesCreated { get; }
 
         /// <summary>
         /// Number of indices deleted.
         /// </summary>
-        public int IndicesDeleted => GetIntValue("Indices deleted");
+        public int IndicesDeleted { get; }
 
         /// <summary>
         /// Number of labels added.
         /// </summary>
         /// <returns></returns>
-        public int LabelsAdded => GetIntValue("Labels added");
+        public int LabelsAdded { get; }
 
         /// <summary>
         /// Number of relationships deleted.
         /// </summary>
         /// <returns></returns>
-        public int RelationshipsDeleted => GetIntValue("Relationships deleted");
+        public int RelationshipsDeleted { get; }
 
         /// <summary>
         /// Number of relationships created.
         /// </summary>
         /// <returns></returns>
-        public int RelationshipsCreated => GetIntValue("Relationships created");
+        public int RelationshipsCreated { get; }
 
         /// <summary>
         /// Number of properties set.
         /// </summary>
         /// <returns></returns>
-        public int PropertiesSet => GetIntValue("Properties set");
+        public int PropertiesSet { get; }
 
         /// <summary>
         /// How long the query took to execute.
         /// </summary>
         /// <returns></returns>
-        public string QueryInternalExecutionTime => GetStringValue("Query internal execution time");
+        public string QueryInternalExecutionTime { get; }
 
         /// <summary>
         /// How long it took to remove a graph.
         /// </summary>
         /// <returns></returns>
-        public string GraphRemovedInternalExecutionTime => GetStringValue("Graph removed, internal execution time");
+        public string GraphRemovedInternalExecutionTime { get; }
 
         /// <summary>
         /// The execution plan was cached on RedisGraph.
         /// </summary>
-        public bool CachedExecution => GetIntValue("Cached execution") == 1;
+        public bool CachedExecution { get; }
     }
 }

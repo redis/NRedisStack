@@ -1,7 +1,4 @@
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using NRedisStack.Literals;
 using StackExchange.Redis;
 using static NRedisStack.Graph.RedisGraphUtilities;
@@ -11,17 +8,17 @@ namespace NRedisStack.Graph
     /// <summary>
     /// Allows for executing a series of RedisGraph queries as a single unit.
     /// </summary>
-    public class RedisGraphTransaction
+    public class RedisGraphTransaction // TODO: check if needed
     {
         private class TransactionResult
         {
-            public string GraphId { get; }
+            public string GraphName { get; }
 
             public Task<RedisResult> PendingTask { get; }
 
-            public TransactionResult(string graphId, Task<RedisResult> pendingTask)
+            public TransactionResult(string graphName, Task<RedisResult> pendingTask)
             {
-                GraphId = graphId;
+                GraphName = graphName;
                 PendingTask = pendingTask;
             }
         }
@@ -42,31 +39,31 @@ namespace NRedisStack.Graph
         /// <summary>
         /// Execute a RedisGraph query with parameters.
         /// </summary>
-        /// <param name="graphId">A graph to execute the query against.</param>
+        /// <param name="graphName">A graph to execute the query against.</param>
         /// <param name="query">The Cypher query.</param>
         /// <param name="parameters">The parameters for the query.</param>
         /// <returns>A ValueTask, the actual result isn't known until `Exec` or `ExecAsync` is invoked.</returns>
-        public ValueTask QueryAsync(string graphId, string query, IDictionary<string, object> parameters)
+        public ValueTask QueryAsync(string graphName, string query, IDictionary<string, object> parameters)
         {
             var preparedQuery = PrepareQuery(query, parameters);
 
-            return QueryAsync(graphId, preparedQuery);
+            return QueryAsync(graphName, preparedQuery);
         }
 
         /// <summary>
         /// Execute a RedisGraph query with parameters.
         /// </summary>
-        /// <param name="graphId">A graph to execute the query against.</param>
+        /// <param name="graphName">A graph to execute the query against.</param>
         /// <param name="query">The Cypher query.</param>
         /// <returns>A ValueTask, the actual result isn't known until `Exec` or `ExecAsync` is invoked.</returns>
-        public ValueTask QueryAsync(string graphId, string query)
+        public ValueTask QueryAsync(string graphName, string query)
         {
-            if(!_graphCaches.ContainsKey(graphId))
+            if(!_graphCaches.ContainsKey(graphName))
             {
-                _graphCaches.Add(graphId, new GraphCache(graphId, _redisGraph));
+                _graphCaches.Add(graphName, new GraphCache(graphName, _redisGraph));
             }
 
-            _pendingTasks.Add(new TransactionResult(graphId, _transaction.ExecuteAsync(GRAPH.QUERY, graphId, query, GraphCommands.CompactQueryFlag)));
+            _pendingTasks.Add(new TransactionResult(graphName, _transaction.ExecuteAsync(GRAPH.QUERY, graphName, query, GraphCommands.CompactQueryFlag)));
 
             return default(ValueTask);
         }
@@ -74,21 +71,21 @@ namespace NRedisStack.Graph
         /// <summary>
         /// Execute a saved procedure.
         /// </summary>
-        /// <param name="graphId">The graph containing the saved procedure.</param>
+        /// <param name="graphName">The graph containing the saved procedure.</param>
         /// <param name="procedure">The procedure name.</param>
         /// <returns>A ValueTask, the actual result isn't known until `Exec` or `ExecAsync` is invoked.</returns>
-        public ValueTask CallProcedureAsync(string graphId, string procedure) =>
-            CallProcedureAsync(graphId, procedure, Enumerable.Empty<string>(), GraphCommands.EmptyKwargsDictionary);
+        public ValueTask CallProcedureAsync(string graphName, string procedure) =>
+            CallProcedureAsync(graphName, procedure, Enumerable.Empty<string>(), GraphCommands.EmptyKwargsDictionary);
 
         /// <summary>
         /// Execute a saved procedure with parameters.
         /// </summary>
-        /// <param name="graphId">The graph containing the saved procedure.</param>
+        /// <param name="graphName">The graph containing the saved procedure.</param>
         /// <param name="procedure">The procedure name.</param>
         /// <param name="args">A collection of positional arguments.</param>
         /// <param name="kwargs">A collection of keyword arguments.</param>
         /// <returns>A ValueTask, the actual result isn't known until `Exec` or `ExecAsync` is invoked.</returns>
-        public ValueTask CallProcedureAsync(string graphId, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs)
+        public ValueTask CallProcedureAsync(string graphName, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs)
         {
             args = args.Select(QuoteString);
 
@@ -101,19 +98,19 @@ namespace NRedisStack.Graph
                 queryBody.Append(string.Join(",", kwargsList));
             }
 
-            return QueryAsync(graphId, queryBody.ToString());
+            return QueryAsync(graphName, queryBody.ToString());
         }
 
         /// <summary>
         /// Delete a graph.
         /// </summary>
-        /// <param name="graphId">The name of the graph to delete.</param>
+        /// <param name="graphName">The name of the graph to delete.</param>
         /// <returns>A ValueTask, the actual result isn't known until `Exec` or `ExecAsync` is invoked.</returns>
-        public ValueTask DeleteGraphAsync(string graphId)
+        public ValueTask DeleteGraphAsync(string graphName)
         {
-            _pendingTasks.Add(new TransactionResult(graphId, _transaction.ExecuteAsync(GRAPH.DELETE, graphId)));
+            _pendingTasks.Add(new TransactionResult(graphName, _transaction.ExecuteAsync(GRAPH.DELETE, graphName)));
 
-            _graphCachesToRemove.Add(graphId);
+            _graphCachesToRemove.Add(graphName);
 
             return default(ValueTask);
         }
@@ -131,9 +128,9 @@ namespace NRedisStack.Graph
             for (var i = 0; i < _pendingTasks.Count; i++)
             {
                 var result = _pendingTasks[i].PendingTask.Result;
-                var graphId = _pendingTasks[i].GraphId;
+                var graphName = _pendingTasks[i].GraphName;
 
-                results[i] = new ResultSet(result, _graphCaches[graphId]);
+                results[i] = new ResultSet(result, _graphCaches[graphName]);
             }
 
             ProcessPendingGraphCacheRemovals();
@@ -154,9 +151,9 @@ namespace NRedisStack.Graph
             for (var i = 0; i < _pendingTasks.Count; i++)
             {
                 var result = _pendingTasks[i].PendingTask.Result;
-                var graphId = _pendingTasks[i].GraphId;
+                var graphName = _pendingTasks[i].GraphName;
 
-                results[i] = new ResultSet(result, _graphCaches[graphId]);
+                results[i] = new ResultSet(result, _graphCaches[graphName]);
             }
 
             ProcessPendingGraphCacheRemovals();

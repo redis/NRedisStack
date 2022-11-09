@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using StackExchange.Redis;
 namespace NRedisStack.Graph
 {
@@ -14,32 +11,16 @@ namespace NRedisStack.Graph
         /// </summary>
         public enum ResultSetColumnTypes
         {
-            /// <summary>
-            /// Who can say?
-            /// </summary>
             UNKNOWN,
-
-            /// <summary>
-            /// A single value.
-            /// </summary>
             SCALAR,
-
-            /// <summary>
-            /// Refers to an actual node.
-            /// </summary>
             NODE,
-
-            /// <summary>
-            /// Refers to a relation.
-            /// </summary>
             RELATION
         }
 
         /// <summary>
         /// Collection of the schema types present in the header.
         /// </summary>
-        /// <value></value>
-        [Obsolete("SchemaType is no longer supported after RedisGraph 2.1 and will always return COLUMN_SCALAR")]
+        // [Obsolete("SchemaType is no longer supported after RedisGraph 2.1 and will always return COLUMN_SCALAR")] // TODO: it's correct?
         public List<ResultSetColumnTypes> SchemaTypes { get; }
 
         /// <summary>

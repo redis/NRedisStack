@@ -338,7 +338,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expectedEdge.ToString(), edge.ToString());
 
         Assert.Equal(new List<string>(){"a", "r", "a.name", "a.age", "a.doubleValue", "a.boolValue",
-                "r.place", "r.since", "r.doubleValue", "r.boolValue"}, record.Keys);
+                "r.place", "r.since", "r.doubleValue", "r.boolValue"}, record.Header);
 
         List<object> expectedList = new List<object>() {expectedNode, expectedEdge,
                 name, (long)age, doubleValue, true,
@@ -407,7 +407,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.True(iterator.MoveNext());
         var record = iterator.Current;
         Assert.False(iterator.MoveNext());
-        Assert.Equal(new List<string>() { "a", "r" }, record.Keys);
+        Assert.Equal(new List<string>() { "a", "r" }, record.Header);
         Assert.Equal(expectedNode.ToString(), record.Values[0].ToString());
         Assert.Equal(expectedEdge.ToString(), record.Values[1].ToString());
 
@@ -440,7 +440,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.True(iterator.MoveNext());
         record = iterator.Current;
         Assert.False(iterator.MoveNext());
-        Assert.Equal(new List<string> { "a", "r" }, record.Keys);
+        Assert.Equal(new List<string> { "a", "r" }, record.Header);
         Assert.Equal(expectedNode.ToString(), record.Values[0].ToString());
         Assert.Equal(expectedEdge.ToString(), record.Values[1].ToString());
     }
@@ -513,7 +513,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.True(iterator.MoveNext());
         NRedisStack.Graph.Record record = iterator.Current;
         Assert.False(iterator.MoveNext());
-        Assert.Equal(new List<string>() { "x" }, record.Keys);
+        Assert.Equal(new List<string>() { "x" }, record.Header);
 
         var x = record.GetValue<object[]>("x");
         Assert.Equal(new object[] { 0L, 1L, 2L }, x);
@@ -535,7 +535,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.True(iterator.MoveNext());
         record = iterator.Current;
         Assert.False(iterator.MoveNext());
-        Assert.Equal(new List<string>() { "x" }, record.Keys);
+        Assert.Equal(new List<string>() { "x" }, record.Header);
         var x2 = record.GetValue<object[]>("x");
 
         Assert.Equal(expectedANode.ToString(), x2[0].ToString());
@@ -559,7 +559,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         {
             Assert.True(iterator.MoveNext());
             record = iterator.Current;
-            Assert.Equal(new List<string>() { "x" }, record.Keys);
+            Assert.Equal(new List<string>() { "x" }, record.Header);
             Assert.Equal(i, (long)record.GetValue<long>("x"));
         }
     }
@@ -788,7 +788,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         var record = results.GetEnumerator();
         record.MoveNext();
         Assert.Equal(1, record.Current.Size);
-        Assert.Equal(new List<string>() { "restaurant" }, record.Current.Keys);
+        Assert.Equal(new List<string>() { "restaurant" }, record.Current.Header);
         Node node = record.Current.GetValue<Node>(0);
         var property = node.PropertyMap["location"];
 
@@ -1041,7 +1041,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Single(resultSet);
 
         var record = resultSet.First();
-        Assert.Equal(new List<string> { "n" }, record.Keys);
+        Assert.Equal(new List<string> { "n" }, record.Header);
         Assert.Equal(expectedNode, record.GetValue<Node>("n"));
 
         resultSet = results[4];
@@ -1063,7 +1063,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         record = resultSet.First();
 
-        Assert.Equal(new List<string> { "label" }, record.Keys);
+        Assert.Equal(new List<string> { "label" }, record.Header);
         Assert.Equal("Person", record.GetValue<string>("label"));
     }
 
@@ -1397,7 +1397,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expectedEdge.ToString(), edge.ToString());
 
         Assert.Equal(new List<string>(){"a", "r", "a.name", "a.age", "a.doubleValue", "a.boolValue",
-                "r.place", "r.since", "r.doubleValue", "r.boolValue"}, record.Keys);
+                "r.place", "r.since", "r.doubleValue", "r.boolValue"}, record.Header);
 
         List<object> expectedList = new List<object>() {expectedNode, expectedEdge,
                 name, (long)age, doubleValue, true,
@@ -1466,7 +1466,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.True(iterator.MoveNext());
         var record = iterator.Current;
         Assert.False(iterator.MoveNext());
-        Assert.Equal(new List<string>() { "a", "r" }, record.Keys);
+        Assert.Equal(new List<string>() { "a", "r" }, record.Header);
         Assert.Equal(expectedNode.ToString(), record.Values[0].ToString());
         Assert.Equal(expectedEdge.ToString(), record.Values[1].ToString());
 
@@ -1499,7 +1499,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.True(iterator.MoveNext());
         record = iterator.Current;
         Assert.False(iterator.MoveNext());
-        Assert.Equal(new List<string> { "a", "r" }, record.Keys);
+        Assert.Equal(new List<string> { "a", "r" }, record.Header);
         Assert.Equal(expectedNode.ToString(), record.Values[0].ToString());
         Assert.Equal(expectedEdge.ToString(), record.Values[1].ToString());
     }
@@ -1572,7 +1572,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.True(iterator.MoveNext());
         NRedisStack.Graph.Record record = iterator.Current;
         Assert.False(iterator.MoveNext());
-        Assert.Equal(new List<string>() { "x" }, record.Keys);
+        Assert.Equal(new List<string>() { "x" }, record.Header);
 
         var x = record.GetValue<object[]>("x");
         Assert.Equal(new object[] { 0L, 1L, 2L }, x);
@@ -1594,7 +1594,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.True(iterator.MoveNext());
         record = iterator.Current;
         Assert.False(iterator.MoveNext());
-        Assert.Equal(new List<string>() { "x" }, record.Keys);
+        Assert.Equal(new List<string>() { "x" }, record.Header);
         var x2 = record.GetValue<object[]>("x");
 
         Assert.Equal(expectedANode.ToString(), x2[0].ToString());
@@ -1618,7 +1618,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         {
             Assert.True(iterator.MoveNext());
             record = iterator.Current;
-            Assert.Equal(new List<string>() { "x" }, record.Keys);
+            Assert.Equal(new List<string>() { "x" }, record.Header);
             Assert.Equal(i, (long)record.GetValue<long>("x"));
         }
     }
@@ -1847,7 +1847,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         var record = results.GetEnumerator();
         record.MoveNext();
         Assert.Equal(1, record.Current.Size);
-        Assert.Equal(new List<string>() { "restaurant" }, record.Current.Keys);
+        Assert.Equal(new List<string>() { "restaurant" }, record.Current.Header);
         Node node = record.Current.GetValue<Node>(0);
         var property = node.PropertyMap["location"];
 

@@ -2,16 +2,15 @@ namespace NRedisStack.Graph
 {
     internal sealed class GraphCache
     {
-
         public GraphCacheList Labels { get; set; }
         public GraphCacheList PropertyNames { get; set; }
         public GraphCacheList RelationshipTypes { get; set; }
 
-        public GraphCache(string graphId, GraphCommands redisGraph)
+        public GraphCache(string graphName, GraphCommands redisGraph)
         {
-            Labels = new GraphCacheList(graphId, "db.labels", redisGraph);
-            PropertyNames = new GraphCacheList(graphId, "db.propertyKeys", redisGraph);
-            RelationshipTypes = new GraphCacheList(graphId, "db.relationshipTypes", redisGraph);
+            Labels = new GraphCacheList(graphName, "db.labels", redisGraph);
+            PropertyNames = new GraphCacheList(graphName, "db.propertyKeys", redisGraph);
+            RelationshipTypes = new GraphCacheList(graphName, "db.relationshipTypes", redisGraph);
         }
 
         public string GetLabel(int index) => Labels.GetCachedData(index);

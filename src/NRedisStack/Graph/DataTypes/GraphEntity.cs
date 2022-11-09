@@ -1,55 +1,16 @@
 using System.Text;
-using System.Collections.Generic;
 
 namespace NRedisStack.Graph.DataTypes
 {
     /// <summary>
     /// An abstract representation of a graph entity.
-    ///
     /// A graph entity has an ID and a set of properties. The properties are mapped and accessed by their names.
     /// </summary>
     public abstract class GraphEntity
     {
-        /// <summary>
-        /// The ID of the entity.
-        /// </summary>
-        /// <value></value>
-        public int Id { get; set; }
-        public IDictionary<string, object> PropertyMap { get; set; }
+        public long Id { get; set; }
 
-        /// <summary>
-        /// The collection of properties associated with an entity.
-        /// </summary>
-        /// <returns></returns>
-        public GraphEntity()
-        {
-            PropertyMap = new Dictionary<string, object>();
-        }
-
-        // /// <summary>
-        // /// Add a property to the entity.
-        // /// </summary>
-        // /// <param name="name">Name of the property.</param>
-        // /// <param name="value">Value of the property.</param>
-        // public void AddProperty(string name, object value) =>
-        //     AddProperty(new Property(name, value));
-
-        // /// <summary>
-        // /// Add a property to the entity.
-        // /// </summary>
-        // /// <param name="property">The property to add.</param>
-        // public void AddProperty(Property property) => PropertyMap.Add(property.Name, property);
-
-        // /// <summary>
-        // /// Remove a property from the entity by name.
-        // /// </summary>
-        // /// <param name="name"></param>
-        // public void RemoveProperty(string name) => PropertyMap.Remove(name);
-
-        // /// <summary>
-        // /// How many properties does this entity have?
-        // /// </summary>
-        // public int NumberOfProperties => PropertyMap.Count;
+        public IDictionary<string, object> PropertyMap = new Dictionary<string, object>();
 
         /// <summary>
         /// Overriden Equals that considers the equality of the entity ID as well as the equality of the

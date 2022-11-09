@@ -1,22 +1,21 @@
-using System.Linq;
-
 namespace NRedisStack.Graph
 {
     internal class GraphCacheList
     {
-        protected readonly string GraphId;
+        protected readonly string GraphName;
         protected readonly string Procedure;
-        protected readonly GraphCommands RedisGraph;
+        private string[] _data;
+
+        protected readonly GraphCommands graph;
 
         private readonly object _locker = new object();
 
-        private string[] _data;
 
-        internal GraphCacheList(string graphId, string procedure, GraphCommands redisGraph)
+        internal GraphCacheList(string graphName, string procedure, GraphCommands redisGraph)
         {
-            GraphId = graphId;
+            GraphName = graphName;
             Procedure = procedure;
-            RedisGraph = redisGraph;
+            graph = redisGraph;
         }
 
         // TODO: Change this to use Lazy<T>?
@@ -51,17 +50,17 @@ namespace NRedisStack.Graph
         }
 
         protected virtual ResultSet CallProcedure() =>
-            RedisGraph.CallProcedure(GraphId, Procedure);
+            graph.CallProcedure(GraphName, Procedure);
     }
 
     internal class ReadOnlyGraphCacheList : GraphCacheList
     {
-        internal ReadOnlyGraphCacheList(string graphId, string procedure, GraphCommands redisGraph) :
-            base(graphId, procedure, redisGraph)
+        internal ReadOnlyGraphCacheList(string graphName, string procedure, GraphCommands redisGraph) :
+            base(graphName, procedure, redisGraph)
         {
         }
 
         protected override ResultSet CallProcedure() =>
-            RedisGraph.CallProcedureReadOnly(GraphId, Procedure);
+            graph.CallProcedureReadOnly(GraphName, Procedure);
     }
 }
