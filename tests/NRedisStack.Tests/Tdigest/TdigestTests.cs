@@ -119,10 +119,25 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         var tdigest = db.TDIGEST();
         tdigest.Create(key);
         tdigest.Add(key, 2d, 3d, 5d);
-        Assert.Equal(new long[] { 1, 2 }, tdigest.Rank(key, 2, 4));
+        Assert.Equal(new long[] { 0, 2 }, tdigest.Rank(key, 2, 4));
         Assert.Equal(new long[] { 0, 1 }, tdigest.RevRank(key, 5, 4));
         Assert.Equal(new double[] { 2, 3 }, tdigest.ByRank(key, 0, 1));
         Assert.Equal(new double[] { 5, 3 }, tdigest.ByRevRank(key, 0, 1));
+    }
+
+    [Fact]
+    public async Task TestRankCommandsAsync()
+    {
+        //final String key = "ranks";
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var tdigest = db.TDIGEST();
+        tdigest.Create(key);
+        tdigest.Add(key, 2d, 3d, 5d);
+        Assert.Equal(new long[] { 0, 2 }, await tdigest.RankAsync(key, 2, 4));
+        Assert.Equal(new long[] { 0, 1 }, await tdigest.RevRankAsync(key, 5, 4));
+        Assert.Equal(new double[] { 2, 3 }, await tdigest.ByRankAsync(key, 0, 1));
+        Assert.Equal(new double[] { 5, 3 }, await tdigest.ByRevRankAsync(key, 0, 1));
     }
 
     // [Fact]
