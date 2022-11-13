@@ -26,7 +26,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         //arrange
         var conn = redisFixture.Redis;
         var db = conn.GetDatabase();
-        JsonCommands commands = new JsonCommands(db); //TODO: change left side to IJsonCommands
+        IJsonCommands commands = new JsonCommands(db);
         var keys = CreateKeyNames(1);
 
         //creating json string:
@@ -34,11 +34,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         string json = JsonSerializer.Serialize(obj);
 
         //create file:
-        string path = Path.GetFullPath(Path.GetTempPath() + "testFile.txt");
+        string path = Path.GetFullPath("testFile.txt");
         File.Create(path);
 
         //writing json to file:
-        File.WriteAllText(path, json);
+        File.WriteAllText(path, json); // TODO: figure out how to write json to file
 
         commands.SetFile(keys[0], "$", path);
         File.Delete(path);

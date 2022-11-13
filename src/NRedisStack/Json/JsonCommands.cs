@@ -60,7 +60,7 @@ public class JsonCommands : IJsonCommands
         return true;
     }
 
-    /// <inheritdoc/> // TODO: Add this in IJsonCommands
+    /// <inheritdoc/>
     public bool SetFile(RedisKey key, RedisValue path, string filePath, When when = When.Always)
     {
         string fileContent  = File.ReadAllText(filePath); // TODO: check this

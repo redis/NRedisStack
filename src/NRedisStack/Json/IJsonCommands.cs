@@ -206,6 +206,17 @@ public interface IJsonCommands
     bool Set(RedisKey key, RedisValue path, RedisValue json, When when = When.Always);
 
     /// <summary>
+    /// Set's json file from to the provided file Path.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <param name="path">The path to set within the key.</param>
+    /// <param name="filePath">The path of the file to set.</param>
+    /// <param name="when">When to set the value.</param>
+    /// <returns>The disposition of the command</returns>
+    /// <remarks><seealso href="https://redis.io/commands/json.set"/></remarks>
+    bool SetFile(RedisKey key, RedisValue path, string filePath, When when = When.Always);
+
+    /// <summary>
     /// Appends the provided string to the string(s) at the provided path.
     /// </summary>
     /// <param name="key">The key to append to.</param>
