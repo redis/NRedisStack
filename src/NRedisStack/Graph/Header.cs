@@ -61,6 +61,11 @@ namespace NRedisStack.Graph
                 && Object.Equals(SchemaNames, header.SchemaNames);
         }
 
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(SchemaTypes, SchemaNames);
+        }
+
         public override string ToString() =>
             $"Header{{schemaTypes=[{string.Join(", ", SchemaTypes)}], schemaNames=[{string.Join(", ", SchemaNames)}]}}";
     }
