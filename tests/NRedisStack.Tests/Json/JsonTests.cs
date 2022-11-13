@@ -21,6 +21,30 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    public void TestSetFile()
+    {
+        //arrange
+        var conn = redisFixture.Redis;
+        var db = conn.GetDatabase();
+        JsonCommands commands = new JsonCommands(db); //TODO: change left side to IJsonCommands
+        var keys = CreateKeyNames(1);
+
+        //creating json string:
+        var obj = new Person { Name = "Shachar", Age = 23 };
+        string json = JsonSerializer.Serialize(obj);
+
+        //create file:
+        string path = Path.GetFullPath(Path.GetTempPath() + "testFile.txt");
+        File.Create(path);
+
+        //writing json to file:
+        File.WriteAllText(path, json);
+
+        commands.SetFile(keys[0], "$", path);
+        File.Delete(path);
+    }
+
+    [Fact]
     public void TestJsonSetNotExist()
     {
         var obj = new Person { Name = "Shachar", Age = 23 };
@@ -87,7 +111,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(33, (long)respResult[i]!);
         conn.GetDatabase().KeyDelete(key);
     }
-    
+
     [Fact]
     public async Task TestRespAsync()
     {
@@ -140,7 +164,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(nullResult[0]);
         Assert.Equal(6, simpleKeyResult[0]);
     }
-    
+
     [Fact]
     public async Task TestStringAppendAsync()
     {
@@ -193,7 +217,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(nullResult[0]);
         Assert.Equal(3,simpleResult[0]);
     }
-    
+
     [Fact]
     public async Task StringLengthAsync()
     {
@@ -240,7 +264,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.True(result[1]);
         Assert.False(simpleResult[0]);
     }
-    
+
     [Fact]
     public async Task ToggleAsync()
     {
@@ -286,7 +310,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         result = commands.Type(simpleKey);
         Assert.Equal(JsonType.BOOLEAN, result[0]);
     }
-    
+
     [Fact]
     public async Task TypeAsync()
     {
@@ -328,7 +352,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         result = commands.ArrAppend(complexKey, "$.people", new { name = "bob" });
         Assert.Equal(2, result[0]);
     }
-    
+
     [Fact]
     public async Task ArrayAppendAsync()
     {
@@ -360,7 +384,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1,res[0]);
         Assert.Equal(-1,res[1]);
     }
-    
+
     [Fact]
     public async Task ArrayIndexAsync()
     {
@@ -391,7 +415,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         result = commands.ArrInsert(simpleKey, "$", 1, "Lys");
         Assert.Equal(4, result[0]);
     }
-    
+
     [Fact]
     public async Task ArrayInsertAsync()
     {
@@ -424,7 +448,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         result = commands.ArrLen(simpleKey);
         Assert.Equal(3, result[0]);
     }
-    
+
     [Fact]
     public async Task ArrayLengthAsync()
     {
@@ -474,7 +498,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         result = commands.ArrTrim(simpleKey, "$", 0, 1);
         Assert.Equal(2,result[0]);
     }
-    
+
     [Fact]
     public async Task ArrayTrimAsync()
     {
@@ -506,7 +530,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         result = commands.Clear(simpleKey);
         Assert.Equal(1,result);
     }
-    
+
     [Fact]
     public async Task ClearAsync()
     {
@@ -538,7 +562,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         result = commands.Del(simpleKey);
         Assert.Equal(1,result);
     }
-    
+
     [Fact]
     public async Task DelAsync()
     {
@@ -570,7 +594,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         result = commands.Forget(simpleKey);
         Assert.Equal(1,result);
     }
-    
+
     [Fact]
     public async Task ForgetAsync()
     {
@@ -606,7 +630,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("Alice", people[1]!.Name);
         Assert.Equal(35, people[1]!.Age);
     }
-    
+
     [Fact]
     public async Task GetAsync()
     {
@@ -641,7 +665,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("[\"hello\"]", result[0].ToString());
         Assert.Equal("[\"world\"]", result[1].ToString());
     }
-    
+
     [Fact]
     public async Task MGetAsync()
     {
@@ -669,7 +693,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(36, result[1]);
         Assert.Null(result[2]);
     }
-    
+
     [Fact]
     public async Task NumIncrbyAsync()
     {
@@ -700,7 +724,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Contains("a", result[1]);
         Assert.Contains("b", result[1]);
     }
-    
+
     [Fact]
     public async Task ObjectKeysAsync()
     {
@@ -734,7 +758,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result[2]);
 
     }
-    
+
     [Fact]
     public async Task ObjectLengthAsync()
     {
@@ -774,7 +798,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
 
         Assert.True(obj["$.b"]![0]!["a"]!.ToString() == "world");
     }
-    
+
     [Fact]
     public async Task TestMultiPathGetAsync()
     {
@@ -812,7 +836,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         res = commands.DebugMemory("non-existent key");
         Assert.Equal(0,res);
     }
-    
+
     [Fact]
     public async Task MemoryAsync()
     {
