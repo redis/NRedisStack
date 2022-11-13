@@ -978,94 +978,94 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
     #endregion
 
-    [Fact]
-    public void TestMultiExec()
-    {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
-        var graph = db.GRAPH();
+    // [Fact]
+    // public void TestMultiExec()
+    // {
+    //     IDatabase db = redisFixture.Redis.GetDatabase();
+    //     db.Execute("FLUSHALL");
+    //     var graph = db.GRAPH();
 
-        RedisGraphTransaction transaction = graph.Multi();
-        // transaction.SetAsync("x", "1");
-        transaction.QueryAsync("social", "CREATE (:Person {name:'a'})");
-        transaction.QueryAsync("g", "CREATE (:Person {name:'a'})");
-        // transaction.IncrAsync("x");
-        // transaction.GetAsync("x");
-        transaction.QueryAsync("social", "MATCH (n:Person) RETURN n");
-        transaction.DeleteGraphAsync("g");
-        transaction.CallProcedureAsync("social", "db.labels");
+    //     RedisGraphTransaction transaction = graph.Multi();
+    //     // transaction.SetAsync("x", "1");
+    //     transaction.QueryAsync("social", "CREATE (:Person {name:'a'})");
+    //     transaction.QueryAsync("g", "CREATE (:Person {name:'a'})");
+    //     // transaction.IncrAsync("x");
+    //     // transaction.GetAsync("x");
+    //     transaction.QueryAsync("social", "MATCH (n:Person) RETURN n");
+    //     transaction.DeleteGraphAsync("g");
+    //     transaction.CallProcedureAsync("social", "db.labels");
 
-        var results = transaction.Exec();
+    //     var results = transaction.Exec();
 
-        // Skipping Redis SET command assetions...
+    //     // Skipping Redis SET command assetions...
 
-        // Redis Graph command
-        var resultSet = results[0];
-        Assert.Equal(1, resultSet.Statistics.NodesCreated);
-        Assert.Equal(1, resultSet.Statistics.PropertiesSet);
+    //     // Redis Graph command
+    //     var resultSet = results[0];
+    //     Assert.Equal(1, resultSet.Statistics.NodesCreated);
+    //     Assert.Equal(1, resultSet.Statistics.PropertiesSet);
 
-        resultSet = results[1];
-        Assert.Equal(1, resultSet.Statistics.NodesCreated);
-        Assert.Equal(1, resultSet.Statistics.PropertiesSet);
+    //     resultSet = results[1];
+    //     Assert.Equal(1, resultSet.Statistics.NodesCreated);
+    //     Assert.Equal(1, resultSet.Statistics.PropertiesSet);
 
-        // Skipping Redis INCR command assertions...
+    //     // Skipping Redis INCR command assertions...
 
-        // Skipping Redis GET command assertions...
+    //     // Skipping Redis GET command assertions...
 
-        // Graph Query Result
-        resultSet = results[2];
-        Assert.NotNull(resultSet.Header);
+    //     // Graph Query Result
+    //     resultSet = results[2];
+    //     Assert.NotNull(resultSet.Header);
 
-        var header = resultSet.Header;
+    //     var header = resultSet.Header;
 
-        var schemaNames = header.SchemaNames;
-        var schemaTypes = header.SchemaTypes;
+    //     var schemaNames = header.SchemaNames;
+    //     var schemaTypes = header.SchemaTypes;
 
-        Assert.NotNull(schemaNames);
-        Assert.NotNull(schemaTypes);
+    //     Assert.NotNull(schemaNames);
+    //     Assert.NotNull(schemaTypes);
 
-        Assert.Single(schemaNames);
-        Assert.Single(schemaTypes);
+    //     Assert.Single(schemaNames);
+    //     Assert.Single(schemaTypes);
 
-        Assert.Equal("n", schemaNames[0]);
+    //     Assert.Equal("n", schemaNames[0]);
 
-        var nameProperty = new KeyValuePair<string, object>("name", "a");
+    //     var nameProperty = new KeyValuePair<string, object>("name", "a");
 
-        var expectedNode = new Node();
-        expectedNode.Id = 0;
-        expectedNode.Labels.Add("Person");
-        expectedNode.PropertyMap.Add(nameProperty);
+    //     var expectedNode = new Node();
+    //     expectedNode.Id = 0;
+    //     expectedNode.Labels.Add("Person");
+    //     expectedNode.PropertyMap.Add(nameProperty);
 
-        // See that the result were pulled from the right graph.
+    //     // See that the result were pulled from the right graph.
 
-        Assert.Single(resultSet);
+    //     Assert.Single(resultSet);
 
-        var record = resultSet.First();
-        Assert.Equal(new List<string> { "n" }, record.Header);
-        Assert.Equal(expectedNode, record.GetValue<Node>("n"));
+    //     var record = resultSet.First();
+    //     Assert.Equal(new List<string> { "n" }, record.Header);
+    //     Assert.Equal(expectedNode, record.GetValue<Node>("n"));
 
-        resultSet = results[4];
+    //     resultSet = results[4];
 
-        Assert.NotNull(resultSet.Header);
+    //     Assert.NotNull(resultSet.Header);
 
-        schemaNames = header.SchemaNames;
-        schemaTypes = header.SchemaTypes;
+    //     schemaNames = header.SchemaNames;
+    //     schemaTypes = header.SchemaTypes;
 
-        Assert.NotNull(schemaNames);
-        Assert.NotNull(schemaTypes);
+    //     Assert.NotNull(schemaNames);
+    //     Assert.NotNull(schemaTypes);
 
-        Assert.Single(schemaNames);
-        Assert.Single(schemaTypes);
+    //     Assert.Single(schemaNames);
+    //     Assert.Single(schemaTypes);
 
-        Assert.Equal("n", schemaNames[0]);
+    //     Assert.Equal("n", schemaNames[0]);
 
-        Assert.Single(resultSet);
+    //     Assert.Single(resultSet);
 
-        record = resultSet.First();
+    //     record = resultSet.First();
 
-        Assert.Equal(new List<string> { "label" }, record.Header);
-        Assert.Equal("Person", record.GetValue<string>("label"));
-    }
+    //     Assert.Equal(new List<string> { "label" }, record.Header);
+    //     Assert.Equal("Person", record.GetValue<string>("label"));
+    // }
 
     /*
         Since by default all commands executed by StackExchange.Redis travel through the same connection
