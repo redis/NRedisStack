@@ -134,7 +134,7 @@ namespace NRedisStack.Graph
             {
                 var label = _graphCache.GetLabel(labelIndex);
 
-                node.AddLabel(label);
+                node.Labels.Add(label);
             }
 
             DeserializeGraphEntityProperties(node, (RedisResult[])rawNodeData[2]);

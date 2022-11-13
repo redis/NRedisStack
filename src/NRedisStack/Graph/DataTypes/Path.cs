@@ -14,7 +14,7 @@ namespace NRedisStack.Graph.DataTypes
         public ReadOnlyCollection<Node> Nodes { get;}
         public ReadOnlyCollection<Edge> Edges { get;}
 
-        public Path(IList<Node> nodes, IList<Edge> edges) // TODO: suppose to ne internal?
+        public Path(IList<Node> nodes, IList<Edge> edges)
         {
             Nodes = new ReadOnlyCollection<Node>(nodes);
             Edges = new ReadOnlyCollection<Edge>(edges);
@@ -31,8 +31,10 @@ namespace NRedisStack.Graph.DataTypes
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
+            if (obj == null) return this == null;
+
             if (this == obj)
             {
                 return true;

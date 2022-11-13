@@ -58,13 +58,10 @@ namespace NRedisStack.Graph
         /// </summary>
         public int Size => Header.Count;
 
-        /// <summary>
-        /// Overridden method that compares the keys and values of a record with another record.
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
+            if (obj == null) return this == null;
+
             if (this == obj)
             {
                 return true;

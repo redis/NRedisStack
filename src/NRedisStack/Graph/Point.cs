@@ -23,11 +23,13 @@ namespace NRedisStack.Graph
             this.longitude = values[1];
         }
 
-        public override bool Equals(object other)
+        public override bool Equals(object? obj)
         {
-            if (this == other) return true;
-            if (!(other.GetType() == typeof(Point))) return false;
-            Point o = (Point)other;
+            if (obj == null) return this == null;
+
+            if (this == obj) return true;
+            if (!(obj.GetType() == typeof(Point))) return false;
+            Point o = (Point)obj;
             return Math.Abs(latitude - o.latitude) < EPSILON &&
                     Math.Abs(longitude - o.longitude) < EPSILON;
         }

@@ -264,7 +264,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         Node expectedNode = new Node();
         expectedNode.Id = 0;
-        expectedNode.AddLabel("person");
+        expectedNode.Labels.Add("person");
         expectedNode.PropertyMap.Add(nameProperty);
         expectedNode.PropertyMap.Add(ageProperty);
         expectedNode.PropertyMap.Add(doubleProperty);
@@ -384,7 +384,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         Node expectedNode = new Node();
         expectedNode.Id = 0;
-        expectedNode.AddLabel("person");
+        expectedNode.Labels.Add("person");
         expectedNode.PropertyMap.Add(nameProperty);
         expectedNode.PropertyMap.Add(ageProperty);
 
@@ -416,8 +416,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         expectedNode.PropertyMap.Remove("name");
         expectedNode.PropertyMap.Remove("age");
         expectedNode.PropertyMap.Add(lastNameProperty);
-        expectedNode.RemoveLabel("person");
-        expectedNode.AddLabel("worker");
+        expectedNode.Labels.Remove("person");
+        expectedNode.Labels.Add("worker");
         expectedNode.Id = 2;
         expectedEdge.RelationshipType = "worksWith";
         expectedEdge.Source = 2;
@@ -473,7 +473,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         Node expectedANode = new Node();
         expectedANode.Id = 0;
-        expectedANode.AddLabel("person");
+        expectedANode.Labels.Add("person");
         var aNameProperty = new KeyValuePair<string, object>("name", "a");
         var aAgeProperty = new KeyValuePair<string, object>("age", 32L);
         var aListProperty = new KeyValuePair<string, object>("array", new object[] { 0L, 1L, 2L });
@@ -483,7 +483,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         Node expectedBNode = new Node();
         expectedBNode.Id = 1;
-        expectedBNode.AddLabel("person");
+        expectedBNode.Labels.Add("person");
         var bNameProperty = new KeyValuePair<string, object>("name", "b");
         var bAgeProperty = new KeyValuePair<string, object>("age", 30L);
         var bListProperty = new KeyValuePair<string, object>("array", new object[] { 3L, 4L, 5L });
@@ -575,7 +575,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         {
             Node node = new Node();
             node.Id = i;
-            node.AddLabel("L1");
+            node.Labels.Add("L1");
             nodes.Add(node);
         }
 
@@ -1033,7 +1033,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         var expectedNode = new Node();
         expectedNode.Id = 0;
-        expectedNode.AddLabel("Person");
+        expectedNode.Labels.Add("Person");
         expectedNode.PropertyMap.Add(nameProperty);
 
         // See that the result were pulled from the right graph.
@@ -1321,7 +1321,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         Node expectedNode = new Node();
         expectedNode.Id = 0;
-        expectedNode.AddLabel("person");
+        expectedNode.Labels.Add("person");
         expectedNode.PropertyMap.Add(nameProperty);
         expectedNode.PropertyMap.Add(ageProperty);
         expectedNode.PropertyMap.Add(doubleProperty);
@@ -1443,7 +1443,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         Node expectedNode = new Node();
         expectedNode.Id = 0;
-        expectedNode.AddLabel("person");
+        expectedNode.Labels.Add("person");
         expectedNode.PropertyMap.Add(nameProperty);
         expectedNode.PropertyMap.Add(ageProperty);
 
@@ -1475,8 +1475,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         expectedNode.PropertyMap.Remove("name");
         expectedNode.PropertyMap.Remove("age");
         expectedNode.PropertyMap.Add(lastNameProperty);
-        expectedNode.RemoveLabel("person");
-        expectedNode.AddLabel("worker");
+        expectedNode.Labels.Remove("person");
+        expectedNode.Labels.Add("worker");
         expectedNode.Id = 2;
         expectedEdge.RelationshipType = "worksWith";
         expectedEdge.Source = 2;
@@ -1532,7 +1532,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         Node expectedANode = new Node();
         expectedANode.Id = 0;
-        expectedANode.AddLabel("person");
+        expectedANode.Labels.Add("person");
         var aNameProperty = new KeyValuePair<string, object>("name", "a");
         var aAgeProperty = new KeyValuePair<string, object>("age", 32L);
         var aListProperty = new KeyValuePair<string, object>("array", new object[] { 0L, 1L, 2L });
@@ -1542,7 +1542,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         Node expectedBNode = new Node();
         expectedBNode.Id = 1;
-        expectedBNode.AddLabel("person");
+        expectedBNode.Labels.Add("person");
         var bNameProperty = new KeyValuePair<string, object>("name", "b");
         var bAgeProperty = new KeyValuePair<string, object>("age", 30L);
         var bListProperty = new KeyValuePair<string, object>("array", new object[] { 3L, 4L, 5L });
@@ -1634,7 +1634,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         {
             Node node = new Node();
             node.Id = i;
-            node.AddLabel("L1");
+            node.Labels.Add("L1");
             nodes.Add(node);
         }
 

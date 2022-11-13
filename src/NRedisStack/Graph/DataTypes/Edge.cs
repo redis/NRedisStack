@@ -33,8 +33,10 @@ namespace NRedisStack.Graph.DataTypes
         /// </summary>
         /// <param name="obj">Another `Edge` object to compare to.</param>
         /// <returns>True if the two instances are equal, false if not.</returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
+            if (obj == null) return this == null;
+
             if (this == obj)
             {
                 return true;
@@ -85,9 +87,8 @@ namespace NRedisStack.Graph.DataTypes
             sb.Append($", source={Source}");
             sb.Append($", destination={Destination}");
             sb.Append($", id={Id}");
-            sb.Append(", propertyMap={");
-            sb.Append(string.Join(", ", PropertyMap.Select(pm => $"{pm.Key}={pm.Value.ToString()}")));
-            sb.Append("}}");
+            sb.Append($", {PropertyMapToString()}");
+            sb.Append("}");
 
             return sb.ToString();
         }

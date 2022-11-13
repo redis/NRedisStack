@@ -9,32 +9,12 @@ namespace NRedisStack.Graph.DataTypes
     /// </summary>
     public sealed class Node : GraphEntity
     {
-        private readonly List<string> _labels = new List<string>();
+        public List<string> Labels { get; }
 
-        /// <summary>
-        /// Adds a label to a node.
-        /// </summary>
-        /// <param name="label">Name of the label.</param>
-        public void AddLabel(string label) => _labels.Add(label);
-
-        /// <summary>
-        /// Remove a label by name.
-        /// </summary>
-        /// <param name="label">Name of the label to remove.</param>
-        public void RemoveLabel(string label) => _labels.Remove(label);
-
-        /// <summary>
-        /// Get a label by index.
-        /// </summary>
-        /// <param name="index">Index of the label to get.</param>
-        /// <returns></returns>
-        public string GetLabel(int index) => _labels[index];
-
-        /// <summary>
-        /// Get the count of labels on the node.
-        /// </summary>
-        /// <returns>Number of labels on a node.</returns>
-        public int GetNumberOfLabels() => _labels.Count;
+        public Node()
+        {
+            Labels = new List<string>();
+        }
 
         /// <summary>
         /// Overriden member that checks to see if the names of the labels of a node are equal
@@ -42,8 +22,10 @@ namespace NRedisStack.Graph.DataTypes
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
+            if (obj == null) return this == null;
+
             if (this == obj)
             {
                 return true;
@@ -59,7 +41,7 @@ namespace NRedisStack.Graph.DataTypes
                 return false;
             }
 
-            return Enumerable.SequenceEqual(_labels, that._labels);
+            return Enumerable.SequenceEqual(Labels, that.Labels);
         }
 
         /// <summary>
@@ -73,7 +55,7 @@ namespace NRedisStack.Graph.DataTypes
             {
                 int hash = 17;
 
-                foreach(var label in _labels)
+                foreach(var label in Labels)
                 {
                     hash = hash * 31 + label.GetHashCode();
                 }
@@ -93,12 +75,10 @@ namespace NRedisStack.Graph.DataTypes
             var sb = new StringBuilder();
 
             sb.Append("Node{labels=");
-            sb.Append($"[{string.Join(", ", _labels)}]");
-            sb.Append(", id=");
-            sb.Append(Id);
-            sb.Append(", propertyMap={");
-            sb.Append(string.Join(", ", PropertyMap.Select(pm => $"{pm.Key}={pm.Value}")));
-            sb.Append("}}");
+            sb.Append($"[{string.Join(", ", Labels)}]");
+            sb.Append($", id={Id}");
+            sb.Append($", {PropertyMapToString()}");
+            sb.Append("}");
 
             return sb.ToString();
         }

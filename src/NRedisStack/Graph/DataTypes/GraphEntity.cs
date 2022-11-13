@@ -18,8 +18,10 @@ namespace NRedisStack.Graph.DataTypes
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
+            if (obj == null) return this == null;
+
             if (this == obj)
             {
                 return true;
@@ -69,6 +71,17 @@ namespace NRedisStack.Graph.DataTypes
             sb.Append(", propertyMap=");
             sb.Append(PropertyMap);
             sb.Append('}');
+
+            return sb.ToString();
+        }
+
+        public string PropertyMapToString()
+        {
+            var sb = new StringBuilder();
+
+            sb.Append("propertyMap={");
+            sb.Append(string.Join(", ", PropertyMap.Select(pm => $"{pm.Key}={pm.Value}")));
+            sb.Append("}");
 
             return sb.ToString();
         }
