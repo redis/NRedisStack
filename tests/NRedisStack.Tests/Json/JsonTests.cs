@@ -40,6 +40,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
 
         commands.SetFile(keys[0], "$", file);
         var actual = commands.Get(keys[0]);
+
         Assert.Equal(json, actual.ToString());
         File.Delete(file);
     }
@@ -849,5 +850,30 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(45, res);
         res = await commands.DebugMemoryAsync("non-existent key");
         Assert.Equal(0, res);
+    }
+
+    [Fact]
+    public async Task TestSetFileAsync()
+    {
+        //arrange
+        var conn = redisFixture.Redis;
+        var db = conn.GetDatabase();
+        IJsonCommands commands = new JsonCommands(db);
+        var keys = CreateKeyNames(1);
+
+        //creating json string:
+        var obj = new Person { Name = "Shachar", Age = 23 };
+        string json = JsonSerializer.Serialize(obj);
+
+        var file = "testFile.json";
+
+        //writing json to file:
+        File.WriteAllText(file, json);
+
+        commands.SetFileAsync(keys[0], "$", file);
+        var actual = commands.Get(keys[0]);
+
+        Assert.Equal(json, actual.ToString());
+        File.Delete(file);
     }
 }

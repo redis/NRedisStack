@@ -409,6 +409,13 @@ public class JsonCommands : IJsonCommands
         return true;
     }
 
+    /// <inheritdoc/> // TODO: check way asnyc methods dont have documenation
+    public async Task<bool> SetFileAsync(RedisKey key, RedisValue path, string filePath, When when = When.Always)
+    {
+        string fileContent  = File.ReadAllText(filePath);
+        return await SetAsync(key, path, fileContent, when);
+    }
+
     public async Task<long?[]> StrAppendAsync(RedisKey key, string value, string? path = null)
     {
         RedisResult result;
