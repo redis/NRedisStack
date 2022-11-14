@@ -217,6 +217,16 @@ public interface IJsonCommands
     bool SetFile(RedisKey key, RedisValue path, string filePath, When when = When.Always);
 
     /// <summary>
+    /// Set all json files in the provided file Path.
+    /// </summary>
+    /// <param name="path">The path to set within the file name as key.</param>
+    /// <param name="filesPath">The path of the file to set.</param>
+    /// <param name="when">When to set the value.</param>
+    /// <returns>The number of files that have been set</returns>
+    /// <remarks><seealso href="https://redis.io/commands/json.set"/></remarks>
+    int SetFiles(RedisValue path, string filesPath, When when = When.Always);
+
+    /// <summary>
     /// Appends the provided string to the string(s) at the provided path.
     /// </summary>
     /// <param name="key">The key to append to.</param>
@@ -472,6 +482,16 @@ public interface IJsonCommands
     /// <returns>The disposition of the command</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.set"/></remarks>
     Task<bool> SetFileAsync(RedisKey key, RedisValue path, string filePath, When when = When.Always);
+
+    /// <summary>
+    /// Set all json files in the provided file Path.
+    /// </summary>
+    /// <param name="path">The path to set within the file name as key.</param>
+    /// <param name="filesPath">The path of the file to set.</param>
+    /// <param name="when">When to set the value.</param>
+    /// <returns>The number of files that have been set</returns>
+    /// <remarks><seealso href="https://redis.io/commands/json.set"/></remarks>
+    Task<int> SetFilesAsync(RedisValue path, string filesPath, When when = When.Always);
 
     /// <summary>
     /// Appends the provided string to the string(s) at the provided path.

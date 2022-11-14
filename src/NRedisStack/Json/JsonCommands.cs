@@ -68,6 +68,29 @@ public class JsonCommands : IJsonCommands
     }
 
     /// <inheritdoc/>
+    public int SetFiles(RedisValue path, string filesPath, When when = When.Always)
+    {
+        int inserted = 0;
+        string key;
+        var files = Directory.EnumerateFiles(filesPath, "*.json");
+        foreach (var filePath in files)
+        {
+            key = filePath.Substring(0, filePath.IndexOf("."));
+            if(SetFile(key, path, filePath, when))
+            {
+                inserted++;
+            }
+        }
+
+        foreach (var dirPath in Directory.EnumerateDirectories(filesPath))
+        {
+            inserted += SetFiles(path, dirPath, when);
+        }
+
+        return inserted;
+    }
+
+    /// <inheritdoc/>
     public long?[] StrAppend(RedisKey key, string value, string? path = null)
     {
         RedisResult result;
@@ -415,6 +438,30 @@ public class JsonCommands : IJsonCommands
         string fileContent  = File.ReadAllText(filePath);
         return await SetAsync(key, path, fileContent, when);
     }
+
+    /// <inheritdoc/>
+    public async Task<int> SetFilesAsync(RedisValue path, string filesPath, When when = When.Always)
+    {
+        int inserted = 0;
+        string key;
+        var files = Directory.EnumerateFiles(filesPath, "*.json");
+        foreach (var filePath in files)
+        {
+            key = filePath.Substring(0, filePath.IndexOf("."));
+            if(await SetFileAsync(key, path, filePath, when))
+            {
+                inserted++;
+            }
+        }
+
+        foreach (var dirPath in Directory.EnumerateDirectories(filesPath))
+        {
+            inserted += await SetFilesAsync(path, dirPath, when);
+        }
+
+        return inserted;
+    }
+
 
     public async Task<long?[]> StrAppendAsync(RedisKey key, string value, string? path = null)
     {

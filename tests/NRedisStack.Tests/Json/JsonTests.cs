@@ -46,6 +46,59 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    public void TestSetFiles()
+    {
+        //arrange
+        var conn = redisFixture.Redis;
+        var db = conn.GetDatabase();
+        IJsonCommands commands = new JsonCommands(db);
+
+        //creating json string:
+        object[] persons = new object[10];
+        string[] jsons = new string[10];
+        string[] notJsons = new string[10];
+        for (int i = 1; i <= 10; i++)
+        {
+            persons[i - 1] = new Person { Name = $"Person{i}", Age = i * 10 };
+            jsons[i - 1] = JsonSerializer.Serialize(persons[i - 1]);
+            notJsons[i - 1] = $"notjson{i}";
+        }
+
+        //creating directorys:
+        Directory.CreateDirectory(Path.Combine("BaseDir", "DirNumber2", "DirNumber3"));
+
+        //creating files in directorys:
+        for (int i = 1; i <= 10; i++)
+        {
+            string jsonPath;
+            string notJsonPath;
+            if (i <= 3)
+            {
+                jsonPath = Path.Combine("BaseDir", $"jsonFile{i}.json");
+                notJsonPath = Path.Combine("BaseDir", $"notJsonFile{i}.txt");
+            }
+            else if (i <= 6)
+            {
+                jsonPath = Path.Combine("BaseDir", "DirNumber2", $"jsonFile{i}.json");
+                notJsonPath = Path.Combine("BaseDir", "DirNumber2", $"notJsonFile{i}.txt");
+            }
+            else
+            {
+                jsonPath = Path.Combine("BaseDir", "DirNumber2", "DirNumber3", $"jsonFile{i}.json");
+                notJsonPath = Path.Combine("BaseDir", "DirNumber2", "DirNumber3", $"notJsonFile{i}.txt");
+            }
+            File.WriteAllText(Path.GetFullPath(jsonPath), jsons[i - 1]);
+            File.WriteAllText(Path.GetFullPath(notJsonPath), notJsons[i - 1]);
+        }
+
+        Assert.Equal(10, commands.SetFiles("$", "BaseDir"));
+
+        var actual = commands.Get(Path.Combine("BaseDir", "DirNumber2", "DirNumber3", $"jsonFile7"));
+        Assert.Equal(jsons[6], actual.ToString());
+        Directory.Delete("BaseDir", true);
+    }
+
+    [Fact]
     public void TestJsonSetNotExist()
     {
         var obj = new Person { Name = "Shachar", Age = 23 };
@@ -875,5 +928,58 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
 
         Assert.Equal(json, actual.ToString());
         File.Delete(file);
+    }
+
+    [Fact]
+    public async Task TestSetFilesAsync()
+    {
+        //arrange
+        var conn = redisFixture.Redis;
+        var db = conn.GetDatabase();
+        IJsonCommands commands = new JsonCommands(db);
+
+        //creating json string:
+        object[] persons = new object[10];
+        string[] jsons = new string[10];
+        string[] notJsons = new string[10];
+        for (int i = 1; i <= 10; i++)
+        {
+            persons[i - 1] = new Person { Name = $"Person{i}", Age = i * 10 };
+            jsons[i - 1] = JsonSerializer.Serialize(persons[i - 1]);
+            notJsons[i - 1] = $"notjson{i}";
+        }
+
+        //creating directorys:
+        Directory.CreateDirectory(Path.Combine("BaseDir", "DirNumber2", "DirNumber3"));
+
+        //creating files in directorys:
+        for (int i = 1; i <= 10; i++)
+        {
+            string jsonPath;
+            string notJsonPath;
+            if (i <= 3)
+            {
+                jsonPath = Path.Combine("BaseDir", $"jsonFile{i}.json");
+                notJsonPath = Path.Combine("BaseDir", $"notJsonFile{i}.txt");
+            }
+            else if (i <= 6)
+            {
+                jsonPath = Path.Combine("BaseDir", "DirNumber2", $"jsonFile{i}.json");
+                notJsonPath = Path.Combine("BaseDir", "DirNumber2", $"notJsonFile{i}.txt");
+            }
+            else
+            {
+                jsonPath = Path.Combine("BaseDir", "DirNumber2", "DirNumber3", $"jsonFile{i}.json");
+                notJsonPath = Path.Combine("BaseDir", "DirNumber2", "DirNumber3", $"notJsonFile{i}.txt");
+            }
+            File.WriteAllText(Path.GetFullPath(jsonPath), jsons[i - 1]);
+            File.WriteAllText(Path.GetFullPath(notJsonPath), notJsons[i - 1]);
+        }
+
+        Assert.Equal(10, await commands.SetFilesAsync("$", "BaseDir"));
+
+        var actual = commands.Get(Path.Combine("BaseDir", "DirNumber2", "DirNumber3", $"jsonFile7"));
+        Assert.Equal(jsons[6], actual.ToString());
+        Directory.Delete("BaseDir", true);
     }
 }
