@@ -206,7 +206,7 @@ public interface IJsonCommands
     bool Set(RedisKey key, RedisValue path, RedisValue json, When when = When.Always);
 
     /// <summary>
-    /// Set's json file from to the provided file Path.
+    /// Set json file from the provided file Path.
     /// </summary>
     /// <param name="key">The key.</param>
     /// <param name="path">The path to set within the key.</param>
@@ -463,7 +463,7 @@ public interface IJsonCommands
     Task<bool> SetAsync(RedisKey key, RedisValue path, RedisValue json, When when = When.Always);
 
     /// <summary>
-    /// Set's json file from to the provided file Path.
+    /// Set json file from the provided file Path.
     /// </summary>
     /// <param name="key">The key.</param>
     /// <param name="path">The path to set within the key.</param>
