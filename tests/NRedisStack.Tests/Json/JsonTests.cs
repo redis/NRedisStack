@@ -21,7 +21,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void TestSetFile()
+    public void TestSetFromFile()
     {
         //arrange
         var conn = redisFixture.Redis;
@@ -38,7 +38,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         //writing json to file:
         File.WriteAllText(file, json);
 
-        commands.SetFile(keys[0], "$", file);
+        commands.SetFromFile(keys[0], "$", file);
         var actual = commands.Get(keys[0]);
 
         Assert.Equal(json, actual.ToString());
@@ -46,7 +46,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void TestSetFiles()
+    public void TestSetFromDirectory()
     {
         //arrange
         var conn = redisFixture.Redis;
@@ -91,7 +91,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
             File.WriteAllText(Path.GetFullPath(notJsonPath), notJsons[i - 1]);
         }
 
-        Assert.Equal(10, commands.SetFiles("$", "BaseDir"));
+        Assert.Equal(10, commands.SetFromDirectory("$", "BaseDir"));
 
         var actual = commands.Get(Path.Combine("BaseDir", "DirNumber2", "DirNumber3", $"jsonFile7"));
         Assert.Equal(jsons[6], actual.ToString());
@@ -906,7 +906,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async Task TestSetFileAsync()
+    public async Task TestSetFromFileAsync()
     {
         //arrange
         var conn = redisFixture.Redis;
@@ -923,7 +923,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         //writing json to file:
         File.WriteAllText(file, json);
 
-        commands.SetFileAsync(keys[0], "$", file);
+        commands.SetFromFileAsync(keys[0], "$", file);
         var actual = commands.Get(keys[0]);
 
         Assert.Equal(json, actual.ToString());
@@ -931,7 +931,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async Task TestSetFilesAsync()
+    public async Task TestSetFromDirectoryAsync()
     {
         //arrange
         var conn = redisFixture.Redis;
@@ -976,7 +976,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
             File.WriteAllText(Path.GetFullPath(notJsonPath), notJsons[i - 1]);
         }
 
-        Assert.Equal(10, await commands.SetFilesAsync("$", "BaseDir"));
+        Assert.Equal(10, await commands.SetFromDirectoryAsync("$", "BaseDir"));
 
         var actual = commands.Get(Path.Combine("BaseDir", "DirNumber2", "DirNumber3", $"jsonFile7"));
         Assert.Equal(jsons[6], actual.ToString());

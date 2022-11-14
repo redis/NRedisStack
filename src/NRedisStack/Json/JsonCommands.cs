@@ -61,14 +61,14 @@ public class JsonCommands : IJsonCommands
     }
 
     /// <inheritdoc/>
-    public bool SetFile(RedisKey key, RedisValue path, string filePath, When when = When.Always)
+    public bool SetFromFile(RedisKey key, RedisValue path, string filePath, When when = When.Always)
     {
         string fileContent  = File.ReadAllText(filePath); // TODO: check this
         return Set(key, path, fileContent, when);
     }
 
     /// <inheritdoc/>
-    public int SetFiles(RedisValue path, string filesPath, When when = When.Always)
+    public int SetFromDirectory(RedisValue path, string filesPath, When when = When.Always)
     {
         int inserted = 0;
         string key;
@@ -76,7 +76,7 @@ public class JsonCommands : IJsonCommands
         foreach (var filePath in files)
         {
             key = filePath.Substring(0, filePath.IndexOf("."));
-            if(SetFile(key, path, filePath, when))
+            if(SetFromFile(key, path, filePath, when))
             {
                 inserted++;
             }
@@ -84,7 +84,7 @@ public class JsonCommands : IJsonCommands
 
         foreach (var dirPath in Directory.EnumerateDirectories(filesPath))
         {
-            inserted += SetFiles(path, dirPath, when);
+            inserted += SetFromDirectory(path, dirPath, when);
         }
 
         return inserted;
@@ -433,14 +433,14 @@ public class JsonCommands : IJsonCommands
     }
 
     /// <inheritdoc/> // TODO: check way asnyc methods dont have documenation
-    public async Task<bool> SetFileAsync(RedisKey key, RedisValue path, string filePath, When when = When.Always)
+    public async Task<bool> SetFromFileAsync(RedisKey key, RedisValue path, string filePath, When when = When.Always)
     {
         string fileContent  = File.ReadAllText(filePath);
         return await SetAsync(key, path, fileContent, when);
     }
 
     /// <inheritdoc/>
-    public async Task<int> SetFilesAsync(RedisValue path, string filesPath, When when = When.Always)
+    public async Task<int> SetFromDirectoryAsync(RedisValue path, string filesPath, When when = When.Always)
     {
         int inserted = 0;
         string key;
@@ -448,7 +448,7 @@ public class JsonCommands : IJsonCommands
         foreach (var filePath in files)
         {
             key = filePath.Substring(0, filePath.IndexOf("."));
-            if(await SetFileAsync(key, path, filePath, when))
+            if(await SetFromFileAsync(key, path, filePath, when))
             {
                 inserted++;
             }
@@ -456,7 +456,7 @@ public class JsonCommands : IJsonCommands
 
         foreach (var dirPath in Directory.EnumerateDirectories(filesPath))
         {
-            inserted += await SetFilesAsync(path, dirPath, when);
+            inserted += await SetFromDirectoryAsync(path, dirPath, when);
         }
 
         return inserted;

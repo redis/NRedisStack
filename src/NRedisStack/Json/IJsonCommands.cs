@@ -214,7 +214,7 @@ public interface IJsonCommands
     /// <param name="when">When to set the value.</param>
     /// <returns>The disposition of the command</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.set"/></remarks>
-    bool SetFile(RedisKey key, RedisValue path, string filePath, When when = When.Always);
+    bool SetFromFile(RedisKey key, RedisValue path, string filePath, When when = When.Always);
 
     /// <summary>
     /// Set all json files in the provided file Path.
@@ -224,7 +224,7 @@ public interface IJsonCommands
     /// <param name="when">When to set the value.</param>
     /// <returns>The number of files that have been set</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.set"/></remarks>
-    int SetFiles(RedisValue path, string filesPath, When when = When.Always);
+    int SetFromDirectory(RedisValue path, string filesPath, When when = When.Always);
 
     /// <summary>
     /// Appends the provided string to the string(s) at the provided path.
@@ -481,7 +481,7 @@ public interface IJsonCommands
     /// <param name="when">When to set the value.</param>
     /// <returns>The disposition of the command</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.set"/></remarks>
-    Task<bool> SetFileAsync(RedisKey key, RedisValue path, string filePath, When when = When.Always);
+    Task<bool> SetFromFileAsync(RedisKey key, RedisValue path, string filePath, When when = When.Always);
 
     /// <summary>
     /// Set all json files in the provided file Path.
@@ -491,7 +491,7 @@ public interface IJsonCommands
     /// <param name="when">When to set the value.</param>
     /// <returns>The number of files that have been set</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.set"/></remarks>
-    Task<int> SetFilesAsync(RedisValue path, string filesPath, When when = When.Always);
+    Task<int> SetFromDirectoryAsync(RedisValue path, string filesPath, When when = When.Always);
 
     /// <summary>
     /// Appends the provided string to the string(s) at the provided path.
