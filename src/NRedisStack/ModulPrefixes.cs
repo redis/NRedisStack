@@ -4,7 +4,7 @@ namespace NRedisStack.RedisStackCommands
 {
     public static class ModulPrefixes
     {
-        static public BloomCommands BF(this IDatabase db) => new BloomCommands(db);
+        static public IBloomCommands BF(this IDatabase db) => new BloomCommands(db);
 
         static public CuckooCommands CF(this IDatabase db) => new CuckooCommands(db);
 
@@ -16,7 +16,7 @@ namespace NRedisStack.RedisStackCommands
 
         static public SearchCommands FT(this IDatabase db) => new SearchCommands(db);
 
-        static public JsonCommands JSON(this IDatabase db) => new JsonCommands(db);
+        static public IJsonCommands JSON(this IDatabase db) => new JsonCommands(db);
 
         static public TimeSeriesCommands TS(this IDatabase db) => new TimeSeriesCommands(db);
     }
