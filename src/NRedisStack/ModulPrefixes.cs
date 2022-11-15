@@ -8,7 +8,7 @@ namespace NRedisStack.RedisStackCommands
 
         static public CuckooCommands CF(this IDatabase db) => new CuckooCommands(db);
 
-        static public CmsCommands CMS(this IDatabase db) => new CmsCommands(db);
+        static public ICmsCommands CMS(this IDatabase db) => new CmsCommands(db);
 
         static public TopKCommands TOPK(this IDatabase db) => new TopKCommands(db);
 
