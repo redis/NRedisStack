@@ -6,7 +6,7 @@ namespace NRedisStack.RedisStackCommands
     {
         static public IBloomCommands BF(this IDatabase db) => new BloomCommands(db);
 
-        static public CuckooCommands CF(this IDatabase db) => new CuckooCommands(db);
+        static public ICuckooCommands CF(this IDatabase db) => new CuckooCommands(db);
 
         static public ICmsCommands CMS(this IDatabase db) => new CmsCommands(db);
 
