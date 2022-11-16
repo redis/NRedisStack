@@ -63,8 +63,12 @@ public class JsonCommands : IJsonCommands
     /// <inheritdoc/>
     public bool SetFromFile(RedisKey key, RedisValue path, string filePath, When when = When.Always)
     {
+        if(!File.Exists(filePath))
+        {
+            throw new FileNotFoundException($"File {filePath} not found.");
+        }
+
         string fileContent  = File.ReadAllText(filePath);
-        // TODO: Check if the content is valid JSON
         return Set(key, path, fileContent, when);
     }
 
@@ -436,6 +440,11 @@ public class JsonCommands : IJsonCommands
     /// <inheritdoc/> // TODO: check way asnyc methods dont have documenation
     public async Task<bool> SetFromFileAsync(RedisKey key, RedisValue path, string filePath, When when = When.Always)
     {
+        if (!File.Exists(filePath))
+        {
+            throw new FileNotFoundException($"File {filePath} not found.");
+        }
+
         string fileContent  = File.ReadAllText(filePath);
         return await SetAsync(key, path, fileContent, when);
     }

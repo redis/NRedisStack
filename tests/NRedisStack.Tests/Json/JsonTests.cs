@@ -38,11 +38,14 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         //writing json to file:
         File.WriteAllText(file, json);
 
-        commands.SetFromFile(keys[0], "$", file);
+        Assert.True(commands.SetFromFile(keys[0], "$", file));
         var actual = commands.Get(keys[0]);
 
         Assert.Equal(json, actual.ToString());
         File.Delete(file);
+
+        //test not existing file:
+        Assert.Throws<FileNotFoundException>(() => commands.SetFromFile(keys[0], "$", "notExistingFile.json"));
     }
 
     [Fact]
@@ -923,11 +926,14 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         //writing json to file:
         File.WriteAllText(file, json);
 
-        commands.SetFromFileAsync(keys[0], "$", file);
+        Assert.True(await commands.SetFromFileAsync(keys[0], "$", file));
         var actual = commands.Get(keys[0]);
 
         Assert.Equal(json, actual.ToString());
         File.Delete(file);
+
+        //test not existing file:
+        await Assert.ThrowsAsync<FileNotFoundException>(async () => await commands.SetFromFileAsync(keys[0], "$", "notExistingFile.json"));
     }
 
     [Fact]
