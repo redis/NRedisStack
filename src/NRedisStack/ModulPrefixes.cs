@@ -12,7 +12,7 @@ namespace NRedisStack.RedisStackCommands
 
         static public TopKCommands TOPK(this IDatabase db) => new TopKCommands(db);
 
-        static public TdigestCommands TDIGEST(this IDatabase db) => new TdigestCommands(db);
+        static public ITdigestCommands TDIGEST(this IDatabase db) => new TdigestCommands(db);
 
         static public ISearchCommands FT(this IDatabase db) => new SearchCommands(db);
 

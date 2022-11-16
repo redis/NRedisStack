@@ -16,14 +16,14 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         redisFixture.Redis.GetDatabase().KeyDelete(key);
     }
 
-    private void AssertMergedUnmergedNodes(TdigestCommands tdigest, string key, int mergedNodes, int unmergedNodes)
+    private void AssertMergedUnmergedNodes(ITdigestCommands tdigest, string key, int mergedNodes, int unmergedNodes)
     {
         var info = tdigest.Info(key);
         Assert.Equal((long)mergedNodes, info.MergedNodes);
         Assert.Equal((long)unmergedNodes, info.UnmergedNodes);
     }
 
-    private void AssertTotalWeight(TdigestCommands tdigest, string key, double totalWeight)
+    private void AssertTotalWeight(ITdigestCommands tdigest, string key, double totalWeight)
     {
         var info = tdigest.Info(key);
         Assert.Equal(totalWeight, info.MergedWeight + info.UnmergedWeight);
