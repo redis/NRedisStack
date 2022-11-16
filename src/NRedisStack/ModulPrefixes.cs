@@ -18,6 +18,6 @@ namespace NRedisStack.RedisStackCommands
 
         static public IJsonCommands JSON(this IDatabase db) => new JsonCommands(db);
 
-        static public TimeSeriesCommands TS(this IDatabase db) => new TimeSeriesCommands(db);
+        static public ITimeSeriesCommands TS(this IDatabase db) => new TimeSeriesCommands(db);
     }
 }
