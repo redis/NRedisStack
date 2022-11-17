@@ -26,6 +26,7 @@ namespace NRedisStack.Tests
         {
             var transaction = _db.CreateTransaction();
             var tasks = new List<Task<RedisResult>>();
+
             foreach (var tuple in commandArgsTuples)
             {
                 tasks.Add(transaction.ExecuteAsync(tuple.Item1, tuple.Item2));
