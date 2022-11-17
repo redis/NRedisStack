@@ -1,3 +1,4 @@
+using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
 
 namespace NRedisStack
@@ -23,6 +24,16 @@ namespace NRedisStack
             }
 
             return args.ToArray();
+        }
+
+        public static RedisResult Execute(this IDatabase db, SerializedCommand command)
+        {
+            return db.Execute(command.Command, command.Args);
+        }
+
+        public async static Task<RedisResult> ExecuteAsync(this IDatabase db, SerializedCommand command)
+        {
+            return await db.ExecuteAsync(command.Command, command.Args);
         }
     }
 }
