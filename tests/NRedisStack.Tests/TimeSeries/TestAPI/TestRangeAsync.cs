@@ -13,7 +13,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
     {
         public TestRangeAsync(RedisFixture redisFixture) : base(redisFixture) { }
 
-        private async Task<List<TimeSeriesTuple>> CreateData(TimeSeriesCommands ts, string key, int timeBucket)
+        private async Task<List<TimeSeriesTuple>> CreateData(ITimeSeriesCommands ts, string key, int timeBucket)
         {
             var tuples = new List<TimeSeriesTuple>();
             for (var i = 0; i < 10; i++)

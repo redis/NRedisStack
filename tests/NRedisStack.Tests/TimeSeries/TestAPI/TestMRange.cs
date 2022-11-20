@@ -22,7 +22,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        private List<TimeSeriesTuple> CreateData(TimeSeriesCommands ts, int timeBucket)
+        private List<TimeSeriesTuple> CreateData(ITimeSeriesCommands ts, int timeBucket)
         {
             var tuples = new List<TimeSeriesTuple>();
 
