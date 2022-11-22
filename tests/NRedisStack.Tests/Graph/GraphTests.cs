@@ -768,7 +768,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         AssertTestGeoPoint(graph);
     }
 
-    private void AssertTestGeoPoint(GraphCommands graph)
+    private void AssertTestGeoPoint(IGraphCommands graph)
     {
         ResultSet results = graph.Query("social", "MATCH (restaurant) RETURN restaurant");
         Assert.Equal(1, results.Count);
