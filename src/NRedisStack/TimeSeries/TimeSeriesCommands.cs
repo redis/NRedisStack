@@ -371,13 +371,13 @@ namespace NRedisStack
         /// <inheritdoc/>
         public IReadOnlyList<string> QueryIndex(IReadOnlyCollection<string> filter)
         {
-            return _db.Execute(TimeSeriesCommandsBuilder.QueryIndex(filter)).ToStringArray();
+            return _db.Execute(TimeSeriesCommandsBuilder.QueryIndex(filter)).ToStringList();
         }
 
         /// <inheritdoc/>
         public async Task<IReadOnlyList<string>> QueryIndexAsync(IReadOnlyCollection<string> filter)
         {
-            return (await _db.ExecuteAsync(TimeSeriesCommandsBuilder.QueryIndex(filter))).ToStringArray();
+            return (await _db.ExecuteAsync(TimeSeriesCommandsBuilder.QueryIndex(filter))).ToStringList();
         }
 
         #endregion

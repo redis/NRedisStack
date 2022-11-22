@@ -86,7 +86,7 @@ namespace NRedisStack.DataTypes
         /// </summary>
         /// <param name="obj">Object to compare</param>
         /// <returns>If two TimeStamp objects are equal</returns>
-        public override bool Equals(object obj) =>
+        public override bool Equals(object? obj) =>
             obj is TimeStamp stamp && EqualityComparer<object>.Default.Equals(Value, stamp.Value);
 
         /// <summary>

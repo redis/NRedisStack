@@ -554,7 +554,7 @@ namespace NRedisStack
 
         }
 
-        public static IReadOnlyList<string> ToStringArray(this RedisResult result)
+        public static List<string> ToStringList(this RedisResult result)
         {
             RedisResult[] redisResults = result.ToArray();
 

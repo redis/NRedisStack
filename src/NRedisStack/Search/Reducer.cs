@@ -48,9 +48,9 @@ namespace NRedisStack.Search.Aggregation
         //     return this;
         // }
 
-    //     public final Reducer as(string alias) {
-    // return setAlias(alias);
-    // }
+        //     public final Reducer as(string alias) {
+        // return setAlias(alias);
+        // }
 
         public Reducer As(string alias)
         {

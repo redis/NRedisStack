@@ -29,7 +29,7 @@ namespace NRedisStack.DataTypes
         /// </summary>
         /// <param name="obj">Object to compare</param>
         /// <returns>If two TimeSeriesTuple objects are equal</returns>
-        public override bool Equals(object obj) =>
+        public override bool Equals(object? obj) =>
             obj is TimeSeriesTuple tuple &&
             EqualityComparer<TimeStamp>.Default.Equals(Time, tuple.Time) &&
             Val == tuple.Val;
