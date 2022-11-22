@@ -31,15 +31,7 @@ namespace NRedisStack
             return _graphCaches[graphName];
         }
 
-        /// <summary>
-        /// Execute a Cypher query with parameters.
-        /// </summary>
-        /// <param name="graphName">A graph to perform the query on.</param>
-        /// <param name="query">The Cypher query.</param>
-        /// <param name="parameters">Parameters map.</param>
-        /// <param name="timeout">Timeout (optional).</param>
-        /// <returns>A result set.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/graph.query"/></remarks>
+        /// <inheritdoc/>
         public ResultSet Query(string graphName, string query, IDictionary<string, object> parameters, long? timeout = null)
         {
             var preparedQuery = PrepareQuery(query, parameters);
@@ -47,15 +39,7 @@ namespace NRedisStack
             return Query(graphName, preparedQuery, timeout);
         }
 
-        /// <summary>
-        /// Execute a Cypher query with parameters.
-        /// </summary>
-        /// <param name="graphName">A graph to perform the query on.</param>
-        /// <param name="query">The Cypher query.</param>
-        /// <param name="parameters">Parameters map.</param>
-        /// <param name="timeout">Timeout (optional).</param>
-        /// <returns>A result set.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/graph.query"/></remarks>
+        /// <inheritdoc/>
         public async Task<ResultSet> QueryAsync(string graphName, string query, IDictionary<string, object> parameters, long? timeout = null)
         {
             var preparedQuery = PrepareQuery(query, parameters);
@@ -63,17 +47,10 @@ namespace NRedisStack
             return await QueryAsync(graphName, preparedQuery, timeout);
         }
 
-        /// <summary>
-        /// Execute a Cypher query.
-        /// </summary>
-        /// <param name="graphName">A graph to perform the query on.</param>
-        /// <param name="query">The Cypher query.</param>
-        /// <param name="timeout">Timeout (optional).</param>
-        /// <returns>A result set.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/graph.query"/></remarks>
+        /// <inheritdoc/>
         public ResultSet Query(string graphName, string query, long? timeout = null)
         {
-            if(!_graphCaches.ContainsKey(graphName))
+            if (!_graphCaches.ContainsKey(graphName))
             {
                 _graphCaches.Add(graphName, new GraphCache(graphName, this));
             }
@@ -84,17 +61,10 @@ namespace NRedisStack
             return new ResultSet(_db.Execute(GRAPH.QUERY, args), _graphCaches[graphName]);
         }
 
-        /// <summary>
-        /// Execute a Cypher query.
-        /// </summary>
-        /// <param name="graphName">A graph to perform the query on.</param>
-        /// <param name="query">The Cypher query.</param>
-        /// <param name="timeout">Timeout (optional).</param>
-        /// <returns>A result set.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/graph.query"/></remarks>
+        /// <inheritdoc/>
         public async Task<ResultSet> QueryAsync(string graphName, string query, long? timeout = null)
         {
-            if(!_graphCaches.ContainsKey(graphName))
+            if (!_graphCaches.ContainsKey(graphName))
             {
                 _graphCaches.Add(graphName, new GraphCache(graphName, this));
             }
@@ -105,15 +75,7 @@ namespace NRedisStack
             return new ResultSet(await _db.ExecuteAsync(GRAPH.QUERY, args), _graphCaches[graphName]);
         }
 
-        /// <summary>
-        /// Execute a Cypher query with parameters.
-        /// </summary>
-        /// <param name="graphName">A graph to perform the query on.</param>
-        /// <param name="query">The Cypher query.</param>
-        /// <param name="parameters">Parameters map.</param>
-        /// <param name="timeout">Timeout (optional).</param>
-        /// <returns>A result set.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/graph.ro_query"/></remarks>
+        /// <inheritdoc/>
         public ResultSet RO_Query(string graphName, string query, IDictionary<string, object> parameters, long? timeout = null)
         {
             var preparedQuery = PrepareQuery(query, parameters);
@@ -121,15 +83,7 @@ namespace NRedisStack
             return RO_Query(graphName, preparedQuery, timeout);
         }
 
-        /// <summary>
-        /// Execute a Cypher query with parameters.
-        /// </summary>
-        /// <param name="graphName">A graph to perform the query on.</param>
-        /// <param name="query">The Cypher query.</param>
-        /// <param name="parameters">Parameters map.</param>
-        /// <param name="timeout">Timeout (optional).</param>
-        /// <returns>A result set.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/graph.ro_query"/></remarks>
+        /// <inheritdoc/>
         public async Task<ResultSet> RO_QueryAsync(string graphName, string query, IDictionary<string, object> parameters, long? timeout = null)
         {
             var preparedQuery = PrepareQuery(query, parameters);
@@ -137,17 +91,10 @@ namespace NRedisStack
             return await RO_QueryAsync(graphName, preparedQuery, timeout);
         }
 
-        /// <summary>
-        /// Execute a Cypher query.
-        /// </summary>
-        /// <param name="graphName">A graph to perform the query on.</param>
-        /// <param name="query">The Cypher query.</param>
-        /// <param name="timeout">Timeout (optional).</param>
-        /// <returns>A result set.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/graph.ro_query"/></remarks>
+        /// <inheritdoc/>
         public ResultSet RO_Query(string graphName, string query, long? timeout = null)
         {
-            if(!_graphCaches.ContainsKey(graphName))
+            if (!_graphCaches.ContainsKey(graphName))
             {
                 _graphCaches.Add(graphName, new GraphCache(graphName, this));
             }
@@ -158,17 +105,10 @@ namespace NRedisStack
             return new ResultSet(_db.Execute(GRAPH.RO_QUERY, args), _graphCaches[graphName]);
         }
 
-        /// <summary>
-        /// Execute a Cypher query.
-        /// </summary>
-        /// <param name="graphName">A graph to perform the query on.</param>
-        /// <param name="query">The Cypher query.</param>
-        /// <param name="timeout">Timeout (optional).</param>
-        /// <returns>A result set.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/graph.ro_query"/></remarks>
+        /// <inheritdoc/>
         public async Task<ResultSet> RO_QueryAsync(string graphName, string query, long? timeout = null)
         {
-            if(!_graphCaches.ContainsKey(graphName))
+            if (!_graphCaches.ContainsKey(graphName))
             {
                 _graphCaches.Add(graphName, new GraphCache(graphName, this));
             }
@@ -183,33 +123,15 @@ namespace NRedisStack
             new Dictionary<string, List<string>>();
 
         // TODO: Check if needed
-        /// <summary>
-        /// Call a saved procedure.
-        /// </summary>
-        /// <param name="graphName">The graph containing the saved procedure.</param>
-        /// <param name="procedure">The procedure name.</param>
-        /// <returns>A result set.</returns>
+        /// <inheritdoc/>
         public ResultSet CallProcedure(string graphName, string procedure) =>
-            CallProcedure(graphName, procedure, Enumerable.Empty<string>(), EmptyKwargsDictionary);
+        CallProcedure(graphName, procedure, Enumerable.Empty<string>(), EmptyKwargsDictionary);
 
-        /// <summary>
-        /// Call a saved procedure with parameters.
-        /// </summary>
-        /// <param name="graphName">The graph containing the saved procedure.</param>
-        /// <param name="procedure">The procedure name.</param>
-        /// <param name="args">A collection of positional arguments.</param>
-        /// <returns>A result set.</returns>
+        /// <inheritdoc/>
         public ResultSet CallProcedure(string graphName, string procedure, IEnumerable<string> args) =>
-            CallProcedure(graphName, procedure, args, EmptyKwargsDictionary);
+        CallProcedure(graphName, procedure, args, EmptyKwargsDictionary);
 
-        /// <summary>
-        /// Call a saved procedure with parameters.
-        /// </summary>
-        /// <param name="graphName">The graph containing the saved procedure.</param>
-        /// <param name="procedure">The procedure name.</param>
-        /// <param name="args">A collection of positional arguments.</param>
-        /// <param name="kwargs">A collection of keyword arguments.</param>
-        /// <returns>A result set.</returns>
+        /// <inheritdoc/>
         public ResultSet CallProcedure(string graphName, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs)
         {
             args = args.Select(a => QuoteString(a));
@@ -226,12 +148,7 @@ namespace NRedisStack
             return Query(graphName, queryBody.ToString());
         }
 
-        /// <summary>
-        /// Delete an existing graph.
-        /// </summary>
-        /// <param name="graphName">The graph to delete.</param>
-        /// <returns>A result set.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/graph.delete"/></remarks>
+        /// <inheritdoc/>
         public ResultSet Delete(string graphName)
         {
             var result = _db.Execute(GRAPH.DELETE, graphName);
@@ -243,12 +160,7 @@ namespace NRedisStack
             return processedResult;
         }
 
-        /// <summary>
-        /// Delete an existing graph.
-        /// </summary>
-        /// <param name="graphName">The graph to delete.</param>
-        /// <returns>A result set.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/graph.delete"/></remarks>
+        /// <inheritdoc/>
         public async Task<ResultSet> DeleteAsync(string graphName)
         {
             var result = await _db.ExecuteAsync(GRAPH.DELETE, graphName);
@@ -261,33 +173,15 @@ namespace NRedisStack
         }
 
         // TODO: Check if this (CallProcedure) is needed
-        /// <summary>
-        /// Call a saved procedure against a read-only node.
-        /// </summary>
-        /// <param name="graphName">The graph containing the saved procedure.</param>
-        /// <param name="procedure">The procedure name.</param>
-        /// <returns>A result set.</returns>
+        /// <inheritdoc/>
         public ResultSet CallProcedureReadOnly(string graphName, string procedure) =>
-            CallProcedureReadOnly(graphName, procedure, Enumerable.Empty<string>(), EmptyKwargsDictionary);
+        CallProcedureReadOnly(graphName, procedure, Enumerable.Empty<string>(), EmptyKwargsDictionary);
 
-        /// <summary>
-        /// Call a saved procedure with parameters against a read-only node.
-        /// </summary>
-        /// <param name="graphName">The graph containing the saved procedure.</param>
-        /// <param name="procedure">The procedure name.</param>
-        /// <param name="args">A collection of positional arguments.</param>
-        /// <returns>A result set.</returns>
+        /// <inheritdoc/>
         public ResultSet CallProcedureReadOnly(string graphName, string procedure, IEnumerable<string> args) =>
-            CallProcedureReadOnly(graphName, procedure, args, EmptyKwargsDictionary);
+        CallProcedureReadOnly(graphName, procedure, args, EmptyKwargsDictionary);
 
-        /// <summary>
-        /// Call a saved procedure with parameters against a read-only node.
-        /// </summary>
-        /// <param name="graphName">The graph containing the saved procedure.</param>
-        /// <param name="procedure">The procedure name.</param>
-        /// <param name="args">A collection of positional arguments.</param>
-        /// <param name="kwargs">A collection of keyword arguments.</param>
-        /// <returns>A result set.</returns>
+        /// <inheritdoc/>
         public ResultSet CallProcedureReadOnly(string graphName, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs)
         {
             args = args.Select(a => QuoteString(a));
@@ -304,41 +198,19 @@ namespace NRedisStack
             return RO_Query(graphName, queryBody.ToString());
         }
 
-        /// <summary>
-        /// Constructs a query execution plan but does not run it. Inspect this execution plan to better understand how your
-        /// query will get executed.
-        /// </summary>
-        /// <param name="graphName">The graph name.</param>
-        /// <param name="query">The query.</param>
-        /// <returns>String representation of a query execution plan.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/graph.explain"/></remarks>
+        /// <inheritdoc/>
         public IReadOnlyList<string> Explain(string graphName, string query)
         {
-             return _db.Execute(GRAPH.EXPLAIN, graphName, query).ToStringList();
+            return _db.Execute(GRAPH.EXPLAIN, graphName, query).ToStringList();
         }
 
-        /// <summary>
-        /// Constructs a query execution plan but does not run it. Inspect this execution plan to better understand how your
-        /// query will get executed.
-        /// </summary>
-        /// <param name="graphName">The graph name.</param>
-        /// <param name="query">The query.</param>
-        /// <returns>String representation of a query execution plan.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/graph.explain"/></remarks>
+        /// <inheritdoc/>
         public async Task<IReadOnlyList<string>> ExplainAsync(string graphName, string query)
         {
             return (await _db.ExecuteAsync(GRAPH.EXPLAIN, graphName, query)).ToStringList();
         }
 
-        /// <summary>
-        /// Executes a query and produces an execution plan augmented with metrics for each operation's execution.
-        /// </summary>
-        /// <param name="graphName">The graph name.</param>
-        /// <param name="query">The query.</param>
-        /// <param name="timeout">Timeout (optional).</param>
-        /// <returns>String representation of a query execution plan,
-        /// with details on results produced by and time spent in each operation.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/graph.profile"/></remarks>
+        /// <inheritdoc/>
         public IReadOnlyList<string> Profile(string graphName, string query, long? timeout = null)
         {
             var args = (timeout == null) ? new List<object>(2) { graphName, query }
@@ -347,15 +219,7 @@ namespace NRedisStack
             return _db.Execute(GRAPH.PROFILE, args).ToStringList();
         }
 
-        /// <summary>
-        /// Executes a query and produces an execution plan augmented with metrics for each operation's execution.
-        /// </summary>
-        /// <param name="graphName">The graph name.</param>
-        /// <param name="query">The query.</param>
-        /// <param name="timeout">Timeout (optional).</param>
-        /// <returns>String representation of a query execution plan,
-        /// with details on results produced by and time spent in each operation.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/graph.profile"/></remarks>
+        /// <inheritdoc/>
         public async Task<IReadOnlyList<string>> ProfileAsync(string graphName, string query, long? timeout = null)
         {
             var args = (timeout == null) ? new List<object>(2) { graphName, query }
@@ -364,78 +228,43 @@ namespace NRedisStack
             return (await _db.ExecuteAsync(GRAPH.PROFILE, args)).ToStringList();
         }
 
-        /// <summary>
-        /// Lists all graph keys in the keyspace.
-        /// </summary>
-        /// <returns>List of all graph keys in the keyspace.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/graph.list"/></remarks>
+        /// <inheritdoc/>
         public IReadOnlyList<string> List()
         {
             return _db.Execute(GRAPH.LIST).ToStringList();
         }
 
-        /// <summary>
-        /// Lists all graph keys in the keyspace.
-        /// </summary>
-        /// <returns>List of all graph keys in the keyspace.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/graph.list"/></remarks>
+        /// <inheritdoc/>
         public async Task<IReadOnlyList<string>> ListAsync()
         {
             return (await _db.ExecuteAsync(GRAPH.LIST)).ToStringList();
         }
 
-        /// <summary>
-        /// Set the value of a RedisGraph configuration parameter.
-        /// </summary>
-        /// <param name="configName">The config name.</param>
-        /// <param name="value">Value to set.</param>
-        /// <returns><see langword="true"/> if executed correctly, error otherwise</returns>
-        /// <remarks><seealso href="https://redis.io/commands/graph.config-set"/></remarks>
+        /// <inheritdoc/>
         public bool ConfigSet(string configName, object value)
         {
             return _db.Execute(GRAPH.CONFIG, GraphArgs.SET, configName, value).OKtoBoolean();
         }
 
-        /// <summary>
-        /// Set the value of a RedisGraph configuration parameter.
-        /// </summary>
-        /// <param name="configName">The config name.</param>
-        /// <param name="value">Value to set.</param>
-        /// <returns><see langword="true"/> if executed correctly, error otherwise</returns>
-        /// <remarks><seealso href="https://redis.io/commands/graph.config-set"/></remarks>
+        /// <inheritdoc/>
         public async Task<bool> ConfigSetAsync(string configName, object value)
         {
             return (await _db.ExecuteAsync(GRAPH.CONFIG, GraphArgs.SET, configName, value)).OKtoBoolean();
         }
 
-        /// <summary>
-        /// Set the value of a RedisGraph configuration parameter.
-        /// </summary>
-        /// <param name="configName">The config name.</param>
-        /// <returns>Dictionary of <string, object>.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/graph.config-get"/></remarks>
+        /// <inheritdoc/>
         public Dictionary<string, RedisResult> ConfigGet(string configName)
         {
             return _db.Execute(GRAPH.CONFIG, GraphArgs.GET, configName).ToDictionary();
         }
 
-        /// <summary>
-        /// Set the value of a RedisGraph configuration parameter.
-        /// </summary>
-        /// <param name="configName">The config name.</param>
-        /// <returns>Dictionary of <string, object>.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/graph.config-get"/></remarks>
+        /// <inheritdoc/>
         public async Task<Dictionary<string, RedisResult>> ConfigGetAsync(string configName)
         {
             return (await _db.ExecuteAsync(GRAPH.CONFIG, GraphArgs.GET, configName)).ToDictionary();
         }
 
-        /// <summary>
-        /// Returns a list containing up to 10 of the slowest queries issued against the given graph Name.
-        /// </summary>
-        /// <param name="graphName">The graph name.</param>
-        /// <returns>Dictionary of <string, object>.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/graph.slowlog"/></remarks>
+        /// <inheritdoc/>
         public List<List<string>> Slowlog(string graphName)
         {
             var result = _db.Execute(GRAPH.SLOWLOG, graphName).ToArray();
@@ -448,12 +277,7 @@ namespace NRedisStack
             return slowlog;
         }
 
-        /// <summary>
-        /// Returns a list containing up to 10 of the slowest queries issued against the given graph Name.
-        /// </summary>
-        /// <param name="graphName">The graph name.</param>
-        /// <returns>Dictionary of <string, object>.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/graph.slowlog"/></remarks>
+        /// <inheritdoc/>
         public async Task<List<List<string>>> SlowlogAsync(string graphName)
         {
             var result = (await _db.ExecuteAsync(GRAPH.SLOWLOG, graphName)).ToArray();
