@@ -51,9 +51,10 @@ public static class JsonCommandBuilder
                               : new SerializedCommand(JSON.STRLEN, key);
     }
 
-    public static SerializedCommand Toggle(RedisKey key, string path = "$")
+    public static SerializedCommand Toggle(RedisKey key, string? path = null)
     {
-        return new SerializedCommand(JSON.TOGGLE, key, path);
+        return (path != null) ? new SerializedCommand(JSON.TOGGLE, key, path)
+                              : new SerializedCommand(JSON.TOGGLE, key, "$");
     }
 
     public static SerializedCommand Type(RedisKey key, string? path = null)

@@ -86,9 +86,9 @@ public class JsonCommands : IJsonCommands
     }
 
     /// <inheritdoc/>
-    public bool?[] Toggle(RedisKey key, string? path = "$")
+    public bool?[] Toggle(RedisKey key, string? path = null)
     {
-        RedisResult result = _db.Execute(JsonCommandBuilder.Toggle(key, path!));
+        RedisResult result = _db.Execute(JsonCommandBuilder.Toggle(key, path));
 
         if (result.IsNull)
         {
@@ -301,9 +301,9 @@ public class JsonCommands : IJsonCommands
         return (await _db.ExecuteAsync(JsonCommandBuilder.StrLen(key, path))).ToNullableLongArray();
     }
 
-    public async Task<bool?[]> ToggleAsync(RedisKey key, string? path = "$")
+    public async Task<bool?[]> ToggleAsync(RedisKey key, string? path = null)
     {
-        RedisResult result = await _db.ExecuteAsync(JsonCommandBuilder.Toggle(key, path!));
+        RedisResult result = await _db.ExecuteAsync(JsonCommandBuilder.Toggle(key, path));
 
         if (result.IsNull)
         {
