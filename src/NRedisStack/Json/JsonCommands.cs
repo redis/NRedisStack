@@ -1,8 +1,6 @@
-﻿using NRedisStack.Literals;
-using StackExchange.Redis;
+﻿using StackExchange.Redis;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using static NRedisStack.Auxiliary;
 
 namespace NRedisStack;
 
@@ -17,15 +15,7 @@ public class JsonCommands : IJsonCommands
     /// <inheritdoc/>
     public RedisResult[] Resp(RedisKey key, string? path = null)
     {
-        RedisResult result;
-        if (string.IsNullOrEmpty(path))
-        {
-            result = _db.Execute(JSON.RESP, key);
-        }
-        else
-        {
-            result = _db.Execute(JSON.RESP, key, path);
-        }
+        RedisResult result = _db.Execute(JsonCommandBuilder.Resp(key, path));
 
         if (result.IsNull)
         {
@@ -45,19 +35,7 @@ public class JsonCommands : IJsonCommands
     /// <inheritdoc/>
     public bool Set(RedisKey key, RedisValue path, RedisValue json, When when = When.Always)
     {
-        var result = when switch
-        {
-            When.Exists => _db.Execute(JSON.SET, key, path, json, "XX"),
-            When.NotExists => _db.Execute(JSON.SET, key, path, json, "NX"),
-            _ => _db.Execute(JSON.SET, key, path, json)
-        };
-
-        if (result.IsNull || result.ToString() != "OK")
-        {
-            return false;
-        }
-
-        return true;
+        return _db.Execute(JsonCommandBuilder.Set(key, path, json, when)).OKtoBoolean();
     }
 
     /// <inheritdoc/>
@@ -98,47 +76,19 @@ public class JsonCommands : IJsonCommands
     /// <inheritdoc/>
     public long?[] StrAppend(RedisKey key, string value, string? path = null)
     {
-        RedisResult result;
-        if (path == null)
-        {
-            result = _db.Execute(JSON.STRAPPEND, key, JsonSerializer.Serialize(value));
-        }
-        else
-        {
-            result = _db.Execute(JSON.STRAPPEND, key, path, JsonSerializer.Serialize(value));
-        }
-
-        return result.ToNullableLongArray();
+        return _db.Execute(JsonCommandBuilder.StrAppend(key, value, path)).ToNullableLongArray();
     }
 
     /// <inheritdoc/>
     public long?[] StrLen(RedisKey key, string? path = null)
     {
-        RedisResult result;
-        if (path != null)
-        {
-            result = _db.Execute(JSON.STRLEN, key, path);
-        }
-        else
-        {
-            result = _db.Execute(JSON.STRLEN, key);
-        }
-
-        return result.ToNullableLongArray();
+        return _db.Execute(JsonCommandBuilder.StrLen(key, path)).ToNullableLongArray();
     }
 
     /// <inheritdoc/>
-    public bool?[] Toggle(RedisKey key, string? path = null)
+    public bool?[] Toggle(RedisKey key, string? path = "$")
     {
-        RedisResult result;
-        if (path != null)
-        {
-            result = _db.Execute(JSON.TOGGLE, key, path);
-        }
-        else
-        {
-            result = _db.Execute(JSON.TOGGLE, key, "$");
-        }
+        RedisResult result = _db.Execute(JsonCommandBuilder.Toggle(key, path!));
 
         if (result.IsNull)
         {
@@ -156,15 +106,7 @@ public class JsonCommands : IJsonCommands
     /// <inheritdoc/>
     public JsonType[] Type(RedisKey key, string? path = null)
     {
-        RedisResult result;
-        if (path == null)
-        {
-            result = _db.Execute(JSON.TYPE, key);
-        }
-        else
-        {
-            result = _db.Execute(JSON.TYPE, key, path);
-        }
+        RedisResult result = _db.Execute(JsonCommandBuilder.Type(key, path));
 
         if (result.Type == ResultType.MultiBulk)
         {
@@ -182,164 +124,76 @@ public class JsonCommands : IJsonCommands
 
     public long DebugMemory(string key, string? path = null)
     {
-        if (path != null)
-        {
-            return (long)_db.Execute(JSON.DEBUG, JSON.MEMORY, key, path);
-        }
-        return (long)_db.Execute(JSON.DEBUG, JSON.MEMORY, key);
+        return _db.Execute(JsonCommandBuilder.DebugMemory(key, path)).ToLong();
     }
 
     public async Task<long?[]> ArrAppendAsync(RedisKey key, string? path = null, params object[] values)
     {
-        if (values.Length < 1)
-            throw new ArgumentOutOfRangeException(nameof(values));
-
-        var args = new List<object> { key };
-        if (path != null)
-        {
-            args.Add(path);
-        }
-
-        args.AddRange(values.Select(x => JsonSerializer.Serialize(x)));
-
-        var result = await _db.ExecuteAsync(JSON.ARRAPPEND, args.ToArray());
-        return result.ToNullableLongArray();
+        return (await _db.ExecuteAsync(JsonCommandBuilder.ArrAppend(key, path, values))).ToNullableLongArray();
     }
 
     public async Task<long?[]> ArrIndexAsync(RedisKey key, string path, object value, long? start = null, long? stop = null)
     {
-        if (start == null && stop != null)
-            throw new ArgumentException("stop cannot be defined without start");
-
-        var args = AssembleNonNullArguments(key, path, JsonSerializer.Serialize(value), start, stop);
-        var result = await _db.ExecuteAsync(JSON.ARRINDEX, args);
-        return result.ToNullableLongArray();
+        return (await _db.ExecuteAsync(JsonCommandBuilder.ArrIndex(key, path, value, start, stop))).ToNullableLongArray();
     }
 
     public async Task<long?[]> ArrInsertAsync(RedisKey key, string path, long index, params object[] values)
     {
-        if (values.Length < 1)
-            throw new ArgumentOutOfRangeException(nameof(values));
-        var args = new List<object> { key, path, index };
-        foreach (var val in values)
-        {
-            args.Add(JsonSerializer.Serialize(val));
-        }
-
-        var result = await _db.ExecuteAsync(JSON.ARRINSERT, args);
-        return result.ToNullableLongArray();
+        return (await _db.ExecuteAsync(JsonCommandBuilder.ArrInsert(key, path, index, values))).ToNullableLongArray();
     }
 
     public async Task<long?[]> ArrLenAsync(RedisKey key, string? path = null)
     {
-        var args = AssembleNonNullArguments(key, path);
-        var result = await _db.ExecuteAsync(JSON.ARRLEN, args);
-        return result.ToNullableLongArray();
+        return (await _db.ExecuteAsync(JsonCommandBuilder.ArrLen(key, path))).ToNullableLongArray();
     }
 
     public async Task<RedisResult[]> ArrPopAsync(RedisKey key, string? path = null, long? index = null)
     {
-        if (path == null && index != null)
-            throw new ArgumentException("index cannot be defined without path");
+        RedisResult result = await _db.ExecuteAsync(JsonCommandBuilder.ArrPop(key, path, index));
 
-        var args = AssembleNonNullArguments(key, path, index);
-        var res = await _db.ExecuteAsync(JSON.ARRPOP, args)!;
-
-        if (res.Type == ResultType.MultiBulk)
+        if (result.Type == ResultType.MultiBulk)
         {
-            return (RedisResult[])res!;
+            return (RedisResult[])result!;
         }
 
-        if (res.Type == ResultType.BulkString)
+        if (result.Type == ResultType.BulkString)
         {
-            return new[] { res };
+            return new[] { result };
         }
 
         return Array.Empty<RedisResult>();
     }
 
     public async Task<long?[]> ArrTrimAsync(RedisKey key, string path, long start, long stop) =>
-        (await _db.ExecuteAsync(JSON.ARRTRIM, key, path, start, stop)).ToNullableLongArray();
+        (await _db.ExecuteAsync(JsonCommandBuilder.ArrTrim(key, path, start, stop))).ToNullableLongArray();
 
     public async Task<long> ClearAsync(RedisKey key, string? path = null)
     {
-        var args = AssembleNonNullArguments(key, path);
-        return (long)await _db.ExecuteAsync(JSON.CLEAR, args);
+        return (await _db.ExecuteAsync(JsonCommandBuilder.Clear(key, path))).ToLong();
     }
 
     public async Task<long> DelAsync(RedisKey key, string? path = null)
     {
-        var args = AssembleNonNullArguments(key, path);
-        return (long)await _db.ExecuteAsync(JSON.DEL, args);
+        return (await _db.ExecuteAsync(JsonCommandBuilder.Del(key, path))).ToLong();
     }
 
     public Task<long> ForgetAsync(RedisKey key, string? path = null) => DelAsync(key, path);
 
-    public Task<RedisResult> GetAsync(RedisKey key, RedisValue? indent = null, RedisValue? newLine = null, RedisValue? space = null,
+    public async Task<RedisResult> GetAsync(RedisKey key, RedisValue? indent = null, RedisValue? newLine = null, RedisValue? space = null,
         RedisValue? path = null)
     {
-        List<object> args = new List<object>() { key };
-
-        if (indent != null)
-        {
-            args.Add(JsonArgs.INDENT);
-            args.Add(indent);
-        }
-
-        if (newLine != null)
-        {
-            args.Add(JsonArgs.NEWLINE);
-            args.Add(newLine);
-        }
-
-        if (space != null)
-        {
-            args.Add(JsonArgs.SPACE);
-            args.Add(space);
-        }
-
-        if (path != null)
-        {
-            args.Add(path);
-        }
-
-        return _db.ExecuteAsync(JSON.GET, args);
+        return await _db.ExecuteAsync(JsonCommandBuilder.Get(key, indent, newLine, space, path));
     }
 
-    public Task<RedisResult> GetAsync(RedisKey key, string[] paths, RedisValue? indent = null, RedisValue? newLine = null,
+    public async Task<RedisResult> GetAsync(RedisKey key, string[] paths, RedisValue? indent = null, RedisValue? newLine = null,
         RedisValue? space = null)
     {
-        List<object> args = new List<object>() { key };
-
-        foreach (var path in paths)
-        {
-            args.Add(path);
-        }
-
-        if (indent != null)
-        {
-            args.Add(JsonArgs.INDENT);
-            args.Add(indent);
-        }
-
-        if (newLine != null)
-        {
-            args.Add(JsonArgs.NEWLINE);
-            args.Add(newLine);
-        }
-
-        if (space != null)
-        {
-            args.Add(JsonArgs.SPACE);
-            args.Add(space);
-        }
-
-        return _db.ExecuteAsync(JSON.GET, args);
+        return await _db.ExecuteAsync(JsonCommandBuilder.Get(key, paths, indent, newLine, space));
     }
 
     public async Task<T?> GetAsync<T>(RedisKey key, string path = "$")
     {
-        var res = await _db.ExecuteAsync(JSON.GET, key, path);
+        var res = await _db.ExecuteAsync(JsonCommandBuilder.Get<T>(key, path));
         if (res.Type == ResultType.BulkString)
         {
             var arr = JsonSerializer.Deserialize<JsonArray>(res.ToString()!);
@@ -352,57 +206,35 @@ public class JsonCommands : IJsonCommands
         return default;
     }
 
-    public Task<IEnumerable<T?>> GetEnumerableAsync<T>(RedisKey key, string path = "$")
+    public Task<IEnumerable<T?>> GetEnumerableAsync<T>(RedisKey key, string path = "$") // TODO: why is this here?
     {
         throw new NotImplementedException();
     }
 
     public async Task<RedisResult[]> MGetAsync(RedisKey[] keys, string path)
     {
-        var args = new List<object>();
-        foreach (var key in keys)
-        {
-            args.Add(key);
-        }
-
-        args.Add(path);
-        var res = await _db.ExecuteAsync(JSON.MGET, args);
-        if (res.IsNull)
-        {
-            return Array.Empty<RedisResult>();
-        }
-        return (RedisResult[])res!;
+        return (await _db.ExecuteAsync(JsonCommandBuilder.MGet(keys, path))).ToArray();
     }
 
     public async Task<double?[]> NumIncrbyAsync(RedisKey key, string path, double value)
     {
-        var res = await _db.ExecuteAsync(JSON.NUMINCRBY, key, path, value);
+        var res = await _db.ExecuteAsync(JsonCommandBuilder.NumIncrby(key, path, value));
         return JsonSerializer.Deserialize<double?[]>(res.ToString());
     }
 
     public async Task<IEnumerable<HashSet<string>>> ObjKeysAsync(RedisKey key, string? path = null)
     {
-        var args = AssembleNonNullArguments(key, path);
-        return (await _db.ExecuteAsync(JSON.OBJKEYS, args)).ToHashSets();
+        return (await _db.ExecuteAsync(JsonCommandBuilder.ObjKeys(key, path))).ToHashSets();
     }
 
     public async Task<long?[]> ObjLenAsync(RedisKey key, string? path = null)
     {
-        var args = AssembleNonNullArguments(key, path);
-        return (await _db.ExecuteAsync(JSON.OBJLEN, args)).ToNullableLongArray();
+        return (await _db.ExecuteAsync(JsonCommandBuilder.ObjLen(key, path))).ToNullableLongArray();
     }
 
     public async Task<RedisResult[]> RespAsync(RedisKey key, string? path = null)
     {
-        RedisResult result;
-        if (string.IsNullOrEmpty(path))
-        {
-            result = await _db.ExecuteAsync(JSON.RESP, key);
-        }
-        else
-        {
-            result = await _db.ExecuteAsync(JSON.RESP, key, path);
-        }
+        RedisResult result = await _db.ExecuteAsync(JsonCommandBuilder.Resp(key, path));
 
         if (result.IsNull)
         {
@@ -420,21 +252,7 @@ public class JsonCommands : IJsonCommands
 
     public async Task<bool> SetAsync(RedisKey key, RedisValue path, RedisValue json, When when = When.Always)
     {
-        var t = when switch
-        {
-            When.Exists => _db.ExecuteAsync(JSON.SET, key, path, json, "XX"),
-            When.NotExists => _db.ExecuteAsync(JSON.SET, key, path, json, "NX"),
-            _ => _db.ExecuteAsync(JSON.SET, key, path, json)
-        };
-
-        var result = await t;
-
-        if (result.IsNull || result.ToString() != "OK")
-        {
-            return false;
-        }
-
-        return true;
+        return (await _db.ExecuteAsync(JsonCommandBuilder.Set(key, path, json, when))).OKtoBoolean();
     }
 
     /// <inheritdoc/> // TODO: check way asnyc methods dont have documenation
@@ -475,45 +293,17 @@ public class JsonCommands : IJsonCommands
 
     public async Task<long?[]> StrAppendAsync(RedisKey key, string value, string? path = null)
     {
-        RedisResult result;
-        if (path == null)
-        {
-            result = await _db.ExecuteAsync(JSON.STRAPPEND, key, JsonSerializer.Serialize(value));
-        }
-        else
-        {
-            result = await _db.ExecuteAsync(JSON.STRAPPEND, key, path, JsonSerializer.Serialize(value));
-        }
-
-        return result.ToNullableLongArray();
+        return (await _db.ExecuteAsync(JsonCommandBuilder.StrAppend(key, value, path))).ToNullableLongArray();
     }
 
     public async Task<long?[]> StrLenAsync(RedisKey key, string? path = null)
     {
-        RedisResult result;
-        if (path != null)
-        {
-            result = await _db.ExecuteAsync(JSON.STRLEN, key, path);
-        }
-        else
-        {
-            result = await _db.ExecuteAsync(JSON.STRLEN, key);
-        }
-
-        return result.ToNullableLongArray();
+        return (await _db.ExecuteAsync(JsonCommandBuilder.StrLen(key, path))).ToNullableLongArray();
     }
 
-    public async Task<bool?[]> ToggleAsync(RedisKey key, string? path = null)
+    public async Task<bool?[]> ToggleAsync(RedisKey key, string? path = "$")
     {
-        RedisResult result;
-        if (path != null)
-        {
-            result = await _db.ExecuteAsync(JSON.TOGGLE, key, path);
-        }
-        else
-        {
-            result = await _db.ExecuteAsync(JSON.TOGGLE, key, "$");
-        }
+        RedisResult result = await _db.ExecuteAsync(JsonCommandBuilder.Toggle(key, path!));
 
         if (result.IsNull)
         {
@@ -530,15 +320,7 @@ public class JsonCommands : IJsonCommands
 
     public async Task<JsonType[]> TypeAsync(RedisKey key, string? path = null)
     {
-        RedisResult result;
-        if (path == null)
-        {
-            result = await _db.ExecuteAsync(JSON.TYPE, key);
-        }
-        else
-        {
-            result = await _db.ExecuteAsync(JSON.TYPE, key, path);
-        }
+        RedisResult result = await _db.ExecuteAsync(JsonCommandBuilder.Type(key, path));
 
         if (result.Type == ResultType.MultiBulk)
         {
@@ -555,82 +337,46 @@ public class JsonCommands : IJsonCommands
 
     public async Task<long> DebugMemoryAsync(string key, string? path = null)
     {
-        if (path != null)
-        {
-            return (long)await _db.ExecuteAsync(JSON.DEBUG, JSON.MEMORY, key, path);
-        }
-        return (long)await _db.ExecuteAsync(JSON.DEBUG, JSON.MEMORY, key);
+        return (await _db.ExecuteAsync(JsonCommandBuilder.DebugMemory(key, path))).ToLong();
     }
 
     /// <inheritdoc/>
     public long?[] ArrAppend(RedisKey key, string? path = null, params object[] values)
     {
-        if (values.Length < 1)
-            throw new ArgumentOutOfRangeException(nameof(values));
-
-        var args = new List<object> { key };
-        if (path != null)
-        {
-            args.Add(path);
-        }
-
-        args.AddRange(values.Select(x => JsonSerializer.Serialize(x)));
-
-        var result = _db.Execute(JSON.ARRAPPEND, args.ToArray());
-        return result.ToNullableLongArray();
+        return _db.Execute(JsonCommandBuilder.ArrAppend(key, path, values)).ToNullableLongArray();
     }
 
     /// <inheritdoc/>
     public long?[] ArrIndex(RedisKey key, string path, object value, long? start = null, long? stop = null)
     {
-        if (start == null && stop != null)
-            throw new ArgumentException("stop cannot be defined without start");
-
-        var args = AssembleNonNullArguments(key, path, JsonSerializer.Serialize(value), start, stop);
-        var result = _db.Execute(JSON.ARRINDEX, args);
-        return result.ToNullableLongArray();
+        return _db.Execute(JsonCommandBuilder.ArrIndex(key, path, value, start, stop)).ToNullableLongArray();
     }
 
     /// <inheritdoc/>
     public long?[] ArrInsert(RedisKey key, string path, long index, params object[] values)
     {
-        if (values.Length < 1)
-            throw new ArgumentOutOfRangeException(nameof(values));
-        var args = new List<object> { key, path, index };
-        foreach (var val in values)
-        {
-            args.Add(JsonSerializer.Serialize(val));
-        }
-
-        var result = _db.Execute(JSON.ARRINSERT, args);
-        return result.ToNullableLongArray();
+        return _db.Execute(JsonCommandBuilder.ArrInsert(key, path, index, values)).ToNullableLongArray();
     }
 
     /// <inheritdoc/>
     public long?[] ArrLen(RedisKey key, string? path = null)
     {
-        var args = AssembleNonNullArguments(key, path);
-        var result = _db.Execute(JSON.ARRLEN, args);
-        return result.ToNullableLongArray();
+        return _db.Execute(JsonCommandBuilder.ArrLen(key, path)).ToNullableLongArray();
     }
 
     /// <inheritdoc/>
     public RedisResult[] ArrPop(RedisKey key, string? path = null, long? index = null)
     {
-        if (path == null && index != null)
-            throw new ArgumentException("index cannot be defined without path");
+        RedisResult result = _db.Execute(JsonCommandBuilder.ArrPop(key, path, index));
 
-        var args = AssembleNonNullArguments(key, path, index);
-        var res = _db.Execute(JSON.ARRPOP, args)!;
-
-        if (res.Type == ResultType.MultiBulk)
+        if (result.Type == ResultType.MultiBulk)
         {
-            return (RedisResult[])res!;
+            return (RedisResult[])result!;
         }
 
-        if (res.Type == ResultType.BulkString)
+        if (result.Type == ResultType.BulkString)
         {
-            return new[] { res };
+            return new[] { result };
         }
 
         return Array.Empty<RedisResult>();
@@ -638,20 +384,18 @@ public class JsonCommands : IJsonCommands
 
     /// <inheritdoc/>
     public long?[] ArrTrim(RedisKey key, string path, long start, long stop) =>
-        _db.Execute(JSON.ARRTRIM, key, path, start, stop).ToNullableLongArray();
+        _db.Execute(JsonCommandBuilder.ArrTrim(key, path, start, stop)).ToNullableLongArray();
 
     /// <inheritdoc/>
     public long Clear(RedisKey key, string? path = null)
     {
-        var args = AssembleNonNullArguments(key, path);
-        return (long)_db.Execute(JSON.CLEAR, args);
+        return _db.Execute(JsonCommandBuilder.Clear(key, path)).ToLong();
     }
 
     /// <inheritdoc/>
     public long Del(RedisKey key, string? path = null)
     {
-        var args = AssembleNonNullArguments(key, path);
-        return (long)_db.Execute(JSON.DEL, args);
+        return _db.Execute(JsonCommandBuilder.Del(key, path)).ToLong();
     }
 
     /// <inheritdoc/>
@@ -660,69 +404,19 @@ public class JsonCommands : IJsonCommands
     /// <inheritdoc/>
     public RedisResult Get(RedisKey key, RedisValue? indent = null, RedisValue? newLine = null, RedisValue? space = null, RedisValue? path = null)
     {
-        List<object> args = new List<object>() { key };
-
-        if (indent != null)
-        {
-            args.Add(JsonArgs.INDENT);
-            args.Add(indent);
-        }
-
-        if (newLine != null)
-        {
-            args.Add(JsonArgs.NEWLINE);
-            args.Add(newLine);
-        }
-
-        if (space != null)
-        {
-            args.Add(JsonArgs.SPACE);
-            args.Add(space);
-        }
-
-        if (path != null)
-        {
-            args.Add(path);
-        }
-
-        return _db.Execute(JSON.GET, args);
+        return _db.Execute(JsonCommandBuilder.Get(key, indent, newLine, space, path));
     }
 
     /// <inheritdoc/>
     public RedisResult Get(RedisKey key, string[] paths, RedisValue? indent = null, RedisValue? newLine = null, RedisValue? space = null)
     {
-        List<object> args = new List<object>() { key };
-
-        foreach (var path in paths)
-        {
-            args.Add(path);
-        }
-
-        if (indent != null)
-        {
-            args.Add(JsonArgs.INDENT);
-            args.Add(indent);
-        }
-
-        if (newLine != null)
-        {
-            args.Add(JsonArgs.NEWLINE);
-            args.Add(newLine);
-        }
-
-        if (space != null)
-        {
-            args.Add(JsonArgs.SPACE);
-            args.Add(space);
-        }
-
-        return _db.Execute(JSON.GET, args);
+        return _db.Execute(JsonCommandBuilder.Get(key, paths, indent, newLine, space));
     }
 
     /// <inheritdoc/>
     public T? Get<T>(RedisKey key, string path = "$")
     {
-        var res = _db.Execute(JSON.GET, key, path);
+        var res = _db.Execute(JsonCommandBuilder.Get<T>(key, path));
         if (res.Type == ResultType.BulkString)
         {
             var arr = JsonSerializer.Deserialize<JsonArray>(res.ToString()!);
@@ -738,41 +432,32 @@ public class JsonCommands : IJsonCommands
     /// <inheritdoc/>
     public IEnumerable<T?> GetEnumerable<T>(RedisKey key, string path = "$")
     {
-        var res = _db.Execute(JSON.GET, key, path);
+        RedisResult res = _db.Execute(JsonCommandBuilder.Get<T>(key, path));
         return JsonSerializer.Deserialize<IEnumerable<T>>(res.ToString());
     }
 
     /// <inheritdoc/>
     public RedisResult[] MGet(RedisKey[] keys, string path)
     {
-        var args = new List<object>();
-        foreach (var key in keys)
-        {
-            args.Add(key);
-        }
-
-        args.Add(path);
-        return (RedisResult[])_db.Execute(JSON.MGET, args)!;
+        return _db.Execute(JsonCommandBuilder.MGet(keys, path)).ToArray();
     }
 
     /// <inheritdoc/>
     public double?[] NumIncrby(RedisKey key, string path, double value)
     {
-        var res = _db.Execute(JSON.NUMINCRBY, key, path, value);
+        var res = _db.Execute(JsonCommandBuilder.NumIncrby(key, path, value));
         return JsonSerializer.Deserialize<double?[]>(res.ToString());
     }
 
     /// <inheritdoc/>
     public IEnumerable<HashSet<string>> ObjKeys(RedisKey key, string? path = null)
     {
-        var args = AssembleNonNullArguments(key, path);
-        return _db.Execute(JSON.OBJKEYS, args).ToHashSets();
+        return _db.Execute(JsonCommandBuilder.ObjKeys(key, path)).ToHashSets();
     }
 
     /// <inheritdoc/>
     public long?[] ObjLen(RedisKey key, string? path = null)
     {
-        var args = AssembleNonNullArguments(key, path);
-        return _db.Execute(JSON.OBJLEN, args).ToNullableLongArray();
+        return _db.Execute(JsonCommandBuilder.ObjLen(key, path)).ToNullableLongArray();
     }
 }
