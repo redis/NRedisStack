@@ -12,7 +12,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
     {
         public TestMRevRange(RedisFixture redisFixture) : base(redisFixture) { }
 
-        private List<TimeSeriesTuple> CreateData(TimeSeriesCommands ts, string[] keys, int timeBucket)
+        private List<TimeSeriesTuple> CreateData(ITimeSeriesCommands ts, string[] keys, int timeBucket)
         {
             var tuples = new List<TimeSeriesTuple>();
 

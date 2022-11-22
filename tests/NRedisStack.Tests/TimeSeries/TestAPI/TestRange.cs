@@ -19,7 +19,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             redisFixture.Redis.GetDatabase().KeyDelete(key);
         }
 
-        private List<TimeSeriesTuple> CreateData(TimeSeriesCommands ts, int timeBucket)
+        private List<TimeSeriesTuple> CreateData(ITimeSeriesCommands ts, int timeBucket)
         {
             var tuples = new List<TimeSeriesTuple>();
             for (int i = 0; i < 10; i++)

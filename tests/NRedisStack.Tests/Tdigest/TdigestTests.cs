@@ -16,14 +16,14 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         redisFixture.Redis.GetDatabase().KeyDelete(key);
     }
 
-    private void AssertMergedUnmergedNodes(TdigestCommands tdigest, string key, int mergedNodes, int unmergedNodes)
+    private void AssertMergedUnmergedNodes(ITdigestCommands tdigest, string key, int mergedNodes, int unmergedNodes)
     {
         var info = tdigest.Info(key);
         Assert.Equal((long)mergedNodes, info.MergedNodes);
         Assert.Equal((long)unmergedNodes, info.UnmergedNodes);
     }
 
-    private void AssertTotalWeight(TdigestCommands tdigest, string key, double totalWeight)
+    private void AssertTotalWeight(ITdigestCommands tdigest, string key, double totalWeight)
     {
         var info = tdigest.Info(key);
         Assert.Equal(totalWeight, info.MergedWeight + info.UnmergedWeight);
@@ -123,6 +123,21 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(new long[] { 0, 1 }, tdigest.RevRank(key, 5, 4));
         Assert.Equal(new double[] { 2, 3 }, tdigest.ByRank(key, 0, 1));
         Assert.Equal(new double[] { 5, 3 }, tdigest.ByRevRank(key, 0, 1));
+    }
+
+    [Fact]
+    public async Task TestRankCommandsAsync()
+    {
+        //final String key = "ranks";
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var tdigest = db.TDIGEST();
+        tdigest.Create(key);
+        tdigest.Add(key, 2d, 3d, 5d);
+        Assert.Equal(new long[] { 0, 2 }, await tdigest.RankAsync(key, 2, 4));
+        Assert.Equal(new long[] { 0, 1 }, await tdigest.RevRankAsync(key, 5, 4));
+        Assert.Equal(new double[] { 2, 3 }, await tdigest.ByRankAsync(key, 0, 1));
+        Assert.Equal(new double[] { 5, 3 }, await tdigest.ByRevRankAsync(key, 0, 1));
     }
 
     // [Fact]
