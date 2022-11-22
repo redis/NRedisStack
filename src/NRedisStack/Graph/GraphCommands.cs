@@ -226,15 +226,6 @@ namespace NRedisStack
             return Query(graphName, queryBody.ToString());
         }
 
-        // // TODO: Check if needed
-        // /// <summary>
-        // /// Create a RedisGraph transaction.
-        // /// This leverages the "Transaction" support present in StackExchange.Redis.
-        // /// </summary>
-        // /// <returns>RedisGraphTransaction object</returns>
-        // public RedisGraphTransaction Multi() =>
-        //     new RedisGraphTransaction(_db.CreateTransaction(), this, _graphCaches);
-
         /// <summary>
         /// Delete an existing graph.
         /// </summary>

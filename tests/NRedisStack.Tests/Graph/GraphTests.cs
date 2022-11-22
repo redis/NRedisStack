@@ -46,14 +46,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(stats.QueryInternalExecutionTime);
 
         Assert.Equal(0, resultSet.Count);
-
-        // Assert.False(resultSet.GetEnumerator().MoveNext());
-
-        // try {
-        //     resultSet..iterator().Current;
-        //     fail();
-        // } catch (NoSuchElementException ignored) {
-        // }
     }
 
     [Fact]
@@ -102,7 +94,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(stats.QueryInternalExecutionTime);
 
         Assert.Equal(0, resultSet.Count);
-        // Assert.False(resultSet.GetEnumerator().MoveNext());
     }
 
     [Fact]
@@ -607,11 +598,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         Assert.Equal(expectedPaths.Count, resultSet.Count);
         var iterator = resultSet.GetEnumerator();
-        // for (int i = 0; i < resultSet.Count; i++) {
-        // var p = iterator.Current.GetValue<Path>("p");
-        //     Assert.True(expectedPaths.Contains(p));
-        //     expectedPaths.Remove(p);
-        // }
+
         for (int i = 0; i < resultSet.Count; i++)
         {
             NRedisStack.Graph.DataTypes.Path p = resultSet.ElementAt(i).GetValue<NRedisStack.Graph.DataTypes.Path>("p");
@@ -978,103 +965,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
     #endregion
 
-    // [Fact]
-    // public void TestMultiExec()
-    // {
-    //     IDatabase db = redisFixture.Redis.GetDatabase();
-    //     db.Execute("FLUSHALL");
-    //     var graph = db.GRAPH();
-
-    //     RedisGraphTransaction transaction = graph.Multi();
-    //     // transaction.SetAsync("x", "1");
-    //     transaction.QueryAsync("social", "CREATE (:Person {name:'a'})");
-    //     transaction.QueryAsync("g", "CREATE (:Person {name:'a'})");
-    //     // transaction.IncrAsync("x");
-    //     // transaction.GetAsync("x");
-    //     transaction.QueryAsync("social", "MATCH (n:Person) RETURN n");
-    //     transaction.DeleteGraphAsync("g");
-    //     transaction.CallProcedureAsync("social", "db.labels");
-
-    //     var results = transaction.Exec();
-
-    //     // Skipping Redis SET command assetions...
-
-    //     // Redis Graph command
-    //     var resultSet = results[0];
-    //     Assert.Equal(1, resultSet.Statistics.NodesCreated);
-    //     Assert.Equal(1, resultSet.Statistics.PropertiesSet);
-
-    //     resultSet = results[1];
-    //     Assert.Equal(1, resultSet.Statistics.NodesCreated);
-    //     Assert.Equal(1, resultSet.Statistics.PropertiesSet);
-
-    //     // Skipping Redis INCR command assertions...
-
-    //     // Skipping Redis GET command assertions...
-
-    //     // Graph Query Result
-    //     resultSet = results[2];
-    //     Assert.NotNull(resultSet.Header);
-
-    //     var header = resultSet.Header;
-
-    //     var schemaNames = header.SchemaNames;
-    //     var schemaTypes = header.SchemaTypes;
-
-    //     Assert.NotNull(schemaNames);
-    //     Assert.NotNull(schemaTypes);
-
-    //     Assert.Single(schemaNames);
-    //     Assert.Single(schemaTypes);
-
-    //     Assert.Equal("n", schemaNames[0]);
-
-    //     var nameProperty = new KeyValuePair<string, object>("name", "a");
-
-    //     var expectedNode = new Node();
-    //     expectedNode.Id = 0;
-    //     expectedNode.Labels.Add("Person");
-    //     expectedNode.PropertyMap.Add(nameProperty);
-
-    //     // See that the result were pulled from the right graph.
-
-    //     Assert.Single(resultSet);
-
-    //     var record = resultSet.First();
-    //     Assert.Equal(new List<string> { "n" }, record.Header);
-    //     Assert.Equal(expectedNode, record.GetValue<Node>("n"));
-
-    //     resultSet = results[4];
-
-    //     Assert.NotNull(resultSet.Header);
-
-    //     schemaNames = header.SchemaNames;
-    //     schemaTypes = header.SchemaTypes;
-
-    //     Assert.NotNull(schemaNames);
-    //     Assert.NotNull(schemaTypes);
-
-    //     Assert.Single(schemaNames);
-    //     Assert.Single(schemaTypes);
-
-    //     Assert.Equal("n", schemaNames[0]);
-
-    //     Assert.Single(resultSet);
-
-    //     record = resultSet.First();
-
-    //     Assert.Equal(new List<string> { "label" }, record.Header);
-    //     Assert.Equal("Person", record.GetValue<string>("label"));
-    // }
-
-    /*
-        Since by default all commands executed by StackExchange.Redis travel through the same connection
-        we're going to skip the following "contexted" tests:
-        - testContextedAPI
-        - testWriteTransactionWatch
-        - testReadTransactionWatch
-*/
-
     #region AsyncTests
 
     [Fact]
@@ -1103,14 +993,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(stats.QueryInternalExecutionTime);
 
         Assert.Equal(0, resultSet.Count);
-
-        // Assert.False(resultSet.GetEnumerator().MoveNext());
-
-        // try {
-        //     resultSet..iterator().Current;
-        //     fail();
-        // } catch (NoSuchElementException ignored) {
-        // }
     }
 
     [Fact]
@@ -1666,11 +1548,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         Assert.Equal(expectedPaths.Count, resultSet.Count);
         var iterator = resultSet.GetEnumerator();
-        // for (int i = 0; i < resultSet.Count; i++) {
-        // var p = iterator.Current.GetValue<Path>("p");
-        //     Assert.True(expectedPaths.Contains(p));
-        //     expectedPaths.Remove(p);
-        // }
+
         for (int i = 0; i < resultSet.Count; i++)
         {
             NRedisStack.Graph.DataTypes.Path p = resultSet.ElementAt(i).GetValue<NRedisStack.Graph.DataTypes.Path>("p");
@@ -2025,34 +1903,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         var r = iterator.Current;
         Assert.Equal(double.PositiveInfinity, r.Values[0]);
     }
-
-    // [Fact] // TODO: understeand if this test needed (it throws exception: Unknown function 'cot'), if does, add async version.
-    // public void TestParseInfinity2()
-    // {
-    //     IDatabase db = redisFixture.Redis.GetDatabase();
-    //     db.Execute("FLUSHALL");
-    //     var graph = db.GRAPH();
-    //     ResultSet rs = graph.Query("db", "RETURN cot(0)");
-    //     Assert.Equal(1, rs.Count());
-    //     var iterator = rs.GetEnumerator();
-    //     iterator.MoveNext();
-    //     var r = iterator.Current;
-    //     Assert.Equal(double.PositiveInfinity, (double) r.Values[0]);
-    // }
-
-    // [Fact] // TODO: understeand if this test needed (it throws exception: Unknown function 'asin'), if does, add async version.
-    // public void TestParseNaN()
-    // {
-    //     IDatabase db = redisFixture.Redis.GetDatabase();
-    //     db.Execute("FLUSHALL");
-    //     var graph = db.GRAPH();
-    //     ResultSet rs = graph.Query("db", "RETURN asin(-1.1)");
-    //     Assert.Equal(1, rs.Count());
-    //     var iterator = rs.GetEnumerator();
-    //     iterator.MoveNext();
-    //     var r = iterator.Current;
-    //     Assert.Equal(double.NaN, r.Values[0]);
-    // }
 
     [Fact]
     public async Task TestModulePrefixs1Async()
