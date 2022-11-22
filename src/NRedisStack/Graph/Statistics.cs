@@ -37,7 +37,7 @@ namespace NRedisStack.Graph
 
         private int GetIntValue(string label)
         {
-            string value = GetStringValue(label);
+            var value = GetStringValue(label);
             return int.TryParse(value, out var result) ? result : 0;
         }
 
