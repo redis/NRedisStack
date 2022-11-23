@@ -7,7 +7,6 @@ using static NRedisStack.Graph.RedisGraphUtilities;
 
 namespace NRedisStack
 {
-
     public class GraphCommands : IGraphCommands
     {
         IDatabase _db;
@@ -16,8 +15,6 @@ namespace NRedisStack
         {
             _db = db;
         }
-
-        internal static readonly object CompactQueryFlag = "--COMPACT";
 
         private readonly IDictionary<string, GraphCache> _graphCaches = new Dictionary<string, GraphCache>();
 
@@ -55,10 +52,7 @@ namespace NRedisStack
                 _graphCaches.Add(graphName, new GraphCache(graphName, this));
             }
 
-            var args = (timeout == null) ? new List<object>(3) { graphName, query, CompactQueryFlag }
-                                         : new List<object>(5) { graphName, query, CompactQueryFlag, GraphArgs.TIMEOUT, timeout };
-
-            return new ResultSet(_db.Execute(GRAPH.QUERY, args), _graphCaches[graphName]);
+            return new ResultSet(_db.Execute(GraphCommandBuilder.Query(graphName, query, timeout)), _graphCaches[graphName]);
         }
 
         /// <inheritdoc/>
@@ -69,10 +63,7 @@ namespace NRedisStack
                 _graphCaches.Add(graphName, new GraphCache(graphName, this));
             }
 
-            var args = (timeout == null) ? new List<object>(3) { graphName, query, CompactQueryFlag }
-                                         : new List<object>(5) { graphName, query, CompactQueryFlag, GraphArgs.TIMEOUT, timeout };
-
-            return new ResultSet(await _db.ExecuteAsync(GRAPH.QUERY, args), _graphCaches[graphName]);
+            return new ResultSet(await _db.ExecuteAsync(GraphCommandBuilder.Query(graphName, query, timeout)), _graphCaches[graphName]);
         }
 
         /// <inheritdoc/>
@@ -99,10 +90,7 @@ namespace NRedisStack
                 _graphCaches.Add(graphName, new GraphCache(graphName, this));
             }
 
-            var args = (timeout == null) ? new List<object>(3) { graphName, query, CompactQueryFlag }
-                                         : new List<object>(5) { graphName, query, CompactQueryFlag, GraphArgs.TIMEOUT, timeout };
-
-            return new ResultSet(_db.Execute(GRAPH.RO_QUERY, args), _graphCaches[graphName]);
+            return new ResultSet(_db.Execute(GraphCommandBuilder.RO_Query(graphName, query, timeout)), _graphCaches[graphName]);
         }
 
         /// <inheritdoc/>
@@ -113,10 +101,7 @@ namespace NRedisStack
                 _graphCaches.Add(graphName, new GraphCache(graphName, this));
             }
 
-            var args = (timeout == null) ? new List<object>(3) { graphName, query, CompactQueryFlag }
-                                         : new List<object>(5) { graphName, query, CompactQueryFlag, GraphArgs.TIMEOUT, timeout };
-
-            return new ResultSet(await _db.ExecuteAsync(GRAPH.RO_QUERY, args), _graphCaches[graphName]);
+            return new ResultSet(await _db.ExecuteAsync(GraphCommandBuilder.RO_Query(graphName, query, timeout)), _graphCaches[graphName]);
         }
 
         internal static readonly Dictionary<string, List<string>> EmptyKwargsDictionary =
@@ -151,7 +136,7 @@ namespace NRedisStack
         /// <inheritdoc/>
         public ResultSet Delete(string graphName)
         {
-            var result = _db.Execute(GRAPH.DELETE, graphName);
+            var result = _db.Execute(GraphCommandBuilder.Delete(graphName));
 
             var processedResult = new ResultSet(result, _graphCaches[graphName]);
 
@@ -201,7 +186,7 @@ namespace NRedisStack
         /// <inheritdoc/>
         public IReadOnlyList<string> Explain(string graphName, string query)
         {
-            return _db.Execute(GRAPH.EXPLAIN, graphName, query).ToStringList();
+            return _db.Execute(GraphCommandBuilder.Explain(graphName, query)).ToStringList();
         }
 
         /// <inheritdoc/>
@@ -213,49 +198,43 @@ namespace NRedisStack
         /// <inheritdoc/>
         public IReadOnlyList<string> Profile(string graphName, string query, long? timeout = null)
         {
-            var args = (timeout == null) ? new List<object>(2) { graphName, query }
-                                         : new List<object>(4) { graphName, query, GraphArgs.TIMEOUT, timeout };
-
-            return _db.Execute(GRAPH.PROFILE, args).ToStringList();
+            return _db.Execute(GraphCommandBuilder.Profile(graphName, query, timeout)).ToStringList();
         }
 
         /// <inheritdoc/>
         public async Task<IReadOnlyList<string>> ProfileAsync(string graphName, string query, long? timeout = null)
         {
-            var args = (timeout == null) ? new List<object>(2) { graphName, query }
-                                         : new List<object>(4) { graphName, query, GraphArgs.TIMEOUT, timeout };
-
-            return (await _db.ExecuteAsync(GRAPH.PROFILE, args)).ToStringList();
+            return (await _db.ExecuteAsync(GraphCommandBuilder.Profile(graphName, query, timeout))).ToStringList();
         }
 
         /// <inheritdoc/>
         public IReadOnlyList<string> List()
         {
-            return _db.Execute(GRAPH.LIST).ToStringList();
+            return _db.Execute(GraphCommandBuilder.List()).ToStringList();
         }
 
         /// <inheritdoc/>
         public async Task<IReadOnlyList<string>> ListAsync()
         {
-            return (await _db.ExecuteAsync(GRAPH.LIST)).ToStringList();
+            return (await _db.ExecuteAsync(GraphCommandBuilder.List())).ToStringList();
         }
 
         /// <inheritdoc/>
         public bool ConfigSet(string configName, object value)
         {
-            return _db.Execute(GRAPH.CONFIG, GraphArgs.SET, configName, value).OKtoBoolean();
+            return _db.Execute(GraphCommandBuilder.ConfigSet(configName, value)).OKtoBoolean();
         }
 
         /// <inheritdoc/>
         public async Task<bool> ConfigSetAsync(string configName, object value)
         {
-            return (await _db.ExecuteAsync(GRAPH.CONFIG, GraphArgs.SET, configName, value)).OKtoBoolean();
+            return (await _db.ExecuteAsync(GraphCommandBuilder.ConfigSet(configName, value))).OKtoBoolean();
         }
 
         /// <inheritdoc/>
         public Dictionary<string, RedisResult> ConfigGet(string configName)
         {
-            return _db.Execute(GRAPH.CONFIG, GraphArgs.GET, configName).ToDictionary();
+            return _db.Execute(GraphCommandBuilder.ConfigGet(configName)).ToDictionary();
         }
 
         /// <inheritdoc/>
@@ -267,7 +246,7 @@ namespace NRedisStack
         /// <inheritdoc/>
         public List<List<string>> Slowlog(string graphName)
         {
-            var result = _db.Execute(GRAPH.SLOWLOG, graphName).ToArray();
+            var result = _db.Execute(GraphCommandBuilder.Slowlog(graphName)).ToArray();
             List<List<string>> slowlog = new List<List<string>>(result.Length);
             foreach (var item in result)
             {
@@ -280,7 +259,7 @@ namespace NRedisStack
         /// <inheritdoc/>
         public async Task<List<List<string>>> SlowlogAsync(string graphName)
         {
-            var result = (await _db.ExecuteAsync(GRAPH.SLOWLOG, graphName)).ToArray();
+            var result = (await _db.ExecuteAsync(GraphCommandBuilder.Slowlog(graphName))).ToArray();
             List<List<string>> slowlog = new List<List<string>>(result.Length);
             foreach (var item in result)
             {
