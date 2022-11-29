@@ -39,7 +39,7 @@ dotnet add package NRedisStack
 Before writing any code you'll need a Redis instance with the appropriate Redis modules! The quickest way to get this is with Docker:
 
 ```sh
-docker run -p 6379:6379 -p 8001:8001 redis/redis-stack
+docker run -p 6379:6379 --name redis-stack redis/redis-stack:latest
 ```
 
 This launches the [redis-stack](https://redis.io/docs/stack/) an extension of Redis that adds all manner of modern data structures to Redis. You'll also notice that if you open up http://localhost:8001 you'll have access to the redis-insight GUI, a GUI you can use to visualize and work with your data in Redis.
