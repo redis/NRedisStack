@@ -81,5 +81,6 @@ json.Set(key, "$", new Person() { Age = 35, Name = "Alice" });
 NRedisStack is developed and maintained by [Redis Inc](https://redis.com). It can be found [here](
 https://github.com/redis/NRedisStack), or downloaded from [NuGet](https://www.nuget.org/packages/NRedisStack).
 
-[![Redis](./docs/logo-redis.png)](https://www.redis.com)
+---
 
+[![Redis](./docs/logo-redis.png)](https://www.redis.com)
