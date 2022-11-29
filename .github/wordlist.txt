@@ -6,5 +6,6 @@ Codecov
 pre
 OSS
 Json
+json
 TimeSeries
 NuGet
