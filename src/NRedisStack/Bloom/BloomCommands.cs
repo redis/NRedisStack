@@ -1,5 +1,4 @@
 using NRedisStack.Bloom.DataTypes;
-using NRedisStack.Literals;
 using StackExchange.Redis;
 namespace NRedisStack
 {
@@ -15,39 +14,37 @@ namespace NRedisStack
         /// <inheritdoc/>
         public bool Add(RedisKey key, RedisValue item)
         {
-            return _db.Execute(BF.ADD, key, item).ToString() == "1";
+            return _db.Execute(BloomCommandBuilder.Add(key, item)).ToString() == "1";
         }
 
         /// <inheritdoc/>
         public async Task<bool> AddAsync(RedisKey key, RedisValue item)
         {
-            var result = await _db.ExecuteAsync(BF.ADD, key, item);
-            return result.ToString() == "1";
+            return (await _db.ExecuteAsync(BloomCommandBuilder.Add(key, item))).ToString() == "1";
         }
 
         /// <inheritdoc/>
         public bool Exists(RedisKey key, RedisValue item)
         {
-            return _db.Execute(BF.EXISTS, key, item).ToString() == "1";
+            return _db.Execute(BloomCommandBuilder.Exists(key, item)).ToString() == "1";
         }
 
         /// <inheritdoc/>
         public async Task<bool> ExistsAsync(RedisKey key, RedisValue item)
         {
-            var result = await _db.ExecuteAsync(BF.EXISTS, key, item);
-            return result.ToString() == "1";
+            return (await _db.ExecuteAsync(BloomCommandBuilder.Exists(key, item))).ToString() == "1";
         }
 
         /// <inheritdoc/>
         public BloomInformation Info(RedisKey key)
         {
-            return _db.Execute(BF.INFO, key).ToBloomInfo();
+            return _db.Execute(BloomCommandBuilder.Info(key)).ToBloomInfo();
         }
 
         /// <inheritdoc/>
         public async Task<BloomInformation> InfoAsync(RedisKey key)
         {
-            var info = await _db.ExecuteAsync(BF.INFO, key);
+            var info = (await _db.ExecuteAsync(BloomCommandBuilder.Info(key)));
             return info.ToBloomInfo();
         }
 
@@ -56,12 +53,7 @@ namespace NRedisStack
                                           double? error = null, int? expansion = null,
                                           bool nocreate = false, bool nonscaling = false)
         {
-            if (items.Length < 1)
-                throw new ArgumentOutOfRangeException(nameof(items));
-
-            var args = BloomAux.BuildInsertArgs(key, items, capacity, error, expansion, nocreate, nonscaling);
-
-            return _db.Execute(BF.INSERT, args).ToBooleanArray();
+            return _db.Execute(BloomCommandBuilder.Insert(key, items, capacity, error, expansion, nocreate, nonscaling)).ToBooleanArray();
         }
 
         /// <inheritdoc/>
@@ -69,146 +61,69 @@ namespace NRedisStack
                                           double? error = null, int? expansion = null,
                                           bool nocreate = false, bool nonscaling = false)
         {
-            if (items.Length < 1)
-                throw new ArgumentOutOfRangeException(nameof(items));
-
-            var args = BloomAux.BuildInsertArgs(key, items, capacity, error, expansion, nocreate, nonscaling);
-
-            var result = await _db.ExecuteAsync(BF.INSERT, args);
-            return result.ToBooleanArray();
+            return (await _db.ExecuteAsync(BloomCommandBuilder.Insert(key, items, capacity, error, expansion, nocreate, nonscaling))).ToBooleanArray();
         }
 
         /// <inheritdoc/>
         public bool LoadChunk(RedisKey key, long iterator, Byte[] data)
         {
-            return _db.Execute(BF.LOADCHUNK, key, iterator, data).OKtoBoolean();
+            return _db.Execute(BloomCommandBuilder.LoadChunk(key, iterator, data)).OKtoBoolean();
         }
 
         /// <inheritdoc/>
         public async Task<bool> LoadChunkAsync(RedisKey key, long iterator, Byte[] data)
         {
-            var result = await _db.ExecuteAsync(BF.LOADCHUNK, key, iterator, data);
-            return result.OKtoBoolean();
+            return (await _db.ExecuteAsync(BloomCommandBuilder.LoadChunk(key, iterator, data))).OKtoBoolean();
         }
 
         /// <inheritdoc/>
         public bool[] MAdd(RedisKey key, params RedisValue[] items)
         {
-            if (items.Length < 1)
-                throw new ArgumentOutOfRangeException(nameof(items));
-
-            List<object> args = new List<object> { key };
-
-            foreach (var item in items)
-            {
-                args.Add(item);
-            }
-
-            return _db.Execute(BF.MADD, args).ToBooleanArray();
+            return _db.Execute(BloomCommandBuilder.MAdd(key, items)).ToBooleanArray();
         }
 
         /// <inheritdoc/>
         public async Task<bool[]> MAddAsync(RedisKey key, params RedisValue[] items)
         {
-            if (items.Length < 1)
-                throw new ArgumentOutOfRangeException(nameof(items));
-
-            List<object> args = new List<object> { key };
-
-            foreach (var item in items)
-            {
-                args.Add(item);
-            }
-
-            var result = await _db.ExecuteAsync(BF.MADD, args);
-            return result.ToBooleanArray();
+            return (await _db.ExecuteAsync(BloomCommandBuilder.MAdd(key, items))).ToBooleanArray();
         }
 
         /// <inheritdoc/>
         public bool[] MExists(RedisKey key, RedisValue[] items)
         {
-            if (items.Length < 1)
-                throw new ArgumentOutOfRangeException(nameof(items));
-
-            List<object> args = new List<object> { key };
-
-            foreach (var item in items)
-            {
-                args.Add(item);
-            }
-
-            return _db.Execute(BF.MEXISTS, args).ToBooleanArray();
-
+            return _db.Execute(BloomCommandBuilder.MExists(key, items)).ToBooleanArray();
         }
 
         /// <inheritdoc/>
         public async Task<bool[]> MExistsAsync(RedisKey key, RedisValue[] items)
         {
-            if (items.Length < 1)
-                throw new ArgumentOutOfRangeException(nameof(items));
-
-            List<object> args = new List<object> { key };
-
-            foreach (var item in items)
-            {
-                args.Add(item);
-            }
-
-            var result = await _db.ExecuteAsync(BF.MEXISTS, args);
-            return result.ToBooleanArray();
-
+            return (await _db.ExecuteAsync(BloomCommandBuilder.MExists(key, items))).ToBooleanArray();
         }
 
         /// <inheritdoc/>
         public bool Reserve(RedisKey key, double errorRate, long capacity,
                                            int? expansion = null, bool nonscaling = false)
         {
-            List<object> args = new List<object> { key, errorRate, capacity };
-
-            if (expansion != null)
-            {
-                args.Add(expansion);
-            }
-
-            if (nonscaling)
-            {
-                args.Add(BloomArgs.NONSCALING);
-            }
-
-            return _db.Execute(BF.RESERVE, args).OKtoBoolean();
+            return _db.Execute(BloomCommandBuilder.Reserve(key, errorRate, capacity, expansion, nonscaling)).OKtoBoolean();
         }
 
         /// <inheritdoc/>
         public async Task<bool> ReserveAsync(RedisKey key, double errorRate, long capacity,
                                            int? expansion = null, bool nonscaling = false)
         {
-            List<object> args = new List<object> { key, errorRate, capacity };
-
-            if (expansion != null)
-            {
-                args.Add(expansion);
-            }
-
-            if (nonscaling)
-            {
-                args.Add(BloomArgs.NONSCALING);
-            }
-
-            var result = await _db.ExecuteAsync(BF.RESERVE, args);
-            return result.OKtoBoolean();
+            return (await _db.ExecuteAsync(BloomCommandBuilder.Reserve(key, errorRate, capacity, expansion, nonscaling))).OKtoBoolean();
         }
 
         /// <inheritdoc/>
         public Tuple<long, Byte[]> ScanDump(RedisKey key, long iterator)
         {
-            return _db.Execute(BF.SCANDUMP, key, iterator).ToScanDumpTuple();
+            return _db.Execute(BloomCommandBuilder.ScanDump(key, iterator)).ToScanDumpTuple();
         }
 
         /// <inheritdoc/>
         public async Task<Tuple<long, Byte[]>> ScanDumpAsync(RedisKey key, long iterator)
         {
-            var result = await _db.ExecuteAsync(BF.SCANDUMP, key, iterator);
-            return result.ToScanDumpTuple();
+            return (await _db.ExecuteAsync(BloomCommandBuilder.ScanDump(key, iterator))).ToScanDumpTuple();
         }
     }
 }
