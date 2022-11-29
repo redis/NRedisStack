@@ -4,3 +4,7 @@ github
 yml
 Codecov
 pre
+OSS
+Json
+TimeSeries
+NuGet
