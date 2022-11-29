@@ -9,7 +9,7 @@
 
 ## Note
 
-This project builds on [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis), and seeks to bring native support for Redis Modules to the C# ecosystem.
+This project builds on [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis), and seeks to bring native support for Redis Stack commands to the C# ecosystem.
 
 ## API
 
@@ -18,7 +18,7 @@ The complete documentation for Redis  module commands can be found at the [Redis
 ### Redis OSS commands
 You can use Redis OSS commands in the same way as you use them in [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis).
 
-### Modules Commands
+### Stack Commands
 Each module has a command class with its own commands.
 The supported modules are: [Search](https://redis.io/commands/?group=search), [Json](https://redis.io/commands/?group=json), [Graph](https://redis.io/commands/?group=graph), [TimeSeries](https://redis.io/commands/?group=timeseries), [Bloom Filter](https://redis.io/commands/?group=bf), [Cuckoo Filter](https://redis.io/commands/?group=cf), [T-Digest](https://redis.io/commands/?group=tdigest), [Count-min Sketch](https://redis.io/commands/?group=cms) and [Top-K](https://redis.io/commands/?group=topk).
 
