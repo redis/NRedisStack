@@ -21,6 +21,10 @@ matrix:
       - 'code'
       - 'pre'
       - 'blockquote'
+      - 'OSS'
+      - 'Json'
+      - 'TimeSeries'
+      - 'NuGet'
   sources:
   - '*.md'
   - 'docs/*.md'
