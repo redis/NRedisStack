@@ -63,7 +63,8 @@ IJsonCommands json = db.JSON();
 ITimeSeriesCommands ts = db.TS();
 ```
 Then, that variable will allow you to call all the commands of that module.
-## Basic Example
+## Basic Examples
+### Simple Json Set Example
 Set a json object to Redis:
 ```csharp
 ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
@@ -73,7 +74,45 @@ IJsonCommands json = db.JSON();
 var key = "myKey";
 json.Set(key, "$", new Person() { Age = 35, Name = "Alice" });
 ```
+### Index & Search Example
+setup:
+```csharp
+using NRedisStack;
+...
+IDatabase db = redisFixture.Redis.GetDatabase();
+ISearchCommands ft = db.FT();
+IJsonCommands json = db.JSON();
+```
+Create an index with fields and weights:
+```csharp
+// FT.CREATE myIdx ON HASH PREFIX 1 doc: SCHEMA title TEXT WEIGHT 5.0 body TEXT url TEXT
+ft.Create("myIndex", new FTCreateParams().On(IndexDataType.Hash)
+                                         .Prefix("doc:"),
+                     new Schema().AddTextField("title", 5.0)
+                                 .AddTextField("body")
+                                 .AddTextField("url"));
+```
 
+After you create the index, any new hash documents with the doc: prefix are automatically indexed upon creation.
+
+
+Use the HSET command to create a new hash document and add it to the index:
+```csharp
+// HSET doc:1 title "hello world" body "lorem ipsum" url "http://redis.io"
+db.HashSet("doc:1", new HashEntry[] { new("title", "hello world"),
+                                      new("body", "lorem ipsum"),
+                                      new("url", "http://redis.io") });
+```
+Search the index for documents that contain "hello world":
+```csharp
+// FT.SEARCH myIndex "hello world" LIMIT 0 10
+ft.Search("myIndex", new Query("hello world").Limit(0, 10));
+```
+Drop the index
+```csharp
+// FT.DROPINDEX myIndex
+ft.DropIndex("myIndex");
+```
 ------
 
 ### Author
