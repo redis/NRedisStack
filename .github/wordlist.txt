@@ -9,3 +9,6 @@ Json
 json
 TimeSeries
 NuGet
+cli
+dotnet
+HSET
