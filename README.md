@@ -1,6 +1,7 @@
 [![license](https://img.shields.io/github/license/redis/NRedisStack.svg)](https://raw.githubusercontent.com/redis/NRedisStack/master/LICENSE)
 [![.github/workflows/integration.yml](https://github.com/redis/NRedisStack/actions/workflows/integration.yml/badge.svg)](https://github.com/redis/NRedisStack/actions/workflows/integration.yml)
 [![pre-release](https://img.shields.io/github/v/release/redis/nredisstack?include_prereleases&label=prerelease)](https://github.com/redis/nredisstack/releases)
+[![codecov](https://codecov.io/gh/redis/NRedisStack/branch/master/graph/badge.svg?token=4B0KCNK12D)](https://codecov.io/gh/redis/NRedisStack)
 
 
 # NRedisStack
