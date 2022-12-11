@@ -30,10 +30,11 @@ jobs:
           dotnet-version: ${{matrix.dotnet-version}}
       - name: run redis-stack-server docker
         run: docker run -p 6379:6379 -d redislabs/redismod:edge
-      - name: compile
-        run: dotnet build
-      - name: run tests
-        run: dotnet test
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
+      - name: Test
+        run: dotnet test --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
       - name: Codecov
-        run: |
-          bash <(curl -s https://codecov.io/bash)
+        uses: codecov/codecov-action@v1
