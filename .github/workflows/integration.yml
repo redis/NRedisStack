@@ -38,5 +38,5 @@ jobs:
         run: dotnet test --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
       - name: Codecov
         codecov:
-        token: 5e222b4b-3ff2-49eb-961d-52f830407a50
+        token: ${{secrets.CODECOV_TOKEN}}
         uses: codecov/codecov-action@v3
