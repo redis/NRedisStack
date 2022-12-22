@@ -26,22 +26,13 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var conn = redisFixture.Redis;
         var db = conn.GetDatabase();
         IJsonCommands json = new JsonCommands(db);
-        var keys = CreateKeyNames(3);
         var pipeline = new Pipeline(db);
-        pipeline.AddCommand(JsonCommandBuilder.Set(keys[0], "$", new Person { Name = "Shachar", Age = 23 }));
-        pipeline.AddCommand(JsonCommandBuilder.Get(keys[0]));
-        pipeline.AddCommand(JsonCommandBuilder.Set(keys[1], "$.Name", "Shachar2"));
-        pipeline.AddCommand(JsonCommandBuilder.Get(keys[1]));
-        pipeline.AddCommand(JsonCommandBuilder.Set(keys[2], "$.Age", 24));
-        pipeline.AddCommand(JsonCommandBuilder.Get(keys[2]));
+        pipeline.AddCommand(JsonCommandBuilder.Set("key", "$", new Person { Name = "Shachar", Age = 23 }));
+        pipeline.AddCommand(JsonCommandBuilder.Get("key"));
         var results = pipeline.Execute();
-        Assert.Equal(6, results.Length);
+        Assert.Equal(2, results.Length);
         Assert.Equal("OK", results[0].ToString());
         Assert.Equal("{\"Name\":\"Shachar\",\"Age\":23}", results[1].ToString());
-        Assert.Equal("OK", results[2].ToString());
-        Assert.Equal("{\"Name\":\"Shachar2\",\"Age\":23}", results[3].ToString());
-        Assert.Equal("OK", results[4].ToString());
-        Assert.Equal("{\"Name\":\"Shachar2\",\"Age\":24}", results[5].ToString());
     }
 
     [Fact]
