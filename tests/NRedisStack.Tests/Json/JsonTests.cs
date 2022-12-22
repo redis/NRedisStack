@@ -21,30 +21,6 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void TestPipeline()
-    {
-        var conn = redisFixture.Redis;
-        var db = conn.GetDatabase();
-        IJsonCommands json = new JsonCommands(db);
-        var keys = CreateKeyNames(1);
-        var pipeline = new Pipeline(db);
-        pipeline.AddCommand(json.Set(keys[0], "$", new Person { Name = "Shachar", Age = 23 }));
-        pipeline.AddCommand(json.Get(keys[0]));
-        pipeline.AddCommand(json.Set(keys[0], "$.Name", "Shachar2"));
-        pipeline.AddCommand(json.Get(keys[0]));
-        pipeline.AddCommand(json.Set(keys[0], "$.Age", 24));
-        pipeline.AddCommand(json.Get(keys[0]));
-        var results = pipeline.Execute();
-        Assert.Equal(6, results.Length);
-        Assert.Equal("OK", results[0].ToString());
-        Assert.Equal("{\"Name\":\"Shachar\",\"Age\":23}", results[1].ToString());
-        Assert.Equal("OK", results[2].ToString());
-        Assert.Equal("{\"Name\":\"Shachar2\",\"Age\":23}", results[3].ToString());
-        Assert.Equal("OK", results[4].ToString());
-        Assert.Equal("{\"Name\":\"Shachar2\",\"Age\":24}", results[5].ToString());
-    }
-
-    [Fact]
     public void TestSetFromFile()
     {
         //arrange
