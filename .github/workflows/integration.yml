@@ -17,7 +17,7 @@ env:
 jobs:
 
   build_and_test:
-    name: Build and test [dotnet ${{matrix.dotnet-version}}]
+    name: Build and test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
