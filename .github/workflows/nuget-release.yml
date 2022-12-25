@@ -9,10 +9,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up .NET Core
+      - name: Set up .NET Core 6
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: ['6.0.x', '7.0.x']
+          dotnet-version: '6.0.x'
+      - name: Set up .NET Core 7
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '7.0.x'
       - name: Build
         run: dotnet pack -c Release --output .
 
