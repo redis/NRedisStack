@@ -6,6 +6,7 @@ using NRedisStack.Search.FT.CREATE;
 using NRedisStack.Search;
 using static NRedisStack.Search.Schema;
 using NRedisStack.Search.Aggregation;
+using NRedisStack.Literals.Enums;
 
 namespace NRedisStack.Tests.Search;
 
@@ -169,7 +170,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
 
         AggregationRequest r = new AggregationRequest()
-            .GroupBy("@name", Reducers.Sum("@count").As ("sum"))
+            .GroupBy("@name", Reducers.Sum("@count").As("sum"))
         .SortBy(10, SortedField.Desc("@sum"));
 
         // actual search
@@ -398,12 +399,12 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var parameters = FTCreateParams.CreateParams().Filter("@age>16").Prefix("student:", "pupil:");
         Assert.True(await ft.CreateAsync(index, parameters, schema));
         db.HashSet("profesor:5555", new HashEntry[] { new("first", "Albert"), new("last", "Blue"), new("age", "55") });
-        db.HashSet("student:1111",  new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", "18") });
-        db.HashSet("pupil:2222",    new HashEntry[] { new("first", "Jen"), new("last", "Rod"), new("age", "14") });
-        db.HashSet("student:3333",  new HashEntry[] { new("first", "El"), new("last", "Mark"), new("age", "17") });
-        db.HashSet("pupil:4444",    new HashEntry[] { new("first", "Pat"), new("last", "Shu"), new("age", "21") });
-        db.HashSet("student:5555",  new HashEntry[] { new("first", "Joen"), new("last", "Ko"), new("age", "20") });
-        db.HashSet("teacher:6666",  new HashEntry[] { new("first", "Pat"), new("last", "Rod"), new("age", "20") });
+        db.HashSet("student:1111", new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", "18") });
+        db.HashSet("pupil:2222", new HashEntry[] { new("first", "Jen"), new("last", "Rod"), new("age", "14") });
+        db.HashSet("student:3333", new HashEntry[] { new("first", "El"), new("last", "Mark"), new("age", "17") });
+        db.HashSet("pupil:4444", new HashEntry[] { new("first", "Pat"), new("last", "Shu"), new("age", "21") });
+        db.HashSet("student:5555", new HashEntry[] { new("first", "Joen"), new("last", "Ko"), new("age", "20") });
+        db.HashSet("teacher:6666", new HashEntry[] { new("first", "Pat"), new("last", "Rod"), new("age", "20") });
         var noFilters = ft.Search(index, new Query());
         Assert.Equal(4, noFilters.TotalResults);
         var res1 = ft.Search(index, new Query("@first:Jo*"));
@@ -426,7 +427,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         db.HashSet("student:1111", new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", 18) });
         db.HashSet("student:3333", new HashEntry[] { new("first", "El"), new("last", "Mark"), new("age", 17) });
-        db.HashSet("pupil:4444",   new HashEntry[] { new("first", "Pat"), new("last", "Shu"), new("age", 21) });
+        db.HashSet("pupil:4444", new HashEntry[] { new("first", "Pat"), new("last", "Shu"), new("age", 21) });
         db.HashSet("student:5555", new HashEntry[] { new("first", "Joen"), new("last", "Ko"), new("age", 20) });
 
         SearchResult noFilters = ft.Search(index, new Query());
@@ -454,7 +455,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         db.HashSet("student:1111", new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", 18) });
         db.HashSet("student:3333", new HashEntry[] { new("first", "El"), new("last", "Mark"), new("age", 17) });
-        db.HashSet("pupil:4444",   new HashEntry[] { new("first", "Pat"), new("last", "Shu"), new("age", 21) });
+        db.HashSet("pupil:4444", new HashEntry[] { new("first", "Pat"), new("last", "Shu"), new("age", 21) });
         db.HashSet("student:5555", new HashEntry[] { new("first", "Joen"), new("last", "Ko"), new("age", 20) });
 
         SearchResult noFilters = ft.Search(index, new Query());
@@ -481,13 +482,13 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Assert.True(ft.Create(index, FTCreateParams.CreateParams().Prefix("student:", "pupil:"), sc));
 
-        db.HashSet("profesor:5555", new HashEntry[] { new("first", "Albert"), new("last", "Blue"),  new("age", "55") });
-        db.HashSet("student:1111",  new HashEntry[] { new("first", "Joe"),    new("last", "Dod"),   new("age", "18") });
-        db.HashSet("pupil:2222",    new HashEntry[] { new("first", "Jen"),    new("last", "Rod"),   new("age", "14") });
-        db.HashSet("student:3333",  new HashEntry[] { new("first", "El"),     new("last", "Mark"),  new("age", "17") });
-        db.HashSet("pupil:4444",    new HashEntry[] { new("first", "Pat"),    new("last", "Shu"),   new("age", "21") });
-        db.HashSet("student:5555",  new HashEntry[] { new("first", "Joen"),   new("last", "Ko"),    new("age", "20") });
-        db.HashSet("teacher:6666",  new HashEntry[] { new("first", "Pat"),    new("last", "Rod"),   new("age", "20") });
+        db.HashSet("profesor:5555", new HashEntry[] { new("first", "Albert"), new("last", "Blue"), new("age", "55") });
+        db.HashSet("student:1111", new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", "18") });
+        db.HashSet("pupil:2222", new HashEntry[] { new("first", "Jen"), new("last", "Rod"), new("age", "14") });
+        db.HashSet("student:3333", new HashEntry[] { new("first", "El"), new("last", "Mark"), new("age", "17") });
+        db.HashSet("pupil:4444", new HashEntry[] { new("first", "Pat"), new("last", "Shu"), new("age", "21") });
+        db.HashSet("student:5555", new HashEntry[] { new("first", "Joen"), new("last", "Ko"), new("age", "20") });
+        db.HashSet("teacher:6666", new HashEntry[] { new("first", "Pat"), new("last", "Rod"), new("age", "20") });
 
         SearchResult noFilters = ft.Search(index, new Query());
         Assert.Equal(5, noFilters.TotalResults);
@@ -513,13 +514,13 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Assert.True(await ft.CreateAsync(index, FTCreateParams.CreateParams().Prefix("student:", "pupil:"), sc));
 
-        db.HashSet("profesor:5555", new HashEntry[] { new("first", "Albert"), new("last", "Blue"),  new("age", "55") });
-        db.HashSet("student:1111",  new HashEntry[] { new("first", "Joe"),    new("last", "Dod"),   new("age", "18") });
-        db.HashSet("pupil:2222",    new HashEntry[] { new("first", "Jen"),    new("last", "Rod"),   new("age", "14") });
-        db.HashSet("student:3333",  new HashEntry[] { new("first", "El"),     new("last", "Mark"),  new("age", "17") });
-        db.HashSet("pupil:4444",    new HashEntry[] { new("first", "Pat"),    new("last", "Shu"),   new("age", "21") });
-        db.HashSet("student:5555",  new HashEntry[] { new("first", "Joen"),   new("last", "Ko"),    new("age", "20") });
-        db.HashSet("teacher:6666",  new HashEntry[] { new("first", "Pat"),    new("last", "Rod"),   new("age", "20") });
+        db.HashSet("profesor:5555", new HashEntry[] { new("first", "Albert"), new("last", "Blue"), new("age", "55") });
+        db.HashSet("student:1111", new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", "18") });
+        db.HashSet("pupil:2222", new HashEntry[] { new("first", "Jen"), new("last", "Rod"), new("age", "14") });
+        db.HashSet("student:3333", new HashEntry[] { new("first", "El"), new("last", "Mark"), new("age", "17") });
+        db.HashSet("pupil:4444", new HashEntry[] { new("first", "Pat"), new("last", "Shu"), new("age", "21") });
+        db.HashSet("student:5555", new HashEntry[] { new("first", "Joen"), new("last", "Ko"), new("age", "20") });
+        db.HashSet("teacher:6666", new HashEntry[] { new("first", "Pat"), new("last", "Rod"), new("age", "20") });
 
         SearchResult noFilters = await ft.SearchAsync(index, new Query());
         Assert.Equal(5, noFilters.TotalResults);
@@ -831,9 +832,9 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         var dumResult = ft.DictDump("dict");
         int i = 0;
-        Assert.Equal("bar",dumResult[i++].ToString());
-        Assert.Equal("foo",dumResult[i++].ToString());
-        Assert.Equal("hello world",dumResult[i].ToString());
+        Assert.Equal("bar", dumResult[i++].ToString());
+        Assert.Equal("foo", dumResult[i++].ToString());
+        Assert.Equal("hello world", dumResult[i].ToString());
 
         Assert.Equal(3L, ft.DictDel("dict", "foo", "bar", "hello world"));
         Assert.Equal(ft.DictDump("dict").Length, 0);
@@ -926,7 +927,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Assert.True(ft.DropIndex(index, true));
 
-        RedisResult[] keys = (RedisResult[]) db.Execute("KEYS", "*");
+        RedisResult[] keys = (RedisResult[])db.Execute("KEYS", "*");
         Assert.True(keys.Length == 0);
         Assert.Equal("0", db.Execute("DBSIZE").ToString());
     }
@@ -952,7 +953,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Assert.True(await ft.DropIndexAsync(index, true));
 
-        RedisResult[] keys = (RedisResult[]) db.Execute("KEYS", "*");
+        RedisResult[] keys = (RedisResult[])db.Execute("KEYS", "*");
         Assert.True(keys.Length == 0);
         Assert.Equal("0", db.Execute("DBSIZE").ToString());
     }
@@ -968,9 +969,9 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         var dumResult = await ft.DictDumpAsync("dict");
         int i = 0;
-        Assert.Equal("bar",dumResult[i++].ToString());
-        Assert.Equal("foo",dumResult[i++].ToString());
-        Assert.Equal("hello world",dumResult[i].ToString());
+        Assert.Equal("bar", dumResult[i++].ToString());
+        Assert.Equal("foo", dumResult[i++].ToString());
+        Assert.Equal("hello world", dumResult[i].ToString());
 
         Assert.Equal(3L, await ft.DictDelAsync("dict", "foo", "bar", "hello world"));
         Assert.Equal((await ft.DictDumpAsync("dict")).Length, 0);
@@ -1188,6 +1189,75 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(SyncRes[i++].ToString(), "orange,purple");
         Assert.Equal(SyncRes[i++].ToString(), "red");
         Assert.Equal(SyncRes[i++].ToString(), "yellow");
+    }
+
+
+    [Fact]
+    public void TestFTCreateParamsCommandBuilder()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Schema sc = new Schema()
+            .AddTextField("title", 1.0)
+            .AddTagField("category", separator: ";");
+
+        var ftCreateParams = FTCreateParams.CreateParams().On(IndexDataType.Json)
+                                                          .AddPrefix("doc:")
+                                                          .Filter("@category:{red}")
+                                                          .Language("English")
+                                                          .LanguageField("play")
+                                                          .Score(1.0)
+                                                          .ScoreField("chapter")
+                                                          .PayloadField("txt")
+                                                          .MaxTextFields()
+                                                          .NoOffsets()
+                                                          .Temporary(10)
+                                                          .NoHL()
+                                                          .NoFields()
+                                                          .NoFreqs()
+                                                          .Stopwords(new[] { "foo", "bar" })
+                                                          .SkipInitialScan();
+
+        var builedCommand = SearchCommandBuilder.Create(index, ftCreateParams, sc);
+        var expectedArgs = new object[] { "TEST_INDEX", "PREFIX", 1,
+                                           "doc:", "FILTER", "@category:{red}", "LANGUAGE",
+                                           "English", "LANGUAGE_FIELD", "play", "SCORE", 1,
+                                           "SCORE_FIELD", "chapter", "PAYLOAD_FIELD", "txt",
+                                           "MAXTEXTFIELDS", "NOOFFSETS", "TEMPORARY", 10,
+                                           "NOHL", "NOFIELDS", "NOFREQS", "STOPWORDS", 2,
+                                           "foo", "bar", "SKIPINITIALSCAN", "SCHEMA", "title",
+                                           "TEXT", "category", "TAG", "SEPARATOR", ";" };
+
+        for(int i = 0; i < expectedArgs.Length; i++)
+        {
+            Assert.Equal(expectedArgs[i].ToString(), builedCommand.Args[i].ToString());
+        }
+        Assert.Equal("FT.CREATE", builedCommand.Command.ToString());
+    }
+
+    [Fact]
+    public void TestFTCreateParamsCommandBuilderNoStopwords()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Schema sc = new Schema()
+            .AddTextField("title", 1.0)
+            .AddTagField("category", separator: ";");
+
+        var ftCreateParams = FTCreateParams.CreateParams().NoStopwords();
+
+        var expectedArgs = new object[] { "TEST_INDEX", "STOPWORDS", 0, "SCHEMA", "title",
+                                          "TEXT", "category", "TAG", "SEPARATOR", ";" };
+        var builedCommand = SearchCommandBuilder.Create(index, ftCreateParams, sc);
+
+
+        for(int i = 0; i < expectedArgs.Length; i++)
+        {
+            Assert.Equal(expectedArgs[i].ToString(), builedCommand.Args[i].ToString());
+        }
+        Assert.Equal("FT.CREATE", builedCommand.Command.ToString());
     }
 
     [Fact]
