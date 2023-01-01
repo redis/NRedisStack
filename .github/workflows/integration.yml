@@ -17,17 +17,18 @@ env:
 jobs:
 
   build_and_test:
-    name: Build and test [dotnet ${{matrix.dotnet-version}}]
+    name: Build and test
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        dotnet-version: ['6.0.x']
     steps:
       - uses: actions/checkout@v3
-      - name: install dotnet tools
+      - name: .NET Core 6
         uses: actions/setup-dotnet@v2
         with:
-          dotnet-version: ${{matrix.dotnet-version}}
+          dotnet-version: '6.0.x'
+      - name: .NET Core 7
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '7.0.x'
       - name: run redis-stack-server docker
         run: docker run -p 6379:6379 -d redislabs/redismod:edge
       - name: Restore dependencies
