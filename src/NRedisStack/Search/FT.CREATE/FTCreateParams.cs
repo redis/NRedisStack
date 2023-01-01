@@ -12,7 +12,7 @@ namespace NRedisStack.Search.FT.CREATE
         private string languageField;
         private double score;
         private string scoreField;
-        private byte[] payloadField;
+        private string payloadField;
         private bool maxTextFields;
         private bool noOffsets;
         private long temporary;
@@ -118,9 +118,11 @@ namespace NRedisStack.Search.FT.CREATE
         ///  Document attribute that you use as a binary safe payload string to the document that can be
         ///  evaluated at query time by a custom scoring function or retrieved to the client.
         /// </summary>
-        public FTCreateParams PayloadField(byte[] payloadAttribute)
+        public FTCreateParams PayloadField(string payloadAttribute)
         {
-            Array.Copy(this.payloadField, payloadAttribute, payloadAttribute.Length);
+            //TODO: check if this is correct
+            // Array.Copy(this.payloadField, payloadAttribute, payloadAttribute.Length);
+            this.payloadField = payloadAttribute;
             return this;
         }
 
@@ -192,7 +194,7 @@ namespace NRedisStack.Search.FT.CREATE
         /// <summary>
         ///  Sets the index with a custom stopword list, to be ignored during indexing and search time.
         /// </summary>
-        public FTCreateParams topwords(params string[] stopwords)
+        public FTCreateParams Stopwords(params string[] stopwords)
         {
             this.stopwords = stopwords.ToList();
             return this;
