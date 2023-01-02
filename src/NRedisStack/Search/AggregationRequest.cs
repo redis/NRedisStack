@@ -192,13 +192,13 @@ namespace NRedisStack.Search.Aggregation
             return args;
         }
 
-        public void SerializeRedisArgs(List<object> redisArgs)
-        {
-            foreach (var s in GetArgs())
-            {
-                redisArgs.Add(s);
-            }
-        }
+        // public void SerializeRedisArgs(List<object> redisArgs)
+        // {
+        //     foreach (var s in GetArgs())
+        //     {
+        //         redisArgs.Add(s);
+        //     }
+        // }
 
         // public string getArgsstring()
         // {
