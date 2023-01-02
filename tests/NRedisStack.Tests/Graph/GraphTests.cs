@@ -46,6 +46,9 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(stats.QueryInternalExecutionTime);
 
         Assert.Equal(0, resultSet.Count);
+
+        // delete
+        graph.Delete("social");
     }
 
     [Fact]
@@ -993,6 +996,9 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(stats.QueryInternalExecutionTime);
 
         Assert.Equal(0, resultSet.Count);
+
+        // delete
+        await graph.DeleteAsync("social");
     }
 
     [Fact]
