@@ -1505,6 +1505,61 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal( "doc1" , res1.Documents[0].Id);
     }
 
+    [Fact]
+    public void TestFieldsCommandBuilder()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        // Create the index with the same fields as in the original test
+        var sc = new Schema()
+            .AddTextField("txt", 1.0, true, true, true, "dm:en", true, true)
+            .AddNumericField("num", true, true)
+            .AddGeoField("loc", true, true)
+            .AddTagField("tag",true,true, true, ";", true, true)
+            .AddVectorField("vec", VectorField.VectorAlgo.FLAT, null);
+        var buildCommand = SearchCommandBuilder.Create("idx", new FTCreateParams(), sc);
+        var expectedArgs = new List<object> {
+            "idx",
+            "SCHEMA",
+            "txt",
+            "TEXT",
+            "SORTABLE",
+            "UNF",
+            "NOSTEM",
+            "NOINDEX",
+            "PHONETIC",
+            "dm:en",
+            "WITHSUFFIXTRIE",
+            "num",
+            "NUMERIC",
+            "SORTABLE",
+            "NOINDEX",
+            "loc",
+            "GEO",
+            "SORTABLE",
+            "NOINDEX",
+            "tag",
+            "TAG",
+            "SORTABLE",
+            "UNF",
+            "NOINDEX",
+            "WITHSUFFIXTRIE",
+            "SEPARATOR",
+            ";",
+            "CASESENSITIVE",
+            "vec",
+            "VECTOR",
+            "FLAT"
+        };
+
+        Assert.Equal("FT.CREATE", buildCommand.Command);
+        for(int i = 0; i < expectedArgs.Count; i++)
+        {
+            Assert.Equal(expectedArgs[i], buildCommand.Args[i]);
+        }
+    }
+
         [Fact]
         public void TestModulePrefixs1()
         {
