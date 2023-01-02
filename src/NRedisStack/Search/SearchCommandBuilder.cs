@@ -18,7 +18,7 @@ namespace NRedisStack
             List<object> args = new List<object> { index };
             foreach (var arg in query.GetArgs())
             {
-                args.Add(arg.ToString()!);
+                if(arg != null) args.Add(arg.ToString()!);
             }
             return new SerializedCommand(FT.AGGREGATE, args);
         }

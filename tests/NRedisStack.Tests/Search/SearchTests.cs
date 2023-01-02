@@ -194,6 +194,106 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    public async Task TestAggregationsAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        await db.ExecuteAsync("FLUSHALL");
+        var ft = db.FT();
+        Schema sc = new Schema();
+        sc.AddTextField("name", 1.0, true);
+        sc.AddNumericField("count", true);
+        await ft.CreateAsync(index, FTCreateParams.CreateParams(), sc);
+        //    client.AddDocument(new Document("data1").Set("name", "abc").Set("count", 10));
+        //    client.AddDocument(new Document("data2").Set("name", "def").Set("count", 5));
+        //    client.AddDocument(new Document("data3").Set("name", "def").Set("count", 25));
+        AddDocument(db, new Document("data1").Set("name", "abc").Set("count", 10));
+        AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
+        AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
+
+        AggregationRequest r = new AggregationRequest()
+            .GroupBy("@name", Reducers.Sum("@count").As("sum"))
+        .SortBy(10, SortedField.Desc("@sum"));
+
+        // actual search
+        var res = await ft.AggregateAsync(index, r);
+        Assert.Equal(2, res.TotalResults);
+
+        Row r1 = res.GetRow(0);
+        Assert.NotNull(r1);
+        Assert.Equal("def", r1.GetString("name"));
+        Assert.Equal(30, r1.GetLong("sum"));
+        Assert.Equal(30, r1.GetDouble("sum"), 0);
+
+        Assert.Equal(0L, r1.GetLong("nosuchcol"));
+        Assert.Equal(0.0, r1.GetDouble("nosuchcol"), 0);
+        Assert.Null(r1.GetString("nosuchcol"));
+
+        Row r2 = res.GetRow(1);
+        Assert.NotNull(r2);
+        Assert.Equal("abc", r2.GetString("name"));
+        Assert.Equal(10, r2.GetLong("sum"));
+    }
+
+
+    [Fact]
+    public void TestAggregationsLoad()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        var sc = new Schema().AddTextField("t1").AddTextField("t2");
+        ft.Create("idx", new FTCreateParams(), sc);
+
+        AddDocument(db, new Document("doc1").Set("t1", "hello").Set("t2", "world"));
+
+        // load t1
+        var req = new AggregationRequest("*").Load(new FieldName("t1"));
+        var res = ft.Aggregate("idx", req);
+        Assert.Equal(res[0]["t1"].ToString(), "hello");
+
+        // load t2
+        req = new AggregationRequest("*").Load(new FieldName("t2"));
+        res = ft.Aggregate("idx", req);
+        Assert.Equal(res[0]["t2"], "world");
+
+        // load all
+        req = new AggregationRequest("*").LoadAll();
+        res = ft.Aggregate("idx", req);
+        Assert.Equal(res[0]["t1"].ToString(), "hello");
+        Assert.Equal(res[0]["t2"], "world");
+    }
+
+    [Fact]
+    public async Task TestAggregationsLoadAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        await db.ExecuteAsync("FLUSHALL");
+        var ft = db.FT();
+        var sc = new Schema().AddTextField("t1").AddTextField("t2");
+        await ft.CreateAsync("idx", new FTCreateParams(), sc);
+
+        AddDocument(db, new Document("doc1").Set("t1", "hello").Set("t2", "world"));
+
+        // load t1
+        var req = new AggregationRequest("*").Load(new FieldName("t1"));
+        var res = await ft.AggregateAsync("idx", req);
+        Assert.Equal(res[0]["t1"].ToString(), "hello");
+
+        // load t2
+        req = new AggregationRequest("*").Load(new FieldName("t2"));
+        res = await ft.AggregateAsync("idx", req);
+        Assert.Equal(res[0]["t2"], "world");
+
+        // load all
+        req = new AggregationRequest("*").LoadAll();
+        res = await ft.AggregateAsync("idx", req);
+        Assert.Equal(res[0]["t1"].ToString(), "hello");
+        Assert.Equal(res[0]["t2"], "world");
+    }
+
+
+
+    [Fact]
     public void TestAggregationRequestParamsDialect()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1274,7 +1374,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                                            "foo", "bar", "SKIPINITIALSCAN", "SCHEMA", "title",
                                            "TEXT", "category", "TAG", "SEPARATOR", ";" };
 
-        for(int i = 0; i < expectedArgs.Length; i++)
+        for (int i = 0; i < expectedArgs.Length; i++)
         {
             Assert.Equal(expectedArgs[i].ToString(), builedCommand.Args[i].ToString());
         }
@@ -1298,7 +1398,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var builedCommand = SearchCommandBuilder.Create(index, ftCreateParams, sc);
 
 
-        for(int i = 0; i < expectedArgs.Length; i++)
+        for (int i = 0; i < expectedArgs.Length; i++)
         {
             Assert.Equal(expectedArgs[i].ToString(), builedCommand.Args[i].ToString());
         }
