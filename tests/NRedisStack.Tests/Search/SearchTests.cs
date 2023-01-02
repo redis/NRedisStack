@@ -1406,24 +1406,124 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void TestModulePrefixs1()
+    public void TestFilters()
     {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        // Create the index with the same fields as in the original test
+        var sc = new Schema()
+            .AddTextField("txt")
+            .AddNumericField("num")
+            .AddGeoField("loc");
+        ft.Create("idx", new FTCreateParams(), sc);
+
+        // Add the two documents to the index
+        AddDocument(db, "doc1", new Dictionary<string, object> {
+                { "txt", "foo bar" },
+                { "num", "3.141" },
+                { "loc", "-0.441,51.458" }
+            });
+        AddDocument(db, "doc2", new Dictionary<string, object> {
+                { "txt", "foo baz" },
+                { "num", "2" },
+                { "loc", "-0.1,51.2" }
+            });
+        // WaitForIndex(client, ft.IndexName ?? "idx");
+
+        // Test numerical filter
+        var q1 = new Query("foo").AddFilter(new Query.NumericFilter("num", 0, 2));
+        var q2 = new Query("foo").AddFilter(new Query.NumericFilter("num",2,true, double.MaxValue, false));
+        q1.NoContent = q2.NoContent = true;
+        var res1 = ft.Search("idx", q1);
+        var res2 = ft.Search("idx", q2);
+
+        Assert.Equal(1, res1.TotalResults);
+        Assert.Equal(1, res2.TotalResults);
+        Assert.Equal("doc2", res1.Documents[0].Id);
+        Assert.Equal("doc1", res2.Documents[0].Id);
+
+        // Test geo filter
+        q1 = new Query("foo").AddFilter(new Query.GeoFilter("loc", -0.44, 51.45, 10, Query.GeoFilter.KILOMETERS));
+        q2 = new Query("foo").AddFilter(new Query.GeoFilter("loc", -0.44, 51.45, 100, Query.GeoFilter.KILOMETERS));
+        q1.NoContent = q2.NoContent = true;
+        res1 = ft.Search("idx", q1);
+        res2 = ft.Search("idx", q2);
+
+        Assert.Equal( 1 , res1.TotalResults);
+        Assert.Equal( 2 , res2.TotalResults);
+        Assert.Equal( "doc1" , res1.Documents[0].Id);
+    }
+
+    [Fact]
+    public async Task TestFiltersAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        // Create the index with the same fields as in the original test
+        var sc = new Schema()
+            .AddTextField("txt")
+            .AddNumericField("num")
+            .AddGeoField("loc");
+        await ft.CreateAsync("idx", new FTCreateParams(), sc);
+
+        // Add the two documents to the index
+        AddDocument(db, "doc1", new Dictionary<string, object> {
+                { "txt", "foo bar" },
+                { "num", "3.141" },
+                { "loc", "-0.441,51.458" }
+            });
+        AddDocument(db, "doc2", new Dictionary<string, object> {
+                { "txt", "foo baz" },
+                { "num", "2" },
+                { "loc", "-0.1,51.2" }
+            });
+        // WaitForIndex(client, ft.IndexName ?? "idx");
+
+        // Test numerical filter
+        var q1 = new Query("foo").AddFilter(new Query.NumericFilter("num", 0, 2));
+        var q2 = new Query("foo").AddFilter(new Query.NumericFilter("num",2,true, double.MaxValue, false));
+        q1.NoContent = q2.NoContent = true;
+        var res1 = await ft.SearchAsync("idx", q1);
+        var res2 = await ft.SearchAsync("idx", q2);
+
+        Assert.Equal(1, res1.TotalResults);
+        Assert.Equal(1, res2.TotalResults);
+        Assert.Equal("doc2", res1.Documents[0].Id);
+        Assert.Equal("doc1", res2.Documents[0].Id);
+
+        // Test geo filter
+        q1 = new Query("foo").AddFilter(new Query.GeoFilter("loc", -0.44, 51.45, 10, Query.GeoFilter.KILOMETERS));
+        q2 = new Query("foo").AddFilter(new Query.GeoFilter("loc", -0.44, 51.45, 100, Query.GeoFilter.KILOMETERS));
+        q1.NoContent = q2.NoContent = true;
+        res1 = await ft.SearchAsync("idx", q1);
+        res2 = await ft.SearchAsync("idx", q2);
+
+        Assert.Equal( 1 , res1.TotalResults);
+        Assert.Equal( 2 , res2.TotalResults);
+        Assert.Equal( "doc1" , res1.Documents[0].Id);
+    }
+
+        [Fact]
+        public void TestModulePrefixs1()
         {
-            var conn = ConnectionMultiplexer.Connect("localhost");
-            IDatabase db = conn.GetDatabase();
+            {
+                var conn = ConnectionMultiplexer.Connect("localhost");
+                IDatabase db = conn.GetDatabase();
 
-            var ft = db.FT();
-            // ...
-            conn.Dispose();
-        }
+                var ft = db.FT();
+                // ...
+                conn.Dispose();
+            }
 
-        {
-            var conn = ConnectionMultiplexer.Connect("localhost");
-            IDatabase db = conn.GetDatabase();
+            {
+                var conn = ConnectionMultiplexer.Connect("localhost");
+                IDatabase db = conn.GetDatabase();
 
-            var ft = db.FT();
-            // ...
-            conn.Dispose();
+                var ft = db.FT();
+                // ...
+                conn.Dispose();
+            }
         }
     }
-}
