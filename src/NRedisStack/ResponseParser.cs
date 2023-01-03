@@ -258,12 +258,12 @@ namespace NRedisStack
 
         public static CuckooInformation ToCuckooInfo(this RedisResult result) //TODO: Think about a different implementation, because if the output of BF.INFO changes or even just the names of the labels then the parsing will not work
         {
-            long size, numberOfBuckets, numberOfFilter, numberOfItemsInserted,
-                 numberOfItemsDeleted, bucketSize, expansionRate, maxIteration;
+            long size, numberOfBuckets, numberOfFilters, numberOfItemsInserted,
+                 numberOfItemsDeleted, bucketSize, expansionRate, maxIterations;
 
-            size = numberOfBuckets = numberOfFilter =
+            size = numberOfBuckets = numberOfFilters =
             numberOfItemsInserted = numberOfItemsDeleted =
-            bucketSize = expansionRate = maxIteration = -1;
+            bucketSize = expansionRate = maxIterations = -1;
 
             RedisResult[] redisResults = result.ToArray();
 
@@ -279,8 +279,8 @@ namespace NRedisStack
                     case "Number of buckets":
                         numberOfBuckets = (long)redisResults[i];
                         break;
-                    case "Number of filter":
-                        numberOfFilter = (long)redisResults[i];
+                    case "Number of filters":
+                        numberOfFilters = (long)redisResults[i];
                         break;
                     case "Number of items inserted":
                         numberOfItemsInserted = (long)redisResults[i];
@@ -294,14 +294,14 @@ namespace NRedisStack
                     case "Expansion rate":
                         expansionRate = (long)redisResults[i];
                         break;
-                    case "Max iteration":
-                        maxIteration = (long)redisResults[i];
+                    case "Max iterations":
+                        maxIterations = (long)redisResults[i];
                         break;
                 }
             }
 
-            return new CuckooInformation(size, numberOfBuckets, numberOfFilter, numberOfItemsInserted,
-                                        numberOfItemsDeleted, bucketSize, expansionRate, maxIteration);
+            return new CuckooInformation(size, numberOfBuckets, numberOfFilters, numberOfItemsInserted,
+                                        numberOfItemsDeleted, bucketSize, expansionRate, maxIterations);
         }
 
         public static CmsInformation ToCmsInfo(this RedisResult result) //TODO: Think about a different implementation, because if the output of CMS.INFO changes or even just the names of the labels then the parsing will not work
