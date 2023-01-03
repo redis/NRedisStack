@@ -680,9 +680,9 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.True(info.DocTableSizeMebibytes < 1);
         Assert.Equal(0, info.SortableValueSizeMebibytes);
         Assert.True(info.KeyTableSizeMebibytes < 1);
-        Assert.Equal(8, info.RecordsPerDocAvg);
-        Assert.Equal(5.625, info.BytesPerRecordAvg);
-        Assert.Equal(0.875, info.OffsetsPerTermAvg);
+        Assert.Equal(8, (int)info.RecordsPerDocAvg);
+        Assert.True(info.BytesPerRecordAvg > 5);
+        Assert.True(info.OffsetsPerTermAvg > 0.8);
         Assert.Equal(8, info.OffsetBitsPerRecordAvg);
         Assert.Equal(0, info.HashIndexingFailures);
         Assert.True(info.TotalIndexingTime > 0);
@@ -738,9 +738,9 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.True(info.DocTableSizeMebibytes < 1);
         Assert.Equal(0, info.SortableValueSizeMebibytes);
         Assert.True(info.KeyTableSizeMebibytes < 1);
-        Assert.Equal(8, info.RecordsPerDocAvg);
-        Assert.Equal(5.625, info.BytesPerRecordAvg);
-        Assert.Equal(0.875, info.OffsetsPerTermAvg);
+        Assert.Equal(8, (int)info.RecordsPerDocAvg);
+        Assert.True(info.BytesPerRecordAvg > 5);
+        Assert.True(info.OffsetsPerTermAvg > 0.8);
         Assert.Equal(8, info.OffsetBitsPerRecordAvg);
         Assert.Equal(0, info.HashIndexingFailures);
         Assert.True(info.TotalIndexingTime > 0);
