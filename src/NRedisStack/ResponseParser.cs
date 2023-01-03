@@ -105,26 +105,27 @@ namespace NRedisStack
             return new Tuple<long, Byte[]>((long)redisResults[0], (Byte[])redisResults[1]);
         }
 
-        public static HashEntry ToHashEntry(this RedisResult result)
-        {
-            RedisResult[] redisResults = result.ToArray();
-            if (redisResults.Length < 2)
-                throw new ArgumentOutOfRangeException(nameof(result));
+        // TODO: check if this is needed:
+        // public static HashEntry ToHashEntry(this RedisResult result)
+        // {
+        //     RedisResult[] redisResults = result.ToArray();
+        //     if (redisResults.Length < 2)
+        //         throw new ArgumentOutOfRangeException(nameof(result));
 
-            return new HashEntry((RedisValue)(redisResults[0]), ((RedisValue)redisResults[1]));
-        }
+        //     return new HashEntry((RedisValue)(redisResults[0]), ((RedisValue)redisResults[1]));
+        // }
 
-        public static HashEntry[] ToHashEntryArray(this RedisResult result)
-        {
-            RedisResult[] redisResults = result.ToArray();
+        // public static HashEntry[] ToHashEntryArray(this RedisResult result)
+        // {
+        //     RedisResult[] redisResults = result.ToArray();
 
-            var hash = new HashEntry[redisResults.Length / 2];
-            if (redisResults.Length == 0) return hash;
+        //     var hash = new HashEntry[redisResults.Length / 2];
+        //     if (redisResults.Length == 0) return hash;
 
-            for (int i = 0; i < redisResults.Length - 1; i += 2)
-                hash[i / 2] = new HashEntry(((RedisValue)redisResults[i]), ((RedisValue)redisResults[i + 1]));
-            return hash;
-        }
+        //     for (int i = 0; i < redisResults.Length - 1; i += 2)
+        //         hash[i / 2] = new HashEntry(((RedisValue)redisResults[i]), ((RedisValue)redisResults[i + 1]));
+        //     return hash;
+        // }
 
         public static IReadOnlyList<TimeSeriesTuple> ToTimeSeriesTupleArray(this RedisResult result)
         {
