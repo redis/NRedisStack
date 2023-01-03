@@ -165,11 +165,6 @@ public static class JsonCommandBuilder
     {
         List<object> args = new List<object>() { key };
 
-        foreach (var path in paths)
-        {
-            args.Add(path);
-        }
-
         if (indent != null)
         {
             args.Add(JsonArgs.INDENT);
@@ -186,6 +181,11 @@ public static class JsonCommandBuilder
         {
             args.Add(JsonArgs.SPACE);
             args.Add(space);
+        }
+
+        foreach (var path in paths)
+        {
+            args.Add(path);
         }
 
         return new SerializedCommand(JSON.GET, args);

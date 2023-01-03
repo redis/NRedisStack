@@ -718,7 +718,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var result = await commands.GetAsync<Person>(key);
         Assert.Equal("Alice", result!.Name);
         Assert.Equal(35, result.Age);
-        var people = (await commands.GetEnumerableAsync<Person>(complexKey, "$..a")).ToArray();
+        var people = (commands.GetEnumerable<Person>(complexKey, "$..a")).ToArray();
         Assert.Equal(2, people.Length);
         Assert.Equal("Alice", people[0]!.Name);
         Assert.Equal(35, people[0]!.Age);
@@ -1005,5 +1005,27 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var actual = commands.Get(Path.Combine("BaseDir", "DirNumber2", "DirNumber3", $"jsonFile7"));
         Assert.Equal(jsons[6], actual.ToString());
         Directory.Delete("BaseDir", true);
+    }
+
+    [Fact]
+    public void TestJsonCommandBuilder()
+    {
+        var getBuild1 = JsonCommandBuilder.Get("key", "indent", "newline", "space", "path");
+        var getBuild2 = JsonCommandBuilder.Get("key",new string[]{"path1", "path2", "path3"}, "indent", "newline", "space");
+        var expectedArgs1 = new object[] { "key", "INDENT", "indent", "NEWLINE","newline", "SPACE", "space", "path" };
+        var expectedArgs2 = new object[] { "key", "INDENT", "indent", "NEWLINE", "newline", "SPACE", "space", "path1", "path2", "path3" };
+
+
+        for(int i = 0; i < expectedArgs1.Length; i++)
+        {
+            Assert.Equal(expectedArgs1[i].ToString(), getBuild1.Args[i].ToString());
+        }
+        Assert.Equal("JSON.GET", getBuild1.Command);
+
+        for(int i = 0; i < expectedArgs2.Length; i++)
+        {
+            Assert.Equal(expectedArgs2[i].ToString(), getBuild2.Args[i].ToString());
+        }
+        Assert.Equal("JSON.GET", getBuild2.Command);
     }
 }
