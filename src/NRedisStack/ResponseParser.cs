@@ -370,10 +370,10 @@ namespace NRedisStack
         public static TdigestInformation ToTdigestInfo(this RedisResult result) //TODO: Think about a different implementation, because if the output of CMS.INFO changes or even just the names of the labels then the parsing will not work
         {
             long compression, capacity, mergedNodes, unmergedNodes, totalCompressions, memoryUsage;
-            double mergedWeight, unmergedWeight, sumWeight;
+            double mergedWeight, unmergedWeight, observations;
 
             compression = capacity = mergedNodes = unmergedNodes = totalCompressions = memoryUsage = -1;
-            mergedWeight = unmergedWeight = sumWeight = -1.0;
+            mergedWeight = unmergedWeight = observations = -1.0;
 
             RedisResult[] redisResults = result.ToArray();
 
@@ -401,8 +401,8 @@ namespace NRedisStack
                     case "Unmerged weight":
                         unmergedWeight = (double)redisResults[i];
                         break;
-                    case "Sum weights":
-                        sumWeight = (double)redisResults[i];
+                    case "Observations":
+                        observations = (double)redisResults[i];
                         break;
                     case "Total compressions":
                         totalCompressions = (long)redisResults[i];
@@ -414,7 +414,7 @@ namespace NRedisStack
             }
 
             return new TdigestInformation(compression, capacity, mergedNodes, unmergedNodes,
-                                          mergedWeight, unmergedWeight, sumWeight, totalCompressions, memoryUsage);
+                                          mergedWeight, unmergedWeight, observations, totalCompressions, memoryUsage);
         }
 
         public static TimeSeriesInformation ToTimeSeriesInfo(this RedisResult result)
