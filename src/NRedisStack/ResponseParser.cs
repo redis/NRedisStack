@@ -447,11 +447,11 @@ namespace NRedisStack
                     case "chunkSize":
                         chunkSize = (long)redisResults[i];
                         break;
-                    case "maxSamplesPerChunk":
-                        // If the property name is maxSamplesPerChunk then this is an old
-                        // version of RedisTimeSeries and we used the number of samples before ( now Bytes )
-                        chunkSize = chunkSize * 16;
-                        break;
+                    // case "maxSamplesPerChunk":
+                    //     // If the property name is maxSamplesPerChunk then this is an old
+                    //     // version of RedisTimeSeries and we used the number of samples before ( now Bytes )
+                    //     chunkSize = chunkSize * 16;
+                    //     break;
                     case "firstTimestamp":
                         firstTimestamp = ToTimeStamp(redisResults[i]);
                         break;
@@ -486,20 +486,21 @@ namespace NRedisStack
             lastTimestamp, retentionTime, chunkCount, chunkSize, labels, sourceKey, rules, duplicatePolicy, keySelfName, chunks);
         }
 
-        public static Dictionary<string, RedisValue> ToFtInfoAsDictionary(this RedisResult value)
-        {
-            var res = (RedisResult[])value;
-            var info = new Dictionary<string, RedisValue>();
-            for (int i = 0; i < res.Length; i += 2)
-            {
-                var val = res[i + 1];
-                if (val.Type != ResultType.MultiBulk)
-                {
-                    info.Add((string)res[i], (RedisValue)val);
-                }
-            }
-            return info;
-        }
+        // TODO: check if this is needed
+        // public static Dictionary<string, RedisValue> ToFtInfoAsDictionary(this RedisResult value)
+        // {
+        //     var res = (RedisResult[])value;
+        //     var info = new Dictionary<string, RedisValue>();
+        //     for (int i = 0; i < res.Length; i += 2)
+        //     {
+        //         var val = res[i + 1];
+        //         if (val.Type != ResultType.MultiBulk)
+        //         {
+        //             info.Add((string)res[i], (RedisValue)val);
+        //         }
+        //     }
+        //     return info;
+        // }
 
         public static Dictionary<string, string> ToConfigDictionary(this RedisResult value)
         {
