@@ -41,6 +41,7 @@ namespace NRedisStack.Graph
             }
         }
 
+        // TODO: check if this is needed:
         public override bool Equals(object? obj)
         {
             if (obj == null) return this == null;

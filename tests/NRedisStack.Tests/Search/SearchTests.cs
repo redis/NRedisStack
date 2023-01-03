@@ -672,7 +672,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(100, info.NumDocs);
         Assert.Equal("300", info.MaxDocId);
         Assert.Equal(102, info.NumTerms);
-        Assert.Equal(800, info.NumRecords);
+        Assert.Equal(800, info.NumRecords); // TODO: why is this 800? 
         Assert.Equal(0.004291534423828125, info.InvertedSzMebibytes);
         Assert.Equal(0, info.VectorIndexSzMebibytes);
         Assert.Equal(208, info.TotalInvertedIndexBlocks);
@@ -691,7 +691,6 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(4, info.NumberOfUses);
         Assert.Equal(7, info.GcStats.Count);
         Assert.Equal(4, info.CursorStats.Count);
-
     }
 
     [Fact]
