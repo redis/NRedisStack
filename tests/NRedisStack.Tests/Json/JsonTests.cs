@@ -541,6 +541,24 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    public async Task ArrayPopAsync()
+    {
+        IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var keys = CreateKeyNames(2);
+        var key = keys[0];
+        var simpleKey = keys[1];
+        await commands.SetAsync(key, "$", new { name = "Alice", nicknames = new[] { "Al", "Ali", "Ally" } });
+        await commands.SetAsync(simpleKey, "$", new[] { "Al", "Ali", "Ally" });
+
+        var result = await commands.ArrPopAsync(key, "$.nicknames", 1);
+        Assert.Equal("\"Ali\"", result[0].ToString());
+        result = await commands.ArrPopAsync(key, "$.nicknames");
+        Assert.Equal("\"Ally\"", result[0].ToString());
+        result = await commands.ArrPopAsync(simpleKey);
+        Assert.Equal("\"Ally\"", result[0].ToString());
+    }
+
+    [Fact]
     public void ArrayTrim()
     {
         IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
@@ -700,7 +718,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var result = await commands.GetAsync<Person>(key);
         Assert.Equal("Alice", result!.Name);
         Assert.Equal(35, result.Age);
-        var people = commands.GetEnumerable<Person>(complexKey, "$..a").ToArray();
+        var people = (await commands.GetEnumerableAsync<Person>(complexKey, "$..a")).ToArray();
         Assert.Equal(2, people.Length);
         Assert.Equal("Alice", people[0]!.Name);
         Assert.Equal(35, people[0]!.Age);
