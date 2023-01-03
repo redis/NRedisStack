@@ -1933,6 +1933,37 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
     }
 
+    [Fact]
+    public void TestEquals()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var edge1 = new Edge();
+        var edge1Copy = new Edge();
+        var edge2 = new Edge();
+        var node1 = new Node();
+        var node1Copy = new Node();
+        var node2 = new Node();
+        edge1.Id = 1;
+        edge1Copy.Id = 1;
+        edge2.Id = 2;
+        node1.Id = 1;
+        node1Copy.Id = 1;
+        node2.Id = 2;
+        Assert.False(edge1.Equals(edge2));
+        Assert.False(node1.Equals(node2));
+        Assert.True(edge1.Equals(edge1Copy));
+        Assert.True(node1.Equals(node1Copy));
+
+        var path = new NRedisStack.Graph.DataTypes.Path(new List<Node>() { node1, node2 },
+                                                        new List<Edge>() { edge1, edge2 });
+        var pathCopy = new NRedisStack.Graph.DataTypes.Path(new List<Node>() { node1, node2 },
+                                                            new List<Edge>() { edge1, edge2 });
+        var path2 = new NRedisStack.Graph.DataTypes.Path(new List<Node>() { node1, node2 },
+                                                         new List<Edge>() { edge1 });
+        Assert.True(path.Equals(pathCopy));
+        Assert.False(path.Equals(path2));
+    }
     #endregion
 
 }
