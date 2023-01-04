@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 using NRedisStack.Literals;
-using NRedisStack.Search;
 using StackExchange.Redis;
 
 namespace NRedisStack.Search
@@ -170,7 +168,7 @@ namespace NRedisStack.Search
         /// <summary>
         /// Set the query payload to be evaluated by the scoring function
         /// </summary>
-        public byte[] Payload { get; set; }
+        public string Payload { get; set; } // TODO: should this be a byte[]?
 
         // TODO: Check if I need to add here WITHSORTKEYS
 
@@ -230,6 +228,10 @@ namespace NRedisStack.Search
             if (WithScores)
             {
                 args.Add("WITHSCORES");
+                if (ExplainScore)
+                {
+                    args.Add("EXPLAINSCORE"); // TODO: Check Why Jedis doesn't have it
+                }
             }
             if (WithPayloads)
             {
@@ -245,11 +247,6 @@ namespace NRedisStack.Search
             {
                 args.Add("SCORER");
                 args.Add(Scorer);
-
-                if (ExplainScore)
-                {
-                    args.Add("EXPLAINSCORE"); // TODO: Check Why Jedis doesn't have it
-                }
             }
 
             if (_fields?.Length > 0)
@@ -346,12 +343,13 @@ namespace NRedisStack.Search
                 }
             }
 
-            if (_keys?.Length > 0)
-            {
-                args.Add("INKEYS");
-                args.Add(_keys.Length);
-                args.AddRange(_keys);
-            }
+            // TODO: why duplicate if?
+            // if (_keys?.Length > 0)
+            // {
+            //     args.Add("INKEYS");
+            //     args.Add(_keys.Length);
+            //     args.AddRange(_keys);
+            // }
             if (_returnFields?.Length > 0)
             {
                 args.Add("RETURN");
@@ -440,7 +438,7 @@ namespace NRedisStack.Search
         /// </summary>
         /// <param name="payload">the payload</param>
         /// <returns>the query itself</returns>
-        public Query SetPayload(byte[] payload)
+        public Query SetPayload(string payload)
         {
             Payload = payload;
             return this;
@@ -491,7 +489,7 @@ namespace NRedisStack.Search
         /// Set the query to return object payloads, if any were given
         /// </summary>
         /// <returns>the query itself</returns>
-        public Query SetWithPayload()
+        public Query SetWithPayloads()
         {
             WithPayloads = true;
             return this;
@@ -518,6 +516,19 @@ namespace NRedisStack.Search
             Scorer = scorer;
             return this;
         }
+
+        /// <summary>
+        /// returns a textual description of how the scores were calculated.
+        /// Using this options requires the WITHSCORES option.
+        /// </summary>
+        /// <param name="explainScore"></param>
+        /// <returns></returns>
+        public Query SetExplainScore(bool explainScore = true)
+        {
+            ExplainScore = explainScore;
+            return this;
+        }
+
         /// <summary>
         /// Limit the query to results that are limited to a specific set of fields
         /// </summary>

@@ -1507,6 +1507,99 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    public void TestQueryCommandBuilder()
+    {
+        var testQuery = new Query("foo").HighlightFields(new Query.HighlightTags("<b>", "</b>"), "txt")
+                                            .SetVerbatim()
+                                            .SetNoStopwords()
+                                            .SetWithScores()
+                                            .SetPayload("txt")
+                                            .SetLanguage("English")
+                                            .SetScorer("TFIDF")
+                                            .SetExplainScore()
+                                            .SetWithScores()
+                                            .SetWithPayloads()
+                                            .SetSortBy("txt", true)
+                                            .Limit(0, 10)
+                                            .SummarizeFields(20, 3, ";", "txt")
+                                            .LimitKeys("key1", "key2")
+                                            .ReturnFields("txt")
+                                            .AddParam("name", "value")
+                                            .Dialect(1)
+                                            .Slop(0)
+                                            .Timeout(1000)
+                                            .SetInOrder()
+                                            .SetExpander("myexpander");
+        var buildCommand = SearchCommandBuilder.Search("idx", testQuery);
+        var expectedArgs = new List<object> {"idx",
+                                             "foo",
+                                             "VERBATIM",
+                                             "NOSTOPWORDS",
+                                             "WITHSCORES",
+                                             "EXPLAINSCORE",
+                                             "WITHPAYLOADS",
+                                             "LANGUAGE",
+                                             "English",
+                                             "SCORER",
+                                             "TFIDF",
+                                             "SORTBY",
+                                             "txt",
+                                             "ASC",
+                                             "PAYLOAD",
+                                             "txt",
+                                             "HIGHLIGHT",
+                                             "FIELDS",
+                                             "1",
+                                             "txt",
+                                             "TAGS",
+                                             "<b>",
+                                             "</b>",
+                                             "SUMMARIZE",
+                                             "FIELDS",
+                                             "1",
+                                             "txt",
+                                             "FRAGS",
+                                             "3",
+                                             "LEN",
+                                             "20",
+                                             "SEPARATOR",
+                                             ";",
+                                             "INKEYS",
+                                             "2",
+                                             "key1",
+                                             "key2",
+                                             "RETURN",
+                                             "1",
+                                             "txt",
+                                             "PARAMS",
+                                             "2",
+                                             "name",
+                                             "value",
+                                             "DIALECT",
+                                             "1",
+                                             "SLOP",
+                                             "0",
+                                             "TIMEOUT",
+                                             "1000",
+                                             "INORDER",
+                                             "EXPANDER",
+                                             "myexpander"};
+
+        for(int i = 0; i < buildCommand.Args.Count(); i++)
+        {
+            Assert.Equal(expectedArgs[i].ToString(), buildCommand.Args[i].ToString());
+        }
+        Assert.Equal("FT.SEARCH", buildCommand.Command);
+        // test that the command not throw an exception:
+        var db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        ft.Create("idx", new FTCreateParams(), new Schema().AddTextField("txt"));
+        var res = ft.Search("idx", testQuery);
+        Assert.Equal(0, res.Documents.Count());
+    }
+
+    [Fact]
     public void TestFieldsCommandBuilder()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
