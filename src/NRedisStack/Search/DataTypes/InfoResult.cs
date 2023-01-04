@@ -9,7 +9,7 @@ namespace NRedisStack.Search.DataTypes
 
         public string IndexName => GetString("index_name");
         public Dictionary<string, RedisResult> IndexOption => GetRedisResultDictionary("index_options");
-        public Dictionary<string, RedisResult[]> IndexDefinition => GetRedisResultsDictionary("index_definition");
+        // public Dictionary<string, RedisResult[]> IndexDefinition => GetRedisResultsDictionary("index_definition"); // TODO: fix this
 
         // public Dictionary<string, RedisResult[]> Attributes => GetRedisResultsDictionary("attributes"); // TODO: check if this is correct
         public Dictionary<string, RedisResult>[] Attributes => GetRedisResultDictionaryArray("attributes"); // TODO: check if this is correct
@@ -122,24 +122,25 @@ namespace NRedisStack.Search.DataTypes
             }
         }
 
-        private Dictionary<string, RedisResult[]> GetRedisResultsDictionary(string key)
-        {
-            if (_all.TryGetValue(key, out var value))
-            {
-                var result = new Dictionary<string, RedisResult[]>();
+        // TODO: check if this is needed:
+        // private Dictionary<string, RedisResult[]> GetRedisResultsDictionary(string key)
+        // {
+        //     if (_all.TryGetValue(key, out var value))
+        //     {
+        //         var result = new Dictionary<string, RedisResult[]>();
 
-                foreach (RedisResult[] fv in (RedisResult[])value)
-                {
-                    result.Add((string)fv[0], fv);
-                }
+        //         foreach (RedisResult[] fv in (RedisResult[])value)
+        //         {
+        //             result.Add((string)fv[0], fv);
+        //         }
 
-                return result;
-            }
-            else
-            {
-                return default;
-            }
-        }
+        //         return result;
+        //     }
+        //     else
+        //     {
+        //         return default;
+        //     }
+        // }
 
         private Dictionary<string, RedisResult>[] GetRedisResultDictionaryArray(string key)
         {

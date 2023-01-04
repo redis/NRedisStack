@@ -12,11 +12,12 @@ namespace NRedisStack.Extensions
             _ => throw new ArgumentOutOfRangeException(nameof(dataType), "Invalid Index DataType"),
         };
 
-        public static IndexDataType AsDataType(string dataType) => dataType switch
-        {
-            "HASH" => IndexDataType.Hash,
-            "JSON" => IndexDataType.Json,
-            _ => throw new ArgumentOutOfRangeException(nameof(dataType), $"Invalid Index DataType '{dataType}'"),
-        };
+        // TODO: needed?
+        // public static IndexDataType AsDataType(string dataType) => dataType switch
+        // {
+        //     "HASH" => IndexDataType.Hash,
+        //     "JSON" => IndexDataType.Json,
+        //     _ => throw new ArgumentOutOfRangeException(nameof(dataType), $"Invalid Index DataType '{dataType}'"),
+        // };
     }
 }

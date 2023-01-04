@@ -666,6 +666,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         var info = ft.Info(index);
         Assert.Equal(index, info.IndexName);
+        Assert.Equal(0, info.IndexOption.Count);
+        // Assert.Equal(,info.IndexDefinition);
         Assert.Equal("title", (info.Attributes[0]["identifier"]).ToString());
         Assert.Equal("TAG", (info.Attributes[1]["type"]).ToString());
         Assert.Equal("name", (info.Attributes[2]["attribute"]).ToString());
@@ -1357,14 +1359,14 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                                                           .MaxTextFields()
                                                           .NoOffsets()
                                                           .Temporary(10)
-                                                          .NoHL()
+                                                          .NoHighlights()
                                                           .NoFields()
                                                           .NoFreqs()
                                                           .Stopwords(new[] { "foo", "bar" })
                                                           .SkipInitialScan();
 
         var builedCommand = SearchCommandBuilder.Create(index, ftCreateParams, sc);
-        var expectedArgs = new object[] { "TEST_INDEX", "PREFIX", 1,
+        var expectedArgs = new object[] { "TEST_INDEX", "ON", "JSON", "PREFIX", 1,
                                            "doc:", "FILTER", "@category:{red}", "LANGUAGE",
                                            "English", "LANGUAGE_FIELD", "play", "SCORE", 1,
                                            "SCORE_FIELD", "chapter", "PAYLOAD_FIELD", "txt",
@@ -1432,7 +1434,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         // Test numerical filter
         var q1 = new Query("foo").AddFilter(new Query.NumericFilter("num", 0, 2));
-        var q2 = new Query("foo").AddFilter(new Query.NumericFilter("num",2,true, double.MaxValue, false));
+        var q2 = new Query("foo").AddFilter(new Query.NumericFilter("num", 2, true, double.MaxValue, false));
         q1.NoContent = q2.NoContent = true;
         var res1 = ft.Search("idx", q1);
         var res2 = ft.Search("idx", q2);
@@ -1449,9 +1451,9 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         res1 = ft.Search("idx", q1);
         res2 = ft.Search("idx", q2);
 
-        Assert.Equal( 1 , res1.TotalResults);
-        Assert.Equal( 2 , res2.TotalResults);
-        Assert.Equal( "doc1" , res1.Documents[0].Id);
+        Assert.Equal(1, res1.TotalResults);
+        Assert.Equal(2, res2.TotalResults);
+        Assert.Equal("doc1", res1.Documents[0].Id);
     }
 
     [Fact]
@@ -1482,7 +1484,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         // Test numerical filter
         var q1 = new Query("foo").AddFilter(new Query.NumericFilter("num", 0, 2));
-        var q2 = new Query("foo").AddFilter(new Query.NumericFilter("num",2,true, double.MaxValue, false));
+        var q2 = new Query("foo").AddFilter(new Query.NumericFilter("num", 2, true, double.MaxValue, false));
         q1.NoContent = q2.NoContent = true;
         var res1 = await ft.SearchAsync("idx", q1);
         var res2 = await ft.SearchAsync("idx", q2);
@@ -1499,9 +1501,9 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         res1 = await ft.SearchAsync("idx", q1);
         res2 = await ft.SearchAsync("idx", q2);
 
-        Assert.Equal( 1 , res1.TotalResults);
-        Assert.Equal( 2 , res2.TotalResults);
-        Assert.Equal( "doc1" , res1.Documents[0].Id);
+        Assert.Equal(1, res1.TotalResults);
+        Assert.Equal(2, res2.TotalResults);
+        Assert.Equal("doc1", res1.Documents[0].Id);
     }
 
     [Fact]
@@ -1515,7 +1517,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddTextField("txt", 1.0, true, true, true, "dm:en", true, true)
             .AddNumericField("num", true, true)
             .AddGeoField("loc", true, true)
-            .AddTagField("tag",true,true, true, ";", true, true)
+            .AddTagField("tag", true, true, true, ";", true, true)
             .AddVectorField("vec", VectorField.VectorAlgo.FLAT, null);
         var buildCommand = SearchCommandBuilder.Create("idx", new FTCreateParams(), sc);
         var expectedArgs = new List<object> {
@@ -1553,31 +1555,31 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         };
 
         Assert.Equal("FT.CREATE", buildCommand.Command);
-        for(int i = 0; i < expectedArgs.Count; i++)
+        for (int i = 0; i < expectedArgs.Count; i++)
         {
             Assert.Equal(expectedArgs[i], buildCommand.Args[i]);
         }
     }
 
-        [Fact]
-        public void TestModulePrefixs1()
+    [Fact]
+    public void TestModulePrefixs1()
+    {
         {
-            {
-                var conn = ConnectionMultiplexer.Connect("localhost");
-                IDatabase db = conn.GetDatabase();
+            var conn = ConnectionMultiplexer.Connect("localhost");
+            IDatabase db = conn.GetDatabase();
 
-                var ft = db.FT();
-                // ...
-                conn.Dispose();
-            }
+            var ft = db.FT();
+            // ...
+            conn.Dispose();
+        }
 
-            {
-                var conn = ConnectionMultiplexer.Connect("localhost");
-                IDatabase db = conn.GetDatabase();
+        {
+            var conn = ConnectionMultiplexer.Connect("localhost");
+            IDatabase db = conn.GetDatabase();
 
-                var ft = db.FT();
-                // ...
-                conn.Dispose();
-            }
+            var ft = db.FT();
+            // ...
+            conn.Dispose();
         }
     }
+}
