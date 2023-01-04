@@ -193,7 +193,14 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         var info = cf.Info(key);
 
         Assert.NotNull(info);
+        Assert.Equal(info.BucketSize, (long)2);
+        Assert.Equal(info.ExpansionRate, (long)1);
+        Assert.Equal(info.MaxIterations, (long)20);
+        Assert.Equal(info.NumberOfBuckets, (long)512);
+        Assert.Equal(info.NumberOfFilters, (long)1);
+        Assert.Equal(info.NumberOfItemsDeleted, (long)0);
         Assert.Equal(info.NumberOfItemsInserted, (long)1);
+        Assert.Equal(info.Size, (long)1080);
 
         Assert.Throws<RedisServerException>(() => cf.Info("notExistKey"));
     }
@@ -209,7 +216,16 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         var info = await cf.InfoAsync(key);
 
         Assert.NotNull(info);
+        Assert.Equal(info.BucketSize, (long)2);
+        Assert.Equal(info.ExpansionRate, (long)1);
+        Assert.Equal(info.MaxIterations, (long)20);
+        Assert.Equal(info.NumberOfBuckets, (long)512);
+        Assert.Equal(info.NumberOfFilters, (long)1);
+        Assert.Equal(info.NumberOfItemsDeleted, (long)0);
         Assert.Equal(info.NumberOfItemsInserted, (long)1);
+        Assert.Equal(info.Size, (long)1080);
+
+
 
         await Assert.ThrowsAsync<RedisServerException>(() => cf.InfoAsync("notExistKey"));
     }

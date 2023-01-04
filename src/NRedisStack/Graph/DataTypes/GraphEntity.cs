@@ -12,6 +12,7 @@ namespace NRedisStack.Graph.DataTypes
 
         public IDictionary<string, object> PropertyMap = new Dictionary<string, object>();
 
+        // TODO: check if this is needed:
         /// <summary>
         /// Overriden Equals that considers the equality of the entity ID as well as the equality of the
         /// properties that each entity has.

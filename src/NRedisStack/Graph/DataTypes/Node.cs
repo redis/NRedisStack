@@ -16,6 +16,7 @@ namespace NRedisStack.Graph.DataTypes
             Labels = new List<string>();
         }
 
+        // TODO: check if this is needed:
         /// <summary>
         /// Overriden member that checks to see if the names of the labels of a node are equal
         /// (in addition to base `Equals` functionality).
