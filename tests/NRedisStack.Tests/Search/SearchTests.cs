@@ -1348,7 +1348,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddTextField("title", 1.0)
             .AddTagField("category", separator: ";");
 
-        var ftCreateParams = FTCreateParams.CreateParams().On(IndexDataType.Json)
+        var ftCreateParams = FTCreateParams.CreateParams().On(IndexDataType.JSON)
                                                           .AddPrefix("doc:")
                                                           .Filter("@category:{red}")
                                                           .Language("English")
