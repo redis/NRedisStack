@@ -1953,7 +1953,12 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.False(edge1.Equals(edge2));
         Assert.False(node1.Equals(node2));
         Assert.True(edge1.Equals(edge1Copy));
+        Assert.True(edge1.Equals(edge1));
         Assert.True(node1.Equals(node1Copy));
+        Assert.True(node1.Equals(node1));
+        Assert.False(node1.Equals(edge1));
+        Assert.False(edge1.Equals(node1));
+
 
         var path = new NRedisStack.Graph.DataTypes.Path(new List<Node>() { node1, node2 },
                                                         new List<Edge>() { edge1, edge2 });
@@ -1962,7 +1967,20 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         var path2 = new NRedisStack.Graph.DataTypes.Path(new List<Node>() { node1, node2 },
                                                          new List<Edge>() { edge1 });
         Assert.True(path.Equals(pathCopy));
+        Assert.True(path.Equals(path));
         Assert.False(path.Equals(path2));
+        Assert.False(path.Equals(node1));
+
+        var node1String = node1.ToString();
+        var edge1String = edge1.ToString();
+        var pathString = path.ToString();
+        var expectedNode1String = "Node{labels=[], id=1, propertyMap={}}";
+        var expectedEdge1String = "Edge{relationshipType='', source=0, destination=0, id=1, propertyMap={}}";
+        var expectedPathString = "Path{nodes=System.Collections.ObjectModel.ReadOnlyCollection`1[NRedisStack.Graph.DataTypes.Node], edges=System.Collections.ObjectModel.ReadOnlyCollection`1[NRedisStack.Graph.DataTypes.Edge]}";
+        Assert.Equal(expectedNode1String, node1String);
+        Assert.Equal(expectedEdge1String, edge1String);
+        Assert.Equal(expectedPathString, pathString);
+
     }
     #endregion
 

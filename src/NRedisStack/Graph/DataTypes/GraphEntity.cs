@@ -59,22 +59,23 @@ namespace NRedisStack.Graph.DataTypes
             }
         }
 
+        // TODO: Delete it?
         /// <summary>
         /// Overriden ToString that emits a string containing the ID and property map of the entity.
         /// </summary>
         /// <returns></returns>
-        public override string ToString()
-        {
-            var sb = new StringBuilder();
+        // public override string ToString()
+        // {
+        //     var sb = new StringBuilder();
 
-            sb.Append("GraphEntity{id=");
-            sb.Append(Id);
-            sb.Append(", propertyMap=");
-            sb.Append(PropertyMap);
-            sb.Append('}');
+        //     sb.Append("GraphEntity{id=");
+        //     sb.Append(Id);
+        //     sb.Append(", propertyMap=");
+        //     sb.Append(PropertyMap);
+        //     sb.Append('}');
 
-            return sb.ToString();
-        }
+        //     return sb.ToString();
+        // }
 
         public string PropertyMapToString()
         {
