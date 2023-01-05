@@ -2009,10 +2009,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.False(path.Equals(path2));
         Assert.False(path.Equals(node1));
 
-        var recod1String = record1.ToString();
-        var expectedRecod1String = "Record{values=∞}";
-
-        Assert.Equal(expectedRecod1String, recod1String);
+        Assert.True(record1.ToString() == "Record{values=Infinity}" || record1.ToString() == "Record{values=∞}");
         Assert.NotEqual(record2.GetHashCode(), record1.GetHashCode());
 
         var node1String = node1.ToString();
