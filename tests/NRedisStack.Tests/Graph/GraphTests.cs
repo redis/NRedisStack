@@ -2021,7 +2021,17 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expectedNode1String, node1String);
         Assert.Equal(expectedEdge1String, edge1String);
         Assert.Equal(expectedPathString, pathString);
+    }
 
+    [Fact]
+    public void TestPrepareQuery()
+    {
+        var graph = redisFixture.Redis.GetDatabase().GRAPH();
+        var res1 = graph.Query("graph", "RETURN 1", new Dictionary<string, object> { { "a", (char)'c' } });
+        var res2 = graph.Query("graph", "RETURN 1", new Dictionary<string, object> { { "a", null } });
+        var res3 = graph.Query("graph", "RETURN 1", new Dictionary<string, object> { { "a", new string[]{"foo", "bar"} } });
+        var res4 = graph.Query("graph", "RETURN 1", new Dictionary<string, object> { { "a", new List<string>{"foo2", "bar2"} } });
+        // TODO: complete this test
     }
     #endregion
 
