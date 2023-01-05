@@ -18,16 +18,6 @@ namespace NRedisStack
 
         private readonly IDictionary<string, GraphCache> _graphCaches = new Dictionary<string, GraphCache>();
 
-        private GraphCache GetGraphCache(string graphName)
-        {
-            if (!_graphCaches.ContainsKey(graphName))
-            {
-                _graphCaches.Add(graphName, new GraphCache(graphName, this));
-            }
-
-            return _graphCaches[graphName];
-        }
-
         /// <inheritdoc/>
         public ResultSet Query(string graphName, string query, IDictionary<string, object> parameters, long? timeout = null)
         {

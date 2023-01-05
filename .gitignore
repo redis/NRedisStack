@@ -397,3 +397,6 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 .idea
+tests/NRedisStack.Tests/lcov.net7.0.info
+tests/NRedisStack.Tests/lcov.net6.0.info
+tests/NRedisStack.Tests/lcov.info

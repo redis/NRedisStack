@@ -24,9 +24,11 @@ namespace NRedisStack
         /// <param name="item">Items to be counted.</param>
         /// <returns>count for responding item.</returns>
         /// <remarks><seealso href="https://redis.io/commands/cf.count"/></remarks>
+        [Obsolete("TOPK.COUNT is deprecated as of Bloom 2.4.0")]
         long[] Count(RedisKey key, params RedisValue[] items);
 
         /// <inheritdoc cref="Count(RedisKey, RedisValue[])"/>
+        [Obsolete("TOPK.COUNT is deprecated as of Bloom 2.4.0")]
         Task<long[]> CountAsync(RedisKey key, params RedisValue[] items);
 
 

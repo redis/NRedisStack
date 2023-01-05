@@ -105,26 +105,27 @@ namespace NRedisStack
             return new Tuple<long, Byte[]>((long)redisResults[0], (Byte[])redisResults[1]);
         }
 
-        public static HashEntry ToHashEntry(this RedisResult result)
-        {
-            RedisResult[] redisResults = result.ToArray();
-            if (redisResults.Length < 2)
-                throw new ArgumentOutOfRangeException(nameof(result));
+        // TODO: check if this is needed:
+        // public static HashEntry ToHashEntry(this RedisResult result)
+        // {
+        //     RedisResult[] redisResults = result.ToArray();
+        //     if (redisResults.Length < 2)
+        //         throw new ArgumentOutOfRangeException(nameof(result));
 
-            return new HashEntry((RedisValue)(redisResults[0]), ((RedisValue)redisResults[1]));
-        }
+        //     return new HashEntry((RedisValue)(redisResults[0]), ((RedisValue)redisResults[1]));
+        // }
 
-        public static HashEntry[] ToHashEntryArray(this RedisResult result)
-        {
-            RedisResult[] redisResults = result.ToArray();
+        // public static HashEntry[] ToHashEntryArray(this RedisResult result)
+        // {
+        //     RedisResult[] redisResults = result.ToArray();
 
-            var hash = new HashEntry[redisResults.Length / 2];
-            if (redisResults.Length == 0) return hash;
+        //     var hash = new HashEntry[redisResults.Length / 2];
+        //     if (redisResults.Length == 0) return hash;
 
-            for (int i = 0; i < redisResults.Length - 1; i += 2)
-                hash[i / 2] = new HashEntry(((RedisValue)redisResults[i]), ((RedisValue)redisResults[i + 1]));
-            return hash;
-        }
+        //     for (int i = 0; i < redisResults.Length - 1; i += 2)
+        //         hash[i / 2] = new HashEntry(((RedisValue)redisResults[i]), ((RedisValue)redisResults[i + 1]));
+        //     return hash;
+        // }
 
         public static IReadOnlyList<TimeSeriesTuple> ToTimeSeriesTupleArray(this RedisResult result)
         {
@@ -257,12 +258,12 @@ namespace NRedisStack
 
         public static CuckooInformation ToCuckooInfo(this RedisResult result) //TODO: Think about a different implementation, because if the output of BF.INFO changes or even just the names of the labels then the parsing will not work
         {
-            long size, numberOfBuckets, numberOfFilter, numberOfItemsInserted,
-                 numberOfItemsDeleted, bucketSize, expansionRate, maxIteration;
+            long size, numberOfBuckets, numberOfFilters, numberOfItemsInserted,
+                 numberOfItemsDeleted, bucketSize, expansionRate, maxIterations;
 
-            size = numberOfBuckets = numberOfFilter =
+            size = numberOfBuckets = numberOfFilters =
             numberOfItemsInserted = numberOfItemsDeleted =
-            bucketSize = expansionRate = maxIteration = -1;
+            bucketSize = expansionRate = maxIterations = -1;
 
             RedisResult[] redisResults = result.ToArray();
 
@@ -278,8 +279,8 @@ namespace NRedisStack
                     case "Number of buckets":
                         numberOfBuckets = (long)redisResults[i];
                         break;
-                    case "Number of filter":
-                        numberOfFilter = (long)redisResults[i];
+                    case "Number of filters":
+                        numberOfFilters = (long)redisResults[i];
                         break;
                     case "Number of items inserted":
                         numberOfItemsInserted = (long)redisResults[i];
@@ -293,14 +294,14 @@ namespace NRedisStack
                     case "Expansion rate":
                         expansionRate = (long)redisResults[i];
                         break;
-                    case "Max iteration":
-                        maxIteration = (long)redisResults[i];
+                    case "Max iterations":
+                        maxIterations = (long)redisResults[i];
                         break;
                 }
             }
 
-            return new CuckooInformation(size, numberOfBuckets, numberOfFilter, numberOfItemsInserted,
-                                        numberOfItemsDeleted, bucketSize, expansionRate, maxIteration);
+            return new CuckooInformation(size, numberOfBuckets, numberOfFilters, numberOfItemsInserted,
+                                        numberOfItemsDeleted, bucketSize, expansionRate, maxIterations);
         }
 
         public static CmsInformation ToCmsInfo(this RedisResult result) //TODO: Think about a different implementation, because if the output of CMS.INFO changes or even just the names of the labels then the parsing will not work
@@ -369,10 +370,10 @@ namespace NRedisStack
         public static TdigestInformation ToTdigestInfo(this RedisResult result) //TODO: Think about a different implementation, because if the output of CMS.INFO changes or even just the names of the labels then the parsing will not work
         {
             long compression, capacity, mergedNodes, unmergedNodes, totalCompressions, memoryUsage;
-            double mergedWeight, unmergedWeight, sumWeight;
+            double mergedWeight, unmergedWeight, observations;
 
             compression = capacity = mergedNodes = unmergedNodes = totalCompressions = memoryUsage = -1;
-            mergedWeight = unmergedWeight = sumWeight = -1.0;
+            mergedWeight = unmergedWeight = observations = -1.0;
 
             RedisResult[] redisResults = result.ToArray();
 
@@ -400,8 +401,8 @@ namespace NRedisStack
                     case "Unmerged weight":
                         unmergedWeight = (double)redisResults[i];
                         break;
-                    case "Sum weights":
-                        sumWeight = (double)redisResults[i];
+                    case "Observations":
+                        observations = (double)redisResults[i];
                         break;
                     case "Total compressions":
                         totalCompressions = (long)redisResults[i];
@@ -413,7 +414,7 @@ namespace NRedisStack
             }
 
             return new TdigestInformation(compression, capacity, mergedNodes, unmergedNodes,
-                                          mergedWeight, unmergedWeight, sumWeight, totalCompressions, memoryUsage);
+                                          mergedWeight, unmergedWeight, observations, totalCompressions, memoryUsage);
         }
 
         public static TimeSeriesInformation ToTimeSeriesInfo(this RedisResult result)
@@ -446,11 +447,11 @@ namespace NRedisStack
                     case "chunkSize":
                         chunkSize = (long)redisResults[i];
                         break;
-                    case "maxSamplesPerChunk":
-                        // If the property name is maxSamplesPerChunk then this is an old
-                        // version of RedisTimeSeries and we used the number of samples before ( now Bytes )
-                        chunkSize = chunkSize * 16;
-                        break;
+                    // case "maxSamplesPerChunk":
+                    //     // If the property name is maxSamplesPerChunk then this is an old
+                    //     // version of RedisTimeSeries and we used the number of samples before ( now Bytes )
+                    //     chunkSize = chunkSize * 16;
+                    //     break;
                     case "firstTimestamp":
                         firstTimestamp = ToTimeStamp(redisResults[i]);
                         break;
@@ -485,20 +486,21 @@ namespace NRedisStack
             lastTimestamp, retentionTime, chunkCount, chunkSize, labels, sourceKey, rules, duplicatePolicy, keySelfName, chunks);
         }
 
-        public static Dictionary<string, RedisValue> ToFtInfoAsDictionary(this RedisResult value)
-        {
-            var res = (RedisResult[])value;
-            var info = new Dictionary<string, RedisValue>();
-            for (int i = 0; i < res.Length; i += 2)
-            {
-                var val = res[i + 1];
-                if (val.Type != ResultType.MultiBulk)
-                {
-                    info.Add((string)res[i], (RedisValue)val);
-                }
-            }
-            return info;
-        }
+        // TODO: check if this is needed
+        // public static Dictionary<string, RedisValue> ToFtInfoAsDictionary(this RedisResult value)
+        // {
+        //     var res = (RedisResult[])value;
+        //     var info = new Dictionary<string, RedisValue>();
+        //     for (int i = 0; i < res.Length; i += 2)
+        //     {
+        //         var val = res[i + 1];
+        //         if (val.Type != ResultType.MultiBulk)
+        //         {
+        //             info.Add((string)res[i], (RedisValue)val);
+        //         }
+        //     }
+        //     return info;
+        // }
 
         public static Dictionary<string, string> ToConfigDictionary(this RedisResult value)
         {

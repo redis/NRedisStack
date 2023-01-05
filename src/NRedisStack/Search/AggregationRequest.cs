@@ -81,15 +81,15 @@ namespace NRedisStack.Search.Aggregation
             return this;
         }
 
-        public AggregationRequest SortByAsc(string field)
-        {
-            return SortBy(SortedField.Asc(field));
-        }
+        // public AggregationRequest SortByAsc(string field)
+        // {
+        //     return SortBy(SortedField.Asc(field));
+        // }
 
-        public AggregationRequest SortByDesc(string field)
-        {
-            return SortBy(SortedField.Desc(field));
-        }
+        // public AggregationRequest SortByDesc(string field)
+        // {
+        //     return SortBy(SortedField.Desc(field));
+        // }
 
         public AggregationRequest Apply(string projection, string alias)
         {
@@ -192,13 +192,13 @@ namespace NRedisStack.Search.Aggregation
             return args;
         }
 
-        public void SerializeRedisArgs(List<object> redisArgs)
-        {
-            foreach (var s in GetArgs())
-            {
-                redisArgs.Add(s);
-            }
-        }
+        // public void SerializeRedisArgs(List<object> redisArgs)
+        // {
+        //     foreach (var s in GetArgs())
+        //     {
+        //         redisArgs.Add(s);
+        //     }
+        // }
 
         // public string getArgsstring()
         // {

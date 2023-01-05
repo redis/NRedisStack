@@ -395,16 +395,6 @@ public interface IJsonCommands
     Task<T?> GetAsync<T>(RedisKey key, string path = "$");
 
     /// <summary>
-    /// retrieves a group of items stored in redis, appropriate if the path will  resolve to multiple records.
-    /// </summary>
-    /// <param name="key">The key to pull from.</param>
-    /// <param name="path">The path to pull.</param>
-    /// <typeparam name="T">The type.</typeparam>
-    /// <returns>An enumerable of the requested tyep</returns>
-    /// <remarks><seealso href="https://redis.io/commands/json.get"/></remarks>
-    Task<IEnumerable<T?>> GetEnumerableAsync<T>(RedisKey key, string path = "$");
-
-    /// <summary>
     /// Gets the provided path from multiple keys
     /// </summary>
     /// <param name="keys">The keys to retrieve from.</param>

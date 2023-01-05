@@ -206,11 +206,6 @@ public class JsonCommands : IJsonCommands
         return default;
     }
 
-    public Task<IEnumerable<T?>> GetEnumerableAsync<T>(RedisKey key, string path = "$") // TODO: why is this here?
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task<RedisResult[]> MGetAsync(RedisKey[] keys, string path)
     {
         return (await _db.ExecuteAsync(JsonCommandBuilder.MGet(keys, path))).ToArray();
