@@ -782,7 +782,20 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Node node = record.Current.GetValue<Node>(0);
         var property = node.PropertyMap["location"];
 
-        Assert.Equal((object)(new Point(30.27822306, -97.75134723)), property);
+        var point = new Point(30.27822306, -97.75134723);
+        Assert.Equal((object)(point), property);
+    }
+
+    [Fact]
+    public void TestPoint()
+    {
+        var point = new Point(30.27822306, -97.75134723);
+
+        var pointString = point.ToString();
+        Assert.Equal("Point{latitude=30.27822306, longitude=-97.75134723}", pointString);
+        var pointHash = point.GetHashCode();
+        Assert.Equal(847819990, pointHash);
+        Assert.Throws<ArgumentOutOfRangeException>(() => new Point(new List<double> { 1, 2, 3 }));
     }
 
     [Fact]
@@ -1934,22 +1947,44 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void TestEquals()
+    public void TestEqualsAndToString()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+        var graph = db.GRAPH();
+        ResultSet resultSet1 = graph.Query("db", "RETURN 10^100000");
+        ResultSet resultSet2 = graph.Query("db", "RETURN 10^1000");
+        var iterator1 = resultSet1.GetEnumerator();
+        Assert.True(iterator1.MoveNext());
+        var record1 = iterator1.Current;
+        var iterator2 = resultSet2.GetEnumerator();
+        Assert.True(iterator2.MoveNext());
+        var record2 = iterator2.Current;
+
+        Assert.True(resultSet1.Header.Equals(resultSet1.Header));
+        Assert.False(resultSet1.Header.Equals(resultSet2.Header));
+        Assert.False(resultSet1.Header.Equals(new object()));
+        Assert.False(resultSet1.Header.Equals(null));
+
+        Assert.True(record1.Equals(record1));
+        Assert.False(record1.Equals(record2));
+        Assert.False(record1.Equals(new object()));
+        Assert.False(record1.Equals(null));
+
         var edge1 = new Edge();
         var edge1Copy = new Edge();
         var edge2 = new Edge();
         var node1 = new Node();
         var node1Copy = new Node();
         var node2 = new Node();
+
         edge1.Id = 1;
         edge1Copy.Id = 1;
         edge2.Id = 2;
         node1.Id = 1;
         node1Copy.Id = 1;
         node2.Id = 2;
+
         Assert.False(edge1.Equals(edge2));
         Assert.False(node1.Equals(node2));
         Assert.True(edge1.Equals(edge1Copy));
@@ -1958,6 +1993,9 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.True(node1.Equals(node1));
         Assert.False(node1.Equals(edge1));
         Assert.False(edge1.Equals(node1));
+        Assert.False(node1.Equals(null));
+        Assert.False(edge1.Equals(null));
+
 
 
         var path = new NRedisStack.Graph.DataTypes.Path(new List<Node>() { node1, node2 },
@@ -1970,6 +2008,14 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.True(path.Equals(path));
         Assert.False(path.Equals(path2));
         Assert.False(path.Equals(node1));
+
+        var recod1String = record1.ToString();
+        var recod2Hash = record2.GetHashCode();
+        var expectedRecod1String = "Record{values=∞}";
+        var expectedRecod2Hash = 1275355212;
+
+        Assert.Equal(expectedRecod1String, recod1String);
+        Assert.Equal(expectedRecod2Hash, recod2Hash);
 
         var node1String = node1.ToString();
         var edge1String = edge1.ToString();
