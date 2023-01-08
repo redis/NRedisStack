@@ -968,6 +968,114 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    public void TestAggregationGroupBy()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        // Creating the index definition and schema
+        ft.Create("idx", new FTCreateParams(), new Schema().AddNumericField("random_num")
+                                                           .AddTextField("title")
+                                                           .AddTextField("body")
+                                                           .AddTextField("parent"));
+
+        // Indexing a document
+        AddDocument(db, "search", new Dictionary<string, object>(){
+        { "title", "RediSearch" },
+        { "body", "Redisearch impements a search engine on top of redis" },
+        { "parent", "redis" },
+        { "random_num", 10 }});
+
+        AddDocument(db, "ai", new Dictionary<string, object>
+        {
+        { "title", "RedisAI" },
+        { "body", "RedisAI executes Deep Learning/Machine Learning models and managing their data." },
+        { "parent", "redis" },
+        { "random_num", 3 }});
+
+        AddDocument(db, "json", new Dictionary<string, object>
+        {
+        { "title", "RedisJson" },
+        { "body", "RedisJSON implements ECMA-404 The JSON Data Interchange Standard as a native data type." },
+        { "parent", "redis" },
+        { "random_num", 8 }});
+
+        var req = new AggregationRequest("redis").GroupBy("@parent", Reducers.Count());
+        var res = ft.Aggregate("idx", req).GetRow(0);
+        Assert.True(res.ContainsKey("parent"));
+        Assert.Equal(res["parent"], "redis");
+        Assert.Equal(res["__generated_aliascount"], "3");
+
+        req = new AggregationRequest("redis").GroupBy("@parent", Reducers.CountDistinct("@title"));
+        res = ft.Aggregate("idx", req).GetRow(0);
+        Assert.Equal(res["parent"], "redis");
+        Assert.Equal(res.GetLong("__generated_aliascount_distincttitle"), 3);
+
+        req = new AggregationRequest("redis").GroupBy("@parent", Reducers.CountDistinctish("@title"));
+        res = ft.Aggregate("idx", req).GetRow(0);
+        Assert.Equal(res["parent"], "redis");
+        Assert.Equal(res.GetLong("__generated_aliascount_distinctishtitle"), 3);
+
+        req = new AggregationRequest("redis").GroupBy("@parent", Reducers.Sum("@random_num"));
+        res = ft.Aggregate("idx", req).GetRow(0);
+        Assert.Equal(res["parent"], "redis");
+        Assert.Equal(res.GetLong("__generated_aliassumrandom_num"), 21); // 10+8+3
+
+        req = new AggregationRequest("redis").GroupBy("@parent", Reducers.Min("@random_num"));
+        res = ft.Aggregate("idx", req).GetRow(0);
+        Assert.Equal(res["parent"], "redis");
+        Assert.Equal(res.GetLong("__generated_aliasminrandom_num"), 3); // min(10,8,3)
+
+        req = new AggregationRequest("redis").GroupBy("@parent", Reducers.Max("@random_num"));
+        res = ft.Aggregate("idx", req).GetRow(0);
+        Assert.Equal(res["parent"], "redis");
+        Assert.Equal(res.GetLong("__generated_aliasmaxrandom_num"), 10); // max(10,8,3)
+
+        req = new AggregationRequest("redis").GroupBy("@parent", Reducers.Avg("@random_num"));
+        res = ft.Aggregate("idx", req).GetRow(0);
+        Assert.Equal(res["parent"], "redis");
+        Assert.Equal(res.GetLong("__generated_aliasavgrandom_num"), 7); // (10+3+8)/3
+
+        req = new AggregationRequest("redis").GroupBy("@parent", Reducers.StdDev("@random_num"));
+        res = ft.Aggregate("idx", req).GetRow(0);
+        Assert.Equal(res["parent"], "redis");
+        Assert.Equal(res.GetDouble("__generated_aliasstddevrandom_num"), 3.60555127546);
+
+        req = new AggregationRequest("redis").GroupBy(
+            "@parent", Reducers.Quantile("@random_num", 0.5));
+        res = ft.Aggregate("idx", req).GetRow(0);
+        Assert.Equal(res["parent"], "redis");
+        Assert.Equal(res.GetLong("__generated_aliasquantilerandom_num,0.5"), 8);  // median of 3,8,10
+
+        req = new AggregationRequest("redis").GroupBy(
+            "@parent", Reducers.ToList("@title"));
+        var rawRes = ft.Aggregate("idx", req);
+        res = rawRes.GetRow(0);
+        Assert.Equal(res["parent"], "redis");
+        // TODO: complete this assert after handling multi bulk reply
+        //Assert.Equal((RedisValue[])res["__generated_aliastolisttitle"], { "RediSearch", "RedisAI", "RedisJson"});
+
+        req = new AggregationRequest("redis").GroupBy(
+            "@parent", Reducers.FirstValue("@title").As("first"));
+        res = ft.Aggregate("idx", req).GetRow(0);
+        Assert.Equal(res["parent"], "redis");
+        Assert.Equal(res["first"], "RediSearch");
+
+        req = new AggregationRequest("redis").GroupBy(
+            "@parent", Reducers.RandomSample("@title", 2).As("random"));
+        res = ft.Aggregate("idx", req).GetRow(0);
+        Assert.Equal(res["parent"], "redis");
+        // TODO: complete this assert after handling multi bulk reply
+        // Assert.Equal(res[2], "random");
+        // Assert.Equal(len(res[3]), 2);
+        // Assert.Equal(res[3][0] in ["RediSearch", "RedisAI", "RedisJson"]);
+        // req = new AggregationRequest("redis").GroupBy("@parent", redu
+
+    }
+
+
+    [Fact]
     public void TestDictionary()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1585,7 +1693,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                                              "EXPANDER",
                                              "myexpander"};
 
-        for(int i = 0; i < buildCommand.Args.Count(); i++)
+        for (int i = 0; i < buildCommand.Args.Count(); i++)
         {
             Assert.Equal(expectedArgs[i].ToString(), buildCommand.Args[i].ToString());
         }
