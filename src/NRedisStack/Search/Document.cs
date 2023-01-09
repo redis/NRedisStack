@@ -65,18 +65,19 @@ namespace NRedisStack.Search
 
         public bool HasProperty(string key) => _properties.ContainsKey(key);
 
-        internal static Document Parse(string docId, RedisResult result)
-        {
-            if (result == null || result.IsNull) return null;
-            var arr = (RedisResult[])result;
-            var doc = new Document(docId);
+        // TODO: check if this is needed:
+        // internal static Document Parse(string docId, RedisResult result)
+        // {
+        //     if (result == null || result.IsNull) return null;
+        //     var arr = (RedisResult[])result;
+        //     var doc = new Document(docId);
 
-            for(int i = 0; i < arr.Length; )
-            {
-                doc[(string)arr[i++]] = (RedisValue)arr[i++];
-            }
-            return doc;
-        }
+        //     for(int i = 0; i < arr.Length; )
+        //     {
+        //         doc[(string)arr[i++]] = (RedisValue)arr[i++];
+        //     }
+        //     return doc;
+        // }
 
         public Document Set(string field, RedisValue value)
         {

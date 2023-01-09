@@ -24,22 +24,25 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
     private void AddDocument(IDatabase db, Document doc)
     {
-        string key = doc.Id;
-        var properties = doc.GetProperties();
-        // HashEntry[] hash = new  HashEntry[properties.Count()];
-        // for(int i = 0; i < properties.Count(); i++)
-        // {
-        //     var property = properties.ElementAt(i);
-        //     hash[i] = new HashEntry(property.Key, property.Value);
-        // }
-        // db.HashSet(key, hash);
-        var nameValue = new List<object>() { key };
-        foreach (var item in properties)
+        if (doc.HasProperty(doc.Id))
         {
-            nameValue.Add(item.Key);
-            nameValue.Add(item.Value);
+            string key = doc.Id;
+            var properties = doc.GetProperties();
+            // HashEntry[] hash = new  HashEntry[properties.Count()];
+            // for(int i = 0; i < properties.Count(); i++)
+            // {
+            //     var property = properties.ElementAt(i);
+            //     hash[i] = new HashEntry(property.Key, property.Value);
+            // }
+            // db.HashSet(key, hash);
+            var nameValue = new List<object>() { key };
+            foreach (var item in properties)
+            {
+                nameValue.Add(item.Key);
+                nameValue.Add(item.Value);
+            }
+            db.Execute("HSET", nameValue);
         }
-        db.Execute("HSET", nameValue);
 
     }
 
@@ -118,7 +121,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         sc.AddTextField("name", 1.0, sortable: true);
         sc.AddNumericField("count", sortable: true);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
-        AddDocument(db, new Document("data1").Set("name", "abc").Set("count", 10));
+        AddDocument(db, new Document("data1").Set("name", "abc").Set("count", 10).SetScore(1.0));
         AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
         AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
 
@@ -140,7 +143,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         sc.AddTextField("name", 1.0, sortable: true);
         sc.AddNumericField("count", sortable: true);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
-        AddDocument(db, new Document("data1").Set("name", "abc").Set("count", 10));
+        AddDocument(db, new Document("data1").Set("name", "abc").Set("count", 10).SetScore(1.0));
         AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
         AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
 
