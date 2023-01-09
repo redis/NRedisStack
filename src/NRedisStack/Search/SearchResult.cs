@@ -14,7 +14,7 @@ namespace NRedisStack.Search
         public long TotalResults { get; }
         public List<Document> Documents { get; }
 
-        internal SearchResult(RedisResult[] resp, bool hasContent, bool hasScores, bool hasPayloads, bool shouldExplainScore)
+        internal SearchResult(RedisResult[] resp, bool hasContent, bool hasScores, bool hasPayloads/*, bool shouldExplainScore*/)
         {
             // Calculate the step distance to walk over the results.
             // The order of results is id, score (if withScore), payLoad (if hasPayloads), fields
@@ -53,17 +53,17 @@ namespace NRedisStack.Search
                 string[] scoreExplained = null;
                 if (hasScores)
                 {
-                    if (shouldExplainScore)
-                    {
-                        var scoreResult = (RedisResult[])resp[i + scoreOffset];
-                        score = (double) scoreResult[0];
-                        var redisResultsScoreExplained = (RedisResult[]) scoreResult[1];
-                        scoreExplained = FlatRedisResultArray(redisResultsScoreExplained).ToArray();
-                    }
-                    else
-                    {
+                    // if (shouldExplainScore)
+                    // {
+                    //     var scoreResult = (RedisResult[])resp[i + scoreOffset];
+                    //     score = (double) scoreResult[0];
+                    //     var redisResultsScoreExplained = (RedisResult[]) scoreResult[1];
+                    //     scoreExplained = FlatRedisResultArray(redisResultsScoreExplained).ToArray();
+                    // }
+                    //else
+                    //{
                         score = (double)resp[i + scoreOffset];
-                    }
+                    //}
                 }
                 if (hasPayloads)
                 {

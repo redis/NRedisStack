@@ -189,7 +189,7 @@ namespace NRedisStack.Search
         /// Set the query scoring. see https://oss.redislabs.com/redisearch/Scoring.html for documentation
         /// </summary>
         public string Scorer { get; set; }
-        public bool ExplainScore { get; set; } // TODO: Check if this is needed because Jedis doesn't have it
+        // public bool ExplainScore { get; set; } // TODO: Check if this is needed because Jedis doesn't have it
 
         private Dictionary<String, Object> _params = null;
         private int _dialect = 0;
@@ -228,10 +228,10 @@ namespace NRedisStack.Search
             if (WithScores)
             {
                 args.Add("WITHSCORES");
-                if (ExplainScore)
-                {
-                    args.Add("EXPLAINSCORE"); // TODO: Check Why Jedis doesn't have it
-                }
+                // if (ExplainScore)
+                // {
+                //     args.Add("EXPLAINSCORE"); // TODO: Check Why Jedis doesn't have it
+                // }
             }
             if (WithPayloads)
             {
@@ -517,17 +517,18 @@ namespace NRedisStack.Search
             return this;
         }
 
-        /// <summary>
-        /// returns a textual description of how the scores were calculated.
-        /// Using this options requires the WITHSCORES option.
-        /// </summary>
-        /// <param name="explainScore"></param>
-        /// <returns></returns>
-        public Query SetExplainScore(bool explainScore = true)
-        {
-            ExplainScore = explainScore;
-            return this;
-        }
+        // TODO: check if this is needed (Jedis doesn't have it)
+        // /// <summary>
+        // /// returns a textual description of how the scores were calculated.
+        // /// Using this options requires the WITHSCORES option.
+        // /// </summary>
+        // /// <param name="explainScore"></param>
+        // /// <returns></returns>
+        // public Query SetExplainScore(bool explainScore = true)
+        // {
+        //     ExplainScore = explainScore;
+        //     return this;
+        // }
 
         /// <summary>
         /// Limit the query to results that are limited to a specific set of fields

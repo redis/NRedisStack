@@ -1623,8 +1623,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                                             .SetPayload("txt")
                                             .SetLanguage("English")
                                             .SetScorer("TFIDF")
-                                            .SetExplainScore()
-                                            .SetWithScores()
+                                            //.SetExplainScore()
                                             .SetWithPayloads()
                                             .SetSortBy("txt", true)
                                             .Limit(0, 10)
@@ -1643,7 +1642,6 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                                              "VERBATIM",
                                              "NOSTOPWORDS",
                                              "WITHSCORES",
-                                             "EXPLAINSCORE",
                                              "WITHPAYLOADS",
                                              "LANGUAGE",
                                              "English",
@@ -1704,6 +1702,20 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         ft.Create("idx", new FTCreateParams(), new Schema().AddTextField("txt"));
         var res = ft.Search("idx", testQuery);
         Assert.Equal(0, res.Documents.Count());
+    }
+
+    [Fact]
+    public void TestQueryCommandBuilderScore()
+    {
+        // TODO: write better test for scores and payloads
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        db.Execute("JSON.SET",  "doc:1",  "$",  "[{\"arr\": [1, 2, 3]}, {\"val\": \"hello\"}, {\"val\": \"world\"}]");
+        db.Execute("FT.CREATE", "idx", "ON", "JSON", "PREFIX", "1", "doc:", "SCHEMA", "$..arr", "AS", "arr", "NUMERIC", "$..val", "AS", "val", "TEXT");
+        var res = ft.Search("idx", new Query("*").ReturnFields("arr", "val").SetWithScores().SetPayload("arr"));
+        Assert.Equal(1, res.TotalResults);
     }
 
     [Fact]
