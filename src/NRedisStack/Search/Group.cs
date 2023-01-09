@@ -7,7 +7,7 @@ namespace NRedisStack.Search.Aggregation
 
         private readonly IList<Reducer> _reducers = new List<Reducer>();
         private readonly IList<string> _fields;
-        private Limit _limit = new Limit(0, 0);
+        private Limit _limit = Aggregation.Limit.NO_LIMIT;
 
         public Group(params string[] fields) => _fields = fields;
         public Group(IList<string> fields) => _fields = fields;
@@ -44,11 +44,12 @@ namespace NRedisStack.Search.Aggregation
             _limit.SerializeRedisArgs(args);
         }
 
-        public List<object> getArgs()
-        {
-            List<object> args = new List<object>();
-            SerializeRedisArgs(args);
-            return args;
-        }
+        // TODO: check if this is needed:
+        // public List<object> getArgs()
+        // {
+        //     List<object> args = new List<object>();
+        //     SerializeRedisArgs(args);
+        //     return args;
+        // }
     }
 }

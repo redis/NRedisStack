@@ -24,8 +24,6 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
     private void AddDocument(IDatabase db, Document doc)
     {
-        if (doc.HasProperty(doc.Id))
-        {
             string key = doc.Id;
             var properties = doc.GetProperties();
             // HashEntry[] hash = new  HashEntry[properties.Count()];
@@ -42,8 +40,6 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                 nameValue.Add(item.Value);
             }
             db.Execute("HSET", nameValue);
-        }
-
     }
 
     private void AddDocument(IDatabase db, string key, Dictionary<string, object> objDictionary)
@@ -1763,6 +1759,46 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         {
             Assert.Equal(expectedArgs[i], buildCommand.Args[i]);
         }
+    }
+
+    [Fact]
+    public void TestLimit()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        ft.Create("idx", new FTCreateParams(), new Schema().AddTextField("t1").AddTextField("t2"));
+        Document doc1 = new Document("doc1", new Dictionary<string, RedisValue> {{"t1", "a"}, {"t2", "b"}});
+        Document doc2 = new Document("doc2", new Dictionary<string, RedisValue> {{"t1", "b"}, {"t2", "a"}});
+        AddDocument(db, doc1);
+        AddDocument(db, doc2);
+
+        var req = new AggregationRequest("*").SortBy("@t1").Limit(1, 1);
+        var res = ft.Aggregate("idx", req);
+
+        Assert.Equal( res.GetResults().Count, 1);
+        Assert.Equal( res.GetResults()[0]["t1"].ToString(), "b");
+    }
+
+    [Fact]
+    public async Task TestLimitAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        ft.Create("idx", new FTCreateParams(), new Schema().AddTextField("t1").AddTextField("t2"));
+        Document doc1 = new Document("doc1", new Dictionary<string, RedisValue> {{"t1", "a"}, {"t2", "b"}});
+        Document doc2 = new Document("doc2", new Dictionary<string, RedisValue> {{"t1", "b"}, {"t2", "a"}});
+        AddDocument(db, doc1);
+        AddDocument(db, doc2);
+
+        var req = new AggregationRequest("*").SortBy("@t1").Limit(1, 1);
+        var res = await ft.AggregateAsync("idx", req);
+
+        Assert.Equal( res.GetResults().Count, 1);
+        Assert.Equal( res.GetResults()[0]["t1"].ToString(), "b");
     }
 
     [Fact]

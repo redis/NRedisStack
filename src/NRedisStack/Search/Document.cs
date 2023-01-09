@@ -63,9 +63,9 @@ namespace NRedisStack.Search
             internal set { _properties[key] = value; }
         }
 
-        public bool HasProperty(string key) => _properties.ContainsKey(key);
-
         // TODO: check if this is needed:
+        //public bool HasProperty(string key) => _properties.ContainsKey(key);
+
         // internal static Document Parse(string docId, RedisResult result)
         // {
         //     if (result == null || result.IsNull) return null;
