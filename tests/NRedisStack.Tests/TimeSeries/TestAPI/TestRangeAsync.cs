@@ -200,7 +200,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             ts.Add("t1", 73, 5);
             ts.Add("t1", 75, 3);
 
-            var range = await ts.RangeAsync("t1", 0, 100,
+            var rangeHigh = await ts.RangeAsync("t1", 0, 100,
                                       align: 0,
                                       aggregation: TsAggregation.Max,
                                       timeBucket: 10);
@@ -209,9 +209,9 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             expected.Add(new TimeSeriesTuple(10, 4.0));
             expected.Add(new TimeSeriesTuple(50, 3.0));
             expected.Add(new TimeSeriesTuple(70, 5.0));
-            Assert.Equal(range, expected);
+            Assert.Equal(rangeHigh, expected);
 
-            range = await ts.RangeAsync("t1", 0, 100,
+            rangeHigh = await ts.RangeAsync("t1", 0, 100,
                                   align: 0,
                                   aggregation: TsAggregation.Max,
                                   timeBucket: 10,
@@ -221,7 +221,30 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             expected.Add(new TimeSeriesTuple(20, 4.0));
             expected.Add(new TimeSeriesTuple(60, 3.0));
             expected.Add(new TimeSeriesTuple(80, 5.0));
-            Assert.Equal(range, expected);
+            Assert.Equal(rangeHigh, expected);
+
+            var rangeLow = await ts.RangeAsync("t1", 0, 100,
+                                  align: 0,
+                                  aggregation: TsAggregation.Max,
+                                  timeBucket: 10,
+                                  bt: TsBucketTimestamps.low);
+            expected.Clear();
+            expected.Add(new TimeSeriesTuple(10, 4.0));
+            expected.Add(new TimeSeriesTuple(50, 3.0));
+            expected.Add(new TimeSeriesTuple(70, 5.0));
+            Assert.Equal(rangeLow, expected);
+
+            var rangeMid = await ts.RangeAsync("t1", 0, 100,
+                                  align: 0,
+                                  aggregation: TsAggregation.Max,
+                                  timeBucket: 10,
+                                  bt: TsBucketTimestamps.mid);
+            expected.Clear();
+            expected.Add(new TimeSeriesTuple(15, 4.0));
+            expected.Add(new TimeSeriesTuple(55, 3.0));
+            expected.Add(new TimeSeriesTuple(75, 5.0));
+            Assert.Equal(rangeMid, expected);
+
         }
 
         [Fact]

@@ -1814,7 +1814,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("FT.CREATE", buildCommand.Command);
         for (int i = 0; i < expectedArgs.Count; i++)
         {
-            Assert.Equal(expectedArgs[i], buildCommand.Args[i]);
+            Assert.Equal(expectedArgs[i], buildCommand.Args[i].ToString());
         }
     }
 
