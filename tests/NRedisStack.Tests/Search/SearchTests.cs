@@ -1629,6 +1629,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                                             .Limit(0, 10)
                                             .SummarizeFields(20, 3, ";", "txt")
                                             .LimitKeys("key1", "key2")
+                                            .LimitFields("txt")
+                                            .ReturnFields(new FieldName("txt"))
                                             .ReturnFields("txt")
                                             .AddParam("name", "value")
                                             .Dialect(1)
@@ -1647,6 +1649,9 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                                              "English",
                                              "SCORER",
                                              "TFIDF",
+                                             "INFIELDS",
+                                             "1",
+                                             "txt",
                                              "SORTBY",
                                              "txt",
                                              "ASC",
