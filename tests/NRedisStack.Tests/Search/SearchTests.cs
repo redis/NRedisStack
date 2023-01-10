@@ -1856,6 +1856,24 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    public void Test_List()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Assert.Equal(ft._List(), new RedisResult[] { });
+    }
+
+    [Fact]
+    public async Task Test_ListAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Assert.Equal(await ft._ListAsync(), new RedisResult[] { });
+    }
+
+    [Fact]
     public void TestModulePrefixs1()
     {
         {
