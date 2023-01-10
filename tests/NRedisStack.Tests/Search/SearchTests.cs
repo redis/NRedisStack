@@ -1768,10 +1768,10 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT();
         // Create the index with the same fields as in the original test
         var sc = new Schema()
-            .AddTextField("txt", 1.0, true, true, true, "dm:en", true, true)
-            .AddNumericField("num", true, true)
-            .AddGeoField("loc", true, true)
-            .AddTagField("tag", true, true, true, ";", true, true)
+            .AddTextField(FieldName.Of("txt"), 1.0, true, true, true, "dm:en", true, true)
+            .AddNumericField(FieldName.Of("num"), true, true)
+            .AddGeoField(FieldName.Of("loc"), true, true)
+            .AddTagField(FieldName.Of("tag"), true, true, true, ";", true, true)
             .AddVectorField("vec", VectorField.VectorAlgo.FLAT, null);
         var buildCommand = SearchCommandBuilder.Create("idx", new FTCreateParams(), sc);
         var expectedArgs = new List<object> {
