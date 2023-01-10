@@ -148,30 +148,30 @@ namespace NRedisStack
         }
 
         // TODO: Check if this (CallProcedure) is needed
-        /// <inheritdoc/>
-        public ResultSet CallProcedureReadOnly(string graphName, string procedure) =>
-        CallProcedureReadOnly(graphName, procedure, Enumerable.Empty<string>(), EmptyKwargsDictionary);
+        // /// <inheritdoc/>
+        // public ResultSet CallProcedureReadOnly(string graphName, string procedure) =>
+        // CallProcedureReadOnly(graphName, procedure, Enumerable.Empty<string>(), EmptyKwargsDictionary);
 
-        /// <inheritdoc/>
-        public ResultSet CallProcedureReadOnly(string graphName, string procedure, IEnumerable<string> args) =>
-        CallProcedureReadOnly(graphName, procedure, args, EmptyKwargsDictionary);
+        // /// <inheritdoc/>
+        // public ResultSet CallProcedureReadOnly(string graphName, string procedure, IEnumerable<string> args) =>
+        // CallProcedureReadOnly(graphName, procedure, args, EmptyKwargsDictionary);
 
-        /// <inheritdoc/>
-        public ResultSet CallProcedureReadOnly(string graphName, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs)
-        {
-            args = args.Select(a => QuoteString(a));
+        // /// <inheritdoc/>
+        // public ResultSet CallProcedureReadOnly(string graphName, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs)
+        // {
+        //     args = args.Select(a => QuoteString(a));
 
-            var queryBody = new StringBuilder();
+        //     var queryBody = new StringBuilder();
 
-            queryBody.Append($"CALL {procedure}({string.Join(",", args)})");
+        //     queryBody.Append($"CALL {procedure}({string.Join(",", args)})");
 
-            if (kwargs.TryGetValue("y", out var kwargsList))
-            {
-                queryBody.Append(string.Join(",", kwargsList));
-            }
+        //     if (kwargs.TryGetValue("y", out var kwargsList))
+        //     {
+        //         queryBody.Append(string.Join(",", kwargsList));
+        //     }
 
-            return RO_Query(graphName, queryBody.ToString());
-        }
+        //     return RO_Query(graphName, queryBody.ToString());
+        // }
 
         /// <inheritdoc/>
         public IReadOnlyList<string> Explain(string graphName, string query)
