@@ -1772,7 +1772,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddNumericField(FieldName.Of("num"), true, true)
             .AddGeoField(FieldName.Of("loc"), true, true)
             .AddTagField(FieldName.Of("tag"), true, true, true, ";", true, true)
-            .AddVectorField("vec", VectorField.VectorAlgo.FLAT, null);
+            .AddVectorField("vec", VectorField.VectorAlgo.FLAT, new Dictionary<string, object> { { "dim", 10 } });
         var buildCommand = SearchCommandBuilder.Create("idx", new FTCreateParams(), sc);
         var expectedArgs = new List<object> {
             "idx",
@@ -1805,7 +1805,10 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             "CASESENSITIVE",
             "vec",
             "VECTOR",
-            "FLAT"
+            "FLAT",
+            "1",
+            "dim",
+            "10"
         };
 
         Assert.Equal("FT.CREATE", buildCommand.Command);
