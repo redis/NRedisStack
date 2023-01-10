@@ -1626,11 +1626,10 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                                             //.SetExplainScore()
                                             .SetWithPayloads()
                                             .SetSortBy("txt", true)
-                                            .Limit(0, 10)
+                                            .Limit(0, 11)
                                             .SummarizeFields(20, 3, ";", "txt")
                                             .LimitKeys("key1", "key2")
                                             .LimitFields("txt")
-                                            .ReturnFields(new FieldName("txt"))
                                             .ReturnFields("txt")
                                             .AddParam("name", "value")
                                             .Dialect(1)
@@ -1657,6 +1656,9 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                                              "ASC",
                                              "PAYLOAD",
                                              "txt",
+                                             "LIMIT",
+                                             "0",
+                                             "11",
                                              "HIGHLIGHT",
                                              "FIELDS",
                                              "1",
@@ -1700,6 +1702,41 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             Assert.Equal(expectedArgs[i].ToString(), buildCommand.Args[i].ToString());
         }
         Assert.Equal("FT.SEARCH", buildCommand.Command);
+        // test that the command not throw an exception:
+        var db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        ft.Create("idx", new FTCreateParams(), new Schema().AddTextField("txt"));
+        var res = ft.Search("idx", testQuery);
+        Assert.Equal(0, res.Documents.Count());
+    }
+
+    [Fact]
+    public void TestQueryCommandBuilderReturnField()
+    {
+        var testQuery = new Query("foo").HighlightFields("txt")
+                                            .ReturnFields(new FieldName("txt"))
+                                            .SetNoContent();
+
+
+        var buildCommand = SearchCommandBuilder.Search("idx", testQuery);
+        var expectedArgs = new List<object> {"idx",
+                                             "foo",
+                                             "NOCONTENT",
+                                             "HIGHLIGHT",
+                                             "FIELDS",
+                                             "1",
+                                             "txt",
+                                             "RETURN",
+                                             "1",
+                                             "txt"};
+
+        for (int i = 0; i < buildCommand.Args.Count(); i++)
+        {
+            Assert.Equal(expectedArgs[i].ToString(), buildCommand.Args[i].ToString());
+        }
+        Assert.Equal("FT.SEARCH", buildCommand.Command);
+
         // test that the command not throw an exception:
         var db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
