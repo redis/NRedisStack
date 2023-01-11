@@ -24,6 +24,18 @@ namespace NRedisStack
         }
 
         /// <inheritdoc/>
+        public long Card(RedisKey key)
+        {
+            return _db.Execute(BloomCommandBuilder.Card(key)).ToLong();
+        }
+
+        /// <inheritdoc/>
+        public async Task<long> CardAsync(RedisKey key)
+        {
+            return (await _db.ExecuteAsync(BloomCommandBuilder.Card(key))).ToLong();
+        }
+
+        /// <inheritdoc/>
         public bool Exists(RedisKey key, RedisValue item)
         {
             return _db.Execute(BloomCommandBuilder.Exists(key, item)).ToString() == "1";

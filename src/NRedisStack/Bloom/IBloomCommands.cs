@@ -24,6 +24,22 @@ namespace NRedisStack
         Task<bool> AddAsync(RedisKey key, RedisValue item);
 
         /// <summary>
+        /// Returns the cardinality of a Bloom filter.
+        /// </summary>
+        /// <param name="key">The name of the filter.</param>
+        /// <returns>number of items that were added to a Bloom filter and detected as unique.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/bf.card"/></remarks>
+        long Card(RedisKey key);
+
+        /// <summary>
+        /// Returns the cardinality of a Bloom filter.
+        /// </summary>
+        /// <param name="key">The name of the filter.</param>
+        /// <returns>number of items that were added to a Bloom filter and detected as unique.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/bf.card"/></remarks>
+        Task<long> CardAsync(RedisKey key);
+
+        /// <summary>
         /// Checks whether an item exist in the Bloom Filter or not.
         /// </summary>
         /// <param name="key">The name of the filter.</param>
