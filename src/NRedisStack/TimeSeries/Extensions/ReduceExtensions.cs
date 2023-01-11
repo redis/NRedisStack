@@ -12,14 +12,5 @@ namespace NRedisStack.Extensions
             TsReduce.Max => "MAX",
             _ => throw new ArgumentOutOfRangeException(nameof(reduce), "Invalid Reduce type"),
         };
-
-        // TODO: check if this is needed:
-        // public static TsReduce AsReduce(string reduce) => reduce switch
-        // {
-        //     "SUM" => TsReduce.Sum,
-        //     "MIN" => TsReduce.Min,
-        //     "MAX" => TsReduce.Max,
-        //     _ => throw new ArgumentOutOfRangeException(nameof(reduce), $"Invalid Reduce type '{reduce}'"),
-        // };
     }
 }

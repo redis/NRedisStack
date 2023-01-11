@@ -26,7 +26,6 @@ namespace NRedisStack.Graph.DataTypes
         /// <value></value>
         public long Destination { get; set; }
 
-        // TODO: check if this is needed:
         /// <summary>
         /// Overriden from the base `Equals` implementation. In addition to the expected behavior of checking
         /// reference equality, we'll also fall back and check to see if the: Source, Destination, and RelationshipType

@@ -133,34 +133,6 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/graph.delete"/></remarks>
         Task<ResultSet> DeleteAsync(string graphName);
 
-        // TODO: Check if this (CallProcedure) is needed
-        // /// <summary>
-        // /// Call a saved procedure against a read-only node.
-        // /// </summary>
-        // /// <param name="graphName">The graph containing the saved procedure.</param>
-        // /// <param name="procedure">The procedure name.</param>
-        // /// <returns>A result set.</returns>
-        // ResultSet CallProcedureReadOnly(string graphName, string procedure);
-
-        // /// <summary>
-        // /// Call a saved procedure with parameters against a read-only node.
-        // /// </summary>
-        // /// <param name="graphName">The graph containing the saved procedure.</param>
-        // /// <param name="procedure">The procedure name.</param>
-        // /// <param name="args">A collection of positional arguments.</param>
-        // /// <returns>A result set.</returns>
-        // ResultSet CallProcedureReadOnly(string graphName, string procedure, IEnumerable<string> args);
-
-        // /// <summary>
-        // /// Call a saved procedure with parameters against a read-only node.
-        // /// </summary>
-        // /// <param name="graphName">The graph containing the saved procedure.</param>
-        // /// <param name="procedure">The procedure name.</param>
-        // /// <param name="args">A collection of positional arguments.</param>
-        // /// <param name="kwargs">A collection of keyword arguments.</param>
-        // /// <returns>A result set.</returns>
-        // ResultSet CallProcedureReadOnly(string graphName, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs);
-
         /// <summary>
         /// Constructs a query execution plan but does not run it. Inspect this execution plan to better understand how your
         /// query will get executed.

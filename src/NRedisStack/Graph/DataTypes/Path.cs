@@ -20,7 +20,6 @@ namespace NRedisStack.Graph.DataTypes
             Edges = new ReadOnlyCollection<Edge>(edges);
         }
 
-        // TODO: check if this is needed:
         /// <summary>
         /// Overriden `Equals` method that will consider the equality of the Nodes and Edges between two paths.
         /// </summary>
@@ -68,7 +67,6 @@ namespace NRedisStack.Graph.DataTypes
             }
         }
 
-        // TODO: check if this is needed:
         /// <summary>
         /// Overridden `ToString` method that will emit a string based on the string values of the nodes and edges
         /// on the path.
