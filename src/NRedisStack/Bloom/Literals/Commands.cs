@@ -3,6 +3,7 @@
     internal class BF
     {
         public const string ADD = "BF.ADD";
+        public const string CARD = "BF.CARD";
         public const string EXISTS = "BF.EXISTS";
         public const string INFO = "BF.INFO";
         public const string INSERT = "BF.INSERT";
