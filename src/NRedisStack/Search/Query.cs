@@ -262,7 +262,7 @@ namespace NRedisStack.Search
                 args.Add(SortBy);
                 args.Add((SortAscending ? "ASC" : "DESC"));
             }
-                        if (Payload != null)
+            if (Payload != null)
             {
                 args.Add("PAYLOAD");
                 args.Add(Payload);
@@ -343,25 +343,20 @@ namespace NRedisStack.Search
                 }
             }
 
-            // TODO: why duplicate if?
-            // if (_keys?.Length > 0)
-            // {
-            //     args.Add("INKEYS");
-            //     args.Add(_keys.Length);
-            //     args.AddRange(_keys);
-            // }
             if (_returnFields?.Length > 0)
             {
                 args.Add("RETURN");
                 args.Add(_returnFields.Length);
                 args.AddRange(_returnFields);
             }
+
             else if (_returnFieldsNames?.Length > 0)
             {
                 args.Add("RETURN");
                 int returnCountIndex = args.Count;
                 int returnCount = 0;
-                foreach (FieldName fn in _returnFieldsNames) {
+                foreach (FieldName fn in _returnFieldsNames)
+                {
                     returnCount += fn.AddCommandArguments(args);
                 }
 

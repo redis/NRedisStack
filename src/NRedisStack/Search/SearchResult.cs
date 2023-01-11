@@ -78,22 +78,5 @@ namespace NRedisStack.Search
                 docs.Add(Document.Load(id, score, payload, fields, scoreExplained));
             }
         }
-
-        // TODO: Check if this is needed:
-        // static IEnumerable<string> FlatRedisResultArray(RedisResult[] collection)
-        // {
-        //     foreach (var o in collection)
-        //     {
-        //         if (o.Type == ResultType.MultiBulk)
-        //         {
-        //             foreach (string t in FlatRedisResultArray((RedisResult[])o))
-        //                 yield return t;
-        //         }
-        //         else
-        //         {
-        //             yield return o.ToString();
-        //         }
-        //     }
-        // }
     }
 }

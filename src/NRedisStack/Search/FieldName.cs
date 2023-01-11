@@ -36,16 +36,5 @@ namespace NRedisStack.Search
             this.alias = attribute;
             return this;
         }
-
-        // TODO: check if this is needed:
-        // public static FieldName[] Convert(params string[] names)
-        // {
-        //     if (names == null) return null;
-        //     FieldName[] fields = new FieldName[names.Length];
-        //     for (int i = 0; i < names.Length; i++)
-        //         fields[i] = FieldName.Of(names[i]);
-
-        //     return fields;
-        // }
     }
 }

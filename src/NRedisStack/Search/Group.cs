@@ -43,13 +43,5 @@ namespace NRedisStack.Search.Aggregation
             }
             _limit.SerializeRedisArgs(args);
         }
-
-        // TODO: check if this is needed:
-        // public List<object> getArgs()
-        // {
-        //     List<object> args = new List<object>();
-        //     SerializeRedisArgs(args);
-        //     return args;
-        // }
     }
 }
