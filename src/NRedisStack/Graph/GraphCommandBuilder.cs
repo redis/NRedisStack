@@ -1,6 +1,5 @@
 using NRedisStack.Literals;
 using NRedisStack.RedisStackCommands;
-using static NRedisStack.Graph.RedisGraphUtilities;
 
 namespace NRedisStack
 {

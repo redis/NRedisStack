@@ -12,7 +12,6 @@ namespace NRedisStack.Graph.DataTypes
 
         public IDictionary<string, object> PropertyMap = new Dictionary<string, object>();
 
-        // TODO: check if this is needed:
         /// <summary>
         /// Overriden Equals that considers the equality of the entity ID as well as the equality of the
         /// properties that each entity has.
@@ -49,7 +48,7 @@ namespace NRedisStack.Graph.DataTypes
 
                 hash = hash * 31 + Id.GetHashCode();
 
-                foreach(var prop in PropertyMap)
+                foreach (var prop in PropertyMap)
                 {
                     hash = hash * 31 + prop.Key.GetHashCode();
                     hash = hash * 31 + prop.Value.GetHashCode();
@@ -57,23 +56,6 @@ namespace NRedisStack.Graph.DataTypes
 
                 return hash;
             }
-        }
-
-        /// <summary>
-        /// Overriden ToString that emits a string containing the ID and property map of the entity.
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-            var sb = new StringBuilder();
-
-            sb.Append("GraphEntity{id=");
-            sb.Append(Id);
-            sb.Append(", propertyMap=");
-            sb.Append(PropertyMap);
-            sb.Append('}');
-
-            return sb.ToString();
         }
 
         public string PropertyMapToString()

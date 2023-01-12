@@ -385,10 +385,21 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
             var conn = ConnectionMultiplexer.Connect("localhost");
             IDatabase db = conn.GetDatabase();
 
-            var bf  = db.FT();
+            var bf = db.FT();
             // ...
             conn.Dispose();
         }
+    }
 
+    [Fact]
+    public void TestInsertArgsError()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var bf = db.BF();
+
+        RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
+        // supose to throw exception:
+        Assert.Throws<RedisServerException>(() => bf.Insert("key3", items, 100, 0.01, 2, nocreate: true, nonscaling: true));
     }
 }

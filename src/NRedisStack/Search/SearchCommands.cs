@@ -254,14 +254,14 @@ namespace NRedisStack
         public SearchResult Search(string indexName, Query q)
         {
             var resp = _db.Execute(SearchCommandBuilder.Search(indexName, q)).ToArray();
-            return new SearchResult(resp, !q.NoContent, q.WithScores, q.WithPayloads, q.ExplainScore);
+            return new SearchResult(resp, !q.NoContent, q.WithScores, q.WithPayloads/*, q.ExplainScore*/);
         }
 
         /// <inheritdoc/>
         public async Task<SearchResult> SearchAsync(string indexName, Query q)
         {
             var resp = (await _db.ExecuteAsync(SearchCommandBuilder.Search(indexName, q))).ToArray();
-            return new SearchResult(resp, !q.NoContent, q.WithScores, q.WithPayloads, q.ExplainScore);
+            return new SearchResult(resp, !q.NoContent, q.WithScores, q.WithPayloads/*, q.ExplainScore*/);
         }
 
         /// <inheritdoc/>

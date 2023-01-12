@@ -225,7 +225,7 @@ namespace NRedisStack.Search.FT.CREATE
             if (dataType != default(IndexDataType))
             {
                 args.Add("ON");
-                args.Add(dataType.AsArg());
+                args.Add(dataType.ToString());
             }
 
             if (prefixes != null)

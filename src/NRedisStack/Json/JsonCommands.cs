@@ -250,7 +250,6 @@ public class JsonCommands : IJsonCommands
         return (await _db.ExecuteAsync(JsonCommandBuilder.Set(key, path, json, when))).OKtoBoolean();
     }
 
-    /// <inheritdoc/> // TODO: check way asnyc methods dont have documenation
     public async Task<bool> SetFromFileAsync(RedisKey key, RedisValue path, string filePath, When when = When.Always)
     {
         if (!File.Exists(filePath))
@@ -262,7 +261,6 @@ public class JsonCommands : IJsonCommands
         return await SetAsync(key, path, fileContent, when);
     }
 
-    /// <inheritdoc/>
     public async Task<int> SetFromDirectoryAsync(RedisValue path, string filesPath, When when = When.Always)
     {
         int inserted = 0;
@@ -284,7 +282,6 @@ public class JsonCommands : IJsonCommands
 
         return inserted;
     }
-
 
     public async Task<long?[]> StrAppendAsync(RedisKey key, string value, string? path = null)
     {

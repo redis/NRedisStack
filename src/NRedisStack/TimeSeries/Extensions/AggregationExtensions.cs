@@ -1,5 +1,4 @@
-﻿using System;
-using NRedisStack.Literals.Enums;
+﻿using NRedisStack.Literals.Enums;
 
 namespace NRedisStack.Extensions
 {
@@ -25,7 +24,7 @@ namespace NRedisStack.Extensions
 
         public static TsAggregation AsAggregation(string aggregation) => aggregation switch
         {
-            "avg" => TsAggregation.Avg,
+            /*"avg" => TsAggregation.Avg,
             "sum" => TsAggregation.Sum,
             "min" => TsAggregation.Min,
             "max" => TsAggregation.Max,
@@ -37,7 +36,7 @@ namespace NRedisStack.Extensions
             "std.s" => TsAggregation.StdS,
             "var.p" => TsAggregation.VarP,
             "var.s" => TsAggregation.VarS,
-            "twa" => TsAggregation.Twa,
+            "twa" => TsAggregation.Twa,*/
             "AVG" => TsAggregation.Avg,
             "SUM" => TsAggregation.Sum,
             "MIN" => TsAggregation.Min,

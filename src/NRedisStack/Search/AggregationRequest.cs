@@ -52,10 +52,9 @@ namespace NRedisStack.Search.Aggregation
             return this;
         }
 
-        public AggregationRequest Limit(int count)
-        {
-            return Limit(0, count);
-        }
+        public AggregationRequest Limit(int count) => Limit(0, count);
+
+        public AggregationRequest SortBy(string property) => SortBy(SortedField.Asc(property));
 
         public AggregationRequest SortBy(params SortedField[] Fields)
         {

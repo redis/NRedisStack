@@ -113,7 +113,7 @@ public static class JsonCommandBuilder
             throw new ArgumentException("index cannot be defined without path");
 
         var args = AssembleNonNullArguments(key, path, index);
-        return new SerializedCommand(JSON.ARRPOP, args)!; // TODO: understand the meaning of the '!' here
+        return new SerializedCommand(JSON.ARRPOP, args)!;
     }
 
     public static SerializedCommand ArrTrim(RedisKey key, string path, long start, long stop) =>

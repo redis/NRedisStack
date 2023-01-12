@@ -22,7 +22,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var cf = db.CF();
-        Assert.True(cf.Reserve(key, 100L));
+        Assert.True(cf.Reserve(key, 100L, maxIterations: 20, expansion: 1));
         Assert.Throws<RedisServerException>(() => cf.Reserve(key, 100L));
 
         Assert.True((cf.Add(key, "item1")));
@@ -36,7 +36,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var cf = db.CF();
-        Assert.True(await cf.ReserveAsync(key, 100L));
+        Assert.True(await cf.ReserveAsync(key, 100L, maxIterations: 20, expansion: 1));
         Assert.ThrowsAsync<RedisServerException>(async () => await cf.ReserveAsync(key, 100L));
 
         Assert.True(await (cf.AddAsync(key, "item1")));
@@ -271,7 +271,9 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
 
         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
 
-        var result = cf.InsertNX(key, items);
+        Assert.Throws<RedisServerException>(() => cf.InsertNX(key, items, 1024, true));
+        var result = cf.InsertNX(key, items, 1024);
+        cf.InsertNX(key, items, 10245, true);
         var trues = new bool[] { true, true, true };
         Assert.Equal(result, trues);
 
@@ -283,6 +285,9 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
 
         result = cf.InsertNX(key, items);
         Assert.Equal(result, new bool[] { false, false, false });
+
+        // test empty items:
+        Assert.Throws<ArgumentOutOfRangeException>(() => cf.InsertNX(key, new RedisValue[]{}));
     }
 
     [Fact]
@@ -294,7 +299,9 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
 
         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
 
-        var result = await cf.InsertNXAsync(key, items);
+        Assert.ThrowsAsync<RedisServerException>(async () => await cf.InsertNXAsync(key, items, 1024, true));
+        var result = await cf.InsertNXAsync(key, items, 1024);
+        await cf.InsertNXAsync(key, items, 10245, true);
         var trues = new bool[] { true, true, true };
         Assert.Equal(result, trues);
 
@@ -306,6 +313,9 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
 
         result = await cf.InsertNXAsync(key, items);
         Assert.Equal(result, new bool[] { false, false, false });
+
+        // test empty items:
+        Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await cf.InsertNXAsync(key, new RedisValue[]{}));
     }
 
     [Fact]

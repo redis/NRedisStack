@@ -54,7 +54,7 @@ namespace NRedisStack.Search.Aggregation
             }
             public override string Name => "QUANTILE";
         }
-        public static Reducer FirstValue(string field, SortedField sortBy) => new FirstValueReducer(field, sortBy);
+        public static Reducer FirstValue(string field, SortedField? sortBy) => new FirstValueReducer(field, sortBy);
         private sealed class FirstValueReducer : Reducer
         {
             private readonly SortedField? _sortBy;
@@ -78,7 +78,7 @@ namespace NRedisStack.Search.Aggregation
                 }
             }
         }
-        public static Reducer FirstValue(string field) => new FirstValueReducer(field, null);
+        public static Reducer FirstValue(string field) => FirstValue(field, null);
 
         public static Reducer ToList(string field) => new SingleFieldReducer("TOLIST", field);
 
