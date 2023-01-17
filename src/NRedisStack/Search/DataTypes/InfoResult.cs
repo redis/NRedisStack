@@ -9,10 +9,8 @@ namespace NRedisStack.Search.DataTypes
 
         public string IndexName => GetString("index_name");
         public Dictionary<string, RedisResult> IndexOption => GetRedisResultDictionary("index_options");
-        public Dictionary<string, RedisResult[]> IndexDefinition => GetRedisResultsDictionary("index_definition");
 
-        // public Dictionary<string, RedisResult[]> Attributes => GetRedisResultsDictionary("attributes"); // TODO: check if this is correct
-        public Dictionary<string, RedisResult>[] Attributes => GetRedisResultDictionaryArray("attributes"); // TODO: check if this is correct
+        public Dictionary<string, RedisResult>[] Attributes => GetRedisResultDictionaryArray("attributes");
 
 
         public long NumDocs => GetLong("num_docs");
@@ -122,25 +120,6 @@ namespace NRedisStack.Search.DataTypes
             }
         }
 
-        private Dictionary<string, RedisResult[]> GetRedisResultsDictionary(string key)
-        {
-            if (_all.TryGetValue(key, out var value))
-            {
-                var result = new Dictionary<string, RedisResult[]>();
-
-                foreach (RedisResult[] fv in (RedisResult[])value)
-                {
-                    result.Add((string)fv[0], fv);
-                }
-
-                return result;
-            }
-            else
-            {
-                return default;
-            }
-        }
-
         private Dictionary<string, RedisResult>[] GetRedisResultDictionaryArray(string key)
         {
             if (_all.TryGetValue(key, out var value))
@@ -165,25 +144,5 @@ namespace NRedisStack.Search.DataTypes
                 return default;
             }
         }
-        // private Dictionary<string, RedisResult>[] GetRedisResultsDictionaryTry(string key)
-        // {
-        //     if (_all.TryGetValue(key, out var value))
-        //     {
-        //         var result = new List<Dictionary<string, RedisResult>>();
-
-        //         int i = 0;
-        //         foreach (RedisResult[] fv in (RedisResult[])value)
-        //         {
-        //             var res = GetRedisResultDictionary((string)fv[i++]);
-        //             result.Add(res);
-        //         }
-
-        //         return result.ToArray();
-        //     }
-        //     else
-        //     {
-        //         return default;
-        //     }
-        // }
     }
 }

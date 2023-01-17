@@ -22,21 +22,6 @@ namespace NRedisStack.Graph
             return preparedQuery.ToString();
         }
 
-        public static string ValueToStringNoQuotes(object value)
-        {
-            if (value == null)
-            {
-                return "null";
-            }
-
-            if (value is IConvertible floatValue)
-            {
-                return ConvertibleToString(floatValue);
-            }
-
-            return value.ToString();
-        }
-
         public static string ValueToString(object value)
         {
             if (value == null)

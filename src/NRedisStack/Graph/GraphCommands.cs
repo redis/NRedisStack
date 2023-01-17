@@ -18,16 +18,6 @@ namespace NRedisStack
 
         private readonly IDictionary<string, GraphCache> _graphCaches = new Dictionary<string, GraphCache>();
 
-        private GraphCache GetGraphCache(string graphName)
-        {
-            if (!_graphCaches.ContainsKey(graphName))
-            {
-                _graphCaches.Add(graphName, new GraphCache(graphName, this));
-            }
-
-            return _graphCaches[graphName];
-        }
-
         /// <inheritdoc/>
         public ResultSet Query(string graphName, string query, IDictionary<string, object> parameters, long? timeout = null)
         {
@@ -107,7 +97,7 @@ namespace NRedisStack
         internal static readonly Dictionary<string, List<string>> EmptyKwargsDictionary =
             new Dictionary<string, List<string>>();
 
-        // TODO: Check if needed
+        // TODO: Check if this is needed:
         /// <inheritdoc/>
         public ResultSet CallProcedure(string graphName, string procedure) =>
         CallProcedure(graphName, procedure, Enumerable.Empty<string>(), EmptyKwargsDictionary);
@@ -155,32 +145,6 @@ namespace NRedisStack
             _graphCaches.Remove(graphName);
 
             return processedResult;
-        }
-
-        // TODO: Check if this (CallProcedure) is needed
-        /// <inheritdoc/>
-        public ResultSet CallProcedureReadOnly(string graphName, string procedure) =>
-        CallProcedureReadOnly(graphName, procedure, Enumerable.Empty<string>(), EmptyKwargsDictionary);
-
-        /// <inheritdoc/>
-        public ResultSet CallProcedureReadOnly(string graphName, string procedure, IEnumerable<string> args) =>
-        CallProcedureReadOnly(graphName, procedure, args, EmptyKwargsDictionary);
-
-        /// <inheritdoc/>
-        public ResultSet CallProcedureReadOnly(string graphName, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs)
-        {
-            args = args.Select(a => QuoteString(a));
-
-            var queryBody = new StringBuilder();
-
-            queryBody.Append($"CALL {procedure}({string.Join(",", args)})");
-
-            if (kwargs.TryGetValue("y", out var kwargsList))
-            {
-                queryBody.Append(string.Join(",", kwargsList));
-            }
-
-            return RO_Query(graphName, queryBody.ToString());
         }
 
         /// <inheritdoc/>

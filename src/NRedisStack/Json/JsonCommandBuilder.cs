@@ -19,12 +19,6 @@ public static class JsonCommandBuilder
         return new SerializedCommand(JSON.RESP, key, path);
     }
 
-    public static SerializedCommand Set(RedisKey key, RedisValue path, object obj, When when = When.Always)
-    {
-        string json = JsonSerializer.Serialize(obj);
-        return Set(key, path, json, when);
-    }
-
     public static SerializedCommand Set(RedisKey key, RedisValue path, RedisValue json, When when = When.Always)
     {
         return when switch
@@ -119,7 +113,7 @@ public static class JsonCommandBuilder
             throw new ArgumentException("index cannot be defined without path");
 
         var args = AssembleNonNullArguments(key, path, index);
-        return new SerializedCommand(JSON.ARRPOP, args)!; // TODO: understand the meaning of the '!' here
+        return new SerializedCommand(JSON.ARRPOP, args)!;
     }
 
     public static SerializedCommand ArrTrim(RedisKey key, string path, long start, long stop) =>
@@ -136,8 +130,6 @@ public static class JsonCommandBuilder
         var args = AssembleNonNullArguments(key, path);
         return new SerializedCommand(JSON.DEL, args);
     }
-
-    public static SerializedCommand Forget(RedisKey key, string? path = null) => Del(key, path);
 
     public static SerializedCommand Get(RedisKey key, RedisValue? indent = null, RedisValue? newLine = null, RedisValue? space = null, RedisValue? path = null)
     {
@@ -173,11 +165,6 @@ public static class JsonCommandBuilder
     {
         List<object> args = new List<object>() { key };
 
-        foreach (var path in paths)
-        {
-            args.Add(path);
-        }
-
         if (indent != null)
         {
             args.Add(JsonArgs.INDENT);
@@ -196,6 +183,11 @@ public static class JsonCommandBuilder
             args.Add(space);
         }
 
+        foreach (var path in paths)
+        {
+            args.Add(path);
+        }
+
         return new SerializedCommand(JSON.GET, args);
     }
 
@@ -203,11 +195,6 @@ public static class JsonCommandBuilder
     {
         return new SerializedCommand(JSON.GET, key, path);
 
-    }
-
-    public static SerializedCommand GetEnumerable<T>(RedisKey key, string path = "$")
-    {
-        return new SerializedCommand(JSON.GET, key, path);
     }
 
     public static SerializedCommand MGet(RedisKey[] keys, string path)
