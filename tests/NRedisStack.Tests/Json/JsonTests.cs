@@ -27,7 +27,8 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var db = conn.GetDatabase();
         IJsonCommands json = new JsonCommands(db);
         var pipeline = new Pipeline(db);
-        pipeline.AddCommand(JsonCommandBuilder.Set("key", "$", new Person { Name = "Shachar", Age = 23 }));
+        string jsonPerson = JsonSerializer.Serialize(new Person { Name = "Shachar", Age = 23 });
+        pipeline.AddCommand(JsonCommandBuilder.Set("key", "$", jsonPerson));
         pipeline.AddCommand(JsonCommandBuilder.Get("key"));
         var results = pipeline.Execute();
         Assert.Equal(2, results.Length);
