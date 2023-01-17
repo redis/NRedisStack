@@ -52,15 +52,4 @@ namespace NRedisStack.Graph
         protected virtual ResultSet CallProcedure() =>
             graph.CallProcedure(GraphName, Procedure);
     }
-
-    internal class ReadOnlyGraphCacheList : GraphCacheList
-    {
-        internal ReadOnlyGraphCacheList(string graphName, string procedure, GraphCommands redisGraph) :
-            base(graphName, procedure, redisGraph)
-        {
-        }
-
-        protected override ResultSet CallProcedure() =>
-            graph.CallProcedureReadOnly(GraphName, Procedure);
-    }
 }

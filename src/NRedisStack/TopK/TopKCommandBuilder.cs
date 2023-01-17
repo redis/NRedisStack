@@ -49,11 +49,6 @@ namespace NRedisStack
                                      : new SerializedCommand(TOPK.LIST, key);
         }
 
-        public static SerializedCommand Query(RedisKey key, RedisValue item)
-        {
-            return new SerializedCommand(TOPK.QUERY, key, item);
-        }
-
         public static SerializedCommand Query(RedisKey key, params RedisValue[] items)
         {
             if (items.Length < 1)

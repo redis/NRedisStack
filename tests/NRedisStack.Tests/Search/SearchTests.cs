@@ -24,23 +24,22 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
     private void AddDocument(IDatabase db, Document doc)
     {
-        string key = doc.Id;
-        var properties = doc.GetProperties();
-        // HashEntry[] hash = new  HashEntry[properties.Count()];
-        // for(int i = 0; i < properties.Count(); i++)
-        // {
-        //     var property = properties.ElementAt(i);
-        //     hash[i] = new HashEntry(property.Key, property.Value);
-        // }
-        // db.HashSet(key, hash);
-        var nameValue = new List<object>() { key };
-        foreach (var item in properties)
-        {
-            nameValue.Add(item.Key);
-            nameValue.Add(item.Value);
-        }
-        db.Execute("HSET", nameValue);
-
+            string key = doc.Id;
+            var properties = doc.GetProperties();
+            // HashEntry[] hash = new  HashEntry[properties.Count()];
+            // for(int i = 0; i < properties.Count(); i++)
+            // {
+            //     var property = properties.ElementAt(i);
+            //     hash[i] = new HashEntry(property.Key, property.Value);
+            // }
+            // db.HashSet(key, hash);
+            var nameValue = new List<object>() { key };
+            foreach (var item in properties)
+            {
+                nameValue.Add(item.Key);
+                nameValue.Add(item.Value);
+            }
+            db.Execute("HSET", nameValue);
     }
 
     private void AddDocument(IDatabase db, string key, Dictionary<string, object> objDictionary)
@@ -118,7 +117,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         sc.AddTextField("name", 1.0, sortable: true);
         sc.AddNumericField("count", sortable: true);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
-        AddDocument(db, new Document("data1").Set("name", "abc").Set("count", 10));
+        AddDocument(db, new Document("data1").Set("name", "abc").Set("count", 10).SetScore(1.0));
         AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
         AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
 
@@ -140,7 +139,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         sc.AddTextField("name", 1.0, sortable: true);
         sc.AddNumericField("count", sortable: true);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
-        AddDocument(db, new Document("data1").Set("name", "abc").Set("count", 10));
+        AddDocument(db, new Document("data1").Set("name", "abc").Set("count", 10).SetScore(1.0));
         AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
         AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
 
@@ -666,6 +665,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         var info = ft.Info(index);
         Assert.Equal(index, info.IndexName);
+        Assert.Equal(0, info.IndexOption.Count);
+        // Assert.Equal(,info.IndexDefinition);
         Assert.Equal("title", (info.Attributes[0]["identifier"]).ToString());
         Assert.Equal("TAG", (info.Attributes[1]["type"]).ToString());
         Assert.Equal("name", (info.Attributes[2]["attribute"]).ToString());
@@ -964,6 +965,114 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         }
         catch (RedisException) { }
     }
+
+    [Fact]
+    public void TestAggregationGroupBy()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        // Creating the index definition and schema
+        ft.Create("idx", new FTCreateParams(), new Schema().AddNumericField("random_num")
+                                                           .AddTextField("title")
+                                                           .AddTextField("body")
+                                                           .AddTextField("parent"));
+
+        // Indexing a document
+        AddDocument(db, "search", new Dictionary<string, object>(){
+        { "title", "RediSearch" },
+        { "body", "Redisearch impements a search engine on top of redis" },
+        { "parent", "redis" },
+        { "random_num", 10 }});
+
+        AddDocument(db, "ai", new Dictionary<string, object>
+        {
+        { "title", "RedisAI" },
+        { "body", "RedisAI executes Deep Learning/Machine Learning models and managing their data." },
+        { "parent", "redis" },
+        { "random_num", 3 }});
+
+        AddDocument(db, "json", new Dictionary<string, object>
+        {
+        { "title", "RedisJson" },
+        { "body", "RedisJSON implements ECMA-404 The JSON Data Interchange Standard as a native data type." },
+        { "parent", "redis" },
+        { "random_num", 8 }});
+
+        var req = new AggregationRequest("redis").GroupBy("@parent", Reducers.Count());
+        var res = ft.Aggregate("idx", req).GetRow(0);
+        Assert.True(res.ContainsKey("parent"));
+        Assert.Equal(res["parent"], "redis");
+        Assert.Equal(res["__generated_aliascount"], "3");
+
+        req = new AggregationRequest("redis").GroupBy("@parent", Reducers.CountDistinct("@title"));
+        res = ft.Aggregate("idx", req).GetRow(0);
+        Assert.Equal(res["parent"], "redis");
+        Assert.Equal(res.GetLong("__generated_aliascount_distincttitle"), 3);
+
+        req = new AggregationRequest("redis").GroupBy("@parent", Reducers.CountDistinctish("@title"));
+        res = ft.Aggregate("idx", req).GetRow(0);
+        Assert.Equal(res["parent"], "redis");
+        Assert.Equal(res.GetLong("__generated_aliascount_distinctishtitle"), 3);
+
+        req = new AggregationRequest("redis").GroupBy("@parent", Reducers.Sum("@random_num"));
+        res = ft.Aggregate("idx", req).GetRow(0);
+        Assert.Equal(res["parent"], "redis");
+        Assert.Equal(res.GetLong("__generated_aliassumrandom_num"), 21); // 10+8+3
+
+        req = new AggregationRequest("redis").GroupBy("@parent", Reducers.Min("@random_num"));
+        res = ft.Aggregate("idx", req).GetRow(0);
+        Assert.Equal(res["parent"], "redis");
+        Assert.Equal(res.GetLong("__generated_aliasminrandom_num"), 3); // min(10,8,3)
+
+        req = new AggregationRequest("redis").GroupBy("@parent", Reducers.Max("@random_num"));
+        res = ft.Aggregate("idx", req).GetRow(0);
+        Assert.Equal(res["parent"], "redis");
+        Assert.Equal(res.GetLong("__generated_aliasmaxrandom_num"), 10); // max(10,8,3)
+
+        req = new AggregationRequest("redis").GroupBy("@parent", Reducers.Avg("@random_num"));
+        res = ft.Aggregate("idx", req).GetRow(0);
+        Assert.Equal(res["parent"], "redis");
+        Assert.Equal(res.GetLong("__generated_aliasavgrandom_num"), 7); // (10+3+8)/3
+
+        req = new AggregationRequest("redis").GroupBy("@parent", Reducers.StdDev("@random_num"));
+        res = ft.Aggregate("idx", req).GetRow(0);
+        Assert.Equal(res["parent"], "redis");
+        Assert.Equal(res.GetDouble("__generated_aliasstddevrandom_num"), 3.60555127546);
+
+        req = new AggregationRequest("redis").GroupBy(
+            "@parent", Reducers.Quantile("@random_num", 0.5));
+        res = ft.Aggregate("idx", req).GetRow(0);
+        Assert.Equal(res["parent"], "redis");
+        Assert.Equal(res.GetLong("__generated_aliasquantilerandom_num,0.5"), 8);  // median of 3,8,10
+
+        req = new AggregationRequest("redis").GroupBy(
+            "@parent", Reducers.ToList("@title"));
+        var rawRes = ft.Aggregate("idx", req);
+        res = rawRes.GetRow(0);
+        Assert.Equal(res["parent"], "redis");
+        // TODO: complete this assert after handling multi bulk reply
+        //Assert.Equal((RedisValue[])res["__generated_aliastolisttitle"], { "RediSearch", "RedisAI", "RedisJson"});
+
+        req = new AggregationRequest("redis").GroupBy(
+            "@parent", Reducers.FirstValue("@title").As("first"));
+        res = ft.Aggregate("idx", req).GetRow(0);
+        Assert.Equal(res["parent"], "redis");
+        Assert.Equal(res["first"], "RediSearch");
+
+        req = new AggregationRequest("redis").GroupBy(
+            "@parent", Reducers.RandomSample("@title", 2).As("random"));
+        res = ft.Aggregate("idx", req).GetRow(0);
+        Assert.Equal(res["parent"], "redis");
+        // TODO: complete this assert after handling multi bulk reply
+        // Assert.Equal(res[2], "random");
+        // Assert.Equal(len(res[3]), 2);
+        // Assert.Equal(res[3][0] in ["RediSearch", "RedisAI", "RedisJson"]);
+        // req = new AggregationRequest("redis").GroupBy("@parent", redu
+
+    }
+
 
     [Fact]
     public void TestDictionary()
@@ -1346,7 +1455,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddTextField("title", 1.0)
             .AddTagField("category", separator: ";");
 
-        var ftCreateParams = FTCreateParams.CreateParams().On(IndexDataType.Json)
+        var ftCreateParams = FTCreateParams.CreateParams().On(IndexDataType.JSON)
                                                           .AddPrefix("doc:")
                                                           .Filter("@category:{red}")
                                                           .Language("English")
@@ -1357,14 +1466,14 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                                                           .MaxTextFields()
                                                           .NoOffsets()
                                                           .Temporary(10)
-                                                          .NoHL()
+                                                          .NoHighlights()
                                                           .NoFields()
                                                           .NoFreqs()
                                                           .Stopwords(new[] { "foo", "bar" })
                                                           .SkipInitialScan();
 
         var builedCommand = SearchCommandBuilder.Create(index, ftCreateParams, sc);
-        var expectedArgs = new object[] { "TEST_INDEX", "PREFIX", 1,
+        var expectedArgs = new object[] { "TEST_INDEX", "ON", "JSON", "PREFIX", 1,
                                            "doc:", "FILTER", "@category:{red}", "LANGUAGE",
                                            "English", "LANGUAGE_FIELD", "play", "SCORE", 1,
                                            "SCORE_FIELD", "chapter", "PAYLOAD_FIELD", "txt",
@@ -1432,7 +1541,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         // Test numerical filter
         var q1 = new Query("foo").AddFilter(new Query.NumericFilter("num", 0, 2));
-        var q2 = new Query("foo").AddFilter(new Query.NumericFilter("num",2,true, double.MaxValue, false));
+        var q2 = new Query("foo").AddFilter(new Query.NumericFilter("num", 2, true, double.MaxValue, false));
         q1.NoContent = q2.NoContent = true;
         var res1 = ft.Search("idx", q1);
         var res2 = ft.Search("idx", q2);
@@ -1449,9 +1558,9 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         res1 = ft.Search("idx", q1);
         res2 = ft.Search("idx", q2);
 
-        Assert.Equal( 1 , res1.TotalResults);
-        Assert.Equal( 2 , res2.TotalResults);
-        Assert.Equal( "doc1" , res1.Documents[0].Id);
+        Assert.Equal(1, res1.TotalResults);
+        Assert.Equal(2, res2.TotalResults);
+        Assert.Equal("doc1", res1.Documents[0].Id);
     }
 
     [Fact]
@@ -1482,7 +1591,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         // Test numerical filter
         var q1 = new Query("foo").AddFilter(new Query.NumericFilter("num", 0, 2));
-        var q2 = new Query("foo").AddFilter(new Query.NumericFilter("num",2,true, double.MaxValue, false));
+        var q2 = new Query("foo").AddFilter(new Query.NumericFilter("num", 2, true, double.MaxValue, false));
         q1.NoContent = q2.NoContent = true;
         var res1 = await ft.SearchAsync("idx", q1);
         var res2 = await ft.SearchAsync("idx", q2);
@@ -1499,9 +1608,156 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         res1 = await ft.SearchAsync("idx", q1);
         res2 = await ft.SearchAsync("idx", q2);
 
-        Assert.Equal( 1 , res1.TotalResults);
-        Assert.Equal( 2 , res2.TotalResults);
-        Assert.Equal( "doc1" , res1.Documents[0].Id);
+        Assert.Equal(1, res1.TotalResults);
+        Assert.Equal(2, res2.TotalResults);
+        Assert.Equal("doc1", res1.Documents[0].Id);
+    }
+
+    [Fact]
+    public void TestQueryCommandBuilder()
+    {
+        var testQuery = new Query("foo").HighlightFields(new Query.HighlightTags("<b>", "</b>"), "txt")
+                                            .SetVerbatim()
+                                            .SetNoStopwords()
+                                            .SetWithScores()
+                                            .SetPayload("txt")
+                                            .SetLanguage("English")
+                                            .SetScorer("TFIDF")
+                                            //.SetExplainScore()
+                                            .SetWithPayloads()
+                                            .SetSortBy("txt", true)
+                                            .Limit(0, 11)
+                                            .SummarizeFields(20, 3, ";", "txt")
+                                            .LimitKeys("key1", "key2")
+                                            .LimitFields("txt")
+                                            .ReturnFields("txt")
+                                            .AddParam("name", "value")
+                                            .Dialect(1)
+                                            .Slop(0)
+                                            .Timeout(1000)
+                                            .SetInOrder()
+                                            .SetExpander("myexpander");
+        var buildCommand = SearchCommandBuilder.Search("idx", testQuery);
+        var expectedArgs = new List<object> {"idx",
+                                             "foo",
+                                             "VERBATIM",
+                                             "NOSTOPWORDS",
+                                             "WITHSCORES",
+                                             "WITHPAYLOADS",
+                                             "LANGUAGE",
+                                             "English",
+                                             "SCORER",
+                                             "TFIDF",
+                                             "INFIELDS",
+                                             "1",
+                                             "txt",
+                                             "SORTBY",
+                                             "txt",
+                                             "ASC",
+                                             "PAYLOAD",
+                                             "txt",
+                                             "LIMIT",
+                                             "0",
+                                             "11",
+                                             "HIGHLIGHT",
+                                             "FIELDS",
+                                             "1",
+                                             "txt",
+                                             "TAGS",
+                                             "<b>",
+                                             "</b>",
+                                             "SUMMARIZE",
+                                             "FIELDS",
+                                             "1",
+                                             "txt",
+                                             "FRAGS",
+                                             "3",
+                                             "LEN",
+                                             "20",
+                                             "SEPARATOR",
+                                             ";",
+                                             "INKEYS",
+                                             "2",
+                                             "key1",
+                                             "key2",
+                                             "RETURN",
+                                             "1",
+                                             "txt",
+                                             "PARAMS",
+                                             "2",
+                                             "name",
+                                             "value",
+                                             "DIALECT",
+                                             "1",
+                                             "SLOP",
+                                             "0",
+                                             "TIMEOUT",
+                                             "1000",
+                                             "INORDER",
+                                             "EXPANDER",
+                                             "myexpander"};
+
+        for (int i = 0; i < buildCommand.Args.Count(); i++)
+        {
+            Assert.Equal(expectedArgs[i].ToString(), buildCommand.Args[i].ToString());
+        }
+        Assert.Equal("FT.SEARCH", buildCommand.Command);
+        // test that the command not throw an exception:
+        var db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        ft.Create("idx", new FTCreateParams(), new Schema().AddTextField("txt"));
+        var res = ft.Search("idx", testQuery);
+        Assert.Equal(0, res.Documents.Count());
+    }
+
+    [Fact]
+    public void TestQueryCommandBuilderReturnField()
+    {
+        var testQuery = new Query("foo").HighlightFields("txt")
+                                            .ReturnFields(new FieldName("txt"))
+                                            .SetNoContent();
+
+
+        var buildCommand = SearchCommandBuilder.Search("idx", testQuery);
+        var expectedArgs = new List<object> {"idx",
+                                             "foo",
+                                             "NOCONTENT",
+                                             "HIGHLIGHT",
+                                             "FIELDS",
+                                             "1",
+                                             "txt",
+                                             "RETURN",
+                                             "1",
+                                             "txt"};
+
+        for (int i = 0; i < buildCommand.Args.Count(); i++)
+        {
+            Assert.Equal(expectedArgs[i].ToString(), buildCommand.Args[i].ToString());
+        }
+        Assert.Equal("FT.SEARCH", buildCommand.Command);
+
+        // test that the command not throw an exception:
+        var db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        ft.Create("idx", new FTCreateParams(), new Schema().AddTextField("txt"));
+        var res = ft.Search("idx", testQuery);
+        Assert.Equal(0, res.Documents.Count());
+    }
+
+    [Fact]
+    public void TestQueryCommandBuilderScore()
+    {
+        // TODO: write better test for scores and payloads
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        db.Execute("JSON.SET",  "doc:1",  "$",  "[{\"arr\": [1, 2, 3]}, {\"val\": \"hello\"}, {\"val\": \"world\"}]");
+        db.Execute("FT.CREATE", "idx", "ON", "JSON", "PREFIX", "1", "doc:", "SCHEMA", "$..arr", "AS", "arr", "NUMERIC", "$..val", "AS", "val", "TEXT");
+        var res = ft.Search("idx", new Query("*").ReturnFields("arr", "val").SetWithScores().SetPayload("arr"));
+        Assert.Equal(1, res.TotalResults);
     }
 
     [Fact]
@@ -1512,11 +1768,11 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT();
         // Create the index with the same fields as in the original test
         var sc = new Schema()
-            .AddTextField("txt", 1.0, true, true, true, "dm:en", true, true)
-            .AddNumericField("num", true, true)
-            .AddGeoField("loc", true, true)
-            .AddTagField("tag",true,true, true, ";", true, true)
-            .AddVectorField("vec", VectorField.VectorAlgo.FLAT, null);
+            .AddTextField(FieldName.Of("txt"), 1.0, true, true, true, "dm:en", true, true)
+            .AddNumericField(FieldName.Of("num"), true, true)
+            .AddGeoField(FieldName.Of("loc"), true, true)
+            .AddTagField(FieldName.Of("tag"), true, true, true, ";", true, true)
+            .AddVectorField("vec", VectorField.VectorAlgo.FLAT, new Dictionary<string, object> { { "dim", 10 } });
         var buildCommand = SearchCommandBuilder.Create("idx", new FTCreateParams(), sc);
         var expectedArgs = new List<object> {
             "idx",
@@ -1549,35 +1805,96 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             "CASESENSITIVE",
             "vec",
             "VECTOR",
-            "FLAT"
+            "FLAT",
+            "1",
+            "dim",
+            "10"
         };
 
         Assert.Equal("FT.CREATE", buildCommand.Command);
-        for(int i = 0; i < expectedArgs.Count; i++)
+        for (int i = 0; i < expectedArgs.Count; i++)
         {
-            Assert.Equal(expectedArgs[i], buildCommand.Args[i]);
+            Assert.Equal(expectedArgs[i], buildCommand.Args[i].ToString());
         }
     }
 
-        [Fact]
-        public void TestModulePrefixs1()
+    [Fact]
+    public void TestLimit()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        ft.Create("idx", new FTCreateParams(), new Schema().AddTextField("t1").AddTextField("t2"));
+        Document doc1 = new Document("doc1", new Dictionary<string, RedisValue> {{"t1", "a"}, {"t2", "b"}});
+        Document doc2 = new Document("doc2", new Dictionary<string, RedisValue> {{"t1", "b"}, {"t2", "a"}});
+        AddDocument(db, doc1);
+        AddDocument(db, doc2);
+
+        var req = new AggregationRequest("*").SortBy("@t1").Limit(1, 1);
+        var res = ft.Aggregate("idx", req);
+
+        Assert.Equal( res.GetResults().Count, 1);
+        Assert.Equal( res.GetResults()[0]["t1"].ToString(), "b");
+    }
+
+    [Fact]
+    public async Task TestLimitAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        ft.Create("idx", new FTCreateParams(), new Schema().AddTextField("t1").AddTextField("t2"));
+        Document doc1 = new Document("doc1", new Dictionary<string, RedisValue> {{"t1", "a"}, {"t2", "b"}});
+        Document doc2 = new Document("doc2", new Dictionary<string, RedisValue> {{"t1", "b"}, {"t2", "a"}});
+        AddDocument(db, doc1);
+        AddDocument(db, doc2);
+
+        var req = new AggregationRequest("*").SortBy("@t1").Limit(1, 1);
+        var res = await ft.AggregateAsync("idx", req);
+
+        Assert.Equal( res.GetResults().Count, 1);
+        Assert.Equal( res.GetResults()[0]["t1"].ToString(), "b");
+    }
+
+    [Fact]
+    public void Test_List()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Assert.Equal(ft._List(), new RedisResult[] { });
+    }
+
+    [Fact]
+    public async Task Test_ListAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Assert.Equal(await ft._ListAsync(), new RedisResult[] { });
+    }
+
+    [Fact]
+    public void TestModulePrefixs1()
+    {
         {
-            {
-                var conn = ConnectionMultiplexer.Connect("localhost");
-                IDatabase db = conn.GetDatabase();
+            var conn = ConnectionMultiplexer.Connect("localhost");
+            IDatabase db = conn.GetDatabase();
 
-                var ft = db.FT();
-                // ...
-                conn.Dispose();
-            }
+            var ft = db.FT();
+            // ...
+            conn.Dispose();
+        }
 
-            {
-                var conn = ConnectionMultiplexer.Connect("localhost");
-                IDatabase db = conn.GetDatabase();
+        {
+            var conn = ConnectionMultiplexer.Connect("localhost");
+            IDatabase db = conn.GetDatabase();
 
-                var ft = db.FT();
-                // ...
-                conn.Dispose();
-            }
+            var ft = db.FT();
+            // ...
+            conn.Dispose();
         }
     }
+}

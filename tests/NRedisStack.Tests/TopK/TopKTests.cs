@@ -29,6 +29,7 @@ public class TopKTests : AbstractNRedisStackTest, IDisposable
         Assert.True(res[0].IsNull && res[1].IsNull);
 
         Assert.Equal(topk.Query("aaa", "bb", "gg", "cc"), new bool[] { true, false, true });
+        Assert.False(topk.Query("aaa", "notExists"));
 
         Assert.Equal(topk.Count("aaa", "bb", "gg", "cc"), new long[] { 1, 0, 1 });
 
@@ -65,6 +66,7 @@ public class TopKTests : AbstractNRedisStackTest, IDisposable
         Assert.True(res[0].IsNull && res[1].IsNull);
 
         Assert.Equal(await topk.QueryAsync("aaa", "bb", "gg", "cc"), new bool[] { true, false, true });
+        Assert.False(await topk.QueryAsync("aaa", "notExists"));
 
         Assert.Equal(await topk.CountAsync("aaa", "bb", "gg", "cc"), new long[] { 1, 0, 1 });
 

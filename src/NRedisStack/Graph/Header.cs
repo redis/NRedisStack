@@ -20,7 +20,7 @@ namespace NRedisStack.Graph
         /// <summary>
         /// Collection of the schema types present in the header.
         /// </summary>
-        // [Obsolete("SchemaType is no longer supported after RedisGraph 2.1 and will always return COLUMN_SCALAR")] // TODO: it's correct?
+        [Obsolete("SchemaType is no longer supported after RedisGraph 2.1 and will always return COLUMN_SCALAR")]
         public List<ResultSetColumnTypes> SchemaTypes { get; }
 
         /// <summary>
@@ -41,7 +41,6 @@ namespace NRedisStack.Graph
             }
         }
 
-        // TODO: check if this is needed:
         public override bool Equals(object? obj)
         {
             if (obj == null) return this == null;

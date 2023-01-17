@@ -26,8 +26,9 @@ namespace NRedisStack.Search.Aggregation
                 {
                     var key = (string)raw[j++];
                     var val = raw[j++];
-                    if (val.Type != ResultType.MultiBulk)
-                        cur.Add(key, (RedisValue)val);
+                    if (val.Type == ResultType.MultiBulk)
+                        continue; // TODO: handle multi-bulk (maybe change to object?)
+                    cur.Add(key, (RedisValue)val);
                 }
                 _results[i - 1] = cur;
             }

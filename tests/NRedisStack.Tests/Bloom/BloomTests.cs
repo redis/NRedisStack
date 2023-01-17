@@ -332,6 +332,44 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    public void TestCard()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var bf = db.BF();
+
+        // return 0 if the key does not exist:
+        Assert.Equal(0, bf.Card("notExist"));
+
+        // Store a filter:
+        Assert.True(bf.Add("bf1", "item_foo"));
+        Assert.Equal(1, bf.Card("bf1"));
+
+        // Error when key is of a type other than Bloom filter:
+        db.StringSet("setKey", "value");
+        Assert.Throws<RedisServerException>(() => bf.Card("setKey"));
+    }
+
+    [Fact]
+    public async Task TestCardAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var bf = db.BF();
+
+        // return 0 if the key does not exist:
+        Assert.Equal(0, await bf.CardAsync("notExist"));
+
+        // Store a filter:
+        Assert.True(await bf.AddAsync("bf1", "item_foo"));
+        Assert.Equal(1, await bf.CardAsync("bf1"));
+
+        // Error when key is of a type other than Bloom filter:
+        db.StringSet("setKey", "value");
+        await Assert.ThrowsAsync<RedisServerException>(() => bf.CardAsync("setKey"));
+    }
+
+    [Fact]
     public void TestModulePrefixs1()
     {
         {
@@ -347,10 +385,21 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
             var conn = ConnectionMultiplexer.Connect("localhost");
             IDatabase db = conn.GetDatabase();
 
-            var bf  = db.FT();
+            var bf = db.FT();
             // ...
             conn.Dispose();
         }
+    }
 
+    [Fact]
+    public void TestInsertArgsError()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var bf = db.BF();
+
+        RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
+        // supose to throw exception:
+        Assert.Throws<RedisServerException>(() => bf.Insert("key3", items, 100, 0.01, 2, nocreate: true, nonscaling: true));
     }
 }

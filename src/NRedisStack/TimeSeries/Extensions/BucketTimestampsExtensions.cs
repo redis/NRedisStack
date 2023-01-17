@@ -12,13 +12,5 @@ namespace NRedisStack.Extensions
             TsBucketTimestamps.high => "+",
             _ => throw new ArgumentOutOfRangeException(nameof(bt), "Invalid TsBucketTimestamps type"),
         };
-
-        public static TsBucketTimestamps Asbt(string bt) => bt switch
-        {
-            "-" => TsBucketTimestamps.low,
-            "~" => TsBucketTimestamps.mid,
-            "+" => TsBucketTimestamps.high,
-            _ => throw new ArgumentOutOfRangeException(nameof(bt), $"Invalid TsBucketTimestamps type '{bt}'"),
-        };
     }
 }

@@ -11,6 +11,11 @@ namespace NRedisStack
             return new SerializedCommand(BF.ADD, key, item);
         }
 
+        public static SerializedCommand Card(RedisKey key)
+        {
+            return new SerializedCommand(BF.CARD, key);
+        }
+
         public static SerializedCommand Exists(RedisKey key, RedisValue item)
         {
             return new SerializedCommand(BF.EXISTS, key, item);
