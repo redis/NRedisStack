@@ -30,7 +30,7 @@ jobs:
         with:
           dotnet-version: '7.0.x'
       - name: run redis-stack-server docker
-        run: docker run -p 6379:6379 -d redislabs/redismod:edge
+        run: docker run -p 6379:6379 -d redis/redis-stack-server:edge
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
