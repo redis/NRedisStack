@@ -60,4 +60,17 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         var lastNameRod = ft.Search("example_index", new Query("@last:Rod"));
         // lastNameRod is empty because there are no hashes with a last name of Rod that match the index definition
     }
+
+    [Fact]
+    public async Task AsyncExample()
+    {
+        // Connect to the Redis server
+        var redis = await ConnectionMultiplexer.ConnectAsync("localhost");
+        var db = redis.GetDatabase();
+        var json = db.JSON();
+
+        // call async version of JSON.SET/GET
+        await json.SetAsync("key", "$", new { name = "John", age = 30, city = "New York" });
+        var john = await json.GetAsync("key");
+    }
 }
