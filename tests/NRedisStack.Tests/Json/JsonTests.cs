@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.IO.Pipelines;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Xunit;
@@ -1027,5 +1028,15 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
             Assert.Equal(expectedArgs2[i].ToString(), getBuild2.Args[i].ToString());
         }
         Assert.Equal("JSON.GET", getBuild2.Command);
+    }
+
+    [Fact]
+    public async Task TestJsonPipeline()
+    {
+        var pipeline = new Pipeline(ConnectionMultiplexer.Connect("localhost"));
+        var setResponse = pipeline.Json.SetAsync("key", "$", "{\"firstname\":\"steve\"}");
+        var getResponse = pipeline.Json.GetAsync("key", "$.firstname");
+        pipeline.Execute();
+        Assert.Equal("steve", getResponse.Result.ToString());
     }
 }
