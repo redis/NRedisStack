@@ -31,7 +31,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var getResponse =  pipeline.Json.GetAsync("key");
 
         pipeline.Execute();
-        
+
         Assert.Equal("True", setResponse.Result.ToString());
         Assert.Equal("{\"Name\":\"Shachar\",\"Age\":23}", getResponse.Result.ToString());
     }
