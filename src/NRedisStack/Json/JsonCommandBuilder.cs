@@ -2,14 +2,18 @@
 using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using static NRedisStack.Auxiliary;
 
 namespace NRedisStack;
 
-public static class JsonCommandBuilder
+public sealed class JsonCommandBuilder
 {
-    public static SerializedCommand Resp(RedisKey key, string? path = null)
+    private static readonly JsonCommandBuilder _instance = new JsonCommandBuilder();
+    public static JsonCommandBuilder Instance { get { return _instance; } }
+
+    private JsonCommandBuilder() { }
+
+    public SerializedCommand Resp(RedisKey key, string? path = null)
     {
         if (string.IsNullOrEmpty(path))
         {
@@ -19,7 +23,7 @@ public static class JsonCommandBuilder
         return new SerializedCommand(JSON.RESP, key, path);
     }
 
-    public static SerializedCommand Set(RedisKey key, RedisValue path, RedisValue json, When when = When.Always)
+    public SerializedCommand Set(RedisKey key, RedisValue path, RedisValue json, When when = When.Always)
     {
         return when switch
         {
@@ -29,7 +33,7 @@ public static class JsonCommandBuilder
         };
     }
 
-    public static SerializedCommand StrAppend(RedisKey key, string value, string? path = null)
+    public SerializedCommand StrAppend(RedisKey key, string value, string? path = null)
     {
         if (path == null)
         {
@@ -39,31 +43,31 @@ public static class JsonCommandBuilder
         return new SerializedCommand(JSON.STRAPPEND, key, path, JsonSerializer.Serialize(value));
     }
 
-    public static SerializedCommand StrLen(RedisKey key, string? path = null)
+    public SerializedCommand StrLen(RedisKey key, string? path = null)
     {
         return (path != null) ? new SerializedCommand(JSON.STRLEN, key, path)
                               : new SerializedCommand(JSON.STRLEN, key);
     }
 
-    public static SerializedCommand Toggle(RedisKey key, string? path = null)
+    public SerializedCommand Toggle(RedisKey key, string? path = null)
     {
         return (path != null) ? new SerializedCommand(JSON.TOGGLE, key, path)
                               : new SerializedCommand(JSON.TOGGLE, key, "$");
     }
 
-    public static SerializedCommand Type(RedisKey key, string? path = null)
+    public SerializedCommand Type(RedisKey key, string? path = null)
     {
         return (path != null) ? new SerializedCommand(JSON.TYPE, key, path)
                               : new SerializedCommand(JSON.TYPE, key);
     }
 
-    public static SerializedCommand DebugMemory(string key, string? path = null)
+    public SerializedCommand DebugMemory(string key, string? path = null)
     {
         return (path != null) ? new SerializedCommand(JSON.DEBUG, JSON.MEMORY, key, path)
                               : new SerializedCommand(JSON.DEBUG, JSON.MEMORY, key);
     }
 
-    public static SerializedCommand ArrAppend(RedisKey key, string? path = null, params object[] values)
+    public SerializedCommand ArrAppend(RedisKey key, string? path = null, params object[] values)
     {
         if (values.Length < 1)
             throw new ArgumentOutOfRangeException(nameof(values));
@@ -79,7 +83,7 @@ public static class JsonCommandBuilder
         return new SerializedCommand(JSON.ARRAPPEND, args.ToArray());
     }
 
-    public static SerializedCommand ArrIndex(RedisKey key, string path, object value, long? start = null, long? stop = null)
+    public SerializedCommand ArrIndex(RedisKey key, string path, object value, long? start = null, long? stop = null)
     {
         if (start == null && stop != null)
             throw new ArgumentException("stop cannot be defined without start");
@@ -88,7 +92,7 @@ public static class JsonCommandBuilder
         return new SerializedCommand(JSON.ARRINDEX, args);
     }
 
-    public static SerializedCommand ArrInsert(RedisKey key, string path, long index, params object[] values)
+    public SerializedCommand ArrInsert(RedisKey key, string path, long index, params object[] values)
     {
         if (values.Length < 1)
             throw new ArgumentOutOfRangeException(nameof(values));
@@ -101,13 +105,13 @@ public static class JsonCommandBuilder
         return new SerializedCommand(JSON.ARRINSERT, args);
     }
 
-    public static SerializedCommand ArrLen(RedisKey key, string? path = null)
+    public SerializedCommand ArrLen(RedisKey key, string? path = null)
     {
         var args = AssembleNonNullArguments(key, path);
         return new SerializedCommand(JSON.ARRLEN, args);
     }
 
-    public static SerializedCommand ArrPop(RedisKey key, string? path = null, long? index = null)
+    public SerializedCommand ArrPop(RedisKey key, string? path = null, long? index = null)
     {
         if (path == null && index != null)
             throw new ArgumentException("index cannot be defined without path");
@@ -116,22 +120,22 @@ public static class JsonCommandBuilder
         return new SerializedCommand(JSON.ARRPOP, args)!;
     }
 
-    public static SerializedCommand ArrTrim(RedisKey key, string path, long start, long stop) =>
+    public SerializedCommand ArrTrim(RedisKey key, string path, long start, long stop) =>
         new SerializedCommand(JSON.ARRTRIM, key, path, start, stop);
 
-    public static SerializedCommand Clear(RedisKey key, string? path = null)
+    public SerializedCommand Clear(RedisKey key, string? path = null)
     {
         var args = AssembleNonNullArguments(key, path);
         return new SerializedCommand(JSON.CLEAR, args);
     }
 
-    public static SerializedCommand Del(RedisKey key, string? path = null)
+    public SerializedCommand Del(RedisKey key, string? path = null)
     {
         var args = AssembleNonNullArguments(key, path);
         return new SerializedCommand(JSON.DEL, args);
     }
 
-    public static SerializedCommand Get(RedisKey key, RedisValue? indent = null, RedisValue? newLine = null, RedisValue? space = null, RedisValue? path = null)
+    public SerializedCommand Get(RedisKey key, RedisValue? indent = null, RedisValue? newLine = null, RedisValue? space = null, RedisValue? path = null)
     {
         List<object> args = new List<object>() { key };
 
@@ -161,7 +165,7 @@ public static class JsonCommandBuilder
         return new SerializedCommand(JSON.GET, args);
     }
 
-    public static SerializedCommand Get(RedisKey key, string[] paths, RedisValue? indent = null, RedisValue? newLine = null, RedisValue? space = null)
+    public SerializedCommand Get(RedisKey key, string[] paths, RedisValue? indent = null, RedisValue? newLine = null, RedisValue? space = null)
     {
         List<object> args = new List<object>() { key };
 
@@ -191,13 +195,13 @@ public static class JsonCommandBuilder
         return new SerializedCommand(JSON.GET, args);
     }
 
-    public static SerializedCommand Get<T>(RedisKey key, string path = "$")
+    public SerializedCommand Get<T>(RedisKey key, string path = "$")
     {
         return new SerializedCommand(JSON.GET, key, path);
 
     }
 
-    public static SerializedCommand MGet(RedisKey[] keys, string path)
+    public SerializedCommand MGet(RedisKey[] keys, string path)
     {
         var args = new List<object>();
         foreach (var key in keys)
@@ -209,18 +213,18 @@ public static class JsonCommandBuilder
         return new SerializedCommand(JSON.MGET, args);
     }
 
-    public static SerializedCommand NumIncrby(RedisKey key, string path, double value)
+    public SerializedCommand NumIncrby(RedisKey key, string path, double value)
     {
         return new SerializedCommand(JSON.NUMINCRBY, key, path, value);
     }
 
-    public static SerializedCommand ObjKeys(RedisKey key, string? path = null)
+    public SerializedCommand ObjKeys(RedisKey key, string? path = null)
     {
         var args = AssembleNonNullArguments(key, path);
         return new SerializedCommand(JSON.OBJKEYS, args);
     }
 
-    public static SerializedCommand ObjLen(RedisKey key, string? path = null)
+    public SerializedCommand ObjLen(RedisKey key, string? path = null)
     {
         var args = AssembleNonNullArguments(key, path);
         return new SerializedCommand(JSON.OBJLEN, args);
