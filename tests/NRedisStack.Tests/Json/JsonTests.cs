@@ -1026,9 +1026,8 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void TestJsonCommandBuilder()
     {
-        var jsonBuilder = JsonCommandBuilder.Instance;
-        var getBuild1 = jsonBuilder.Get("key", "indent", "newline", "space", "path");
-        var getBuild2 = jsonBuilder.Get("key",new string[]{"path1", "path2", "path3"}, "indent", "newline", "space");
+        var getBuild1 = JsonCommandBuilder.Get("key", "indent", "newline", "space", "path");
+        var getBuild2 = JsonCommandBuilder.Get("key",new string[]{"path1", "path2", "path3"}, "indent", "newline", "space");
         var expectedArgs1 = new object[] { "key", "INDENT", "indent", "NEWLINE","newline", "SPACE", "space", "path" };
         var expectedArgs2 = new object[] { "key", "INDENT", "indent", "NEWLINE", "newline", "SPACE", "space", "path1", "path2", "path3" };
 
