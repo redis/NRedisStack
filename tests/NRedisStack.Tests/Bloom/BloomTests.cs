@@ -16,6 +16,8 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         redisFixture.Redis.GetDatabase().KeyDelete(key);
     }
 
+    // TODO: Add test for bloom pipeline
+
     [Fact]
     public void TestReserveBasic()
     {

@@ -3,7 +3,7 @@ using StackExchange.Redis;
 
 namespace NRedisStack
 {
-    public interface IBloomCommands
+    public interface IBloomCommandsAsync
     {
         /// <summary>
         /// Adds an item to a Bloom Filter.
@@ -12,7 +12,7 @@ namespace NRedisStack
         /// <param name="item">The item to add.</param>
         /// <returns><see langword="true"/> if the item did not exist in the filter, <see langword="false"/> otherwise.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.add"/></remarks>
-        bool Add(RedisKey key, RedisValue item);
+        Task<bool> AddAsync(RedisKey key, RedisValue item);
 
         /// <summary>
         /// Returns the cardinality of a Bloom filter.
@@ -20,7 +20,7 @@ namespace NRedisStack
         /// <param name="key">The name of the filter.</param>
         /// <returns>number of items that were added to a Bloom filter and detected as unique.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.card"/></remarks>
-        long Card(RedisKey key);
+        Task<long> CardAsync(RedisKey key);
 
         /// <summary>
         /// Checks whether an item exist in the Bloom Filter or not.
@@ -30,7 +30,7 @@ namespace NRedisStack
         /// <returns><see langword="true"/> means the item may exist in the filter,
         /// and <see langword="false"/> means it does not exist in the filter.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.exists"/></remarks>
-        bool Exists(RedisKey key, RedisValue item);
+        Task<bool> ExistsAsync(RedisKey key, RedisValue item);
 
         /// <summary>
         /// Return information about a bloom filter.
@@ -38,7 +38,8 @@ namespace NRedisStack
         /// <param name="key">Name of the key to return information about.</param>
         /// <returns>Information of the filter.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.info"/></remarks>
-        BloomInformation Info(RedisKey key);
+        Task<BloomInformation> InfoAsync(RedisKey key);
+
 
         /// <summary>
         /// Adds one or more items to a Bloom Filter. A filter will be created if it does not exist.
@@ -56,7 +57,7 @@ namespace NRedisStack
         /// <returns>An array of booleans. Each element is either true or false depending on whether the
         /// corresponding input element was newly added to the filter or may have previously existed.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.insert"/></remarks>
-        bool[] Insert(RedisKey key, RedisValue[] items, int? capacity = null,
+        Task<bool[]> InsertAsync(RedisKey key, RedisValue[] items, int? capacity = null,
                                   double? error = null, int? expansion = null,
                                   bool nocreate = false, bool nonscaling = false);
 
@@ -68,7 +69,7 @@ namespace NRedisStack
         /// <param name="data">Current data chunk (returned by SCANDUMP).</param>
         /// <returns><see langword="true"/> if executed correctly, error otherwise/></returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.loadchunk"/></remarks>
-        bool LoadChunk(RedisKey key, long iterator, Byte[] data);
+        Task<bool> LoadChunkAsync(RedisKey key, long iterator, Byte[] data);
 
         /// <summary>
         /// Adds one or more items to the Bloom Filter. A filter will be created if it does not exist yet.
@@ -78,7 +79,7 @@ namespace NRedisStack
         /// <returns>An array of booleans. Each element is either true or false depending on whether the
         /// corresponding input element was newly added to the filter or may have previously existed.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.madd"/></remarks>
-        bool[] MAdd(RedisKey key, params RedisValue[] items);
+        Task<bool[]> MAddAsync(RedisKey key, params RedisValue[] items);
 
         /// <summary>
         /// Checks whether one or more items may exist in the filter or not.
@@ -88,7 +89,7 @@ namespace NRedisStack
         /// <returns>An array of booleans, for each item <see langword="true"/> means the item may exist in the filter,
         /// and <see langword="false"/> means the item may exist in the filter.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.mexists"/></remarks>
-        bool[] MExists(RedisKey key, RedisValue[] items);
+        Task<bool[]> MExistsAsync(RedisKey key, RedisValue[] items);
 
         /// <summary>
         /// Creates a new Bloom Filter.
@@ -100,9 +101,9 @@ namespace NRedisStack
         /// created in size of the last sub-filter multiplied by expansion.</param>
         /// <param name="nonscaling">(Optional) <see langword="true"/> toprevent the filter
         /// from creating additional sub-filters if initial capacity is reached.</param>
-        /// <returns><see langword="true"/> if executed correctly, error otherwise/></returns>
+        /// <returns><see langword="true"/> if executed correctly, Error otherwise.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.reserve"/></remarks>
-        bool Reserve(RedisKey key, double errorRate, long capacity,
+        Task<bool> ReserveAsync(RedisKey key, double errorRate, long capacity,
                                    int? expansion = null, bool nonscaling = false);
 
         /// <summary>
@@ -112,6 +113,6 @@ namespace NRedisStack
         /// <param name="iterator">Iterator value; either 0 or the iterator from a previous invocation of this command.</param>
         /// <returns>Tuple of iterator and data.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bf.scandump"/></remarks>
-        Tuple<long, Byte[]> ScanDump(RedisKey key, long iterator);
+        Task<Tuple<long, Byte[]>> ScanDumpAsync(RedisKey key, long iterator);
     }
 }

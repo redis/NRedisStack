@@ -4,11 +4,11 @@ using System.Text.Json.Nodes;
 
 namespace NRedisStack;
 
-public class JsonCommands : IJsonCommands
+public class JsonCommands : JsonCommandsAsync, IJsonCommands
 {
     IDatabase _db;
 
-    public JsonCommands(IDatabase db)
+    public JsonCommands(IDatabase db) : base(db)
     {
         _db = db;
     }
