@@ -20,21 +20,21 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         redisFixture.Redis.GetDatabase().KeyDelete(_testName);
     }
 
-    // [Fact]
-    // public async Task TestJsonPipeline()
-    // {
-    //     var pipeline = new Pipeline(ConnectionMultiplexer.Connect("localhost"));
-    //     await pipeline.Db.ExecuteAsync("FLUSHALL");
+    [Fact]
+    public async Task TestJsonPipeline()
+    {
+        var pipeline = new Pipeline(ConnectionMultiplexer.Connect("localhost"));
+        pipeline.Db.ExecuteAsync("FLUSHALL");
 
-    //     string jsonPerson = JsonSerializer.Serialize(new Person { Name = "Shachar", Age = 23 });
-    //     var setResponse = pipeline.Json.SetAsync("key", "$", jsonPerson);
-    //     var getResponse = pipeline.Json.GetAsync("key");
+        string jsonPerson = JsonSerializer.Serialize(new Person { Name = "Shachar", Age = 23 });
+        var setResponse = pipeline.Json.SetAsync("key", "$", jsonPerson);
+        var getResponse = pipeline.Json.GetAsync("key");
 
-    //     pipeline.Execute();
+        pipeline.Execute();
 
-    //     Assert.Equal("True", setResponse.Result.ToString());
-    //     Assert.Equal("{\"Name\":\"Shachar\",\"Age\":23}", getResponse.Result.ToString());
-    // }
+        Assert.Equal("True", setResponse.Result.ToString());
+        Assert.Equal("{\"Name\":\"Shachar\",\"Age\":23}", getResponse.Result.ToString());
+    }
 
     [Fact]
     public void TestSetFromFile()
