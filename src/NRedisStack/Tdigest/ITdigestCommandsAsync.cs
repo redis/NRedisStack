@@ -2,10 +2,8 @@ using NRedisStack.Tdigest.DataTypes;
 using StackExchange.Redis;
 namespace NRedisStack
 {
-
-    public interface ITdigestCommands
+    public interface ITdigestCommandsAsync
     {
-
         /// <summary>
         /// Adds one or more observations to a t-digest sketch.
         /// </summary>
@@ -13,7 +11,7 @@ namespace NRedisStack
         /// <param name="values">The value of the observation.</param>
         /// <returns><see langword="true"/> if executed correctly, error otherwise</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.add"/></remarks>
-        bool Add(RedisKey key, params double[] values);
+        Task<bool> AddAsync(RedisKey key, params double[] values);
 
         /// <summary>
         /// Estimate the fraction of all observations added which are <= value.
@@ -22,7 +20,7 @@ namespace NRedisStack
         /// <param name="values">upper limit of observation value.</param>
         /// <returns>double-reply - estimation of the fraction of all observations added which are <= value</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.cdf"/></remarks>
-        double[] CDF(RedisKey key, params double[] values);
+        Task<double[]> CDFAsync(RedisKey key, params double[] values);
 
         /// <summary>
         /// Allocate memory and initialize a t-digest sketch.
@@ -31,16 +29,14 @@ namespace NRedisStack
         /// <param name="compression">The compression parameter.</param>
         /// <returns><see langword="true"/> if executed correctly, error otherwise</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.create"/></remarks>
-        bool Create(RedisKey key, long compression = 100);
-
+        Task<bool> CreateAsync(RedisKey key, long compression = 100);
         /// <summary>
         /// Returns information about a sketch.
         /// </summary>
         /// <param name="key">The name of the sketch.</param>
         /// <returns>information about a sketch</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.info"/></remarks>
-        TdigestInformation Info(RedisKey key);
-
+        Task<TdigestInformation> InfoAsync(RedisKey key);
 
         /// <summary>
         /// Get the maximum observation value from the sketch.
@@ -48,7 +44,7 @@ namespace NRedisStack
         /// <param name="key">The name of the sketch.</param>
         /// <returns>the maximum observation value from the sketch</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.max"/></remarks>
-        double Max(RedisKey key);
+        Task<double> MaxAsync(RedisKey key);
 
         /// <summary>
         /// Get the minimum observation value from the sketch.
@@ -56,7 +52,7 @@ namespace NRedisStack
         /// <param name="key">The name of the sketch.</param>
         /// <returns>the minimum observation value from the sketch</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.min"/></remarks>
-        double Min(RedisKey key);
+        Task<double> MinAsync(RedisKey key);
 
         /// <summary>
         /// Merges all of the values from 'from' keys to 'destination-key' sketch
@@ -67,17 +63,18 @@ namespace NRedisStack
         /// <param name="sourceKeys">Sketch to copy observation values from (a t-digest data structure).</param>
         /// <returns><see langword="true"/> if executed correctly, error otherwise</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.merge"/></remarks>
-        bool Merge(RedisKey destinationKey, long compression = default(long), bool overide = false, params RedisKey[] sourceKeys);
+        Task<bool> MergeAsync(RedisKey destinationKey, long compression = default(long), bool overide = false, params RedisKey[] sourceKeys);
 
         /// <summary>
         /// Returns estimates of one or more cutoffs such that a specified fraction of the observations
-        /// added to this t-digest would be less than or equal to each of the specified cutoffs.
+        ///added to this t-digest would be less than or equal to each of the specified cutoffs.
         /// </summary>
         /// <param name="key">The name of the sketch (a t-digest data structure).</param>
         /// <param name="quantile">The desired fraction (between 0 and 1 inclusively).</param>
         /// <returns>An  array of results populated with quantile_1, cutoff_1, quantile_2, cutoff_2, ..., quantile_N, cutoff_N.</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.quantile"/></remarks>
-        double[] Quantile(RedisKey key, params double[] quantile);
+        Task<double[]> QuantileAsync(RedisKey key, params double[] quantile);
+
         /// <summary>
         /// Retrieve the estimated rank of value (the number of observations in the sketch
         /// that are smaller than value + half the number of observations that are equal to value).
@@ -86,7 +83,7 @@ namespace NRedisStack
         /// <param name="values">input value, for which the rank will be determined.</param>
         /// <returns>an array of results populated with rank_1, rank_2, ..., rank_N.</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.rank"/></remarks>
-        long[] Rank(RedisKey key, params long[] values);
+        Task<long[]> RankAsync(RedisKey key, params long[] values);
 
         /// <summary>
         /// Retrieve the estimated rank of value (the number of observations in the sketch
@@ -96,7 +93,7 @@ namespace NRedisStack
         /// <param name="values">input value, for which the rank will be determined.</param>
         /// <returns>an array of results populated with rank_1, rank_2, ..., rank_N.</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.revrank"/></remarks>
-        long[] RevRank(RedisKey key, params long[] values);
+        Task<long[]> RevRankAsync(RedisKey key, params long[] values);
 
         /// <summary>
         /// Retrieve an estimation of the value with the given the rank.
@@ -105,7 +102,7 @@ namespace NRedisStack
         /// <param name="ranks">input rank, for which the value will be determined.</param>
         /// <returns>an array of results populated with value_1, value_2, ..., value_N.</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.byrank"/></remarks>
-        double[] ByRank(RedisKey key, params long[] ranks);
+        Task<double[]> ByRankAsync(RedisKey key, params long[] ranks);
 
         /// <summary>
         /// Retrieve an estimation of the value with the given the reverse rank.
@@ -114,7 +111,7 @@ namespace NRedisStack
         /// <param name="ranks">input reverse rank, for which the value will be determined.</param>
         /// <returns>an array of results populated with value_1, value_2, ..., value_N.</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.byrevrank"/></remarks>
-        double[] ByRevRank(RedisKey key, params long[] ranks);
+        Task<double[]> ByRevRankAsync(RedisKey key, params long[] ranks);
 
         /// <summary>
         /// Reset the sketch - empty the sketch and re-initialize it
@@ -122,7 +119,7 @@ namespace NRedisStack
         /// <param name="key">The name of the sketch (a t-digest data structure).</param>
         /// <returns><see langword="true"/> if executed correctly, error otherwise.</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.reset"/></remarks>
-        bool Reset(RedisKey key);
+        Task<bool> ResetAsync(RedisKey key);
 
         /// <summary>
         /// Reset the sketch - empty the sketch and re-initialize it
@@ -132,6 +129,6 @@ namespace NRedisStack
         /// <param name="highCutQuantile">Exclude observation values higher than this quantile.</param>
         /// <returns>estimation of the mean value. Will return NaN if the sketch is empty.</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.trimmed_mean"/></remarks>
-        double TrimmedMean(RedisKey key, double lowCutQuantile, double highCutQuantile);
+        Task<double> TrimmedMeanAsync(RedisKey key, double lowCutQuantile, double highCutQuantile);
     }
 }
