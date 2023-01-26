@@ -5,8 +5,8 @@ namespace NRedisStack
 
     public class BloomCommandsAsync : IBloomCommandsAsync
     {
-        IDatabase _db;
-        public BloomCommandsAsync(IDatabase db)
+        IDatabaseAsync _db;
+        public BloomCommandsAsync(IDatabaseAsync db)
         {
             _db = db;
         }
