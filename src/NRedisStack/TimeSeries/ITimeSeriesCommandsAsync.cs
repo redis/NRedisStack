@@ -2,7 +2,7 @@ using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;
 namespace NRedisStack
 {
-    public interface ITimeSeriesCommands
+    public interface ITimeSeriesCommandsAsync
     {
         #region Create
 
@@ -18,7 +18,7 @@ namespace NRedisStack
         /// <param name="duplicatePolicy">Optinal: Define handling of duplicate samples behavior (avalible for RedisTimeseries >= 1.4)</param>
         /// <returns>If the operation executed successfully</returns>
         /// <remarks><seealso href="https://redis.io/commands/ts.create"/></remarks>
-        bool Create(string key, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel> labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null);
+        Task<bool> CreateAsync(string key, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel> labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null);
 
         #endregion
 
@@ -35,7 +35,7 @@ namespace NRedisStack
         /// <param name="labels">Optional: Collaction of label-value pairs that represent metadata labels of the key</param>
         /// <returns>If the operation executed successfully</returns>
         /// <remarks><seealso href="https://redis.io/commands/ts.alter"/></remarks>
-        bool Alter(string key, long? retentionTime = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null);
+        Task<bool> AlterAsync(string key, long? retentionTime = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null);
 
         /// <summary>
         /// Append (or create and append) a new sample to the series.
@@ -51,9 +51,7 @@ namespace NRedisStack
         /// <param name="duplicatePolicy">Optioal: overwrite key and database configuration for DUPLICATE_POLICY</param>
         /// <returns>The timestamp value of the new sample</returns>
         /// <remarks><seealso href="https://redis.io/commands/ts.add"/></remarks>
-        TimeStamp Add(string key, TimeStamp timestamp, double value, long? retentionTime = null,
-                            IReadOnlyCollection<TimeSeriesLabel> labels = null, bool? uncompressed = null,
-                            long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null);
+        Task<TimeStamp> AddAsync(string key, TimeStamp timestamp, double value, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel> labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null);
 
         /// <summary>
         /// Append new samples to multiple series.
@@ -61,7 +59,8 @@ namespace NRedisStack
         /// <param name="sequence">An Collection of (key, timestamp, value) tuples </param>
         /// <returns>List of timestamps of the new samples</returns>
         /// <remarks><seealso href="https://redis.io/commands/ts.madd"/></remarks>
-        IReadOnlyList<TimeStamp> MAdd(IReadOnlyCollection<(string key, TimeStamp timestamp, double value)> sequence);
+        Task<IReadOnlyList<TimeStamp>> MAddAsync(IReadOnlyCollection<(string key, TimeStamp timestamp, double value)> sequence);
+
 
         /// <summary>
         /// Creates a new sample that increments the latest sample's value.
@@ -76,7 +75,7 @@ namespace NRedisStack
         /// You can alter the default TS_db chunk size by passing the chunk_size argument (in Bytes)</param>
         /// <returns>The latests sample timestamp (updated sample)</returns>
         /// <remarks><seealso href="https://redis.io/commands/ts.incrby"/></remarks>
-        TimeStamp IncrBy(string key, double value, TimeStamp? timestamp = null, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null);
+        Task<TimeStamp> IncrByAsync(string key, double value, TimeStamp? timestamp = null, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null);
 
         /// <summary>
         /// Creates a new sample that decrements the latest sample's value.
@@ -91,7 +90,7 @@ namespace NRedisStack
         /// You can alter the default TS_db chunk size by passing the chunk_size argument (in Bytes)</param>
         /// <returns>The latests sample timestamp (updated sample)</returns>
         /// <remarks><seealso href="https://redis.io/commands/ts.decrby"/></remarks>
-        TimeStamp DecrBy(string key, double value, TimeStamp? timestamp = null, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null);
+        Task<TimeStamp> DecrByAsync(string key, double value, TimeStamp? timestamp = null, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null);
 
         /// <summary>
         /// Delete data points for a given timeseries and interval range in the form of start and end delete timestamps.
@@ -102,7 +101,7 @@ namespace NRedisStack
         /// <param name="toTimeStamp">End timestamp for the range deletion.</param>
         /// <returns>The count of deleted items</returns>
         /// <remarks><seealso href="https://redis.io/commands/ts.del"/></remarks>
-        long Del(string key, TimeStamp fromTimeStamp, TimeStamp toTimeStamp);
+        Task<long> DelAsync(string key, TimeStamp fromTimeStamp, TimeStamp toTimeStamp);
 
         #endregion
 
@@ -119,7 +118,7 @@ namespace NRedisStack
         /// It is expressed in milliseconds. The default value is 0 aligned with the epoch</param>
         /// <returns>If the operation executed successfully</returns>
         /// <remarks><seealso href="https://redis.io/commands/ts.createrule"/></remarks>
-        bool CreateRule(string sourceKey, TimeSeriesRule rule, long alignTimestamp = 0);
+        Task<bool> CreateRuleAsync(string sourceKey, TimeSeriesRule rule, long alignTimestamp = 0);
 
         /// <summary>
         /// Deletes a compaction rule.
@@ -128,7 +127,7 @@ namespace NRedisStack
         /// <param name="destKey">Key name for destination time series</param>
         /// <returns>If the operation executed successfully</returns>
         /// <remarks><seealso href="https://redis.io/commands/ts.deleterule"/></remarks>
-        bool DeleteRule(string sourceKey, string destKey);
+        Task<bool> DeleteRuleAsync(string sourceKey, string destKey);
 
         #endregion
 
@@ -144,7 +143,7 @@ namespace NRedisStack
         /// When a time series is not a compaction, LATEST is ignored.</param>
         /// <returns>TimeSeriesTuple that represents the last sample. Null if the series is empty. </returns>
         /// <remarks><seealso href="https://redis.io/commands/ts.get"/></remarks>
-        TimeSeriesTuple? Get(string key, bool latest = false);
+        Task<TimeSeriesTuple?> GetAsync(string key, bool latest = false);
 
         /// <summary>
         /// Get the last samples matching the specific filter.
@@ -158,8 +157,8 @@ namespace NRedisStack
         /// <param name="selectedLabels">Optional: returns a subset of the label-value pairs that represent metadata labels of the time series</param>
         /// <returns>The command returns the last sample for entries with labels matching the specified filter.</returns>
         /// <remarks><seealso href="https://redis.io/commands/ts.mget"/></remarks>
-        IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, TimeSeriesTuple value)> MGet(IReadOnlyCollection<string> filter, bool latest = false,
-                                                                                                             bool? withLabels = null, IReadOnlyCollection<string>? selectedLabels = null);
+        Task<IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, TimeSeriesTuple value)>> MGetAsync(IReadOnlyCollection<string> filter, bool latest = false,
+                                                                                                                               bool? withLabels = null, IReadOnlyCollection<string>? selectedLabels = null);
 
         /// <summary>
         /// Query a range.
@@ -181,18 +180,18 @@ namespace NRedisStack
         /// <param name="empty">Optional: when specified, reports aggregations also for empty buckets</param>
         /// <returns>A list of TimeSeriesTuple</returns>
         /// <remarks><seealso href="https://redis.io/commands/ts.range"/></remarks>
-        IReadOnlyList<TimeSeriesTuple> Range(string key,
-                                                   TimeStamp fromTimeStamp,
-                                                   TimeStamp toTimeStamp,
-                                                   bool latest = false,
-                                                   IReadOnlyCollection<TimeStamp>? filterByTs = null,
-                                                   (long, long)? filterByValue = null,
-                                                   long? count = null,
-                                                   TimeStamp? align = null,
-                                                   TsAggregation? aggregation = null,
-                                                   long? timeBucket = null,
-                                                   TsBucketTimestamps? bt = null,
-                                                   bool empty = false);
+        Task<IReadOnlyList<TimeSeriesTuple>> RangeAsync(string key,
+                                                    TimeStamp fromTimeStamp,
+                                                    TimeStamp toTimeStamp,
+                                                    bool latest = false,
+                                                    IReadOnlyCollection<TimeStamp>? filterByTs = null,
+                                                    (long, long)? filterByValue = null,
+                                                    long? count = null,
+                                                    TimeStamp? align = null,
+                                                    TsAggregation? aggregation = null,
+                                                    long? timeBucket = null,
+                                                    TsBucketTimestamps? bt = null,
+                                                    bool empty = false);
 
         /// <summary>
         /// Query a range in reverse direction.
@@ -214,18 +213,18 @@ namespace NRedisStack
         /// <param name="empty">Optional: when specified, reports aggregations also for empty buckets</param>
         /// <returns>A list of TimeSeriesTuple</returns>
         /// <remarks><seealso href="https://redis.io/commands/ts.revrange"/></remarks>
-        IReadOnlyList<TimeSeriesTuple> RevRange(string key,
-                                                   TimeStamp fromTimeStamp,
-                                                   TimeStamp toTimeStamp,
-                                                   bool latest = false,
-                                                   IReadOnlyCollection<TimeStamp>? filterByTs = null,
-                                                   (long, long)? filterByValue = null,
-                                                   long? count = null,
-                                                   TimeStamp? align = null,
-                                                   TsAggregation? aggregation = null,
-                                                   long? timeBucket = null,
-                                                   TsBucketTimestamps? bt = null,
-                                                   bool empty = false);
+        Task<IReadOnlyList<TimeSeriesTuple>> RevRangeAsync(string key,
+                                                    TimeStamp fromTimeStamp,
+                                                    TimeStamp toTimeStamp,
+                                                    bool latest = false,
+                                                    IReadOnlyCollection<TimeStamp>? filterByTs = null,
+                                                    (long, long)? filterByValue = null,
+                                                    long? count = null,
+                                                    TimeStamp? align = null,
+                                                    TsAggregation? aggregation = null,
+                                                    long? timeBucket = null,
+                                                    TsBucketTimestamps? bt = null,
+                                                    bool empty = false);
 
         /// <summary>
         /// Query a timestamp range across multiple time-series by filters.
@@ -250,22 +249,22 @@ namespace NRedisStack
         /// <param name="groupbyTuple">Optional: Grouping by fields the results, and applying reducer functions on each group.</param>
         /// <returns>A list of (key, labels, values) tuples. Each tuple contains the key name, its labels and the values which satisfies the given range and filters.</returns>
         /// <remarks><seealso href="https://redis.io/commands/ts.mrange"/></remarks>
-        IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)> MRange(
-           TimeStamp fromTimeStamp,
-           TimeStamp toTimeStamp,
-           IReadOnlyCollection<string> filter,
-           bool latest = false,
-           IReadOnlyCollection<TimeStamp>? filterByTs = null,
-           (long, long)? filterByValue = null,
-           bool? withLabels = null,
-           IReadOnlyCollection<string>? selectLabels = null,
-           long? count = null,
-           TimeStamp? align = null,
-           TsAggregation? aggregation = null,
-           long? timeBucket = null,
-           TsBucketTimestamps? bt = null,
-           bool empty = false,
-           (string, TsReduce)? groupbyTuple = null);
+        Task<IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)>> MRangeAsync(
+            TimeStamp fromTimeStamp,
+            TimeStamp toTimeStamp,
+            IReadOnlyCollection<string> filter,
+            bool latest = false,
+            IReadOnlyCollection<TimeStamp>? filterByTs = null,
+            (long, long)? filterByValue = null,
+            bool? withLabels = null,
+            IReadOnlyCollection<string>? selectLabels = null,
+            long? count = null,
+            TimeStamp? align = null,
+            TsAggregation? aggregation = null,
+            long? timeBucket = null,
+            TsBucketTimestamps? bt = null,
+            bool empty = false,
+            (string, TsReduce)? groupbyTuple = null);
 
         /// <summary>
         /// Query a timestamp range in reverse order across multiple time-series by filters.
@@ -290,22 +289,22 @@ namespace NRedisStack
         /// <param name="groupbyTuple">Optional: Grouping by fields the results, and applying reducer functions on each group.</param>
         /// <returns>A list of (key, labels, values) tuples. Each tuple contains the key name, its labels and the values which satisfies the given range and filters.</returns>
         /// <remarks><seealso href="https://redis.io/commands/ts.mrevrange"/></remarks>
-        IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)> MRevRange(
-           TimeStamp fromTimeStamp,
-           TimeStamp toTimeStamp,
-           IReadOnlyCollection<string> filter,
-           bool latest = false,
-           IReadOnlyCollection<TimeStamp>? filterByTs = null,
-           (long, long)? filterByValue = null,
-           bool? withLabels = null,
-           IReadOnlyCollection<string>? selectLabels = null,
-           long? count = null,
-           TimeStamp? align = null,
-           TsAggregation? aggregation = null,
-           long? timeBucket = null,
-           TsBucketTimestamps? bt = null,
-           bool empty = false,
-           (string, TsReduce)? groupbyTuple = null);
+        Task<IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)>> MRevRangeAsync(
+            TimeStamp fromTimeStamp,
+            TimeStamp toTimeStamp,
+            IReadOnlyCollection<string> filter,
+            bool latest = false,
+            IReadOnlyCollection<TimeStamp>? filterByTs = null,
+            (long, long)? filterByValue = null,
+            bool? withLabels = null,
+            IReadOnlyCollection<string>? selectLabels = null,
+            long? count = null,
+            TimeStamp? align = null,
+            TsAggregation? aggregation = null,
+            long? timeBucket = null,
+            TsBucketTimestamps? bt = null,
+            bool empty = false,
+            (string, TsReduce)? groupbyTuple = null);
 
         #endregion
 
@@ -318,7 +317,7 @@ namespace NRedisStack
         /// <param name="debug">An optional flag to get a more detailed information about the chunks.</param>
         /// <returns>TimeSeriesInformation for the specific key.</returns>
         /// <remarks><seealso href="https://redis.io/commands/ts.info"/></remarks>
-        TimeSeriesInformation Info(string key, bool debug = false);
+        Task<TimeSeriesInformation> InfoAsync(string key, bool debug = false);
 
         /// <summary>
         /// Get all the keys matching the filter list.
@@ -326,7 +325,7 @@ namespace NRedisStack
         /// <param name="filter">A sequence of filters</param>
         /// <returns>A list of keys with labels matching the filters.</returns>
         /// <remarks><seealso href="https://redis.io/commands/ts.queryindex"/></remarks>
-        IReadOnlyList<string> QueryIndex(IReadOnlyCollection<string> filter);
+        Task<IReadOnlyList<string>> QueryIndexAsync(IReadOnlyCollection<string> filter);
 
         #endregion
     }
