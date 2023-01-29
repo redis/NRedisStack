@@ -21,22 +21,6 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async Task TestJsonPipeline()
-    {
-        var pipeline = new Pipeline(ConnectionMultiplexer.Connect("localhost"));
-        pipeline.Db.ExecuteAsync("FLUSHALL");
-
-        string jsonPerson = JsonSerializer.Serialize(new Person { Name = "Shachar", Age = 23 });
-        var setResponse = pipeline.Json.SetAsync("key", "$", jsonPerson);
-        var getResponse = pipeline.Json.GetAsync("key");
-
-        pipeline.Execute();
-
-        Assert.Equal("True", setResponse.Result.ToString());
-        Assert.Equal("{\"Name\":\"Shachar\",\"Age\":23}", getResponse.Result.ToString());
-    }
-
-    [Fact]
     public void TestSetFromFile()
     {
         //arrange

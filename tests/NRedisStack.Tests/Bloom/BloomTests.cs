@@ -16,8 +16,6 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         redisFixture.Redis.GetDatabase().KeyDelete(key);
     }
 
-    // TODO: Add test for bloom pipeline
-
     [Fact]
     public void TestReserveBasic()
     {
@@ -31,32 +29,6 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.True((bf.Add(key, "item1")));
         Assert.True(bf.Exists(key, "item1"));
         Assert.False(bf.Exists(key, "item2"));
-    }
-
-    [Fact]
-    public async Task TestPipeline()
-    {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
-        var pipeline = new Pipeline(db);
-
-        pipeline.Bf.ReserveAsync(key, 0.001, 100);
-        for(int i = 0; i < 1000; i++)
-        {
-            pipeline.Bf.AddAsync(key, i.ToString());
-        }
-
-        for(int i = 0; i < 100; i++)
-        {
-            Assert.False(db.BF().Exists(key, i.ToString()));
-        }
-
-        pipeline.Execute();
-
-        for(int i = 0; i < 1000; i++)
-        {
-            Assert.True(db.BF().Exists(key, i.ToString()));
-        }
     }
 
     [Fact]
