@@ -34,6 +34,32 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    public async Task TestPipeline()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var pipeline = new Pipeline(db);
+
+        pipeline.Bf.ReserveAsync(key, 0.001, 100);
+        for(int i = 0; i < 1000; i++)
+        {
+            pipeline.Bf.AddAsync(key, i.ToString());
+        }
+
+        for(int i = 0; i < 100; i++)
+        {
+            Assert.False(db.BF().Exists(key, i.ToString()));
+        }
+
+        pipeline.Execute();
+
+        for(int i = 0; i < 1000; i++)
+        {
+            Assert.True(db.BF().Exists(key, i.ToString()));
+        }
+    }
+
+    [Fact]
     public async Task TestReserveBasicAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
