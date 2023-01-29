@@ -2,7 +2,6 @@
 using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using static NRedisStack.Auxiliary;
 
 namespace NRedisStack;

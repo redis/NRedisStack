@@ -13,6 +13,13 @@ namespace NRedisStack.Graph
             RelationshipTypes = new GraphCacheList(graphName, "db.relationshipTypes", redisGraph);
         }
 
+        public GraphCache(string graphName, GraphCommandsAsync redisGraph)
+        {
+            Labels = new GraphCacheList(graphName, "db.labels", redisGraph);
+            PropertyNames = new GraphCacheList(graphName, "db.propertyKeys", redisGraph);
+            RelationshipTypes = new GraphCacheList(graphName, "db.relationshipTypes", redisGraph);
+        }
+
         public string GetLabel(int index) => Labels.GetCachedData(index);
 
         public string GetRelationshipType(int index) => RelationshipTypes.GetCachedData(index);

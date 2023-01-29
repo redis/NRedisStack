@@ -223,7 +223,7 @@ namespace NRedisStack.Search
                 args.Add(Algorithm.ToString());
                 if (Attributes != null)
                 {
-                    args.Add(Attributes.Count());
+                    args.Add(Attributes.Count() * 2);
 
                     foreach (var attribute in Attributes)
                     {
