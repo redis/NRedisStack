@@ -3,7 +3,7 @@ using StackExchange.Redis;
 
 namespace NRedisStack
 {
-    public interface ICmsCommands
+    public interface ICmsCommandsAsync
     {
         /// <summary>
         /// Increases the count of item by increment.
@@ -13,7 +13,7 @@ namespace NRedisStack
         /// <param name="increment">Amount by which the item counter is to be increased.</param>
         /// <returns>Count of each item after increment.</returns>
         /// <remarks><seealso href="https://redis.io/commands/cms.incrby"/></remarks>
-        long IncrBy(RedisKey key, RedisValue item, long increment);
+        Task<long> IncrByAsync(RedisKey key, RedisValue item, long increment);
 
         /// <summary>
         /// Increases the count of item by increment.
@@ -23,7 +23,7 @@ namespace NRedisStack
         /// and the Amount by which the item counter is to be increased.</param>
         /// <returns>Count of each item after increment.</returns>
         /// <remarks><seealso href="https://redis.io/commands/cms.incrby"/></remarks>
-        long[] IncrBy(RedisKey key, Tuple<RedisValue, long>[] itemIncrements);
+        Task<long[]> IncrByAsync(RedisKey key, Tuple<RedisValue, long>[] itemIncrements);
 
         /// <summary>
         /// Return information about a sketch.
@@ -31,7 +31,7 @@ namespace NRedisStack
         /// <param name="key">Name of the key to return information about.</param>
         /// <returns>Information of the sketch.</returns>
         /// <remarks><seealso href="https://redis.io/commands/cms.info"/></remarks>
-        CmsInformation Info(RedisKey key);
+        Task<CmsInformation> InfoAsync(RedisKey key);
 
         /// <summary>
         /// Initializes a Count-Min Sketch to dimensions specified by user.
@@ -42,7 +42,7 @@ namespace NRedisStack
         /// of a certain size (percentage of total count).</param>
         /// <returns><see langword="true"/> if if executed correctly, Error otherwise.</returns>
         /// <remarks><seealso href="https://redis.io/commands/cms.initbydim"/></remarks>
-        bool InitByDim(RedisKey key, long width, long depth);
+        Task<bool> InitByDimAsync(RedisKey key, long width, long depth);
 
         /// <summary>
         /// Initializes a Count-Min Sketch to accommodate requested tolerances.
@@ -52,7 +52,7 @@ namespace NRedisStack
         /// <param name="probability">The desired probability for inflated count.</param>
         /// <returns><see langword="true"/> if if executed correctly, Error otherwise.</returns>
         /// <remarks><seealso href="https://redis.io/commands/cms.initbyprob"/></remarks>
-        bool InitByProb(RedisKey key, double error, double probability);
+        Task<bool> InitByProbAsync(RedisKey key, double error, double probability);
 
         /// <summary>
         /// Merges several sketches into one sketch.
@@ -63,7 +63,7 @@ namespace NRedisStack
         /// <param name="weight">Multiple of each sketch. Default = 1.</param>
         /// <returns><see langword="true"/> if if executed correctly, Error otherwise.</returns>
         /// <remarks><seealso href="https://redis.io/commands/cms.merge"/></remarks>
-        bool Merge(RedisValue destination, long numKeys, RedisValue[] source, long[]? weight = null);
+        Task<bool> MergeAsync(RedisValue destination, long numKeys, RedisValue[] source, long[]? weight = null);
 
         /// <summary>
         /// Returns the count for one or more items in a sketch.
@@ -72,6 +72,6 @@ namespace NRedisStack
         /// <param name="items">One or more items for which to return the count.</param>
         /// <returns>Array with a min-count of each of the items in the sketch</returns>
         /// <remarks><seealso href="https://redis.io/commands/cms.query"/></remarks>
-        long[] Query(RedisKey key, params RedisValue[] items);
+        Task<long[]> QueryAsync(RedisKey key, params RedisValue[] items);
     }
 }

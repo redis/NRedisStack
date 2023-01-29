@@ -3,7 +3,7 @@ using StackExchange.Redis;
 
 namespace NRedisStack
 {
-    public interface IGraphCommands
+    public interface IGraphCommandsAsync
     {
         /// <summary>
         /// Execute a Cypher query with parameters.
@@ -14,7 +14,7 @@ namespace NRedisStack
         /// <param name="timeout">Timeout (optional).</param>
         /// <returns>A result set.</returns>
         /// <remarks><seealso href="https://redis.io/commands/graph.query"/></remarks>
-        ResultSet Query(string graphName, string query, IDictionary<string, object> parameters, long? timeout = null);
+        Task<ResultSet> QueryAsync(string graphName, string query, IDictionary<string, object> parameters, long? timeout = null);
 
         /// <summary>
         /// Execute a Cypher query.
@@ -24,7 +24,7 @@ namespace NRedisStack
         /// <param name="timeout">Timeout (optional).</param>
         /// <returns>A result set.</returns>
         /// <remarks><seealso href="https://redis.io/commands/graph.query"/></remarks>
-        ResultSet Query(string graphName, string query, long? timeout = null);
+        Task<ResultSet> QueryAsync(string graphName, string query, long? timeout = null);
 
         /// <summary>
         /// Execute a Cypher query with parameters.
@@ -35,7 +35,7 @@ namespace NRedisStack
         /// <param name="timeout">Timeout (optional).</param>
         /// <returns>A result set.</returns>
         /// <remarks><seealso href="https://redis.io/commands/graph.ro_query"/></remarks>
-        ResultSet RO_Query(string graphName, string query, IDictionary<string, object> parameters, long? timeout = null);
+        Task<ResultSet> RO_QueryAsync(string graphName, string query, IDictionary<string, object> parameters, long? timeout = null);
 
         /// <summary>
         /// Execute a Cypher query.
@@ -45,7 +45,7 @@ namespace NRedisStack
         /// <param name="timeout">Timeout (optional).</param>
         /// <returns>A result set.</returns>
         /// <remarks><seealso href="https://redis.io/commands/graph.ro_query"/></remarks>
-        ResultSet RO_Query(string graphName, string query, long? timeout = null);
+        Task<ResultSet> RO_QueryAsync(string graphName, string query, long? timeout = null);
 
         // TODO: Check if needed
         /// <summary>
@@ -54,7 +54,7 @@ namespace NRedisStack
         /// <param name="graphName">The graph containing the saved procedure.</param>
         /// <param name="procedure">The procedure name.</param>
         /// <returns>A result set.</returns>
-        ResultSet CallProcedure(string graphName, string procedure);
+        Task<ResultSet> CallProcedureAsync(string graphName, string procedure);
 
         /// <summary>
         /// Call a saved procedure with parameters.
@@ -63,7 +63,7 @@ namespace NRedisStack
         /// <param name="procedure">The procedure name.</param>
         /// <param name="args">A collection of positional arguments.</param>
         /// <returns>A result set.</returns>
-        ResultSet CallProcedure(string graphName, string procedure, IEnumerable<string> args);
+        Task<ResultSet> CallProcedureAsync(string graphName, string procedure, IEnumerable<string> args);
 
         /// <summary>
         /// Call a saved procedure with parameters.
@@ -73,7 +73,7 @@ namespace NRedisStack
         /// <param name="args">A collection of positional arguments.</param>
         /// <param name="kwargs">A collection of keyword arguments.</param>
         /// <returns>A result set.</returns>
-        ResultSet CallProcedure(string graphName, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs);
+        Task<ResultSet> CallProcedureAsync(string graphName, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs);
 
         /// <summary>
         /// Delete an existing graph.
@@ -81,7 +81,7 @@ namespace NRedisStack
         /// <param name="graphName">The graph to delete.</param>
         /// <returns>A result set.</returns>
         /// <remarks><seealso href="https://redis.io/commands/graph.delete"/></remarks>
-        ResultSet Delete(string graphName);
+        Task<ResultSet> DeleteAsync(string graphName);
 
         /// <summary>
         /// Constructs a query execution plan but does not run it. Inspect this execution plan to better understand how your
@@ -91,7 +91,7 @@ namespace NRedisStack
         /// <param name="query">The query.</param>
         /// <returns>String representation of a query execution plan.</returns>
         /// <remarks><seealso href="https://redis.io/commands/graph.explain"/></remarks>
-        IReadOnlyList<string> Explain(string graphName, string query);
+        Task<IReadOnlyList<string>> ExplainAsync(string graphName, string query);
 
         /// <summary>
         /// Executes a query and produces an execution plan augmented with metrics for each operation's execution.
@@ -102,14 +102,14 @@ namespace NRedisStack
         /// <returns>String representation of a query execution plan,
         /// with details on results produced by and time spent in each operation.</returns>
         /// <remarks><seealso href="https://redis.io/commands/graph.profile"/></remarks>
-        IReadOnlyList<string> Profile(string graphName, string query, long? timeout = null);
+        Task<IReadOnlyList<string>> ProfileAsync(string graphName, string query, long? timeout = null);
 
         /// <summary>
         /// Lists all graph keys in the keyspace.
         /// </summary>
         /// <returns>List of all graph keys in the keyspace.</returns>
         /// <remarks><seealso href="https://redis.io/commands/graph.list"/></remarks>
-        IReadOnlyList<string> List();
+        Task<IReadOnlyList<string>> ListAsync();
 
         /// <summary>
         /// Set the value of a RedisGraph configuration parameter.
@@ -118,7 +118,7 @@ namespace NRedisStack
         /// <param name="value">Value to set.</param>
         /// <returns><see langword="true"/> if executed correctly, error otherwise</returns>
         /// <remarks><seealso href="https://redis.io/commands/graph.config-set"/></remarks>
-        bool ConfigSet(string configName, object value);
+        Task<bool> ConfigSetAsync(string configName, object value);
 
         /// <summary>
         /// Set the value of a RedisGraph configuration parameter.
@@ -126,7 +126,7 @@ namespace NRedisStack
         /// <param name="configName">The config name.</param>
         /// <returns>Dictionary of <string, object>.</returns>
         /// <remarks><seealso href="https://redis.io/commands/graph.config-get"/></remarks>
-        Dictionary<string, RedisResult> ConfigGet(string configName);
+        Task<Dictionary<string, RedisResult>> ConfigGetAsync(string configName);
 
         /// <summary>
         /// Returns a list containing up to 10 of the slowest queries issued against the given graph Name.
@@ -134,6 +134,6 @@ namespace NRedisStack
         /// <param name="graphName">The graph name.</param>
         /// <returns>Dictionary of <string, object>.</returns>
         /// <remarks><seealso href="https://redis.io/commands/graph.slowlog"/></remarks>
-        List<List<string>> Slowlog(string graphName);
+        Task<List<List<string>>> SlowlogAsync(string graphName);
     }
 }

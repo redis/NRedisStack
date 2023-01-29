@@ -1806,7 +1806,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             "vec",
             "VECTOR",
             "FLAT",
-            "1",
+            "2",
             "dim",
             "10"
         };
@@ -1874,6 +1874,40 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var ft = db.FT();
         Assert.Equal(await ft._ListAsync(), new RedisResult[] { });
+    }
+
+    [Fact]
+    public async Task TestVectorCount_Issue70()
+    {
+        var schema = new Schema().AddVectorField("fieldTest", Schema.VectorField.VectorAlgo.HNSW, new Dictionary<string, object>()
+        {
+            ["TYPE"] = "FLOAT32",
+            ["DIM"] = "128",
+            ["DISTANCE_METRIC"] = "COSINE"
+        });
+
+        var actual = SearchCommandBuilder.Create("test", new FTCreateParams(), schema);
+        var expected = new List<object>()
+        {
+            "test",
+            "SCHEMA",
+            "fieldTest",
+            "VECTOR",
+            "HNSW",
+            "6",
+            "TYPE",
+            "FLOAT32",
+            "DIM",
+            "128",
+            "DISTANCE_METRIC",
+            "COSINE"
+        };
+        Assert.Equal("FT.CREATE", actual.Command);
+        for (int i = 0; i < actual.Args.Length; i++)
+        {
+            Assert.Equal(expected[i].ToString(), actual.Args[i].ToString());
+        }
+        Assert.Equal(expected.Count(), actual.Args.Length);
     }
 
     [Fact]
