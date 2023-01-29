@@ -6,7 +6,7 @@ using System.Text.Json;
 using NRedisStack.Search.FT.CREATE;
 using NRedisStack.Search;
 
-namespace NRedisStack.Tests.Bloom;
+namespace NRedisStack.Tests;
 
 public class PipelineTests : AbstractNRedisStackTest, IDisposable
 {
@@ -18,21 +18,6 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
     {
         redisFixture.Redis.GetDatabase().KeyDelete(key);
     }
-
-    // [Fact]
-    // public async Task TestPipeline()
-    // {
-    //     IDatabase db = redisFixture.Redis.GetDatabase();
-    //     db.Execute("FLUSHALL");
-    //     var pipeline = new Pipeline(db);
-
-    //     pipeline.Db.StringSetAsync("a", "a1");
-    //     pipeline.Db.StringGetAsync("a");
-    //     pipeline.Db.SortedSetAddAsync("z", new SortedSetEntry[] { new SortedSetEntry("z1", 1) });
-    //     pipeline.Db.SortedSetAddAsync("z", new SortedSetEntry[] { new SortedSetEntry("z2", 4) });
-    //     pipeline.Db.SortedSetIncrementAsync()
-    // }
-
 
     [Fact]
     public async Task TestModulsPipeline()
