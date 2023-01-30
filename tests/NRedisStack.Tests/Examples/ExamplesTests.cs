@@ -73,7 +73,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         await json.SetAsync("key", "$", new { name = "John", age = 30, city = "New York" });
         var john = await json.GetAsync("key");
     }
-
+    
     [Fact]
     public void PipelineExample()
     {
