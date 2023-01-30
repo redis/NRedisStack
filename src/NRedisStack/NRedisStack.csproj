@@ -7,13 +7,15 @@
 	<Authors>Redis Open Source</Authors>
 	<Owners>Redis OSS</Owners>
 	<Description>.Net Client for Redis Stack</Description>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
 	<Version>0.5.0</Version>
 	<ReleaseVersion>0.5.0</ReleaseVersion>
 	<PackageVersion>0.5.0</PackageVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="StackExchange.Redis" Version="2.6.45" />
+	<PackageReference Include="StackExchange.Redis" Version="2.6.45" />
+	<None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>
