@@ -17,8 +17,36 @@ jobs:
         uses: actions/setup-dotnet@v2
         with:
           dotnet-version: '7.0.x'
+
       - name: Build
         run: dotnet pack -c Release --output .
+
+      - name: determine if in fork
+        id: iamafork
+        run: |
+          amfork=`jq '.pull_request.head.repo.fork' $GITHUB_EVENT_PATH`
+          echo "am I fork: ${amfork}"
+          echo "IAMAFORK=$amfork" >> $GITHUB_OUTPUT
+
+      - name: Import the GPG key
+        if: steps.iamafork.outputs.IAMAFORK == 'false'
+        run: |
+          cat <(echo -e "${{ secrets.GPG_KEY }}") | gpg --batch --import
+
+      - name: get gpg_keygrip
+        if: steps.iamafork.outputs.IAMAFORK == 'false'
+        id: get_gpg_keygrip
+        run: |
+          keygrip=`gpg -k --with-keygrip |sed -n 5p|cut -d '=' -f 2-2`
+          echo "GPG_KEYGRIP=$keygrip" >> $GITHUB_OUTPUT
+
+      - name: Sign the package
+        if: steps.iamafork.outputs.IAMAFORK == 'false'
+        run: |
+            echo allow-preset-passphrase > ~/.gnupg/gpg-agent.conf
+            gpg-connect-agent reloadagent /bye
+            /usr/lib/gnupg/gpg-preset-passphrase -P '${{ secrets.GPG_PASSWORD }}' -c --preset ${{ steps.get_gpg_keygrip.outputs.GPG_KEYGRIP }}
+            gpg --detach-sign NRedisStack*.nupkg
 
       - name: Publish
         uses: alirezanet/publish-nuget@v3.0.3

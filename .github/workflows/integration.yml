@@ -75,5 +75,3 @@ jobs:
             gpg-connect-agent reloadagent /bye
             /usr/lib/gnupg/gpg-preset-passphrase -P '${{ secrets.GPG_PASSWORD }}' -c --preset ${{ steps.get_gpg_keygrip.outputs.GPG_KEYGRIP }}
             gpg --detach-sign NRedisStack*.nupkg
-
-
