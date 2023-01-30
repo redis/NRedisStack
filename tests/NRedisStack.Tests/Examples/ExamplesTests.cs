@@ -4,6 +4,7 @@ using NRedisStack.RedisStackCommands;
 using Moq;
 using NRedisStack.Search.FT.CREATE;
 using NRedisStack.Search;
+using NRedisStack.DataTypes;
 
 namespace NRedisStack.Tests.Bloom;
 
@@ -131,7 +132,50 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public async Task PipelineWithAsync()
     {
+        // Connect to the Redis server
+        var redis = ConnectionMultiplexer.Connect("localhost");
 
+        // Get a reference to the database
+        var db = redis.GetDatabase();
+        var ts = db.TS();
+
+        // Setup pipeline connection
+        var pipeline = new Pipeline(redis);
+
+        // create metedata lables for time-series.
+        TimeSeriesLabel label1 = new TimeSeriesLabel("temp", "TLV");
+        TimeSeriesLabel label2 = new TimeSeriesLabel("temp", "JLM");
+        var labels1 = new List<TimeSeriesLabel> { label1 };
+        var labels2 = new List<TimeSeriesLabel> { label2 };
+
+        //create a new time-series.
+        pipeline.Ts.CreateAsync("temp:TLV", labels: labels1);
+        pipeline.Ts.CreateAsync("temp:JLM", labels: labels2);
+
+        //adding multiple sequenece of time-series data.
+        List<(string, TimeStamp, double)> sequence1 = new List<(string, TimeStamp, double)>()
+        {
+            ("temp:TLV",1000,30),
+            ("temp:TLV", 1010 ,35),
+            ("temp:TLV", 1020, 9999),
+            ("temp:TLV", 1030, 40)
+        };
+        List<(string, TimeStamp, double)> sequence2 = new List<(string, TimeStamp, double)>()
+        {
+            ("temp:JLM",1005,30),
+            ("temp:JLM", 1015 ,35),
+            ("temp:JLM", 1025, 9999),
+            ("temp:JLM", 1035, 40)
+        };
+
+        // Adding mutiple samples to mutiple series.
+        pipeline.Ts.MAddAsync(sequence1);
+        pipeline.Ts.MAddAsync(sequence2);
+
+        pipeline.Execute();
+
+        // get only the location label for each last sample, use SELECTED_LABELS.
+        var respons = await ts.MGetAsync(new List<string> { "temp=JLM" }, selectedLabels: new List<string> { "location" });
     }
 
     [Fact]
