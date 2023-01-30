@@ -73,4 +73,70 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         await json.SetAsync("key", "$", new { name = "John", age = 30, city = "New York" });
         var john = await json.GetAsync("key");
     }
+
+    [Fact]
+    public void PipelineExample()
+    {
+        //Setup pipeline connection
+        var pipeline = new Pipeline(ConnectionMultiplexer.Connect("localhost"));
+
+        // Add JsonSet to pipeline
+        pipeline.Json.SetAsync("person", "$", new { name = "John", age = 30, city = "New York", nicknames = new[] { "John", "Johny", "Jo" } });
+
+        // Inc age by 2 
+        pipeline.Json.NumIncrbyAsync("person", "$.age", 2);
+
+        // Clear the nicknames from the Json
+        pipeline.Json.ClearAsync("person", "$.nicknames");
+
+        // Del the nicknames
+        pipeline.Json.DelAsync("person", "$.nicknames");
+
+        // Get the Json response
+        var getResponse = pipeline.Json.GetAsync("person");
+
+        // Execute the pipeline
+        pipeline.Execute();
+    }
+
+    [Fact]
+    public void JsonWithSearchPipeline()
+    {
+        // Setup pipeline connection
+        var pipeline = new Pipeline(ConnectionMultiplexer.Connect("localhost"));
+
+        // Add JsonSet to pipeline
+        pipeline.Json.SetAsync("person:01", "$", new { name = "John", age = 30, city = "New York" });
+        pipeline.Json.SetAsync("person:02", "$", new { name = "Joy", age = 25, city = "Los Angeles" });
+        pipeline.Json.SetAsync("person:03", "$", new { name = "Mark", age = 21, city = "Chicago" });
+        pipeline.Json.SetAsync("person:04", "$", new { name = "Steve", age = 24, city = "Phoenix" });
+        pipeline.Json.SetAsync("person:05", "$", new { name = "Michael", age = 55, city = "San Antonio" });
+
+        // Create the schema to index first and age as a numeric field
+        var schema = new Schema().AddTextField("name").AddNumericField("age", true).AddTagField("city");
+
+        // Filter the index to only include Jsons and prefix of person
+        var parameters = FTCreateParams.CreateParams().On(Literals.Enums.IndexDataType.JSON).Prefix("person:");
+
+        // Create the index via pipeline
+        pipeline.Ft.CreateAsync("person-idx", parameters, schema);
+
+        // Search for all indexed person records
+        var getAllPersons = pipeline.Ft.SearchAsync("person-idx", new Query());
+
+        // execute the pipeline
+        pipeline.Execute();
+    }
+
+    [Fact]
+    public async Task PipelineWithAsync()
+    {
+
+    }
+
+    [Fact]
+    public void TransactionExample()
+    {
+        // implementation for transaction
+    }
 }
