@@ -69,6 +69,6 @@ jobs:
             echo allow-preset-passphrase > ~/.gnupg/gpg-agent.conf
             gpg-connect-agent reloadagent /bye
             /usr/lib/gnupg/gpg-preset-passphrase -P '${{ secrets.GPG_PASSWORD }}' -c --preset ${{ steps.get_gpg_keygrip.outputs.GPG_KEYGRIP }}
-            gpg --detch-sign NRedisStack*.nupkg
+            gpg --detach-sign NRedisStack*.nupkg
 
 
