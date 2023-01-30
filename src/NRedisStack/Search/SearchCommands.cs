@@ -5,10 +5,10 @@ using NRedisStack.Search.FT.CREATE;
 using StackExchange.Redis;
 namespace NRedisStack
 {
-    public class SearchCommands : ISearchCommands
+    public class SearchCommands : SearchCommandsAsync, ISearchCommands
     {
         IDatabase _db;
-        public SearchCommands(IDatabase db)
+        public SearchCommands(IDatabase db) : base(db)
         {
             _db = db;
         }
@@ -17,12 +17,6 @@ namespace NRedisStack
         public RedisResult[] _List()
         {
             return _db.Execute(SearchCommandBuilder._List()).ToArray();
-        }
-
-        /// <inheritdoc/>
-        public async Task<RedisResult[]> _ListAsync()
-        {
-            return (await _db.ExecuteAsync(SearchCommandBuilder._List())).ToArray();
         }
 
         /// <inheritdoc/>
@@ -42,32 +36,9 @@ namespace NRedisStack
         }
 
         /// <inheritdoc/>
-        public async Task<AggregationResult> AggregateAsync(string index, AggregationRequest query)
-        {
-
-            var result = await _db.ExecuteAsync(SearchCommandBuilder.Aggregate(index, query));
-            if (query.IsWithCursor())
-            {
-                var results = (RedisResult[])result;
-
-                return new AggregationResult(results[0], (long)results[1]);
-            }
-            else
-            {
-                return new AggregationResult(result);
-            }
-        }
-
-        /// <inheritdoc/>
         public bool AliasAdd(string alias, string index)
         {
             return _db.Execute(SearchCommandBuilder.AliasAdd(alias, index)).OKtoBoolean();
-        }
-
-        /// <inheritdoc/>
-        public async Task<bool> AliasAddAsync(string alias, string index)
-        {
-            return (await _db.ExecuteAsync(SearchCommandBuilder.AliasAdd(alias, index))).OKtoBoolean();
         }
 
         /// <inheritdoc/>
@@ -77,21 +48,9 @@ namespace NRedisStack
         }
 
         /// <inheritdoc/>
-        public async Task<bool> AliasDelAsync(string alias)
-        {
-            return (await _db.ExecuteAsync(SearchCommandBuilder.AliasDel(alias))).OKtoBoolean();
-        }
-
-        /// <inheritdoc/>
         public bool AliasUpdate(string alias, string index)
         {
             return _db.Execute(SearchCommandBuilder.AliasUpdate(alias, index)).OKtoBoolean();
-        }
-
-        /// <inheritdoc/>
-        public async Task<bool> AliasUpdateAsync(string alias, string index)
-        {
-            return (await _db.ExecuteAsync(SearchCommandBuilder.AliasUpdate(alias, index))).OKtoBoolean();
         }
 
         /// <inheritdoc/>
@@ -101,21 +60,9 @@ namespace NRedisStack
         }
 
         /// <inheritdoc/>
-        public async Task<bool> AlterAsync(string index, Schema schema, bool skipInitialScan = false)
-        {
-            return (await _db.ExecuteAsync(SearchCommandBuilder.Alter(index, schema, skipInitialScan))).OKtoBoolean();
-        }
-
-        /// <inheritdoc/>
         public Dictionary<string, string> ConfigGet(string option)
         {
             return _db.Execute(SearchCommandBuilder.ConfigGet(option)).ToConfigDictionary();
-        }
-
-        /// <inheritdoc/>
-        public async Task<Dictionary<string, string>> ConfigGetAsync(string option)
-        {
-            return (await _db.ExecuteAsync(SearchCommandBuilder.ConfigGet(option))).ToConfigDictionary();
         }
 
         /// <inheritdoc/>
@@ -125,33 +72,15 @@ namespace NRedisStack
         }
 
         /// <inheritdoc/>
-        public async Task<bool> ConfigSetAsync(string option, string value)
-        {
-            return (await _db.ExecuteAsync(SearchCommandBuilder.ConfigSet(option, value))).OKtoBoolean();
-        }
-
-        /// <inheritdoc/>
         public bool Create(string indexName, FTCreateParams parameters, Schema schema)
         {
             return _db.Execute(SearchCommandBuilder.Create(indexName, parameters, schema)).OKtoBoolean();
         }
 
         /// <inheritdoc/>
-        public async Task<bool> CreateAsync(string indexName, FTCreateParams parameters, Schema schema)
-        {
-            return (await _db.ExecuteAsync(SearchCommandBuilder.Create(indexName, parameters, schema))).OKtoBoolean();
-        }
-
-        /// <inheritdoc/>
         public bool CursorDel(string indexName, long cursorId)
         {
             return _db.Execute(SearchCommandBuilder.CursorDel(indexName, cursorId)).OKtoBoolean();
-        }
-
-        /// <inheritdoc/>
-        public async Task<bool> CursorDelAsync(string indexName, long cursorId)
-        {
-            return (await _db.ExecuteAsync(SearchCommandBuilder.CursorDel(indexName, cursorId))).OKtoBoolean();
         }
 
         /// <inheritdoc/>
@@ -162,22 +91,9 @@ namespace NRedisStack
         }
 
         /// <inheritdoc/>
-        public async Task<AggregationResult> CursorReadAsync(string indexName, long cursorId, int? count = null)
-        {
-            var resp = (await _db.ExecuteAsync(SearchCommandBuilder.CursorRead(indexName, cursorId, count))).ToArray();
-            return new AggregationResult(resp[0], (long)resp[1]);
-        }
-
-        /// <inheritdoc/>
         public long DictAdd(string dict, params string[] terms)
         {
             return _db.Execute(SearchCommandBuilder.DictAdd(dict, terms)).ToLong();
-        }
-
-        /// <inheritdoc/>
-        public async Task<long> DictAddAsync(string dict, params string[] terms)
-        {
-            return (await _db.ExecuteAsync(SearchCommandBuilder.DictAdd(dict, terms))).ToLong();
         }
 
         /// <inheritdoc/>
@@ -187,21 +103,9 @@ namespace NRedisStack
         }
 
         /// <inheritdoc/>
-        public async Task<long> DictDelAsync(string dict, params string[] terms)
-        {
-            return (await _db.ExecuteAsync(SearchCommandBuilder.DictDel(dict, terms))).ToLong();
-        }
-
-        /// <inheritdoc/>
         public RedisResult[] DictDump(string dict)
         {
             return _db.Execute(SearchCommandBuilder.DictDump(dict)).ToArray();
-        }
-
-        /// <inheritdoc/>
-        public async Task<RedisResult[]> DictDumpAsync(string dict)
-        {
-            return (await _db.ExecuteAsync(SearchCommandBuilder.DictDump(dict))).ToArray();
         }
 
         /// <inheritdoc/>
@@ -211,21 +115,9 @@ namespace NRedisStack
         }
 
         /// <inheritdoc/>
-        public async Task<bool> DropIndexAsync(string indexName, bool dd = false)
-        {
-            return (await _db.ExecuteAsync(SearchCommandBuilder.DropIndex(indexName, dd))).OKtoBoolean();
-        }
-
-        /// <inheritdoc/>
         public string Explain(string indexName, Query q)
         {
             return _db.Execute(SearchCommandBuilder.Explain(indexName, q)).ToString();
-        }
-
-        /// <inheritdoc/>
-        public async Task<string> ExplainAsync(string indexName, Query q)
-        {
-            return (await _db.ExecuteAsync(SearchCommandBuilder.Explain(indexName, q))).ToString();
         }
 
         /// <inheritdoc/>
@@ -235,18 +127,8 @@ namespace NRedisStack
         }
 
         /// <inheritdoc/>
-        public async Task<RedisResult[]> ExplainCliAsync(string indexName, Query q)
-        {
-            return (await _db.ExecuteAsync(SearchCommandBuilder.ExplainCli(indexName, q))).ToArray();
-        }
-
-        /// <inheritdoc/>
         public InfoResult Info(RedisValue index) =>
         new InfoResult(_db.Execute(SearchCommandBuilder.Info(index)));
-
-        /// <inheritdoc/>
-        public async Task<InfoResult> InfoAsync(RedisValue index) =>
-        new InfoResult(await _db.ExecuteAsync(SearchCommandBuilder.Info(index)));
 
         // TODO: FT.PROFILE (jedis doesn't have it)
 
@@ -254,14 +136,7 @@ namespace NRedisStack
         public SearchResult Search(string indexName, Query q)
         {
             var resp = _db.Execute(SearchCommandBuilder.Search(indexName, q)).ToArray();
-            return new SearchResult(resp, !q.NoContent, q.WithScores, q.WithPayloads, q.ExplainScore);
-        }
-
-        /// <inheritdoc/>
-        public async Task<SearchResult> SearchAsync(string indexName, Query q)
-        {
-            var resp = (await _db.ExecuteAsync(SearchCommandBuilder.Search(indexName, q))).ToArray();
-            return new SearchResult(resp, !q.NoContent, q.WithScores, q.WithPayloads, q.ExplainScore);
+            return new SearchResult(resp, !q.NoContent, q.WithScores, q.WithPayloads/*, q.ExplainScore*/);
         }
 
         /// <inheritdoc/>
@@ -281,37 +156,13 @@ namespace NRedisStack
         // TODO: FT.SPELLCHECK (jedis doesn't have it)
 
         /// <inheritdoc/>
-        public async Task<Dictionary<string, List<string>>> SynDumpAsync(string indexName)
-        {
-            var resp = (await _db.ExecuteAsync(SearchCommandBuilder.SynDump(indexName))).ToArray();
-            var result = new Dictionary<string, List<string>>();
-            for (int i = 0; i < resp.Length; i += 2)
-            {
-                var term = resp[i].ToString();
-                var synonyms = (resp[i + 1]).ToArray().Select(x => x.ToString()).ToList(); // TODO: consider leave synonyms as RedisValue[]
-                result.Add(term, synonyms);
-            }
-            return result;
-        }
-
-        /// <inheritdoc/>
         public bool SynUpdate(string indexName, string synonymGroupId, bool skipInitialScan = false, params string[] terms)
         {
             return _db.Execute(SearchCommandBuilder.SynUpdate(indexName, synonymGroupId, skipInitialScan, terms)).OKtoBoolean();
         }
 
         /// <inheritdoc/>
-        public async Task<bool> SynUpdateAsync(string indexName, string synonymGroupId, bool skipInitialScan = false, params string[] terms)
-        {
-            return (await _db.ExecuteAsync(SearchCommandBuilder.SynUpdate(indexName, synonymGroupId, skipInitialScan, terms))).OKtoBoolean();
-        }
-
-        /// <inheritdoc/>
         public RedisResult[] TagVals(string indexName, string fieldName) => //TODO: consider return Set
         _db.Execute(SearchCommandBuilder.TagVals(indexName, fieldName)).ToArray();
-
-        /// <inheritdoc/>
-        public async Task<RedisResult[]> TagValsAsync(string indexName, string fieldName) => //TODO: consider return Set
-        (await _db.ExecuteAsync(SearchCommandBuilder.TagVals(indexName, fieldName))).ToArray();
     }
 }

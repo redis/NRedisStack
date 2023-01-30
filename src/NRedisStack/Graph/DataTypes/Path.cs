@@ -20,12 +20,6 @@ namespace NRedisStack.Graph.DataTypes
             Edges = new ReadOnlyCollection<Edge>(edges);
         }
 
-
-        /// <summary>
-        /// How many edges exist on this path.
-        /// </summary>
-        public int Length => Edges.Count;
-
         /// <summary>
         /// Overriden `Equals` method that will consider the equality of the Nodes and Edges between two paths.
         /// </summary>

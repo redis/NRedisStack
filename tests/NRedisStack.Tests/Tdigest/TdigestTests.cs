@@ -40,7 +40,15 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         Assert.True(tdigest.Create(key));
 
         var info = tdigest.Info(key);
+        Assert.Equal(610, info.Capacity);
         Assert.Equal(100, info.Compression);
+        Assert.Equal(9768, info.MemoryUsage);
+        Assert.Equal(0, info.MergedNodes);
+        Assert.Equal(0, info.MergedWeight);
+        Assert.Equal(0, info.Observations);
+        Assert.Equal(0, info.TotalCompressions);
+        Assert.Equal(0, info.UnmergedWeight);
+        Assert.Equal(0, info.UnmergedNodes);
     }
 
     [Fact]
@@ -53,7 +61,15 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await tdigest.CreateAsync(key));
 
         var info = await tdigest.InfoAsync(key);
+        Assert.Equal(610, info.Capacity);
         Assert.Equal(100, info.Compression);
+        Assert.Equal(9768, info.MemoryUsage);
+        Assert.Equal(0, info.MergedNodes);
+        Assert.Equal(0, info.MergedWeight);
+        Assert.Equal(0, info.Observations);
+        Assert.Equal(0, info.TotalCompressions);
+        Assert.Equal(0, info.UnmergedWeight);
+        Assert.Equal(0, info.UnmergedNodes);
     }
 
     [Fact]

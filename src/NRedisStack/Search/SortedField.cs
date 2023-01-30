@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace NRedisStack.Search.Aggregation
+﻿namespace NRedisStack.Search.Aggregation
 {
     public class SortedField
     {
@@ -13,7 +11,7 @@ namespace NRedisStack.Search.Aggregation
         public string FieldName { get; }
         public SortOrder Order { get; }
 
-        public SortedField(String fieldName, SortOrder order)
+        public SortedField(String fieldName, SortOrder order = SortOrder.ASC)
         {
             this.FieldName = fieldName;
             this.Order = order;

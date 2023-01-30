@@ -31,7 +31,7 @@ namespace NRedisStack
             return db.Execute(command.Command, command.Args);
         }
 
-        public async static Task<RedisResult> ExecuteAsync(this IDatabase db, SerializedCommand command)
+        public async static Task<RedisResult> ExecuteAsync(this IDatabaseAsync db, SerializedCommand command)
         {
             return await db.ExecuteAsync(command.Command, command.Args);
         }

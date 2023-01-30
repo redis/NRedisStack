@@ -8,12 +8,12 @@ namespace NRedisStack.CuckooFilter.DataTypes
     {
         public long Size { get; private set; }
         public long NumberOfBuckets { get; private set; }
-        public long NumberOfFilter { get; private set; }
+        public long NumberOfFilters { get; private set; }
         public long NumberOfItemsInserted { get; private set; }
         public long NumberOfItemsDeleted { get; private set; }
         public long BucketSize { get; private set; }
         public long ExpansionRate { get; private set; }
-        public long MaxIteration { get; private set; }
+        public long MaxIterations { get; private set; }
 
         internal CuckooInformation(long size, long numberOfBuckets, long numberOfFilter,
                                    long numberOfItemsInserted, long numberOfItemsDeleted,
@@ -21,12 +21,12 @@ namespace NRedisStack.CuckooFilter.DataTypes
         {
             Size = size;
             NumberOfBuckets = numberOfBuckets;
-            NumberOfFilter = numberOfFilter;
+            NumberOfFilters = numberOfFilter;
             NumberOfItemsInserted = numberOfItemsInserted;
             NumberOfItemsDeleted = numberOfItemsDeleted;
             BucketSize = bucketSize;
             ExpansionRate = expansionRate;
-            MaxIteration = maxIteration;
+            MaxIterations = maxIteration;
         }
     }
 }

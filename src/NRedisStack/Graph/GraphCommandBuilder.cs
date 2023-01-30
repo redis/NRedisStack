@@ -1,6 +1,5 @@
 using NRedisStack.Literals;
 using NRedisStack.RedisStackCommands;
-using static NRedisStack.Graph.RedisGraphUtilities;
 
 namespace NRedisStack
 {
@@ -9,28 +8,12 @@ namespace NRedisStack
         internal static readonly object CompactQueryFlag = "--COMPACT";
 
         /// <inheritdoc/>
-        public static SerializedCommand Query(string graphName, string query, IDictionary<string, object> parameters, long? timeout = null)
-        {
-            var preparedQuery = PrepareQuery(query, parameters);
-
-            return Query(graphName, preparedQuery, timeout);
-        }
-
-        /// <inheritdoc/>
         public static SerializedCommand Query(string graphName, string query, long? timeout = null)
         {
             var args = (timeout == null) ? new List<object>(3) { graphName, query, CompactQueryFlag }
                                          : new List<object>(5) { graphName, query, CompactQueryFlag, GraphArgs.TIMEOUT, timeout };
 
             return new SerializedCommand(GRAPH.QUERY, args);
-        }
-
-        /// <inheritdoc/>
-        public static SerializedCommand RO_Query(string graphName, string query, IDictionary<string, object> parameters, long? timeout = null)
-        {
-            var preparedQuery = PrepareQuery(query, parameters);
-
-            return RO_Query(graphName, preparedQuery, timeout);
         }
 
         /// <inheritdoc/>

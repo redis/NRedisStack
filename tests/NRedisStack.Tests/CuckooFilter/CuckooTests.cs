@@ -22,7 +22,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var cf = db.CF();
-        Assert.True(cf.Reserve(key, 100L));
+        Assert.True(cf.Reserve(key, 100L, maxIterations: 20, expansion: 1));
         Assert.Throws<RedisServerException>(() => cf.Reserve(key, 100L));
 
         Assert.True((cf.Add(key, "item1")));
@@ -36,7 +36,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var cf = db.CF();
-        Assert.True(await cf.ReserveAsync(key, 100L));
+        Assert.True(await cf.ReserveAsync(key, 100L, maxIterations: 20, expansion: 1));
         Assert.ThrowsAsync<RedisServerException>(async () => await cf.ReserveAsync(key, 100L));
 
         Assert.True(await (cf.AddAsync(key, "item1")));
@@ -193,7 +193,14 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         var info = cf.Info(key);
 
         Assert.NotNull(info);
+        Assert.Equal(info.BucketSize, (long)2);
+        Assert.Equal(info.ExpansionRate, (long)1);
+        Assert.Equal(info.MaxIterations, (long)20);
+        Assert.Equal(info.NumberOfBuckets, (long)512);
+        Assert.Equal(info.NumberOfFilters, (long)1);
+        Assert.Equal(info.NumberOfItemsDeleted, (long)0);
         Assert.Equal(info.NumberOfItemsInserted, (long)1);
+        Assert.Equal(info.Size, (long)1080);
 
         Assert.Throws<RedisServerException>(() => cf.Info("notExistKey"));
     }
@@ -209,7 +216,16 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         var info = await cf.InfoAsync(key);
 
         Assert.NotNull(info);
+        Assert.Equal(info.BucketSize, (long)2);
+        Assert.Equal(info.ExpansionRate, (long)1);
+        Assert.Equal(info.MaxIterations, (long)20);
+        Assert.Equal(info.NumberOfBuckets, (long)512);
+        Assert.Equal(info.NumberOfFilters, (long)1);
+        Assert.Equal(info.NumberOfItemsDeleted, (long)0);
         Assert.Equal(info.NumberOfItemsInserted, (long)1);
+        Assert.Equal(info.Size, (long)1080);
+
+
 
         await Assert.ThrowsAsync<RedisServerException>(() => cf.InfoAsync("notExistKey"));
     }
@@ -255,7 +271,9 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
 
         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
 
-        var result = cf.InsertNX(key, items);
+        Assert.Throws<RedisServerException>(() => cf.InsertNX(key, items, 1024, true));
+        var result = cf.InsertNX(key, items, 1024);
+        cf.InsertNX(key, items, 10245, true);
         var trues = new bool[] { true, true, true };
         Assert.Equal(result, trues);
 
@@ -267,6 +285,9 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
 
         result = cf.InsertNX(key, items);
         Assert.Equal(result, new bool[] { false, false, false });
+
+        // test empty items:
+        Assert.Throws<ArgumentOutOfRangeException>(() => cf.InsertNX(key, new RedisValue[]{}));
     }
 
     [Fact]
@@ -278,7 +299,9 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
 
         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
 
-        var result = await cf.InsertNXAsync(key, items);
+        Assert.ThrowsAsync<RedisServerException>(async () => await cf.InsertNXAsync(key, items, 1024, true));
+        var result = await cf.InsertNXAsync(key, items, 1024);
+        await cf.InsertNXAsync(key, items, 10245, true);
         var trues = new bool[] { true, true, true };
         Assert.Equal(result, trues);
 
@@ -290,6 +313,9 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
 
         result = await cf.InsertNXAsync(key, items);
         Assert.Equal(result, new bool[] { false, false, false });
+
+        // test empty items:
+        Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await cf.InsertNXAsync(key, new RedisValue[]{}));
     }
 
     [Fact]
