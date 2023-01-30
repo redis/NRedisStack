@@ -34,7 +34,8 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
-        run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
+        run: |
+          dotnet build --no-restore /p:ContinuousIntegrationBuild=true
       - name: Test
         run: dotnet test --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 
@@ -62,6 +63,10 @@ jobs:
         run: |
           keygrip=`gpg -k --with-keygrip |sed -n 5p|cut -d '=' -f 2-2`
           echo "GPG_KEYGRIP=$keygrip" >> $GITHUB_OUTPUT
+
+      - name: Build the package
+        run: |
+          dotnet pack -C release --output .
 
       - name: Sign the package
         if: steps.iamafork.outputs.IAMAFORK == 'false'
