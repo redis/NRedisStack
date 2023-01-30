@@ -10,6 +10,7 @@
 	<Version>0.4.1</Version>
 	<ReleaseVersion>0.4.1</ReleaseVersion>
 	<PackageVersion>0.4.1</PackageVersion>
+	<PackageReadmeFile>..\README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
