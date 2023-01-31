@@ -6,7 +6,7 @@ using NRedisStack.Search.FT.CREATE;
 using NRedisStack.Search;
 using NRedisStack.DataTypes;
 
-namespace NRedisStack.Tests.Bloom;
+namespace NRedisStack.Tests;
 
 public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 {
@@ -151,6 +151,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         // Setup pipeline connection
         var pipeline = new Pipeline(redis);
 
+
         // create metedata lables for time-series.
         TimeSeriesLabel label1 = new TimeSeriesLabel("temp", "TLV");
         TimeSeriesLabel label2 = new TimeSeriesLabel("temp", "JLM");
@@ -194,6 +195,11 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void TransactionExample()
     {
-        // implementation for transaction
+        var tran = new Transactions(ConnectionMultiplexer.Connect("localhost"));
+
+        tran.AddCondition(Condition.HashNotExists("profesor:5555", "UniqueID"));
+        tran.Db.HashSetAsync("profesor:5555", new HashEntry[] { new("first", "Albert"), new("last", "Blue"), new("age", "55") });
+        bool condition = tran.Execute();
+        Assert.True(condition);
     }
 }
