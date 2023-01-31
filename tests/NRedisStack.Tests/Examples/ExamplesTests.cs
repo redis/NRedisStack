@@ -98,12 +98,15 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
         // Execute the pipeline
         pipeline.Execute();
+        
+        // get the result back JSON
+        var result = getResponse.Result;
     }
 
     [Fact]
     public void JsonWithSearchPipeline()
     {
-        // Setup pipeline connection
+        //Setup pipeline connection
         var pipeline = new Pipeline(ConnectionMultiplexer.Connect("localhost"));
 
         // Add JsonSet to pipeline
@@ -127,6 +130,13 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
         // execute the pipeline
         pipeline.Execute();
+
+        // get the total count of people records that indexed.
+        var count =  getAllPersons.Result.TotalResults;
+
+        // Gets the first person form the result.
+        var firstPerson = getAllPersons.Result.Documents.FirstOrDefault();
+        // first person is John here.
     }
 
     [Fact]
@@ -137,7 +147,6 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
         // Get a reference to the database
         var db = redis.GetDatabase();
-        var ts = db.TS();
 
         // Setup pipeline connection
         var pipeline = new Pipeline(redis);
@@ -172,7 +181,11 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         pipeline.Ts.MAddAsync(sequence1);
         pipeline.Ts.MAddAsync(sequence2);
 
+        // execute the pipeline
         pipeline.Execute();
+
+        // Get a reference to the database and for time-series commands
+        var ts = db.TS();
 
         // get only the location label for each last sample, use SELECTED_LABELS.
         var respons = await ts.MGetAsync(new List<string> { "temp=JLM" }, selectedLabels: new List<string> { "location" });
