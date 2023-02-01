@@ -1,10 +1,11 @@
-using Xunit;
-using StackExchange.Redis;
-using NRedisStack.RedisStackCommands;
 using Moq;
-using NRedisStack.Search.FT.CREATE;
-using NRedisStack.Search;
 using NRedisStack.DataTypes;
+using NRedisStack.Literals.Enums;
+using NRedisStack.RedisStackCommands;
+using NRedisStack.Search;
+using NRedisStack.Search.FT.CREATE;
+using StackExchange.Redis;
+using Xunit;
 
 namespace NRedisStack.Tests;
 
@@ -74,33 +75,46 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         await json.SetAsync("key", "$", new { name = "John", age = 30, city = "New York" });
         var john = await json.GetAsync("key");
     }
-    
+
     [Fact]
     public void PipelineExample()
     {
-        //Setup pipeline connection
-        var pipeline = new Pipeline(ConnectionMultiplexer.Connect("localhost"));
+        // Connect to the Redis server and Setup 2 Pipelines
+
+        // Pipeline can get IDatabase for pipeline1
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        var pipeline1 = new Pipeline(db);
+
+        // Pipeline can get IConnectionMultiplexer for pipeline2
+        var redis = ConnectionMultiplexer.Connect("localhost");
+        var pipeline2 = new Pipeline(redis);
 
         // Add JsonSet to pipeline
-        pipeline.Json.SetAsync("person", "$", new { name = "John", age = 30, city = "New York", nicknames = new[] { "John", "Johny", "Jo" } });
+        pipeline1.Json.SetAsync("person", "$", new { name = "John", age = 30, city = "New York", nicknames = new[] { "John", "Johny", "Jo" } });
 
         // Inc age by 2 
-        pipeline.Json.NumIncrbyAsync("person", "$.age", 2);
+        pipeline1.Json.NumIncrbyAsync("person", "$.age", 2);
+
+        // Execute the pipeline1
+        pipeline1.Execute();
 
         // Clear the nicknames from the Json
-        pipeline.Json.ClearAsync("person", "$.nicknames");
+        pipeline2.Json.ClearAsync("person", "$.nicknames");
 
         // Del the nicknames
-        pipeline.Json.DelAsync("person", "$.nicknames");
+        pipeline2.Json.DelAsync("person", "$.nicknames");
 
         // Get the Json response
-        var getResponse = pipeline.Json.GetAsync("person");
+        var getResponse = pipeline2.Json.GetAsync("person");
 
-        // Execute the pipeline
-        pipeline.Execute();
-        
+        // Execute the pipeline2
+        pipeline2.Execute();
+
         // get the result back JSON
         var result = getResponse.Result;
+
+        //Assert the result
+        Assert.NotNull(result);
     }
 
     [Fact]
@@ -116,11 +130,11 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         pipeline.Json.SetAsync("person:04", "$", new { name = "Steve", age = 24, city = "Phoenix" });
         pipeline.Json.SetAsync("person:05", "$", new { name = "Michael", age = 55, city = "San Antonio" });
 
-        // Create the schema to index first and age as a numeric field
+        // Create the schema to index name as text field, age as a numeric field and city as tag field.
         var schema = new Schema().AddTextField("name").AddNumericField("age", true).AddTagField("city");
 
-        // Filter the index to only include Jsons and prefix of person
-        var parameters = FTCreateParams.CreateParams().On(Literals.Enums.IndexDataType.JSON).Prefix("person:");
+        // Filter the index to only include Jsons with prefix of person:
+        var parameters = FTCreateParams.CreateParams().On(IndexDataType.JSON).Prefix("person:");
 
         // Create the index via pipeline
         pipeline.Ft.CreateAsync("person-idx", parameters, schema);
@@ -132,11 +146,17 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         pipeline.Execute();
 
         // get the total count of people records that indexed.
-        var count =  getAllPersons.Result.TotalResults;
+        var count = getAllPersons.Result.TotalResults;
 
         // Gets the first person form the result.
         var firstPerson = getAllPersons.Result.Documents.FirstOrDefault();
         // first person is John here.
+
+        // Assert
+
+        Assert.Equal(5, count);
+
+        Assert.Equal("person:01", firstPerson?.Id);
     }
 
     [Fact]
@@ -190,6 +210,10 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
         // get only the location label for each last sample, use SELECTED_LABELS.
         var respons = await ts.MGetAsync(new List<string> { "temp=JLM" }, selectedLabels: new List<string> { "location" });
+
+        // Assert th respons
+        Assert.Equal(1, respons.Count);
+        Assert.Equal("temp=JLM", respons[0].key);
     }
 
     [Fact]
@@ -197,9 +221,9 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
     {
         var tran = new Transactions(ConnectionMultiplexer.Connect("localhost"));
 
-        tran.AddCondition(Condition.HashNotExists("profesor:5555", "UniqueID"));
+        tran.AddCondition(Condition.HashNotExists("profesor:5555", "first"));
         tran.Db.HashSetAsync("profesor:5555", new HashEntry[] { new("first", "Albert"), new("last", "Blue"), new("age", "55") });
-        bool condition = tran.Execute();
-        Assert.True(condition);
+        var condition = tran.ExecuteAsync();
+        Assert.True(condition.Result);
     }
 }

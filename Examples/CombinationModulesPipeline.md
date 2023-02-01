@@ -22,12 +22,12 @@ pipeline.Json.SetAsync("person:05", "$", new { name = "Michael", age = 55, city 
 ```
 
 ## Search
-Create the schema to index first and age as a numeric field
+Create the schema to index name as text field, age as a numeric field and city as tag field.
 ```csharp
 var schema = new Schema().AddTextField("name").AddNumericField("age", true).AddTagField("city");
 ```
 
-Filter the index to only include Jsons and prefix of person
+Filter the index to only include Jsons with prefix of person:
 ```csharp
 var parameters = FTCreateParams.CreateParams().On(Literals.Enums.IndexDataType.JSON).Prefix("person:");
 ```

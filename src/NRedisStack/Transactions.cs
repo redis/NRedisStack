@@ -1,9 +1,4 @@
 ﻿using StackExchange.Redis;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NRedisStack
 {
@@ -21,21 +16,19 @@ namespace NRedisStack
 
         private ITransaction _transaction;
 
-        public void AddCondition(Condition condition)
+        public ConditionResult AddCondition(Condition condition)
         {
-            _transaction.AddCondition(condition);
+           return _transaction.AddCondition(condition);
         }
 
         public bool Execute()
         {
-            var result = _transaction.Execute();
-            return result;
+            return _transaction.Execute();
         }
 
-        public bool ExecuteAsync()
+        public Task<bool> ExecuteAsync()
         {
-           var result = _transaction.ExecuteAsync();
-            return result.Result;
+            return _transaction.ExecuteAsync();
         }
 
 
