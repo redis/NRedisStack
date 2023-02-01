@@ -1,5 +1,6 @@
 ﻿using Moq;
 using StackExchange.Redis;
+using System.Text.Json;
 using Xunit;
 
 namespace NRedisStack.Tests
@@ -16,11 +17,20 @@ namespace NRedisStack.Tests
         }
 
         [Fact]
-        public async Task TestModulsTransactions()
+        public async Task TestJsonTransactions()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
             var transaction = new Transactions(db);
+            string jsonPerson = JsonSerializer.Serialize(new Person { Name = "Shachar", Age = 23 });
+            var setResponse = transaction.Json.SetAsync(key, "$", jsonPerson);
+            var getResponse = transaction.Json.GetAsync(key);
+
+            transaction.Execute();
+
+            Assert.Equal("True", setResponse.Result.ToString());
+            Assert.Equal("{\"Name\":\"Shachar\",\"Age\":23}", getResponse.Result.ToString());
+
         }
     }
 }
