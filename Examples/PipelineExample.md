@@ -1,46 +1,56 @@
 # Pipeline 
 ## An example of pipelines Redis Stack Redis commands (JSON.SET & JSON.CLEAR & JSON.GET)
 
-Connect to the Redis server:
+Connect to the Redis server and Setup 2 Pipelines
+
+Pipeline can get IDatabase for pipeline1
 ```csharp
-var redis = ConnectionMultiplexer.Connect("localhost");
+IDatabase db = redisFixture.Redis.GetDatabase();
+var pipeline1 = new Pipeline(db);
 ```
 
-Setup pipeline connection
+Pipeline can get IConnectionMultiplexer for pipeline2
 ```csharp
-var pipeline = new Pipeline(ConnectionMultiplexer.Connect("localhost"));
+var redis = ConnectionMultiplexer.Connect("localhost");
+var pipeline2 = new Pipeline(redis);
 ```
 
 Add JsonSet to pipeline
 ```csharp
-pipeline.Json.SetAsync("person", "$", new { name = "John", age = 30, city = "New York", nicknames = new[] { "John", "Johny", "Jo" } });
+pipeline1.Json.SetAsync("person", "$", new { name = "John", age = 30, city = "New York", nicknames = new[] { "John", "Johny", "Jo" } });
 ```
 
-Inc `age` by 2 
+Inc age by 2 
 ```csharp
-pipeline.Json.NumIncrbyAsync("person", "$.age", 2);
+pipeline1.Json.NumIncrbyAsync("person", "$.age", 2);
 ```
 
-Clear the `nicknames` from the Json
+Execute the pipeline1
 ```csharp
-pipeline.Json.ClearAsync("person", "$.nicknames");
+pipeline1.Execute();
 ```
 
-Del the `nicknames`
+Clear the nicknames from the Json
 ```csharp
-pipeline.Json.DelAsync("person", "$.nicknames");
+pipeline2.Json.ClearAsync("person", "$.nicknames");
+```
+
+Del the nicknames
+```csharp
+pipeline2.Json.DelAsync("person", "$.nicknames");
 ```
 
 Get the Json response
 ```csharp
-var getResponse = pipeline.Json.GetAsync("person");
+var getResponse = pipeline2.Json.GetAsync("person");
 ```
 
-Execute the pipeline
+Execute the pipeline2
 ```csharp
-pipeline.Execute();
+pipeline2.Execute();
 ```
-Get the result JSON 
+
+Get the result back JSON
 ```csharp
 var result = getResponse.Result;
 ```

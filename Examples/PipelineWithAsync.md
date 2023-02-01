@@ -1,7 +1,6 @@
 # Pipeline With Async
 ## An example of pipelines Redis Stack Redis commands (JSON.SET & JSON.CLEAR & JSON.GET)
 
-
 Connect to the Redis server
 ```csharp
 var redis = ConnectionMultiplexer.Connect("localhost");
@@ -17,7 +16,7 @@ Setup pipeline connection
 var pipeline = new Pipeline(redis);
 ```
 
-create metedata lables for time-series.
+Create metedata lables for time-series.
 ```csharp
 TimeSeriesLabel label1 = new TimeSeriesLabel("temp", "TLV");
 TimeSeriesLabel label2 = new TimeSeriesLabel("temp", "JLM");
@@ -25,13 +24,13 @@ var labels1 = new List<TimeSeriesLabel> { label1 };
 var labels2 = new List<TimeSeriesLabel> { label2 };
 ```
 
-create a new time-series.
+Create a new time-series.
 ```csharp
 pipeline.Ts.CreateAsync("temp:TLV", labels: labels1);
 pipeline.Ts.CreateAsync("temp:JLM", labels: labels2);
 ```
 
-adding multiple sequenece of time-series data.
+Adding multiple sequenece of time-series data.
 ```csharp
 List<(string, TimeStamp, double)> sequence1 = new List<(string, TimeStamp, double)>()
 {
@@ -64,7 +63,7 @@ Get a reference to the database and for time-series commands
 var ts = db.TS();
 ```
 
-get only the location label for each last sample, use SELECTED_LABELS.
+Get only the location label for each last sample, use SELECTED_LABELS.
 ```csharp
 var respons = await ts.MGetAsync(new List<string> { "temp=JLM" }, selectedLabels: new List<string> { "location" });
 ```
