@@ -28,6 +28,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
         // Get a reference to the database and for search commands:
         var db = redis.GetDatabase();
+        db.Execute("FLUSHALL");
         var ft = db.FT();
 
         // Use HSET to add a field-value pair to a hash
@@ -69,6 +70,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         // Connect to the Redis server
         var redis = await ConnectionMultiplexer.ConnectAsync("localhost");
         var db = redis.GetDatabase();
+        db.Execute("FLUSHALL");
         var json = db.JSON();
 
         // call async version of JSON.SET/GET
@@ -83,6 +85,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
         // Pipeline can get IDatabase for pipeline1
         IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
         var pipeline1 = new Pipeline(db);
 
         // Pipeline can get IConnectionMultiplexer for pipeline2
@@ -92,7 +95,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         // Add JsonSet to pipeline
         pipeline1.Json.SetAsync("person", "$", new { name = "John", age = 30, city = "New York", nicknames = new[] { "John", "Johny", "Jo" } });
 
-        // Inc age by 2 
+        // Increase age by 2
         pipeline1.Json.NumIncrbyAsync("person", "$.age", 2);
 
         // Execute the pipeline1
@@ -114,7 +117,8 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         var result = getResponse.Result;
 
         // Assert the result
-        Assert.NotNull(result);
+        var expected = "{\"name\":\"John\",\"age\":32,\"city\":\"New York\"}";
+        Assert.Equal(expected, result.ToString());
     }
 
     [Fact]
@@ -122,6 +126,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
     {
         //Setup pipeline connection
         var pipeline = new Pipeline(ConnectionMultiplexer.Connect("localhost"));
+        pipeline.Db.ExecuteAsync("FLUSHALL");
 
         // Add JsonSet to pipeline
         pipeline.Json.SetAsync("person:01", "$", new { name = "John", age = 30, city = "New York" });
@@ -146,16 +151,14 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         pipeline.Execute();
 
         // Get the total count of people records that indexed.
-        var count = getAllPersons.Result.TotalResults;
+        var getAllPersonsResult = getAllPersons.Result;
+        var count = getAllPersonsResult.TotalResults;
 
         // Gets the first person form the result.
-        var firstPerson = getAllPersons.Result.Documents.FirstOrDefault();
+        var firstPerson = getAllPersonsResult.Documents.FirstOrDefault();
         // first person is John here.
 
-        // Assert
-
         Assert.Equal(5, count);
-
         Assert.Equal("person:01", firstPerson?.Id);
     }
 
@@ -167,7 +170,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
         // Get a reference to the database
         var db = redis.GetDatabase();
-
+        db.Execute("FLUSHALL");
         // Setup pipeline connection
         var pipeline = new Pipeline(redis);
 

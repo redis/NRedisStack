@@ -1,4 +1,4 @@
-# Pipeline 
+# Pipeline
 ## An example of pipelines Redis Stack Redis commands (JSON.SET & JSON.CLEAR & JSON.GET)
 
 Connect to the Redis server and Setup 2 Pipelines
@@ -20,12 +20,12 @@ Add JsonSet to pipeline
 pipeline1.Json.SetAsync("person", "$", new { name = "John", age = 30, city = "New York", nicknames = new[] { "John", "Johny", "Jo" } });
 ```
 
-Inc age by 2 
+Increase age by 2
 ```csharp
 pipeline1.Json.NumIncrbyAsync("person", "$.age", 2);
 ```
 
-Execute the pipeline1
+Execute pipeline1
 ```csharp
 pipeline1.Execute();
 ```
@@ -35,7 +35,7 @@ Clear the nicknames from the Json
 pipeline2.Json.ClearAsync("person", "$.nicknames");
 ```
 
-Del the nicknames
+Delete the nicknames
 ```csharp
 pipeline2.Json.DelAsync("person", "$.nicknames");
 ```
@@ -45,12 +45,12 @@ Get the Json response
 var getResponse = pipeline2.Json.GetAsync("person");
 ```
 
-Execute the pipeline2
+Execute pipeline2
 ```csharp
 pipeline2.Execute();
 ```
 
-Get the result back JSON
+Get the result of getResponse
 ```csharp
 var result = getResponse.Result;
 ```

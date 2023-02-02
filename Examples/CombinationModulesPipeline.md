@@ -1,4 +1,4 @@
-# Combination modules Pipeline 
+# Combination modules Pipeline
 ## An example of pipelines mixing a pipeline with a combination of module commands with JSON & Search
 
 Connect to the Redis server:
@@ -29,7 +29,7 @@ var schema = new Schema().AddTextField("name").AddNumericField("age", true).AddT
 
 Filter the index to only include Jsons with prefix of person:
 ```csharp
-var parameters = FTCreateParams.CreateParams().On(Literals.Enums.IndexDataType.JSON).Prefix("person:");
+var parameters = FTCreateParams.CreateParams().On(IndexDataType.JSON).Prefix("person:");
 ```
 
 Create the index via pipeline
