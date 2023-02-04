@@ -4,6 +4,9 @@ namespace NRedisStack
 {
     public class Transactions
     {
+        private ITransaction _transaction;
+        public IDatabaseAsync Db => _transaction;
+
         public Transactions(IConnectionMultiplexer muxer)
         {
             _transaction = muxer.GetDatabase().CreateTransaction();
@@ -14,23 +17,11 @@ namespace NRedisStack
             _transaction = db.CreateTransaction();
         }
 
-        private ITransaction _transaction;
+        public ConditionResult AddCondition(Condition condition) =>  _transaction.AddCondition(condition);
 
-        public ConditionResult AddCondition(Condition condition)
-        {
-           return _transaction.AddCondition(condition);
-        }
+        public bool Execute(CommandFlags flags = CommandFlags.None) =>  _transaction.Execute(flags);
 
-        public bool Execute()
-        {
-            return _transaction.Execute();
-        }
-
-        public Task<bool> ExecuteAsync()
-        {
-            return _transaction.ExecuteAsync();
-        }
-
+        public Task<bool> ExecuteAsync(CommandFlags flags = CommandFlags.None) => _transaction.ExecuteAsync(flags);
 
         public IBloomCommandsAsync Bf => new BloomCommandsAsync(_transaction);
         public ICmsCommandsAsync Cms => new CmsCommandsAsync(_transaction);
@@ -41,8 +32,5 @@ namespace NRedisStack
         public ITdigestCommandsAsync Tdigest => new TdigestCommandsAsync(_transaction);
         public ITimeSeriesCommandsAsync Ts => new TimeSeriesCommandsAsync(_transaction);
         public ITopKCommandsAsync TopK => new TopKCommandsAsync(_transaction);
-
-        public IDatabaseAsync Db => _transaction;
-
     }
 }

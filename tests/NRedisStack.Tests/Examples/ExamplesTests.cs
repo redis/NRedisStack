@@ -5,6 +5,7 @@ using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
 using NRedisStack.Search.FT.CREATE;
 using StackExchange.Redis;
+using System;
 using Xunit;
 
 namespace NRedisStack.Tests;
@@ -28,6 +29,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
         // Get a reference to the database and for search commands:
         var db = redis.GetDatabase();
+        db.Execute("FLUSHALL");
         var ft = db.FT();
 
         // Use HSET to add a field-value pair to a hash
@@ -69,6 +71,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         // Connect to the Redis server
         var redis = await ConnectionMultiplexer.ConnectAsync("localhost");
         var db = redis.GetDatabase();
+        db.Execute("FLUSHALL");
         var json = db.JSON();
 
         // call async version of JSON.SET/GET
@@ -83,6 +86,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
         // Pipeline can get IDatabase for pipeline1
         IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
         var pipeline1 = new Pipeline(db);
 
         // Pipeline can get IConnectionMultiplexer for pipeline2
@@ -92,7 +96,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         // Add JsonSet to pipeline
         pipeline1.Json.SetAsync("person", "$", new { name = "John", age = 30, city = "New York", nicknames = new[] { "John", "Johny", "Jo" } });
 
-        // Inc age by 2 
+        // Increase age by 2
         pipeline1.Json.NumIncrbyAsync("person", "$.age", 2);
 
         // Execute the pipeline1
@@ -110,11 +114,12 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         // Execute the pipeline2
         pipeline2.Execute();
 
-        // get the result back JSON
+        // Get the result back JSON
         var result = getResponse.Result;
 
-        //Assert the result
-        Assert.NotNull(result);
+        // Assert the result
+        var expected = "{\"name\":\"John\",\"age\":32,\"city\":\"New York\"}";
+        Assert.Equal(expected, result.ToString());
     }
 
     [Fact]
@@ -122,6 +127,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
     {
         //Setup pipeline connection
         var pipeline = new Pipeline(ConnectionMultiplexer.Connect("localhost"));
+        pipeline.Db.ExecuteAsync("FLUSHALL");
 
         // Add JsonSet to pipeline
         pipeline.Json.SetAsync("person:01", "$", new { name = "John", age = 30, city = "New York" });
@@ -145,17 +151,15 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         // execute the pipeline
         pipeline.Execute();
 
-        // get the total count of people records that indexed.
-        var count = getAllPersons.Result.TotalResults;
+        // Get the total count of people records that indexed.
+        var getAllPersonsResult = getAllPersons.Result;
+        var count = getAllPersonsResult.TotalResults;
 
         // Gets the first person form the result.
-        var firstPerson = getAllPersons.Result.Documents.FirstOrDefault();
+        var firstPerson = getAllPersonsResult.Documents.FirstOrDefault();
         // first person is John here.
 
-        // Assert
-
         Assert.Equal(5, count);
-
         Assert.Equal("person:01", firstPerson?.Id);
     }
 
@@ -167,22 +171,22 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
         // Get a reference to the database
         var db = redis.GetDatabase();
-
+        db.Execute("FLUSHALL");
         // Setup pipeline connection
         var pipeline = new Pipeline(redis);
 
 
-        // create metedata lables for time-series.
+        // Create metedata lables for time-series.
         TimeSeriesLabel label1 = new TimeSeriesLabel("temp", "TLV");
         TimeSeriesLabel label2 = new TimeSeriesLabel("temp", "JLM");
         var labels1 = new List<TimeSeriesLabel> { label1 };
         var labels2 = new List<TimeSeriesLabel> { label2 };
 
-        //create a new time-series.
+        // Create a new time-series.
         pipeline.Ts.CreateAsync("temp:TLV", labels: labels1);
         pipeline.Ts.CreateAsync("temp:JLM", labels: labels2);
 
-        //adding multiple sequenece of time-series data.
+        // Adding multiple sequenece of time-series data.
         List<(string, TimeStamp, double)> sequence1 = new List<(string, TimeStamp, double)>()
         {
             ("temp:TLV",1000,30),
@@ -202,28 +206,65 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         pipeline.Ts.MAddAsync(sequence1);
         pipeline.Ts.MAddAsync(sequence2);
 
-        // execute the pipeline
+        // Execute the pipeline
         pipeline.Execute();
 
         // Get a reference to the database and for time-series commands
         var ts = db.TS();
 
-        // get only the location label for each last sample, use SELECTED_LABELS.
+        // Get only the location label for each last sample, use SELECTED_LABELS.
         var respons = await ts.MGetAsync(new List<string> { "temp=JLM" }, selectedLabels: new List<string> { "location" });
 
-        // Assert th respons
+        // Assert the respons
         Assert.Equal(1, respons.Count);
-        Assert.Equal("temp=JLM", respons[0].key);
+        Assert.Equal("temp:JLM", respons[0].key);
     }
 
     [Fact]
-    public void TransactionExample()
+    public async Task TransactionExample()
     {
-        var tran = new Transactions(ConnectionMultiplexer.Connect("localhost"));
+        // Connect to the Redis server
+        var redis = ConnectionMultiplexer.Connect("localhost");
 
-        tran.AddCondition(Condition.HashNotExists("profesor:5555", "first"));
-        tran.Db.HashSetAsync("profesor:5555", new HashEntry[] { new("first", "Albert"), new("last", "Blue"), new("age", "55") });
-        var condition = tran.ExecuteAsync();
+        // Get a reference to the database
+        var db = redis.GetDatabase();
+        db.Execute("FLUSHALL");
+
+        // Setup transaction1 with IDatabase
+        var xAction1 = new Transactions(db);
+
+        // Add account details with Json.Set to transaction1
+        xAction1.Json.SetAsync("accdetails:Jeeva", "$", new { name = "Jeeva", totalAmount= 1000, bankName = "City" });
+        xAction1.Json.SetAsync("accdetails:Shachar", "$", new { name = "Shachar", totalAmount = 1000, bankName = "City" });
+
+        // Get the Json response within Tansaction1
+        var getShachar = xAction1.Json.GetAsync("accdetails:Shachar");
+        var getJeeva = xAction1.Json.GetAsync("accdetails:Jeeva");
+
+        // Execute the transaction1
+        xAction1.ExecuteAsync();
+
+        // Setup transaction2 with ConnectionMultiplexer
+        var xAction2 = new Transactions(redis);
+
+        // Debit 200 from Jeeva within Tansaction2
+        xAction2.Json.NumIncrbyAsync("accdetails:Jeeva", "$.totalAmount", -200);
+
+        // Credit 200 from Shachar within Tansaction2
+        xAction2.Json.NumIncrbyAsync("accdetails:Shachar", "$.totalAmount", 200);
+
+        // Get total amount for both Jeeva = 800 & Shachar = 1200 within Tansaction2
+        var totalAmtOfJeeva = xAction2.Json.GetAsync("accdetails:Jeeva", path:"$.totalAmount");
+        var totalAmtOfShachar = xAction2.Json.GetAsync("accdetails:Shachar", path:"$.totalAmount");
+
+        // Execute the transaction2
+        var condition = xAction2.ExecuteAsync();
+
+        // Assert
         Assert.True(condition.Result);
+        Assert.NotEmpty(getJeeva.Result.ToString());
+        Assert.NotEmpty(getShachar.Result.ToString());
+        Assert.Equal("[800]", totalAmtOfJeeva.Result.ToString());
+        Assert.Equal("[1200]", totalAmtOfShachar.Result.ToString());
     }
 }
