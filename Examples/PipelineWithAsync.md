@@ -13,7 +13,7 @@ var db = redis.GetDatabase();
 
 Setup pipeline connection
 ```csharp
-var pipeline = new Pipeline(redis);
+var pipeline = new Pipeline(db);
 ```
 
 Create metedata lables for time-series.

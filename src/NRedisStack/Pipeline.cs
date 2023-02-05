@@ -4,11 +4,6 @@ namespace NRedisStack;
 
 public class Pipeline
 {
-    public Pipeline(IConnectionMultiplexer muxer)
-    {
-        _batch = muxer.GetDatabase().CreateBatch();
-    }
-
     public Pipeline(IDatabase db)
     {
         _batch = db.CreateBatch();
