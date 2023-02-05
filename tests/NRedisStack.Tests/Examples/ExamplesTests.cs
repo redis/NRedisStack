@@ -149,7 +149,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         pipeline.Execute();
 
         // Search for all indexed person records
-        // Task.Delay(2000).Wait();
+        Task.Delay(2000).Wait();
         var getAllPersons = await db.FT().SearchAsync("person-idx", new Query());
 
 
