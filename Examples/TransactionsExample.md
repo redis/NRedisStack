@@ -2,55 +2,54 @@
 
 ## An example of transactions with Redis modules (JSON.SET, JSON.GET & JSON.NUMINCRBY)
 
-Connect to the Redis server and Setup 2 Transactions
+Connect to the Redis server
+
 ```cs
 var redis = await ConnectionMultiplexer.ConnectAsync("localhost");
 var db = redis.GetDatabase();
 ```
 
-Setup transaction1 with IDatabase
+Setup transaction
+
 ```cs
-var xAction1 = new Transactions(db);
+var tran = new Transactions(db);
 ```
 
-Add account details with Json.Set to transaction1
+Add account details with Json.Set
+
 ```cs
-xAction1.Json.SetAsync("accdetails:Jeeva", "$", new { name = "Jeeva", totalAmount= 1000, bankName = "City" });
-xAction1.Json.SetAsync("accdetails:Shachar", "$", new { name = "Shachar", totalAmount = 1000, bankName = "City" });
+tran.Json.SetAsync("accdetails:Jeeva", "$", new { name = "Jeeva", totalAmount= 1000, bankName = "City" });
+tran.Json.SetAsync("accdetails:Shachar", "$", new { name = "Shachar", totalAmount = 1000, bankName = "City" });
 ```
 
-Get the Json response within Tansaction1
+Get the Json response for both Jeeva & Shachar
+
 ```cs
-var getShachar = xAction1.Json.GetAsync("accdetails:Shachar");
-var getJeeva = xAction1.Json.GetAsync("accdetails:Jeeva");
+var getShachar = tran.Json.GetAsync("accdetails:Shachar");
+var getJeeva = tran.Json.GetAsync("accdetails:Jeeva");
 ```
 
-Execute the transaction1
+Debit 200 from Jeeva
+
 ```cs
-xAction1.ExecuteAsync();
+tran.Json.NumIncrbyAsync("accdetails:Jeeva", "$.totalAmount", -200);
 ```
 
-Setup transaction2 with ConnectionMultiplexer
+Credit 200 from Shachar
+
 ```cs
-var xAction2 = new Transactions(redis);
+tran.Json.NumIncrbyAsync("accdetails:Shachar", "$.totalAmount", 200);
 ```
 
-Debit 200 from Jeeva within Tansaction2
+Get total amount for both Jeeva = 800 & Shachar = 1200
+
 ```cs
-xAction2.Json.NumIncrbyAsync("accdetails:Jeeva", "$.totalAmount", -200);
-```
-Credit 200 from Shachar within Tansaction2
-```cs
-xAction2.Json.NumIncrbyAsync("accdetails:Shachar", "$.totalAmount", 200);
+var totalAmtOfJeeva = tran.Json.GetAsync("accdetails:Jeeva", path:"$.totalAmount");
+var totalAmtOfShachar = tran.Json.GetAsync("accdetails:Shachar", path:"$.totalAmount");
 ```
 
-Get total amount for both Jeeva = 800 & Shachar = 1200 within Tansaction2
-```cs
-var totalAmtOfJeeva = xAction2.Json.GetAsync("accdetails:Jeeva", path:"$.totalAmount");
-var totalAmtOfShachar = xAction2.Json.GetAsync("accdetails:Shachar", path:"$.totalAmount");
-```
+Execute the transaction
 
-Execute the transaction2
 ```cs
-var condition = xAction2.ExecuteAsync();
+var condition = tran.ExecuteAsync();
 ```

@@ -7,11 +7,6 @@ namespace NRedisStack
         private ITransaction _transaction;
         public IDatabaseAsync Db => _transaction;
 
-        public Transactions(IConnectionMultiplexer muxer)
-        {
-            _transaction = muxer.GetDatabase().CreateTransaction();
-        }
-
         public Transactions(IDatabase db)
         {
             _transaction = db.CreateTransaction();

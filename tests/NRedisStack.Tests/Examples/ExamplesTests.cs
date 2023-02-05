@@ -233,35 +233,29 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         var db = redis.GetDatabase();
         db.Execute("FLUSHALL");
 
-        // Setup transaction1 with IDatabase
-        var xAction1 = new Transactions(db);
+        // Setup transaction with IDatabase
+        var tran = new Transactions(db);
 
-        // Add account details with Json.Set to transaction1
-        xAction1.Json.SetAsync("accdetails:Jeeva", "$", new { name = "Jeeva", totalAmount= 1000, bankName = "City" });
-        xAction1.Json.SetAsync("accdetails:Shachar", "$", new { name = "Shachar", totalAmount = 1000, bankName = "City" });
+        // Add account details with Json.Set to transaction
+        tran.Json.SetAsync("accdetails:Jeeva", "$", new { name = "Jeeva", totalAmount= 1000, bankName = "City" });
+        tran.Json.SetAsync("accdetails:Shachar", "$", new { name = "Shachar", totalAmount = 1000, bankName = "City" });
 
-        // Get the Json response within Tansaction1
-        var getShachar = xAction1.Json.GetAsync("accdetails:Shachar");
-        var getJeeva = xAction1.Json.GetAsync("accdetails:Jeeva");
+        // Get the Json response
+        var getShachar = tran.Json.GetAsync("accdetails:Shachar");
+        var getJeeva = tran.Json.GetAsync("accdetails:Jeeva");
 
-        // Execute the transaction1
-        xAction1.ExecuteAsync();
+        // Debit 200 from Jeeva
+        tran.Json.NumIncrbyAsync("accdetails:Jeeva", "$.totalAmount", -200);
 
-        // Setup transaction2 with ConnectionMultiplexer
-        var xAction2 = new Transactions(redis);
+        // Credit 200 from Shachar
+        tran.Json.NumIncrbyAsync("accdetails:Shachar", "$.totalAmount", 200);
 
-        // Debit 200 from Jeeva within Tansaction2
-        xAction2.Json.NumIncrbyAsync("accdetails:Jeeva", "$.totalAmount", -200);
+        // Get total amount for both Jeeva = 800 & Shachar = 1200
+        var totalAmtOfJeeva = tran.Json.GetAsync("accdetails:Jeeva", path:"$.totalAmount");
+        var totalAmtOfShachar = tran.Json.GetAsync("accdetails:Shachar", path:"$.totalAmount");
 
-        // Credit 200 from Shachar within Tansaction2
-        xAction2.Json.NumIncrbyAsync("accdetails:Shachar", "$.totalAmount", 200);
-
-        // Get total amount for both Jeeva = 800 & Shachar = 1200 within Tansaction2
-        var totalAmtOfJeeva = xAction2.Json.GetAsync("accdetails:Jeeva", path:"$.totalAmount");
-        var totalAmtOfShachar = xAction2.Json.GetAsync("accdetails:Shachar", path:"$.totalAmount");
-
-        // Execute the transaction2
-        var condition = xAction2.ExecuteAsync();
+        // Execute the transaction
+        var condition = tran.ExecuteAsync();
 
         // Assert
         Assert.True(condition.Result);

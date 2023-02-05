@@ -16,10 +16,8 @@ public class Pipeline
 
     private IBatch _batch;
 
-    public void Execute()
-    {
-        _batch.Execute();
-    }
+    public void Execute() => _batch.Execute();
+
 
     public IBloomCommandsAsync Bf => new BloomCommandsAsync(_batch);
     public ICmsCommandsAsync Cms => new CmsCommandsAsync(_batch);
