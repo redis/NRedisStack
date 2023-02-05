@@ -8,7 +8,8 @@ var redis = ConnectionMultiplexer.Connect("localhost");
 
 Setup pipeline connection
 ```csharp
-var pipeline = new Pipeline(ConnectionMultiplexer.Connect("localhost"));
+var db = redis.GetDatabase();
+var pipeline = new Pipeline(db);
 ```
 
 ## JSON
@@ -39,7 +40,7 @@ pipeline.Ft.CreateAsync("person-idx", parameters, schema);
 
 Search for all indexed person records
 ```csharp
-var getAllPersons = pipeline.Ft.SearchAsync("person-idx", new Query());
+var getAllPersons = db.FT().SearchAsync("person-idx", new Query());
 ```
 
 Execute the pipeline

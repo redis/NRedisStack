@@ -83,35 +83,28 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
     {
         // Connect to the Redis server and Setup 2 Pipelines
 
-        // Pipeline can get IDatabase for pipeline1
+        // Pipeline can get IDatabase for pipeline
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
-        var pipeline1 = new Pipeline(db);
-
-        // Pipeline can get IConnectionMultiplexer for pipeline2
-        var redis = ConnectionMultiplexer.Connect("localhost");
-        var pipeline2 = new Pipeline(redis);
+        var pipeline = new Pipeline(db);
 
         // Add JsonSet to pipeline
-        pipeline1.Json.SetAsync("person", "$", new { name = "John", age = 30, city = "New York", nicknames = new[] { "John", "Johny", "Jo" } });
+        pipeline.Json.SetAsync("person", "$", new { name = "John", age = 30, city = "New York", nicknames = new[] { "John", "Johny", "Jo" } });
 
         // Increase age by 2
-        pipeline1.Json.NumIncrbyAsync("person", "$.age", 2);
-
-        // Execute the pipeline1
-        pipeline1.Execute();
+        pipeline.Json.NumIncrbyAsync("person", "$.age", 2);
 
         // Clear the nicknames from the Json
-        pipeline2.Json.ClearAsync("person", "$.nicknames");
+        pipeline.Json.ClearAsync("person", "$.nicknames");
 
         // Del the nicknames
-        pipeline2.Json.DelAsync("person", "$.nicknames");
+        pipeline.Json.DelAsync("person", "$.nicknames");
 
         // Get the Json response
-        var getResponse = pipeline2.Json.GetAsync("person");
+        var getResponse = pipeline.Json.GetAsync("person");
 
         // Execute the pipeline2
-        pipeline2.Execute();
+        pipeline.Execute();
 
         // Get the result back JSON
         var result = getResponse.Result;
@@ -175,7 +168,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         var db = redis.GetDatabase();
         db.Execute("FLUSHALL");
         // Setup pipeline connection
-        var pipeline = new Pipeline(redis);
+        var pipeline = new Pipeline(db);
 
 
         // Create metedata lables for time-series.
