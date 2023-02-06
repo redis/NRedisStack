@@ -224,7 +224,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
 
         // Setup transaction with IDatabase
-        var tran = new Transactions(db);
+        var tran = new Transaction(db);
 
         // Add account details with Json.Set to transaction
         tran.Json.SetAsync("accdetails:Jeeva", "$", new { name = "Jeeva", totalAmount= 1000, bankName = "City" });

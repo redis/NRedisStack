@@ -8,11 +8,11 @@ using Xunit;
 
 namespace NRedisStack.Tests
 {
-    public class TransactionsTests : AbstractNRedisStackTest, IDisposable
+    public class TransactionTests : AbstractNRedisStackTest, IDisposable
     {
         Mock<IDatabase> _mock = new Mock<IDatabase>();
         private readonly string key = "TRX_TESTS";
-        public TransactionsTests(RedisFixture redisFixture) : base(redisFixture) { }
+        public TransactionTests(RedisFixture redisFixture) : base(redisFixture) { }
 
         public void Dispose()
         {
@@ -20,11 +20,11 @@ namespace NRedisStack.Tests
         }
 
         [Fact]
-        public async Task TestJsonTransactions()
+        public async Task TestJsonTransaction()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            var transaction = new Transactions(db);
+            var transaction = new Transaction(db);
             string jsonPerson = JsonSerializer.Serialize(new Person { Name = "Shachar", Age = 23 });
             var setResponse = transaction.Json.SetAsync(key, "$", jsonPerson);
             var getResponse = transaction.Json.GetAsync(key);
@@ -40,7 +40,7 @@ namespace NRedisStack.Tests
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
-            var tran = new Transactions(db);
+            var tran = new Transaction(db);
 
             tran.Bf.ReserveAsync("bf-key", 0.001, 100);
             tran.Bf.AddAsync("bf-key", "1");

@@ -2,12 +2,12 @@
 
 namespace NRedisStack
 {
-    public class Transactions
+    public class Transaction
     {
         private ITransaction _transaction;
         public IDatabaseAsync Db => _transaction;
 
-        public Transactions(IDatabase db)
+        public Transaction(IDatabase db)
         {
             _transaction = db.CreateTransaction();
         }

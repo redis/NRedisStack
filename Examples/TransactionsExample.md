@@ -1,6 +1,6 @@
 # Transaction
 
-## An example of transactions with Redis modules (JSON.SET, JSON.GET & JSON.NUMINCRBY)
+## An example of transaction with Redis modules (JSON.SET, JSON.GET & JSON.NUMINCRBY)
 
 Connect to the Redis server
 
@@ -12,7 +12,7 @@ var db = redis.GetDatabase();
 Setup transaction
 
 ```cs
-var tran = new Transactions(db);
+var tran = new Transaction(db);
 ```
 
 Add account details with Json.Set
