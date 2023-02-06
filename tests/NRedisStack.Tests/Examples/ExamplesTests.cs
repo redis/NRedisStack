@@ -1,11 +1,11 @@
-using Xunit;
-using StackExchange.Redis;
-using NRedisStack.RedisStackCommands;
 using Moq;
-using NRedisStack.Search.FT.CREATE;
-using NRedisStack.Search;
 using NRedisStack.DataTypes;
 using NRedisStack.Literals.Enums;
+using NRedisStack.RedisStackCommands;
+using NRedisStack.Search;
+using NRedisStack.Search.FT.CREATE;
+using StackExchange.Redis;
+using Xunit;
 
 namespace NRedisStack.Tests;
 
@@ -81,8 +81,6 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void PipelineExample()
     {
-        // Connect to the Redis server and Setup 2 Pipelines
-
         // Pipeline can get IDatabase for pipeline
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -103,7 +101,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         // Get the Json response
         var getResponse = pipeline.Json.GetAsync("person");
 
-        // Execute the pipeline2
+        // Execute the pipeline
         pipeline.Execute();
 
         // Get the result back JSON
@@ -168,8 +166,8 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         var db = redis.GetDatabase();
         db.Execute("FLUSHALL");
         // Setup pipeline connection
-        var pipeline = new Pipeline(db);
 
+        var pipeline = new Pipeline(db);
 
         // Create metedata lables for time-series.
         TimeSeriesLabel label1 = new TimeSeriesLabel("temp", "TLV");
@@ -216,8 +214,44 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void TransactionExample()
+    public async Task TransactionExample()
     {
-        // implementation for transaction
+        // Connect to the Redis server
+        var redis = ConnectionMultiplexer.Connect("localhost");
+
+        // Get a reference to the database
+        var db = redis.GetDatabase();
+        db.Execute("FLUSHALL");
+
+        // Setup transaction with IDatabase
+        var tran = new Transactions(db);
+
+        // Add account details with Json.Set to transaction
+        tran.Json.SetAsync("accdetails:Jeeva", "$", new { name = "Jeeva", totalAmount= 1000, bankName = "City" });
+        tran.Json.SetAsync("accdetails:Shachar", "$", new { name = "Shachar", totalAmount = 1000, bankName = "City" });
+
+        // Get the Json response
+        var getShachar = tran.Json.GetAsync("accdetails:Shachar");
+        var getJeeva = tran.Json.GetAsync("accdetails:Jeeva");
+
+        // Debit 200 from Jeeva
+        tran.Json.NumIncrbyAsync("accdetails:Jeeva", "$.totalAmount", -200);
+
+        // Credit 200 from Shachar
+        tran.Json.NumIncrbyAsync("accdetails:Shachar", "$.totalAmount", 200);
+
+        // Get total amount for both Jeeva = 800 & Shachar = 1200
+        var totalAmtOfJeeva = tran.Json.GetAsync("accdetails:Jeeva", path:"$.totalAmount");
+        var totalAmtOfShachar = tran.Json.GetAsync("accdetails:Shachar", path:"$.totalAmount");
+
+        // Execute the transaction
+        var condition = tran.ExecuteAsync();
+
+        // Assert
+        Assert.True(condition.Result);
+        Assert.NotEmpty(getJeeva.Result.ToString());
+        Assert.NotEmpty(getShachar.Result.ToString());
+        Assert.Equal("[800]", totalAmtOfJeeva.Result.ToString());
+        Assert.Equal("[1200]", totalAmtOfShachar.Result.ToString());
     }
 }
