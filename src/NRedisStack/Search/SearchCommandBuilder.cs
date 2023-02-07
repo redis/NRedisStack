@@ -1,8 +1,7 @@
-using NRedisStack.Literals;
+using NRedisStack.Search.Literals;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
 using NRedisStack.Search.Aggregation;
-using NRedisStack.Search.FT.CREATE;
 using StackExchange.Redis;
 namespace NRedisStack
 {

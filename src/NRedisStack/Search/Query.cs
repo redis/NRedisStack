@@ -1,5 +1,5 @@
 ﻿using System.Globalization;
-using NRedisStack.Literals;
+using NRedisStack.Search.Literals;
 using StackExchange.Redis;
 
 namespace NRedisStack.Search

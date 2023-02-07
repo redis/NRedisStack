@@ -1,7 +1,6 @@
-using NRedisStack.Extensions;
-using NRedisStack.Literals;
-using NRedisStack.Literals.Enums;
-namespace NRedisStack.Search.FT.CREATE
+using NRedisStack.Search.Literals;
+using NRedisStack.Search.Literals.Enums;
+namespace NRedisStack.Search
 {
     public class FTCreateParams
     {

@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using StackExchange.Redis;
-using NRedisTimeSeries;
 using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Literals.Enums;

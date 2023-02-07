@@ -1,10 +1,8 @@
 using StackExchange.Redis;
 using NRedisStack.DataTypes;
 using NRedisStack.Literals.Enums;
-using System.Threading.Tasks;
 using Xunit;
 using NRedisStack.RedisStackCommands;
-using NRedisStack.Tests.TimeSeries.TestAPI;
 using NRedisStack.Tests;
 
 

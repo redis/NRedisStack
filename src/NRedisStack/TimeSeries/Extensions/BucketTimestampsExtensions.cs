@@ -1,4 +1,3 @@
-using System;
 using NRedisStack.Literals.Enums;
 
 namespace NRedisStack.Extensions

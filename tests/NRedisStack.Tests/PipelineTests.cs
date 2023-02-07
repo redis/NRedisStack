@@ -3,7 +3,6 @@ using StackExchange.Redis;
 using NRedisStack.RedisStackCommands;
 using Moq;
 using System.Text.Json;
-using NRedisStack.Search.FT.CREATE;
 using NRedisStack.Search;
 
 namespace NRedisStack.Tests;

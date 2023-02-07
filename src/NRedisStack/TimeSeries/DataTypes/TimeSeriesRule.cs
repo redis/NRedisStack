@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using NRedisStack.Literals.Enums;
+﻿using NRedisStack.Literals.Enums;
 using NRedisStack.Extensions;
 
 namespace NRedisStack.DataTypes

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace NRedisStack.DataTypes
+﻿namespace NRedisStack.DataTypes
 {
     /// <summary>
     /// A key-value pair class represetns metadata label of time-series.

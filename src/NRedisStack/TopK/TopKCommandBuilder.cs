@@ -1,4 +1,4 @@
-using NRedisStack.Literals;
+using NRedisStack.TopK.Literals;
 using StackExchange.Redis;
 using NRedisStack.RedisStackCommands;
 

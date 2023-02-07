@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using NRedisStack.Search.Aggregation;
-
-namespace NRedisStack.Search.Aggregation
+﻿namespace NRedisStack.Search.Aggregation
 {
     public static class Reducers
     {

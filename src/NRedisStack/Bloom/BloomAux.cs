@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using NRedisStack.Literals;
-using NRedisStack.Literals.Enums;
-using NRedisStack.DataTypes;
-using NRedisStack.Extensions;
+using NRedisStack.Bloom.Literals;
 using StackExchange.Redis;
 
 namespace NRedisStack

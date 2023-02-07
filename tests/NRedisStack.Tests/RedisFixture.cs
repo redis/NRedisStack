@@ -1,5 +1,3 @@
-using System;
-using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
 
 namespace NRedisStack.Tests

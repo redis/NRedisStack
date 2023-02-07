@@ -1,4 +1,4 @@
-﻿namespace NRedisStack.Literals
+﻿namespace NRedisStack.Json.Literals
 {
     internal class JSON
     {

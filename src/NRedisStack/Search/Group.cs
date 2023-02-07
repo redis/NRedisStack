@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace NRedisStack.Search.Aggregation
+﻿namespace NRedisStack.Search.Aggregation
 {
     public class Group
     {
