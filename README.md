@@ -65,9 +65,13 @@ IJsonCommands json = db.JSON();
 ITimeSeriesCommands ts = db.TS();
 ```
 Then, that variable will allow you to call all the commands of that module.
+
 ## Examples
-### Set JSON object to Redis
-Set a json object to Redis:
+
+### Store a JSON object in Redis
+
+To store a json object in Redis:
+
 ```csharp
 ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
 IDatabase db = redis.GetDatabase();
@@ -76,10 +80,12 @@ IJsonCommands json = db.JSON();
 var key = "myKey";
 json.Set(key, "$", new Person() { Age = 35, Name = "Alice" });
 ```
+
 ### Index and search
-We will see an example that shows how you can create an index, add a document to it and search it using NRedisStack.
+Now, to execute a search  for objects, we need to index them on the server, and run a query:
 
 Setup:
+
 ```csharp
 using NRedisStack;
 ...
@@ -87,6 +93,7 @@ IDatabase db = redisFixture.Redis.GetDatabase();
 ISearchCommands ft = db.FT();
 IJsonCommands json = db.JSON();
 ```
+
 Create an index with fields and weights:
 ```csharp
 // FT.CREATE myIdx ON HASH PREFIX 1 doc: SCHEMA title TEXT WEIGHT 5.0 body TEXT url TEXT
@@ -97,8 +104,7 @@ ft.Create("myIndex", new FTCreateParams().On(IndexDataType.Hash)
                                  .AddTextField("url"));
 ```
 
-After you create the index, any new hash documents with the doc: prefix are automatically indexed upon creation.
-
+After creating the index, future documents with the ```doc:``` prefix will be automatically indexed when created or modified.
 
 To create a new hash document and add it to the index, use the HSET command:
 ```csharp
@@ -117,6 +123,9 @@ Drop the index:
 // FT.DROPINDEX myIndex
 ft.DropIndex("myIndex");
 ```
+
+More examples can be found in the [examples folder](/blob/master/Examples).
+
 ------
 
 ### Author
