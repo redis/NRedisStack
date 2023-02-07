@@ -1,4 +1,4 @@
-namespace NRedisStack.Literals.Enums
+namespace NRedisStack.Search.Literals.Enums
 {
     public enum IndexDataType
     {

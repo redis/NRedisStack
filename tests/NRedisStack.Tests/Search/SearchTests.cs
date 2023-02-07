@@ -2,11 +2,10 @@ using Xunit;
 using StackExchange.Redis;
 using NRedisStack.RedisStackCommands;
 using Moq;
-using NRedisStack.Search.FT.CREATE;
 using NRedisStack.Search;
 using static NRedisStack.Search.Schema;
 using NRedisStack.Search.Aggregation;
-using NRedisStack.Literals.Enums;
+using NRedisStack.Search.Literals.Enums;
 
 namespace NRedisStack.Tests.Search;
 

@@ -1,11 +1,7 @@
 
 using NRedisStack.DataTypes;
 using StackExchange.Redis;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using Xunit;
 namespace NRedisStack.Tests
 {

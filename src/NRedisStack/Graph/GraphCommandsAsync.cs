@@ -1,6 +1,6 @@
 using System.Text;
 using NRedisStack.Graph;
-using NRedisStack.Literals;
+using NRedisStack.Graph.Literals;
 using StackExchange.Redis;
 using static NRedisStack.Graph.RedisGraphUtilities;
 

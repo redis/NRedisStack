@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using NRedisStack.Literals;
-// using NRediSearch.Aggregation.Reducers;
-using StackExchange.Redis;
+﻿using NRedisStack.Search.Literals;
 
 namespace NRedisStack.Search.Aggregation
 {

@@ -1,7 +1,6 @@
 ﻿using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
-using System;
 using Xunit;
 
 namespace NRedisStack.Tests.TimeSeries.TestAPI

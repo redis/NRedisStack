@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using static NRedisStack.Search.Schema.VectorField;
+﻿using static NRedisStack.Search.Schema.VectorField;
 
 namespace NRedisStack.Search
 {

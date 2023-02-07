@@ -1,4 +1,3 @@
-using StackExchange.Redis;
 using NRedisStack.Literals;
 using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;

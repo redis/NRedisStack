@@ -1,5 +1,4 @@
-﻿using System;
-using NRedisStack.DataTypes;
+﻿using NRedisStack.DataTypes;
 using Xunit;
 namespace NRedisTimeSeries.Test
 {

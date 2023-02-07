@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
 using StackExchange.Redis;
 using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Literals.Enums;
 using Xunit;
-using NRedisStack.Tests;
 namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
     public class TestAdd : AbstractNRedisStackTest, IDisposable

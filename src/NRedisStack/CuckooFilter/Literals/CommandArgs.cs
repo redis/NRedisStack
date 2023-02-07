@@ -1,4 +1,4 @@
-namespace NRedisStack.Literals
+namespace NRedisStack.CuckooFilter.Literals
 {
     internal class CuckooArgs
     {
