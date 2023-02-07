@@ -1,9 +1,8 @@
 using Moq;
 using NRedisStack.DataTypes;
-using NRedisStack.Literals.Enums;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
-using NRedisStack.Search.FT.CREATE;
+using NRedisStack.Search.Literals.Enums;
 using StackExchange.Redis;
 using Xunit;
 

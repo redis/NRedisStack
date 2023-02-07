@@ -1,7 +1,6 @@
 ﻿using Moq;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
-using NRedisStack.Search.FT.CREATE;
 using StackExchange.Redis;
 using System.Text.Json;
 using Xunit;
