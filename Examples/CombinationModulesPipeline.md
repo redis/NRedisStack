@@ -35,7 +35,7 @@ Create the schema to index name as text field, age as a numeric field and city a
 var schema = new Schema().AddTextField("name").AddNumericField("age", true).AddTagField("city");
 ```
 
-Filter the index to only include Jsons with prefix of person:
+Filter the index to only include JSON objects with prefix of person:
 
 ```csharp
 var parameters = FTCreateParams.CreateParams().On(IndexDataType.JSON).Prefix("person:");

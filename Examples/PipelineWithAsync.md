@@ -16,7 +16,7 @@ Setup pipeline connection
 var pipeline = new Pipeline(db);
 ```
 
-Create metedata lables for time-series.
+Create metadata labels for time-series.
 ```csharp
 TimeSeriesLabel label1 = new TimeSeriesLabel("temp", "TLV");
 TimeSeriesLabel label2 = new TimeSeriesLabel("temp", "JLM");
@@ -30,7 +30,7 @@ pipeline.Ts.CreateAsync("temp:TLV", labels: labels1);
 pipeline.Ts.CreateAsync("temp:JLM", labels: labels2);
 ```
 
-Adding multiple sequenece of time-series data.
+Adding multiple sequence of time-series data.
 ```csharp
 List<(string, TimeStamp, double)> sequence1 = new List<(string, TimeStamp, double)>()
 {
@@ -47,7 +47,7 @@ List<(string, TimeStamp, double)> sequence2 = new List<(string, TimeStamp, doubl
    ("temp:JLM", 1035, 40)
 };
 ```
-Adding mutiple samples to mutiple series.
+Adding multiple samples to multiple series.
 ```csharp
 pipeline.Ts.MAddAsync(sequence1);
 pipeline.Ts.MAddAsync(sequence2);

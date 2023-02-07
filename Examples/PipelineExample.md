@@ -18,7 +18,7 @@ Increase age by 2
 pipeline.Json.NumIncrbyAsync("person", "$.age", 2);
 ```
 
-Clear the nicknames from the Json
+Clear the nicknames from the json object
 ```csharp
 pipeline.Json.ClearAsync("person", "$.nicknames");
 ```
@@ -28,7 +28,7 @@ Delete the nicknames
 pipeline.Json.DelAsync("person", "$.nicknames");
 ```
 
-Get the Json response
+Retrieve the json response
 ```csharp
 var getResponse = pipeline.Json.GetAsync("person");
 ```
@@ -38,7 +38,7 @@ Execute pipeline
 pipeline.Execute();
 ```
 
-Get the result of getResponse
+Access the result of the json response
 ```csharp
 var result = getResponse.Result;
 ```
