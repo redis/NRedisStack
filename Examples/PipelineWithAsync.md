@@ -16,7 +16,8 @@ Setup pipeline connection
 var pipeline = new Pipeline(db);
 ```
 
-Create metadata labels for time-series.
+Create metadata labels for a TimeSeries object:
+
 ```csharp
 TimeSeriesLabel label1 = new TimeSeriesLabel("temp", "TLV");
 TimeSeriesLabel label2 = new TimeSeriesLabel("temp", "JLM");
@@ -24,13 +25,15 @@ var labels1 = new List<TimeSeriesLabel> { label1 };
 var labels2 = new List<TimeSeriesLabel> { label2 };
 ```
 
-Create a new time-series.
+Create a new time-series object:
+
 ```csharp
 pipeline.Ts.CreateAsync("temp:TLV", labels: labels1);
 pipeline.Ts.CreateAsync("temp:JLM", labels: labels2);
 ```
 
-Adding multiple sequence of time-series data.
+Create the TimeSeries objects, and store them in Redis:
+
 ```csharp
 List<(string, TimeStamp, double)> sequence1 = new List<(string, TimeStamp, double)>()
 {
@@ -46,19 +49,19 @@ List<(string, TimeStamp, double)> sequence2 = new List<(string, TimeStamp, doubl
    ("temp:JLM", 1025, 9999),
    ("temp:JLM", 1035, 40)
 };
-```
-Adding multiple samples to multiple series.
-```csharp
+
 pipeline.Ts.MAddAsync(sequence1);
 pipeline.Ts.MAddAsync(sequence2);
+
 ```
 
-Execute the pipeline
+Execute the pipeline:
+
 ```csharp
 pipeline.Execute();
 ```
 
-Get a reference to the database and for time-series commands
+Get a reference to the database and for TimeSeries commands:
 ```csharp
 var ts = db.TS();
 ```

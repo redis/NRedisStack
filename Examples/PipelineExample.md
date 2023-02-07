@@ -8,7 +8,7 @@ var pipeline = new Pipeline(db);
 ```
 
 
-Add JsonSet to pipeline
+Add JSON data to pipeline
 ```csharp
 pipeline.Json.SetAsync("person", "$", new { name = "John", age = 30, city = "New York", nicknames = new[] { "John", "Johny", "Jo" } });
 ```
@@ -18,7 +18,7 @@ Increase age by 2
 pipeline.Json.NumIncrbyAsync("person", "$.age", 2);
 ```
 
-Clear the nicknames from the json object
+Remove the ```nicknames``` field from the JSON object
 ```csharp
 pipeline.Json.ClearAsync("person", "$.nicknames");
 ```
@@ -28,7 +28,7 @@ Delete the nicknames
 pipeline.Json.DelAsync("person", "$.nicknames");
 ```
 
-Retrieve the json response
+Retrieve the JSON response
 ```csharp
 var getResponse = pipeline.Json.GetAsync("person");
 ```
@@ -38,7 +38,7 @@ Execute pipeline
 pipeline.Execute();
 ```
 
-Access the result of the json response
+Access the result of the JSON response
 ```csharp
 var result = getResponse.Result;
 ```

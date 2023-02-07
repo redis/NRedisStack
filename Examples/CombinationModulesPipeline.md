@@ -17,7 +17,7 @@ var pipeline = new Pipeline(db);
 
 ## JSON
 
-Add JsonSet to pipeline
+Add JSON data to the pipeline.
 
 ```csharp
 pipeline.Json.SetAsync("person:01", "$", new { name = "John", age = 30, city = "New York" });
@@ -35,13 +35,13 @@ Create the schema to index name as text field, age as a numeric field and city a
 var schema = new Schema().AddTextField("name").AddNumericField("age", true).AddTagField("city");
 ```
 
-Filter the index to only include JSON objects with prefix of person:
+Create a search index, that only retrieves JSON objects from keys prefixed *person*.
 
 ```csharp
 var parameters = FTCreateParams.CreateParams().On(IndexDataType.JSON).Prefix("person:");
 ```
 
-Create the index via pipeline
+Create a search index, on our stored data:
 
 ```csharp
 pipeline.Ft.CreateAsync("person-idx", parameters, schema);

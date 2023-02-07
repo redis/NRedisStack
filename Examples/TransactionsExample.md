@@ -2,29 +2,29 @@
 
 ## An example of transaction with Redis modules (JSON.SET, JSON.GET & JSON.NUMINCRBY)
 
-Connect to the Redis server
+Connect to the Redis server:
 
 ```cs
 var redis = await ConnectionMultiplexer.ConnectAsync("localhost");
 var db = redis.GetDatabase();
 ```
 
-Setup transaction
+Create the transaction:
 
 ```cs
 var tran = new Transaction(db);
 ```
 
-Add account details with Json.Set
+Store the account details as JSON:
 
-```cs
+```csharp
 tran.Json.SetAsync("accdetails:Jeeva", "$", new { name = "Jeeva", totalAmount= 1000, bankName = "City" });
 tran.Json.SetAsync("accdetails:Shachar", "$", new { name = "Shachar", totalAmount = 1000, bankName = "City" });
 ```
 
-Get the Json response for both Jeeva & Shachar
+Retrieve the responses
 
-```cs
+```csharp
 var getShachar = tran.Json.GetAsync("accdetails:Shachar");
 var getJeeva = tran.Json.GetAsync("accdetails:Jeeva");
 ```

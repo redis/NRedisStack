@@ -21,7 +21,7 @@ db.HashSet("student:5555", new HashEntry[] { new("first", "Joen"), new("last", "
 db.HashSet("teacher:6666", new HashEntry[] { new("first", "Pat"), new("last", "Rod"), new("age", "20") });
 ```
 
-Create the schema to index first and last as text fields, and age as a numeric field:
+Create the schema indexing the text fields ```first``` and ```last```, and ```age``` as a numeric field:
 ```csharp
 var schema = new Schema().AddTextField("first").AddTextField("last").AddNumericField("age");
 ```
