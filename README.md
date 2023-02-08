@@ -124,7 +124,7 @@ Drop the index:
 ft.DropIndex("myIndex");
 ```
 
-More examples can be found in the [examples folder](/blob/master/Examples).
+More examples can be found in the [examples folder](Examples).
 
 ------
 
