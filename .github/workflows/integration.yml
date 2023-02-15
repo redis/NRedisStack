@@ -44,4 +44,4 @@ jobs:
           verbose: true
 
       - name: Build
-        run: dotnet pack -c Release --output .
+        run: dotnet pack -c Release
