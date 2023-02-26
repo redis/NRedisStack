@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="StackExchange.Redis" Version="2.6.45" />
+	<PackageReference Include="StackExchange.Redis" Version="2.6.90" />
 	<None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
