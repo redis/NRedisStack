@@ -90,6 +90,9 @@ Now, to execute a search  for objects, we need to index them on the server, and 
 Setup:
 
 ```csharp
+using NRedisStack.Search;
+using NRedisStack.Search.Literals.Enums;
+//...
 ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
 IDatabase db = redis.GetDatabase();
 
@@ -100,7 +103,7 @@ IJsonCommands json = db.JSON();
 Create an index with fields and weights:
 ```csharp
 // FT.CREATE myIdx ON HASH PREFIX 1 doc: SCHEMA title TEXT WEIGHT 5.0 body TEXT url TEXT
-ft.Create("myIndex", new FTCreateParams().On(IndexDataType.Hash)
+ft.Create("myIndex", new FTCreateParams().On(IndexDataType.HASH)
                                          .Prefix("doc:"),
                      new Schema().AddTextField("title", 5.0)
                                  .AddTextField("body")
