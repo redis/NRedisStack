@@ -49,8 +49,11 @@ This launches [Redis Stack](https://redis.io/docs/stack/), an extension of Redis
 Now, you need to connect to Redis, exactly the same way you do it in [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis):
 ```csharp
 using NRedisStack;
-...
+using NRedisStack.RedisStackCommands;
+using StackExchange.Redis;
+//...
 ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
+IDatabase db = redis.GetDatabase();
 ```
 Now you can create a variable from any type of module in the following way:
 ```csharp
@@ -78,7 +81,7 @@ IDatabase db = redis.GetDatabase();
 
 IJsonCommands json = db.JSON();
 var key = "myKey";
-json.Set(key, "$", new Person() { Age = 35, Name = "Alice" });
+json.Set(key, "$", new { Age = 35, Name = "Alice" });
 ```
 
 ### Index and search
