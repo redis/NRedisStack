@@ -90,9 +90,9 @@ Now, to execute a search  for objects, we need to index them on the server, and 
 Setup:
 
 ```csharp
-using NRedisStack;
-...
-IDatabase db = redisFixture.Redis.GetDatabase();
+ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
+IDatabase db = redis.GetDatabase();
+
 ISearchCommands ft = db.FT();
 IJsonCommands json = db.JSON();
 ```
