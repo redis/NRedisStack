@@ -12,6 +12,12 @@ namespace NRedisStack.Search
         public long TotalResults { get; }
         public List<Document> Documents { get; }
 
+        /// <summary>
+        /// Converts the documents to a list of json strings. only works on a json documents index.
+        /// </summary>
+        public IEnumerable<string>? ToJson() => Documents.Select(x => x["json"].ToString())
+                                                         .Where(x => !string.IsNullOrEmpty(x));
+
         internal SearchResult(RedisResult[] resp, bool hasContent, bool hasScores, bool hasPayloads/*, bool shouldExplainScore*/)
         {
             // Calculate the step distance to walk over the results.
