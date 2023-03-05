@@ -16,14 +16,14 @@ Create a search index with a JSON field:
 ft.Create("test", new FTCreateParams().On(IndexDataType.JSON).Prefix("doc:"),
             new Schema().AddTagField(new FieldName("$.name", "name")));
 ```
-Insert 10 JSON documents into the index
+Insert 10 JSON documents into the index:
 ```csharp
 for (int i = 0; i < 10; i++)
 {
     json.Set("doc:" + i, "$", "{\"name\":\"foo\"}");
 }
 ```
-Execute a search query and convert the results to JSON
+Execute a search query and convert the results to JSON:
 ```csharp
 var res = ft.Search("test", new Query("@name:{foo}"));
 var docs = res.ToJson();
