@@ -15,7 +15,8 @@ namespace NRedisStack.Search
         /// <summary>
         /// converts the documents to a list of json strings
         /// </summary>
-        public IEnumerable<RedisValue> ToJson() => Documents.Select(x => x["json"]);
+        public IEnumerable<string>? ToJson() => Documents.Select(x => x["json"].ToString())
+                                                         .Where(x => !string.IsNullOrEmpty(x));
 
         internal SearchResult(RedisResult[] resp, bool hasContent, bool hasScores, bool hasPayloads/*, bool shouldExplainScore*/)
         {
