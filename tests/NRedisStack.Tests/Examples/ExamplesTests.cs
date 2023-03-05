@@ -226,7 +226,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         var tran = new Transaction(db);
 
         // Add account details with Json.Set to transaction
-        tran.Json.SetAsync("accdetails:Jeeva", "$", new { name = "Jeeva", totalAmount= 1000, bankName = "City" });
+        tran.Json.SetAsync("accdetails:Jeeva", "$", new { name = "Jeeva", totalAmount = 1000, bankName = "City" });
         tran.Json.SetAsync("accdetails:Shachar", "$", new { name = "Shachar", totalAmount = 1000, bankName = "City" });
 
         // Get the Json response
@@ -240,8 +240,8 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         tran.Json.NumIncrbyAsync("accdetails:Shachar", "$.totalAmount", 200);
 
         // Get total amount for both Jeeva = 800 & Shachar = 1200
-        var totalAmtOfJeeva = tran.Json.GetAsync("accdetails:Jeeva", path:"$.totalAmount");
-        var totalAmtOfShachar = tran.Json.GetAsync("accdetails:Shachar", path:"$.totalAmount");
+        var totalAmtOfJeeva = tran.Json.GetAsync("accdetails:Jeeva", path: "$.totalAmount");
+        var totalAmtOfShachar = tran.Json.GetAsync("accdetails:Shachar", path: "$.totalAmount");
 
         // Execute the transaction
         var condition = tran.ExecuteAsync();
@@ -252,5 +252,27 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         Assert.NotEmpty(getShachar.Result.ToString());
         Assert.Equal("[800]", totalAmtOfJeeva.Result.ToString());
         Assert.Equal("[1200]", totalAmtOfShachar.Result.ToString());
+    }
+
+    [Fact]
+    public void TestJsonConvert()
+    {
+        ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
+        IDatabase db = redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        ISearchCommands ft = db.FT();
+        IJsonCommands json = db.JSON();
+
+        ft.Create("test", new FTCreateParams().On(IndexDataType.JSON).Prefix("doc:"),
+            new Schema().AddTagField(new FieldName("$.name", "name")));
+        for (int i = 0; i < 10; i++)
+        {
+            json.Set("doc:" + i, "$", "{\"name\":\"foo\"}");
+        }
+        var res = ft.Search("test", new Query("@name:{foo}"));
+
+        var docs = res.ToJson();
+
+        Assert.Equal(10, docs.Count());
     }
 }

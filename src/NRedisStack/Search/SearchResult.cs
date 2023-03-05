@@ -12,6 +12,11 @@ namespace NRedisStack.Search
         public long TotalResults { get; }
         public List<Document> Documents { get; }
 
+        /// <summary>
+        /// converts the documents to a list of json strings
+        /// </summary>
+        public IEnumerable<RedisValue> ToJson() => Documents.Select(x => x["json"]);
+
         internal SearchResult(RedisResult[] resp, bool hasContent, bool hasScores, bool hasPayloads/*, bool shouldExplainScore*/)
         {
             // Calculate the step distance to walk over the results.
