@@ -591,7 +591,7 @@ namespace NRedisStack
             if (res.All(x => x.Type != ResultType.MultiBulk))
             {
                 var keys = res.Select(x => x.ToString()!);
-                sets.Add(keys.ToHashSet());
+                sets.Add(new HashSet<string>(keys));
                 return sets;
             }
 

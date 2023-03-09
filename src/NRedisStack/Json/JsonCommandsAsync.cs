@@ -1,6 +1,6 @@
 ﻿using StackExchange.Redis;
 using System.Text.Json;
-using System.Text.Json.Nodes;
+// using System.Text.Json.Nodes;
 
 namespace NRedisStack;
 
@@ -82,8 +82,8 @@ public class JsonCommandsAsync : IJsonCommandsAsync
         var res = await _db.ExecuteAsync(JsonCommandBuilder.Get<T>(key, path));
         if (res.Type == ResultType.BulkString)
         {
-            var arr = JsonSerializer.Deserialize<JsonArray>(res.ToString()!);
-            if (arr?.Count > 0)
+            var arr = JsonSerializer.Deserialize<JsonElement[]>(res.ToString()!);
+            if (arr?.Length > 0)
             {
                 return JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(arr[0]));
             }
@@ -91,6 +91,7 @@ public class JsonCommandsAsync : IJsonCommandsAsync
 
         return default;
     }
+
 
     /// <inheritdoc/>
     public async Task<IEnumerable<T?>> GetEnumerableAsync<T>(RedisKey key, string path = "$")
@@ -209,12 +210,12 @@ public class JsonCommandsAsync : IJsonCommandsAsync
 
         if (result.Type == ResultType.MultiBulk)
         {
-            return ((RedisResult[])result!).Select(x => Enum.Parse<JsonType>(x.ToString()!.ToUpper())).ToArray();
+            return ((RedisResult[])result!).Select(x => (JsonType)Enum.Parse(typeof(JsonType), x.ToString()!.ToUpper())).ToArray();
         }
 
         if (result.Type == ResultType.BulkString)
         {
-            return new[] { Enum.Parse<JsonType>(result.ToString()!.ToUpper()) };
+            return new[] { (JsonType)Enum.Parse(typeof(JsonType), result.ToString()!.ToUpper()) };
         }
 
         return Array.Empty<JsonType>();
