@@ -1,6 +1,6 @@
 ﻿using StackExchange.Redis;
 using System.Text.Json;
-// using System.Text.Json.Nodes;
+using System.Text.Json.Nodes;
 
 namespace NRedisStack;
 
@@ -207,8 +207,8 @@ public class JsonCommands : JsonCommandsAsync, IJsonCommands
         var res = _db.Execute(JsonCommandBuilder.Get<T>(key, path));
         if (res.Type == ResultType.BulkString)
         {
-            var arr = JsonSerializer.Deserialize<JsonElement[]>(res.ToString()!);
-            if (arr?.Length > 0)
+            var arr = JsonSerializer.Deserialize<JsonArray>(res.ToString()!);
+            if (arr?.Count > 0)
             {
                 return JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(arr[0]));
             }
