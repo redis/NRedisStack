@@ -21,6 +21,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
+      - run: $Env:ProgramFiles\Docker\Docker\DockerCli.exe -SwitchLinuxEngine
       - name: run redis-stack-server docker
         run: docker run -p 6379:6379 -d redis/redis-stack-server:edge
       - name: Restore dependencies
