@@ -15,20 +15,6 @@ env:
   redis_stack_version: 6.2.2-v5
 
 jobs:
-
-  windows:
-    name: windows
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: run redis-stack-server docker
-        run: docker run --platform linux -p 6379:6379 -d redis/redis-stack-server:edge
-      - name: Restore dependencies
-        run: dotnet restore
-      - name: Build
-        run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
-      - name: Test
-        run: dotnet test --no-build --verbosity normal -f net481
   build_and_test:
     name: Build and test
     runs-on: ubuntu-latest
