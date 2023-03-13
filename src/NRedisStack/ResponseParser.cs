@@ -47,6 +47,8 @@ namespace NRedisStack
 
         public static double ToDouble(this RedisResult result)
         {
+            if (result.ToString() == "nan")
+                return double.NaN;
             if ((double?)result == null)
                 throw new ArgumentNullException(nameof(result));
             return (double)result;
