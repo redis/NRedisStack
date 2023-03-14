@@ -50,17 +50,17 @@ jobs:
     name: Build and Test on Windows
     runs-on: windows-latest
     steps:
-       - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
       - uses: Vampire/setup-wsl@v2
-      - shell: wsl-bash {0}
+      - name: Configure Redis
+        shell: wsl-bash {0}
         run: |
           sudo apt-get update
           sudo apt-get install curl -y && sudo apt-get install gpg -y && apt-get install lsb-release -y
-          curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
-          echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
-          sudo apt-get update
-          sudo apt-get install redis-stack-server -y
-          /opt/redis-stack/bin/redis-stack-server >redisout.log 2>&1 &
+          curl https://packages.redis.io/redis-stack/redis-stack-server-6.2.6-v6.jammy.x86_64.tar.gz -o redis-stack.tar.gz
+          tar xf redis-stack.tar.gz
+          sudo mv redis-stack-server-6.2.6-v6/ /opt/redis-stack-server
+          /opt/redis-stack-server/bin/redis-stack-server >redisout.log 2>&1 &
           cat redisout.log
       - name: Restore dependencies
         run: dotnet restore
