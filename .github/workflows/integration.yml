@@ -54,21 +54,19 @@ jobs:
       - uses: Vampire/setup-wsl@v2
         with:
           distribution: Ubuntu-22.04
-      - name: Configure Redis
+      - name: Install Redis
         shell: wsl-bash {0}
         run: |
           sudo apt-get update
           sudo apt-get install curl -y && sudo apt-get install gpg -y && apt-get install lsb-release -y && apt-get install libgomp1 -y
           curl https://packages.redis.io/redis-stack/redis-stack-server-6.2.6-v6.jammy.x86_64.tar.gz -o redis-stack.tar.gz
-          tar xf redis-stack.tar.gz
-          ls -l
-          ./redis-stack-server-6.2.6-v6/bin/redis-stack-server &
-      - name: Check Redis
-        shell: wsl-bash {0}
-        run: ps -ef | grep redis
+          tar xf redis-stack.tar.gz      
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
         run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
       - name: Test
-        run: dotnet test -f net481 --no-build --verbosity normal
+        shell: cmd
+        run: |
+          wsl ./redis-stack-server-6.2.6-v6/bin/redis-stack-server &
+          dotnet test -f net481 --no-build --verbosity normal
