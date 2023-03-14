@@ -62,8 +62,7 @@ jobs:
           curl https://packages.redis.io/redis-stack/redis-stack-server-6.2.6-v6.jammy.x86_64.tar.gz -o redis-stack.tar.gz
           tar xf redis-stack.tar.gz
           ls -l
-          sudo mv redis-stack-server-6.2.6-v6/ /opt/redis-stack-server
-          /opt/redis-stack-server/bin/redis-stack-server >redisout.log 2>&1 &
+          ./redis-stack-server-6.2.6-v6/bin/redis-stack-server >redisout.log 2>&1 &
           cat redisout.log
       - name: Restore dependencies
         run: dotnet restore
