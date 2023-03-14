@@ -60,8 +60,8 @@ jobs:
           echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
           sudo apt-get update
           sudo apt-get install redis-stack-server -y
-          sudo mkdir /data
-          /opt/redis-stack/bin/redis-stack-server &
+          /opt/redis-stack/bin/redis-stack-server >redisout.log 2>&1 &
+          cat redisout.log
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
