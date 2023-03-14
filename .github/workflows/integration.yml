@@ -62,7 +62,7 @@ jobs:
           curl https://packages.redis.io/redis-stack/redis-stack-server-6.2.6-v6.jammy.x86_64.tar.gz -o redis-stack.tar.gz
           tar xf redis-stack.tar.gz
           ls -l
-          ./redis-stack-server-6.2.6-v6/bin/redis-stack-server
+          ./redis-stack-server-6.2.6-v6/bin/redis-stack-server &
       - name: Check Redis
         shell: wsl-bash {0}
         run: ps -ef | grep redis
