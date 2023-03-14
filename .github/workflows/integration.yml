@@ -52,6 +52,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: Vampire/setup-wsl@v2
+        with:
+          distribution: Ubuntu-20.04
       - shell: wsl-bash {0}
         run: |
           sudo apt-get update
