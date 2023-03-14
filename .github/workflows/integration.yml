@@ -68,5 +68,5 @@ jobs:
       - name: Test
         shell: cmd
         run: |
-          wsl ./redis-stack-server-6.2.6-v6/bin/redis-stack-server &
+          START wsl ./redis-stack-server-6.2.6-v6/bin/redis-stack-server &
           dotnet test -f net481 --no-build --verbosity normal
