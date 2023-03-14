@@ -50,14 +50,18 @@ jobs:
     name: Build and Test on Windows
     runs-on: windows-latest
     steps:
-      - name: Download redis-stack
-        run: Invoke-WebRequest https://github.com/ianwalter/redis-stack/releases/latest/download/redis-stack.zip -OutFile redis-stack.zip
-      - name: Extract redis-stack
-        run: Expand-Archive redis-stack.zip -DestinationPath .\redis-stack\
-      - name: Start redis-stack
-        run: .\redis-stack\redis-stack.exe start
-      - name: Wait for redis-stack to start
-        run: Start-Sleep -s 5
+       - uses: actions/checkout@v3
+      - uses: Vampire/setup-wsl@v2
+      - shell: wsl-bash {0}
+        run: |
+          sudo apt-get update
+          sudo apt-get install curl -y && sudo apt-get install gpg -y && apt-get install lsb-release -y
+          curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+          sudo apt-get update
+          sudo apt-get install redis-stack-server -y
+          /opt/redis-stack/bin/redis-stack-server >redisout.log 2>&1 &
+          cat redisout.log
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
