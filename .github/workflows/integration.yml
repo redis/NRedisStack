@@ -58,7 +58,7 @@ jobs:
         shell: wsl-bash {0}
         run: |
           sudo apt-get update
-          sudo apt-get install curl -y && sudo apt-get install gpg -y && apt-get install lsb-release -y
+          sudo apt-get install curl -y && sudo apt-get install gpg -y && apt-get install lsb-release -y && apt-get install libgomp1 -y
           curl https://packages.redis.io/redis-stack/redis-stack-server-6.2.6-v6.jammy.x86_64.tar.gz -o redis-stack.tar.gz
           tar xf redis-stack.tar.gz
           ls -l
