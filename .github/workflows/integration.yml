@@ -47,13 +47,11 @@ jobs:
         run: dotnet pack -c Release
 
   build_and_test_windows:
-    name: Build and Test on Widnows
+    name: Build and Test on Windows
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
       - uses: Vampire/setup-wsl@v2
-        with:
-          distribution: Ubuntu-20.04
       - shell: wsl-bash {0}
         run: |
           sudo apt-get update
