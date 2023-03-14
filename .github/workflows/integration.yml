@@ -65,7 +65,7 @@ jobs:
           ./redis-stack-server-6.2.6-v6/bin/redis-stack-server
       - name: Check Redis
         shell: wsl-bash {0}
-          run: ps -ef | grep redis
+        run: ps -ef | grep redis
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
