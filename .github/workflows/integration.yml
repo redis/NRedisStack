@@ -15,7 +15,7 @@ env:
   redis_stack_version: 6.2.2-v5
 
 jobs:
-  build_and_test_ubuntu:
+  build_and_test:
     name: Build and Test on Ubuntu
     runs-on: ubuntu-latest
     steps:
@@ -45,7 +45,6 @@ jobs:
           verbose: true
       - name: Build
         run: dotnet pack -c Release
-
   build_and_test_windows:
     name: Build and Test on Windows
     runs-on: windows-latest
