@@ -16,7 +16,7 @@
 
   <ItemGroup>
 	<PackageReference Include="System.Text.Json" Version="7.0.2" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
-	<PackageReference Include="StackExchange.Redis" Version="2.6.90" />
+	<PackageReference Include="StackExchange.Redis" Version="2.6.96" />
 	<None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
