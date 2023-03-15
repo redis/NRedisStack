@@ -1755,6 +1755,9 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         db.Execute("JSON.SET",  "doc:1",  "$",  "[{\"arr\": [1, 2, 3]}, {\"val\": \"hello\"}, {\"val\": \"world\"}]");
         db.Execute("FT.CREATE", "idx", "ON", "JSON", "PREFIX", "1", "doc:", "SCHEMA", "$..arr", "AS", "arr", "NUMERIC", "$..val", "AS", "val", "TEXT");
+        // sleep:
+        Thread.Sleep(2000);
+        
         var res = ft.Search("idx", new Query("*").ReturnFields("arr", "val").SetWithScores().SetPayload("arr"));
         Assert.Equal(1, res.TotalResults);
     }
