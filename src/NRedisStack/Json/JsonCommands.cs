@@ -42,12 +42,12 @@ public class JsonCommands : JsonCommandsAsync, IJsonCommands
     /// <inheritdoc/>
     public bool SetFromFile(RedisKey key, RedisValue path, string filePath, When when = When.Always)
     {
-        if(!File.Exists(filePath))
+        if (!File.Exists(filePath))
         {
             throw new FileNotFoundException($"File {filePath} not found.");
         }
 
-        string fileContent  = File.ReadAllText(filePath);
+        string fileContent = File.ReadAllText(filePath);
         return Set(key, path, fileContent, when);
     }
 
@@ -60,7 +60,7 @@ public class JsonCommands : JsonCommandsAsync, IJsonCommands
         foreach (var filePath in files)
         {
             key = filePath.Substring(0, filePath.IndexOf("."));
-            if(SetFromFile(key, path, filePath, when))
+            if (SetFromFile(key, path, filePath, when))
             {
                 inserted++;
             }
@@ -111,12 +111,12 @@ public class JsonCommands : JsonCommandsAsync, IJsonCommands
 
         if (result.Type == ResultType.MultiBulk)
         {
-            return ((RedisResult[])result!).Select(x => Enum.Parse<JsonType>(x.ToString()!.ToUpper())).ToArray();
+            return ((RedisResult[])result!).Select(x => (JsonType)Enum.Parse(typeof(JsonType), x.ToString()!.ToUpper())).ToArray();
         }
 
         if (result.Type == ResultType.BulkString)
         {
-            return new[] { Enum.Parse<JsonType>(result.ToString()!.ToUpper()) };
+            return new[] { (JsonType)Enum.Parse(typeof(JsonType), result.ToString()!.ToUpper()) };
         }
 
         return Array.Empty<JsonType>();

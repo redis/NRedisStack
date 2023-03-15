@@ -12,11 +12,10 @@ on:
     - cron: "0 1 * * *"
 
 env:
-  redis_stack_version: 6.2.2-v5
+  redis_stack_version: 6.2.6-v6
 
 jobs:
-
-  build_and_test:
+  build_and_Test:
     name: Build and test
     runs-on: ubuntu-latest
     steps:
@@ -36,12 +35,37 @@ jobs:
       - name: Build
         run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
       - name: Test
-        run: dotnet test --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+        run: dotnet test -f net6.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+      - name: Test
+        run: dotnet test -f net7.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
       - name: Codecov
         uses: codecov/codecov-action@v3
         with:
           token: ${{secrets.CODECOV_TOKEN}}
           verbose: true
-
       - name: Build
         run: dotnet pack -c Release
+  build_and_test_windows:
+    name: Build and Test on Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: Vampire/setup-wsl@v2
+        with:
+          distribution: Ubuntu-22.04
+      - name: Install Redis
+        shell: wsl-bash {0}
+        run: |
+          sudo apt-get update
+          sudo apt-get install curl -y && sudo apt-get install gpg -y && apt-get install lsb-release -y && apt-get install libgomp1 -y
+          curl https://packages.redis.io/redis-stack/redis-stack-server-${{env.redis_stack_version}}.jammy.x86_64.tar.gz -o redis-stack.tar.gz
+          tar xf redis-stack.tar.gz      
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
+      - name: Test
+        shell: cmd
+        run: |
+          START wsl ./redis-stack-server-${{env.redis_stack_version}}/bin/redis-stack-server &
+          dotnet test -f net481 --no-build --verbosity normal

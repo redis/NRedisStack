@@ -1,9 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
-    <ImplicitUsings>enable</ImplicitUsings>
-	<Nullable>enable</Nullable>
+    <Nullable>enable</Nullable>
+	<TargetFrameworks>netstandard2.0;net6.0;net7.0</TargetFrameworks>
+	<LangVersion>latest</LangVersion>
+	<ImplicitUsings>enable</ImplicitUsings>
 	<Authors>Redis Open Source</Authors>
 	<Owners>Redis OSS</Owners>
 	<Description>.Net Client for Redis Stack</Description>
@@ -14,6 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+	<PackageReference Include="System.Text.Json" Version="7.0.2" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
 	<PackageReference Include="StackExchange.Redis" Version="2.6.90" />
 	<None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>

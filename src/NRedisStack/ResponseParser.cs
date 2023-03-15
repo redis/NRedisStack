@@ -47,6 +47,8 @@ namespace NRedisStack
 
         public static double ToDouble(this RedisResult result)
         {
+            if (result.ToString() == "nan")
+                return double.NaN;
             if ((double?)result == null)
                 throw new ArgumentNullException(nameof(result));
             return (double)result;
@@ -591,7 +593,7 @@ namespace NRedisStack
             if (res.All(x => x.Type != ResultType.MultiBulk))
             {
                 var keys = res.Select(x => x.ToString()!);
-                sets.Add(keys.ToHashSet());
+                sets.Add(new HashSet<string>(keys));
                 return sets;
             }
 

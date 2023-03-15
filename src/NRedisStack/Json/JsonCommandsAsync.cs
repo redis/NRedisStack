@@ -209,12 +209,12 @@ public class JsonCommandsAsync : IJsonCommandsAsync
 
         if (result.Type == ResultType.MultiBulk)
         {
-            return ((RedisResult[])result!).Select(x => Enum.Parse<JsonType>(x.ToString()!.ToUpper())).ToArray();
+            return ((RedisResult[])result!).Select(x => (JsonType)Enum.Parse(typeof(JsonType), x.ToString()!.ToUpper())).ToArray();
         }
 
         if (result.Type == ResultType.BulkString)
         {
-            return new[] { Enum.Parse<JsonType>(result.ToString()!.ToUpper()) };
+            return new[] { (JsonType)Enum.Parse(typeof(JsonType), result.ToString()!.ToUpper()) };
         }
 
         return Array.Empty<JsonType>();
