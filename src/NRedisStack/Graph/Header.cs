@@ -34,7 +34,7 @@ namespace NRedisStack.Graph
             SchemaTypes = new List<ResultSetColumnTypes>();
             SchemaNames = new List<string>();
 
-            foreach(RedisResult[] tuple in (RedisResult[])result)
+            foreach (RedisResult[] tuple in (RedisResult[])result)
             {
                 SchemaTypes.Add((ResultSetColumnTypes)(int)tuple[0]);
                 SchemaNames.Add((string)tuple[1]);
@@ -63,8 +63,16 @@ namespace NRedisStack.Graph
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(SchemaTypes, SchemaNames);
+            unchecked
+            {
+                int hash = 17;
+                hash = hash * 23 + SchemaTypes.GetHashCode();
+                hash = hash * 23 + SchemaNames.GetHashCode();
+                return hash;
+            }
         }
+
+
 
         public override string ToString() =>
             $"Header{{schemaTypes=[{string.Join(", ", SchemaTypes)}], schemaNames=[{string.Join(", ", SchemaNames)}]}}";

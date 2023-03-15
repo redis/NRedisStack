@@ -44,7 +44,9 @@ namespace NRedisStack
         /// <inheritdoc/>
         public double Min(RedisKey key)
         {
-            return _db.Execute(TdigestCommandBuilder.Min(key)).ToDouble();
+            var cmd = TdigestCommandBuilder.Min(key);
+            var res =_db.Execute(cmd);
+            return res.ToDouble();
         }
 
         /// <inheritdoc/>
