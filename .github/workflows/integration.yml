@@ -12,11 +12,11 @@ on:
     - cron: "0 1 * * *"
 
 env:
-  redis_stack_version: 6.2.2-v5
+  redis_stack_version: 6.2.6-v6
 
 jobs:
-  build_and_test:
-    name: Build and Test on Ubuntu
+  build_and_Test:
+    name: Build and test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -58,7 +58,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install curl -y && sudo apt-get install gpg -y && apt-get install lsb-release -y && apt-get install libgomp1 -y
-          curl https://packages.redis.io/redis-stack/redis-stack-server-6.2.6-v6.jammy.x86_64.tar.gz -o redis-stack.tar.gz
+          curl https://packages.redis.io/redis-stack/redis-stack-server-$redis_stack_version.jammy.x86_64.tar.gz -o redis-stack.tar.gz
           tar xf redis-stack.tar.gz      
       - name: Restore dependencies
         run: dotnet restore
@@ -67,5 +67,5 @@ jobs:
       - name: Test
         shell: cmd
         run: |
-          START wsl ./redis-stack-server-6.2.6-v6/bin/redis-stack-server &
+          START wsl ./redis-stack-server-$redis_stack_version/bin/redis-stack-server &
           dotnet test -f net481 --no-build --verbosity normal
