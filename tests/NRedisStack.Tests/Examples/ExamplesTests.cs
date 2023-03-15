@@ -46,6 +46,9 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         // Create the index
         ft.Create("example_index", parameters, schema);
 
+        //sleep:
+        System.Threading.Thread.Sleep(2000);
+
         // Search all hashes in the index
         var noFilters = ft.Search("example_index", new Query());
         // noFilters now contains: student:1111, student:5555, pupil:4444, student:3333
@@ -61,7 +64,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         // Search for hashes with last name of Rod
         var lastNameRod = ft.Search("example_index", new Query("@last:Rod"));
         // lastNameRod is empty because there are no hashes with a last name of Rod that match the index definition
-        // Assert.Equal(4, noFilters.TotalResults); TODO: checl why this fails in the CI sometimes
+        Assert.Equal(4, noFilters.TotalResults);
         Assert.Equal(2, startWithJo.TotalResults);
         Assert.Equal(1, namedPat.TotalResults);
         Assert.Equal(0, lastNameRod.TotalResults);
