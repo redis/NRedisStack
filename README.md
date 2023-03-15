@@ -4,7 +4,6 @@
 [![NRedisStack NuGet release](https://img.shields.io/nuget/v/NRedisStack.svg?label=nuget&logo=nuget)](https://www.nuget.org/packages/NRedisStack)
 
 
-
 # NRedisStack
 
 .NET Client for Redis
@@ -35,6 +34,10 @@ dotnet add package NRedisStack
 ```
 
 ## 🏁 Getting started
+
+### Supported Redis versions
+
+The most recent version of this library supports redis version [6.2](https://github.com/redis/redis/blob/6.2/00-RELEASENOTES), [7.0](https://github.com/redis/redis/blob/7.0/00-RELEASENOTES).
 
 ### Starting Redis
 
