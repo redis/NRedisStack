@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using System.Security.Cryptography.X509Certificates;
 using Moq;
 using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
@@ -281,5 +283,41 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         var docs = res.ToJson();
 
         Assert.Equal(10, docs.Count());
+    }
+
+    [Fact]
+    public void TestRedisCloudConnection()
+    {
+        // Create configuration options from Redis URL
+        var options = new ConfigurationOptions()
+        {
+            User = Environment.GetEnvironmentVariable("USER"),
+            Password = Environment.GetEnvironmentVariable("PASSWORD"),
+        };
+
+        options.EndPoints.Add(Environment.GetEnvironmentVariable("ENDPOINT")!);
+
+        // Connect to Redis instance
+        using var connection = ConnectionMultiplexer.Connect(options);
+
+        // Get database
+        var db = connection.GetDatabase();
+
+        // Set key-value pair
+        var key = "mykey";
+        var value = "myvalue";
+        var setResult = db.StringSet(key, value);
+
+        // Assert that the set operation succeeded
+        Assert.True(setResult);
+
+        // Get value for key
+        var getValue = db.StringGet(key);
+
+        // Assert that the retrieved value matches the original value
+        Assert.Equal(value, getValue);
+
+        // Delete
+        db.KeyDelete(key);
     }
 }
