@@ -295,7 +295,6 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         var userName = Environment.GetEnvironmentVariable("USER_NAME");
         var password = Environment.GetEnvironmentVariable("PASSWORD");
         var endpoint = Environment.GetEnvironmentVariable("ENDPOINT") ?? throw new Exception("ENDPOINT environment variable is not set.");
-        var all = Environment.GetEnvironmentVariables();
 
         // Create configuration options from Redis URL
         var options = new ConfigurationOptions()
