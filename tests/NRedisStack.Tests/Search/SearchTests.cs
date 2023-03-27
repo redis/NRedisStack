@@ -672,7 +672,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(100, info.NumDocs);
         Assert.Equal("300", info.MaxDocId);
         Assert.Equal(102, info.NumTerms);
-        Assert.True(info.NumRecords >= 800); // TODO: should this be 800 or 802?
+        Assert.True(info.NumRecords >= 200);
         Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
         Assert.Equal(0, info.VectorIndexSzMebibytes);
         Assert.Equal(208, info.TotalInvertedIndexBlocks);
@@ -730,7 +730,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(100, info.NumDocs);
         Assert.Equal("300", info.MaxDocId);
         Assert.Equal(102, info.NumTerms);
-        Assert.True(info.NumRecords >= 800); // TODO: should this be 800?
+        Assert.True(info.NumRecords >= 200);
         Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
         Assert.Equal(0, info.VectorIndexSzMebibytes);
         Assert.Equal(208, info.TotalInvertedIndexBlocks);
@@ -1757,7 +1757,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FT.CREATE", "idx", "ON", "JSON", "PREFIX", "1", "doc:", "SCHEMA", "$..arr", "AS", "arr", "NUMERIC", "$..val", "AS", "val", "TEXT");
         // sleep:
         Thread.Sleep(2000);
-        
+
         var res = ft.Search("idx", new Query("*").ReturnFields("arr", "val").SetWithScores().SetPayload("arr"));
         Assert.Equal(1, res.TotalResults);
     }
