@@ -288,14 +288,23 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void TestRedisCloudConnection()
     {
+        var root = Directory.GetCurrentDirectory();
+        var dotenv = Path.Combine(root, "..", "..", "..", ".env");
+        DotEnv.Load(dotenv);
+
+        var userName = Environment.GetEnvironmentVariable("USER_NAME");
+        var password = Environment.GetEnvironmentVariable("PASSWORD");
+        var endpoint = Environment.GetEnvironmentVariable("ENDPOINT") ?? throw new Exception("ENDPOINT environment variable is not set.");
+        var all = Environment.GetEnvironmentVariables();
+
         // Create configuration options from Redis URL
         var options = new ConfigurationOptions()
         {
-            User = Environment.GetEnvironmentVariable("USER"),
-            Password = Environment.GetEnvironmentVariable("PASSWORD"),
+            User = userName,
+            Password = password,
         };
 
-        options.EndPoints.Add(Environment.GetEnvironmentVariable("ENDPOINT")!);
+        options.EndPoints.Add(endpoint);
 
         // Connect to Redis instance
         using var connection = ConnectionMultiplexer.Connect(options);
