@@ -286,9 +286,9 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void TestRedisCloudConnection()
     {
-        var root = Directory.GetCurrentDirectory();
-        var dotenv = Path.Combine(root, "..", "..", "..", ".env");
-        DotEnv.Load(dotenv);
+        // var root = Directory.GetCurrentDirectory();
+        // var dotenv = Path.Combine(root, "..", "..", "..", ".env");
+        // DotEnv.Load(dotenv);
 
         var userName = Environment.GetEnvironmentVariable("USER_NAME") ?? throw new Exception("USER_NAME is not set.");
         var password = Environment.GetEnvironmentVariable("PASSWORD") ?? throw new Exception("PASSWORD is not set.");
