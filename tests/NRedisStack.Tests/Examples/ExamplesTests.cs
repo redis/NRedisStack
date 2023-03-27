@@ -1,5 +1,3 @@
-using System.Diagnostics;
-using System.Security.Cryptography.X509Certificates;
 using Moq;
 using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
@@ -292,9 +290,9 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         var dotenv = Path.Combine(root, "..", "..", "..", ".env");
         DotEnv.Load(dotenv);
 
-        var userName = Environment.GetEnvironmentVariable("USER_NAME");
-        var password = Environment.GetEnvironmentVariable("PASSWORD");
-        var endpoint = Environment.GetEnvironmentVariable("ENDPOINT") ?? throw new Exception("ENDPOINT environment variable is not set.");
+        var userName = Environment.GetEnvironmentVariable("USER_NAME") ?? throw new Exception("USER_NAME is not set.");
+        var password = Environment.GetEnvironmentVariable("PASSWORD") ?? throw new Exception("PASSWORD is not set.");
+        var endpoint = Environment.GetEnvironmentVariable("ENDPOINT") ?? throw new Exception("ENDPOINT is not set.");
 
         // Create configuration options from Redis URL
         var options = new ConfigurationOptions()
