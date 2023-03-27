@@ -400,5 +400,4 @@ FodyWeavers.xsd
 tests/NRedisStack.Tests/lcov.net7.0.info
 tests/NRedisStack.Tests/lcov.net6.0.info
 tests/NRedisStack.Tests/lcov.info
-tests/NRedisStack.Tests/DotEnv.cs
 tests/NRedisStack.Tests/.env
