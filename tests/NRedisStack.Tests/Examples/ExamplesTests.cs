@@ -1,3 +1,5 @@
+using System.Net.Security;
+using System.Security.Authentication;
 using Moq;
 using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
@@ -282,14 +284,10 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
         Assert.Equal(10, docs.Count());
     }
-
+#if NETCOREAPP3_1_OR_GREATER
     [Fact]
-    public void TestRedisCloudConnection()
+    public void TestRedisCloudConnection_DotnetCore3()
     {
-        // var root = Directory.GetCurrentDirectory();
-        // var dotenv = Path.Combine(root, "..", "..", "..", ".env");
-        // DotEnv.Load(dotenv);
-
         var userName = Environment.GetEnvironmentVariable("USER_NAME") ?? throw new Exception("USER_NAME is not set.");
         var password = Environment.GetEnvironmentVariable("PASSWORD") ?? throw new Exception("PASSWORD is not set.");
         var endpoint = Environment.GetEnvironmentVariable("ENDPOINT") ?? throw new Exception("ENDPOINT is not set.");
@@ -299,9 +297,14 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         {
             User = userName,
             Password = password,
+            Ssl = true,
         };
+        options.SslClientAuthenticationOptions = new Func<string, SslClientAuthenticationOptions>(
+                                                     hostName => new SslClientAuthenticationOptions
+                                                     {
+                                                         EnabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13
+                                                     });
 
-        options.EndPoints.Add(endpoint);
 
         // Connect to Redis instance
         using var connection = ConnectionMultiplexer.Connect(options);
@@ -326,4 +329,5 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         // Delete
         db.KeyDelete(key);
     }
+#endif
 }
