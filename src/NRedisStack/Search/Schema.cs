@@ -209,12 +209,15 @@ namespace NRedisStack.Search
 
             public VectorAlgo Algorithm { get; }
             public Dictionary<string, object>? Attributes { get; }
-            public VectorField(string name, VectorAlgo algorithm, Dictionary<string, object>? attributes = null)
+            public VectorField(FieldName name, VectorAlgo algorithm, Dictionary<string, object>? attributes = null)
                                : base(name, FieldType.Vector)
             {
                 Algorithm = algorithm;
                 Attributes = attributes;
             }
+
+            public VectorField(string name, VectorAlgo algorithm, Dictionary<string, object>? attributes = null)
+                               : this(FieldName.Of(name), algorithm, attributes) { }
 
             internal override void AddFieldTypeArgs(List<object> args)
             {
