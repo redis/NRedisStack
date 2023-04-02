@@ -642,6 +642,10 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Schema sc = new Schema().AddTextField("title", 1.0);
 
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
+
+        //sleep:
+        System.Threading.Thread.Sleep(2000);
+
         var fields = new HashEntry("title", "hello world");
         //fields.("title", "hello world");
         for (int i = 0; i < 100; i++)
@@ -702,6 +706,10 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Schema sc = new Schema().AddTextField("title", 1.0);
 
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
+
+        //sleep:
+        System.Threading.Thread.Sleep(2000);
+
         var fields = new HashEntry("title", "hello world");
         //fields.("title", "hello world");
         for (int i = 0; i < 100; i++)
