@@ -1913,6 +1913,52 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    public void TestVectorFieldJson_Issue102()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        var json = db.JSON();
+
+        // JSON.SET 1 $ '{"vec":[1,2,3,4]}'
+        json.Set("1", "$", "{\"vec\":[1,2,3,4]}");
+
+        // FT.CREATE my_index ON JSON SCHEMA $.vec as vector VECTOR FLAT 6 TYPE FLOAT32 DIM 4 DISTANCE_METRIC L2
+        var schema = new Schema().AddVectorField(FieldName.Of("$.vec").As("vector"), Schema.VectorField.VectorAlgo.FLAT, new Dictionary<string, object>()
+        {
+            ["TYPE"] = "FLOAT32",
+            ["DIM"] = "4",
+            ["DISTANCE_METRIC"] = "L2",
+        });
+        var res = ft.Create("my_index", new FTCreateParams().On(IndexDataType.JSON), schema);
+        Assert.True(res);
+
+    }
+
+    [Fact]
+    public async Task TestVectorFieldJson_Issue102Async()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        var json = db.JSON();
+
+        // JSON.SET 1 $ '{"vec":[1,2,3,4]}'
+        await json.SetAsync("1", "$", "{\"vec\":[1,2,3,4]}");
+
+        // FT.CREATE my_index ON JSON SCHEMA $.vec as vector VECTOR FLAT 6 TYPE FLOAT32 DIM 4 DISTANCE_METRIC L2
+        var schema = new Schema().AddVectorField(FieldName.Of("$.vec").As("vector"), Schema.VectorField.VectorAlgo.FLAT, new Dictionary<string, object>()
+        {
+            ["TYPE"] = "FLOAT32",
+            ["DIM"] = "4",
+            ["DISTANCE_METRIC"] = "L2",
+        });
+
+        Assert.True(await ft.CreateAsync("my_index", new FTCreateParams().On(IndexDataType.JSON), schema));
+
+    }
+
+    [Fact]
     public void TestModulePrefixs1()
     {
         {

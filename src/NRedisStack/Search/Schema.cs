@@ -386,6 +386,19 @@ namespace NRedisStack.Search
         /// <param name="algorithm">The vector similarity algorithm to use.</param>
         /// <param name="attribute">The algorithm attributes for the creation of the vector index.</param>
         /// <returns>The <see cref="Schema"/> object.</returns>
+        public Schema AddVectorField(FieldName name, VectorAlgo algorithm, Dictionary<string, object>? attributes = null)
+        {
+            Fields.Add(new VectorField(name, algorithm, attributes));
+            return this;
+        }
+
+        /// <summary>
+        /// Add a Vector field to the schema.
+        /// </summary>
+        /// <param name="name">The field's name.</param>
+        /// <param name="algorithm">The vector similarity algorithm to use.</param>
+        /// <param name="attribute">The algorithm attributes for the creation of the vector index.</param>
+        /// <returns>The <see cref="Schema"/> object.</returns>
         public Schema AddVectorField(string name, VectorAlgo algorithm, Dictionary<string, object>? attributes = null)
         {
             Fields.Add(new VectorField(name, algorithm, attributes));
