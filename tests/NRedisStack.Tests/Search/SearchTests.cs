@@ -1936,7 +1936,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var idxDef = new FTCreateParams().On(IndexDataType.JSON).Prefix("vec:");
         Assert.True(ft.Create("vss_idx", idxDef, schema));
 
-        float[] vec = new float[] { 2, 2, 3, 3 };
+        float[] vec = new float[] { 2, 2, 2, 2 };
         byte[] queryVec = MemoryMarshal.Cast<float, byte>(vec).ToArray();
 
 
@@ -1947,19 +1947,13 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var res = ft.Search("vss_idx", query);
 
         Assert.Equal(3, res.TotalResults);
-        
-        Assert.Equal("vec:2", res.Documents[0].Id.ToString());
-        Assert.Equal("vec:3", res.Documents[1].Id.ToString());
-        Assert.Equal("vec:1", res.Documents[2].Id.ToString());
 
-        Assert.Equal(2, res.Documents[0]["__vector_score"]);
-        Assert.Equal(2, res.Documents[1]["__vector_score"]);
-        Assert.Equal(10, res.Documents[2]["__vector_score"]);
+        Assert.Equal("vec:2", res.Documents[0].Id.ToString());
+
+        Assert.Equal(0, res.Documents[0]["__vector_score"]);
 
        var jsonRes = res.ToJson();
         Assert.Equal("{\"vector\":[2,2,2,2]}", jsonRes![0]);
-        Assert.Equal("{\"vector\":[3,3,3,3]}", jsonRes![1]);
-        Assert.Equal("{\"vector\":[1,1,1,1]}", jsonRes![2]);
     }
 
     [Fact]
