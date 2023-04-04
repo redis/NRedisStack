@@ -1913,26 +1913,64 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void TestVectorFieldJson_Issue102()
+    public void VectorSimilaritySearch()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var ft = db.FT();
         var json = db.JSON();
 
-        // JSON.SET 1 $ '{"vec":[1,2,3,4]}'
-        json.Set("1", "$", "{\"vec\":[1,2,3,4]}");
+        json.Set("vec:1", "$", "{\"vector\":[1,1,1,1]}");
+        json.Set("vec:2", "$", "{\"vector\":[2,2,2,2]}");
+        json.Set("vec:3", "$", "{\"vector\":[3,3,3,3]}");
+        json.Set("vec:4", "$", "{\"vector\":[4,4,4,4]}");
 
-        // FT.CREATE my_index ON JSON SCHEMA $.vec as vector VECTOR FLAT 6 TYPE FLOAT32 DIM 4 DISTANCE_METRIC L2
-        var schema = new Schema().AddVectorField(FieldName.Of("$.vec").As("vector"), Schema.VectorField.VectorAlgo.FLAT, new Dictionary<string, object>()
+        var schema = new Schema().AddVectorField(FieldName.Of("$.vector").As("vector"), Schema.VectorField.VectorAlgo.FLAT, new Dictionary<string, object>()
         {
             ["TYPE"] = "FLOAT32",
             ["DIM"] = "4",
             ["DISTANCE_METRIC"] = "L2",
         });
-        var res = ft.Create("my_index", new FTCreateParams().On(IndexDataType.JSON), schema);
-        Assert.True(res);
 
+        var idxDef = new FTCreateParams().On(IndexDataType.JSON).Prefix("vec:");
+        Assert.True(ft.Create("vss_idx", idxDef, schema));
+
+
+        var vec = new float[] { 2, 2, 3, 3 };
+        var queryVec = new byte[vec.Length * sizeof(float)];
+
+        var query = new Query("*=>[KNN 3 @vector $query_vec]")
+                            .AddParam("query_vec", queryVec)
+                            .SetSortBy("__vector_score")
+                            .Dialect(2);
+        var res = ft.Search("vss_idx", query);
+        Assert.Equal(3, res.TotalResults);
+    }
+
+    [Fact]
+    public void QueryingVectorFields()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        var json = db.JSON();
+
+        var schema = new Schema().AddVectorField("v", Schema.VectorField.VectorAlgo.HNSW, new Dictionary<string, object>()
+        {
+            ["TYPE"] = "FLOAT32",
+            ["DIM"] = "2",
+            ["DISTANCE_METRIC"] = "L2",
+        });
+
+        ft.Create("idx", new FTCreateParams(), schema);
+
+        db.HashSet("a", "v", "aaaaaaaa");
+        db.HashSet("b", "v", "aaaabaaa");
+        db.HashSet("c", "v", "aaaaabaa");
+
+        var q = new Query("*=>[KNN 2 @v $vec]").ReturnFields("__v_score").Dialect(2);
+        var res = ft.Search("idx", q.AddParam("vec", "aaaaaaaa"));
+        Assert.Equal(2, res.TotalResults);
     }
 
     [Fact]
