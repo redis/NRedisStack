@@ -1,5 +1,7 @@
 using System.Net.Security;
 using System.Security.Authentication;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using Moq;
 using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
@@ -286,46 +288,81 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
     }
 #if NETCOREAPP3_1_OR_GREATER
     [Fact]
-    public void TestRedisCloudConnection_DotnetCore3()
+    public void TestRedisCloudConnection_DotnetCore3__()
     {
+        var root = Path.GetFullPath(Directory.GetCurrentDirectory());
+        var redis_ca = Path.GetFullPath(Path.Combine(root, "..", "..", "..", "redis_ca.pem"));
+        var redis_user_crt  = Path.GetFullPath(Path.Combine(root, "..", "..", "..", "redis_credentials", "redis_user.crt"));
+        var redis_user_private_key  = Path.GetFullPath(Path.Combine(root, "..", "..", "..", "redis_credentials", "redis_user_private.key"));
+        // var dotenv = Path.Combine(root, "..", "..", "..", ".env");
+        // DotEnv.Load(dotenv);
         var userName = Environment.GetEnvironmentVariable("USER_NAME") ?? throw new Exception("USER_NAME is not set.");
         var password = Environment.GetEnvironmentVariable("PASSWORD") ?? throw new Exception("PASSWORD is not set.");
         var endpoint = Environment.GetEnvironmentVariable("ENDPOINT") ?? throw new Exception("ENDPOINT is not set.");
 
-        // Create configuration options from Redis URL
-        var options = new ConfigurationOptions()
+        // Load the Redis credentials
+        var redisUserCertificate = new X509Certificate2(File.ReadAllBytes(redis_user_crt));
+        var redisCaCertificate = new X509Certificate2(File.ReadAllBytes(redis_ca));
+        var redisUserPrivateKey = new X509Certificate2(File.ReadAllBytes(redis_user_private_key));
+        var redisUserPrivateKeyText = File.ReadAllText(redis_user_private_key);
+
+        var rsa = RSA.Create();
+        rsa.ImportFromPem(redisUserPrivateKeyText.ToCharArray());
+        var test = redisUserCertificate.CopyWithPrivateKey(rsa);
+
+        // byte[] privateKeyBytes = File.ReadAllBytes("privateKey.pem");
+        // RSA privateKey = RSA.Create();
+        // privateKey.ImportPkcs8PrivateKey(privateKeyBytes, out _);
+
+        redisUserCertificate.PrivateKey = rsa;
+
+        // var redisUserPrivateKey = new X509Certificate2(rsa.Export);
+        // var redisUserPrivateKey = new X509Certificate2(Encoding.UTF8.GetString(File.ReadAllBytes(redis_user_private_key)));
+        // var redisUserCertificate = new X509Certificate2(redis_user_crt);
+        // var redisCaCertificate = new X509Certificate2(redis_ca);
+        // var redisUserPrivateKey = new X509Certificate2(redis_user_private_key, password);
+        // Create SSL options for Redis connection
+        var sslOptions = new SslClientAuthenticationOptions
+        {
+            CertificateRevocationCheckMode = X509RevocationMode.NoCheck,
+
+            ClientCertificates = new X509CertificateCollection { redisUserCertificate },
+            EnabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls,
+            RemoteCertificateValidationCallback = (sender, certificate, chain, errors) =>
+            {
+                if (errors == SslPolicyErrors.None)
+                    return true;
+                // Implement your own certificate validation logic here
+                // Return false if the certificate is not trusted
+                return false;
+            },
+            TargetHost = endpoint
+        };
+        // Connect to Redis Cloud
+        var redisConfiguration = new ConfigurationOptions
         {
             User = userName,
-            Password = password,
+            EndPoints = { endpoint },
             Ssl = true,
+            SslProtocols = sslOptions.EnabledSslProtocols,
+            SslHost = sslOptions.TargetHost,
+            SslClientAuthenticationOptions = host => sslOptions,
+            Password = password,
+            AllowAdmin = true
         };
-        options.SslClientAuthenticationOptions = new Func<string, SslClientAuthenticationOptions>(
-                                                     hostName => new SslClientAuthenticationOptions
-                                                     {
-                                                         EnabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13
-                                                     });
-
-
-        // Connect to Redis instance
-        using var connection = ConnectionMultiplexer.Connect(options);
-
+        var redis = ConnectionMultiplexer.Connect(redisConfiguration);
         // Get database
-        var db = connection.GetDatabase();
-
+        var db = redis.GetDatabase();
         // Set key-value pair
         var key = "mykey";
         var value = "myvalue";
         var setResult = db.StringSet(key, value);
-
         // Assert that the set operation succeeded
         Assert.True(setResult);
-
         // Get value for key
         var getValue = db.StringGet(key);
-
         // Assert that the retrieved value matches the original value
         Assert.Equal(value, getValue);
-
         // Delete
         db.KeyDelete(key);
     }
