@@ -282,4 +282,71 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
         Assert.Equal(10, docs.Count());
     }
+
+    [Fact]
+    public void BasicJsonExamplesTest()
+    {
+        ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
+        IDatabase db = redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        IJsonCommands json = db.JSON();
+
+        // Insert a simple KVP as a JSON object:
+        Assert.True(json.Set("ex1:1", "$", "\"val\""));
+        // Insert a single-property JSON object:
+        Assert.True(json.Set("ex1:2", "$", new { field1 = "val1" }));
+        // Insert a JSON object with multiple properties:
+        Assert.True(json.Set("ex1:3", "$", new
+        {
+            field1 = "val1",
+            field2 = "val2"
+        }));
+
+        // Insert a JSON object with multiple properties of different data types:
+        Assert.True(json.Set("ex1:4", "$", new
+        {
+            field1 = "val1",
+            field2 = "val2",
+            field3 = true,
+            field4 = (string?)null
+        }));
+
+        // Insert a JSON object that contains an array:
+        Assert.True(json.Set("ex1:5", "$", new
+        {
+            arr1 = new[] { "val1", "val2", "val3" }
+        }));
+
+        // Insert a JSON object that contains a nested object:
+        Assert.True(json.Set("ex1:6", "$", new
+        {
+            obj1 = new
+            {
+                str1 = "val1",
+                num2 = 2
+            }
+        }));
+
+        // Insert a JSON object with a mixture of property data types:
+        Assert.True(json.Set("ex1:7", "$", new
+        {
+            str1 = "val1",
+            str2 = "val2",
+            arr1 = new[] { 1, 2, 3, 4 },
+            obj1 = new
+            {
+                num1 = 1,
+                arr2 = new[] { "val1", "val2", "val3" }
+            }
+        }));
+
+        // Set and Fetch a simple JSON KVP:
+        json.Set("ex2:1", "$", "\"val\"");
+        var res = json.Get(key: "ex2:1",
+            path: "$",
+            indent: "\t",
+            newLine: "\n"
+        );
+        Assert.Equal("[\n\t\"val\"\n]", res.ToString());
+    }
 }
