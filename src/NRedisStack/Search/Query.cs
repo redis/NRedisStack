@@ -180,7 +180,7 @@ namespace NRedisStack.Search
         /// <summary>
         /// Set the query parameter to sort by ASC by default
         /// </summary>
-        public bool SortAscending { get; set; } = true;
+        public bool? SortAscending { get; set; } = null;
 
         // highlight and summarize
         internal bool _wantsHighlight = false, _wantsSummarize = false;
@@ -260,7 +260,8 @@ namespace NRedisStack.Search
             {
                 args.Add("SORTBY");
                 args.Add(SortBy);
-                args.Add((SortAscending ? "ASC" : "DESC"));
+                if (SortAscending != null)
+                    args.Add(((bool)SortAscending ? "ASC" : "DESC"));
             }
             if (Payload != null)
             {
@@ -605,7 +606,7 @@ namespace NRedisStack.Search
         /// <param name="field">the sorting field's name</param>
         /// <param name="ascending">if set to true, the sorting order is ascending, else descending</param>
         /// <returns>the query object itself</returns>
-        public Query SetSortBy(string field, bool ascending = true)
+        public Query SetSortBy(string field, bool? ascending = null)
         {
             SortBy = field;
             SortAscending = ascending;
