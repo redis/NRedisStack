@@ -1,4 +1,4 @@
-﻿namespace NRedisStack.Literals
+﻿namespace NRedisStack.Graph.Literals
 {
     internal class GRAPH
     {

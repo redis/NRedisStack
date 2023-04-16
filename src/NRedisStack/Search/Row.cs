@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using StackExchange.Redis;
+﻿using StackExchange.Redis;
 
 namespace NRedisStack.Search.Aggregation
 {

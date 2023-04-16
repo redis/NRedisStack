@@ -4,7 +4,6 @@
 [![NRedisStack NuGet release](https://img.shields.io/nuget/v/NRedisStack.svg?label=nuget&logo=nuget)](https://www.nuget.org/packages/NRedisStack)
 
 
-
 # NRedisStack
 
 .NET Client for Redis
@@ -36,6 +35,10 @@ dotnet add package NRedisStack
 
 ## 🏁 Getting started
 
+### Supported Redis versions
+
+The most recent version of this library supports Redis version [6.2](https://github.com/redis/redis/blob/6.2/00-RELEASENOTES), [7.0](https://github.com/redis/redis/blob/7.0/00-RELEASENOTES).
+
 ### Starting Redis
 
 Before writing any code, you'll need a Redis instance with the appropriate Redis modules. The quickest way to get this is with Docker:
@@ -49,8 +52,11 @@ This launches [Redis Stack](https://redis.io/docs/stack/), an extension of Redis
 Now, you need to connect to Redis, exactly the same way you do it in [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis):
 ```csharp
 using NRedisStack;
-...
+using NRedisStack.RedisStackCommands;
+using StackExchange.Redis;
+//...
 ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
+IDatabase db = redis.GetDatabase();
 ```
 Now you can create a variable from any type of module in the following way:
 ```csharp
@@ -65,40 +71,49 @@ IJsonCommands json = db.JSON();
 ITimeSeriesCommands ts = db.TS();
 ```
 Then, that variable will allow you to call all the commands of that module.
+
 ## Examples
-### Set JSON object to Redis
-Set a json object to Redis:
+
+### Store a JSON object in Redis
+
+To store a json object in Redis:
+
 ```csharp
 ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
 IDatabase db = redis.GetDatabase();
 
 IJsonCommands json = db.JSON();
 var key = "myKey";
-json.Set(key, "$", new Person() { Age = 35, Name = "Alice" });
+json.Set(key, "$", new { Age = 35, Name = "Alice" });
 ```
+
 ### Index and search
-We will see an example that shows how you can create an index, add a document to it and search it using NRedisStack.
+Now, to execute a search  for objects, we need to index them on the server, and run a query:
 
 Setup:
+
 ```csharp
-using NRedisStack;
-...
-IDatabase db = redisFixture.Redis.GetDatabase();
+using NRedisStack.Search;
+using NRedisStack.Search.Literals.Enums;
+//...
+ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
+IDatabase db = redis.GetDatabase();
+
 ISearchCommands ft = db.FT();
 IJsonCommands json = db.JSON();
 ```
+
 Create an index with fields and weights:
 ```csharp
 // FT.CREATE myIdx ON HASH PREFIX 1 doc: SCHEMA title TEXT WEIGHT 5.0 body TEXT url TEXT
-ft.Create("myIndex", new FTCreateParams().On(IndexDataType.Hash)
+ft.Create("myIndex", new FTCreateParams().On(IndexDataType.HASH)
                                          .Prefix("doc:"),
                      new Schema().AddTextField("title", 5.0)
                                  .AddTextField("body")
                                  .AddTextField("url"));
 ```
 
-After you create the index, any new hash documents with the doc: prefix are automatically indexed upon creation.
-
+After creating the index, future documents with the ```doc:``` prefix will be automatically indexed when created or modified.
 
 To create a new hash document and add it to the index, use the HSET command:
 ```csharp
@@ -117,6 +132,9 @@ Drop the index:
 // FT.DROPINDEX myIndex
 ft.DropIndex("myIndex");
 ```
+
+More examples can be found in the [examples folder](Examples).
+
 ------
 
 ### Author

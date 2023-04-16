@@ -1,8 +1,6 @@
 using NRedisStack.DataTypes;
 using NRedisStack.Literals.Enums;
 using NRedisStack.RedisStackCommands;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace NRedisStack.Tests.TimeSeries.TestAPI

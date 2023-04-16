@@ -1,4 +1,4 @@
-﻿using NRedisStack.Literals;
+﻿using NRedisStack.Json.Literals;
 using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
 using System.Text.Json;

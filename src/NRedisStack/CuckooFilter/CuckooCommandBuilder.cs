@@ -1,4 +1,4 @@
-using NRedisStack.Literals;
+using NRedisStack.CuckooFilter.Literals;
 using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
 namespace NRedisStack

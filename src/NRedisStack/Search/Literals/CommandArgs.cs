@@ -1,4 +1,4 @@
-namespace NRedisStack.Literals
+namespace NRedisStack.Search.Literals
 {
     internal class SearchArgs
     {

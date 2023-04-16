@@ -1,5 +1,4 @@
 using NRedisStack.CuckooFilter.DataTypes;
-using NRedisStack.Literals;
 using StackExchange.Redis;
 namespace NRedisStack
 {

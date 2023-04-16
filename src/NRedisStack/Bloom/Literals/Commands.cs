@@ -1,4 +1,4 @@
-﻿namespace NRedisStack.Literals
+﻿namespace NRedisStack.Bloom.Literals
 {
     internal class BF
     {

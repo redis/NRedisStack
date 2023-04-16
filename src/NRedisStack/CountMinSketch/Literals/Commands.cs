@@ -1,4 +1,4 @@
-﻿namespace NRedisStack.Literals
+﻿namespace NRedisStack.CountMinSketch.Literals
 {
     internal class CMS
     {

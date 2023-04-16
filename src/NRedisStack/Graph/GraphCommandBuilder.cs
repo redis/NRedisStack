@@ -1,4 +1,4 @@
-using NRedisStack.Literals;
+using NRedisStack.Graph.Literals;
 using NRedisStack.RedisStackCommands;
 
 namespace NRedisStack

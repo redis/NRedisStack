@@ -1,4 +1,4 @@
-namespace NRedisStack.Literals
+namespace NRedisStack.TopK.Literals
 {
     internal class TopKArgs
     {

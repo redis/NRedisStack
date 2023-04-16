@@ -1,6 +1,4 @@
-﻿using System;
-using NRedisStack.RedisStackCommands;
-using NRedisStack.Literals.Enums;
+﻿using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;
 using Xunit;
 

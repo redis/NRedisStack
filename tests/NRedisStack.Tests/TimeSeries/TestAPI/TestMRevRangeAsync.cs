@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using StackExchange.Redis;
 using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;

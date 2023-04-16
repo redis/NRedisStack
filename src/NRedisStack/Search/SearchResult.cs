@@ -1,6 +1,4 @@
 ﻿using StackExchange.Redis;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace NRedisStack.Search
 {
@@ -13,6 +11,12 @@ namespace NRedisStack.Search
     {
         public long TotalResults { get; }
         public List<Document> Documents { get; }
+
+        /// <summary>
+        /// Converts the documents to a list of json strings. only works on a json documents index.
+        /// </summary>
+        public List<string>? ToJson() => Documents.Select(x => x["json"].ToString())
+                                                         .Where(x => !string.IsNullOrEmpty(x)).ToList();
 
         internal SearchResult(RedisResult[] resp, bool hasContent, bool hasScores, bool hasPayloads/*, bool shouldExplainScore*/)
         {

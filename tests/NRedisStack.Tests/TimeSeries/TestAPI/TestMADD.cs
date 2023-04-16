@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using NRedisStack.DataTypes;
+﻿using NRedisStack.DataTypes;
+using NRedisStack.Literals.Enums;
 using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
 using Xunit;
@@ -90,7 +89,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
             foreach (string key in keys)
             {
-                ts.Create(key);
+                ts.Create(key, duplicatePolicy: TsDuplicatePolicy.MAX);
             }
 
             List<DateTime> oldTimeStamps = new List<DateTime>();

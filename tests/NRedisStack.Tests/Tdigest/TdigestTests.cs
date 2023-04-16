@@ -666,7 +666,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     {
         Random random = new Random();
 
-        return new Tuple<double, long>(random.NextDouble() * 10000, random.NextInt64() + 1);
+        return new Tuple<double, long>(random.NextDouble() * 10000, random.Next() + 1);
     }
 
     static Tuple<double, long>[] RandomValueWeightArray(int count)
@@ -687,7 +687,11 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     private static double[] WeightedValue(double value, int weight)
     {
         double[] values = new double[weight];
-        Array.Fill(values, value);
+        for (var i = 0; i < values.Length; i++)
+        {
+            values[i] = value;
+        }
+
         return values;
     }
 }

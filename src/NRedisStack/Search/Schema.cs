@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using static NRedisStack.Search.Schema.VectorField;
+﻿using static NRedisStack.Search.Schema.VectorField;
 
 namespace NRedisStack.Search
 {
@@ -211,12 +209,15 @@ namespace NRedisStack.Search
 
             public VectorAlgo Algorithm { get; }
             public Dictionary<string, object>? Attributes { get; }
-            public VectorField(string name, VectorAlgo algorithm, Dictionary<string, object>? attributes = null)
+            public VectorField(FieldName name, VectorAlgo algorithm, Dictionary<string, object>? attributes = null)
                                : base(name, FieldType.Vector)
             {
                 Algorithm = algorithm;
                 Attributes = attributes;
             }
+
+            public VectorField(string name, VectorAlgo algorithm, Dictionary<string, object>? attributes = null)
+                               : this(FieldName.Of(name), algorithm, attributes) { }
 
             internal override void AddFieldTypeArgs(List<object> args)
             {
@@ -375,6 +376,19 @@ namespace NRedisStack.Search
                               bool caseSensitive = false, bool withSuffixTrie = false)
         {
             Fields.Add(new TagField(name, sortable, unf, noIndex, separator, caseSensitive, withSuffixTrie));
+            return this;
+        }
+
+        /// <summary>
+        /// Add a Vector field to the schema.
+        /// </summary>
+        /// <param name="name">The field's name.</param>
+        /// <param name="algorithm">The vector similarity algorithm to use.</param>
+        /// <param name="attribute">The algorithm attributes for the creation of the vector index.</param>
+        /// <returns>The <see cref="Schema"/> object.</returns>
+        public Schema AddVectorField(FieldName name, VectorAlgo algorithm, Dictionary<string, object>? attributes = null)
+        {
+            Fields.Add(new VectorField(name, algorithm, attributes));
             return this;
         }
 

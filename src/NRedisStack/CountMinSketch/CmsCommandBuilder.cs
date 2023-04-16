@@ -1,6 +1,7 @@
-using NRedisStack.Literals;
+using NRedisStack.CountMinSketch.Literals;
 using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
+
 namespace NRedisStack
 {
 

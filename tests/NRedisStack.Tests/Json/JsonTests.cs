@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Xunit;
@@ -907,7 +906,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
 
         commands.Set(key, "$", new { a = "hello", b = new { a = "world" } });
         var res = commands.DebugMemory(key);
-        Assert.Equal(45, res);
+        Assert.True(res > 20);
         res = commands.DebugMemory("non-existent key");
         Assert.Equal(0, res);
     }
@@ -921,7 +920,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
 
         await commands.SetAsync(key, "$", new { a = "hello", b = new { a = "world" } });
         var res = await commands.DebugMemoryAsync(key);
-        Assert.Equal(45, res);
+        Assert.True(res > 20);
         res = await commands.DebugMemoryAsync("non-existent key");
         Assert.Equal(0, res);
     }

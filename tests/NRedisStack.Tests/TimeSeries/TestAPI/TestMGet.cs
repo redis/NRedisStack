@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using NRedisStack.DataTypes;
+﻿using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
 using Xunit;

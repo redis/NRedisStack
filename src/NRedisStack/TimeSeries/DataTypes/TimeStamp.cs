@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace NRedisStack.DataTypes
+﻿namespace NRedisStack.DataTypes
 {
     /// <summary>
     /// A class represents timestamp.
