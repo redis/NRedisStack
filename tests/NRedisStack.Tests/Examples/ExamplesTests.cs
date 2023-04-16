@@ -1,5 +1,4 @@
 using Moq;
-using Newtonsoft.Json;
 using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
