@@ -368,13 +368,19 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
             field1 = "val1",
             field2 = "val2"
         });
+        // sleep
+        Thread.Sleep(500);
         res = json.Get(key: "ex2:3",
             paths: new[] { "$.field1", "$.field2" },
             indent: "\t",
             newLine: "\n"
         );
-        var jsonObj = JsonConvert.SerializeObject(res.ToString());
-        Assert.Equal("{\n\t\"$.field1\":[\n\t\t\"val1\"\n\t],\n\t\"$.field2\":[\n\t\t\"val2\"\n\t]\n}", res.ToString());
+
+        var actualJson = res.ToString();
+        var expectedJson1 = "{\n\t\"$.field1\":[\n\t\t\"val1\"\n\t],\n\t\"$.field2\":[\n\t\t\"val2\"\n\t]\n}";
+        var expectedJson2 = "{\n\t\"$.field2\":[\n\t\t\"val2\"\n\t],\n\t\"$.field1\":[\n\t\t\"val1\"\n\t]\n}";
+
+        Assert.True(actualJson == expectedJson1 || actualJson == expectedJson2);
 
         // Fetch a property nested in another JSON object:
         json.Set("ex2:4", "$", new
