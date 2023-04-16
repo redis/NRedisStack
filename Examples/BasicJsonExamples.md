@@ -447,7 +447,6 @@ Console.WriteLine(json.Get(key: "ex4:3",
 Delete a single item from an array.
 #### Command
 ```c#
-Console.WriteLine("\n*** Lab 2 - Delete a single item from an array ***");
 json.Set("ex4:4", "$", new {
     arr1 = new[] {"val1", "val2", "val3"}
 });
