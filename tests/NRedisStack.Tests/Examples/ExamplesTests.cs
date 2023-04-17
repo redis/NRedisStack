@@ -1,4 +1,7 @@
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Moq;
+using Newtonsoft.Json.Linq;
 using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
@@ -533,5 +536,88 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
             newLine: "\n"
         );
         Assert.Equal("{\n\t\"arr1\":[\n\t\t\"val2\",\n\t\t\"val3\"\n\t]\n}", res.ToString());
+    }
+
+    [Fact]
+    public void AdvancedJsonExamplesTest()
+    {
+        ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
+        IDatabase db = redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        IJsonCommands json = db.JSON();
+
+        string formattedJsonString = @"[
+            {
+                ""id"":15970,
+                ""gender"":""Men"",
+                ""season"":[
+                    ""Fall"",
+                    ""Winter""
+                ],
+                ""description"":""Turtle Check Men Navy Blue Shirt"",
+                ""price"":34.95
+            },
+            {
+                ""id"":59263,
+                ""gender"":""Women"",
+                ""season"":[
+                    ""Fall"",
+                    ""Winter"",
+                    ""Spring"",
+                    ""Summer""
+                ],
+                ""description"":""Titan Women Silver Watch"",
+                ""price"":129.99
+            },
+            {
+                ""id"":46885,
+                ""gender"":""Boys"",
+                ""season"":[
+                    ""Fall""
+                ],
+                ""description"":""Ben 10 Boys Navy Blue Slippers"",
+                ""price"":45.99
+            }
+        ]";
+
+
+        json.Set("warehouse:1", "$", new
+        {
+            city = "Boston",
+            location = "42.361145, -71.057083",
+            inventory = new[] {
+                    new {
+                        id = 15970,
+                        gender = "Men",
+                        season = new[] {"Fall", "Winter"},
+                        description = "Turtle Check Men Navy Blue Shirt",
+                        price = 34.95
+                    },
+                    new {
+                        id = 59263,
+                        gender = "Women",
+                        season = new[] {"Fall", "Winter", "Spring", "Summer"},
+                        description = "Titan Women Silver Watch",
+                        price = 129.99
+                    },
+                    new {
+                        id = 46885,
+                        gender = "Boys",
+                        season = new[] {"Fall"},
+                        description =  "Ben 10 Boys Navy Blue Slippers",
+                        price = 45.99
+                    }
+                }
+        });
+
+        var res = json.Get(key: "warehouse:1",
+                path: "$.inventory[*]",
+                indent: "\t",
+                newLine: "\n"
+            );
+        JToken resToken = JToken.Parse(res.ToString());
+        JToken expectedToken = JToken.Parse(formattedJsonString);
+
+        Assert.Equal(expectedToken.ToString(), resToken.ToString());
     }
 }
