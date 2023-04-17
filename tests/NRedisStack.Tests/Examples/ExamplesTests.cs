@@ -545,42 +545,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = redis.GetDatabase();
         db.Execute("FLUSHALL");
         IJsonCommands json = db.JSON();
-
-        string formattedJsonString = @"[
-            {
-                ""id"":15970,
-                ""gender"":""Men"",
-                ""season"":[
-                    ""Fall"",
-                    ""Winter""
-                ],
-                ""description"":""Turtle Check Men Navy Blue Shirt"",
-                ""price"":34.95
-            },
-            {
-                ""id"":59263,
-                ""gender"":""Women"",
-                ""season"":[
-                    ""Fall"",
-                    ""Winter"",
-                    ""Spring"",
-                    ""Summer""
-                ],
-                ""description"":""Titan Women Silver Watch"",
-                ""price"":129.99
-            },
-            {
-                ""id"":46885,
-                ""gender"":""Boys"",
-                ""season"":[
-                    ""Fall""
-                ],
-                ""description"":""Ben 10 Boys Navy Blue Slippers"",
-                ""price"":45.99
-            }
-        ]";
-
-
+        
         json.Set("warehouse:1", "$", new
         {
             city = "Boston",
@@ -610,14 +575,99 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
                 }
         });
 
+        // Fetch all properties of an array:
         var res = json.Get(key: "warehouse:1",
                 path: "$.inventory[*]",
                 indent: "\t",
                 newLine: "\n"
             );
-        JToken resToken = JToken.Parse(res.ToString());
-        JToken expectedToken = JToken.Parse(formattedJsonString);
+        var expected = "[\n\t{\n\t\t\"id\":15970,\n\t\t\"gender\":\"Men\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\"\n\t\t],\n\t\t\"description\":\"Turtle Check Men Navy Blue Shirt\",\n\t\t\"price\":34.95\n\t},\n\t{\n\t\t\"id\":59263,\n\t\t\"gender\":\"Women\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\",\n\t\t\t\"Spring\",\n\t\t\t\"Summer\"\n\t\t],\n\t\t\"description\":\"Titan Women Silver Watch\",\n\t\t\"price\":129.99\n\t},\n\t{\n\t\t\"id\":46885,\n\t\t\"gender\":\"Boys\",\n\t\t\"season\":[\n\t\t\t\"Fall\"\n\t\t],\n\t\t\"description\":\"Ben 10 Boys Navy Blue Slippers\",\n\t\t\"price\":45.99\n\t}\n]";
+        Assert.Equal(expected, res.ToString()); // TODO: fine nicer way to compare the two JSON strings
 
-        Assert.Equal(expectedToken.ToString(), resToken.ToString());
+
+        // Fetch all values of a field within an array:
+        res = json.Get(
+                    key: "warehouse:1",
+                    path: "$.inventory[*].price",
+                    indent: "\t",
+                    newLine: "\n"
+        );
+        expected = "[\n\t34.95,\n\t129.99,\n\t45.99\n]";
+        Assert.Equal(expected, res.ToString());
+
+        // Fetch all items within an array where a text field matches a given value:
+        res = json.Get(
+                    key: "warehouse:1",
+                    path: "$.inventory[?(@.description==\"Turtle Check Men Navy Blue Shirt\")]",
+                    indent: "\t",
+                    newLine: "\n"
+        );
+
+        expected = "[\n\t{\n\t\t\"id\":15970,\n\t\t\"gender\":\"Men\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\"\n\t\t],\n\t\t\"description\":\"Turtle Check Men Navy Blue Shirt\",\n\t\t\"price\":34.95\n\t}\n]";
+        Assert.Equal(expected, res.ToString());
+
+        // Fetch all items within an array where a numeric field is less than a given value:
+        res = json.Get(key: "warehouse:1",
+                    path: "$.inventory[?(@.price<100)]",
+                    indent: "\t",
+                    newLine: "\n"
+                );
+        expected = "[\n\t{\n\t\t\"id\":15970,\n\t\t\"gender\":\"Men\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\"\n\t\t],\n\t\t\"description\":\"Turtle Check Men Navy Blue Shirt\",\n\t\t\"price\":34.95\n\t},\n\t{\n\t\t\"id\":46885,\n\t\t\"gender\":\"Boys\",\n\t\t\"season\":[\n\t\t\t\"Fall\"\n\t\t],\n\t\t\"description\":\"Ben 10 Boys Navy Blue Slippers\",\n\t\t\"price\":45.99\n\t}\n]";
+        Assert.Equal(expected, res.ToString());
+
+        // Fetch all items within an array where a numeric field is less than a given value:
+        res = json.Get(key: "warehouse:1",
+                    path: "$.inventory[?(@.id>=20000)]",
+                    indent: "\t",
+                    newLine: "\n"
+                );
+        expected = "[\n\t{\n\t\t\"id\":59263,\n\t\t\"gender\":\"Women\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\",\n\t\t\t\"Spring\",\n\t\t\t\"Summer\"\n\t\t],\n\t\t\"description\":\"Titan Women Silver Watch\",\n\t\t\"price\":129.99\n\t},\n\t{\n\t\t\"id\":46885,\n\t\t\"gender\":\"Boys\",\n\t\t\"season\":[\n\t\t\t\"Fall\"\n\t\t],\n\t\t\"description\":\"Ben 10 Boys Navy Blue Slippers\",\n\t\t\"price\":45.99\n\t}\n]";
+        //Assert.Equal(expected, res.ToString());
+
+        // Fetch all items within an array where a numeric field is less than a given value:
+        res = json.Get(key: "warehouse:1",
+                    path: "$.inventory[?(@.gender==\"Men\"&&@.price>20)]",
+                    indent: "\t",
+                    newLine: "\n"
+                );
+        expected = "[\n\t{\n\t\t\"id\":15970,\n\t\t\"gender\":\"Men\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\"\n\t\t],\n\t\t\"description\":\"Turtle Check Men Navy Blue Shirt\",\n\t\t\"price\":34.95\n\t}\n]";
+        Assert.Equal(expected, res.ToString());
+
+        // Fetch all items within an array that meet at least one relational operation.
+        // In this case, return only the ids of those items:
+        res = json.Get(key: "warehouse:1",
+                    path: "$.inventory[?(@.price<100||@.gender==\"Women\")].id",
+                    indent: "\t",
+                    newLine: "\n"
+                );
+        expected = "[\n\t15970,\n\t59263,\n\t46885\n]";
+        Assert.Equal(expected, res.ToString());
+
+        // Fetch all items within an array that match a given regex pattern.
+        res = json.Get(key: "warehouse:1",
+                    path: "$.inventory[?(@.description =~ \"Blue\")]",
+                    indent: "\t",
+                    newLine: "\n"
+                );
+        expected = "[\n\t{\n\t\t\"id\":15970,\n\t\t\"gender\":\"Men\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\"\n\t\t],\n\t\t\"description\":\"Turtle Check Men Navy Blue Shirt\",\n\t\t\"price\":34.95\n\t},\n\t{\n\t\t\"id\":46885,\n\t\t\"gender\":\"Boys\",\n\t\t\"season\":[\n\t\t\t\"Fall\"\n\t\t],\n\t\t\"description\":\"Ben 10 Boys Navy Blue Slippers\",\n\t\t\"price\":45.99\n\t}\n]";
+        Assert.Equal(expected, res.ToString());
+
+        // Fetch all items within an array where a field contains a term, case insensitive
+        res = json.Get(key: "warehouse:1",
+                    path: "$.inventory[?(@.description =~ \"(?i)watch\")]",
+                    indent: "\t",
+                    newLine: "\n"
+                );
+        expected = "[\n\t{\n\t\t\"id\":59263,\n\t\t\"gender\":\"Women\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\",\n\t\t\t\"Spring\",\n\t\t\t\"Summer\"\n\t\t],\n\t\t\"description\":\"Titan Women Silver Watch\",\n\t\t\"price\":129.99\n\t}\n]";
+        Assert.Equal(expected, res.ToString());
+
+        // Fetch all items within an array where a field begins with a given expression
+        res = json.Get(key: "warehouse:1",
+                    path: "$.inventory[?(@.description =~ \"^T\")]",
+                    indent: "\t",
+                    newLine: "\n"
+                );
+        expected = "[\n\t{\n\t\t\"id\":15970,\n\t\t\"gender\":\"Men\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\"\n\t\t],\n\t\t\"description\":\"Turtle Check Men Navy Blue Shirt\",\n\t\t\"price\":34.95\n\t},\n\t{\n\t\t\"id\":59263,\n\t\t\"gender\":\"Women\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\",\n\t\t\t\"Spring\",\n\t\t\t\"Summer\"\n\t\t],\n\t\t\"description\":\"Titan Women Silver Watch\",\n\t\t\"price\":129.99\n\t}\n]";
+        Assert.Equal(expected, res.ToString());
     }
 }
