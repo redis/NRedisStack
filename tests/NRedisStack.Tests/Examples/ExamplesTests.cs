@@ -1,7 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Moq;
-using Newtonsoft.Json.Linq;
 using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
