@@ -727,32 +727,39 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
         Assert.NotNull(res);
         Assert.Equal(3, res!.Count);
-        var expected = "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}";
-        Assert.Equal(expected, res[0].ToString());
-        expected = "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}";
-        Assert.Equal(expected, res[1].ToString());
-        expected = "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
-        Assert.Equal(expected, res[2].ToString());
+        var expectedList = new List<string>()
+        {
+            "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}",
+            "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}",
+            "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
+        };
+
+        SortAndCompare(expectedList, res);
 
 
 
         // Find all documents with a given word in a text field:
         res = ft.Search("idx1", new Query("@description:Slippers")).ToJson();
-        expected = "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
-        Assert.Equal(expected, res[0].ToString());
+        var expected = "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
+        Assert.Equal(expected, res![0].ToString());
 
 
         // Find all documents with a given phrase in a text field:
         res = ft.Search("idx1", new Query("@description:(\"Blue Shirt\")")).ToJson();
         expected = "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}";
-        Assert.Equal(expected, res[0].ToString());
+        Assert.Equal(expected, res![0].ToString());
 
         // Find all documents with a numeric field in a given range:
         res = ft.Search("idx1", new Query("@price:[40,130]")).ToJson();
-        expected = "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}";
-        Assert.Equal(expected, res[0].ToString());
-        expected = "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
-        Assert.Equal(expected, res[1].ToString());
+
+        expectedList = new()
+        {
+            "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}",
+            "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
+        };
+
+        SortAndCompare(expectedList, res);
+
 
 
         // Find all documents that contain a given value in an array field (tag):
@@ -767,25 +774,33 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
         // Find all documents that either match tag value or text value:
         res = ft.Search("idx1", new Query("(@gender:{Women})|(@city:Boston)")).ToJson();
-        expected = "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}";
-        Assert.Equal(expected, res[0].ToString());
-        expected = "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}";
-        Assert.Equal(expected, res[1].ToString());
+        expectedList = new()
+        {
+            "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}",
+            "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}"
+        };
+
+        SortAndCompare(expectedList, res);
 
         // Find all documents that do not contain a given word in a text field:
         res = ft.Search("idx1", new Query("-(@description:Shirt)")).ToJson();
 
-        expected = "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}";
-        Assert.Equal(expected, res[0].ToString());
-        expected = "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
-        Assert.Equal(expected, res[1].ToString());
+        expectedList = new()
+        {
+            "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}",
+            "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
+        };
+        SortAndCompare(expectedList, res);
 
         // Find all documents that have a word that begins with a given prefix value:
         res = ft.Search("idx1", new Query("@description:Nav*")).ToJson();
-        expected = "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}";
-        Assert.Equal(expected, res[0].ToString());
-        expected = "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
-        Assert.Equal(expected, res[1].ToString());
+
+        expectedList = new()
+        {
+            "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}",
+            "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
+        };
+        SortAndCompare(expectedList, res);
 
         // Find all documents that contain a word that ends with a given suffix value:
         res = ft.Search("idx1", new Query("@description:*Watch")).ToJson();
@@ -796,10 +811,13 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         // Find all documents that contain a word that is within 1 Levenshtein distance of a given word:
         res = ft.Search("idx1", new Query("@description:%wavy%")).ToJson();
 
-        expected = "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}";
-        Assert.Equal(expected, res[0].ToString());
-        expected = "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
-        Assert.Equal(expected, res[1].ToString());
+
+        expectedList = new()
+        {
+            "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}",
+            "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
+        };
+        SortAndCompare(expectedList, res);
 
         // Find all documents that have geographic coordinates within a given range of a given coordinate.
         // Colorado Springs coords(long, lat) = -104.800644, 38.846127:
@@ -807,5 +825,16 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
         expected = "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
         Assert.Equal(expected, res[0].ToString());
+    }
+
+    private static void SortAndCompare(List<string> expectedList, List<string> res)
+    {
+        res.Sort();
+        expectedList.Sort();
+
+        for (int i = 0; i < res.Count; i++)
+        {
+            Assert.Equal(expectedList[i], res[i].ToString());
+        }
     }
 }
