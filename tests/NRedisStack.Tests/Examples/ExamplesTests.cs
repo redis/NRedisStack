@@ -162,7 +162,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
         Assert.True(create.Result);
         Assert.Equal(5, count);
-        //Assert.Equal("person:01", firstPerson?.Id);
+        Assert.Equal("person:01", firstPerson?.Id);
     }
 
     [Fact]
@@ -669,5 +669,143 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
                 );
         expected = "[\n\t{\n\t\t\"id\":15970,\n\t\t\"gender\":\"Men\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\"\n\t\t],\n\t\t\"description\":\"Turtle Check Men Navy Blue Shirt\",\n\t\t\"price\":34.95\n\t},\n\t{\n\t\t\"id\":59263,\n\t\t\"gender\":\"Women\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\",\n\t\t\t\"Spring\",\n\t\t\t\"Summer\"\n\t\t],\n\t\t\"description\":\"Titan Women Silver Watch\",\n\t\t\"price\":129.99\n\t}\n]";
         Assert.Equal(expected, res.ToString());
+    }
+
+    [Fact]
+    public void BasicQueryOperationsTest()
+    {
+        ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
+        IDatabase db = redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        IJsonCommands json = db.JSON();
+        ISearchCommands ft = db.FT();
+
+        json.Set("product:15970", "$", new
+        {
+            id = 15970,
+            gender = "Men",
+            season = new[] { "Fall", "Winter" },
+            description = "Turtle Check Men Navy Blue Shirt",
+            price = 34.95,
+            city = "Boston",
+            coords = "-71.057083, 42.361145"
+        });
+        json.Set("product:59263", "$", new
+        {
+            id = 59263,
+            gender = "Women",
+            season = new[] { "Fall", "Winter", "Spring", "Summer" },
+            description = "Titan Women Silver Watch",
+            price = 129.99,
+            city = "Dallas",
+            coords = "-96.808891, 32.779167"
+        });
+        json.Set("product:46885", "$", new
+        {
+            id = 46885,
+            gender = "Boys",
+            season = new[] { "Fall" },
+            description = "Ben 10 Boys Navy Blue Slippers",
+            price = 45.99,
+            city = "Denver",
+            coords = "-104.991531, 39.742043"
+        });
+
+        try { ft.DropIndex("idx1"); } catch { };
+        ft.Create("idx1", new FTCreateParams().On(IndexDataType.JSON)
+                                              .Prefix("product:"),
+                                        new Schema().AddNumericField(new FieldName("$.id", "id"))
+                                                    .AddTagField(new FieldName("$.gender", "gender"))
+                                                    .AddTagField(new FieldName("$.season.*", "season"))
+                                                    .AddTextField(new FieldName("$.description", "description"))
+                                                    .AddNumericField(new FieldName("$.price", "price"))
+                                                    .AddTextField(new FieldName("$.city", "city"))
+                                                    .AddGeoField(new FieldName("$.coords", "coords")));
+
+        // Find all documents for a given index:
+        var res = ft.Search("idx1", new Query("*")).ToJson();
+
+        Assert.NotNull(res);
+        Assert.Equal(3, res!.Count);
+        var expected = "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}";
+        Assert.Equal(expected, res[0].ToString());
+        expected = "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}";
+        Assert.Equal(expected, res[1].ToString());
+        expected = "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
+        Assert.Equal(expected, res[2].ToString());
+
+
+
+        // Find all documents with a given word in a text field:
+        res = ft.Search("idx1", new Query("@description:Slippers")).ToJson();
+        expected = "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
+        Assert.Equal(expected, res[0].ToString());
+
+
+        // Find all documents with a given phrase in a text field:
+        res = ft.Search("idx1", new Query("@description:(\"Blue Shirt\")")).ToJson();
+        expected = "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}";
+        Assert.Equal(expected, res[0].ToString());
+
+        // Find all documents with a numeric field in a given range:
+        res = ft.Search("idx1", new Query("@price:[40,130]")).ToJson();
+        expected = "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}";
+        Assert.Equal(expected, res[0].ToString());
+        expected = "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
+        Assert.Equal(expected, res[1].ToString());
+
+
+        // Find all documents that contain a given value in an array field (tag):
+        res = ft.Search("idx1", new Query("@season:{Spring}")).ToJson();
+        expected = "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}";
+        Assert.Equal(expected, res[0].ToString());
+
+        // Find all documents contain both a numeric field in a range and a word in a text field:
+        res = ft.Search("idx1", new Query("@price:[40, 100] @description:Blue")).ToJson();
+        expected = "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
+        Assert.Equal(expected, res[0].ToString());
+
+        // Find all documents that either match tag value or text value:
+        res = ft.Search("idx1", new Query("(@gender:{Women})|(@city:Boston)")).ToJson();
+        expected = "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}";
+        Assert.Equal(expected, res[0].ToString());
+        expected = "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}";
+        Assert.Equal(expected, res[1].ToString());
+
+        // Find all documents that do not contain a given word in a text field:
+        res = ft.Search("idx1", new Query("-(@description:Shirt)")).ToJson();
+
+        expected = "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}";
+        Assert.Equal(expected, res[0].ToString());
+        expected = "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
+        Assert.Equal(expected, res[1].ToString());
+
+        // Find all documents that have a word that begins with a given prefix value:
+        res = ft.Search("idx1", new Query("@description:Nav*")).ToJson();
+        expected = "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}";
+        Assert.Equal(expected, res[0].ToString());
+        expected = "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
+        Assert.Equal(expected, res[1].ToString());
+
+        // Find all documents that contain a word that ends with a given suffix value:
+        res = ft.Search("idx1", new Query("@description:*Watch")).ToJson();
+
+        expected = "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}";
+        Assert.Equal(expected, res[0].ToString());
+
+        // Find all documents that contain a word that is within 1 Levenshtein distance of a given word:
+        res = ft.Search("idx1", new Query("@description:%wavy%")).ToJson();
+
+        expected = "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}";
+        Assert.Equal(expected, res[0].ToString());
+        expected = "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
+        Assert.Equal(expected, res[1].ToString());
+
+        // Find all documents that have geographic coordinates within a given range of a given coordinate.
+        // Colorado Springs coords(long, lat) = -104.800644, 38.846127:
+        res = ft.Search("idx1", new Query("@coords:[-104.800644 38.846127 100 mi]")).ToJson();
+
+        expected = "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
+        Assert.Equal(expected, res[0].ToString());
     }
 }
