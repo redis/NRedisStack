@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NRedisStack", "src\NRedisSt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NRedisStack.Tests", "tests\NRedisStack.Tests\NRedisStack.Tests.csproj", "{73B56C35-BC92-4ACD-B077-7D55CD67B95F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doc", "tests\Doc\Doc.csproj", "{F14F6342-14A0-4DDD-AB05-C425B1AD8001}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{73B56C35-BC92-4ACD-B077-7D55CD67B95F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{73B56C35-BC92-4ACD-B077-7D55CD67B95F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{73B56C35-BC92-4ACD-B077-7D55CD67B95F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F14F6342-14A0-4DDD-AB05-C425B1AD8001}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F14F6342-14A0-4DDD-AB05-C425B1AD8001}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F14F6342-14A0-4DDD-AB05-C425B1AD8001}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F14F6342-14A0-4DDD-AB05-C425B1AD8001}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
