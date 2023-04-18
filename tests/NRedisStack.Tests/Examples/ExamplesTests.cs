@@ -5,6 +5,7 @@ using NRedisStack.Search;
 using NRedisStack.Search.Literals.Enums;
 using StackExchange.Redis;
 using Xunit;
+using static NRedisStack.Search.Schema;
 
 namespace NRedisStack.Tests;
 
@@ -825,6 +826,59 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
         expected = "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
         Assert.Equal(expected, res[0].ToString());
+    }
+
+    [Fact]
+    public void AdvancedQueryOperationsTest()
+    {
+        ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
+        IDatabase db = redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        IJsonCommands json = db.JSON();
+        ISearchCommands ft = db.FT();
+
+        // Data load:
+        db.HashSet("vec:1", "vector", (new float[] { 1f, 1f, 1f, 1f }).SelectMany(BitConverter.GetBytes).ToArray());
+        db.HashSet("vec:2", "vector", (new float[] { 2f, 2f, 2f, 2f }).SelectMany(BitConverter.GetBytes).ToArray());
+        db.HashSet("vec:3", "vector", (new float[] { 3f, 3f, 3f, 3f }).SelectMany(BitConverter.GetBytes).ToArray());
+        db.HashSet("vec:4", "vector", (new float[] { 4f, 4f, 4f, 4f }).SelectMany(BitConverter.GetBytes).ToArray());
+
+        // Index creation:
+        try { ft.DropIndex("vss_idx"); } catch { };
+        Assert.True(ft.Create("vss_idx", new FTCreateParams().On(IndexDataType.HASH).Prefix("vec:"),
+            new Schema()
+            .AddVectorField("vector", VectorField.VectorAlgo.FLAT,
+                new Dictionary<string, object>()
+                {
+                    ["TYPE"] = "FLOAT32",
+                    ["DIM"] = "4",
+                    ["DISTANCE_METRIC"] = "L2"
+                }
+        )));
+
+        // Sleep:
+        Thread.Sleep(1500);
+
+        // Search:
+
+        float[] vec = new[] { 2f, 2f, 3f, 3f };
+        var res = ft.Search("vss_idx",
+                    new Query("*=>[KNN 3 @vector $query_vec]")
+                    .AddParam("query_vec", vec.SelectMany(BitConverter.GetBytes).ToArray())
+                    .SetSortBy("__vector_score")
+                    .Dialect(2));
+        foreach (var doc in res.Documents)
+        {
+            foreach (var item in doc.GetProperties())
+            {
+                if (item.Key == "__vector_score")
+                {
+                    Console.WriteLine($"id: {doc.Id}, score: {item.Value}");
+                }
+            }
+        }
+
+
     }
 
     private static void SortAndCompare(List<string> expectedList, List<string> res)
