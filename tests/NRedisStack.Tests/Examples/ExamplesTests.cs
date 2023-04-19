@@ -289,8 +289,112 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
         Assert.Equal(10, docs.Count());
     }
+    
+#if NET481
+    [Fact]
+    public void TestRedisCloudConnection()
+    {
+        var root = Path.GetFullPath(Directory.GetCurrentDirectory());
+        var redisCaPath = Path.GetFullPath(Path.Combine(root, "redis_ca.pem"));
+        var redisUserCrtPath  = Path.GetFullPath(Path.Combine(root, "redis_user.crt"));
+        var redisUserPrivateKeyPath  = Path.GetFullPath(Path.Combine(root, "redis_user_private.key"));
 
-#if NETCOREAPP6_0_OR_GREATER
+        var password = Environment.GetEnvironmentVariable("PASSWORD") ?? throw new Exception("PASSWORD is not set.");
+        var endpoint = Environment.GetEnvironmentVariable("ENDPOINT") ?? throw new Exception("ENDPOINT is not set.");
+
+        // Load the Redis credentials
+        var redisUserCertificate = new X509Certificate2(File.ReadAllBytes(redisUserCrtPath));
+        var redisCaCertificate = new X509Certificate2(File.ReadAllBytes(redisCaPath));
+
+        var rsa = RSA.Create();
+
+        var redisUserPrivateKeyText = File.ReadAllText(redisUserPrivateKeyPath);
+        var pemFileData = File.ReadAllLines(redisUserPrivateKeyPath).Where(x => !x.StartsWith("-"));
+        var binaryEncoding = Convert.FromBase64String(string.Join(null, pemFileData));
+        
+        rsa.ImportParameters(ImportPrivateKey(File.ReadAllText(redisUserPrivateKeyPath)));
+        redisUserCertificate.CopyWithPrivateKey(rsa);
+        rsa.ImportParameters(ImportPrivateKey(File.ReadAllText(redisUserPrivateKeyText)));
+        var clientCert = redisUserCertificate.CopyWithPrivateKey(rsa);
+
+        // Connect to Redis Cloud
+        var redisConfiguration = new ConfigurationOptions
+        {
+            EndPoints = { endpoint },
+            Ssl = true,
+            Password = password
+        };
+
+        redisConfiguration.CertificateSelection += (_, _, _, _, _) => clientCert;
+
+        redisConfiguration.CertificateValidation += (_, cert, _, errors) =>
+        {
+            if (errors == SslPolicyErrors.None)
+            {
+                return true;
+            }
+
+            var privateChain = new X509Chain();
+            privateChain.ChainPolicy = new X509ChainPolicy { RevocationMode = X509RevocationMode.NoCheck };
+            X509Certificate2 cert2 = new X509Certificate2(cert!);
+            privateChain.ChainPolicy.ExtraStore.Add(redisCaCertificate);
+            privateChain.Build(cert2);
+
+            bool isValid = true;
+
+            // we're establishing the trust chain so if the only complaint is that that the root CA is untrusted, and the root CA root
+            // matches our certificate, we know it's ok
+            foreach (X509ChainStatus chainStatus in privateChain.ChainStatus.Where(x =>
+                         x.Status != X509ChainStatusFlags.UntrustedRoot))
+            {
+                if (chainStatus.Status != X509ChainStatusFlags.NoError)
+                {
+                    isValid = false;
+                    break;
+                }
+            }
+
+            return isValid;
+        };
+
+
+        var redis = ConnectionMultiplexer.Connect(redisConfiguration);
+        var db = redis.GetDatabase();
+        db.Ping();
+    }
+
+    public static RSAParameters ImportPrivateKey(string pem)
+    {
+        PemReader pr = new PemReader(new StringReader(pem));
+        RsaPrivateCrtKeyParameters privKey = (RsaPrivateCrtKeyParameters)pr.ReadObject();
+        RSAParameters rp = new RSAParameters();
+        rp.Modulus = privKey.Modulus.ToByteArrayUnsigned();
+        rp.Exponent = privKey.PublicExponent.ToByteArrayUnsigned();
+        rp.P = privKey.P.ToByteArrayUnsigned();
+        rp.Q = privKey.Q.ToByteArrayUnsigned();
+        rp.D = ConvertRSAParametersField(privKey.Exponent, rp.Modulus.Length);
+        rp.DP = ConvertRSAParametersField(privKey.DP, rp.P.Length);
+        rp.DQ = ConvertRSAParametersField(privKey.DQ, rp.Q.Length);
+        rp.InverseQ = ConvertRSAParametersField(privKey.QInv, rp.Q.Length);
+
+           
+        return rp;
+    }
+
+    private static byte[] ConvertRSAParametersField(BigInteger n, int size)
+    {
+        byte[] bs = n.ToByteArrayUnsigned();
+        if (bs.Length == size)
+            return bs;
+        if (bs.Length > size)
+            throw new ArgumentException("Specified size too small", "size");
+        byte[] padded = new byte[size];
+        Array.Copy(bs, 0, padded, size - bs.Length, bs.Length);
+        return padded;
+    }
+#endif
+
+#if NET6_0_OR_GREATER
     [Fact]
     public void TestRedisCloudConnection()
     {
