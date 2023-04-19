@@ -370,8 +370,8 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         var redisUserPrivateKey = Environment.GetEnvironmentVariable("REDIS_USER_PRIVATE_KEY") ?? throw new Exception("REDIS_USER_PRIVATE_KEY is not set.");
 
         // Load the Redis credentials
-        var redisUserCertificate = new X509Certificate2(Convert.FromBase64String(redisUserCrt));
-        var redisCaCertificate = new X509Certificate2(Convert.FromBase64String(redisCa));
+        var redisUserCertificate = new X509Certificate2(Convert.FromHexString(redisUserCrt));
+        var redisCaCertificate = new X509Certificate2(Convert.FromHexString(redisCa));
 
         var rsa = RSA.Create();
         var pemFileData = redisUserPrivateKey.Split('\n').Where(x => !x.StartsWith("-"));
