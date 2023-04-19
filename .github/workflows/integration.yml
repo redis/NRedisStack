@@ -20,9 +20,12 @@ jobs:
     runs-on: ubuntu-latest
     environment: REDIS_USER
     env:
-      ENDPOINT: ${{ secrets.ENDPOINT }}
       USER_NAME: ${{ secrets.USER_NAME }}
       PASSWORD: ${{ secrets.PASSWORD }}
+      ENDPOINT: ${{ secrets.ENDPOINT }}
+      REDIS_CA_PEM: ${{ secrets.REDIS_CA_PEM }}
+      REDIS_USER_CRT: ${{ secrets.REDIS_USER_CRT }}
+      REDIS_USER_PRIVATE_KEY: ${{ secrets.REDIS_USER_PRIVATE_KEY }}
     steps:
       - uses: actions/checkout@v3
       - name: .NET Core 6
@@ -58,6 +61,9 @@ jobs:
       USER_NAME: ${{ secrets.USER_NAME }}
       PASSWORD: ${{ secrets.PASSWORD }}
       ENDPOINT: ${{ secrets.ENDPOINT }}
+      REDIS_CA_PEM: ${{ secrets.REDIS_CA_PEM }}
+      REDIS_USER_CRT: ${{ secrets.REDIS_USER_CRT }}
+      REDIS_USER_PRIVATE_KEY: ${{ secrets.REDIS_USER_PRIVATE_KEY }}
     steps:
       - uses: actions/checkout@v3
       - uses: Vampire/setup-wsl@v2

@@ -365,7 +365,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
     {
         var password = Environment.GetEnvironmentVariable("PASSWORD") ?? throw new Exception("PASSWORD is not set.");
         var endpoint = Environment.GetEnvironmentVariable("ENDPOINT") ?? throw new Exception("ENDPOINT is not set.");
-        var redisCa = Environment.GetEnvironmentVariable("REDIS_CA_PEM") ?? throw new Exception("REDIS_CA is not set.");
+        var redisCa = Environment.GetEnvironmentVariable("REDIS_CA_PEM") ?? throw new Exception("REDIS_CA_PEM is not set.");
         var redisUserCrt = Environment.GetEnvironmentVariable("REDIS_USER_CRT") ?? throw new Exception("REDIS_USER_CRT is not set.");
         var redisUserPrivateKey = Environment.GetEnvironmentVariable("REDIS_USER_PRIVATE_KEY") ?? throw new Exception("REDIS_USER_PRIVATE_KEY is not set.");
 
