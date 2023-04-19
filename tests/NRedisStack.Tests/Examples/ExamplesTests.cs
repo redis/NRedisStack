@@ -287,99 +287,104 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(10, docs.Count());
     }
 
-    // [Fact]
-    // public void TestRedisCloudConnection()
-    // {
-    //     var root = Path.GetFullPath(Directory.GetCurrentDirectory());
-    //     var redisCaPath = Path.GetFullPath(Path.Combine(root, "redis_ca.pem"));
-    //     var redisUserCrtPath  = Path.GetFullPath(Path.Combine(root, "redis_user.crt"));
-    //     var redisUserPrivateKeyPath  = Path.GetFullPath(Path.Combine(root, "redis_user_private.key"));
+    [Fact]
+    public void TestRedisCloudConnection()
+    {
+        var root = Path.GetFullPath(Directory.GetCurrentDirectory());
+        var redisCaPath = Path.GetFullPath(Path.Combine(root, "redis_ca.pem"));
+        var redisUserCrtPath  = Path.GetFullPath(Path.Combine(root, "redis_user.crt"));
+        var redisUserPrivateKeyPath  = Path.GetFullPath(Path.Combine(root, "redis_user_private.key"));
 
-    //     var password = Environment.GetEnvironmentVariable("PASSWORD") ?? throw new Exception("PASSWORD is not set.");
-    //     var endpoint = Environment.GetEnvironmentVariable("ENDPOINT") ?? throw new Exception("ENDPOINT is not set.");
+        var password = Environment.GetEnvironmentVariable("PASSWORD") ?? throw new Exception("PASSWORD is not set.");
+        var endpoint = Environment.GetEnvironmentVariable("ENDPOINT") ?? throw new Exception("ENDPOINT is not set.");
 
-    //     // Load the Redis credentials
-    //     var redisUserCertificate = new X509Certificate2(File.ReadAllBytes(redisUserCrtPath));
-    //     var redisCaCertificate = new X509Certificate2(File.ReadAllBytes(redisCaPath));
+        // Load the Redis credentials
+        var redisUserCertificate = new X509Certificate2(File.ReadAllBytes(redisUserCrtPath));
+        var redisCaCertificate = new X509Certificate2(File.ReadAllBytes(redisCaPath));
 
-    //     var rsa = RSA.Create();
+        var rsa = RSA.Create();
 
-    //     var redisUserPrivateKeyText = File.ReadAllText(redisUserPrivateKeyPath);
-    //     var pemFileData = File.ReadAllLines(redisUserPrivateKeyPath).Where(x => !x.StartsWith("-"));
-    //     var binaryEncoding = Convert.FromBase64String(string.Join(null, pemFileData));
+        var redisUserPrivateKeyText = File.ReadAllText(redisUserPrivateKeyPath);
+        var pemFileData = File.ReadAllLines(redisUserPrivateKeyPath).Where(x => !x.StartsWith("-"));
+        var binaryEncoding = Convert.FromBase64String(string.Join(null, pemFileData));
 
-    //     rsa.ImportRSAPrivateKey(binaryEncoding, out _);
-    //     redisUserCertificate.CopyWithPrivateKey(rsa);
-    //     rsa.ImportFromPem(redisUserPrivateKeyText.ToCharArray());
-    //     var clientCert = redisUserCertificate.CopyWithPrivateKey(rsa);
+        rsa.ImportRSAPrivateKey(binaryEncoding, out _);
+        redisUserCertificate.CopyWithPrivateKey(rsa);
+        rsa.ImportFromPem(redisUserPrivateKeyText.ToCharArray());
+        var clientCert = redisUserCertificate.CopyWithPrivateKey(rsa);
 
-    //     // Connect to Redis Cloud
-    //     var redisConfiguration = new ConfigurationOptions
-    //     {
-    //         EndPoints = { endpoint },
-    //         Ssl = true,
-    //         Password = password
-    //     };
+        // Connect to Redis Cloud
+        var redisConfiguration = new ConfigurationOptions
+        {
+            EndPoints = { endpoint },
+            Ssl = true,
+            Password = password
+        };
 
-    //     redisConfiguration.CertificateSelection += (_, _, _, _, _) => clientCert;
+        redisConfiguration.CertificateSelection += (_, _, _, _, _) => clientCert;
 
-    //     redisConfiguration.CertificateValidation += (_, cert, _, errors) =>
-    //     {
-    //         if (errors == SslPolicyErrors.None)
-    //         {
-    //             return true;
-    //         }
+        redisConfiguration.CertificateValidation += (_, cert, _, errors) =>
+        {
+            if (errors == SslPolicyErrors.None)
+            {
+                return true;
+            }
 
-    //         var privateChain = new X509Chain();
-    //         privateChain.ChainPolicy = new X509ChainPolicy { RevocationMode = X509RevocationMode.NoCheck };
-    //         X509Certificate2 cert2 = new X509Certificate2(cert!);
-    //         privateChain.ChainPolicy.ExtraStore.Add(redisCaCertificate);
-    //         privateChain.Build(cert2);
+            var privateChain = new X509Chain();
+            privateChain.ChainPolicy = new X509ChainPolicy { RevocationMode = X509RevocationMode.NoCheck };
+            X509Certificate2 cert2 = new X509Certificate2(cert!);
+            privateChain.ChainPolicy.ExtraStore.Add(redisCaCertificate);
+            privateChain.Build(cert2);
 
-    //         bool isValid = true;
+            bool isValid = true;
 
-    //         // we're establishing the trust chain so if the only complaint is that that the root CA is untrusted, and the root CA root
-    //         // matches our certificate, we know it's ok
-    //         foreach (X509ChainStatus chainStatus in privateChain.ChainStatus.Where(x =>
-    //                      x.Status != X509ChainStatusFlags.UntrustedRoot))
-    //         {
-    //             if (chainStatus.Status != X509ChainStatusFlags.NoError)
-    //             {
-    //                 isValid = false;
-    //                 break;
-    //             }
-    //         }
+            // we're establishing the trust chain so if the only complaint is that that the root CA is untrusted, and the root CA root
+            // matches our certificate, we know it's ok
+            foreach (X509ChainStatus chainStatus in privateChain.ChainStatus.Where(x =>
+                         x.Status != X509ChainStatusFlags.UntrustedRoot))
+            {
+                if (chainStatus.Status != X509ChainStatusFlags.NoError)
+                {
+                    isValid = false;
+                    break;
+                }
+            }
 
-    //         return isValid;
-    //     };
+            return isValid;
+        };
 
 
-    //     var redis = ConnectionMultiplexer.Connect(redisConfiguration);
-    //     var db = redis.GetDatabase();
-    //     db.Ping();
-    // }
+        var redis = ConnectionMultiplexer.Connect(redisConfiguration);
+        var db = redis.GetDatabase();
+        db.Ping();
+    }
 
 #if NETCOREAPP3_1_OR_GREATER
     [Fact]
     public void TestRedisCloudConnection_DotnetCore3__()
     {
+        // Replace this with your own Redis Cloud credentials
+        var root = Path.GetFullPath(Directory.GetCurrentDirectory());
+        var redisCaPath = Path.GetFullPath(Path.Combine(root, "redis_ca.pem"));
+        var redisUserCrtPath  = Path.GetFullPath(Path.Combine(root, "redis_user.crt"));
+        var redisUserPrivateKeyPath  = Path.GetFullPath(Path.Combine(root, "redis_user_private.key"));
+
         var password = Environment.GetEnvironmentVariable("PASSWORD") ?? throw new Exception("PASSWORD is not set.");
         var endpoint = Environment.GetEnvironmentVariable("ENDPOINT") ?? throw new Exception("ENDPOINT is not set.");
-        var redisCa = Environment.GetEnvironmentVariable("REDIS_CA_PEM") ?? throw new Exception("REDIS_CA_PEM is not set.");
-        var redisUserCrt = Environment.GetEnvironmentVariable("REDIS_USER_CRT") ?? throw new Exception("REDIS_USER_CRT is not set.");
-        var redisUserPrivateKey = Environment.GetEnvironmentVariable("REDIS_USER_PRIVATE_KEY") ?? throw new Exception("REDIS_USER_PRIVATE_KEY is not set.");
 
         // Load the Redis credentials
-        var redisUserCertificate = new X509Certificate2(Convert.FromHexString(redisUserCrt));
-        var redisCaCertificate = new X509Certificate2(Convert.FromHexString(redisCa));
+        var redisUserCertificate = new X509Certificate2(File.ReadAllBytes(redisUserCrtPath));
+        var redisCaCertificate = new X509Certificate2(File.ReadAllBytes(redisCaPath));
 
         var rsa = RSA.Create();
-        var pemFileData = redisUserPrivateKey.Split('\n').Where(x => !x.StartsWith("-"));
+
+        var redisUserPrivateKeyText = File.ReadAllText(redisUserPrivateKeyPath);
+        var pemFileData = File.ReadAllLines(redisUserPrivateKeyPath).Where(x => !x.StartsWith("-"));
         var binaryEncoding = Convert.FromBase64String(string.Join(null, pemFileData));
 
         rsa.ImportRSAPrivateKey(binaryEncoding, out _);
         redisUserCertificate.CopyWithPrivateKey(rsa);
-        rsa.ImportFromPem(redisUserPrivateKey.ToCharArray());
+        rsa.ImportFromPem(redisUserPrivateKeyText.ToCharArray());
         var clientCert = redisUserCertificate.CopyWithPrivateKey(rsa);
 
         var sslOptions = new SslClientAuthenticationOptions
@@ -430,6 +435,10 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         var redis = ConnectionMultiplexer.Connect(redisConfiguration);
         var db = redis.GetDatabase();
         db.Ping();
+
+        db.StringSet("testKey", "testValue");
+        var value = db.StringGet("testKey");
+        Assert.Equal("testValue", value);
     }
 #endif
 }

@@ -23,9 +23,6 @@ jobs:
       USER_NAME: ${{ secrets.USER_NAME }}
       PASSWORD: ${{ secrets.PASSWORD }}
       ENDPOINT: ${{ secrets.ENDPOINT }}
-      REDIS_CA_PEM: ${{ secrets.REDIS_CA_PEM }}
-      REDIS_USER_CRT: ${{ secrets.REDIS_USER_CRT }}
-      REDIS_USER_PRIVATE_KEY: ${{ secrets.REDIS_USER_PRIVATE_KEY }}
     steps:
       - uses: actions/checkout@v3
       - name: .NET Core 6
@@ -43,7 +40,12 @@ jobs:
       - name: Build
         run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
       - name: Test
-        run: dotnet test -f net6.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+        run: |
+          echo ${{secrets.REDIS_CA_PEM}} > tests/NRedisStack.Tests/bin/Debug/net6.0/redis_ca.pem
+          echo ${{secrets.REDIS_USER_CRT}} > tests/NRedisStack.Tests/bin/Debug/net6.0/redis_user.crt
+          echo ${{secrets.REDIS_USER_PRIVATE_KEY}} > tests/NRedisStack.Tests/bin/Debug/net6.0/redis_user_private.key
+          ls -R
+          dotnet test -f net6.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
       - name: Test
         run: dotnet test -f net7.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
       - name: Codecov
@@ -61,9 +63,6 @@ jobs:
       USER_NAME: ${{ secrets.USER_NAME }}
       PASSWORD: ${{ secrets.PASSWORD }}
       ENDPOINT: ${{ secrets.ENDPOINT }}
-      REDIS_CA_PEM: ${{ secrets.REDIS_CA_PEM }}
-      REDIS_USER_CRT: ${{ secrets.REDIS_USER_CRT }}
-      REDIS_USER_PRIVATE_KEY: ${{ secrets.REDIS_USER_PRIVATE_KEY }}
     steps:
       - uses: actions/checkout@v3
       - uses: Vampire/setup-wsl@v2
