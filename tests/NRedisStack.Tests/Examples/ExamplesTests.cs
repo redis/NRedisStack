@@ -287,6 +287,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(10, docs.Count());
     }
 
+    #if !WINDOWS
     [Fact]
     public void TestRedisCloudConnection()
     {
@@ -361,7 +362,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
 #if NETCOREAPP3_1_OR_GREATER
     [Fact]
-    public void TestRedisCloudConnection_DotnetCore3__()
+    public void TestRedisCloudConnection_DotnetCore3()
     {
         // Replace this with your own Redis Cloud credentials
         var root = Path.GetFullPath(Directory.GetCurrentDirectory());
@@ -440,5 +441,6 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         var value = db.StringGet("testKey");
         Assert.Equal("testValue", value);
     }
+#endif
 #endif
 }
