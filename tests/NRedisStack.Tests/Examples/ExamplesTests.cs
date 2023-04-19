@@ -7,6 +7,9 @@ using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
 using NRedisStack.Search.Literals.Enums;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Math;
+using Org.BouncyCastle.OpenSsl;
 using StackExchange.Redis;
 using Xunit;
 
@@ -287,7 +290,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(10, docs.Count());
     }
 
-    #if !WINDOWS
+#if NETCOREAPP6_0_OR_GREATER
     [Fact]
     public void TestRedisCloudConnection()
     {
@@ -360,7 +363,6 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         db.Ping();
     }
 
-#if NETCOREAPP3_1_OR_GREATER
     [Fact]
     public void TestRedisCloudConnection_DotnetCore3()
     {
@@ -442,5 +444,5 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("testValue", value);
     }
 #endif
-#endif
+
 }
