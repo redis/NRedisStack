@@ -6,6 +6,9 @@ using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
 using NRedisStack.Search.Literals.Enums;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Math;
+using Org.BouncyCastle.OpenSsl;
 using StackExchange.Redis;
 using Xunit;
 
