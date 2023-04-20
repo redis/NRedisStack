@@ -844,7 +844,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         db.HashSet("vec:1", "vector", (new float[] { 1f, 1f, 1f, 1f }).SelectMany(BitConverter.GetBytes).ToArray());
         db.HashSet("vec:2", "vector", (new float[] { 2f, 2f, 2f, 2f }).SelectMany(BitConverter.GetBytes).ToArray());
         db.HashSet("vec:3", "vector", (new float[] { 3f, 3f, 3f, 3f }).SelectMany(BitConverter.GetBytes).ToArray());
-        db.HashSet("vec:4", "vector", (new float[] { 4f, 4f, 4f, 4f }).SelectMany(BitConverter.GetBytes).ToArray());
+        db.HashSet("vec:5", "vector", (new float[] { 5f, 5f, 5f, 5f }).SelectMany(BitConverter.GetBytes).ToArray());
 
         // Index creation:
         try { ft.DropIndex("vss_idx"); } catch { };
