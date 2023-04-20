@@ -1,3 +1,4 @@
+using System.Text;
 using Moq;
 using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
@@ -860,23 +861,30 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         Thread.Sleep(1500);
 
         // Search:
-
         float[] vec = new[] { 2f, 2f, 3f, 3f };
         var res = ft.Search("vss_idx",
                     new Query("*=>[KNN 3 @vector $query_vec]")
                     .AddParam("query_vec", vec.SelectMany(BitConverter.GetBytes).ToArray())
                     .SetSortBy("__vector_score")
                     .Dialect(2));
+        StringBuilder stringRes = new StringBuilder();
         foreach (var doc in res.Documents)
         {
             foreach (var item in doc.GetProperties())
             {
                 if (item.Key == "__vector_score")
                 {
-                    Console.WriteLine($"id: {doc.Id}, score: {item.Value}");
+                    stringRes.AppendLine($"id: {doc.Id}, score: {item.Value}");
                 }
             }
         }
+
+        StringBuilder expectedStringRes = new StringBuilder();
+        expectedStringRes.AppendLine("id: vec:2, score: 2");
+        expectedStringRes.AppendLine("id: vec:3, score: 2");
+        expectedStringRes.AppendLine("id: vec:1, score: 10");
+
+        Assert.Equal(expectedStringRes.ToString(), stringRes.ToString());
 
 
     }
