@@ -869,24 +869,26 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
                     .AddParam("query_vec", vec.SelectMany(BitConverter.GetBytes).ToArray())
                     .SetSortBy("__vector_score")
                     .Dialect(2));
-        List<string> stringRes = new List<string>();
+        HashSet<string> resSet = new HashSet<string>();
         foreach (var doc in res.Documents)
         {
             foreach (var item in doc.GetProperties())
             {
                 if (item.Key == "__vector_score")
                 {
-                    stringRes.Add($"id: {doc.Id}, score: {item.Value}");
+                    resSet.Add($"id: {doc.Id}, score: {item.Value}");
                 }
             }
         }
 
-        List<string> expectedStringRes = new List<string>();
-        expectedStringRes.Add("id: vec:2, score: 2");
-        expectedStringRes.Add("id: vec:3, score: 2");
-        expectedStringRes.Add("id: vec:1, score: 10");
+        HashSet<string> expectedResSet = new HashSet<string>()
+        {
+            "id: vec:2, score: 2",
+            "id: vec:3, score: 2",
+            "id: vec:1, score: 10"
+        };
 
-        SortAndCompare(expectedStringRes, stringRes);
+        Assert.True(resSet.SetEquals(expectedResSet));
 
         //Advanced Search Queries:
         // data load:
@@ -1013,35 +1015,35 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         var request = new AggregationRequest("*").GroupBy("@year", Reducers.Count().As("count"));
         var result = ft.Aggregate("book_idx", request);
 
-        stringRes.Clear();
+        resSet.Clear();
         for (var i = 0; i < result.TotalResults; i++)
         {
             var row = result.GetRow(i);
-            stringRes.Add($"{row["year"]}: {row["count"]}");
+            resSet.Add($"{row["year"]}: {row["count"]}");
         }
-        expectedStringRes.Clear();
-        expectedStringRes.Add("2016: 1");
-        expectedStringRes.Add("2020: 2");
-        expectedStringRes.Add("2021: 1");
+        expectedResSet.Clear();
+        expectedResSet.Add("2016: 1");
+        expectedResSet.Add("2020: 2");
+        expectedResSet.Add("2021: 1");
 
-        SortAndCompare(expectedStringRes, stringRes);
+        Assert.True(resSet.SetEquals(expectedResSet));
 
         // Sum of inventory dollar value by year:
         request = new AggregationRequest("*").GroupBy("@year", Reducers.Sum("@price").As("sum"));
         result = ft.Aggregate("book_idx", request);
 
-        stringRes.Clear();
+        resSet.Clear();
         for (var i = 0; i < result.TotalResults; i++)
         {
             var row = result.GetRow(i);
-            stringRes.Add($"{row["year"]}: {row["sum"]}");
+            resSet.Add($"{row["year"]}: {row["sum"]}");
         }
-        expectedStringRes.Clear();
-        expectedStringRes.Add("2016: 14.36");
-        expectedStringRes.Add("2020: 56.98");
-        expectedStringRes.Add("2021: 13.99");
+        expectedResSet.Clear();
+        expectedResSet.Add("2016: 14.36");
+        expectedResSet.Add("2020: 56.98");
+        expectedResSet.Add("2021: 13.99");
 
-        SortAndCompare(expectedStringRes, stringRes);
+        Assert.True(resSet.SetEquals(expectedResSet));
     }
 
     private static void SortAndCompare(List<string> expectedList, List<string> res)
