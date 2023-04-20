@@ -888,7 +888,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
             "id: vec:1, score: 10"
         };
 
-        Assert.True(resSet.SetEquals(expectedResSet));
+        Assert.Equal(resSet, expectedResSet);
 
         //Advanced Search Queries:
         // data load:
@@ -1026,7 +1026,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         expectedResSet.Add("2020: 2");
         expectedResSet.Add("2021: 1");
 
-        Assert.True(resSet.SetEquals(expectedResSet));
+        Assert.Equal(resSet, expectedResSet);
 
         // Sum of inventory dollar value by year:
         request = new AggregationRequest("*").GroupBy("@year", Reducers.Sum("@price").As("sum"));
@@ -1043,7 +1043,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         expectedResSet.Add("2020: 56.98");
         expectedResSet.Add("2021: 13.99");
 
-        Assert.True(resSet.SetEquals(expectedResSet));
+        Assert.Equal(resSet, expectedResSet);
     }
 
     private static void SortAndCompare(List<string> expectedList, List<string> res)
