@@ -867,26 +867,24 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
                     .AddParam("query_vec", vec.SelectMany(BitConverter.GetBytes).ToArray())
                     .SetSortBy("__vector_score")
                     .Dialect(2));
-        StringBuilder stringRes = new StringBuilder();
+        List<string> stringRes = new List<string>();
         foreach (var doc in res.Documents)
         {
             foreach (var item in doc.GetProperties())
             {
                 if (item.Key == "__vector_score")
                 {
-                    stringRes.AppendLine($"id: {doc.Id}, score: {item.Value}");
+                    stringRes.Add($"id: {doc.Id}, score: {item.Value}");
                 }
             }
         }
 
-        StringBuilder expectedStringRes = new StringBuilder();
-        expectedStringRes.AppendLine("id: vec:2, score: 2");
-        expectedStringRes.AppendLine("id: vec:3, score: 2");
-        expectedStringRes.AppendLine("id: vec:1, score: 10");
+        List<string> expectedStringRes = new List<string>();
+        expectedStringRes.Add("id: vec:2, score: 2");
+        expectedStringRes.Add("id: vec:3, score: 2");
+        expectedStringRes.Add("id: vec:1, score: 10");
 
-        Assert.Equal(expectedStringRes.ToString(), stringRes.ToString());
-
-
+        SortAndCompare(expectedStringRes, stringRes);
     }
 
     private static void SortAndCompare(List<string> expectedList, List<string> res)
