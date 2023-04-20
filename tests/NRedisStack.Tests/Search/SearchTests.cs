@@ -987,6 +987,9 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                                                            .AddTextField("body")
                                                            .AddTextField("parent"));
 
+        // sleep:
+        Thread.Sleep(2000);
+
         // Indexing a document
         AddDocument(db, "search", new Dictionary<string, object>(){
         { "title", "RediSearch" },
