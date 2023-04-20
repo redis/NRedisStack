@@ -3,6 +3,7 @@ using Moq;
 using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
+using NRedisStack.Search.Aggregation;
 using NRedisStack.Search.Literals.Enums;
 using StackExchange.Redis;
 using Xunit;
@@ -370,7 +371,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
             field2 = "val2"
         });
         // sleep
-        Thread.Sleep(500);
+        Thread.Sleep(2000);
         res = json.Get(key: "ex2:3",
             paths: new[] { "$.field1", "$.field2" },
             indent: "\t",
@@ -838,6 +839,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         IJsonCommands json = db.JSON();
         ISearchCommands ft = db.FT();
 
+        // Vector Similarity Search (VSS)
         // Data load:
         db.HashSet("vec:1", "vector", (new float[] { 1f, 1f, 1f, 1f }).SelectMany(BitConverter.GetBytes).ToArray());
         db.HashSet("vec:2", "vector", (new float[] { 2f, 2f, 2f, 2f }).SelectMany(BitConverter.GetBytes).ToArray());
@@ -858,7 +860,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         )));
 
         // Sleep:
-        Thread.Sleep(1500);
+        Thread.Sleep(2000);
 
         // Search:
         float[] vec = new[] { 2f, 2f, 3f, 3f };
@@ -883,6 +885,161 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         expectedStringRes.Add("id: vec:2, score: 2");
         expectedStringRes.Add("id: vec:3, score: 2");
         expectedStringRes.Add("id: vec:1, score: 10");
+
+        SortAndCompare(expectedStringRes, stringRes);
+
+        //Advanced Search Queries:
+        // data load:
+        json.Set("warehouse:1", "$", new
+        {
+            city = "Boston",
+            location = "-71.057083, 42.361145",
+            inventory = new[] {
+                new {
+                    id = 15970,
+                    gender = "Men",
+                    season = new[] {"Fall", "Winter"},
+                    description = "Turtle Check Men Navy Blue Shirt",
+                    price = 34.95
+                },
+                new {
+                    id = 59263,
+                    gender = "Women",
+                    season = new[] {"Fall", "Winter", "Spring", "Summer"},
+                    description = "Titan Women Silver Watch",
+                    price = 129.99
+                },
+                new {
+                    id = 46885,
+                    gender = "Boys",
+                    season = new[] {"Fall"},
+                    description = "Ben 10 Boys Navy Blue Slippers",
+                    price = 45.99
+                }
+            }
+        });
+        json.Set("warehouse:2", "$", new
+        {
+            city = "Dallas",
+            location = "-96.808891, 32.779167",
+            inventory = new[] {
+                new {
+                    id = 51919,
+                    gender = "Women",
+                    season = new[] {"Summer"},
+                    description = "Nyk Black Horado Handbag",
+                    price = 52.49
+                },
+                new {
+                    id = 4602,
+                    gender = "Unisex",
+                    season = new[] {"Fall", "Winter"},
+                    description = "Wildcraft Red Trailblazer Backpack",
+                    price = 50.99
+                },
+                new {
+                    id = 37561,
+                    gender = "Girls",
+                    season = new[] {"Spring", "Summer"},
+                    description = "Madagascar3 Infant Pink Snapsuit Romper",
+                    price = 23.95
+                }
+            }
+        });
+
+        // Index creation:
+        try { ft.DropIndex("wh_idx"); } catch { };
+        Assert.True(ft.Create("wh_idx", new FTCreateParams()
+                                .On(IndexDataType.JSON)
+                                .Prefix("warehouse:"),
+                                new Schema().AddTextField(new FieldName("$.city", "city"))));
+
+        // Sleep:
+        Thread.Sleep(2000);
+
+        // Find all inventory ids from all the Boston warehouse that have a price > $50:
+        res = ft.Search("wh_idx",
+                        new Query("@city:Boston")
+                            .ReturnFields(new FieldName("$.inventory[?(@.price>50)].id", "result"))
+                            .Dialect(3));
+
+        Assert.Equal("[59263]", res.Documents[0]["result"].ToString());
+
+        // Find all inventory items in Dallas that are for Women or Girls:
+        res = ft.Search("wh_idx",
+                        new Query("@city:(Dallas)")
+                            .ReturnFields(new FieldName("$.inventory[?(@.gender==\"Women\" || @.gender==\"Girls\")]", "result"))
+                            .Dialect(3));
+        var expected = "[{\"id\":51919,\"gender\":\"Women\",\"season\":[\"Summer\"],\"description\":\"Nyk Black Horado Handbag\",\"price\":52.49},{\"id\":37561,\"gender\":\"Girls\",\"season\":[\"Spring\",\"Summer\"],\"description\":\"Madagascar3 Infant Pink Snapsuit Romper\",\"price\":23.95}]";
+        Assert.Equal(expected, res.Documents[0]["result"].ToString());
+
+        // Aggregation
+        // Data load:
+        json.Set("book:1", "$", new
+        {
+            title = "System Design Interview",
+            year = 2020,
+            price = 35.99
+        });
+        json.Set("book:2", "$", new
+        {
+            title = "The Age of AI: And Our Human Future",
+            year = 2021,
+            price = 13.99
+        });
+        json.Set("book:3", "$", new
+        {
+            title = "The Art of Doing Science and Engineering: Learning to Learn",
+            year = 2020,
+            price = 20.99
+        });
+        json.Set("book:4", "$", new
+        {
+            title = "Superintelligence: Path, Dangers, Stategies",
+            year = 2016,
+            price = 14.36
+        });
+
+        Assert.True(ft.Create("book_idx", new FTCreateParams()
+                        .On(IndexDataType.JSON)
+                        .Prefix("book:"),
+                        new Schema().AddTextField(new FieldName("$.title", "title"))
+                            .AddNumericField(new FieldName("$.year", "year"))
+                            .AddNumericField(new FieldName("$.price", "price"))));
+        // sleep:
+        Thread.Sleep(2000);
+
+        // Find the total number of books per year:
+        var request = new AggregationRequest("*").GroupBy("@year", Reducers.Count().As("count"));
+        var result = ft.Aggregate("book_idx", request);
+
+        stringRes.Clear();
+        for (var i = 0; i < result.TotalResults; i++)
+        {
+            var row = result.GetRow(i);
+            stringRes.Add($"{row["year"]}: {row["count"]}");
+        }
+        expectedStringRes.Clear();
+        expectedStringRes.Add("2016: 1");
+        expectedStringRes.Add("2020: 2");
+        expectedStringRes.Add("2021: 1");
+
+        SortAndCompare(expectedStringRes, stringRes);
+
+        // Sum of inventory dollar value by year:
+        request = new AggregationRequest("*").GroupBy("@year", Reducers.Sum("@price").As("sum"));
+        result = ft.Aggregate("book_idx", request);
+
+        stringRes.Clear();
+        for (var i = 0; i < result.TotalResults; i++)
+        {
+            var row = result.GetRow(i);
+            stringRes.Add($"{row["year"]}: {row["sum"]}");
+        }
+        expectedStringRes.Clear();
+        expectedStringRes.Add("2016: 14.36");
+        expectedStringRes.Add("2020: 56.98");
+        expectedStringRes.Add("2021: 13.99");
 
         SortAndCompare(expectedStringRes, stringRes);
     }
