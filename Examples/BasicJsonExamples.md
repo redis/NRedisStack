@@ -418,7 +418,7 @@ Console.WriteLine(json.Get(key: "ex4:2",
 }
 ```
 
-### Nested Property <a name="nested_delete"></a>
+### Nested property <a name="nested_delete"></a>
 Delete a property from an embedded object.
 #### Command
 ```c#
