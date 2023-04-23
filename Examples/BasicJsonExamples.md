@@ -35,7 +35,7 @@ Document stores are a NoSQL database type that provide flexible schemas and acce
 ### Syntax
 [JSON.SET](https://redis.io/commands/json.set/)
 
-### Key Value Pair <a name="kvp"></a>
+### Key-value pair <a name="kvp"></a>
 Insert a simple KVP as a JSON object.
 #### Command
 ```c#
