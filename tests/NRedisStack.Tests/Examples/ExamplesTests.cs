@@ -340,7 +340,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
             }
         }));
 
-        // Set and Fetch a simple JSON KVP:
+        // Set and fetch a simple JSON KVP:
         json.Set("ex2:1", "$", "\"val\"");
         var res = json.Get(key: "ex2:1",
             path: "$",
