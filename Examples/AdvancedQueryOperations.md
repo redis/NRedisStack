@@ -41,26 +41,26 @@ using NRedisStack.Search.Aggregation;
 
 ### Data Load <a name="vss_dataload"></a>
 ```c#
-            db.HashSet("vec:1", "vector", (new float[] {1f,1f,1f,1f}).SelectMany(BitConverter.GetBytes).ToArray());
-            db.HashSet("vec:2", "vector", (new float[] {2f,2f,2f,2f}).SelectMany(BitConverter.GetBytes).ToArray());
-            db.HashSet("vec:3", "vector", (new float[] {3f,3f,3f,3f}).SelectMany(BitConverter.GetBytes).ToArray());
-            db.HashSet("vec:4", "vector", (new float[] {4f,4f,4f,4f}).SelectMany(BitConverter.GetBytes).ToArray());
+db.HashSet("vec:1", "vector", (new float[] { 1f, 1f, 1f, 1f }).SelectMany(BitConverter.GetBytes).ToArray());
+db.HashSet("vec:2", "vector", (new float[] { 2f, 2f, 2f, 2f }).SelectMany(BitConverter.GetBytes).ToArray());
+db.HashSet("vec:3", "vector", (new float[] { 3f, 3f, 3f, 3f }).SelectMany(BitConverter.GetBytes).ToArray());
+db.HashSet("vec:5", "vector", (new float[] { 4f, 4f, 4f, 4f }).SelectMany(BitConverter.GetBytes).ToArray());
 ```
 ### Index Creation <a name="vss_index">
 #### Command
 ```c#
-            ISearchCommands ft = db.FT();
-            try {ft.DropIndex("vss_idx");} catch {};
-            Console.WriteLine(ft.Create("vss_idx", new FTCreateParams().On(IndexDataType.HASH).Prefix("vec:"),
-                new Schema()
-                .AddVectorField("vector", VectorField.VectorAlgo.FLAT,
-                    new Dictionary<string, object>()
-                    {
-                        ["TYPE"] = "FLOAT32",
-                        ["DIM"] = "4",
-                        ["DISTANCE_METRIC"] = "L2"
-                    }
-            )));
+ISearchCommands ft = db.FT();
+try {ft.DropIndex("vss_idx");} catch {};
+Console.WriteLine(ft.Create("vss_idx", new FTCreateParams().On(IndexDataType.HASH).Prefix("vec:"),
+    new Schema()
+    .AddVectorField("vector", VectorField.VectorAlgo.FLAT,
+        new Dictionary<string, object>()
+        {
+            ["TYPE"] = "FLOAT32",
+            ["DIM"] = "4",
+            ["DISTANCE_METRIC"] = "L2"
+        }
+)));
 ```
 #### Result
 ```bash
@@ -70,25 +70,24 @@ True
 ### Search <a name="vss_search">
 #### Command
 ```c#
-            float[] vec = new[] {2f,2f,3f,3f};
-            var res = ft.Search("vss_idx",
-                        new Query("*=>[KNN 3 @vector $query_vec]")
-                        .AddParam("query_vec", vec.SelectMany(BitConverter.GetBytes).ToArray())
-                        .SetSortBy("__vector_score")
-                        .Dialect(2));
-            foreach (var doc in res.Documents) {
-                foreach (var item in doc.GetProperties()) {
-                    if (item.Key == "__vector_score") {
-                        Console.WriteLine($"id: {doc.Id}, score: {item.Value}");
-                    }
-                }
-            }
+float[] vec = new[] { 2f, 2f, 3f, 3f};
+var res = ft.Search("vss_idx",
+            new Query("*=>[KNN 2 @vector $query_vec]")
+            .AddParam("query_vec", vec.SelectMany(BitConverter.GetBytes).ToArray())
+            .SetSortBy("__vector_score")
+            .Dialect(2));
+foreach (var doc in res.Documents) {
+    foreach (var item in doc.GetProperties()) {
+        if (item.Key == "__vector_score") {
+            Console.WriteLine($"id: {doc.Id}, score: {item.Value}");
+        }
+    }
+}
 ```
 #### Result
 ```bash
 id: vec:2, score: 2
 id: vec:3, score: 2
-id: vec:1, score: 10
 ```
 
 ## Advanced Search Queries <a name="adv_search">

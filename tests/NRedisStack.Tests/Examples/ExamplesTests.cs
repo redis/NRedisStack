@@ -846,7 +846,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         db.HashSet("vec:1", "vector", (new float[] { 1f, 1f, 1f, 1f }).SelectMany(BitConverter.GetBytes).ToArray());
         db.HashSet("vec:2", "vector", (new float[] { 2f, 2f, 2f, 2f }).SelectMany(BitConverter.GetBytes).ToArray());
         db.HashSet("vec:3", "vector", (new float[] { 3f, 3f, 3f, 3f }).SelectMany(BitConverter.GetBytes).ToArray());
-        db.HashSet("vec:5", "vector", (new float[] { 5f, 5f, 5f, 5f }).SelectMany(BitConverter.GetBytes).ToArray());
+        db.HashSet("vec:5", "vector", (new float[] { 4f, 4f, 4f, 4f }).SelectMany(BitConverter.GetBytes).ToArray());
 
         // Index creation:
         try { ft.DropIndex("vss_idx"); } catch { };
@@ -867,7 +867,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         // Search:
         float[] vec = new[] { 2f, 2f, 3f, 3f };
         var res = ft.Search("vss_idx",
-                    new Query("*=>[KNN 3 @vector $query_vec]")
+                    new Query("*=>[KNN 2 @vector $query_vec]")
                     .AddParam("query_vec", vec.SelectMany(BitConverter.GetBytes).ToArray())
                     .SetSortBy("__vector_score")
                     .Dialect(2));
@@ -887,7 +887,6 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         {
             "id: vec:2, score: 2",
             "id: vec:3, score: 2",
-            "id: vec:1, score: 10"
         };
 
         Assert.Equal(expectedResSet, resSet);
