@@ -1,4 +1,4 @@
-# Lab 4 - Advanced JSON
+# Advanced JSON
 Redis JSON array filtering examples
 ## Contents
 1.  [Business Value Statement](#value)
