@@ -6,6 +6,8 @@
     <TargetFrameworks Condition=" '$(IsWindows)' != 'true'">net6.0;net7.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+
 
     <IsPackable>false</IsPackable>
     <OutputType>Module</OutputType>
