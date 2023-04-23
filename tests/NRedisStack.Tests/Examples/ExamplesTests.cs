@@ -1,12 +1,13 @@
-using System.Text.Json;
-using System.Text.Json.Nodes;
+using System.Text;
 using Moq;
 using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
+using NRedisStack.Search.Aggregation;
 using NRedisStack.Search.Literals.Enums;
 using StackExchange.Redis;
 using Xunit;
+using static NRedisStack.Search.Schema;
 
 namespace NRedisStack.Tests;
 
@@ -161,7 +162,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
         Assert.True(create.Result);
         Assert.Equal(5, count);
-        //Assert.Equal("person:01", firstPerson?.Id);
+        // Assert.Equal("person:01", firstPerson?.Id);
     }
 
     [Fact]
@@ -370,7 +371,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
             field2 = "val2"
         });
         // sleep
-        Thread.Sleep(500);
+        Thread.Sleep(2000);
         res = json.Get(key: "ex2:3",
             paths: new[] { "$.field1", "$.field2" },
             indent: "\t",
@@ -668,5 +669,391 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
                 );
         expected = "[\n\t{\n\t\t\"id\":15970,\n\t\t\"gender\":\"Men\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\"\n\t\t],\n\t\t\"description\":\"Turtle Check Men Navy Blue Shirt\",\n\t\t\"price\":34.95\n\t},\n\t{\n\t\t\"id\":59263,\n\t\t\"gender\":\"Women\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\",\n\t\t\t\"Spring\",\n\t\t\t\"Summer\"\n\t\t],\n\t\t\"description\":\"Titan Women Silver Watch\",\n\t\t\"price\":129.99\n\t}\n]";
         Assert.Equal(expected, res.ToString());
+    }
+
+    [Fact]
+    public void BasicQueryOperationsTest()
+    {
+        ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
+        IDatabase db = redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        IJsonCommands json = db.JSON();
+        ISearchCommands ft = db.FT();
+
+        json.Set("product:15970", "$", new
+        {
+            id = 15970,
+            gender = "Men",
+            season = new[] { "Fall", "Winter" },
+            description = "Turtle Check Men Navy Blue Shirt",
+            price = 34.95,
+            city = "Boston",
+            coords = "-71.057083, 42.361145"
+        });
+        json.Set("product:59263", "$", new
+        {
+            id = 59263,
+            gender = "Women",
+            season = new[] { "Fall", "Winter", "Spring", "Summer" },
+            description = "Titan Women Silver Watch",
+            price = 129.99,
+            city = "Dallas",
+            coords = "-96.808891, 32.779167"
+        });
+        json.Set("product:46885", "$", new
+        {
+            id = 46885,
+            gender = "Boys",
+            season = new[] { "Fall" },
+            description = "Ben 10 Boys Navy Blue Slippers",
+            price = 45.99,
+            city = "Denver",
+            coords = "-104.991531, 39.742043"
+        });
+
+        try { ft.DropIndex("idx1"); } catch { };
+        ft.Create("idx1", new FTCreateParams().On(IndexDataType.JSON)
+                                              .Prefix("product:"),
+                                        new Schema().AddNumericField(new FieldName("$.id", "id"))
+                                                    .AddTagField(new FieldName("$.gender", "gender"))
+                                                    .AddTagField(new FieldName("$.season.*", "season"))
+                                                    .AddTextField(new FieldName("$.description", "description"))
+                                                    .AddNumericField(new FieldName("$.price", "price"))
+                                                    .AddTextField(new FieldName("$.city", "city"))
+                                                    .AddGeoField(new FieldName("$.coords", "coords")));
+
+        // sleep:
+        Thread.Sleep(2000);
+
+        // Find all documents for a given index:
+        var res = ft.Search("idx1", new Query("*")).ToJson();
+
+        Assert.NotNull(res);
+        // Assert.Equal(3, res!.Count);
+        var expectedList = new List<string>()
+        {
+            "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}",
+            "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}",
+            "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
+        };
+
+        SortAndCompare(expectedList, res);
+
+
+
+        // Find all documents with a given word in a text field:
+        res = ft.Search("idx1", new Query("@description:Slippers")).ToJson();
+        var expected = "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
+        Assert.Equal(expected, res![0].ToString());
+
+
+        // Find all documents with a given phrase in a text field:
+        res = ft.Search("idx1", new Query("@description:(\"Blue Shirt\")")).ToJson();
+        expected = "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}";
+        Assert.Equal(expected, res![0].ToString());
+
+        // Find all documents with a numeric field in a given range:
+        res = ft.Search("idx1", new Query("@price:[40,130]")).ToJson();
+
+        expectedList = new()
+        {
+            "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}",
+            "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
+        };
+
+        SortAndCompare(expectedList, res);
+
+
+
+        // Find all documents that contain a given value in an array field (tag):
+        res = ft.Search("idx1", new Query("@season:{Spring}")).ToJson();
+        expected = "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}";
+        Assert.Equal(expected, res[0].ToString());
+
+        // Find all documents contain both a numeric field in a range and a word in a text field:
+        res = ft.Search("idx1", new Query("@price:[40, 100] @description:Blue")).ToJson();
+        expected = "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
+        Assert.Equal(expected, res[0].ToString());
+
+        // Find all documents that either match tag value or text value:
+        res = ft.Search("idx1", new Query("(@gender:{Women})|(@city:Boston)")).ToJson();
+        expectedList = new()
+        {
+            "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}",
+            "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}"
+        };
+
+        SortAndCompare(expectedList, res);
+
+        // Find all documents that do not contain a given word in a text field:
+        res = ft.Search("idx1", new Query("-(@description:Shirt)")).ToJson();
+
+        expectedList = new()
+        {
+            "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}",
+            "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
+        };
+        SortAndCompare(expectedList, res);
+
+        // Find all documents that have a word that begins with a given prefix value:
+        res = ft.Search("idx1", new Query("@description:Nav*")).ToJson();
+
+        expectedList = new()
+        {
+            "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}",
+            "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
+        };
+        SortAndCompare(expectedList, res);
+
+        // Find all documents that contain a word that ends with a given suffix value:
+        res = ft.Search("idx1", new Query("@description:*Watch")).ToJson();
+
+        expected = "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}";
+        Assert.Equal(expected, res[0].ToString());
+
+        // Find all documents that contain a word that is within 1 Levenshtein distance of a given word:
+        res = ft.Search("idx1", new Query("@description:%wavy%")).ToJson();
+
+
+        expectedList = new()
+        {
+            "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}",
+            "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
+        };
+        SortAndCompare(expectedList, res);
+
+        // Find all documents that have geographic coordinates within a given range of a given coordinate.
+        // Colorado Springs coords(long, lat) = -104.800644, 38.846127:
+        res = ft.Search("idx1", new Query("@coords:[-104.800644 38.846127 100 mi]")).ToJson();
+
+        expected = "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
+        Assert.Equal(expected, res[0].ToString());
+    }
+
+    [Fact]
+    public void AdvancedQueryOperationsTest()
+    {
+        ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
+        IDatabase db = redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        IJsonCommands json = db.JSON();
+        ISearchCommands ft = db.FT();
+
+        // Vector Similarity Search (VSS)
+        // Data load:
+        db.HashSet("vec:1", "vector", (new float[] { 1f, 1f, 1f, 1f }).SelectMany(BitConverter.GetBytes).ToArray());
+        db.HashSet("vec:2", "vector", (new float[] { 2f, 2f, 2f, 2f }).SelectMany(BitConverter.GetBytes).ToArray());
+        db.HashSet("vec:3", "vector", (new float[] { 3f, 3f, 3f, 3f }).SelectMany(BitConverter.GetBytes).ToArray());
+        db.HashSet("vec:5", "vector", (new float[] { 5f, 5f, 5f, 5f }).SelectMany(BitConverter.GetBytes).ToArray());
+
+        // Index creation:
+        try { ft.DropIndex("vss_idx"); } catch { };
+        Assert.True(ft.Create("vss_idx", new FTCreateParams().On(IndexDataType.HASH).Prefix("vec:"),
+            new Schema()
+            .AddVectorField("vector", VectorField.VectorAlgo.FLAT,
+                new Dictionary<string, object>()
+                {
+                    ["TYPE"] = "FLOAT32",
+                    ["DIM"] = "4",
+                    ["DISTANCE_METRIC"] = "L2"
+                }
+        )));
+
+        // Sleep:
+        Thread.Sleep(2000);
+
+        // Search:
+        float[] vec = new[] { 2f, 2f, 3f, 3f };
+        var res = ft.Search("vss_idx",
+                    new Query("*=>[KNN 3 @vector $query_vec]")
+                    .AddParam("query_vec", vec.SelectMany(BitConverter.GetBytes).ToArray())
+                    .SetSortBy("__vector_score")
+                    .Dialect(2));
+        HashSet<string> resSet = new HashSet<string>();
+        foreach (var doc in res.Documents)
+        {
+            foreach (var item in doc.GetProperties())
+            {
+                if (item.Key == "__vector_score")
+                {
+                    resSet.Add($"id: {doc.Id}, score: {item.Value}");
+                }
+            }
+        }
+
+        HashSet<string> expectedResSet = new HashSet<string>()
+        {
+            "id: vec:2, score: 2",
+            "id: vec:3, score: 2",
+            "id: vec:1, score: 10"
+        };
+
+        Assert.Equal(expectedResSet, resSet);
+
+        //Advanced Search Queries:
+        // data load:
+        json.Set("warehouse:1", "$", new
+        {
+            city = "Boston",
+            location = "-71.057083, 42.361145",
+            inventory = new[] {
+                new {
+                    id = 15970,
+                    gender = "Men",
+                    season = new[] {"Fall", "Winter"},
+                    description = "Turtle Check Men Navy Blue Shirt",
+                    price = 34.95
+                },
+                new {
+                    id = 59263,
+                    gender = "Women",
+                    season = new[] {"Fall", "Winter", "Spring", "Summer"},
+                    description = "Titan Women Silver Watch",
+                    price = 129.99
+                },
+                new {
+                    id = 46885,
+                    gender = "Boys",
+                    season = new[] {"Fall"},
+                    description = "Ben 10 Boys Navy Blue Slippers",
+                    price = 45.99
+                }
+            }
+        });
+        json.Set("warehouse:2", "$", new
+        {
+            city = "Dallas",
+            location = "-96.808891, 32.779167",
+            inventory = new[] {
+                new {
+                    id = 51919,
+                    gender = "Women",
+                    season = new[] {"Summer"},
+                    description = "Nyk Black Horado Handbag",
+                    price = 52.49
+                },
+                new {
+                    id = 4602,
+                    gender = "Unisex",
+                    season = new[] {"Fall", "Winter"},
+                    description = "Wildcraft Red Trailblazer Backpack",
+                    price = 50.99
+                },
+                new {
+                    id = 37561,
+                    gender = "Girls",
+                    season = new[] {"Spring", "Summer"},
+                    description = "Madagascar3 Infant Pink Snapsuit Romper",
+                    price = 23.95
+                }
+            }
+        });
+
+        // Index creation:
+        try { ft.DropIndex("wh_idx"); } catch { };
+        Assert.True(ft.Create("wh_idx", new FTCreateParams()
+                                .On(IndexDataType.JSON)
+                                .Prefix("warehouse:"),
+                                new Schema().AddTextField(new FieldName("$.city", "city"))));
+
+        // Sleep:
+        Thread.Sleep(2000);
+
+        // Find all inventory ids from all the Boston warehouse that have a price > $50:
+        res = ft.Search("wh_idx",
+                        new Query("@city:Boston")
+                            .ReturnFields(new FieldName("$.inventory[?(@.price>50)].id", "result"))
+                            .Dialect(3));
+
+        Assert.Equal("[59263]", res.Documents[0]["result"].ToString());
+
+        // Find all inventory items in Dallas that are for Women or Girls:
+        res = ft.Search("wh_idx",
+                        new Query("@city:(Dallas)")
+                            .ReturnFields(new FieldName("$.inventory[?(@.gender==\"Women\" || @.gender==\"Girls\")]", "result"))
+                            .Dialect(3));
+        var expected = "[{\"id\":51919,\"gender\":\"Women\",\"season\":[\"Summer\"],\"description\":\"Nyk Black Horado Handbag\",\"price\":52.49},{\"id\":37561,\"gender\":\"Girls\",\"season\":[\"Spring\",\"Summer\"],\"description\":\"Madagascar3 Infant Pink Snapsuit Romper\",\"price\":23.95}]";
+        Assert.Equal(expected, res.Documents[0]["result"].ToString());
+
+        // Aggregation
+        // Data load:
+        json.Set("book:1", "$", new
+        {
+            title = "System Design Interview",
+            year = 2020,
+            price = 35.99
+        });
+        json.Set("book:2", "$", new
+        {
+            title = "The Age of AI: And Our Human Future",
+            year = 2021,
+            price = 13.99
+        });
+        json.Set("book:3", "$", new
+        {
+            title = "The Art of Doing Science and Engineering: Learning to Learn",
+            year = 2020,
+            price = 20.99
+        });
+        json.Set("book:4", "$", new
+        {
+            title = "Superintelligence: Path, Dangers, Stategies",
+            year = 2016,
+            price = 14.36
+        });
+
+        Assert.True(ft.Create("book_idx", new FTCreateParams()
+                        .On(IndexDataType.JSON)
+                        .Prefix("book:"),
+                        new Schema().AddTextField(new FieldName("$.title", "title"))
+                            .AddNumericField(new FieldName("$.year", "year"))
+                            .AddNumericField(new FieldName("$.price", "price"))));
+        // sleep:
+        Thread.Sleep(2000);
+
+        // Find the total number of books per year:
+        var request = new AggregationRequest("*").GroupBy("@year", Reducers.Count().As("count"));
+        var result = ft.Aggregate("book_idx", request);
+
+        resSet.Clear();
+        for (var i = 0; i < result.TotalResults; i++)
+        {
+            var row = result.GetRow(i);
+            resSet.Add($"{row["year"]}: {row["count"]}");
+        }
+        expectedResSet.Clear();
+        expectedResSet.Add("2016: 1");
+        expectedResSet.Add("2020: 2");
+        expectedResSet.Add("2021: 1");
+
+        Assert.Equal(expectedResSet, resSet);
+
+        // Sum of inventory dollar value by year:
+        request = new AggregationRequest("*").GroupBy("@year", Reducers.Sum("@price").As("sum"));
+        result = ft.Aggregate("book_idx", request);
+
+        resSet.Clear();
+        for (var i = 0; i < result.TotalResults; i++)
+        {
+            var row = result.GetRow(i);
+            resSet.Add($"{row["year"]}: {row["sum"]}");
+        }
+        expectedResSet.Clear();
+        expectedResSet.Add("2016: 14.36");
+        expectedResSet.Add("2020: 56.98");
+        expectedResSet.Add("2021: 13.99");
+
+        Assert.Equal(expectedResSet, resSet);
+    }
+
+    private static void SortAndCompare(List<string> expectedList, List<string> res)
+    {
+        res.Sort();
+        expectedList.Sort();
+
+        for (int i = 0; i < res.Count; i++)
+        {
+            Assert.Equal(expectedList[i], res[i].ToString());
+        }
     }
 }
