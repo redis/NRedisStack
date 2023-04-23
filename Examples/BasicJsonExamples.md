@@ -1,6 +1,5 @@
 # Basic JSON Operations
 Create, read, update, delete (CRUD) operations with the Redis JSON data type
-
 ## Contents
 1.  [Business Value Statement](#value)
 2.  [Create](#create)
@@ -46,6 +45,7 @@ Console.WriteLine(json.Set("ex1:1", "$", "\"val\""));
 ```bash
 True
 ```
+
 
 ### Single string property <a name="single_string"></a>
 Insert a single-property JSON object.
