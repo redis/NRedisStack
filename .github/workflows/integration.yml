@@ -53,36 +53,14 @@ jobs:
           echo "am I fork: ${amfork}"
           echo "IAMAFORK=$amfork" >> $GITHUB_OUTPUT
 
-      - name: Import the GPG key
-        if: steps.iamafork.outputs.IAMAFORK == 'false'
-        run: |
-          cat <(echo -e "${{ secrets.GPG_KEY }}") | gpg --batch --import
-
-      - name: get gpg_keygrip
-        if: steps.iamafork.outputs.IAMAFORK == 'false'
-        id: get_gpg_keygrip
-        run: |
-          keygrip=`gpg -k --with-keygrip |sed -n 5p|cut -d '=' -f 2-2`
-          echo "GPG_KEYGRIP=$keygrip" >> $GITHUB_OUTPUT
-
       - name: Build the package
         run: |
           dotnet pack -c release --output .
 
-      - name: Sign the package
-        if: steps.iamafork.outputs.IAMAFORK == 'false'
+      - name: sign
         run: |
-            echo allow-preset-passphrase > ~/.gnupg/gpg-agent.conf
-            gpg-connect-agent reloadagent /bye
-            /usr/lib/gnupg/gpg-preset-passphrase -P '${{ secrets.GPG_PASSWORD }}' -c --preset ${{ steps.get_gpg_keygrip.outputs.GPG_KEYGRIP }}
-            gpg --detach-sign NRedisStack*.nupkg
-      - run: ls -R
-      - name: store artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: NRedisStack.nupkg
-          path: |
-            *.nupkg
+          echo ${{secrets.REDIS_PFX_CERT}} | base64 --decode > cert.pfx
+          dotnet nuget sign *.nupkg --certificate-path cert.pfx --certificate-password ${{REDIS_PFX_PASSWORD}}
 
   build_and_test_windows:
     name: Build and Test on Windows
@@ -108,3 +86,4 @@ jobs:
         run: |
           START wsl ./redis-stack-server-${{env.redis_stack_version}}/bin/redis-stack-server &
           dotnet test -f net481 --no-build --verbosity normal
+
