@@ -76,12 +76,13 @@ jobs:
             gpg-connect-agent reloadagent /bye
             /usr/lib/gnupg/gpg-preset-passphrase -P '${{ secrets.GPG_PASSWORD }}' -c --preset ${{ steps.get_gpg_keygrip.outputs.GPG_KEYGRIP }}
             gpg --detach-sign NRedisStack*.nupkg
-
+      - run: ls -R
       - name: store artifacts
         uses: actions/upload-artifact@v3
         with:
           name: NRedisStack.nupkg
-          path: *.nupkg
+          path: |
+            *.nupkg
 
   build_and_test_windows:
     name: Build and Test on Windows
