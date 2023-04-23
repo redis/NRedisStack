@@ -349,7 +349,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         );
         Assert.Equal("[\n\t\"val\"\n]", res.ToString());
 
-        // Set and Fetch a single property from a JSON object:
+        // Set and fetch a single property from a JSON object:
         json.Set("ex2:2", "$", new
         {
             field1 = "val1"
