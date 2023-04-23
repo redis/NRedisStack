@@ -282,4 +282,256 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
         Assert.Equal(10, docs.Count());
     }
+
+    [Fact]
+    public void BasicJsonExamplesTest()
+    {
+        ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
+        IDatabase db = redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        IJsonCommands json = db.JSON();
+
+        // Insert a simple KVP as a JSON object:
+        Assert.True(json.Set("ex1:1", "$", "\"val\""));
+        // Insert a single-property JSON object:
+        Assert.True(json.Set("ex1:2", "$", new { field1 = "val1" }));
+        // Insert a JSON object with multiple properties:
+        Assert.True(json.Set("ex1:3", "$", new
+        {
+            field1 = "val1",
+            field2 = "val2"
+        }));
+
+        // Insert a JSON object with multiple properties of different data types:
+        Assert.True(json.Set("ex1:4", "$", new
+        {
+            field1 = "val1",
+            field2 = "val2",
+            field3 = true,
+            field4 = (string?)null
+        }));
+
+        // Insert a JSON object that contains an array:
+        Assert.True(json.Set("ex1:5", "$", new
+        {
+            arr1 = new[] { "val1", "val2", "val3" }
+        }));
+
+        // Insert a JSON object that contains a nested object:
+        Assert.True(json.Set("ex1:6", "$", new
+        {
+            obj1 = new
+            {
+                str1 = "val1",
+                num2 = 2
+            }
+        }));
+
+        // Insert a JSON object with a mixture of property data types:
+        Assert.True(json.Set("ex1:7", "$", new
+        {
+            str1 = "val1",
+            str2 = "val2",
+            arr1 = new[] { 1, 2, 3, 4 },
+            obj1 = new
+            {
+                num1 = 1,
+                arr2 = new[] { "val1", "val2", "val3" }
+            }
+        }));
+
+        // Set and fetch a simple JSON KVP:
+        json.Set("ex2:1", "$", "\"val\"");
+        var res = json.Get(key: "ex2:1",
+            path: "$",
+            indent: "\t",
+            newLine: "\n"
+        );
+        Assert.Equal("[\n\t\"val\"\n]", res.ToString());
+
+        // Set and fetch a single property from a JSON object:
+        json.Set("ex2:2", "$", new
+        {
+            field1 = "val1"
+        });
+        res = json.Get(key: "ex2:2",
+             path: "$.field1",
+             indent: "\t",
+             newLine: "\n"
+         );
+        Assert.Equal("[\n\t\"val1\"\n]", res.ToString());
+
+        // Fetch multiple properties:
+        json.Set("ex2:3", "$", new
+        {
+            field1 = "val1",
+            field2 = "val2"
+        });
+        // sleep
+        Thread.Sleep(500);
+        res = json.Get(key: "ex2:3",
+            paths: new[] { "$.field1", "$.field2" },
+            indent: "\t",
+            newLine: "\n"
+        );
+
+        var actualJson = res.ToString();
+        var expectedJson1 = "{\n\t\"$.field1\":[\n\t\t\"val1\"\n\t],\n\t\"$.field2\":[\n\t\t\"val2\"\n\t]\n}";
+        var expectedJson2 = "{\n\t\"$.field2\":[\n\t\t\"val2\"\n\t],\n\t\"$.field1\":[\n\t\t\"val1\"\n\t]\n}";
+
+        Assert.True(actualJson == expectedJson1 || actualJson == expectedJson2);
+
+        // Fetch a property nested in another JSON object:
+        json.Set("ex2:4", "$", new
+        {
+            obj1 = new
+            {
+                str1 = "val1",
+                num2 = 2
+            }
+        });
+        res = json.Get(key: "ex2:4",
+            path: "$.obj1.num2",
+            indent: "\t",
+            newLine: "\n"
+        );
+        Assert.Equal("[\n\t2\n]", res.ToString());
+
+        // Fetch properties within an array and utilize array subscripting:
+        json.Set("ex2:5", "$", new
+        {
+            str1 = "val1",
+            str2 = "val2",
+            arr1 = new[] { 1, 2, 3, 4 },
+            obj1 = new
+            {
+                num1 = 1,
+                arr2 = new[] { "val1", "val2", "val3" }
+            }
+        });
+        res = json.Get(key: "ex2:5",
+            path: "$.obj1.arr2",
+            indent: "\t",
+            newLine: "\n"
+        );
+        Assert.Equal("[\n\t[\n\t\t\"val1\",\n\t\t\"val2\",\n\t\t\"val3\"\n\t]\n]", res.ToString());
+        res = json.Get(key: "ex2:5",
+            path: "$.arr1[1]",
+            indent: "\t",
+            newLine: "\n"
+        );
+        Assert.Equal("[\n\t2\n]", res.ToString());
+        res = json.Get(key: "ex2:5",
+            path: "$.obj1.arr2[0:2]",
+            indent: "\t",
+            newLine: "\n"
+        );
+        Assert.Equal("[\n\t\"val1\",\n\t\"val2\"\n]", res.ToString());
+        res = json.Get(key: "ex2:5",
+            path: "$.arr1[-2:]",
+            indent: "\t",
+            newLine: "\n"
+        );
+        Assert.Equal("[\n\t3,\n\t4\n]", res.ToString());
+
+        // Update an entire JSON object:
+        json.Set("ex3:1", "$", new { field1 = "val1" });
+        json.Set("ex3:1", "$", new { foo = "bar" });
+        res = json.Get(key: "ex3:1",
+            indent: "\t",
+            newLine: "\n"
+        );
+        Assert.Equal("{\n\t\"foo\":\"bar\"\n}", res.ToString());
+
+        // Update a single property within an object:
+        json.Set("ex3:2", "$", new
+        {
+            field1 = "val1",
+            field2 = "val2"
+        });
+        json.Set("ex3:2", "$.field1", "\"foo\"");
+        res = json.Get(key: "ex3:2",
+            indent: "\t",
+            newLine: "\n"
+        );
+        Assert.Equal("{\n\t\"field1\":\"foo\",\n\t\"field2\":\"val2\"\n}", res.ToString());
+
+        // Update a property in an embedded JSON object:
+        json.Set("ex3:3", "$", new
+        {
+            obj1 = new
+            {
+                str1 = "val1",
+                num2 = 2
+            }
+        });
+        json.Set("ex3:3", "$.obj1.num2", 3);
+        res = json.Get(key: "ex3:3",
+            indent: "\t",
+            newLine: "\n"
+        );
+        Assert.Equal("{\n\t\"obj1\":{\n\t\t\"str1\":\"val1\",\n\t\t\"num2\":3\n\t}\n}", res.ToString());
+
+        // Update an item in an array via index:
+        json.Set("ex3:4", "$", new
+        {
+            arr1 = new[] { "val1", "val2", "val3" }
+        });
+        json.Set("ex3:4", "$.arr1[0]", "\"foo\"");
+        res = json.Get(key: "ex3:4",
+            indent: "\t",
+            newLine: "\n"
+        );
+        Assert.Equal("{\n\t\"arr1\":[\n\t\t\"foo\",\n\t\t\"val2\",\n\t\t\"val3\"\n\t]\n}", res.ToString());
+
+        // Delete entire object/key:
+        json.Set("ex4:1", "$", new { field1 = "val1" });
+        json.Del("ex4:1");
+        res = json.Get(key: "ex4:1",
+            indent: "\t",
+            newLine: "\n"
+        );
+        Assert.Equal("", res.ToString());
+
+        // Delete a single property from an object:
+        json.Set("ex4:2", "$", new
+        {
+            field1 = "val1",
+            field2 = "val2"
+        });
+        json.Del("ex4:2", "$.field1");
+        res = json.Get(key: "ex4:2",
+            indent: "\t",
+            newLine: "\n"
+        );
+        Assert.Equal("{\n\t\"field2\":\"val2\"\n}", res.ToString());
+
+        // Delete a property from an embedded object:
+        json.Set("ex4:3", "$", new
+        {
+            obj1 = new
+            {
+                str1 = "val1",
+                num2 = 2
+            }
+        });
+        json.Del("ex4:3", "$.obj1.num2");
+        res = json.Get(key: "ex4:3",
+            indent: "\t",
+            newLine: "\n"
+        );
+        Assert.Equal("{\n\t\"obj1\":{\n\t\t\"str1\":\"val1\"\n\t}\n}", res.ToString());
+
+        // Delete a single item from an array:
+        json.Set("ex4:4", "$", new
+        {
+            arr1 = new[] { "val1", "val2", "val3" }
+        });
+        json.Del("ex4:4", "$.arr1[0]");
+        res = json.Get(key: "ex4:4",
+            indent: "\t",
+            newLine: "\n"
+        );
+        Assert.Equal("{\n\t\"arr1\":[\n\t\t\"val2\",\n\t\t\"val3\"\n\t]\n}", res.ToString());
+    }
 }
