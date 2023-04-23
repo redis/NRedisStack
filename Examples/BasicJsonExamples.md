@@ -443,7 +443,7 @@ Console.WriteLine(json.Get(key: "ex4:3",
 }
 ```
 
-### Array Item <a name="array_delete"></a>
+### Array item <a name="array_delete"></a>
 Delete a single item from an array.
 #### Command
 ```c#
