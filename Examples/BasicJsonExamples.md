@@ -47,7 +47,7 @@ Console.WriteLine(json.Set("ex1:1", "$", "\"val\""));
 True
 ```
 
-### Single String Property <a name="single_string"></a>
+### Single string property <a name="single_string"></a>
 Insert a single-property JSON object.
 #### Command
 ```c#
