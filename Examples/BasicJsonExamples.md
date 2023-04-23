@@ -1,6 +1,5 @@
 # Basic JSON Operations
-CRUD (Create, Read, Update, Delete) operations with the Redis JSON data type
-
+Create, read, update, delete (CRUD) operations with the Redis JSON data type
 ## Contents
 1.  [Business Value Statement](#value)
 2.  [Create](#create)
@@ -28,14 +27,14 @@ CRUD (Create, Read, Update, Delete) operations with the Redis JSON data type
     3.  [Nested Property](#nested_delete)
     4.  [Array Item](#array_delete)
 
-## Business Value Statement <a name="value"></a>
-Document stores are a NoSQL database type that provide flexible schemas and access patterns that are familiar to developers.  Redis can provide document store functionality natively with its JSON data type.  This allows Redis to complement existing document store databases such as MongoDB or provide standalone JSON document storage.
+## Business value statement <a name="value"></a>
+Document stores are a NoSQL database type that provide flexible schemas and access patterns familiar to developers. Redis natively provides document store functionality with its JSON data type. Hence, Redis complements existing document store databases such as MongoDB or provides standalone JSON document storage.
 
 ## Create <a name="create"></a>
 ### Syntax
 [JSON.SET](https://redis.io/commands/json.set/)
 
-### Key Value Pair <a name="kvp"></a>
+### Key-value pair <a name="kvp"></a>
 Insert a simple KVP as a JSON object.
 #### Command
 ```c#
@@ -47,7 +46,8 @@ Console.WriteLine(json.Set("ex1:1", "$", "\"val\""));
 True
 ```
 
-### Single String Property <a name="single_string"></a>
+
+### Single string property <a name="single_string"></a>
 Insert a single-property JSON object.
 #### Command
 ```c#
@@ -381,7 +381,7 @@ Console.WriteLine(json.Get(key: "ex3:4",
 ### Syntax
 [JSON.DEL](https://redis.io/commands/json.del/)
 
-### Entire Object <a name="entire_delete"></a>
+### Entire object <a name="entire_delete"></a>
 Delete entire object/key.
 #### Command
 ```c#
@@ -418,7 +418,7 @@ Console.WriteLine(json.Get(key: "ex4:2",
 }
 ```
 
-### Nested Property <a name="nested_delete"></a>
+### Nested property <a name="nested_delete"></a>
 Delete a property from an embedded object.
 #### Command
 ```c#
@@ -443,7 +443,7 @@ Console.WriteLine(json.Get(key: "ex4:3",
 }
 ```
 
-### Array Item <a name="array_delete"></a>
+### Array item <a name="array_delete"></a>
 Delete a single item from an array.
 #### Command
 ```c#

@@ -343,7 +343,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
             }
         }));
 
-        // Set and Fetch a simple JSON KVP:
+        // Set and fetch a simple JSON KVP:
         json.Set("ex2:1", "$", "\"val\"");
         var res = json.Get(key: "ex2:1",
             path: "$",
@@ -352,7 +352,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         );
         Assert.Equal("[\n\t\"val\"\n]", res.ToString());
 
-        // Set and Fetch a single property from a JSON object:
+        // Set and fetch a single property from a JSON object:
         json.Set("ex2:2", "$", new
         {
             field1 = "val1"
@@ -370,8 +370,10 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
             field1 = "val1",
             field2 = "val2"
         });
+
         // sleep
         Thread.Sleep(2000);
+
         res = json.Get(key: "ex2:3",
             paths: new[] { "$.field1", "$.field2" },
             indent: "\t",
