@@ -381,7 +381,7 @@ Console.WriteLine(json.Get(key: "ex3:4",
 ### Syntax
 [JSON.DEL](https://redis.io/commands/json.del/)
 
-### Entire Object <a name="entire_delete"></a>
+### Entire object <a name="entire_delete"></a>
 Delete entire object/key.
 #### Command
 ```c#
