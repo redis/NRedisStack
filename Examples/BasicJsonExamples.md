@@ -1,5 +1,5 @@
 # Basic JSON Operations
-CRUD (Create, Read, Update, Delete) operations with the Redis JSON data type
+Create, read, update, delete (CRUD) operations with the Redis JSON data type
 
 ## Contents
 1.  [Business Value Statement](#value)
