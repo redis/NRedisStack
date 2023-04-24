@@ -68,9 +68,6 @@ jobs:
       USER_NAME: ${{ secrets.USER_NAME }}
       PASSWORD: ${{ secrets.PASSWORD }}
       ENDPOINT: ${{ secrets.ENDPOINT }}
-      REDIS_CA_PEM: ${{secrets.REDIS_CA_PEM}}
-      REDIS_USER_CRT: ${{secrets.REDIS_USER_CRT}}
-      REDIS_USER_PRIVATE_KEY: ${{secrets.REDIS_USER_PRIVATE_KEY}}
     steps:
       - uses: actions/checkout@v3
       - uses: Vampire/setup-wsl@v2
@@ -90,8 +87,8 @@ jobs:
       - name: Test
         shell: cmd
         run: |
-          echo.%REDIS_CA_PEM% >> tests\NRedisStack.Tests\bin\Debug\net481\redis_ca.pem
-          echo.%REDIS_USER_CRT% >> tests\NRedisStack.Tests\bin\Debug\net481\redis_user.crt
-          echo.%REDIS_USER_PRIVATE_KEY% >> tests\NRedisStack.Tests\bin\Debug\net481\redis_user_private.key
+          echo "${{secrets.REDIS_CA_PEM}}" > tests\NRedisStack.Tests\bin\Debug\net481\redis_ca.pem
+          echo "${{secrets.REDIS_USER_CRT}}" > tests\NRedisStack.Tests\bin\Debug\net481\redis_user.crt
+          echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > tests\NRedisStack.Tests\bin\Debug\net481\redis_user_private.key
           START wsl ./redis-stack-server-${{env.redis_stack_version}}/bin/redis-stack-server &
           dotnet test -f net481 --no-build --verbosity normal
