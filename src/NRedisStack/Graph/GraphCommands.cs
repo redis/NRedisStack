@@ -55,7 +55,7 @@ namespace NRedisStack
             return new ResultSet(_db.Execute(GraphCommandBuilder.RO_Query(graphName, query, timeout)), _graphCaches[graphName]);
         }
 
-        internal static readonly Dictionary<string, List<string>> EmptyKwargsDictionary =
+        internal static new readonly Dictionary<string, List<string>> EmptyKwargsDictionary =
             new Dictionary<string, List<string>>();
 
         // TODO: Check if this is needed:
