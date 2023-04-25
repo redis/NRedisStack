@@ -90,9 +90,6 @@ jobs:
           echo "${{secrets.REDIS_CA_PEM}}" > redis_ca.pem
           echo "${{secrets.REDIS_USER_CRT}}" > redis_user.crt
           echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > redis_user_private.key
-          ls -R
-      - name: Copy test certificates
-        run: |
           cp redis_ca.pem tests/NRedisStack.Tests/bin/Debug/net481/
           cp redis_user.crt tests/NRedisStack.Tests/bin/Debug/net481/
           cp redis_user_private.key tests/NRedisStack.Tests/bin/Debug/net481/
