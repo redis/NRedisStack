@@ -1924,29 +1924,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async Task TestModulePrefixs1Async()
-    {
-        {
-            var conn = ConnectionMultiplexer.Connect("localhost");
-            IDatabase db = conn.GetDatabase();
-
-            var graph = db.GRAPH();
-            // ...
-            conn.Dispose();
-        }
-
-        {
-            var conn = ConnectionMultiplexer.Connect("localhost");
-            IDatabase db = conn.GetDatabase();
-
-            var graph = db.GRAPH();
-            // ...
-            conn.Dispose();
-        }
-
-    }
-
-    [Fact]
     public void TestEqualsAndToString()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();

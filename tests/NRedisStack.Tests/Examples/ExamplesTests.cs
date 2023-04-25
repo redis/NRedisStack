@@ -1,4 +1,3 @@
-using System.Text;
 using Moq;
 using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
@@ -26,10 +25,11 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
     public void HSETandSearch()
     {
         // Connect to the Redis server
-        var redis = ConnectionMultiplexer.Connect("localhost");
+        // var redis = ConnectionMultiplexer.Connect("localhost");
 
         // Get a reference to the database and for search commands:
-        var db = redis.GetDatabase();
+        // var db = redis.GetDatabase();
+        var db =  redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var ft = db.FT();
 
@@ -77,8 +77,9 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
     public async Task AsyncExample()
     {
         // Connect to the Redis server
-        var redis = await ConnectionMultiplexer.ConnectAsync("localhost");
-        var db = redis.GetDatabase();
+        // var redis = await ConnectionMultiplexer.ConnectAsync("localhost");
+        // var db = redis.GetDatabase();
+        var db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var json = db.JSON();
 
@@ -169,10 +170,11 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
     public async Task PipelineWithAsync()
     {
         // Connect to the Redis server
-        var redis = ConnectionMultiplexer.Connect("localhost");
+        // var redis = ConnectionMultiplexer.Connect("localhost");
 
         // Get a reference to the database
-        var db = redis.GetDatabase();
+        // var db = redis.GetDatabase();
+        var db =  redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         // Setup pipeline connection
 
@@ -226,10 +228,12 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
     public async Task TransactionExample()
     {
         // Connect to the Redis server
-        var redis = ConnectionMultiplexer.Connect("localhost");
+        // var redis = ConnectionMultiplexer.Connect("localhost");
 
         // Get a reference to the database
-        var db = redis.GetDatabase();
+        // var db = redis.GetDatabase();
+
+        var db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
 
         // Setup transaction with IDatabase
@@ -267,8 +271,10 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void TestJsonConvert()
     {
-        ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
-        IDatabase db = redis.GetDatabase();
+        // ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
+        // IDatabase db = redis.GetDatabase();
+
+        var db =  redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         ISearchCommands ft = db.FT();
         IJsonCommands json = db.JSON();
@@ -289,8 +295,9 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void BasicJsonExamplesTest()
     {
-        ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
-        IDatabase db = redis.GetDatabase();
+        // ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
+        // IDatabase db = redis.GetDatabase();
+        var db =  redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         IJsonCommands json = db.JSON();
 
@@ -543,8 +550,9 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void AdvancedJsonExamplesTest()
     {
-        ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
-        IDatabase db = redis.GetDatabase();
+        // ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
+        // IDatabase db = redis.GetDatabase();
+        var db =  redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         IJsonCommands json = db.JSON();
 
@@ -676,8 +684,9 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void BasicQueryOperationsTest()
     {
-        ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
-        IDatabase db = redis.GetDatabase();
+        // ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
+        // IDatabase db = redis.GetDatabase();
+        var db =  redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         IJsonCommands json = db.JSON();
         ISearchCommands ft = db.FT();
@@ -835,8 +844,9 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void AdvancedQueryOperationsTest()
     {
-        ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
-        IDatabase db = redis.GetDatabase();
+        // ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
+        // IDatabase db = redis.GetDatabase();
+        var db =  redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         IJsonCommands json = db.JSON();
         ISearchCommands ft = db.FT();
