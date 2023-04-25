@@ -93,10 +93,10 @@ jobs:
           ls -R
       - name: Copy test certificates
         run: |
-          mkdir -p tests/NRedisStack.Tests/bin/Debug/net481/
           cp redis_ca.pem tests/NRedisStack.Tests/bin/Debug/net481/
           cp redis_user.crt tests/NRedisStack.Tests/bin/Debug/net481/
           cp redis_user_private.key tests/NRedisStack.Tests/bin/Debug/net481/
+          ls -R
       - name: Test
         shell: cmd
         run: |
