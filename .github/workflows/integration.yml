@@ -33,18 +33,36 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
-        run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
-      - name: Test
+        run: |
+          dotnet build --no-restore /p:ContinuousIntegrationBuild=true
+      - name: dotnet 6.0 test
         run: dotnet test -f net6.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
-      - name: Test
+      - name: dotnet 7.0 test
         run: dotnet test -f net7.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+
       - name: Codecov
         uses: codecov/codecov-action@v3
         with:
           token: ${{secrets.CODECOV_TOKEN}}
           verbose: true
-      - name: Build
-        run: dotnet pack -c Release
+
+      - name: determine if in fork
+        id: iamafork
+        run: |
+          amfork=`jq '.pull_request.head.repo.fork' $GITHUB_EVENT_PATH`
+          echo "am I fork: ${amfork}"
+          echo "IAMAFORK=$amfork" >> $GITHUB_OUTPUT
+
+      - name: Build the package
+        run: |
+          dotnet pack -c release --output .
+
+      - name: sign
+        run: |
+          echo "${{secrets.REDIS_PFX_CERT}}" > b64base
+          cat b64base | base64 --decode > cert.pfx
+          dotnet nuget sign *.nupkg --certificate-path cert.pfx --certificate-password ${{secrets.REDIS_PFX_PASSWORD}}
+
   build_and_test_windows:
     name: Build and Test on Windows
     runs-on: windows-latest
@@ -59,7 +77,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install curl -y && sudo apt-get install gpg -y && apt-get install lsb-release -y && apt-get install libgomp1 -y
           curl https://packages.redis.io/redis-stack/redis-stack-server-${{env.redis_stack_version}}.jammy.x86_64.tar.gz -o redis-stack.tar.gz
-          tar xf redis-stack.tar.gz      
+          tar xf redis-stack.tar.gz
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
@@ -69,3 +87,4 @@ jobs:
         run: |
           START wsl ./redis-stack-server-${{env.redis_stack_version}}/bin/redis-stack-server &
           dotnet test -f net481 --no-build --verbosity normal
+
