@@ -5,9 +5,10 @@ namespace NRedisStack.Tests
     public class RedisFixture : IDisposable
     {
 
-        string server = Environment.GetEnvironmentVariable("REDIS_SERVER") ?? "localhost";
-        string port = Environment.GetEnvironmentVariable("REDIS_PORT") ?? "6379";
-        public RedisFixture() => Redis = ConnectionMultiplexer.Connect($"{server}:{port}");
+
+        // Set the enviroment variable to specify your own alternet host and port:
+        string redis = Environment.GetEnvironmentVariable("REDIS") ?? "localhost:6379";
+        public RedisFixture() => Redis = ConnectionMultiplexer.Connect($"{redis}");
 
         public void Dispose()
         {
