@@ -84,11 +84,15 @@ jobs:
         run: dotnet restore
       - name: Build
         run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
+      - name: Save test certificates
+        shell: wsl-bash {0}
+        run: |
+          echo "${{secrets.REDIS_CA_PEM}}" > tests/NRedisStack.Tests/bin/Debug/net481/redis_ca.pem
+          echo "${{secrets.REDIS_USER_CRT}}" > tests/NRedisStack.Tests/bin/Debug/net481/redis_user.crt
+          echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > tests/NRedisStack.Tests/bin/Debug/net481/redis_user_private.key
+          ls -R
       - name: Test
         shell: cmd
         run: |
-          echo.%"${{secrets.REDIS_CA_PEM}}" >> tests\NRedisStack.Tests\bin\Debug\net481\redis_ca.pem
-          echo.%"${{secrets.REDIS_USER_CRT}}" >> tests\NRedisStack.Tests\bin\Debug\net481\redis_user.crt
-          echo.%"${{secrets.REDIS_USER_PRIVATE_KEY}}" >> tests\NRedisStack.Tests\bin\Debug\net481\redis_user_private.key
           START wsl ./redis-stack-server-${{env.redis_stack_version}}/bin/redis-stack-server &
           dotnet test -f net481 --no-build --verbosity normal
