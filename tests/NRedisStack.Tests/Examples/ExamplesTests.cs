@@ -317,12 +317,12 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         var rsa = RSA.Create();
 
         var redisUserPrivateKeyText = File.ReadAllText(redisUserPrivateKeyPath);
-        var pemFileData = File.ReadAllLines(redisUserPrivateKeyPath).Where(x => !x.StartsWith("-"));
-        var binaryEncoding = Convert.FromBase64String(string.Join(null, pemFileData));
+        // var pemFileData = File.ReadAllLines(redisUserPrivateKeyPath).Where(x => !x.StartsWith("-"));
+        // var binaryEncoding = Convert.FromBase64String(string.Join(null, pemFileData));
 
-        rsa.ImportParameters(ImportPrivateKey(File.ReadAllText(redisUserPrivateKeyPath)));
-        redisUserCertificate.CopyWithPrivateKey(rsa);
-        rsa.ImportParameters(ImportPrivateKey(File.ReadAllText(redisUserPrivateKeyText)));
+        rsa.ImportParameters(ImportPrivateKey(redisUserPrivateKeyText));
+        // redisUserCertificate.CopyWithPrivateKey(rsa);
+        // rsa.ImportParameters(ImportPrivateKey(File.ReadAllText(redisUserPrivateKeyText)));
         var clientCert = redisUserCertificate.CopyWithPrivateKey(rsa);
 
         // Connect to Redis Cloud
