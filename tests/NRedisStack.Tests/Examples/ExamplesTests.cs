@@ -319,7 +319,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         var redisUserPrivateKeyText = File.ReadAllText(redisUserPrivateKeyPath);
         var pemFileData = File.ReadAllLines(redisUserPrivateKeyPath).Where(x => !x.StartsWith("-"));
         var binaryEncoding = Convert.FromBase64String(string.Join(null, pemFileData));
-        
+
         rsa.ImportParameters(ImportPrivateKey(File.ReadAllText(redisUserPrivateKeyPath)));
         redisUserCertificate.CopyWithPrivateKey(rsa);
         rsa.ImportParameters(ImportPrivateKey(File.ReadAllText(redisUserPrivateKeyText)));
@@ -373,20 +373,8 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
     public static RSAParameters ImportPrivateKey(string pem)
     {
-        PemReader pr = new PemReader(new StringReader(pem));
-        RsaPrivateCrtKeyParameters privKey = (RsaPrivateCrtKeyParameters)pr.ReadObject();
-        RSAParameters rp = new RSAParameters();
-        rp.Modulus = privKey.Modulus.ToByteArrayUnsigned();
-        rp.Exponent = privKey.PublicExponent.ToByteArrayUnsigned();
-        rp.P = privKey.P.ToByteArrayUnsigned();
-        rp.Q = privKey.Q.ToByteArrayUnsigned();
-        rp.D = ConvertRSAParametersField(privKey.Exponent, rp.Modulus.Length);
-        rp.DP = ConvertRSAParametersField(privKey.DP, rp.P.Length);
-        rp.DQ = ConvertRSAParametersField(privKey.DQ, rp.Q.Length);
-        rp.InverseQ = ConvertRSAParametersField(privKey.QInv, rp.Q.Length);
-
-           
-        return rp;
+        var rsa = RSA.FromPemString(pem);
+        return rsa.Parameters;
     }
 
     private static byte[] ConvertRSAParametersField(BigInteger n, int size)
