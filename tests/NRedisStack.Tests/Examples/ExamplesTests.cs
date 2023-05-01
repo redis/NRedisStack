@@ -323,7 +323,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         var rsa = RSA.Create();
 
         var redisUserPrivateKeyText = File.ReadAllText(redisUserPrivateKeyPath);
-        testOutputHelper.WriteLine($"key length: {redisUserPrivateKeyText.Length} and starts with {redisUserPrivateKeyText.Substring(0,5)}");
+        testOutputHelper.WriteLine($"key length: {redisUserPrivateKeyText.Length} and starts with {redisUserPrivateKeyText.Substring(0,5)} and ends with {redisUserPrivateKeyText.Substring(redisUserPrivateKeyText.Length-6)}");
         rsa.ImportParameters(ImportPrivateKey(redisUserPrivateKeyText));
 
         var clientCert = redisUserCertificate.CopyWithPrivateKey(rsa);
