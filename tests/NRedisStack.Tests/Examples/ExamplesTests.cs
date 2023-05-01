@@ -373,8 +373,19 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
     public static RSAParameters ImportPrivateKey(string pem)
     {
-        var rsa = RSA.FromPemString(pem);
-        return rsa.Parameters;
+        PemReader pr = new PemReader(new StringReader(pem));
+        RsaPrivateCrtKeyParameters privKey = (RsaPrivateCrtKeyParameters)pr.ReadObject();
+        RSAParameters rp = new RSAParameters();
+        rp.Modulus = privKey.Modulus.ToByteArrayUnsigned();
+        rp.Exponent = privKey.PublicExponent.ToByteArrayUnsigned();
+        rp.P = privKey.P.ToByteArrayUnsigned();
+        rp.Q = privKey.Q.ToByteArrayUnsigned();
+        rp.D = ConvertRSAParametersField(privKey.Exponent, rp.Modulus.Length);
+        rp.DP = ConvertRSAParametersField(privKey.DP, rp.P.Length);
+        rp.DQ = ConvertRSAParametersField(privKey.DQ, rp.Q.Length);
+        rp.InverseQ = ConvertRSAParametersField(privKey.QInv, rp.Q.Length);
+
+        return rp;
     }
 
     private static byte[] ConvertRSAParametersField(BigInteger n, int size)
