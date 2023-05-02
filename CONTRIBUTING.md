@@ -89,7 +89,7 @@ When filing an issue, make sure to answer these five questions:
 
 If you'd like to contribute a new feature, make sure you check our
 issue list to see if someone has already proposed it. Work may already
-be under way on the feature you want -- or we may have rejected a
+be underway on the feature you want or we may have rejected a
 feature like it already.
 
 If you don't see anything, open a new issue that describes the feature
