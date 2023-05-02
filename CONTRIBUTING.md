@@ -10,7 +10,7 @@ Community contributions mean a lot to us.
 You may already know how you'd like to contribute, whether it's a fix for a bug you
 encountered, or a new feature your team wants to use.
 
-If you don't know what to contribute, keep an open mind! Improving
+If you don't know where to start, consider improving
 documentation, bug triaging, and writing tutorials are all examples of
 helpful contributions that mean less work for you.
 
