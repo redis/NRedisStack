@@ -85,7 +85,7 @@ When filing an issue, make sure to answer these five questions:
 4.  What did you expect to see?
 5.  What did you see instead?
 
-## How to Suggest a Feature or Enhancement
+## Suggest a feature or enhancement
 
 If you'd like to contribute a new feature, make sure you check our
 issue list to see if someone has already proposed it. Work may already
