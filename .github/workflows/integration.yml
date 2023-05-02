@@ -62,7 +62,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install curl -y && sudo apt-get install gpg -y && apt-get install lsb-release -y && apt-get install libgomp1 -y
-          curl https://packages.redis.io/redis-stack/redis-stack-server-${{env.redis_stack_version}}.jammy.x86_64.tar.gz -o redis-stack.tar.gzc
+          curl https://packages.redis.io/redis-stack/redis-stack-server-${{env.redis_stack_version}}.jammy.x86_64.tar.gz -o redis-stack.tar.gz
           tar xf redis-stack.tar.gz
       - name: Restore dependencies
         run: dotnet restore
