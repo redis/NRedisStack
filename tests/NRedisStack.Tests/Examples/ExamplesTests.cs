@@ -7,20 +7,26 @@ using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
 using NRedisStack.Search.Aggregation;
 using NRedisStack.Search.Literals.Enums;
+using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.OpenSsl;
 using StackExchange.Redis;
 using Xunit;
+using Xunit.Abstractions;
 using static NRedisStack.Search.Schema;
 
 namespace NRedisStack.Tests;
 
 public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 {
+    private readonly ITestOutputHelper testOutputHelper;
     Mock<IDatabase> _mock = new Mock<IDatabase>();
     private readonly string key = "EXAMPLES_TESTS";
-    public ExaplesTests(RedisFixture redisFixture) : base(redisFixture) { }
+    public ExaplesTests(RedisFixture redisFixture, ITestOutputHelper testOutputHelper) : base(redisFixture)
+    {
+        this.testOutputHelper = testOutputHelper;
+    }
 
     public void Dispose()
     {
@@ -300,7 +306,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
 #if NET481
     [Fact]
-    public void TestRedisCloudConnection()
+    public void TestRedisCloudConnection_net481()
     {
         var root = Path.GetFullPath(Directory.GetCurrentDirectory());
         var redisCaPath = Path.GetFullPath(Path.Combine(root, "redis_ca.pem"));
@@ -316,13 +322,9 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
         var rsa = RSA.Create();
 
-        var redisUserPrivateKeyText = File.ReadAllText(redisUserPrivateKeyPath);
-        // var pemFileData = File.ReadAllLines(redisUserPrivateKeyPath).Where(x => !x.StartsWith("-"));
-        // var binaryEncoding = Convert.FromBase64String(string.Join(null, pemFileData));
-
+        var redisUserPrivateKeyText = File.ReadAllText(redisUserPrivateKeyPath).Trim();
         rsa.ImportParameters(ImportPrivateKey(redisUserPrivateKeyText));
-        // redisUserCertificate.CopyWithPrivateKey(rsa);
-        // rsa.ImportParameters(ImportPrivateKey(File.ReadAllText(redisUserPrivateKeyText)));
+
         var clientCert = redisUserCertificate.CopyWithPrivateKey(rsa);
 
         // Connect to Redis Cloud
@@ -333,7 +335,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
             Password = password
         };
 
-        redisConfiguration.CertificateSelection += (_, _, _, _, _) => clientCert;
+        redisConfiguration.CertificateSelection += (_, _, _, _, _) => new X509Certificate2(clientCert.Export(X509ContentType.Pfx));
 
         redisConfiguration.CertificateValidation += (_, cert, _, errors) =>
         {
@@ -373,18 +375,30 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
     public static RSAParameters ImportPrivateKey(string pem)
     {
-        PemReader pr = new PemReader(new StringReader(pem));
-        RsaPrivateCrtKeyParameters privKey = (RsaPrivateCrtKeyParameters)pr.ReadObject();
+        using var sr = new StringReader(pem);
+        PemReader pr = new PemReader(sr);
         RSAParameters rp = new RSAParameters();
-        rp.Modulus = privKey.Modulus.ToByteArrayUnsigned();
-        rp.Exponent = privKey.PublicExponent.ToByteArrayUnsigned();
-        rp.P = privKey.P.ToByteArrayUnsigned();
-        rp.Q = privKey.Q.ToByteArrayUnsigned();
-        rp.D = ConvertRSAParametersField(privKey.Exponent, rp.Modulus.Length);
-        rp.DP = ConvertRSAParametersField(privKey.DP, rp.P.Length);
-        rp.DQ = ConvertRSAParametersField(privKey.DQ, rp.Q.Length);
-        rp.InverseQ = ConvertRSAParametersField(privKey.QInv, rp.Q.Length);
-
+        while (sr.Peek() != -1)
+        {
+            var privKey = pr.ReadObject() as AsymmetricCipherKeyPair;
+            if (privKey != null)
+            {
+                var pkParamaters = (RsaPrivateCrtKeyParameters)privKey.Private;
+                rp.Modulus = pkParamaters.Modulus.ToByteArrayUnsigned();
+                rp.Exponent = pkParamaters.PublicExponent.ToByteArrayUnsigned();
+                rp.P = pkParamaters.P.ToByteArrayUnsigned();
+                rp.Q = pkParamaters.Q.ToByteArrayUnsigned();
+                rp.D = ConvertRSAParametersField(pkParamaters.Exponent, rp.Modulus.Length);
+                rp.DP = ConvertRSAParametersField(pkParamaters.DP, rp.P.Length);
+                rp.DQ = ConvertRSAParametersField(pkParamaters.DQ, rp.Q.Length);
+                rp.InverseQ = ConvertRSAParametersField(pkParamaters.QInv, rp.Q.Length);
+            }
+            else
+            {
+                throw new ArgumentException("Pem is malformed and could not be parsed");
+            }
+        }
+        pr.ReadObject();
         return rp;
     }
 
