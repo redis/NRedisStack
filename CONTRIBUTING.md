@@ -3,7 +3,7 @@
 ## Introduction
 
 We appreciate your interest in contributing to NRedisStack.
-community contributions!
+Community contributions mean a lot to us.
 
 ## Contributions We Need
 
