@@ -34,7 +34,7 @@ Here's how to get started with your code contribution:
 2.  Do the changes in your fork
 3.  Write your tests
 
-4.  Use the `docker run -p 6379:6379 -it redis/redis-stack-server` as your local environment for running the functional tests.
+4.  Use the `docker run -p 6379:6379 -it redis/redis-stack-server:edge` as your local environment for running the functional tests.
 5.  Make sure your tests pass using `dotnet test'
 6.  Push your changes to GitHub
 7.  Open a pull request
@@ -48,7 +48,7 @@ to test specific test you can use `--filter` flag:
 dotnet test --filter <YourTestName>
 ```
 
-If you want to run your tests against a specific host, you can do it this way:
+If you want to run your tests against a specific host and port, you can do it thus:
 ```bash
 dotnet test --environment="REDIS=<redisServer:port>"
 ```
