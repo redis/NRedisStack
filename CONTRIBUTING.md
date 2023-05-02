@@ -2,7 +2,7 @@
 
 ## Introduction
 
-First off, thank you for considering contributing to NRedisStack. We value
+We appreciate your interest in contributing to NRedisStack.
 community contributions!
 
 ## Contributions We Need
