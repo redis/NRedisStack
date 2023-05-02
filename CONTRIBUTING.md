@@ -7,7 +7,7 @@ Community contributions mean a lot to us.
 
 ## Contributions we need
 
-You may already know what you want to contribute \-- a fix for a bug you
+You may already know how you'd like to contribute, whether it's a fix for a bug you
 encountered, or a new feature your team wants to use.
 
 If you don't know what to contribute, keep an open mind! Improving
