@@ -19,6 +19,11 @@ jobs:
       fail-fast: false
       matrix:
         redis-stack-version: ["6.2.6-v7", "7.0.6-RC8", "edge"]
+    environment: REDIS_USER
+    env:
+      USER_NAME: ${{ secrets.USER_NAME }}
+      PASSWORD: ${{ secrets.PASSWORD }}
+      ENDPOINT: ${{ secrets.ENDPOINT }}
     steps:
       - uses: actions/checkout@v3
       - name: .NET Core 6
@@ -36,9 +41,19 @@ jobs:
       - name: Build
         run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
       - name: Test
-        run: dotnet test -f net6.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+        run: |
+          echo "${{secrets.REDIS_CA_PEM}}" > tests/NRedisStack.Tests/bin/Debug/net6.0/redis_ca.pem
+          echo "${{secrets.REDIS_USER_CRT}}" > tests/NRedisStack.Tests/bin/Debug/net6.0/redis_user.crt
+          echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > tests/NRedisStack.Tests/bin/Debug/net6.0/redis_user_private.key
+          ls -R
+          dotnet test -f net6.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
       - name: Test
-        run: dotnet test -f net7.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+        run: |
+          echo "${{secrets.REDIS_CA_PEM}}" > tests/NRedisStack.Tests/bin/Debug/net7.0/redis_ca.pem
+          echo "${{secrets.REDIS_USER_CRT}}" > tests/NRedisStack.Tests/bin/Debug/net7.0/redis_user.crt
+          echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > tests/NRedisStack.Tests/bin/Debug/net7.0/redis_user_private.key
+          ls -R
+          dotnet test -f net7.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
       - name: Codecov
         uses: codecov/codecov-action@v3
         with:
@@ -52,6 +67,11 @@ jobs:
     runs-on: windows-latest
     env:
       redis_stack_version: 6.2.6-v7
+    environment: REDIS_USER
+    env:
+      USER_NAME: ${{ secrets.USER_NAME }}
+      PASSWORD: ${{ secrets.PASSWORD }}
+      ENDPOINT: ${{ secrets.ENDPOINT }}
     steps:
       - uses: actions/checkout@v3
       - uses: Vampire/setup-wsl@v2
@@ -68,6 +88,13 @@ jobs:
         run: dotnet restore
       - name: Build
         run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
+      - name: Save test certificates
+        shell: wsl-bash {0}
+        run: |
+          echo "${{secrets.REDIS_CA_PEM}}" > tests/NRedisStack.Tests/bin/Debug/net481/redis_ca.pem
+          echo "${{secrets.REDIS_USER_CRT}}" > tests/NRedisStack.Tests/bin/Debug/net481/redis_user.crt
+          echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > tests/NRedisStack.Tests/bin/Debug/net481/redis_user_private.key
+          ls -R
       - name: Test
         shell: cmd
         run: |
