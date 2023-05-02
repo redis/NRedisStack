@@ -5,7 +5,7 @@
 We appreciate your interest in contributing to NRedisStack.
 Community contributions mean a lot to us.
 
-## Contributions We Need
+## Contributions we need
 
 You may already know what you want to contribute \-- a fix for a bug you
 encountered, or a new feature your team wants to use.
