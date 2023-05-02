@@ -11,7 +11,7 @@ You may already know how you'd like to contribute, whether it's a fix for a bug 
 encountered, or a new feature your team wants to use.
 
 If you don't know where to start, consider improving
-documentation, bug triaging, and writing tutorials are all examples of
+documentation, triaging bugs, or writing tutorials. These are all examples of
 helpful contributions that mean less work for you.
 
 ## Your First Contribution
