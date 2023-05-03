@@ -11,13 +11,14 @@ on:
   schedule:
     - cron: "0 1 * * *"
 
-env:
-  redis_stack_version: 6.2.6-v6
-
 jobs:
   build_and_Test:
-    name: Build and test
+    name: Test [redis-stack ${{matrix.redis-stack-version}}]
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        redis-stack-version: ["6.2.6-v7", "7.0.6-RC8", "edge"]
     environment: REDIS_USER
     env:
       USER_NAME: ${{ secrets.USER_NAME }}
@@ -34,7 +35,7 @@ jobs:
         with:
           dotnet-version: '7.0.x'
       - name: run redis-stack-server docker
-        run: docker run -p 6379:6379 -d redis/redis-stack-server:edge
+        run: docker run -p 6379:6379 -d redis/redis-stack-server:${{matrix.redis-stack-version}}
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
@@ -60,11 +61,13 @@ jobs:
           verbose: true
       - name: Build
         run: dotnet pack -c Release
+
   build_and_test_windows:
-    name: Build and Test on Windows
+    name: Windows Test ${{matrix.redis-stack-version}}
     runs-on: windows-latest
     environment: REDIS_USER
     env:
+      redis_stack_version: 6.2.6-v7
       USER_NAME: ${{ secrets.USER_NAME }}
       PASSWORD: ${{ secrets.PASSWORD }}
       ENDPOINT: ${{ secrets.ENDPOINT }}
