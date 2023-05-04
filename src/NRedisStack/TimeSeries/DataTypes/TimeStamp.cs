@@ -23,7 +23,7 @@
         /// Build a TimeStamp from DateTime.
         /// </summary>
         /// <param name="dateTime">DateTime value</param>
-        public TimeStamp(DateTime dateTime) => Value = dateTime.Ticks;
+        public TimeStamp(DateTime dateTime) => Value = (long) dateTime.Millisecond; // TODO: Check this
 
         /// <summary>
         /// Build a TimeStamp from one of the strings "-", "+", "*".

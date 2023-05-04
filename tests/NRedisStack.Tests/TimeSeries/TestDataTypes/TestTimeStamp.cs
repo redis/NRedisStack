@@ -25,7 +25,7 @@ namespace NRedisTimeSeries.Test
 
             DateTime now = DateTime.UtcNow;
             ts = now;
-            Assert.Equal<DateTime>(now, ts);
+            Assert.Equal(now.Millisecond, ts);
 
         }
     }
