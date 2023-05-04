@@ -228,7 +228,8 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             await ts.CreateAsync(key);
             await ts.AddAsync(key, newTimeStamp, 1.1);
             // Adding old event
-            Assert.Equal(oldTimeStamp, await ts.AddAsync(key, oldTimeStamp, 1.1));
+            var res = await ts.AddAsync(key, oldTimeStamp, 1.1);
+            Assert.Equal(oldTimeStamp.Value, res.Value);
         }
 
         [Fact]
