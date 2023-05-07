@@ -304,6 +304,8 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(10, docs.Count());
     }
 
+#if CI_RUN_TESTS
+
 #if NET481
     [Fact]
     public void TestRedisCloudConnection_net481()
@@ -568,6 +570,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         var value = db.StringGet("testKey");
         Assert.Equal("testValue", value);
     }
+#endif
 #endif
 
     [Fact]
