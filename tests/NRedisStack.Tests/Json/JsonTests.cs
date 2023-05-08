@@ -726,7 +726,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void TestMSet()
+    public void MSet()
     {
         IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(2);
