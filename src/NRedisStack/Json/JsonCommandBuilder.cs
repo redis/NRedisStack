@@ -33,8 +33,9 @@ public static class JsonCommandBuilder
     {
         if (keyValuePathList.Length < 1)
             throw new ArgumentOutOfRangeException(nameof(keyValuePathList));
-        var args = keyValuePathList.Select(x => x.ToString());
-        return new SerializedCommand(JSON.MSET, string.Join(" ", args));
+
+            var args = keyValuePathList.SelectMany(x => x.ToArray()).ToArray();
+            return new SerializedCommand(JSON.MSET, args[0], args.Skip(1));
     }
 
     public static SerializedCommand StrAppend(RedisKey key, string value, string? path = null)

@@ -10,11 +10,6 @@ public struct KeyValuePath
 
     public KeyValuePath(string key, object value, string path = "$")
     {
-        if (!(value is string) && !(value is object))
-        {
-            throw new ArgumentException("Value must be a string or an object.");
-        }
-
         if (key == null || value == null)
         {
             throw new ArgumentNullException("Key and value cannot be null.");
@@ -24,11 +19,12 @@ public struct KeyValuePath
         Value = value;
         Path = path;
     }
-
-    public override string ToString()
+    public string[] ToArray()
     {
         if (Value is string)
-            return $"{Key} {Path} {Value}";
-        return $"{Key} {Path} {JsonSerializer.Serialize(Value)}";
+        {
+            return new string[] { Key, Path, Value.ToString() };
+        }
+        return new string[] { Key, Path, JsonSerializer.Serialize(Value) };
     }
 }

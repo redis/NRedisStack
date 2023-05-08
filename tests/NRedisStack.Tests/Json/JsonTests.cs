@@ -4,7 +4,7 @@ using Xunit;
 using StackExchange.Redis;
 using Moq;
 using NRedisStack.RedisStackCommands;
-
+using NRedisStack.Json.DataTypes;
 
 namespace NRedisStack.Tests;
 
@@ -723,6 +723,60 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(35, people[0]!.Age);
         Assert.Equal("Alice", people[1]!.Name);
         Assert.Equal(35, people[1]!.Age);
+    }
+
+    [Fact]
+    public void TestMSet()
+    {
+        IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var keys = CreateKeyNames(2);
+        var key1 = keys[0];
+        var key2 = keys[1];
+
+        KeyValuePath[] values = new[]
+        {
+            new KeyValuePath(key1, new { a = "hello" }),
+            new KeyValuePath(key2, new { a = "world" })
+        };
+        commands.MSet(values)
+;
+        var result = commands.MGet(keys.Select(x => new RedisKey(x)).ToArray(), "$.a");
+
+        Assert.Equal("[\"hello\"]", result[0].ToString());
+        Assert.Equal("[\"world\"]", result[1].ToString());
+
+        // test errors:
+        Assert.Throws<ArgumentOutOfRangeException>(() => commands.MSet(new KeyValuePath[0]));
+    }
+
+    [Fact]
+    public async Task MSetAsync()
+    {
+        IJsonCommandsAsync commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var keys = CreateKeyNames(2);
+        var key1 = keys[0];
+        var key2 = keys[1];
+        KeyValuePath[] values = new[]
+        {
+            new KeyValuePath(key1, new { a = "hello" }),
+            new KeyValuePath(key2, new { a = "world" })
+        };
+        await commands.MSetAsync(values)
+;
+        var result = await commands.MGetAsync(keys.Select(x => new RedisKey(x)).ToArray(), "$.a");
+
+        Assert.Equal("[\"hello\"]", result[0].ToString());
+        Assert.Equal("[\"world\"]", result[1].ToString());
+
+        // test errors:
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await commands.MSetAsync(new KeyValuePath[0]));
+    }
+
+    [Fact]
+    public void TestKeyValuePathErrors()
+    {
+        Assert.Throws<ArgumentNullException>(() => new KeyValuePath(null!, new { a = "hello" }));
+        Assert.Throws<ArgumentNullException>(() => new KeyValuePath("key", null!) );
     }
 
     [Fact]
