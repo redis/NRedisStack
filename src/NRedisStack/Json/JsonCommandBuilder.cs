@@ -1,4 +1,5 @@
-﻿using NRedisStack.Json.Literals;
+﻿using NRedisStack.Json.DataTypes;
+using NRedisStack.Json.Literals;
 using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
 using System.Text.Json;
@@ -26,6 +27,14 @@ public static class JsonCommandBuilder
             When.NotExists => new SerializedCommand(JSON.SET, key, path, json, "NX"),
             _ => new SerializedCommand(JSON.SET, key, path, json)
         };
+    }
+
+    public static SerializedCommand MSet(KeyValuePath[] keyValuePathList)
+    {
+        if (keyValuePathList.Length < 1)
+            throw new ArgumentOutOfRangeException(nameof(keyValuePathList));
+        var args = keyValuePathList.Select(x => x.ToString());
+        return new SerializedCommand(JSON.MSET, string.Join(" ", args));
     }
 
     public static SerializedCommand StrAppend(RedisKey key, string value, string? path = null)

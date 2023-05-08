@@ -15,6 +15,7 @@
         public const string FORGET = "JSON.FORGET";
         public const string GET = "JSON.GET";
         public const string MEMORY = "MEMORY";
+        public const string MSET = "JSON.MSET";
         public const string MGET = "JSON.MGET";
         public const string NUMINCRBY = "JSON.NUMINCRBY";
         public const string NUMMULTBY = "JSON.NUMMULTBY";

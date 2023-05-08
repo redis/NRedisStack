@@ -1,4 +1,5 @@
-﻿using StackExchange.Redis;
+﻿using NRedisStack.Json.DataTypes;
+using StackExchange.Redis;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -37,6 +38,12 @@ public class JsonCommands : JsonCommandsAsync, IJsonCommands
     public bool Set(RedisKey key, RedisValue path, RedisValue json, When when = When.Always)
     {
         return _db.Execute(JsonCommandBuilder.Set(key, path, json, when)).OKtoBoolean();
+    }
+
+    /// <inheritdoc/>
+    public bool MSet(KeyValuePath[] keyValuePathList)
+    {
+        return _db.Execute(JsonCommandBuilder.MSet(keyValuePathList)).OKtoBoolean();
     }
 
     /// <inheritdoc/>
