@@ -210,7 +210,8 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             ts.Create(key);
             ts.Add(key, new_dt, 1.1);
             // Adding old event
-            Assert.Equal(old_dt, ts.Add(key, old_dt, 1.1));
+            var res = ts.Add(key, old_dt, 1.1);
+            Assert.Equal(old_dt.Value, res.Value);
         }
 
         [Fact]
