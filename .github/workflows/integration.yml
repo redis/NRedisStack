@@ -24,6 +24,7 @@ jobs:
       USER_NAME: ${{ secrets.USER_NAME }}
       PASSWORD: ${{ secrets.PASSWORD }}
       ENDPOINT: ${{ secrets.ENDPOINT }}
+      VERSION: ${{ matrix.redis-stack-version }}
     steps:
       - uses: actions/checkout@v3
       - name: .NET Core 6
@@ -53,7 +54,12 @@ jobs:
           echo "${{secrets.REDIS_USER_CRT}}" > tests/NRedisStack.Tests/bin/Debug/net7.0/redis_user.crt
           echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > tests/NRedisStack.Tests/bin/Debug/net7.0/redis_user_private.key
           ls -R
-          dotnet test -f net7.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+          echo Version $VERSION
+          if [ "$VERSION" != "edge" ]; then
+            dotnet test -f net7.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --filter Category!=edge
+          else
+            dotnet test -f net7.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+          fi
       - name: Codecov
         uses: codecov/codecov-action@v3
         with:
@@ -98,4 +104,4 @@ jobs:
         shell: cmd
         run: |
           START wsl ./redis-stack-server-${{env.redis_stack_version}}/bin/redis-stack-server &
-          dotnet test -f net481 --no-build --verbosity normal
+          dotnet test -f net481 --no-build --verbosity normal --filter Category!=edge

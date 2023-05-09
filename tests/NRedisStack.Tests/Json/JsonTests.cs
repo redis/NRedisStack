@@ -726,6 +726,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    [Trait("Category","edge")]
     public void MSet()
     {
         IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
@@ -750,6 +751,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    [Trait("Category","edge")]
     public async Task MSetAsync()
     {
         IJsonCommandsAsync commands = new JsonCommands(redisFixture.Redis.GetDatabase());
