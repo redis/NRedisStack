@@ -24,7 +24,7 @@ jobs:
       USER_NAME: ${{ secrets.USER_NAME }}
       PASSWORD: ${{ secrets.PASSWORD }}
       ENDPOINT: ${{ secrets.ENDPOINT }}
-      VERSION: ${{ matrix.redis-stack-version }}
+      REDIS_VERSION: ${{ matrix.redis-stack-version }}
     steps:
       - uses: actions/checkout@v3
       - name: .NET Core 6
@@ -47,7 +47,7 @@ jobs:
           echo "${{secrets.REDIS_USER_CRT}}" > tests/NRedisStack.Tests/bin/Debug/net6.0/redis_user.crt
           echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > tests/NRedisStack.Tests/bin/Debug/net6.0/redis_user_private.key
           ls -R
-          if [ "$VERSION" != "edge" ]; then
+          if [ "$REDIS_VERSION" != "edge" ]; then
             dotnet test -f net6.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --filter Category!=edge
           else
             dotnet test -f net6.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
@@ -58,8 +58,7 @@ jobs:
           echo "${{secrets.REDIS_USER_CRT}}" > tests/NRedisStack.Tests/bin/Debug/net7.0/redis_user.crt
           echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > tests/NRedisStack.Tests/bin/Debug/net7.0/redis_user_private.key
           ls -R
-          echo Version $VERSION
-          if [ "$VERSION" != "edge" ]; then
+          if [ "$REDIS_VERSION" != "edge" ]; then
             dotnet test -f net7.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --filter Category!=edge
           else
             dotnet test -f net7.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
