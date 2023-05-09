@@ -748,6 +748,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
 
         // test errors:
         Assert.Throws<ArgumentOutOfRangeException>(() => commands.MSet(new KeyValuePath[0]));
+
     }
 
     [Fact]
