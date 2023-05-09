@@ -38,6 +38,11 @@ public static class JsonCommandBuilder
             return new SerializedCommand(JSON.MSET, args);
     }
 
+    public static SerializedCommand Merge(RedisKey key, RedisValue path, RedisValue json)
+    {
+        return new SerializedCommand(JSON.MERGE, key, path, json);
+    }
+
     public static SerializedCommand StrAppend(RedisKey key, string value, string? path = null)
     {
         if (path == null)

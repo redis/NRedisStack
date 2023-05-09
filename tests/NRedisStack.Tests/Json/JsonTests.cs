@@ -772,6 +772,8 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await commands.MSetAsync(new KeyValuePath[0]));
     }
 
+    // TODO: add json.merge sync/async tests here
+
     [Fact]
     public void TestKeyValuePathErrors()
     {
