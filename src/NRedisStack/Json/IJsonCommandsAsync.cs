@@ -226,6 +226,7 @@ public interface IJsonCommandsAsync
     Task<bool> MergeAsync(RedisKey key, RedisValue path, RedisValue json);
 
     /// <summary>
+
     /// Set json file from the provided file Path.
     /// </summary>
     /// <param name="key">The key.</param>
