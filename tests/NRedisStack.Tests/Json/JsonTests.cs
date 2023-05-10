@@ -774,39 +774,14 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await commands.MSetAsync(new KeyValuePath[0]));
     }
 
-    // [Fact]
-    // [Trait("Category", "edge")]
-    // public void Merge1()
-    // {
-    //     IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
-    //     var keys = CreateKeyNames(2);
-    //     var key1 = keys[0];
-    //     var key2 = keys[1];
-
-    //     // Create a key
-    //     commands.Set("user", "$", "{}");
-
-    //     // Merge a value at a path
-    //     commands.Merge("user", "$.name", "John Doe");
-
-    //     // Get the value at the path
-    //     var name = commands.Get("user", path: "$.name");
-
-    //     // Assert that the value is correct
-    //     Assert.Equal("John Doe", name.ToString());
-    // }
-
     [Fact]
     [Trait("Category", "edge")]
     public void Merge()
     {
         IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
-        var keys = CreateKeyNames(2);
-        var key1 = keys[0];
-        var key2 = keys[1];
 
         // Create a key
-        commands.Set("test_merge", "$", "{\"a\":{\"b\":{\"c\":\"d\"}}}");
+        Assert.True(commands.Set("test_merge", "$", "{\"a\":{\"b\":{\"c\":\"d\"}}}"));
         Assert.True(commands.Merge("test_merge", "$", "{\"a\":{\"b\":{\"e\":\"f\"}}}"));
         Assert.Equal("{\"a\":{\"b\":{\"c\":\"d\",\"e\":\"f\"}}}", commands.Get("test_merge").ToString());
         // Test with root path path $.a.b
@@ -818,27 +793,24 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("{\"a\":{\"b\":{\"h\":\"i\",\"e\":\"f\"}}}", commands.Get("test_merge").ToString());
     }
 
-    // [Fact]
-    // [Trait("Category", "edge")]
-    // public async Task MergeAsync()
-    // {
-    //     IJsonCommandsAsync commands = new JsonCommands(redisFixture.Redis.GetDatabase());
-    //     var keys = CreateKeyNames(2);
-    //     var key1 = keys[0];
-    //     var key2 = keys[1];
+    [Fact]
+    [Trait("Category", "edge")]
+    public async Task MergeAsync()
+    {
+        IJsonCommandsAsync commands = new JsonCommands(redisFixture.Redis.GetDatabase());
 
-    //     // Create a key
-    //     await commands.SetAsync("user", "$", "{}");
+        // Create a key
+        Assert.True(await commands.SetAsync("test_merge", "$", "{\"a\":{\"b\":{\"c\":\"d\"}}}"));
+        Assert.True(await commands.MergeAsync("test_merge", "$", "{\"a\":{\"b\":{\"e\":\"f\"}}}"));
+        Assert.Equal("{\"a\":{\"b\":{\"c\":\"d\",\"e\":\"f\"}}}", (await commands.GetAsync("test_merge")).ToString());
+        // Test with root path path $.a.b
 
-    //     // Merge a value at a path
-    //     await commands.MergeAsync("user", "$.name", "John Doe");
-
-    //     // Get the value at the path
-    //     var name = await commands.GetAsync("user", path: "$.name");
-
-    //     // Assert that the value is correct
-    //     Assert.Equal("John Doe", name.ToString());
-    // }
+        Assert.True(await commands.MergeAsync("test_merge", "$.a.b", "{\"h\":\"i\"}"));
+        Assert.Equal("{\"a\":{\"b\":{\"c\":\"d\",\"e\":\"f\",\"h\":\"i\"}}}", (await commands.GetAsync("test_merge")).ToString());
+        // Test with null value to delete a value
+        Assert.True(await commands.MergeAsync("test_merge", "$.a.b", "{\"c\":null}"));
+        Assert.Equal("{\"a\":{\"b\":{\"h\":\"i\",\"e\":\"f\"}}}", (await commands.GetAsync("test_merge")).ToString());
+    }
 
     [Fact]
     public void TestKeyValuePathErrors()
