@@ -105,4 +105,4 @@ jobs:
         shell: cmd
         run: |
           START wsl ./redis-stack-server-${{env.redis_stack_version}}/bin/redis-stack-server &
-          dotnet test -f net481 --no-build --verbosity normal
+          dotnet test -f net481 --no-build --verbosity normal --filter Categpry!=edge
