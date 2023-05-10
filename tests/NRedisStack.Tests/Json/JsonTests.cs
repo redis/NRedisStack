@@ -797,6 +797,28 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    [Trait("Category", "edge")]
+    public async Task MergeAsync()
+    {
+        IJsonCommandsAsync commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var keys = CreateKeyNames(2);
+        var key1 = keys[0];
+        var key2 = keys[1];
+
+        // Create a key
+        await commands.SetAsync("user", "$", "{}");
+
+        // Merge a value at a path
+        await commands.MergeAsync("user", "$.name", "John Doe");
+
+        // Get the value at the path
+        var name = await commands.GetAsync("user", path: "$.name");
+
+        // Assert that the value is correct
+        Assert.Equal("John Doe", name.ToString());
+    }
+
+    [Fact]
     public void TestKeyValuePathErrors()
     {
         Assert.Throws<ArgumentNullException>(() => new KeyValuePath(null!, new { a = "hello" }));
