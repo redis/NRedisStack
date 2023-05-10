@@ -726,7 +726,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category","edge")]
+    [Trait("Category", "edge")]
     public void MSet()
     {
         IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
@@ -748,11 +748,10 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
 
         // test errors:
         Assert.Throws<ArgumentOutOfRangeException>(() => commands.MSet(new KeyValuePath[0]));
-
     }
 
     [Fact]
-    [Trait("Category","edge")]
+    [Trait("Category", "edge")]
     public async Task MSetAsync()
     {
         IJsonCommandsAsync commands = new JsonCommands(redisFixture.Redis.GetDatabase());
@@ -775,13 +774,33 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await commands.MSetAsync(new KeyValuePath[0]));
     }
 
-    // TODO: add json.merge sync/async tests here
+    [Fact]
+    [Trait("Category", "edge")]
+    public void Merge()
+    {
+        IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var keys = CreateKeyNames(2);
+        var key1 = keys[0];
+        var key2 = keys[1];
+
+        // Create a key
+        commands.Set("user", "$", "{}");
+
+        // Merge a value at a path
+        commands.Merge("user", "$.name", "John Doe");
+
+        // Get the value at the path
+        var name = commands.Get("user", path: "$.name");
+
+        // Assert that the value is correct
+        Assert.Equal("John Doe", name.ToString());
+    }
 
     [Fact]
     public void TestKeyValuePathErrors()
     {
         Assert.Throws<ArgumentNullException>(() => new KeyValuePath(null!, new { a = "hello" }));
-        Assert.Throws<ArgumentNullException>(() => new KeyValuePath("key", null!) );
+        Assert.Throws<ArgumentNullException>(() => new KeyValuePath("key", null!));
     }
 
     [Fact]
@@ -1069,18 +1088,18 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     public void TestJsonCommandBuilder()
     {
         var getBuild1 = JsonCommandBuilder.Get("key", "indent", "newline", "space", "path");
-        var getBuild2 = JsonCommandBuilder.Get("key",new string[]{"path1", "path2", "path3"}, "indent", "newline", "space");
-        var expectedArgs1 = new object[] { "key", "INDENT", "indent", "NEWLINE","newline", "SPACE", "space", "path" };
+        var getBuild2 = JsonCommandBuilder.Get("key", new string[] { "path1", "path2", "path3" }, "indent", "newline", "space");
+        var expectedArgs1 = new object[] { "key", "INDENT", "indent", "NEWLINE", "newline", "SPACE", "space", "path" };
         var expectedArgs2 = new object[] { "key", "INDENT", "indent", "NEWLINE", "newline", "SPACE", "space", "path1", "path2", "path3" };
 
 
-        for(int i = 0; i < expectedArgs1.Length; i++)
+        for (int i = 0; i < expectedArgs1.Length; i++)
         {
             Assert.Equal(expectedArgs1[i].ToString(), getBuild1.Args[i].ToString());
         }
         Assert.Equal("JSON.GET", getBuild1.Command);
 
-        for(int i = 0; i < expectedArgs2.Length; i++)
+        for (int i = 0; i < expectedArgs2.Length; i++)
         {
             Assert.Equal(expectedArgs2[i].ToString(), getBuild2.Args[i].ToString());
         }
