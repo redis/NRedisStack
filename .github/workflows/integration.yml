@@ -19,7 +19,6 @@ jobs:
       fail-fast: false
       matrix:
         redis-stack-version: ["6.2.6-v7", "7.0.6-RC8", "edge"]
-    environment: REDIS_USER
     env:
       USER_NAME: ${{ secrets.USER_NAME }}
       PASSWORD: ${{ secrets.PASSWORD }}
@@ -74,7 +73,6 @@ jobs:
   build_and_test_windows:
     name: Windows Test ${{matrix.redis-stack-version}}
     runs-on: windows-latest
-    environment: REDIS_USER
     env:
       redis_stack_version: 6.2.6-v7
       USER_NAME: ${{ secrets.USER_NAME }}
