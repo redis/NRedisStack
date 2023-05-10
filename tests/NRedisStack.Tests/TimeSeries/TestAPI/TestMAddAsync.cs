@@ -69,7 +69,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(timestamps.Count, response.Count);
             for (var i = 0; i < response.Count; i++)
             {
-                Assert.Equal<DateTime>(timestamps[i], response[i]);
+                Assert.Equal(new DateTimeOffset(timestamps[i]).ToUnixTimeMilliseconds(), response[i].Value);
             }
         }
 
@@ -112,7 +112,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(oldTimeStamps.Count, response.Count);
             for (int i = 0; i < response.Count; i++)
             {
-                Assert.Equal<DateTime>(oldTimeStamps[i], response[i]);
+                Assert.Equal(new DateTimeOffset(oldTimeStamps[i]).ToUnixTimeMilliseconds(), response[i].Value);
             }
         }
     }
