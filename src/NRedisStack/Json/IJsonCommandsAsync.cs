@@ -1,4 +1,5 @@
-﻿using StackExchange.Redis;
+﻿using NRedisStack.Json.DataTypes;
+using StackExchange.Redis;
 
 namespace NRedisStack;
 
@@ -204,6 +205,15 @@ public interface IJsonCommandsAsync
     /// <returns>The disposition of the command</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.set"/></remarks>
     Task<bool> SetAsync(RedisKey key, RedisValue path, RedisValue json, When when = When.Always);
+
+    /// <summary>
+    /// Sets or updates the JSON value of one or more keys.
+    /// </summary>
+    /// <param name="keyValuePathList">The key, The value to set and
+    /// The path to set within the key, must be > 1 </param>
+    /// <returns>The disposition of the command</returns>
+    /// <remarks><seealso href="https://redis.io/commands/json.mset"/></remarks>
+    Task<bool> MSetAsync(KeyValuePath[] keyValuePathList);
 
     /// <summary>
     /// Set json file from the provided file Path.

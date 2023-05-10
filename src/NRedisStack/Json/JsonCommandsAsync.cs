@@ -1,4 +1,5 @@
-﻿using StackExchange.Redis;
+﻿using NRedisStack.Json.DataTypes;
+using StackExchange.Redis;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -141,6 +142,11 @@ public class JsonCommandsAsync : IJsonCommandsAsync
     public async Task<bool> SetAsync(RedisKey key, RedisValue path, RedisValue json, When when = When.Always)
     {
         return (await _db.ExecuteAsync(JsonCommandBuilder.Set(key, path, json, when))).OKtoBoolean();
+    }
+
+    public async Task<bool> MSetAsync(KeyValuePath[] keyValuePathList)
+    {
+        return (await _db.ExecuteAsync(JsonCommandBuilder.MSet(keyValuePathList))).OKtoBoolean();
     }
 
     public async Task<bool> SetFromFileAsync(RedisKey key, RedisValue path, string filePath, When when = When.Always)
