@@ -726,6 +726,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    [Trait("Category","edge")]
     public void MSet()
     {
         IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
@@ -747,9 +748,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
 
         // test errors:
         Assert.Throws<ArgumentOutOfRangeException>(() => commands.MSet(new KeyValuePath[0]));
+
     }
 
     [Fact]
+    [Trait("Category","edge")]
     public async Task MSetAsync()
     {
         IJsonCommandsAsync commands = new JsonCommands(redisFixture.Redis.GetDatabase());
