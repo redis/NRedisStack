@@ -778,19 +778,20 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Trait("Category", "edge")]
     public void Merge()
     {
+        // Create a connection to Redis
         IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
 
         // Create a key
-        Assert.True(commands.Set("test_merge", "$", "{\"a\":{\"b\":{\"c\":\"d\"}}}"));
-        Assert.True(commands.Merge("test_merge", "$", "{\"a\":{\"b\":{\"e\":\"f\"}}}"));
-        Assert.Equal("{\"a\":{\"b\":{\"c\":\"d\",\"e\":\"f\"}}}", commands.Get("test_merge").ToString());
+        Assert.True(commands.Set("test_merge", "$", "{\"person\":{\"name\":\"John Doe\",\"age\":25,\"address\":\"123 Main Street\",\"phone\":\"123-456-7890\"}}}"));
+        Assert.True(commands.Merge("test_merge", "$", "{\"person\":{\"age\":30}}"));
+        Assert.Equal("{\"person\":{\"name\":\"John Doe\",\"age\":30,\"address\":\"123 Main Street\",\"phone\":\"123-456-7890\"}}}", commands.Get("test_merge").ToString());
         // Test with root path path $.a.b
 
-        Assert.True(commands.Merge("test_merge", "$.a.b", "{\"h\":\"i\"}"));
-        Assert.Equal("{\"a\":{\"b\":{\"c\":\"d\",\"e\":\"f\",\"h\":\"i\"}}}", commands.Get("test_merge").ToString());
+         Assert.True(commands.Merge("test_merge", "$.person.address", "{\"city\":\"New York\"}"));
+        Assert.Equal("{\"person\":{\"name\":\"John Doe\",\"age\":30,\"address\":{\"city\":\"New York\",\"street\":\"123 Main Street\"},\"phone\":\"123-456-7890\"}}}", db.Get("test_merge").ToString());
         // Test with null value to delete a value
-        Assert.True(commands.Merge("test_merge", "$.a.b", "{\"c\":null}"));
-        Assert.Equal("{\"a\":{\"b\":{\"h\":\"i\",\"e\":\"f\"}}}", commands.Get("test_merge").ToString());
+        Assert.True(commands.Merge("test_merge", "$.person.age", "null"));
+        Assert.Equal("{\"person\":{\"name\":\"John Doe\",\"age\":null,\"address\":{\"city\":\"New York\",\"street\":\"123 Main Street\"},\"phone\":\"123-456-7890\"}}}", db.Get("test_merge").ToString());
     }
 
     [Fact]
