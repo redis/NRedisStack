@@ -787,7 +787,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
 
         // Test with root path path $.a.b
         Assert.True(commands.Merge("test_merge", "$.person.address", new {work = "Redis office"}));
-        Assert.Equal("{\"person\":{\"name\":\"John Doe\",\"age\":30,\"address\":{\"home\":\"123 Main Street\",\"work\":\"Redis office\"},\"phone\":\"123-456-7890\"}}}", commands.Get("test_merge").ToString());
+        Assert.Equal("{\"person\":{\"name\":\"John Doe\",\"age\":30,\"address\":{\"home\":\"123 Main Street\",\"work\":\"Redis office\"},\"phone\":\"123-456-7890\"}}", commands.Get("test_merge").ToString());
 
         // Test with null value to delete a value
         // Assert.True(commands.Merge("test_merge", "$.person.age", RedisValue.Null));
