@@ -786,7 +786,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("{\"person\":{\"name\":\"John Doe\",\"age\":30,\"address\":\"123 Main Street\",\"phone\":\"123-456-7890\"}}", commands.Get("test_merge").ToString());
 
         // Test with root path path $.a.b
-        Assert.True(commands.Merge("test_merge", "$.person.address", new { city = "New York" }));
+        Assert.True(commands.Merge("test_merge", "$.person.address", "New York"));
         Assert.Equal("{\"person\":{\"name\":\"John Doe\",\"age\":30,\"address\":{\"city\":\"New York\",\"street\":\"123 Main Street\"},\"phone\":\"123-456-7890\"}}}", commands.Get("test_merge").ToString());
 
         // Test with null value to delete a value
