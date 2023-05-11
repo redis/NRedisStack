@@ -784,7 +784,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         // Create a key
         Assert.True(commands.Set("test_merge", "$", "{\"person\":{\"name\":\"John Doe\",\"age\":25,\"address\":\"123 Main Street\",\"phone\":\"123-456-7890\"}}}"));
         Assert.True(commands.Merge("test_merge", "$", "{\"person\":{\"age\":30}}"));
-        Assert.Equal("{\"person\":{\"name\":\"John Doe\",\"age\":30,\"address\":\"123 Main Street\",\"phone\":\"123-456-7890\"}}}", commands.Get("test_merge").ToString());
+        Assert.Equal("{\"person\":{\"name\":\"John Doe\",\"age\":30,\"address\":\"123 Main Street\",\"phone\":\"123-456-7890\"}}", commands.Get("test_merge").ToString());
         // Test with root path path $.a.b
 
          Assert.True(commands.Merge("test_merge", "$.person.address", "{\"city\":\"New York\"}"));
