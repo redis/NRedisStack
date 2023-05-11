@@ -790,7 +790,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("{\"person\":{\"name\":\"John Doe\",\"age\":30,\"address\":{\"home\":\"123 Main Street\",\"work\":\"Redis office\"},\"phone\":\"123-456-7890\"}}", commands.Get("test_merge").ToString());
 
         // Test with null value to delete a value
-        Assert.True(commands.Merge("test_merge", "$.person.age", RedisValue.Null));
+        Assert.True(commands.Merge("test_merge", "$.person", "{\"age\":null}"));
         Assert.Equal("{\"person\":{\"name\":\"John Doe\",\"address\":{\"home\":\"123 Main Street\",\"work\":\"Redis office\"},\"phone\":\"123-456-7890\"}}", commands.Get("test_merge").ToString());
     }
 
@@ -798,19 +798,20 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Trait("Category", "edge")]
     public async Task MergeAsync()
     {
+        // Create a connection to Redis
         IJsonCommandsAsync commands = new JsonCommands(redisFixture.Redis.GetDatabase());
 
-        // Create a key
-        Assert.True(await commands.SetAsync("test_merge", "$", "{\"a\":{\"b\":{\"c\":\"d\"}}}"));
-        Assert.True(await commands.MergeAsync("test_merge", "$", "{\"a\":{\"b\":{\"e\":\"f\"}}}"));
-        Assert.Equal("{\"a\":{\"b\":{\"c\":\"d\",\"e\":\"f\"}}}", (await commands.GetAsync("test_merge")).ToString());
-        // Test with root path path $.a.b
+        Assert.True(await commands.SetAsync("test_merge", "$", new { person = new { name = "John Doe", age = 25, address = new {home = "123 Main Street"}, phone = "123-456-7890" } }));
+        Assert.True(await commands.MergeAsync("test_merge", "$", new { person = new { age = 30 } }));
+        Assert.Equal("{\"person\":{\"name\":\"John Doe\",\"age\":30,\"address\":{\"home\":\"123 Main Street\"},\"phone\":\"123-456-7890\"}}", (await commands.GetAsync("test_merge")).ToString());
 
-        Assert.True(await commands.MergeAsync("test_merge", "$.a.b", "{\"h\":\"i\"}"));
-        Assert.Equal("{\"a\":{\"b\":{\"c\":\"d\",\"e\":\"f\",\"h\":\"i\"}}}", (await commands.GetAsync("test_merge")).ToString());
+        // Test with root path path $.a.b
+        Assert.True(await commands.MergeAsync("test_merge", "$.person.address", new {work = "Redis office"}));
+        Assert.Equal("{\"person\":{\"name\":\"John Doe\",\"age\":30,\"address\":{\"home\":\"123 Main Street\",\"work\":\"Redis office\"},\"phone\":\"123-456-7890\"}}", (await commands.GetAsync("test_merge")).ToString());
+
         // Test with null value to delete a value
-        Assert.True(await commands.MergeAsync("test_merge", "$.a.b", "{\"c\":null}"));
-        Assert.Equal("{\"a\":{\"b\":{\"h\":\"i\",\"e\":\"f\"}}}", (await commands.GetAsync("test_merge")).ToString());
+        Assert.True(await commands.MergeAsync("test_merge", "$.person", "{\"age\":null}"));
+        Assert.Equal("{\"person\":{\"name\":\"John Doe\",\"address\":{\"home\":\"123 Main Street\",\"work\":\"Redis office\"},\"phone\":\"123-456-7890\"}}", (await commands.GetAsync("test_merge")).ToString());
     }
 
     [Fact]
