@@ -209,11 +209,11 @@ public interface IJsonCommands
     /// <summary>
     /// Sets or updates the JSON value of one or more keys.
     /// </summary>
-    /// <param name="keyValuePathList">The key, The value to set and
+    /// <param name="KeyPathValueList">The key, The value to set and
     /// The path to set within the key, must be > 1 </param>
     /// <returns>The disposition of the command</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.mset"/></remarks>
-    bool MSet(KeyValuePath[] keyValuePathList);
+    bool MSet(KeyPathValue[] KeyPathValueList);
 
     /// <summary>
     /// Sets or updates the JSON value at a path.
@@ -234,15 +234,6 @@ public interface IJsonCommands
     /// <returns>The disposition of the command</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.merge"/></remarks>
     bool Merge(RedisKey key, RedisValue path, object obj);
-
-    /// <summary>
-    /// Sets or updates the JSON value at a path.
-    /// </summary>
-    /// <param name="keyValuePath">The key, The value to set and
-    /// The path to set within the key</param>
-    /// <returns>The disposition of the command</returns>
-    /// <remarks><seealso href="https://redis.io/commands/json.merge"/></remarks>
-    bool Merge(KeyValuePath keyValuePath);
 
     /// <summary>
     /// Sets or updates the JSON value of one or more keys.
@@ -271,7 +262,8 @@ public interface IJsonCommands
     /// <param name="key">The key to append to.</param>
     /// <param name="path">The path of the string(s) to append to.</param>
     /// <param name="value">The value to append.</param>
-    /// <returns>The new length of the string(s) appended to, those lengths will be null if the path did not resolve ot a string.</returns>
+    /// <returns>The new length of the string(s) appended to, those lengths
+    /// will be null if the path did not resolve ot a string.</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.strappend"/></remarks>
     long?[] StrAppend(RedisKey key, string value, string? path = null);
 
@@ -280,7 +272,8 @@ public interface IJsonCommands
     /// </summary>
     /// <param name="key">The key of the json object.</param>
     /// <param name="path">The path of the string(s) within the json object.</param>
-    /// <returns>The length of the string(s) appended to, those lengths will be null if the path did not resolve ot a string.</returns>
+    /// <returns>The length of the string(s) appended to, those lengths
+    /// will be null if the path did not resolve ot a string.</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.strlen"/></remarks>
     public long?[] StrLen(RedisKey key, string? path = null);
 

@@ -41,9 +41,9 @@ public class JsonCommands : JsonCommandsAsync, IJsonCommands
     }
 
     /// <inheritdoc/>
-    public bool MSet(KeyValuePath[] keyValuePathList)
+    public bool MSet(KeyPathValue[] KeyPathValueList)
     {
-        return _db.Execute(JsonCommandBuilder.MSet(keyValuePathList)).OKtoBoolean();
+        return _db.Execute(JsonCommandBuilder.MSet(KeyPathValueList)).OKtoBoolean();
     }
 
     /// <inheritdoc/>
@@ -57,12 +57,6 @@ public class JsonCommands : JsonCommandsAsync, IJsonCommands
     {
         string json = JsonSerializer.Serialize(obj);
         return _db.Execute(JsonCommandBuilder.Merge(key, path, json)).OKtoBoolean();
-    }
-
-    /// <inheritdoc/>
-    public bool Merge(KeyValuePath keyValuePath)
-    {
-        return _db.Execute(JsonCommandBuilder.Merge(keyValuePath)).OKtoBoolean();
     }
 
     /// <inheritdoc/>

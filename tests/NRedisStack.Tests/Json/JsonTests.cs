@@ -734,10 +734,10 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var key1 = keys[0];
         var key2 = keys[1];
 
-        KeyValuePath[] values = new[]
+        KeyPathValue[] values = new[]
         {
-            new KeyValuePath(key1, new { a = "hello" }),
-            new KeyValuePath(key2, new { a = "world" })
+            new KeyPathValue(key1, "$", new { a = "hello" }),
+            new KeyPathValue(key2, "$", new { a = "world" })
         };
         commands.MSet(values)
 ;
@@ -747,7 +747,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("[\"world\"]", result[1].ToString());
 
         // test errors:
-        Assert.Throws<ArgumentOutOfRangeException>(() => commands.MSet(new KeyValuePath[0]));
+        Assert.Throws<ArgumentOutOfRangeException>(() => commands.MSet(new KeyPathValue[0]));
     }
 
     [Fact]
@@ -758,10 +758,10 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var keys = CreateKeyNames(2);
         var key1 = keys[0];
         var key2 = keys[1];
-        KeyValuePath[] values = new[]
+        KeyPathValue[] values = new[]
         {
-            new KeyValuePath(key1, new { a = "hello" }),
-            new KeyValuePath(key2, new { a = "world" })
+            new KeyPathValue(key1, "$", new { a = "hello" }),
+            new KeyPathValue(key2, "$", new { a = "world" })
         };
         await commands.MSetAsync(values)
 ;
@@ -771,7 +771,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("[\"world\"]", result[1].ToString());
 
         // test errors:
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await commands.MSetAsync(new KeyValuePath[0]));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await commands.MSetAsync(new KeyPathValue[0]));
     }
 
     [Fact]
@@ -811,13 +811,6 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         // Test with null value to delete a value
         Assert.True(await commands.MergeAsync("test_merge", "$.a.b", "{\"c\":null}"));
         Assert.Equal("{\"a\":{\"b\":{\"h\":\"i\",\"e\":\"f\"}}}", (await commands.GetAsync("test_merge")).ToString());
-    }
-
-    [Fact]
-    public void TestKeyValuePathErrors()
-    {
-        Assert.Throws<ArgumentNullException>(() => new KeyValuePath(null!, new { a = "hello" }));
-        Assert.Throws<ArgumentNullException>(() => new KeyValuePath("key", null!));
     }
 
     [Fact]
