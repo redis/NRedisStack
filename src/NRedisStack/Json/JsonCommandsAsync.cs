@@ -155,6 +155,19 @@ public class JsonCommandsAsync : IJsonCommandsAsync
         return (await _db.ExecuteAsync(JsonCommandBuilder.Merge(key, path, json))).OKtoBoolean();
     }
 
+    /// <inheritdoc/>
+    public async Task<bool> MergeAsync(RedisKey key, RedisValue path, object obj)
+    {
+        string json = JsonSerializer.Serialize(obj);
+        return (await _db.ExecuteAsync(JsonCommandBuilder.Merge(key, path, json))).OKtoBoolean();
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> MergeAsync(KeyValuePath keyValuePath)
+    {
+        return (await _db.ExecuteAsync(JsonCommandBuilder.Merge(keyValuePath))).OKtoBoolean();
+    }
+
     public async Task<bool> SetFromFileAsync(RedisKey key, RedisValue path, string filePath, When when = When.Always)
     {
         if (!File.Exists(filePath))

@@ -226,6 +226,25 @@ public interface IJsonCommands
     bool Merge(RedisKey key, RedisValue path, RedisValue json);
 
     /// <summary>
+    /// Sets or updates the JSON value at a path.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <param name="path">The path to set within the key.</param>
+    /// <param name="obj">The value to set.</param>
+    /// <returns>The disposition of the command</returns>
+    /// <remarks><seealso href="https://redis.io/commands/json.merge"/></remarks>
+    bool Merge(RedisKey key, RedisValue path, object obj);
+
+    /// <summary>
+    /// Sets or updates the JSON value at a path.
+    /// </summary>
+    /// <param name="keyValuePath">The key, The value to set and
+    /// The path to set within the key</param>
+    /// <returns>The disposition of the command</returns>
+    /// <remarks><seealso href="https://redis.io/commands/json.merge"/></remarks>
+    bool Merge(KeyValuePath keyValuePath);
+
+    /// <summary>
     /// Sets or updates the JSON value of one or more keys.
     /// </summary>
     /// <param name="key">The key.</param>

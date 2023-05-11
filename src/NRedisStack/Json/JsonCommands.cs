@@ -53,6 +53,19 @@ public class JsonCommands : JsonCommandsAsync, IJsonCommands
     }
 
     /// <inheritdoc/>
+    public bool Merge(RedisKey key, RedisValue path, object obj)
+    {
+        string json = JsonSerializer.Serialize(obj);
+        return _db.Execute(JsonCommandBuilder.Merge(key, path, json)).OKtoBoolean();
+    }
+
+    /// <inheritdoc/>
+    public bool Merge(KeyValuePath keyValuePath)
+    {
+        return _db.Execute(JsonCommandBuilder.Merge(keyValuePath)).OKtoBoolean();
+    }
+
+    /// <inheritdoc/>
     public bool SetFromFile(RedisKey key, RedisValue path, string filePath, When when = When.Always)
     {
         if (!File.Exists(filePath))
