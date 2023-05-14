@@ -209,11 +209,31 @@ public interface IJsonCommandsAsync
     /// <summary>
     /// Sets or updates the JSON value of one or more keys.
     /// </summary>
-    /// <param name="keyValuePathList">The key, The value to set and
+    /// <param name="KeyPathValueList">The key, The value to set and
     /// The path to set within the key, must be > 1 </param>
     /// <returns>The disposition of the command</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.mset"/></remarks>
-    Task<bool> MSetAsync(KeyValuePath[] keyValuePathList);
+    Task<bool> MSetAsync(KeyPathValue[] KeyPathValueList);
+
+    /// <summary>
+    /// Sets or updates the JSON value at a path.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <param name="path">The path to set within the key.</param>
+    /// <param name="json">The value to set.</param>
+    /// <returns>The disposition of the command</returns>
+    /// <remarks><seealso href="https://redis.io/commands/json.merge"/></remarks>
+    Task<bool> MergeAsync(RedisKey key, RedisValue path, RedisValue json);
+
+    /// <summary>
+    /// Sets or updates the JSON value at a path.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <param name="path">The path to set within the key.</param>
+    /// <param name="obj">The value to set.</param>
+    /// <returns>The disposition of the command</returns>
+    /// <remarks><seealso href="https://redis.io/commands/json.merge"/></remarks>
+    Task<bool> MergeAsync(RedisKey key, RedisValue path, object obj);
 
     /// <summary>
     /// Set json file from the provided file Path.

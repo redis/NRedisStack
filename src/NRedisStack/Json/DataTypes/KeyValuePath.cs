@@ -2,22 +2,17 @@ using System.Text.Json;
 
 namespace NRedisStack.Json.DataTypes;
 
-public struct KeyValuePath
+public struct KeyPathValue
 {
     public string Key { get; set; }
-    public object Value { get; set; }
     public string Path { get; set; }
+    public object Value { get; set; }
 
-    public KeyValuePath(string key, object value, string path = "$")
+    public KeyPathValue(string key, string path, object value)
     {
-        if (key == null || value == null)
-        {
-            throw new ArgumentNullException("Key and value cannot be null.");
-        }
-
         Key = key;
-        Value = value;
         Path = path;
+        Value = value;
     }
     public string[] ToArray()
     {

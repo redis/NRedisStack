@@ -29,13 +29,18 @@ public static class JsonCommandBuilder
         };
     }
 
-    public static SerializedCommand MSet(KeyValuePath[] keyValuePathList)
+    public static SerializedCommand MSet(KeyPathValue[] KeyPathValueList)
     {
-        if (keyValuePathList.Length < 1)
-            throw new ArgumentOutOfRangeException(nameof(keyValuePathList));
+        if (KeyPathValueList.Length < 1)
+            throw new ArgumentOutOfRangeException(nameof(KeyPathValueList));
 
-            var args = keyValuePathList.SelectMany(x => x.ToArray()).ToArray();
+            var args = KeyPathValueList.SelectMany(x => x.ToArray()).ToArray();
             return new SerializedCommand(JSON.MSET, args);
+    }
+
+    public static SerializedCommand Merge(RedisKey key, RedisValue path, RedisValue json)
+    {
+        return new SerializedCommand(JSON.MERGE, key, path, json);
     }
 
     public static SerializedCommand StrAppend(RedisKey key, string value, string? path = null)

@@ -726,7 +726,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category","edge")]
+    [Trait("Category", "edge")]
     public void MSet()
     {
         IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
@@ -734,10 +734,10 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var key1 = keys[0];
         var key2 = keys[1];
 
-        KeyValuePath[] values = new[]
+        KeyPathValue[] values = new[]
         {
-            new KeyValuePath(key1, new { a = "hello" }),
-            new KeyValuePath(key2, new { a = "world" })
+            new KeyPathValue(key1, "$", new { a = "hello" }),
+            new KeyPathValue(key2, "$", new { a = "world" })
         };
         commands.MSet(values)
 ;
@@ -747,22 +747,21 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("[\"world\"]", result[1].ToString());
 
         // test errors:
-        Assert.Throws<ArgumentOutOfRangeException>(() => commands.MSet(new KeyValuePath[0]));
-
+        Assert.Throws<ArgumentOutOfRangeException>(() => commands.MSet(new KeyPathValue[0]));
     }
 
     [Fact]
-    [Trait("Category","edge")]
+    [Trait("Category", "edge")]
     public async Task MSetAsync()
     {
         IJsonCommandsAsync commands = new JsonCommands(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(2);
         var key1 = keys[0];
         var key2 = keys[1];
-        KeyValuePath[] values = new[]
+        KeyPathValue[] values = new[]
         {
-            new KeyValuePath(key1, new { a = "hello" }),
-            new KeyValuePath(key2, new { a = "world" })
+            new KeyPathValue(key1, "$", new { a = "hello" }),
+            new KeyPathValue(key2, "$", new { a = "world" })
         };
         await commands.MSetAsync(values)
 ;
@@ -772,14 +771,47 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("[\"world\"]", result[1].ToString());
 
         // test errors:
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await commands.MSetAsync(new KeyValuePath[0]));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await commands.MSetAsync(new KeyPathValue[0]));
     }
 
     [Fact]
-    public void TestKeyValuePathErrors()
+    [Trait("Category", "edge")]
+    public void Merge()
     {
-        Assert.Throws<ArgumentNullException>(() => new KeyValuePath(null!, new { a = "hello" }));
-        Assert.Throws<ArgumentNullException>(() => new KeyValuePath("key", null!) );
+        // Create a connection to Redis
+        IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+
+        Assert.True(commands.Set("test_merge", "$", new { person = new { name = "John Doe", age = 25, address = new {home = "123 Main Street"}, phone = "123-456-7890" } }));
+        Assert.True(commands.Merge("test_merge", "$", new { person = new { age = 30 } }));
+        Assert.Equal("{\"person\":{\"name\":\"John Doe\",\"age\":30,\"address\":{\"home\":\"123 Main Street\"},\"phone\":\"123-456-7890\"}}", commands.Get("test_merge").ToString());
+
+        // Test with root path path $.a.b
+        Assert.True(commands.Merge("test_merge", "$.person.address", new {work = "Redis office"}));
+        Assert.Equal("{\"person\":{\"name\":\"John Doe\",\"age\":30,\"address\":{\"home\":\"123 Main Street\",\"work\":\"Redis office\"},\"phone\":\"123-456-7890\"}}", commands.Get("test_merge").ToString());
+
+        // Test with null value to delete a value
+        Assert.True(commands.Merge("test_merge", "$.person", "{\"age\":null}"));
+        Assert.Equal("{\"person\":{\"name\":\"John Doe\",\"phone\":\"123-456-7890\",\"address\":{\"home\":\"123 Main Street\",\"work\":\"Redis office\"}}}", commands.Get("test_merge").ToString());
+    }
+
+    [Fact]
+    [Trait("Category", "edge")]
+    public async Task MergeAsync()
+    {
+        // Create a connection to Redis
+        IJsonCommandsAsync commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+
+        Assert.True(await commands.SetAsync("test_merge", "$", new { person = new { name = "John Doe", age = 25, address = new {home = "123 Main Street"}, phone = "123-456-7890" } }));
+        Assert.True(await commands.MergeAsync("test_merge", "$", new { person = new { age = 30 } }));
+        Assert.Equal("{\"person\":{\"name\":\"John Doe\",\"age\":30,\"address\":{\"home\":\"123 Main Street\"},\"phone\":\"123-456-7890\"}}", (await commands.GetAsync("test_merge")).ToString());
+
+        // Test with root path path $.a.b
+        Assert.True(await commands.MergeAsync("test_merge", "$.person.address", new {work = "Redis office"}));
+        Assert.Equal("{\"person\":{\"name\":\"John Doe\",\"age\":30,\"address\":{\"home\":\"123 Main Street\",\"work\":\"Redis office\"},\"phone\":\"123-456-7890\"}}", (await commands.GetAsync("test_merge")).ToString());
+
+        // Test with null value to delete a value
+        Assert.True(await commands.MergeAsync("test_merge", "$.person", "{\"age\":null}"));
+        Assert.Equal("{\"person\":{\"name\":\"John Doe\",\"phone\":\"123-456-7890\",\"address\":{\"home\":\"123 Main Street\",\"work\":\"Redis office\"}}}", (await commands.GetAsync("test_merge")).ToString());
     }
 
     [Fact]
@@ -1067,18 +1099,18 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     public void TestJsonCommandBuilder()
     {
         var getBuild1 = JsonCommandBuilder.Get("key", "indent", "newline", "space", "path");
-        var getBuild2 = JsonCommandBuilder.Get("key",new string[]{"path1", "path2", "path3"}, "indent", "newline", "space");
-        var expectedArgs1 = new object[] { "key", "INDENT", "indent", "NEWLINE","newline", "SPACE", "space", "path" };
+        var getBuild2 = JsonCommandBuilder.Get("key", new string[] { "path1", "path2", "path3" }, "indent", "newline", "space");
+        var expectedArgs1 = new object[] { "key", "INDENT", "indent", "NEWLINE", "newline", "SPACE", "space", "path" };
         var expectedArgs2 = new object[] { "key", "INDENT", "indent", "NEWLINE", "newline", "SPACE", "space", "path1", "path2", "path3" };
 
 
-        for(int i = 0; i < expectedArgs1.Length; i++)
+        for (int i = 0; i < expectedArgs1.Length; i++)
         {
             Assert.Equal(expectedArgs1[i].ToString(), getBuild1.Args[i].ToString());
         }
         Assert.Equal("JSON.GET", getBuild1.Command);
 
-        for(int i = 0; i < expectedArgs2.Length; i++)
+        for (int i = 0; i < expectedArgs2.Length; i++)
         {
             Assert.Equal(expectedArgs2[i].ToString(), getBuild2.Args[i].ToString());
         }
