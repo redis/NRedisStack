@@ -216,7 +216,8 @@ public interface IJsonCommands
     bool MSet(KeyPathValue[] KeyPathValueList);
 
     /// <summary>
-    /// Sets or updates the JSON value at a path.
+    /// Merges a given JSON value into matching paths. Consequently,
+    /// JSON values at matching paths are updated, deleted, or expanded with new children
     /// </summary>
     /// <param name="key">The key.</param>
     /// <param name="path">The path to set within the key.</param>
@@ -226,7 +227,8 @@ public interface IJsonCommands
     bool Merge(RedisKey key, RedisValue path, RedisValue json);
 
     /// <summary>
-    /// Sets or updates the JSON value at a path.
+    /// Merges a given JSON value into matching paths. Consequently,
+    /// JSON values at matching paths are updated, deleted, or expanded with new children
     /// </summary>
     /// <param name="key">The key.</param>
     /// <param name="path">The path to set within the key.</param>
