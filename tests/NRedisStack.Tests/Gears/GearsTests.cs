@@ -21,6 +21,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
-        // TODO: write a test
+        // TODO: finish the test when the docker will support this command
+        // Assert.True(db.TFunctionLoad("#!js api_version=1.0 name=lib\n redis.registerFunction('foo', ()=>{return 'bar'})"));
     }
 }
