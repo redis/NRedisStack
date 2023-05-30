@@ -16,12 +16,23 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         redisFixture.Redis.GetDatabase().KeyDelete(key);
     }
 
+    // TODO: add async tests
     [Fact]
-    public void TestReserveBasic()
+    public void TestTFunctionLoad()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         // TODO: finish the test when the docker will support this command
         // Assert.True(db.TFunctionLoad("#!js api_version=1.0 name=lib\n redis.registerFunction('foo', ()=>{return 'bar'})"));
+    }
+
+    [Fact]
+    public void TestTFunctionDelete()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        // TODO: finish the test when the docker will support this command
+        // Assert.True(db.TFunctionLoad("#!js api_version=1.0 name=lib\n redis.registerFunction('foo', ()=>{return 'bar'})"));
+        // Assert.True(db.TFunctionDelete("lib"));
     }
 }

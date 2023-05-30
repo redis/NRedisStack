@@ -21,5 +21,16 @@ namespace NRedisStack
         {
             return db.Execute(GearsCommandBuilder.TFunctionLoad(libraryCode, config, replace)).OKtoBoolean();
         }
+
+        /// <summary>
+        /// Delete a library from RedisGears.
+        /// </summary>
+        /// <param name="libraryName">the name of the library to delete.</param>
+        /// <returns><see langword="true"/> if the library was deleted successfully, Error otherwise.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/"/></remarks> //TODO: add link to the command when it's available
+        public static bool TFunctionDelete(this IDatabase db, string libraryName) 
+        {
+            return db.Execute(GearsCommandBuilder.TFunctionDelete(libraryName)).OKtoBoolean();
+        }
     }
 }

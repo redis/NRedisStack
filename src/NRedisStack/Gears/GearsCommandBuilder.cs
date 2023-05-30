@@ -23,5 +23,10 @@ namespace NRedisStack
             args.Add(libraryCode);
             return new SerializedCommand("TFUNCTION LOAD", args); // TODO: check if its supposed to be "TFUNCTION", "LOAD"
         }
+
+        public static SerializedCommand TFunctionDelete(string libraryName)
+        {
+            return new SerializedCommand("TFUNCTION DELETE", libraryName); // TODO: check if its supposed to be "TFUNCTION", "DELETE"
+        }
     }
 }

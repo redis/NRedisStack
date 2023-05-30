@@ -20,5 +20,16 @@ namespace NRedisStack
         {
             return (await db.ExecuteAsync(GearsCommandBuilder.TFunctionLoad(libraryCode, config, replace))).OKtoBoolean();
         }
+
+        /// <summary>
+        /// Delete a library from RedisGears.
+        /// </summary>
+        /// <param name="libraryName">the name of the library to delete.</param>
+        /// <returns><see langword="true"/> if the library was deleted successfully, Error otherwise.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/"/></remarks> //TODO: add link to the command when it's available
+        public static async Task<bool> TFunctionDeleteAsync(this IDatabase db, string libraryName)
+        {
+            return (await db.ExecuteAsync(GearsCommandBuilder.TFunctionDelete(libraryName))).OKtoBoolean();
+        }
     }
 }
