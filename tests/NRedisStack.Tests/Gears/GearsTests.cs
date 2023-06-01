@@ -1,6 +1,5 @@
 using Xunit;
 using StackExchange.Redis;
-using NRedisStack.RedisStackCommands;
 using Moq;
 
 namespace NRedisStack.Tests.Gears;
@@ -16,21 +15,24 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         redisFixture.Redis.GetDatabase().KeyDelete(key);
     }
 
-    // TODO: add async tests
+
     [Fact]
-    public void TestTFunctionLoad()
+    public void TestTFunctionLoadDelete()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
+
         Assert.True(db.TFunctionLoad("#!js api_version=1.0 name=lib\n redis.registerFunction('foo', ()=>{return 'bar'})"));
+        Assert.True(db.TFunctionDelete("lib"));
     }
 
     [Fact]
-    public void TestTFunctionDelete()
+    public async Task TestTFunctionLoadDeleteAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
-        Assert.True(db.TFunctionLoad("#!js api_version=1.0 name=lib\n redis.registerFunction('foo', ()=>{return 'bar'})"));
-        Assert.True(db.TFunctionDelete("lib"));
+
+        Assert.True(await db.TFunctionLoadAsync("#!js api_version=1.0 name=lib\n redis.registerFunction('foo', ()=>{return 'bar'})"));
+        Assert.True(await db.TFunctionDeleteAsync("lib"));
     }
 }

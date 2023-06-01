@@ -8,7 +8,7 @@ namespace NRedisStack
     {
         public static SerializedCommand TFunctionLoad(string libraryCode, string? config = null, bool replace = false)
         {
-            var args = new List<string>() { "LOAD" };
+            var args = new List<object>() { "LOAD" };
 
             if (replace)
             {
