@@ -18,12 +18,12 @@ using static NRedisStack.Search.Schema;
 
 namespace NRedisStack.Tests;
 
-public class ExamplesTests : AbstractNRedisStackTest, IDisposable
+public class ExampleTests : AbstractNRedisStackTest, IDisposable
 {
     private readonly ITestOutputHelper testOutputHelper;
     Mock<IDatabase> _mock = new Mock<IDatabase>();
     private readonly string key = "EXAMPLES_TESTS";
-    public ExamplesTests(RedisFixture redisFixture, ITestOutputHelper testOutputHelper) : base(redisFixture)
+    public ExampleTests(RedisFixture redisFixture, ITestOutputHelper testOutputHelper) : base(redisFixture)
     {
         this.testOutputHelper = testOutputHelper;
     }
