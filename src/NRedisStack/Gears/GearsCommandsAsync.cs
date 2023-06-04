@@ -31,5 +31,19 @@ namespace NRedisStack
         {
             return (await db.ExecuteAsync(GearsCommandBuilder.TFunctionDelete(libraryName))).OKtoBoolean();
         }
+
+        /// <summary>
+        /// List the functions with additional information about each function.
+        /// </summary>
+        /// <param name="withCode">Show libraries code.</param>
+        /// <param name="verbose">output verbosity level, higher number will increase verbosity level</param>
+        /// <param name="libraryName">specifying a library name (can be used
+        /// multiple times to show multiple libraries in a single command)</param>
+        /// <returns>Information about the requested libraries.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/"/></remarks> //TODO: add link to the command when it's available
+        public static async Task<Dictionary<string, RedisResult>[]> TFunctionListAsync(this IDatabase db, bool withCode = false, int verbose = 0, string? libraryName = null)
+        {
+            return (await db.ExecuteAsync(GearsCommandBuilder.TFunctionList(withCode, verbose, libraryName))).ToDictionarys();
+        }
     }
 }

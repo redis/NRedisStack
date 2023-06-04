@@ -28,5 +28,28 @@ namespace NRedisStack
         {
             return new SerializedCommand("TFUNCTION", "DELETE", libraryName);
         }
+
+        public static SerializedCommand TFunctionList(bool withCode = false, int verbose = 0, string? libraryName = null)
+        {
+            var args = new List<object>() { "LIST" };
+
+            if (withCode)
+            {
+                args.Add("WITHCODE");
+            }
+
+            if (verbose > 0)
+            {
+                args.Add(new string('v', Math.Min(3, verbose)));
+            }
+
+            if (libraryName != null)
+            {
+                args.Add("LIBRARY");
+                args.Add(libraryName);
+            }
+
+            return new SerializedCommand("TFUNCTION", args);
+        }
     }
 }
