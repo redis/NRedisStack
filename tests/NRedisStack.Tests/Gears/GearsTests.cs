@@ -81,4 +81,43 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await db.TFunctionDeleteAsync("lib2"));
         Assert.True(await db.TFunctionDeleteAsync("lib3"));
     }
+
+    [Fact]
+    public void TestCommandBuilder()
+    {
+        var buildCommand = GearsCommandBuilder
+            .TFunctionLoad("#!js api_version=1.0 name=lib\n redis.registerFunction('foo', ()=>{return 'bar'})",
+            "config", true);
+        var expected = new List<object>
+        {
+            "LOAD",
+            "REPLACE",
+            "CONFIG",
+            "config",
+            "#!js api_version=1.0 name=lib\n redis.registerFunction('foo', ()=>{return 'bar'})"
+        };
+        Assert.Equal("TFUNCTION", buildCommand.Command);
+        Assert.Equal(expected, buildCommand.Args);
+
+        buildCommand = GearsCommandBuilder.TFunctionDelete("lib");
+        expected = new List<object>
+        {
+            "DELETE",
+            "lib"
+        };
+        Assert.Equal("TFUNCTION", buildCommand.Command);
+        Assert.Equal(expected, buildCommand.Args);
+
+        buildCommand = GearsCommandBuilder.TFunctionList(true, 2, "lib");
+        expected = new List<object>
+        {
+            "LIST",
+            "WITHCODE",
+            "vv",
+            "LIBRARY",
+            "lib",
+        };
+        Assert.Equal("TFUNCTION", buildCommand.Command);
+        Assert.Equal(expected, buildCommand.Args);
+    }
 }
