@@ -83,8 +83,22 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void TestCommandBuilder()
+    public void TestTFCall()
     {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+
+        Assert.True(db.TFunctionLoad("#!js api_version=1.0 name=lib\n redis.registerFunction('foo', ()=>{return 'bar'})"));
+        Assert.Equal("bar", db.TFCall("lib", "foo", async : false).ToString());
+        Assert.Equal("bar", db.TFCall("lib", "foo", async : true).ToString());
+
+        Assert.True(db.TFunctionDelete("lib"));
+    }
+
+    [Fact]
+    public void TestGearsCommandBuilder()
+    {
+        // TFunctionLoad:
         var buildCommand = GearsCommandBuilder
             .TFunctionLoad("#!js api_version=1.0 name=lib\n redis.registerFunction('foo', ()=>{return 'bar'})",
             "config", true);
@@ -99,6 +113,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("TFUNCTION", buildCommand.Command);
         Assert.Equal(expected, buildCommand.Args);
 
+        // TFunctionDelete:
         buildCommand = GearsCommandBuilder.TFunctionDelete("lib");
         expected = new List<object>
         {
@@ -108,6 +123,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("TFUNCTION", buildCommand.Command);
         Assert.Equal(expected, buildCommand.Args);
 
+        // TFunctionList:
         buildCommand = GearsCommandBuilder.TFunctionList(true, 2, "lib");
         expected = new List<object>
         {
@@ -119,5 +135,26 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         };
         Assert.Equal("TFUNCTION", buildCommand.Command);
         Assert.Equal(expected, buildCommand.Args);
+
+        // TFCall:
+        var buildSync = GearsCommandBuilder.TFCall("libName", "funcName", new string[] { "key1", "key2" }, new string[] { "arg1", "arg2" }, false);
+        var buildAsync = GearsCommandBuilder.TFCall("libName", "funcName", new string[] { "key1", "key2" }, new string[] { "arg1", "arg2" }, true);
+
+        expected = new List<object>
+        {
+            "libName",
+            "funcName",
+            2,
+            "key1",
+            "key2",
+            "arg1",
+            "arg2"
+        };
+
+        Assert.Equal("TFCALL", buildSync.Command);
+        Assert.Equal(expected, buildSync.Args);
+
+        Assert.Equal("TFCALLASYNC", buildAsync.Command);
+        Assert.Equal(expected, buildAsync.Args);
     }
 }

@@ -51,5 +51,28 @@ namespace NRedisStack
 
             return new SerializedCommand("TFUNCTION", args);
         }
+
+        public static SerializedCommand TFCall(string libraryName, string functionName, string[]? keys = null, string[]? args = null, bool async = false)
+        {
+            string command = async ? "TFCALLASYNC" : "TFCALL";
+            var commandArgs = new List<object>() {libraryName, functionName};
+
+            if (keys != null)
+            {
+                commandArgs.Add(keys.Length);
+                commandArgs.AddRange(keys);
+            }
+            else
+            {
+                commandArgs.Add(0);
+            }
+
+            if (args != null)
+            {
+                commandArgs.AddRange(args);
+            }
+
+            return new SerializedCommand(command, commandArgs);
+        }
     }
 }
