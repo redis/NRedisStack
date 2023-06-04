@@ -1,5 +1,4 @@
 using NRedisStack.RedisStackCommands;
-using StackExchange.Redis;
 using NRedisStack.Gears.Literals;
 namespace NRedisStack
 {
