@@ -45,5 +45,20 @@ namespace NRedisStack
         {
             return (await db.ExecuteAsync(GearsCommandBuilder.TFunctionList(withCode, verbose, libraryName))).ToDictionarys();
         }
+
+        /// <summary>
+        /// Invoke a sync or async (Coroutine) function.
+        /// </summary>
+        /// <param name="libraryName">The library name contains the function.</param>
+        /// <param name="functionName">The function name to run.</param>
+        /// <param name="keys">keys that will be touched by the function.</param>
+        /// <param name="args">Additional argument to pass to the function.</param>
+        /// <param name="async">If true, Invoke an async function (Coroutine).</param>
+        /// <returns>The return value from the sync & async function on error in case of failure.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/"/></remarks> //TODO: add link to the command when it's available
+        public static async Task<RedisResult> TFCallAsync(this IDatabase db, string libraryName, string functionName, string[]? keys = null, string[]? args = null, bool async = false)
+        {
+            return await db.ExecuteAsync(GearsCommandBuilder.TFCall(libraryName, functionName, keys, args, async));
+        }
     }
 }

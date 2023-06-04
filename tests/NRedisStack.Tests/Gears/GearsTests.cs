@@ -96,6 +96,19 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    public async Task TestTFCallAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+
+        Assert.True(await db.TFunctionLoadAsync("#!js api_version=1.0 name=lib\n redis.registerFunction('foo', ()=>{return 'bar'})"));
+        Assert.Equal("bar", (await db.TFCallAsync("lib", "foo", async : false)).ToString());
+        Assert.Equal("bar", (await db.TFCallAsync("lib", "foo", async : true)).ToString());
+
+        Assert.True(await db.TFunctionDeleteAsync("lib"));
+    }
+
+    [Fact]
     public void TestGearsCommandBuilder()
     {
         // TFunctionLoad:
