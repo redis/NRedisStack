@@ -7,6 +7,26 @@ namespace NRedisStack.Search.Aggregation
         private List<object> args = new List<object>(); // Check if Readonly
         private bool isWithCursor = false;
 
+        // Parameters:
+        private int dialect = 2;
+
+        private bool? verbatim = null;
+        private List<FieldName> fieldNames = new List<FieldName>(); // TODO: Check if the new list suposed to be here
+        private long? timeout = null;
+        private bool? loadAll = null;
+        private List<Group> groups = new List<Group>();
+        // SotrBy:
+        private List<SortedField> sortedFields = new List<SortedField>();
+        private int? max = null;
+
+        // Apply:
+        private List<Tuple<string, string>> apply = new List<Tuple<string, string>>();
+        private Limit? limit = null;
+        private string? filter = null;
+        private int? count = null;
+        private long? maxIdle = null;
+        private Dictionary<string, object> nameValue = new Dictionary<string, object>();
+
         public AggregationRequest(string query)
         {
             args.Add(query);
@@ -21,24 +41,39 @@ namespace NRedisStack.Search.Aggregation
 
         public AggregationRequest Load(params FieldName[] fields)
         {
+            this.fieldNames.AddRange(fields);
+            return this;
+        }
+
+        private void Load()
+        {
             args.Add("LOAD");
+            if (loadAll == true)
+            {
+                args.Add("*");
+                return;
+            }
             int loadCountIndex = args.Count();
             args.Add(null);
             int loadCount = 0;
-            foreach (FieldName fn in fields)
+            foreach (FieldName fn in fieldNames)
             {
                 loadCount += fn.AddCommandArguments(args);
             }
             args.Insert(loadCountIndex, loadCount.ToString());
-            return this;
         }
 
         public AggregationRequest LoadAll()
         {
-            args.Add("LOAD");
-            args.Add("*");
+            loadAll = true;
             return this;
         }
+
+        // private void LoadAll()
+        // {
+        //     args.Add("LOAD");
+        //     args.Add("*");
+        // }
 
         public AggregationRequest Limit(int offset, int count)
         {
@@ -51,27 +86,33 @@ namespace NRedisStack.Search.Aggregation
 
         public AggregationRequest SortBy(string property) => SortBy(SortedField.Asc(property));
 
-        public AggregationRequest SortBy(params SortedField[] Fields)
+        public AggregationRequest SortBy(params SortedField[] fields)
+        {
+            this.sortedFields.AddRange(fields);
+            return this;
+        }
+
+        private void SortBy()
         {
             args.Add("SORTBY");
-            args.Add(Fields.Length * 2);
-            foreach (SortedField field in Fields)
+            args.Add(sortedFields.Count * 2);
+            foreach (SortedField field in sortedFields)
             {
                 args.Add(field.FieldName);
                 args.Add(field.Order);
             }
 
-            return this;
-        }
-
-        public AggregationRequest SortBy(int max, params SortedField[] Fields)
-        {
-            SortBy(Fields);
             if (max > 0)
             {
                 args.Add("MAX");
                 args.Add(max);
             }
+        }
+
+        public AggregationRequest SortBy(int max, params SortedField[] fields)
+        {
+            this.max = max;
+            SortBy(fields);
             return this;
         }
 
@@ -87,11 +128,19 @@ namespace NRedisStack.Search.Aggregation
 
         public AggregationRequest Apply(string projection, string alias)
         {
-            args.Add("APPLY");
-            args.Add(projection);
-            args.Add("AS");
-            args.Add(alias);
+            apply.Add(new Tuple<string, string>(projection, alias));
             return this;
+        }
+
+        private void Apply()
+        {
+            foreach (Tuple<string, string> tuple in apply)
+            {
+                args.Add("APPLY");
+                args.Add(tuple.Item1);
+                args.Add("AS");
+                args.Add(tuple.Item2);
+            }
         }
 
         public AggregationRequest GroupBy(IList<string> fields, IList<Reducer> reducers)
@@ -113,52 +162,101 @@ namespace NRedisStack.Search.Aggregation
 
         public AggregationRequest GroupBy(Group group)
         {
-            args.Add("GROUPBY");
-            group.SerializeRedisArgs(args);
+            this.groups.Add(group);
             return this;
         }
 
-        public AggregationRequest Filter(string expression)
+        private void GroupBy()
+        {
+            args.Add("GROUPBY");
+            foreach (Group group in groups)
+            {
+                group.SerializeRedisArgs(args);
+            }
+        }
+
+        public AggregationRequest Filter(string filter)
+        {
+            this.filter = filter;
+            return this;
+        }
+
+        private void Filter()
         {
             args.Add(SearchArgs.FILTER);
-            args.Add(expression);
-            return this;
+            args.Add(filter!);
         }
 
-        public AggregationRequest Cursor(int count, long maxIdle)
+        public AggregationRequest Cursor(int? count = null, long? maxIdle = null)
         {
             isWithCursor = true;
-            if (count > 0)
-            {
-                args.Add("WITHCURSOR");
-                args.Add("COUNT");
-                args.Add(count);
-                if (maxIdle < long.MaxValue && maxIdle >= 0)
-                {
-                    args.Add("MAXIDLE");
-                    args.Add(maxIdle);
-                }
-            }
+            if (count != null)
+                this.count = count;
+            if (maxIdle != null)
+                this.maxIdle = maxIdle;
             return this;
         }
 
-        public AggregationRequest Verbatim()
+        private void Cursor()
+        {
+            if(isWithCursor)
+                args.Add("WITHCURSOR");
+
+            if (count != null)
+            {
+                args.Add("COUNT");
+                args.Add(count);
+            }
+
+            if (maxIdle != null && maxIdle < long.MaxValue && maxIdle >= 0)
+            {
+                args.Add("MAXIDLE");
+                args.Add(maxIdle);
+            }
+        }
+
+        public AggregationRequest Verbatim(bool verbatim = true)
+        {
+            this.verbatim = true;
+            return this;
+        }
+
+        private void Verbatim()
         {
             args.Add("VERBATIM");
-            return this;
         }
 
         public AggregationRequest Timeout(long timeout)
         {
-            if (timeout >= 0)
+            this.timeout = timeout;
+            return this;
+        }
+
+        private void Timeout()
+        {
+            if (timeout != null)
             {
                 args.Add("TIMEOUT");
                 args.Add(timeout);
             }
-            return this;
         }
 
         public AggregationRequest Params(Dictionary<string, object> nameValue)
+        {
+            if (this.nameValue.Count >= 1)
+            {
+                foreach (var entry in nameValue)
+                {
+                    this.nameValue.Add(entry.Key, entry.Value);
+                }
+                return this;
+            }
+
+            this.nameValue = nameValue;
+            return this;
+        }
+
+        private void Params()
         {
             if (nameValue.Count >= 1)
             {
@@ -170,15 +268,18 @@ namespace NRedisStack.Search.Aggregation
                     args.Add(entry.Value);
                 }
             }
-
-            return this;
         }
 
         public AggregationRequest Dialect(int dialect)
         {
+            this.dialect = dialect;
+            return this;
+        }
+
+        private void Dialect()
+        {
             args.Add("DIALECT");
             args.Add(dialect);
-            return this;
         }
 
         public List<object> GetArgs()
@@ -186,6 +287,7 @@ namespace NRedisStack.Search.Aggregation
             return args;
         }
 
+        // TODO: SerializeRedisArgs
         // public void SerializeRedisArgs(List<object> redisArgs)
         // {
         //     foreach (var s in GetArgs())
