@@ -126,17 +126,25 @@ namespace NRedisStack
                          : new SerializedCommand(FT.DROPINDEX, indexName));
         }
 
-        public static SerializedCommand Explain(string indexName, Query q)
+        public static SerializedCommand Explain(string indexName, string query, int? dialect)
         {
-            var args = new List<object> { indexName };
-            q.SerializeRedisArgs(args);
+            var args = new List<object> { indexName, query };
+            if (dialect != null)
+            {
+                args.Add("DIALECT");
+                args.Add(dialect);
+            }
             return new SerializedCommand(FT.EXPLAIN, args);
         }
 
-        public static SerializedCommand ExplainCli(string indexName, Query q)
+        public static SerializedCommand ExplainCli(string indexName, string query, int? dialect)
         {
-            var args = new List<object> { indexName };
-            q.SerializeRedisArgs(args);
+            var args = new List<object> { indexName, query };
+            if (dialect != null)
+            {
+                args.Add("DIALECT");
+                args.Add(dialect);
+            }
             return new SerializedCommand(FT.EXPLAINCLI, args);
         }
 
