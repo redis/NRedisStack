@@ -77,14 +77,17 @@ namespace NRedisStack.Search.Aggregation
             }
             else if (fieldNames.Count > 0)
             {
+                args.Add("LOAD");
                 int loadCountIndex = args.Count;
-                args.Add(null);
+                //args.Add(null);
                 int loadCount = 0;
                 foreach (FieldName fn in fieldNames)
                 {
                     loadCount += fn.AddCommandArguments(args);
                 }
-                args.Insert(loadCountIndex, loadCount.ToString());
+
+                args.Insert(loadCountIndex, loadCount);
+                // args[loadCountIndex] = loadCount.ToString();
             }
         }
 
@@ -304,6 +307,17 @@ namespace NRedisStack.Search.Aggregation
         public List<object> GetArgs()
         {
             return args;
+        }
+
+        public List<string> GetArgsAsStrings()
+        {
+            List<string> stringArgs = new List<string>(args.Count);
+            foreach (var arg in args)
+            {
+                stringArgs.Add(arg.ToString());
+            }
+
+            return stringArgs;
         }
 
         public void SerializeRedisArgs()

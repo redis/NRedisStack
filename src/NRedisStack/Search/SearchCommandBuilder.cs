@@ -16,7 +16,7 @@ namespace NRedisStack
         {
             List<object> args = new List<object> { index };
             query.SerializeRedisArgs();
-            args.AddRange(query.GetArgs());
+            args.AddRange(query.GetArgsAsStrings());
             return new SerializedCommand(FT.AGGREGATE, args);
         }
 
