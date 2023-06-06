@@ -325,9 +325,9 @@ namespace NRedisStack.Search.Aggregation
             Verbatim();
             Load();
             Timeout();
+            Apply();
             GroupBy();
             SortBy();
-            Apply();
             Limit();
             Filter();
             Cursor();
