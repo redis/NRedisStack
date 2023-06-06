@@ -1906,7 +1906,9 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                                              "txt",
                                              "RETURN",
                                              "1",
-                                             "txt"};
+                                             "txt",
+                                             "DIALECT",
+                                             "2"};
 
         Assert.Equal(expectedArgs.Count(), buildCommand.Args.Count());
         for (int i = 0; i < buildCommand.Args.Count(); i++)
