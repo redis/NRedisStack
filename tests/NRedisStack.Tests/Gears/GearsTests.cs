@@ -17,6 +17,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
 
 
     [Fact]
+    [Trait("Category", "edge")]
     public void TestTFunctionLoadDelete()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -27,6 +28,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    [Trait("Category", "edge")]
     public async Task TestTFunctionLoadDeleteAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -37,6 +39,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    [Trait("Category", "edge")]
     public void TestTFunctionList()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -46,6 +49,8 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         Assert.True(db.TFunctionLoad("#!js api_version=1.0 name=lib2\n redis.registerFunction('foo', ()=>{return 'bar'})"));
         Assert.True(db.TFunctionLoad("#!js api_version=1.0 name=lib3\n redis.registerFunction('foo', ()=>{return 'bar'})"));
 
+        // test error throwing:
+        Assert.Throws<ArgumentOutOfRangeException>(() => db.TFunctionList(verbose : 8));
         var functions = db.TFunctionList(verbose : 1);
         Assert.Equal(3, functions.Length);
 
@@ -60,6 +65,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    [Trait("Category", "edge")]
     public async Task TestTFunctionListAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -83,6 +89,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    [Trait("Category", "edge")]
     public void TestTFCall()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -96,6 +103,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    [Trait("Category", "edge")]
     public async Task TestTFCallAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -109,12 +117,13 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    [Trait("Category", "edge")]
     public void TestGearsCommandBuilder()
     {
         // TFunctionLoad:
         var buildCommand = GearsCommandBuilder
             .TFunctionLoad("#!js api_version=1.0 name=lib\n redis.registerFunction('foo', ()=>{return 'bar'})",
-            "config", true);
+            true, "config");
         var expected = new List<object>
         {
             "LOAD",

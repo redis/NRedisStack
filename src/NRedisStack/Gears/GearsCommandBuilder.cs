@@ -5,7 +5,7 @@ namespace NRedisStack
 
     public static class GearsCommandBuilder
     {
-        public static SerializedCommand TFunctionLoad(string libraryCode, string? config = null, bool replace = false)
+        public static SerializedCommand TFunctionLoad(string libraryCode, bool replace = false, string? config = null)
         {
             var args = new List<object>() { "LOAD" };
 
@@ -37,9 +37,13 @@ namespace NRedisStack
                 args.Add("WITHCODE");
             }
 
-            if (verbose > 0)
+            if (verbose > 0 && verbose < 4)
             {
-                args.Add(new string('v', Math.Min(3, verbose)));
+                args.Add(new string('v', verbose));
+            }
+            else if (verbose != 0) // verbose == 0 is the default so we don't need to throw an error
+            {
+                throw new ArgumentOutOfRangeException(nameof(verbose), "verbose must be between 1 and 3");
             }
 
             if (libraryName != null)

@@ -16,10 +16,10 @@ namespace NRedisStack
         /// library configuration</see></param>
         /// <param name="replace">an optional argument, instructs RedisGears to replace the function if its already exists.</param>
         /// <returns><see langword="true"/> if everything was done correctly, Error otherwise.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/"/></remarks> //TODO: add link to the command when it's available
-        public static bool TFunctionLoad(this IDatabase db, string libraryCode, string? config = null, bool replace = false)
+        /// <remarks><seealso href="https://redis.io/commands/tfunction-load/"/></remarks> //TODO: check this link when it's available
+        public static bool TFunctionLoad(this IDatabase db, string libraryCode, bool replace = false, string? config = null)
         {
-            return db.Execute(GearsCommandBuilder.TFunctionLoad(libraryCode, config, replace)).OKtoBoolean();
+            return db.Execute(GearsCommandBuilder.TFunctionLoad(libraryCode, replace, config)).OKtoBoolean();
         }
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace NRedisStack
         /// </summary>
         /// <param name="libraryName">the name of the library to delete.</param>
         /// <returns><see langword="true"/> if the library was deleted successfully, Error otherwise.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/"/></remarks> //TODO: add link to the command when it's available
+        /// <remarks><seealso href="https://redis.io/commands/tfunction-delete/"/></remarks> //TODO: check this link when it's available
         public static bool TFunctionDelete(this IDatabase db, string libraryName)
         {
             return db.Execute(GearsCommandBuilder.TFunctionDelete(libraryName)).OKtoBoolean();
@@ -41,14 +41,14 @@ namespace NRedisStack
         /// <param name="libraryName">specifying a library name (can be used
         /// multiple times to show multiple libraries in a single command)</param>
         /// <returns>Information about the requested libraries.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/"/></remarks> //TODO: add link to the command when it's available
+        /// <remarks><seealso href="https://redis.io/commands/tfunction-list/"/></remarks> //TODO: check this link when it's available
         public static Dictionary<string, RedisResult>[] TFunctionList(this IDatabase db, bool withCode = false, int verbose = 0, string? libraryName = null)
         {
             return db.Execute(GearsCommandBuilder.TFunctionList(withCode, verbose, libraryName)).ToDictionarys();
         }
 
         /// <summary>
-        /// Invoke a sync or async (Coroutine) function.
+        /// Trigger a sync or async (Coroutine) function.
         /// </summary>
         /// <param name="libraryName">The library name contains the function.</param>
         /// <param name="functionName">The function name to run.</param>
@@ -56,7 +56,8 @@ namespace NRedisStack
         /// <param name="args">Additional argument to pass to the function.</param>
         /// <param name="async">If true, Invoke an async function (Coroutine).</param>
         /// <returns>The return value from the sync & async function on error in case of failure.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/"/></remarks> //TODO: add link to the command when it's available
+        /// <remarks><seealso href="https://redis.io/commands/tfcall"/></remarks> //TODO: check this link when it's available
+        /// <remarks><seealso href="https://redis.io/commands/tfcallasync"/></remarks> //TODO: check this link when it's available
         public static RedisResult TFCall(this IDatabase db, string libraryName, string functionName, string[]? keys = null, string[]? args = null, bool async = false)
         {
             return db.Execute(GearsCommandBuilder.TFCall(libraryName, functionName, keys, args, async));
