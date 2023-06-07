@@ -313,17 +313,6 @@ namespace NRedisStack.Search.Aggregation
             return args;
         }
 
-        // public List<string> GetArgsAsStrings()
-        // {
-        //     List<string> stringArgs = new List<string>(args.Count);
-        //     foreach (var arg in args)
-        //     {
-        //         stringArgs.Add(arg.ToString());
-        //     }
-
-        //     return stringArgs;
-        // }
-
         public void SerializeRedisArgs()
         {
             Verbatim();
