@@ -18,7 +18,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/"/></remarks> //TODO: add link to the command when it's available
         public static async Task<bool> TFunctionLoadAsync(this IDatabase db, string libraryCode, string? config = null, bool replace = false)
         {
-            return (await db.ExecuteAsync(GearsCommandBuilder.TFunctionLoad(libraryCode, config, replace))).OKtoBoolean();
+            return (await db.ExecuteAsync(GearsCommandBuilder.TFunctionLoad(libraryCode, replace, config))).OKtoBoolean();
         }
 
         /// <summary>
