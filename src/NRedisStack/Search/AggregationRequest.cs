@@ -8,13 +8,18 @@ namespace NRedisStack.Search.Aggregation
         private bool isWithCursor = false;
 
         // Parameters:
-        private int? dialect = 2; // Set default value to DIACLECT 2
 
         private bool? verbatim = null;
+
+        // Load
         private List<FieldName> fieldNames = new List<FieldName>(); // TODO: Check if the new list suposed to be here
-        private long? timeout = null;
         private bool? loadAll = null;
+
+        private long? timeout = null;
+
+        // GroupBy:
         private List<Group> groups = new List<Group>();
+
         // SotrBy:
         private List<SortedField> sortedFields = new List<SortedField>();
         private int? max = null;
@@ -27,9 +32,14 @@ namespace NRedisStack.Search.Aggregation
         private int? num = null;
 
         private string? filter = null;
+
+        // WithCursor:
         private int? count = null;
         private long? maxIdle = null;
+
+        // Params:
         private Dictionary<string, object> nameValue = new Dictionary<string, object>();
+        private int? dialect = 2; // Set default value to DIACLECT 2
 
         public AggregationRequest(string query)
         {
@@ -37,11 +47,6 @@ namespace NRedisStack.Search.Aggregation
         }
 
         public AggregationRequest() : this("*") { }
-
-        // public AggregationRequest load(params string[] fields)
-        // {
-        //     return load(FieldName.Convert(fields));
-        // }
 
         public AggregationRequest Verbatim(bool verbatim = true)
         {
@@ -108,7 +113,6 @@ namespace NRedisStack.Search.Aggregation
 
         public AggregationRequest GroupBy(IList<string> fields, IList<Reducer> reducers)
         {
-            // string[] fieldsArr = new string[fields.size()];
             Group g = new Group(fields);
             foreach (Reducer r in reducers)
             {
@@ -158,7 +162,7 @@ namespace NRedisStack.Search.Aggregation
                 foreach (SortedField field in sortedFields)
                 {
                     args.Add(field.FieldName);
-                    args.Add(field.Order);
+                    args.Add(field.Order.ToString());
                 }
 
                 if (max > 0)
@@ -309,16 +313,16 @@ namespace NRedisStack.Search.Aggregation
             return args;
         }
 
-        public List<string> GetArgsAsStrings()
-        {
-            List<string> stringArgs = new List<string>(args.Count);
-            foreach (var arg in args)
-            {
-                stringArgs.Add(arg.ToString());
-            }
+        // public List<string> GetArgsAsStrings()
+        // {
+        //     List<string> stringArgs = new List<string>(args.Count);
+        //     foreach (var arg in args)
+        //     {
+        //         stringArgs.Add(arg.ToString());
+        //     }
 
-            return stringArgs;
-        }
+        //     return stringArgs;
+        // }
 
         public void SerializeRedisArgs()
         {
