@@ -39,10 +39,11 @@ namespace NRedisStack.Search.Aggregation
 
         // Params:
         private Dictionary<string, object> nameValue = new Dictionary<string, object>();
-        private int? dialect = 2; // Set default value to DIACLECT 2
+        public int? dialect {get; private set;} = null;
 
-        public AggregationRequest(string query)
+        public AggregationRequest(string query, int? defaultDialect = null)
         {
+            this.dialect = defaultDialect;
             args.Add(query);
         }
 

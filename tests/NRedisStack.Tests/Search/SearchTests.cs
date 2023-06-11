@@ -355,6 +355,77 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    public void TestAggregationRequestParamsWithDefaultDialect()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT(2);
+        Schema sc = new Schema();
+        sc.AddTextField("name", 1.0, sortable: true);
+        sc.AddNumericField("count", sortable: true);
+        ft.Create(index, FTCreateParams.CreateParams(), sc);
+        AddDocument(db, new Document("data1").Set("name", "abc").Set("count", 10));
+        AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
+        AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
+
+        Dictionary<string, object> parameters = new Dictionary<string, object>();
+        parameters.Add("name", "abc");
+
+        AggregationRequest r = new AggregationRequest("$name")
+                .GroupBy("@name", Reducers.Sum("@count").As("sum"))
+                .Params(parameters); // From documentation - To use PARAMS, DIALECT must be set to 2
+                                     // which is the default as we set in the constructor (FT(2))
+
+        AggregationResult res = ft.Aggregate(index, r);
+        Assert.Equal(1, res.TotalResults);
+
+        Row r1 = res.GetRow(0);
+        Assert.NotNull(r1);
+        Assert.Equal("abc", r1.GetString("name"));
+        Assert.Equal(10, r1.GetLong("sum"));
+    }
+
+    [Fact]
+    public async Task TestAggregationRequestParamsWithDefaultDialectAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT(2);
+        Schema sc = new Schema();
+        sc.AddTextField("name", 1.0, sortable: true);
+        sc.AddNumericField("count", sortable: true);
+        ft.Create(index, FTCreateParams.CreateParams(), sc);
+        AddDocument(db, new Document("data1").Set("name", "abc").Set("count", 10));
+        AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
+        AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
+
+        Dictionary<string, object> parameters = new Dictionary<string, object>();
+        parameters.Add("name", "abc");
+
+        AggregationRequest r = new AggregationRequest("$name")
+                .GroupBy("@name", Reducers.Sum("@count").As("sum"))
+                .Params(parameters); // From documentation - To use PARAMS, DIALECT must be set to 2
+                                    // which is the default as we set in the constructor (FT(2))
+
+        AggregationResult res = await ft.AggregateAsync(index, r);
+        Assert.Equal(1, res.TotalResults);
+
+        Row r1 = res.GetRow(0);
+        Assert.NotNull(r1);
+        Assert.Equal("abc", r1.GetString("name"));
+        Assert.Equal(10, r1.GetLong("sum"));
+    }
+
+    [Fact]
+    public void TestDefaultDialectError()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        // test error on invalid dialect:
+        Assert.Throws<ArgumentOutOfRangeException>(() => db.FT(0));
+    }
+
+    [Fact]
     public void TestAlias()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1737,10 +1808,9 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                                              "txt",
                                              "RETURN",
                                              "1",
-                                             "txt",
-                                             "DIALECT",
-                                             "2"};
+                                             "txt"};
 
+        Assert.Equal(expectedArgs.Count(), buildCommand.Args.Count());
         for (int i = 0; i < buildCommand.Args.Count(); i++)
         {
             Assert.Equal(expectedArgs[i].ToString(), buildCommand.Args[i].ToString());
