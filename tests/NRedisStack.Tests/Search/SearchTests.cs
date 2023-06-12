@@ -1344,6 +1344,40 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    public void TestExplainWithDefaultDialect()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT(1);
+        Schema sc = new Schema()
+            .AddTextField("f1", 1.0)
+            .AddTextField("f2", 1.0)
+            .AddTextField("f3", 1.0);
+        ft.Create(index, FTCreateParams.CreateParams(), sc);
+
+        String res = ft.Explain(index, new Query("@f3:f3_val @f2:f2_val @f1:f1_val"));
+        Assert.NotNull(res);
+        Assert.False(res.Length == 0);
+    }
+
+    [Fact]
+    public async Task TestExplainWithDefaultDialectAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT(1);
+        Schema sc = new Schema()
+            .AddTextField("f1", 1.0)
+            .AddTextField("f2", 1.0)
+            .AddTextField("f3", 1.0);
+        ft.Create(index, FTCreateParams.CreateParams(), sc);
+
+        String res = await ft.ExplainAsync(index, new Query("@f3:f3_val @f2:f2_val @f1:f1_val"));
+        Assert.NotNull(res);
+        Assert.False(res.Length == 0);
+    }
+
+    [Fact]
     public void TestSynonym()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2082,7 +2116,44 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         });
 
         Assert.True(await ft.CreateAsync("my_index", new FTCreateParams().On(IndexDataType.JSON), schema));
+    }
 
+    [Fact]
+    public void TestQueryParamsWithDefaultDialect()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT(2);
+
+        var sc = new Schema().AddNumericField("numval");
+        Assert.True(ft.Create("idx", new FTCreateParams(), sc));
+
+        db.HashSet("1", "numval", 1);
+        db.HashSet("2", "numval", 2);
+        db.HashSet("3", "numval", 3);
+
+        Query query = new Query("@numval:[$min $max]").AddParam("min", 1).AddParam("max", 2);
+        var res = ft.Search("idx", query);
+        Assert.Equal(2, res.TotalResults);
+    }
+
+    [Fact]
+    public async Task TestQueryParamsWithDefaultDialectAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT(2);
+
+        var sc = new Schema().AddNumericField("numval");
+        Assert.True(await ft.CreateAsync("idx", new FTCreateParams(), sc));
+
+        db.HashSet("1", "numval", 1);
+        db.HashSet("2", "numval", 2);
+        db.HashSet("3", "numval", 3);
+
+        Query query = new Query("@numval:[$min $max]").AddParam("min", 1).AddParam("max", 2);
+        var res = await ft.SearchAsync("idx", query);
+        Assert.Equal(2, res.TotalResults);
     }
 
     [Fact]
