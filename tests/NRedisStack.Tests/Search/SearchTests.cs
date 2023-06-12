@@ -2119,7 +2119,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void TestQueryParamsWithDefaultDialect()
+    public void TestQueryAddParam_DefaultDialect()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -2138,7 +2138,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async Task TestQueryParamsWithDefaultDialectAsync()
+    public async Task TestQueryAddParam_DefaultDialectAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -2153,6 +2153,62 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Query query = new Query("@numval:[$min $max]").AddParam("min", 1).AddParam("max", 2);
         var res = await ft.SearchAsync("idx", query);
+        Assert.Equal(2, res.TotalResults);
+    }
+
+    [Fact]
+    public void TestQueryParamsWithParams_DefaultDialect()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT(2);
+
+        var sc = new Schema().AddNumericField("numval");
+        Assert.True(ft.Create("idx", new FTCreateParams(), sc));
+
+        db.HashSet("1", "numval", 1);
+        db.HashSet("2", "numval", 2);
+        db.HashSet("3", "numval", 3);
+
+        Query query = new Query("@numval:[$min $max]").AddParam("min", 1).AddParam("max", 2);
+        var res = ft.Search("idx", query);
+        Assert.Equal(2, res.TotalResults);
+
+        var paramValue = new Dictionary<string, object>()
+        {
+            ["min"] = 1,
+            ["max"] = 2
+        };
+        query = new Query("@numval:[$min $max]");
+        res = ft.Search("idx", query.Params(paramValue));
+        Assert.Equal(2, res.TotalResults);
+    }
+
+    [Fact]
+    public async Task TestQueryParamsWithParams_DefaultDialectAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT(2);
+
+        var sc = new Schema().AddNumericField("numval");
+        Assert.True(await ft.CreateAsync("idx", new FTCreateParams(), sc));
+
+        db.HashSet("1", "numval", 1);
+        db.HashSet("2", "numval", 2);
+        db.HashSet("3", "numval", 3);
+
+        Query query = new Query("@numval:[$min $max]").AddParam("min", 1).AddParam("max", 2);
+        var res = await ft.SearchAsync("idx", query);
+        Assert.Equal(2, res.TotalResults);
+
+        var paramValue = new Dictionary<string, object>()
+        {
+            ["min"] = 1,
+            ["max"] = 2
+        };
+        query = new Query("@numval:[$min $max]");
+        res = await ft.SearchAsync("idx", query.Params(paramValue));
         Assert.Equal(2, res.TotalResults);
     }
 
