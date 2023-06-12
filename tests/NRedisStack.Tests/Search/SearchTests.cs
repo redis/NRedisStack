@@ -340,6 +340,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Dictionary<string, object> parameters = new Dictionary<string, object>();
         parameters.Add("name", "abc");
+        parameters.Add("count", "10");
 
         AggregationRequest r = new AggregationRequest("$name")
                 .GroupBy("@name", Reducers.Sum("@count").As("sum"))
