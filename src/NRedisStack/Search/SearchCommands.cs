@@ -7,7 +7,6 @@ namespace NRedisStack
     public class SearchCommands : SearchCommandsAsync, ISearchCommands
     {
         IDatabase _db;
-        private int? defaultDialect;
         public SearchCommands(IDatabase db, int? defaultDialect) : base(db)
         {
             _db = db;
