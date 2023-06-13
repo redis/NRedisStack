@@ -1356,7 +1356,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
-        var ft = db.FT();
+        var ft = db.FT(2);
         Schema sc = new Schema()
             .AddTextField("f1", 1.0)
             .AddTextField("f2", 1.0)
@@ -1373,7 +1373,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
-        var ft = db.FT();
+        var ft = db.FT(2);
         Schema sc = new Schema()
             .AddTextField("f1", 1.0)
             .AddTextField("f2", 1.0)
