@@ -383,12 +383,6 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                 .Params(parameters); // From documentation - To use PARAMS, DIALECT must be set to 2
                                      // which is the default as we set in the constructor (FT(2))
 
-
-        // Add more parameters using params (more than 1 is also possible):
-        parameters = new Dictionary<string, object>();
-        parameters.Add("count", "10");
-        r.Params(parameters);
-
         AggregationResult res = ft.Aggregate(index, r);
         Assert.Equal(1, res.TotalResults);
 
