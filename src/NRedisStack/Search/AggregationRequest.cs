@@ -267,16 +267,10 @@ namespace NRedisStack.Search.Aggregation
 
         public AggregationRequest Params(Dictionary<string, object> nameValue)
         {
-            if (this.nameValue.Count >= 1)
+            foreach (var entry in nameValue)
             {
-                foreach (var entry in nameValue)
-                {
-                    this.nameValue.Add(entry.Key, entry.Value);
-                }
-                return this;
+                this.nameValue.Add(entry.Key, entry.Value);
             }
-
-            this.nameValue = nameValue;
             return this;
         }
 
