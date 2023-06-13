@@ -623,26 +623,16 @@ namespace NRedisStack.Search
         /// <returns>The query object itself</returns>
         public Query AddParam(string name, object value)
         {
-            if (_params == null)
-            {
-                _params = new Dictionary<string, object>();
-            }
             _params.Add(name, value);
             return this;
         }
 
         public Query Params(Dictionary<string, object> nameValue)
         {
-            if (_params.Count >= 1)
+            foreach (var entry in nameValue)
             {
-                foreach (var entry in nameValue)
-                {
-                    _params.Add(entry.Key, entry.Value);
-                }
-                return this;
+                _params.Add(entry.Key, entry.Value);
             }
-
-            _params = nameValue;
             return this;
         }
 
