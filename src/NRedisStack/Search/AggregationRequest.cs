@@ -8,6 +8,10 @@ namespace NRedisStack.Search.Aggregation
         private bool isWithCursor = false;
 
         // Parameters:
+<<<<<<< HEAD
+=======
+        private int? dialect = 2; // Set default value to DIACLECT 2
+>>>>>>> ac447f1 (add SerializeRedisArgs for FT.AGGREGATE)
 
         private bool? verbatim = null;
 
@@ -61,6 +65,18 @@ namespace NRedisStack.Search.Aggregation
                 args.Add("VERBATIM");
         }
 
+        public AggregationRequest Verbatim(bool verbatim = true)
+        {
+            this.verbatim = true;
+            return this;
+        }
+
+        private void Verbatim()
+        {
+            if(verbatim == true)
+                args.Add("VERBATIM");
+        }
+
         public AggregationRequest Load(params FieldName[] fields)
         {
             this.fieldNames.AddRange(fields);
@@ -83,17 +99,26 @@ namespace NRedisStack.Search.Aggregation
             }
             else if (fieldNames.Count > 0)
             {
+<<<<<<< HEAD
                 args.Add("LOAD");
                 int loadCountIndex = args.Count;
                 //args.Add(null);
+=======
+                int loadCountIndex = args.Count;
+                args.Add(null);
+>>>>>>> ac447f1 (add SerializeRedisArgs for FT.AGGREGATE)
                 int loadCount = 0;
                 foreach (FieldName fn in fieldNames)
                 {
                     loadCount += fn.AddCommandArguments(args);
                 }
+<<<<<<< HEAD
 
                 args.Insert(loadCountIndex, loadCount);
                 // args[loadCountIndex] = loadCount.ToString();
+=======
+                args.Insert(loadCountIndex, loadCount.ToString());
+>>>>>>> ac447f1 (add SerializeRedisArgs for FT.AGGREGATE)
             }
         }
 
@@ -163,7 +188,11 @@ namespace NRedisStack.Search.Aggregation
                 foreach (SortedField field in sortedFields)
                 {
                     args.Add(field.FieldName);
+<<<<<<< HEAD
                     args.Add(field.Order.ToString());
+=======
+                    args.Add(field.Order);
+>>>>>>> ac447f1 (add SerializeRedisArgs for FT.AGGREGATE)
                 }
 
                 if (max > 0)
@@ -313,9 +342,15 @@ namespace NRedisStack.Search.Aggregation
             Verbatim();
             Load();
             Timeout();
+<<<<<<< HEAD
             Apply();
             GroupBy();
             SortBy();
+=======
+            GroupBy();
+            SortBy();
+            Apply();
+>>>>>>> ac447f1 (add SerializeRedisArgs for FT.AGGREGATE)
             Limit();
             Filter();
             Cursor();
