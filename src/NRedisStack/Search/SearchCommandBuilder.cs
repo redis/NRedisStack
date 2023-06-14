@@ -15,10 +15,8 @@ namespace NRedisStack
         public static SerializedCommand Aggregate(string index, AggregationRequest query)
         {
             List<object> args = new List<object> { index };
-            foreach (var arg in query.GetArgs())
-            {
-                if(arg != null) args.Add(arg.ToString()!);
-            }
+            query.SerializeRedisArgs();
+            args.AddRange(query.GetArgs());
             return new SerializedCommand(FT.AGGREGATE, args);
         }
 

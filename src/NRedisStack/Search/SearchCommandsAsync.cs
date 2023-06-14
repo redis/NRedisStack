@@ -7,6 +7,8 @@ namespace NRedisStack
     public class SearchCommandsAsync : ISearchCommandsAsync
     {
         IDatabaseAsync _db;
+        protected int? defaultDialect;
+
         public SearchCommandsAsync(IDatabaseAsync db)
         {
             _db = db;
@@ -21,6 +23,10 @@ namespace NRedisStack
         /// <inheritdoc/>
         public async Task<AggregationResult> AggregateAsync(string index, AggregationRequest query)
         {
+            if (query.dialect == null && defaultDialect != null)
+            {
+                query.Dialect((int)defaultDialect);
+            }
 
             var result = await _db.ExecuteAsync(SearchCommandBuilder.Aggregate(index, query));
             if (query.IsWithCursor())
@@ -117,12 +123,22 @@ namespace NRedisStack
         /// <inheritdoc/>
         public async Task<string> ExplainAsync(string indexName, Query q)
         {
+            if (q.dialect == null && defaultDialect != null)
+            {
+                q.Dialect((int)defaultDialect);
+            }
+
             return (await _db.ExecuteAsync(SearchCommandBuilder.Explain(indexName, q))).ToString();
         }
 
         /// <inheritdoc/>
         public async Task<RedisResult[]> ExplainCliAsync(string indexName, Query q)
         {
+            if (q.dialect == null && defaultDialect != null)
+            {
+                q.Dialect((int)defaultDialect);
+            }
+
             return (await _db.ExecuteAsync(SearchCommandBuilder.ExplainCli(indexName, q))).ToArray();
         }
 
@@ -135,6 +151,11 @@ namespace NRedisStack
         /// <inheritdoc/>
         public async Task<SearchResult> SearchAsync(string indexName, Query q)
         {
+            if (q.dialect == null && defaultDialect != null)
+            {
+                q.Dialect((int)defaultDialect);
+            }
+
             var resp = (await _db.ExecuteAsync(SearchCommandBuilder.Search(indexName, q))).ToArray();
             return new SearchResult(resp, !q.NoContent, q.WithScores, q.WithPayloads/*, q.ExplainScore*/);
         }

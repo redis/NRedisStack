@@ -308,6 +308,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Dictionary<string, object> parameters = new Dictionary<string, object>();
         parameters.Add("name", "abc");
+        parameters.Add("count", "10");
 
         AggregationRequest r = new AggregationRequest("$name")
                 .GroupBy("@name", Reducers.Sum("@count").As("sum"))
@@ -345,6 +346,11 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                 .Params(parameters)
                 .Dialect(2); // From documentation - To use PARAMS, DIALECT must be set to 2
 
+        // Add more parameters using params (more than 1 is also possible):
+        parameters.Clear();
+        parameters.Add("count", "10");
+        r.Params(parameters);
+
         AggregationResult res = await ft.AggregateAsync(index, r);
         Assert.Equal(1, res.TotalResults);
 
@@ -352,6 +358,79 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(r1);
         Assert.Equal("abc", r1.GetString("name"));
         Assert.Equal(10, r1.GetLong("sum"));
+    }
+
+    [Fact]
+    public void TestAggregationRequestParamsWithDefaultDialect()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT(2);
+        Schema sc = new Schema();
+        sc.AddTextField("name", 1.0, sortable: true);
+        sc.AddNumericField("count", sortable: true);
+        ft.Create(index, FTCreateParams.CreateParams(), sc);
+        AddDocument(db, new Document("data1").Set("name", "abc").Set("count", 10));
+        AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
+        AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
+
+        Dictionary<string, object> parameters = new Dictionary<string, object>();
+        parameters.Add("name", "abc");
+        parameters.Add("count", "10");
+
+        AggregationRequest r = new AggregationRequest("$name")
+                .GroupBy("@name", Reducers.Sum("@count").As("sum"))
+                .Params(parameters); // From documentation - To use PARAMS, DIALECT must be set to 2
+                                     // which is the default as we set in the constructor (FT(2))
+
+        AggregationResult res = ft.Aggregate(index, r);
+        Assert.Equal(1, res.TotalResults);
+
+        Row r1 = res.GetRow(0);
+        Assert.NotNull(r1);
+        Assert.Equal("abc", r1.GetString("name"));
+        Assert.Equal(10, r1.GetLong("sum"));
+    }
+
+    [Fact]
+    public async Task TestAggregationRequestParamsWithDefaultDialectAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT(2);
+        Schema sc = new Schema();
+        sc.AddTextField("name", 1.0, sortable: true);
+        sc.AddNumericField("count", sortable: true);
+        ft.Create(index, FTCreateParams.CreateParams(), sc);
+        AddDocument(db, new Document("data1").Set("name", "abc").Set("count", 10));
+        AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
+        AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
+
+        Dictionary<string, object> parameters = new Dictionary<string, object>();
+        parameters.Add("name", "abc");
+        parameters.Add("count", "10");
+
+        AggregationRequest r = new AggregationRequest("$name")
+                .GroupBy("@name", Reducers.Sum("@count").As("sum"))
+                .Params(parameters); // From documentation - To use PARAMS, DIALECT must be set to 2
+                                    // which is the default as we set in the constructor (FT(2))
+
+        AggregationResult res = await ft.AggregateAsync(index, r);
+        Assert.Equal(1, res.TotalResults);
+
+        Row r1 = res.GetRow(0);
+        Assert.NotNull(r1);
+        Assert.Equal("abc", r1.GetString("name"));
+        Assert.Equal(10, r1.GetLong("sum"));
+    }
+
+    [Fact]
+    public void TestDefaultDialectError()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        // test error on invalid dialect:
+        Assert.Throws<ArgumentOutOfRangeException>(() => db.FT(0));
     }
 
     [Fact]
@@ -1250,7 +1329,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddTextField("f3", 1.0);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
 
-        String res = ft.Explain(index, new Query("@f3:f3_val @f2:f2_val @f1:f1_val"));
+        string res = ft.Explain(index, new Query("@f3:f3_val @f2:f2_val @f1:f1_val"));
         Assert.NotNull(res);
         Assert.False(res.Length == 0);
     }
@@ -1261,6 +1340,74 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var ft = db.FT();
+        Schema sc = new Schema()
+            .AddTextField("f1", 1.0)
+            .AddTextField("f2", 1.0)
+            .AddTextField("f3", 1.0);
+        ft.Create(index, FTCreateParams.CreateParams(), sc);
+
+        string res = await ft.ExplainAsync(index, new Query("@f3:f3_val @f2:f2_val @f1:f1_val"));
+        Assert.NotNull(res);
+        Assert.False(res.Length == 0);
+    }
+
+    [Fact]
+    public void TestExplainCli()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT(2);
+        Schema sc = new Schema()
+            .AddTextField("f1", 1.0)
+            .AddTextField("f2", 1.0)
+            .AddTextField("f3", 1.0);
+        ft.Create(index, FTCreateParams.CreateParams(), sc);
+
+        var res = ft.ExplainCli(index, new Query("@f3:f3_val @f2:f2_val @f1:f1_val"));
+        Assert.NotNull(res);
+        Assert.False(res.Length == 0);
+    }
+
+    [Fact]
+    public async Task TestExplainCliAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT(2);
+        Schema sc = new Schema()
+            .AddTextField("f1", 1.0)
+            .AddTextField("f2", 1.0)
+            .AddTextField("f3", 1.0);
+        ft.Create(index, FTCreateParams.CreateParams(), sc);
+
+        var res = await ft.ExplainCliAsync(index, new Query("@f3:f3_val @f2:f2_val @f1:f1_val"));
+        Assert.NotNull(res);
+        Assert.False(res.Length == 0);
+    }
+
+    [Fact]
+    public void TestExplainWithDefaultDialect()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT(1);
+        Schema sc = new Schema()
+            .AddTextField("f1", 1.0)
+            .AddTextField("f2", 1.0)
+            .AddTextField("f3", 1.0);
+        ft.Create(index, FTCreateParams.CreateParams(), sc);
+
+        String res = ft.Explain(index, new Query("@f3:f3_val @f2:f2_val @f1:f1_val"));
+        Assert.NotNull(res);
+        Assert.False(res.Length == 0);
+    }
+
+    [Fact]
+    public async Task TestExplainWithDefaultDialectAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT(1);
         Schema sc = new Schema()
             .AddTextField("f1", 1.0)
             .AddTextField("f2", 1.0)
@@ -1739,6 +1886,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                                              "1",
                                              "txt"};
 
+        Assert.Equal(expectedArgs.Count(), buildCommand.Args.Count());
         for (int i = 0; i < buildCommand.Args.Count(); i++)
         {
             Assert.Equal(expectedArgs[i].ToString(), buildCommand.Args[i].ToString());
@@ -1842,11 +1990,11 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         AddDocument(db, doc1);
         AddDocument(db, doc2);
 
-        var req = new AggregationRequest("*").SortBy("@t1").Limit(1, 1);
+        var req = new AggregationRequest("*").SortBy("@t1").Limit(1);
         var res = ft.Aggregate("idx", req);
 
         Assert.Equal( res.GetResults().Count, 1);
-        Assert.Equal( res.GetResults()[0]["t1"].ToString(), "b");
+        Assert.Equal( res.GetResults()[0]["t1"].ToString(), "a");
     }
 
     [Fact]
@@ -2010,7 +2158,100 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         });
 
         Assert.True(await ft.CreateAsync("my_index", new FTCreateParams().On(IndexDataType.JSON), schema));
+    }
 
+    [Fact]
+    public void TestQueryAddParam_DefaultDialect()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT(2);
+
+        var sc = new Schema().AddNumericField("numval");
+        Assert.True(ft.Create("idx", new FTCreateParams(), sc));
+
+        db.HashSet("1", "numval", 1);
+        db.HashSet("2", "numval", 2);
+        db.HashSet("3", "numval", 3);
+
+        Query query = new Query("@numval:[$min $max]").AddParam("min", 1).AddParam("max", 2);
+        var res = ft.Search("idx", query);
+        Assert.Equal(2, res.TotalResults);
+    }
+
+    [Fact]
+    public async Task TestQueryAddParam_DefaultDialectAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT(2);
+
+        var sc = new Schema().AddNumericField("numval");
+        Assert.True(await ft.CreateAsync("idx", new FTCreateParams(), sc));
+
+        db.HashSet("1", "numval", 1);
+        db.HashSet("2", "numval", 2);
+        db.HashSet("3", "numval", 3);
+
+        Query query = new Query("@numval:[$min $max]").AddParam("min", 1).AddParam("max", 2);
+        var res = await ft.SearchAsync("idx", query);
+        Assert.Equal(2, res.TotalResults);
+    }
+
+    [Fact]
+    public void TestQueryParamsWithParams_DefaultDialect()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT(2);
+
+        var sc = new Schema().AddNumericField("numval");
+        Assert.True(ft.Create("idx", new FTCreateParams(), sc));
+
+        db.HashSet("1", "numval", 1);
+        db.HashSet("2", "numval", 2);
+        db.HashSet("3", "numval", 3);
+
+        Query query = new Query("@numval:[$min $max]").AddParam("min", 1).AddParam("max", 2);
+        var res = ft.Search("idx", query);
+        Assert.Equal(2, res.TotalResults);
+
+        var paramValue = new Dictionary<string, object>()
+        {
+            ["min"] = 1,
+            ["max"] = 2
+        };
+        query = new Query("@numval:[$min $max]");
+        res = ft.Search("idx", query.Params(paramValue));
+        Assert.Equal(2, res.TotalResults);
+    }
+
+    [Fact]
+    public async Task TestQueryParamsWithParams_DefaultDialectAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT(2);
+
+        var sc = new Schema().AddNumericField("numval");
+        Assert.True(await ft.CreateAsync("idx", new FTCreateParams(), sc));
+
+        db.HashSet("1", "numval", 1);
+        db.HashSet("2", "numval", 2);
+        db.HashSet("3", "numval", 3);
+
+        Query query = new Query("@numval:[$min $max]").AddParam("min", 1).AddParam("max", 2);
+        var res = await ft.SearchAsync("idx", query);
+        Assert.Equal(2, res.TotalResults);
+
+        var paramValue = new Dictionary<string, object>()
+        {
+            ["min"] = 1,
+            ["max"] = 2
+        };
+        query = new Query("@numval:[$min $max]");
+        res = await ft.SearchAsync("idx", query.Params(paramValue));
+        Assert.Equal(2, res.TotalResults);
     }
 
     [Fact]

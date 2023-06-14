@@ -191,8 +191,8 @@ namespace NRedisStack.Search
         public string Scorer { get; set; }
         // public bool ExplainScore { get; set; } // TODO: Check if this is needed because Jedis doesn't have it
 
-        private Dictionary<String, Object> _params = null;
-        private int _dialect = 0;
+        private Dictionary<String, Object> _params = new Dictionary<string, object>();
+        public int? dialect { get; private set;} = null;
         private int _slop = -1;
         private long _timeout = -1;
         private bool _inOrder = false;
@@ -374,10 +374,10 @@ namespace NRedisStack.Search
                 }
             }
 
-            if (_dialect != 0)
+            if (dialect >= 1)
             {
                 args.Add("DIALECT");
-                args.Add(_dialect);
+                args.Add(dialect);
             }
 
             if (_slop >= 0)
@@ -621,13 +621,18 @@ namespace NRedisStack.Search
         /// <param name="name"></param>
         /// <param name="value"> can be String, long or float</param>
         /// <returns>The query object itself</returns>
-        public Query AddParam(String name, Object value)
+        public Query AddParam(string name, object value)
         {
-            if (_params == null)
-            {
-                _params = new Dictionary<string, object>();
-            }
             _params.Add(name, value);
+            return this;
+        }
+
+        public Query Params(Dictionary<string, object> nameValue)
+        {
+            foreach (var entry in nameValue)
+            {
+                _params.Add(entry.Key, entry.Value);
+            }
             return this;
         }
 
@@ -638,7 +643,7 @@ namespace NRedisStack.Search
         /// <returns>the query object itself</returns>
         public Query Dialect(int dialect)
         {
-            _dialect = dialect;
+            this.dialect = dialect;
             return this;
         }
 

@@ -7,9 +7,20 @@ namespace NRedisStack
     public class SearchCommands : SearchCommandsAsync, ISearchCommands
     {
         IDatabase _db;
-        public SearchCommands(IDatabase db) : base(db)
+        public SearchCommands(IDatabase db, int? defaultDialect) : base(db)
         {
             _db = db;
+            SetDefaultDialect(defaultDialect);
+            this.defaultDialect = defaultDialect;
+        }
+
+        public void SetDefaultDialect(int? defaultDialect)
+        {
+            if(defaultDialect == 0)
+            {
+                throw new System.ArgumentOutOfRangeException("DIALECT=0 cannot be set.");
+            }
+            this.defaultDialect = defaultDialect;
         }
 
         /// <inheritdoc/>
@@ -21,6 +32,11 @@ namespace NRedisStack
         /// <inheritdoc/>
         public AggregationResult Aggregate(string index, AggregationRequest query)
         {
+            if(query.dialect == null && defaultDialect != null)
+            {
+                query.Dialect((int)defaultDialect);
+            }
+
             var result = _db.Execute(SearchCommandBuilder.Aggregate(index, query));
             if (query.IsWithCursor())
             {
@@ -116,12 +132,20 @@ namespace NRedisStack
         /// <inheritdoc/>
         public string Explain(string indexName, Query q)
         {
+            if (q.dialect == null && defaultDialect != null)
+            {
+                q.Dialect((int)defaultDialect);
+            }
             return _db.Execute(SearchCommandBuilder.Explain(indexName, q)).ToString();
         }
 
         /// <inheritdoc/>
         public RedisResult[] ExplainCli(string indexName, Query q)
         {
+            if (q.dialect == null && defaultDialect != null)
+            {
+                q.Dialect((int)defaultDialect);
+            }
             return _db.Execute(SearchCommandBuilder.ExplainCli(indexName, q)).ToArray();
         }
 
@@ -134,6 +158,10 @@ namespace NRedisStack
         /// <inheritdoc/>
         public SearchResult Search(string indexName, Query q)
         {
+            if (q.dialect == null && defaultDialect != null)
+            {
+                q.Dialect((int)defaultDialect);
+            }
             var resp = _db.Execute(SearchCommandBuilder.Search(indexName, q)).ToArray();
             return new SearchResult(resp, !q.NoContent, q.WithScores, q.WithPayloads/*, q.ExplainScore*/);
         }
