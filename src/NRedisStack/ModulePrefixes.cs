@@ -2,7 +2,7 @@ using StackExchange.Redis;
 
 namespace NRedisStack.RedisStackCommands
 {
-    public static class ModulPrefixes
+    public static class ModulePrefixes
     {
         public static BloomCommands BF(this IDatabase db) => new BloomCommands(db);
 
