@@ -18,12 +18,12 @@ using static NRedisStack.Search.Schema;
 
 namespace NRedisStack.Tests;
 
-public class ExaplesTests : AbstractNRedisStackTest, IDisposable
+public class ExampleTests : AbstractNRedisStackTest, IDisposable
 {
     private readonly ITestOutputHelper testOutputHelper;
     Mock<IDatabase> _mock = new Mock<IDatabase>();
     private readonly string key = "EXAMPLES_TESTS";
-    public ExaplesTests(RedisFixture redisFixture, ITestOutputHelper testOutputHelper) : base(redisFixture)
+    public ExampleTests(RedisFixture redisFixture, ITestOutputHelper testOutputHelper) : base(redisFixture)
     {
         this.testOutputHelper = testOutputHelper;
     }
@@ -41,7 +41,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
         // Get a reference to the database and for search commands:
         // var db = redis.GetDatabase();
-        var db =  redisFixture.Redis.GetDatabase();
+        var db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var ft = db.FT();
 
@@ -186,7 +186,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
         // Get a reference to the database
         // var db = redis.GetDatabase();
-        var db =  redisFixture.Redis.GetDatabase();
+        var db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         // Setup pipeline connection
 
@@ -286,7 +286,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         // ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
         // IDatabase db = redis.GetDatabase();
 
-        var db =  redisFixture.Redis.GetDatabase();
+        var db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         ISearchCommands ft = db.FT();
         IJsonCommands json = db.JSON();
@@ -578,7 +578,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
     {
         // ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
         // IDatabase db = redis.GetDatabase();
-        var db =  redisFixture.Redis.GetDatabase();
+        var db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         IJsonCommands json = db.JSON();
 
@@ -833,7 +833,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
     {
         // ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
         // IDatabase db = redis.GetDatabase();
-        var db =  redisFixture.Redis.GetDatabase();
+        var db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         IJsonCommands json = db.JSON();
 
@@ -967,7 +967,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
     {
         // ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
         // IDatabase db = redis.GetDatabase();
-        var db =  redisFixture.Redis.GetDatabase();
+        var db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         IJsonCommands json = db.JSON();
         ISearchCommands ft = db.FT();
@@ -1127,22 +1127,39 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
     {
         // ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
         // IDatabase db = redis.GetDatabase();
-        var db =  redisFixture.Redis.GetDatabase();
+        var db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         IJsonCommands json = db.JSON();
         ISearchCommands ft = db.FT();
 
         // Vector Similarity Search (VSS)
         // Data load:
-        db.HashSet("vec:1", "vector", (new float[] { 1f, 1f, 1f, 1f }).SelectMany(BitConverter.GetBytes).ToArray());
-        db.HashSet("vec:2", "vector", (new float[] { 2f, 2f, 2f, 2f }).SelectMany(BitConverter.GetBytes).ToArray());
-        db.HashSet("vec:3", "vector", (new float[] { 3f, 3f, 3f, 3f }).SelectMany(BitConverter.GetBytes).ToArray());
-        db.HashSet("vec:5", "vector", (new float[] { 4f, 4f, 4f, 4f }).SelectMany(BitConverter.GetBytes).ToArray());
+        db.HashSet("vec:1", new HashEntry[]
+        {
+            new("vector", (new float[] { 1f, 1f, 1f, 1f }).SelectMany(BitConverter.GetBytes).ToArray()),
+            new("tag", "A")
+        });
+        db.HashSet("vec:2", new HashEntry[]
+        {
+            new("vector", (new float[] { 2f, 2f, 2f, 2f }).SelectMany(BitConverter.GetBytes).ToArray()),
+            new("tag", "A")
+        });
+        db.HashSet("vec:3", new HashEntry[]
+        {
+            new("vector", (new float[] { 3f, 3f, 3f, 3f }).SelectMany(BitConverter.GetBytes).ToArray()),
+            new("tag", "B")
+        });
+        db.HashSet("vec:4", new HashEntry[]
+        {
+            new("vector", (new float[] { 4f, 4f, 4f, 4f }).SelectMany(BitConverter.GetBytes).ToArray()),
+            new("tag", "A")
+        });
 
         // Index creation:
         try { ft.DropIndex("vss_idx"); } catch { };
         Assert.True(ft.Create("vss_idx", new FTCreateParams().On(IndexDataType.HASH).Prefix("vec:"),
             new Schema()
+            .AddTagField("tag")
             .AddVectorField("vector", VectorField.VectorAlgo.FLAT,
                 new Dictionary<string, object>()
                 {
@@ -1156,7 +1173,7 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
         Thread.Sleep(2000);
 
         // Search:
-        float[] vec = new[] { 2f, 2f, 3f, 3f };
+        float[] vec = new[] { 2f, 3f, 3f, 3f };
         var res = ft.Search("vss_idx",
                     new Query("*=>[KNN 2 @vector $query_vec]")
                     .AddParam("query_vec", vec.SelectMany(BitConverter.GetBytes).ToArray())
@@ -1176,11 +1193,36 @@ public class ExaplesTests : AbstractNRedisStackTest, IDisposable
 
         HashSet<string> expectedResSet = new HashSet<string>()
         {
-            "id: vec:2, score: 2",
-            "id: vec:3, score: 2",
+            "id: vec:3, score: 1",
+            "id: vec:2, score: 3",
         };
 
         Assert.Equal(expectedResSet, resSet);
+
+        // hybrid query - search only documents with tag A:
+        res = ft.Search("vss_idx",
+                    new Query("@tag:{A}=>[KNN 2 @vector $query_vec]")
+                    .AddParam("query_vec", vec.SelectMany(BitConverter.GetBytes).ToArray())
+                    .SetSortBy("__vector_score")
+                    .Dialect(2));
+
+        resSet.Clear();
+        foreach (var doc in res.Documents)
+        {
+            foreach (var item in doc.GetProperties())
+            {
+                if (item.Key == "__vector_score")
+                {
+                    resSet.Add($"id: {doc.Id}, score: {item.Value}");
+                }
+            }
+        }
+
+        expectedResSet = new HashSet<string>()
+        {
+            "id: vec:2, score: 3",
+            "id: vec:4, score: 7",
+        };
 
         //Advanced Search Queries:
         // data load:
