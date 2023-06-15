@@ -1317,6 +1317,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal((await ft.DictDumpAsync("dict")).Length, 0);
     }
 
+    string explainQuery = "@f3:f3_val @f2:f2_val @f1:f1_val";
     [Fact]
     public void TestExplain()
     {
@@ -1329,9 +1330,16 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddTextField("f3", 1.0);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
 
-        string res = ft.Explain(index, new Query("@f3:f3_val @f2:f2_val @f1:f1_val"));
+        string res = ft.Explain(index, explainQuery);
         Assert.NotNull(res);
         Assert.False(res.Length == 0);
+
+        // Test with dialect:
+        res = ft.Explain(index, explainQuery, 2);
+        Assert.NotNull(res);
+        Assert.False(res.Length == 0);
+
+
     }
 
     [Fact]
@@ -1346,7 +1354,13 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddTextField("f3", 1.0);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
 
-        string res = await ft.ExplainAsync(index, new Query("@f3:f3_val @f2:f2_val @f1:f1_val"));
+
+        string res = await ft.ExplainAsync(index, explainQuery);
+        Assert.NotNull(res);
+        Assert.False(res.Length == 0);
+
+        // Test with dialect:
+        res = await ft.ExplainAsync(index, explainQuery, 2);
         Assert.NotNull(res);
         Assert.False(res.Length == 0);
     }
@@ -1363,7 +1377,13 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddTextField("f3", 1.0);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
 
-        var res = ft.ExplainCli(index, new Query("@f3:f3_val @f2:f2_val @f1:f1_val"));
+
+        var res = ft.ExplainCli(index, explainQuery);
+        Assert.NotNull(res);
+        Assert.False(res.Length == 0);
+
+        // Test with dialect (ovveride the dialect 2):
+        res = ft.ExplainCli(index, explainQuery, 1);
         Assert.NotNull(res);
         Assert.False(res.Length == 0);
     }
@@ -1380,7 +1400,13 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddTextField("f3", 1.0);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
 
-        var res = await ft.ExplainCliAsync(index, new Query("@f3:f3_val @f2:f2_val @f1:f1_val"));
+
+        var res = await ft.ExplainCliAsync(index, explainQuery);
+        Assert.NotNull(res);
+        Assert.False(res.Length == 0);
+
+        // Test with dialect (ovveride the dialect 2):
+        res = await ft.ExplainCliAsync(index, explainQuery, 1);
         Assert.NotNull(res);
         Assert.False(res.Length == 0);
     }
@@ -1397,7 +1423,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddTextField("f3", 1.0);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
 
-        String res = ft.Explain(index, new Query("@f3:f3_val @f2:f2_val @f1:f1_val"));
+        String res = ft.Explain(index, "@f3:f3_val @f2:f2_val @f1:f1_val");
         Assert.NotNull(res);
         Assert.False(res.Length == 0);
     }
@@ -1414,7 +1440,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddTextField("f3", 1.0);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
 
-        String res = await ft.ExplainAsync(index, new Query("@f3:f3_val @f2:f2_val @f1:f1_val"));
+        String res = await ft.ExplainAsync(index, "@f3:f3_val @f2:f2_val @f1:f1_val");
         Assert.NotNull(res);
         Assert.False(res.Length == 0);
     }
