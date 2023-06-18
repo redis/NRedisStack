@@ -2253,6 +2253,46 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    public void TestBasicSpellCheck()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT(2);
+
+        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+
+        db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name1"), new HashEntry("body", "body1") });
+        db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name2"), new HashEntry("body", "body2") });
+        db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name2"), new HashEntry("body", "name2") });
+
+        var reply = ft.SpellCheck(index, "name");
+        Assert.Equal(1, reply.Keys.Count);
+        Assert.Equal("name", reply.Keys.First());
+        Assert.Equal(1, reply["name"]["name1"]);
+        Assert.Equal(2, reply["name"]["name2"]);
+    }
+
+    [Fact]
+    public async Task TestBasicSpellCheckAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT(2);
+
+        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+
+        db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name1"), new HashEntry("body", "body1") });
+        db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name2"), new HashEntry("body", "body2") });
+        db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name2"), new HashEntry("body", "name2") });
+
+        var reply = await ft.SpellCheckAsync(index, "name");
+        Assert.Equal(1, reply.Keys.Count);
+        Assert.Equal("name", reply.Keys.First());
+        Assert.Equal(1, reply["name"]["name1"]);
+        Assert.Equal(2, reply["name"]["name2"]);
+    }
+
+    [Fact]
     public async Task TestQueryParamsWithParams_DefaultDialectAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();

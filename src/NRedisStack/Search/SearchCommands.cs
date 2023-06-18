@@ -169,15 +169,7 @@ namespace NRedisStack
         /// <inheritdoc/>
         public Dictionary<string, Dictionary<string, double>> SpellCheck(string indexName, string query, FTSpellCheckParams? spellCheckParams = null)
         {
-            var resp = _db.Execute(SearchCommandBuilder.SpellCheck(indexName, query, spellCheckParams)).ToArray();
-            var result = new Dictionary<string, Dictionary<string, double>>();
-            for (int i = 0; i < resp.Length; i += 2)
-            {
-                var term = resp[i].ToString();
-                var suggestions = (resp[i + 1]).ToArray().ToDictionary(x => x.ToString(), x => (double)x);
-                result.Add(term, suggestions);
-            }
-            return result;
+            return _db.Execute(SearchCommandBuilder.SpellCheck(indexName, query, spellCheckParams)).ToFtSpellCheckResult();
         }
 
         /// <inheritdoc/>

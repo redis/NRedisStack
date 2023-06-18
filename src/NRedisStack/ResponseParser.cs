@@ -613,5 +613,31 @@ namespace NRedisStack
 
             return sets;
         }
+
+        public static Dictionary<string, Dictionary<string, double>> ToFtSpellCheckResult(this RedisResult result)
+        {
+            var rawTerms = (RedisResult[])result!;
+            var returnTerms = new Dictionary<string, Dictionary<string, double>>(rawTerms.Length);
+            foreach (var term in rawTerms)
+            {
+                var rawElements = (RedisResult[])term!;
+                string header = rawElements[0].ToString()!; // Should be == "TERM"
+
+                string termValue = rawElements[1].ToString()!;
+
+                var list = (RedisResult[]) rawElements[2]!;
+                Dictionary<string, double> entries = new Dictionary<string, double>(list.Length);
+                foreach (var entry in list)
+                {
+                    var entryElements = (RedisResult[])entry!;
+                    string suggestion = entryElements[1].ToString()!;
+                    double score = (double)entryElements[0];
+                    entries.Add(suggestion, score);
+                }
+                returnTerms.Add(termValue, entries);
+            }
+
+            return returnTerms;
+        }
     }
 }
