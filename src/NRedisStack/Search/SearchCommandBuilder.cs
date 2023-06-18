@@ -159,6 +159,19 @@ namespace NRedisStack
             return new SerializedCommand("FT.SEARCH", args);
         }
 
+        public static SerializedCommand SpellCheck(string indexName, string query, FTSpellCheckParams? spellCheckParams = null)
+        {
+            if (spellCheckParams != null)
+            {
+                spellCheckParams.SerializeRedisArgs();
+                var args = new List<object>(spellCheckParams!.GetArgs().Count + 2) { indexName, query }; // TODO: check if this improves performance (create a list with exact size)
+                args.AddRange(spellCheckParams.GetArgs());
+                return new SerializedCommand(FT.SPELLCHECK, args);
+            }
+
+            return new SerializedCommand(FT.SPELLCHECK, indexName, query);
+        }
+
         public static SerializedCommand SynDump(string indexName)
         {
             return new SerializedCommand(FT.SYNDUMP, indexName);

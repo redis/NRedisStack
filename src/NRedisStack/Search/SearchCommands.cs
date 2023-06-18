@@ -167,6 +167,20 @@ namespace NRedisStack
         }
 
         /// <inheritdoc/>
+        public Dictionary<string, Dictionary<string, double>> SpellCheck(string indexName, string query, FTSpellCheckParams? spellCheckParams = null)
+        {
+            var resp = _db.Execute(SearchCommandBuilder.SpellCheck(indexName, query, spellCheckParams)).ToArray();
+            var result = new Dictionary<string, Dictionary<string, double>>();
+            for (int i = 0; i < resp.Length; i += 2)
+            {
+                var term = resp[i].ToString();
+                var suggestions = (resp[i + 1]).ToArray().ToDictionary(x => x.ToString(), x => (double)x);
+                result.Add(term, suggestions);
+            }
+            return result;
+        }
+
+        /// <inheritdoc/>
         public Dictionary<string, List<string>> SynDump(string indexName)
         {
             var resp = _db.Execute(SearchCommandBuilder.SynDump(indexName)).ToArray();
@@ -180,7 +194,6 @@ namespace NRedisStack
             return result;
         }
 
-        // TODO: FT.SPELLCHECK (jedis doesn't have it)
 
         /// <inheritdoc/>
         public bool SynUpdate(string indexName, string synonymGroupId, bool skipInitialScan = false, params string[] terms)

@@ -19,5 +19,10 @@ namespace NRedisStack.Search.Literals
         public const string NOFREQS = "NOFREQS";
         public const string STOPWORDS = "STOPWORDS";
         public const string SKIPINITIALSCAN = "SKIPINITIALSCAN";
+        public const string INCLUDE = "INCLUDE";
+        public const string EXCLUDE = "EXCLUDE";
+        public const string DIALECT = "DIALECT";
+        public const string TERMS = "TERMS";
+        public const string DISTANCE = "DISTANCE";
     }
 }

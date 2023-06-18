@@ -189,7 +189,16 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/ft.syndump"/></remarks>
         Dictionary<string, List<string>> SynDump(string indexName);
 
-        // TODO: FT.SPELLCHECK (jedis doesn't have it)
+        /// <summary>
+        /// Perform spelling correction on a query, returning suggestions for misspelled terms.
+        /// </summary>
+        /// <param name="indexName">is index with the indexed terms.</param>
+        /// <param name="query">is search query.</param>
+        /// <param name="spellCheckParams">Optional Spellcheck Parameters</param>
+        /// <returns>An array reply, in which each element represents a misspelled term from the query.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.spellcheck]"/></remarks>
+        ///
+        Dictionary<string, Dictionary<string, double>> SpellCheck(string indexName, string query, FTSpellCheckParams? spellCheckParams = null);
 
         /// <summary>
         /// Update a synonym group.
