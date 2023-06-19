@@ -2373,7 +2373,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         ft.Create(index, new FTCreateParams(), new Schema().AddTextField("t"));
         // dialect 0 is not valid
-        Assert.Throws<ArgumentOutOfRangeException>(() => ft.SpellCheck(index, "name", new FTSpellCheckParams().Dialect(0)));
+        Assert.Throws<RedisServerException>(() => ft.SpellCheck(index, "name", new FTSpellCheckParams().Dialect(0)));
     }
 
     [Fact]
@@ -2385,7 +2385,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         ft.Create(index, new FTCreateParams(), new Schema().AddTextField("t"));
         // dialect 0 is not valid
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await ft.SpellCheckAsync(index, "name", new FTSpellCheckParams().Dialect(0)));
+        await Assert.ThrowsAsync<RedisServerException>(async () => await ft.SpellCheckAsync(index, "name", new FTSpellCheckParams().Dialect(0)));
     }
 
     [Fact]
