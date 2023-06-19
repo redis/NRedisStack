@@ -2340,6 +2340,54 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                                              .ExcludeTerm("slang")));
     }
 
+        [Fact]
+    public void TestDistanceBound()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+        // distance suppose to be between 1 and 4
+        Assert.Throws<RedisServerException>(() => ft.SpellCheck(index, "name", new FTSpellCheckParams().Distance(0)));
+    }
+
+    [Fact]
+    public async Task TestDistanceBoundAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+        // distance suppose to be between 1 and 4
+        await Assert.ThrowsAsync<RedisServerException>(async () => await ft.SpellCheckAsync(index, "name", new FTSpellCheckParams().Distance(0)));
+    }
+
+    [Fact]
+    public void TestDialectBound()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("t"));
+        // dialect 0 is not valid
+        Assert.Throws<ArgumentOutOfRangeException>(() => ft.SpellCheck(index, "name", new FTSpellCheckParams().Dialect(0)));
+    }
+
+    [Fact]
+    public async Task TestDialectBoundAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("t"));
+        // dialect 0 is not valid
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await ft.SpellCheckAsync(index, "name", new FTSpellCheckParams().Dialect(0)));
+    }
+
     [Fact]
     public async Task TestQueryParamsWithParams_DefaultDialectAsync()
     {

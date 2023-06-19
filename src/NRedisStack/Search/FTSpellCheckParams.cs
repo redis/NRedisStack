@@ -12,10 +12,10 @@ namespace NRedisStack.Search
         {
         }
 
-        public static FTSpellCheckParams SpellCheckParams()
-        {
-            return new FTSpellCheckParams();
-        }
+        // public static FTSpellCheckParams SpellCheckParams() // TODO: Check if needed
+        // {
+        //     return new FTSpellCheckParams();
+        // }
 
         /// <summary>
         ///  Specifies an inclusion (INCLUDE) of a custom dictionary.
