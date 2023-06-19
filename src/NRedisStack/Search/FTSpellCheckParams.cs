@@ -4,18 +4,11 @@ namespace NRedisStack.Search
     public class FTSpellCheckParams
     {
         List<object> args = new List<object>();
-        private List<KeyValuePair<string, string>> terms;
+        private List<KeyValuePair<string, string>>? terms = null;
         private int? distance = null;
         private int? dialect = null;
 
-        public FTSpellCheckParams()
-        {
-        }
-
-        // public static FTSpellCheckParams SpellCheckParams() // TODO: Check if needed
-        // {
-        //     return new FTSpellCheckParams();
-        // }
+        public FTSpellCheckParams() { }
 
         /// <summary>
         ///  Specifies an inclusion (INCLUDE) of a custom dictionary.
