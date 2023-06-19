@@ -149,14 +149,14 @@ namespace NRedisStack
         }
 
         public static SerializedCommand Info(RedisValue index) =>
-                                new SerializedCommand("FT.INFO", index);
+                                new SerializedCommand(FT.INFO, index);
 
         public static SerializedCommand Search(string indexName, Query q)
         {
             var args = new List<object> { indexName };
             q.SerializeRedisArgs(args);
 
-            return new SerializedCommand("FT.SEARCH", args);
+            return new SerializedCommand(FT.SEARCH, args);
         }
 
         public static SerializedCommand SpellCheck(string indexName, string query, FTSpellCheckParams? spellCheckParams = null)
@@ -170,6 +170,34 @@ namespace NRedisStack
             }
 
             return new SerializedCommand(FT.SPELLCHECK, indexName, query);
+        }
+
+        public static SerializedCommand SugAdd(string key, string str, double score, bool increment = false, string? payload = null)
+        {
+            var args = new List<object> { key, str, score };
+            if (increment) { args.Add(SearchArgs.INCR); }
+            if (payload != null) { args.Add(SearchArgs.PAYLOAD); args.Add(payload); }
+            return new SerializedCommand(FT.SUGADD, args);
+        }
+
+        public static SerializedCommand SugDel(string key, string str)
+        {
+            return new SerializedCommand(FT.SUGDEL, key, str);
+        }
+
+        public static SerializedCommand SugGet(string key, string prefix, bool fuzzy = false, bool withScores = false, bool withPayloads = false, int? max = null)
+        {
+            var args = new List<object> { key, prefix };
+            if (fuzzy) { args.Add(SearchArgs.FUZZY); }
+            if (withScores) { args.Add(SearchArgs.WITHSCORES); }
+            if (withPayloads) { args.Add(SearchArgs.WITHPAYLOADS); }
+            if (max != null) { args.Add(SearchArgs.MAX); args.Add(max); }
+            return new SerializedCommand(FT.SUGGET, args);
+        }
+
+        public static SerializedCommand SugLen(string key)
+        {
+            return new SerializedCommand(FT.SUGLEN, key);
         }
 
         public static SerializedCommand SynDump(string indexName)

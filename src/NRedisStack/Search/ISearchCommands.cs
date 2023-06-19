@@ -196,9 +196,53 @@ namespace NRedisStack
         /// <param name="query">is search query.</param>
         /// <param name="spellCheckParams">Optional Spellcheck Parameters</param>
         /// <returns>An array reply, in which each element represents a misspelled term from the query.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/ft.spellcheck]"/></remarks>
-        ///
+        /// <remarks><seealso href="https://redis.io/commands/ft.spellcheck"/></remarks>
         Dictionary<string, Dictionary<string, double>> SpellCheck(string indexName, string query, FTSpellCheckParams? spellCheckParams = null);
+
+        /// <summary>
+        /// Add a suggestion string to an auto-complete suggestion dictionary
+        /// </summary>
+        /// <param name="key">is suggestion dictionary key.</param>
+        /// <param name="str">is suggestion string to index.</param>
+        /// <param name="score">is floating point number of the suggestion string's weight.</param>
+        /// <param name="increment">increments the existing entry of the suggestion by the given score,
+        ///  instead of replacing the score.</param>
+        /// <param name="payload">saves an extra payload with the suggestion, that can be fetched by adding the WITHPAYLOADS argument to FT.SUGGET.</param>
+        /// <returns>The current size of the suggestion dictionary.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.sugadd"/></remarks>
+        long SugAdd(string key, string str, double score, bool increment = false, string? payload = null);
+
+        /// <summary>
+        /// Delete a string from a suggestion index.
+        /// </summary>
+        /// <param name="key">is suggestion dictionary key.</param>
+        /// <param name="str">is suggestion string to index.</param>
+        /// <returns><see langword="true"/> if the string was found and deleted, <see langword="false"/> otherwise.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.sugdel"/></remarks>
+        bool SugDel(string key, string str);
+
+        /// <summary>
+        /// Get completion suggestions for a prefix.
+        /// </summary>
+        /// <param name="key">is suggestion dictionary key.</param>
+        /// <param name="prefix">is prefix to complete on.</param>
+        /// <param name="fuzzy">performs a fuzzy prefix search,
+        /// including prefixes at Levenshtein distance of 1 from the prefix sent.</param>
+        /// <param name="withScores">also returns the score of each suggestion.
+        /// This can be used to merge results from multiple instances.</param>
+        /// <param name="withPayloads">returns optional payloads saved along with the suggestions.</param>
+        /// <param name="max">limits the results to a maximum of num (default: 5).</param>
+        /// <returns>List of the top suggestions matching the prefix.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.sugget"/></remarks>
+        List<string> SugGet(string key, string prefix, bool fuzzy = false, bool withScores = false, bool withPayloads = false, int? max = null);
+
+        /// <summary>
+        /// Get the size of an auto-complete suggestion dictionary.
+        /// </summary>
+        /// <param name="key">is suggestion dictionary key.</param>
+        /// <returns>The current size of the suggestion dictionary.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.suglen"/></remarks>
+        long SugLen(string key);
 
         /// <summary>
         /// Update a synonym group.
