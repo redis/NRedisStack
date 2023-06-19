@@ -2417,6 +2417,54 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    public void TestAddAndGetSuggestion()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        string suggestion = "ANOTHER_WORD";
+        string noMatch = "_WORD MISSED";
+        string key = "SugTestKey";
+
+        Assert.True(ft.SugAdd(key, suggestion, 1d) > 0);
+        Assert.True(ft.SugAdd(key, noMatch, 1d) > 0);
+
+        // test that with a partial part of that string will have the entire word returned
+        Assert.Equal(1, ft.SugGet(key, suggestion.Substring(0, 3), true, max: 5).Count);
+
+        // turn off fuzzy start at second word no hit
+        Assert.Equal(0, ft.SugGet(key, noMatch.Substring(1, 6), false, max: 5).Count);
+
+        // my attempt to trigger the fuzzy by 1 character
+        Assert.Equal(1, ft.SugGet(key, noMatch.Substring(1, 6), true, max: 5).Count);
+    }
+
+    [Fact]
+    public async Task TestAddAndGetSuggestionAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        string suggestion = "ANOTHER_WORD";
+        string noMatch = "_WORD MISSED";
+        string key = "SugTestKey";
+
+        Assert.True(await ft.SugAddAsync(key, suggestion, 1d) > 0);
+        Assert.True(await ft.SugAddAsync(key, noMatch, 1d) > 0);
+
+        // test that with a partial part of that string will have the entire word returned
+        Assert.Equal(1, (await ft.SugGetAsync(key, suggestion.Substring(0, 3), true, max: 5)).Count);
+
+        // turn off fuzzy start at second word no hit
+        Assert.Equal(0, (await ft.SugGetAsync(key, noMatch.Substring(1, 6), false, max: 5)).Count);
+
+        // my attempt to trigger the fuzzy by 1 character
+        Assert.Equal(1, (await ft.SugGetAsync(key, noMatch.Substring(1, 6), true, max: 5)).Count);
+    }
+
+    [Fact]
     public void TestModulePrefixs1()
     {
         {
