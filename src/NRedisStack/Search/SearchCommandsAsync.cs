@@ -167,6 +167,36 @@ namespace NRedisStack
         }
 
         /// <inheritdoc/>
+        public async Task<long> SugAddAsync(string key, string str, double score, bool increment = false, string? payload = null)
+        {
+            return (await _db.ExecuteAsync(SearchCommandBuilder.SugAdd(key, str, score, increment, payload))).ToLong();
+        }
+
+
+        /// <inheritdoc/>
+        public async Task<bool> SugDelAsync(string key, string str)
+        {
+            return (await _db.ExecuteAsync(SearchCommandBuilder.SugDel(key, str))).ToString() == "1";
+
+        }
+
+
+        /// <inheritdoc/>
+        public async Task<List<string>> SugGetAsync(string key, string prefix, bool fuzzy = false, bool withScores = false, bool withPayloads = false, int? max = null)
+        {
+            return (await _db.ExecuteAsync(SearchCommandBuilder.SugGet(key, prefix, fuzzy, withScores, withPayloads, max))).ToStringList();
+
+        }
+
+
+        /// <inheritdoc/>
+        public async Task<long> SugLenAsync(string key)
+        {
+            return (await _db.ExecuteAsync(SearchCommandBuilder.SugLen(key))).ToLong();
+
+        }
+
+        /// <inheritdoc/>
         public async Task<Dictionary<string, List<string>>> SynDumpAsync(string indexName)
         {
             var resp = (await _db.ExecuteAsync(SearchCommandBuilder.SynDump(indexName))).ToArray();

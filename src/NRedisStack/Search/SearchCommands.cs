@@ -175,6 +175,34 @@ namespace NRedisStack
         }
 
         /// <inheritdoc/>
+        public long SugAdd(string key, string str, double score, bool increment = false, string? payload = null)
+        {
+            return _db.Execute(SearchCommandBuilder.SugAdd(key, str, score, increment, payload)).ToLong();
+        }
+
+
+        /// <inheritdoc/>
+        public bool SugDel(string key, string str)
+        {
+            return _db.Execute(SearchCommandBuilder.SugDel(key, str)).ToString() == "1";
+        }
+
+
+        /// <inheritdoc/>
+        public List<string> SugGet(string key, string prefix, bool fuzzy = false, bool withScores = false, bool withPayloads = false, int? max = null)
+        {
+            return _db.Execute(SearchCommandBuilder.SugGet(key, prefix, fuzzy, withScores, withPayloads, max)).ToStringList();
+        }
+
+
+        /// <inheritdoc/>
+        public long SugLen(string key)
+        {
+            return _db.Execute(SearchCommandBuilder.SugLen(key)).ToLong();
+        }
+
+
+        /// <inheritdoc/>
         public Dictionary<string, List<string>> SynDump(string indexName)
         {
             var resp = _db.Execute(SearchCommandBuilder.SynDump(indexName)).ToArray();
