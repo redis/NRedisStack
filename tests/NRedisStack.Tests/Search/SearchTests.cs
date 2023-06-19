@@ -2257,7 +2257,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
-        var ft = db.FT(2);
+        var ft = db.FT();
 
         ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
 
@@ -2277,7 +2277,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
-        var ft = db.FT(2);
+        var ft = db.FT();
 
         ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
 
@@ -2290,6 +2290,54 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("name", reply.Keys.First());
         Assert.Equal(1, reply["name"]["name1"]);
         Assert.Equal(2, reply["name"]["name2"]);
+    }
+
+    [Fact]
+    public void TestCrossTermDictionary()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+        ft.DictAdd("slang", "timmies", "toque", "toonie", "serviette", "kerfuffle", "chesterfield");
+        var expected = new Dictionary<string, Dictionary<string, double>>()
+        {
+            ["tooni"] = new Dictionary<string, double>()
+            {
+                ["toonie"] = 0d
+            }
+        };
+
+        Assert.Equal(expected, ft.SpellCheck(index,
+                                             "Tooni toque kerfuffle",
+                                             new FTSpellCheckParams()
+                                             .IncludeTerm("slang")
+                                             .ExcludeTerm("slang")));
+    }
+
+    [Fact]
+    public async Task TestCrossTermDictionaryAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+        ft.DictAdd("slang", "timmies", "toque", "toonie", "serviette", "kerfuffle", "chesterfield");
+        var expected = new Dictionary<string, Dictionary<string, double>>()
+        {
+            ["tooni"] = new Dictionary<string, double>()
+            {
+                ["toonie"] = 0d
+            }
+        };
+
+        Assert.Equal(expected, await ft.SpellCheckAsync(index,
+                                             "Tooni toque kerfuffle",
+                                             new FTSpellCheckParams()
+                                             .IncludeTerm("slang")
+                                             .ExcludeTerm("slang")));
     }
 
     [Fact]

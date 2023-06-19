@@ -92,8 +92,8 @@ namespace NRedisStack.Search
                 foreach (var term in terms)
                 {
                     args.Add(SearchArgs.TERMS);
-                    args.Add(term.Key);
                     args.Add(term.Value);
+                    args.Add(term.Key);
                 }
             }
         }
