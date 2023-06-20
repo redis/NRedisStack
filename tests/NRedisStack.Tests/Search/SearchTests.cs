@@ -2463,6 +2463,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         // my attempt to trigger the fuzzy by 1 character
         Assert.Equal(1, (await ft.SugGetAsync(key, noMatch.Substring(1, 6), true, max: 5)).Count);
     }
+
     [Fact]
     public void AddSuggestionIncrAndGetSuggestionFuzzy()
     {
@@ -2476,6 +2477,21 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         // test that the partial part of that string will be returned using fuzzy
         Assert.Equal(suggestion, ft.SugGet(key, suggestion.Substring(0, 3))[0]);
+    }
+
+    [Fact]
+    public async Task AddSuggestionIncrAndGetSuggestionFuzzyAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        string suggestion = "TOPIC OF WORDS";
+
+        // test can add a suggestion string
+        Assert.True(await ft.SugAddAsync(key, suggestion, 1d, increment: true) > 0);
+
+        // test that the partial part of that string will be returned using fuzzy
+        Assert.Equal(suggestion, (await ft.SugGetAsync(key, suggestion.Substring(0, 3)))[0]);
     }
 
     [Fact]
@@ -2500,6 +2516,27 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    public async Task getSuggestionScoresAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        await ft.SugAddAsync(key, "COUNT_ME TOO", 1);
+        await ft.SugAddAsync(key, "COUNT", 1);
+        await ft.SugAddAsync(key, "COUNT_ANOTHER", 1);
+
+        string noScoreOrPayload = "COUNT NO PAYLOAD OR COUNT";
+        Assert.True(await ft.SugAddAsync(key, noScoreOrPayload, 1, increment: true) > 1);
+
+        var result = await ft.SugGetWithScoresAsync(key, "COU");
+        Assert.Equal(4, result.Count);
+        foreach (var tuple in result)
+        {
+            Assert.True(tuple.Item2 < .999);
+        }
+    }
+
+    [Fact]
     public void getSuggestionMax()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2515,6 +2552,21 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    public async Task getSuggestionMaxAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        await ft.SugAddAsync(key, "COUNT_ME TOO", 1);
+        await ft.SugAddAsync(key, "COUNT", 1);
+        await ft.SugAddAsync(key, "COUNTNO PAYLOAD OR COUNT", 1);
+
+        // test that with a partial part of that string will have the entire word returned
+        Assert.Equal(3, (await ft.SugGetWithScoresAsync(key, "COU", true, max: 10)).Count);
+        Assert.Equal(2, (await ft.SugGetWithScoresAsync(key, "COU", true, max: 2)).Count);
+    }
+
+    [Fact]
     public void getSuggestionNoHit()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2524,6 +2576,18 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Assert.Equal(0, ft.SugGetWithScores(key, "DIF").Count);
         Assert.Equal(0, ft.SugGet(key, "DIF").Count);
+    }
+
+    [Fact]
+    public async Task getSuggestionNoHitAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        await ft.SugAddAsync(key, "NO WORD", 0.4);
+
+        Assert.Equal(0, (await ft.SugGetWithScoresAsync(key, "DIF")).Count);
+        Assert.Equal(0, (await ft.SugGetAsync(key, "DIF")).Count);
     }
 
     [Fact]
@@ -2547,6 +2611,29 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         ft.SugAdd(key, "LAST ENTRY", 1);
         Assert.Equal(2L, ft.SugLen(key));
+    }
+
+    [Fact]
+    public async Task getSuggestionLengthAndDeleteSuggestionAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        await ft.SugAddAsync(key, "TOPIC OF WORDS", 1, increment: true);
+        await ft.SugAddAsync(key, "ANOTHER ENTRY", 1, increment: true);
+        Assert.Equal(2L, await ft.SugLenAsync(key));
+
+        Assert.True(await ft.SugDelAsync(key, "ANOTHER ENTRY"));
+        Assert.Equal(1L, await ft.SugLenAsync(key));
+
+        Assert.False(await ft.SugDelAsync(key, "ANOTHER ENTRY"));
+        Assert.Equal(1L, await ft.SugLenAsync(key));
+
+        Assert.False(await ft.SugDelAsync(key, "ANOTHER ENTRY THAT IS NOT PRESENT"));
+        Assert.Equal(1L, await ft.SugLenAsync(key));
+
+        ft.SugAdd(key, "LAST ENTRY", 1);
+        Assert.Equal(2L, await ft.SugLenAsync(key));
     }
 
     [Fact]
