@@ -189,9 +189,15 @@ namespace NRedisStack
 
 
         /// <inheritdoc/>
-        public List<string> SugGet(string key, string prefix, bool fuzzy = false, bool withScores = false, bool withPayloads = false, int? max = null)
+        public List<string> SugGet(string key, string prefix, bool fuzzy = false, bool withPayloads = false, int? max = null)
         {
-            return _db.Execute(SearchCommandBuilder.SugGet(key, prefix, fuzzy, withScores, withPayloads, max)).ToStringList();
+            return _db.Execute(SearchCommandBuilder.SugGet(key, prefix, fuzzy, false, withPayloads, max)).ToStringList();
+        }
+
+        /// <inheritdoc/>
+        public List<Tuple<string, double>> SugGetWithScores(string key, string prefix, bool fuzzy = false, bool withPayloads = false, int? max = null)
+        {
+            return _db.Execute(SearchCommandBuilder.SugGet(key, prefix, fuzzy, true, withPayloads, max)).ToStringDoubleTupleList();
         }
 
 

@@ -24,22 +24,22 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
     private void AddDocument(IDatabase db, Document doc)
     {
-            string key = doc.Id;
-            var properties = doc.GetProperties();
-            // HashEntry[] hash = new  HashEntry[properties.Count()];
-            // for(int i = 0; i < properties.Count(); i++)
-            // {
-            //     var property = properties.ElementAt(i);
-            //     hash[i] = new HashEntry(property.Key, property.Value);
-            // }
-            // db.HashSet(key, hash);
-            var nameValue = new List<object>() { key };
-            foreach (var item in properties)
-            {
-                nameValue.Add(item.Key);
-                nameValue.Add(item.Value);
-            }
-            db.Execute("HSET", nameValue);
+        string key = doc.Id;
+        var properties = doc.GetProperties();
+        // HashEntry[] hash = new  HashEntry[properties.Count()];
+        // for(int i = 0; i < properties.Count(); i++)
+        // {
+        //     var property = properties.ElementAt(i);
+        //     hash[i] = new HashEntry(property.Key, property.Value);
+        // }
+        // db.HashSet(key, hash);
+        var nameValue = new List<object>() { key };
+        foreach (var item in properties)
+        {
+            nameValue.Add(item.Key);
+            nameValue.Add(item.Value);
+        }
+        db.Execute("HSET", nameValue);
     }
 
     private void AddDocument(IDatabase db, string key, Dictionary<string, object> objDictionary)
@@ -413,7 +413,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         AggregationRequest r = new AggregationRequest("$name")
                 .GroupBy("@name", Reducers.Sum("@count").As("sum"))
                 .Params(parameters); // From documentation - To use PARAMS, DIALECT must be set to 2
-                                    // which is the default as we set in the constructor (FT(2))
+                                     // which is the default as we set in the constructor (FT(2))
 
         AggregationResult res = await ft.AggregateAsync(index, r);
         Assert.Equal(1, res.TotalResults);
@@ -1936,7 +1936,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var ft = db.FT();
 
-        db.Execute("JSON.SET",  "doc:1",  "$",  "[{\"arr\": [1, 2, 3]}, {\"val\": \"hello\"}, {\"val\": \"world\"}]");
+        db.Execute("JSON.SET", "doc:1", "$", "[{\"arr\": [1, 2, 3]}, {\"val\": \"hello\"}, {\"val\": \"world\"}]");
         db.Execute("FT.CREATE", "idx", "ON", "JSON", "PREFIX", "1", "doc:", "SCHEMA", "$..arr", "AS", "arr", "NUMERIC", "$..val", "AS", "val", "TEXT");
         // sleep:
         Thread.Sleep(2000);
@@ -2011,16 +2011,16 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT();
 
         ft.Create("idx", new FTCreateParams(), new Schema().AddTextField("t1").AddTextField("t2"));
-        Document doc1 = new Document("doc1", new Dictionary<string, RedisValue> {{"t1", "a"}, {"t2", "b"}});
-        Document doc2 = new Document("doc2", new Dictionary<string, RedisValue> {{"t1", "b"}, {"t2", "a"}});
+        Document doc1 = new Document("doc1", new Dictionary<string, RedisValue> { { "t1", "a" }, { "t2", "b" } });
+        Document doc2 = new Document("doc2", new Dictionary<string, RedisValue> { { "t1", "b" }, { "t2", "a" } });
         AddDocument(db, doc1);
         AddDocument(db, doc2);
 
         var req = new AggregationRequest("*").SortBy("@t1").Limit(1);
         var res = ft.Aggregate("idx", req);
 
-        Assert.Equal( res.GetResults().Count, 1);
-        Assert.Equal( res.GetResults()[0]["t1"].ToString(), "a");
+        Assert.Equal(res.GetResults().Count, 1);
+        Assert.Equal(res.GetResults()[0]["t1"].ToString(), "a");
     }
 
     [Fact]
@@ -2031,16 +2031,16 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT();
 
         ft.Create("idx", new FTCreateParams(), new Schema().AddTextField("t1").AddTextField("t2"));
-        Document doc1 = new Document("doc1", new Dictionary<string, RedisValue> {{"t1", "a"}, {"t2", "b"}});
-        Document doc2 = new Document("doc2", new Dictionary<string, RedisValue> {{"t1", "b"}, {"t2", "a"}});
+        Document doc1 = new Document("doc1", new Dictionary<string, RedisValue> { { "t1", "a" }, { "t2", "b" } });
+        Document doc2 = new Document("doc2", new Dictionary<string, RedisValue> { { "t1", "b" }, { "t2", "a" } });
         AddDocument(db, doc1);
         AddDocument(db, doc2);
 
         var req = new AggregationRequest("*").SortBy("@t1").Limit(1, 1);
         var res = await ft.AggregateAsync("idx", req);
 
-        Assert.Equal( res.GetResults().Count, 1);
-        Assert.Equal( res.GetResults()[0]["t1"].ToString(), "b");
+        Assert.Equal(res.GetResults().Count, 1);
+        Assert.Equal(res.GetResults()[0]["t1"].ToString(), "b");
     }
 
     [Fact]
@@ -2134,7 +2134,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Assert.Equal(0, res.Documents[0]["__vector_score"]);
 
-       var jsonRes = res.ToJson();
+        var jsonRes = res.ToJson();
         Assert.Equal("{\"vector\":[2,2,2,2]}", jsonRes![0]);
     }
 
@@ -2340,7 +2340,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                                              .ExcludeTerm("slang")));
     }
 
-        [Fact]
+    [Fact]
     public void TestDistanceBound()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2416,6 +2416,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, res.TotalResults);
     }
 
+    string key = "SugTestKey";
+
     [Fact]
     public void TestAddAndGetSuggestion()
     {
@@ -2425,7 +2427,6 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         string suggestion = "ANOTHER_WORD";
         string noMatch = "_WORD MISSED";
-        string key = "SugTestKey";
 
         Assert.True(ft.SugAdd(key, suggestion, 1d) > 0);
         Assert.True(ft.SugAdd(key, noMatch, 1d) > 0);
@@ -2449,7 +2450,6 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         string suggestion = "ANOTHER_WORD";
         string noMatch = "_WORD MISSED";
-        string key = "SugTestKey";
 
         Assert.True(await ft.SugAddAsync(key, suggestion, 1d) > 0);
         Assert.True(await ft.SugAddAsync(key, noMatch, 1d) > 0);
@@ -2462,6 +2462,91 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         // my attempt to trigger the fuzzy by 1 character
         Assert.Equal(1, (await ft.SugGetAsync(key, noMatch.Substring(1, 6), true, max: 5)).Count);
+    }
+    [Fact]
+    public void AddSuggestionIncrAndGetSuggestionFuzzy()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        string suggestion = "TOPIC OF WORDS";
+
+        // test can add a suggestion string
+        Assert.True(ft.SugAdd(key, suggestion, 1d, increment: true) > 0);
+
+        // test that the partial part of that string will be returned using fuzzy
+        Assert.Equal(suggestion, ft.SugGet(key, suggestion.Substring(0, 3))[0]);
+    }
+
+    [Fact]
+    public void getSuggestionScores()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        ft.SugAdd(key, "COUNT_ME TOO", 1);
+        ft.SugAdd(key, "COUNT", 1);
+        ft.SugAdd(key, "COUNT_ANOTHER", 1);
+
+        string noScoreOrPayload = "COUNT NO PAYLOAD OR COUNT";
+        Assert.True(ft.SugAdd(key, noScoreOrPayload, 1, increment: true) > 1);
+
+        var result = ft.SugGetWithScores(key, "COU");
+        Assert.Equal(4, result.Count);
+        foreach (var tuple in result)
+        {
+            Assert.True(tuple.Item2 < .999);
+        }
+    }
+
+    [Fact]
+    public void getSuggestionMax()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        ft.SugAdd(key, "COUNT_ME TOO", 1);
+        ft.SugAdd(key, "COUNT", 1);
+        ft.SugAdd(key, "COUNTNO PAYLOAD OR COUNT", 1);
+
+        // test that with a partial part of that string will have the entire word returned
+        Assert.Equal(3, ft.SugGetWithScores(key, "COU", true, max: 10).Count);
+        Assert.Equal(2, ft.SugGetWithScores(key, "COU", true, max: 2).Count);
+    }
+
+    [Fact]
+    public void getSuggestionNoHit()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        ft.SugAdd(key, "NO WORD", 0.4);
+
+        Assert.Equal(0, ft.SugGetWithScores(key, "DIF").Count);
+        Assert.Equal(0, ft.SugGet(key, "DIF").Count);
+    }
+
+    [Fact]
+    public void getSuggestionLengthAndDeleteSuggestion()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        ft.SugAdd(key, "TOPIC OF WORDS", 1, increment: true);
+        ft.SugAdd(key, "ANOTHER ENTRY", 1, increment: true);
+        Assert.Equal(2L, ft.SugLen(key));
+
+        Assert.True(ft.SugDel(key, "ANOTHER ENTRY"));
+        Assert.Equal(1L, ft.SugLen(key));
+
+        Assert.False(ft.SugDel(key, "ANOTHER ENTRY"));
+        Assert.Equal(1L, ft.SugLen(key));
+
+        Assert.False(ft.SugDel(key, "ANOTHER ENTRY THAT IS NOT PRESENT"));
+        Assert.Equal(1L, ft.SugLen(key));
+
+        ft.SugAdd(key, "LAST ENTRY", 1);
+        Assert.Equal(2L, ft.SugLen(key));
     }
 
     [Fact]

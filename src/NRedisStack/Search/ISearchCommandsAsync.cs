@@ -220,13 +220,24 @@ namespace NRedisStack
         /// <param name="prefix">is prefix to complete on.</param>
         /// <param name="fuzzy">performs a fuzzy prefix search,
         /// including prefixes at Levenshtein distance of 1 from the prefix sent.</param>
-        /// <param name="withScores">also returns the score of each suggestion.
-        /// This can be used to merge results from multiple instances.</param>
         /// <param name="withPayloads">returns optional payloads saved along with the suggestions.</param>
         /// <param name="max">limits the results to a maximum of num (default: 5).</param>
         /// <returns>List of the top suggestions matching the prefix.</returns>
         /// <remarks><seealso href="https://redis.io/commands/ft.sugget"/></remarks>
-        Task<List<string>> SugGetAsync(string key, string prefix, bool fuzzy = false, bool withScores = false, bool withPayloads = false, int? max = null);
+        Task<List<string>> SugGetAsync(string key, string prefix, bool fuzzy = false, bool withPayloads = false, int? max = null);
+
+        /// <summary>
+        /// Get completion suggestions for a prefix with the score of each suggestion.
+        /// </summary>
+        /// <param name="key">is suggestion dictionary key.</param>
+        /// <param name="prefix">is prefix to complete on.</param>
+        /// <param name="fuzzy">performs a fuzzy prefix search,
+        /// including prefixes at Levenshtein distance of 1 from the prefix sent.</param>
+        /// <param name="withPayloads">returns optional payloads saved along with the suggestions.</param>
+        /// <param name="max">limits the results to a maximum of num (default: 5).</param>
+        /// <returns>List of the top suggestions matching the prefix.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/ft.sugget"/></remarks>
+        Task<List<Tuple<string, double>>> SugGetWithScoresAsync(string key, string prefix, bool fuzzy = false, bool withPayloads = false, int? max = null);
 
         /// <summary>
         /// Get the size of an auto-complete suggestion dictionary.

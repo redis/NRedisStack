@@ -182,10 +182,16 @@ namespace NRedisStack
 
 
         /// <inheritdoc/>
-        public async Task<List<string>> SugGetAsync(string key, string prefix, bool fuzzy = false, bool withScores = false, bool withPayloads = false, int? max = null)
+        public async Task<List<string>> SugGetAsync(string key, string prefix, bool fuzzy = false, bool withPayloads = false, int? max = null)
         {
-            return (await _db.ExecuteAsync(SearchCommandBuilder.SugGet(key, prefix, fuzzy, withScores, withPayloads, max))).ToStringList();
+            return (await _db.ExecuteAsync(SearchCommandBuilder.SugGet(key, prefix, fuzzy, withScores: false, withPayloads, max))).ToStringList();
 
+        }
+
+        /// <inheritdoc/>
+        public async Task<List<Tuple<string, double>>> SugGetWithScoresAsync(string key, string prefix, bool fuzzy = false, bool withPayloads = false, int? max = null)
+        {
+            return (await _db.ExecuteAsync(SearchCommandBuilder.SugGet(key, prefix, fuzzy, withScores: true, withPayloads, max))).ToStringDoubleTupleList();
         }
 
 

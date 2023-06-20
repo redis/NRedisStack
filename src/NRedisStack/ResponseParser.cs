@@ -639,5 +639,18 @@ namespace NRedisStack
 
             return returnTerms;
         }
+
+        public static List<Tuple<string, double>> ToStringDoubleTupleList(this RedisResult result) // TODO: consider create class Suggestion instead of List<Tuple<string, double>>
+        {
+            var results = (RedisResult[])result!;
+            var list = new List<Tuple<string, double>>(results.Length / 2);
+            for (int i = 0; i < results.Length; i += 2)
+            {
+                var suggestion = results[i].ToString()!;
+                var score = (double)results[i + 1];
+                list.Add(new Tuple<string, double>(suggestion, score));
+            }
+            return list;
+        }
     }
 }
