@@ -169,7 +169,25 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/ft.info"/></remarks>
         Task<InfoResult> InfoAsync(RedisValue index);
 
-        // TODO: FT.PROFILE (jedis doesn't have it)
+
+        /// <summary>
+        /// Apply FT.SEARCH command to collect performance details.
+        /// </summary>
+        /// <param name="indexName">The index name, created using FT.CREATE.</param>
+        /// <param name="q">The query string.</param>
+        /// <param name="limited">Removes details of reader iterator.</param>
+        /// <returns></returns>
+        Task<Tuple<SearchResult, Dictionary<string, RedisResult>>> ProfileSearchAsync(string indexName, Query q, bool limited = false);
+
+
+        /// <summary>
+        /// Apply FT.AGGREGATE command to collect performance details.
+        /// </summary>
+        /// <param name="indexName">The index name, created using FT.CREATE.</param>
+        /// <param name="query">The query string.</param>
+        /// <param name="limited">Removes details of reader iterator.</param>
+        /// <returns></returns>
+        Task<Tuple<AggregationResult, Dictionary<string, RedisResult>>> ProfileAggregateAsync(string indexName, AggregationRequest query, bool limited = false);
 
         /// <summary>
         /// Search the index

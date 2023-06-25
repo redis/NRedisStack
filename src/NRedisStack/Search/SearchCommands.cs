@@ -32,22 +32,13 @@ namespace NRedisStack
         /// <inheritdoc/>
         public AggregationResult Aggregate(string index, AggregationRequest query)
         {
-            if(query.dialect == null && defaultDialect != null)
+            if (query.dialect == null && defaultDialect != null)
             {
                 query.Dialect((int)defaultDialect);
             }
 
             var result = _db.Execute(SearchCommandBuilder.Aggregate(index, query));
-            if (query.IsWithCursor())
-            {
-                var results = (RedisResult[])result;
-
-                return new AggregationResult(results[0], (long)results[1]);
-            }
-            else
-            {
-                return new AggregationResult(result);
-            }
+            return result.ToAggregationResult(query);
         }
 
         /// <inheritdoc/>
@@ -155,8 +146,18 @@ namespace NRedisStack
         public InfoResult Info(RedisValue index) =>
         new InfoResult(_db.Execute(SearchCommandBuilder.Info(index)));
 
-        // TODO: FT.PROFILE (jedis doesn't have it)
-
+        /// <inheritdoc/>
+        public Tuple<SearchResult, Dictionary<string, RedisResult>> ProfileSearch(string indexName, Query q, bool limited = false)
+        {
+            return _db.Execute(SearchCommandBuilder.ProfileSearch(indexName, q, limited))
+                            .ToProfileSearchResult(q);
+        }
+        /// <inheritdoc/>
+        public Tuple<AggregationResult, Dictionary<string, RedisResult>> ProfileAggregate(string indexName, AggregationRequest query, bool limited = false)
+        {
+            return _db.Execute(SearchCommandBuilder.ProfileAggregate(indexName, query, limited))
+                            .ToProfileAggregateResult(query);
+        }
         /// <inheritdoc/>
         public SearchResult Search(string indexName, Query q)
         {
@@ -164,8 +165,7 @@ namespace NRedisStack
             {
                 q.Dialect((int)defaultDialect);
             }
-            var resp = _db.Execute(SearchCommandBuilder.Search(indexName, q)).ToArray();
-            return new SearchResult(resp, !q.NoContent, q.WithScores, q.WithPayloads/*, q.ExplainScore*/);
+            return _db.Execute(SearchCommandBuilder.Search(indexName, q)).ToSearchResult(q);
         }
 
         /// <inheritdoc/>

@@ -7,6 +7,8 @@ using NRedisStack.CuckooFilter.DataTypes;
 using NRedisStack.CountMinSketch.DataTypes;
 using NRedisStack.TopK.DataTypes;
 using NRedisStack.Tdigest.DataTypes;
+using NRedisStack.Search;
+using NRedisStack.Search.Aggregation;
 
 namespace NRedisStack
 {
@@ -651,6 +653,43 @@ namespace NRedisStack
                 list.Add(new Tuple<string, double>(suggestion, score));
             }
             return list;
+        }
+
+        public static Tuple<SearchResult, Dictionary<string, RedisResult>> ToProfileSearchResult(this RedisResult result, Query q)
+        {
+            var results = (RedisResult[])result!;
+
+            var searchResult = results[0].ToSearchResult(q);
+            var profile = results[1].ToDictionary();
+            return new Tuple<SearchResult, Dictionary<string, RedisResult>>(searchResult, profile);
+        }
+
+        public static SearchResult ToSearchResult(this RedisResult result, Query q)
+        {
+            var results = (RedisResult[])result!;
+            return new SearchResult((RedisResult[])results[0]!, !q.NoContent, q.WithScores, q.WithPayloads/*, q.ExplainScore*/);
+        }
+
+        public static Tuple<AggregationResult, Dictionary<string, RedisResult>> ToProfileAggregateResult(this RedisResult result, AggregationRequest q)
+        {
+            var results = (RedisResult[])result!;
+            var aggregateResult = results[0].ToAggregationResult(q);
+            var profile = results[1].ToDictionary();
+            return new Tuple<AggregationResult, Dictionary<string, RedisResult>>(aggregateResult, profile);
+        }
+
+        public static AggregationResult ToAggregationResult(this RedisResult result, AggregationRequest query)
+        {
+            if (query.IsWithCursor())
+            {
+                var results = (RedisResult[])result!;
+
+                return new AggregationResult(results[0], (long)results[1]);
+            }
+            else
+            {
+                return new AggregationResult(result);
+            }
         }
     }
 }

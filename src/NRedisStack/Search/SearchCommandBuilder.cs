@@ -159,6 +159,28 @@ namespace NRedisStack
             return new SerializedCommand(FT.SEARCH, args);
         }
 
+        public static SerializedCommand ProfileSearch(string IndexName, Query q, bool limited = false)
+        {
+            var args =
+                (limited)
+                ? new List<object>(){FT.PROFILE, IndexName, SearchArgs.SEARCH, SearchArgs.LIMITED, SearchArgs.QUERY}
+                : new List<object>(){FT.PROFILE, IndexName, SearchArgs.SEARCH, SearchArgs.QUERY};
+
+            q.SerializeRedisArgs(args);
+            return new SerializedCommand(FT.PROFILE, args);
+        }
+
+        public static SerializedCommand ProfileAggregate(string IndexName, AggregationRequest query, bool limited = false)
+        {
+            var args =  (limited)
+                        ? new List<object>{FT.PROFILE, IndexName, SearchArgs.AGGREGATE, SearchArgs.LIMITED, SearchArgs.QUERY}
+                        : new List<object>{FT.PROFILE, IndexName, SearchArgs.AGGREGATE, SearchArgs.QUERY};
+
+            query.SerializeRedisArgs();
+            args.AddRange(query.GetArgs());
+            return new SerializedCommand(FT.PROFILE, args);
+        }
+
         public static SerializedCommand SpellCheck(string indexName, string query, FTSpellCheckParams? spellCheckParams = null)
         {
             if (spellCheckParams != null)

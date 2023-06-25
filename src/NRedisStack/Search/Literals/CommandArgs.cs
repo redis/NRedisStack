@@ -53,5 +53,9 @@ namespace NRedisStack.Search.Literals
         public const string TIMEOUT = "TIMEOUT";
         public const string INORDER = "INORDER";
         public const string EXPANDER = "EXPANDER";
+        public const string SEARCH = "SEARCH";
+        public const string AGGREGATE = "AGGREGATE";
+        public const string LIMITED = "LIMITED";
+        public const string QUERY = "QUERY";
     }
 }

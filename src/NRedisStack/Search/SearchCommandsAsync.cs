@@ -146,7 +146,18 @@ namespace NRedisStack
         public async Task<InfoResult> InfoAsync(RedisValue index) =>
         new InfoResult(await _db.ExecuteAsync(SearchCommandBuilder.Info(index)));
 
-        // TODO: FT.PROFILE (jedis doesn't have it)
+        /// <inheritdoc/>
+        public async Task<Tuple<SearchResult, Dictionary<string, RedisResult>>> ProfileSearchAsync(string indexName, Query q, bool limited = false)
+        {
+            return (await _db.ExecuteAsync(SearchCommandBuilder.ProfileSearch(indexName, q, limited)))
+                            .ToProfileSearchResult(q);
+        }
+        /// <inheritdoc/>
+        public async Task<Tuple<AggregationResult, Dictionary<string, RedisResult>>> ProfileAggregateAsync(string indexName, AggregationRequest query, bool limited = false)
+        {
+            return (await _db.ExecuteAsync(SearchCommandBuilder.ProfileAggregate(indexName, query, limited)))
+                            .ToProfileAggregateResult(query);
+        }
 
         /// <inheritdoc/>
         public async Task<SearchResult> SearchAsync(string indexName, Query q)
@@ -156,8 +167,7 @@ namespace NRedisStack
                 q.Dialect((int)defaultDialect);
             }
 
-            var resp = (await _db.ExecuteAsync(SearchCommandBuilder.Search(indexName, q))).ToArray();
-            return new SearchResult(resp, !q.NoContent, q.WithScores, q.WithPayloads/*, q.ExplainScore*/);
+            return (await _db.ExecuteAsync(SearchCommandBuilder.Search(indexName, q))).ToSearchResult(q);
         }
 
         /// <inheritdoc/>
