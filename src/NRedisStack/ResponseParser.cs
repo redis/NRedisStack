@@ -666,8 +666,7 @@ namespace NRedisStack
 
         public static SearchResult ToSearchResult(this RedisResult result, Query q)
         {
-            var results = (RedisResult[])result!;
-            return new SearchResult((RedisResult[])results[0]!, !q.NoContent, q.WithScores, q.WithPayloads/*, q.ExplainScore*/);
+            return new SearchResult((RedisResult[])result!, !q.NoContent, q.WithScores, q.WithPayloads/*, q.ExplainScore*/);
         }
 
         public static Tuple<AggregationResult, Dictionary<string, RedisResult>> ToProfileAggregateResult(this RedisResult result, AggregationRequest q)
