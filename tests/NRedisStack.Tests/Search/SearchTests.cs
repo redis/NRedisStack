@@ -2637,6 +2637,54 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    public void SearchProfile()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        Schema sc = new Schema().AddTextField("t1", 1.0).AddTextField("t2", 1.0);
+        Assert.True(ft.Create(index, new FTCreateParams(), sc));
+
+        db.HashSet("doc1", new HashEntry[] {
+                                new HashEntry("t1", "foo"),
+                                new HashEntry("t2", "bar")});
+
+        var profile = ft.ProfileSearch(index, new Query("foo"));
+        // Iterators profile={Type=TEXT, Time=0.0, Term=foo, Counter=1, Size=1}
+        profile.Item2["Iterators profile"].ToDictionary();
+        var iteratorsProfile =  profile.Item2["Iterators profile"].ToDictionary();
+        Assert.Equal("TEXT", iteratorsProfile["Type"].ToString());
+        Assert.Equal("foo", iteratorsProfile["Term"].ToString());
+        Assert.Equal("1", iteratorsProfile["Counter"].ToString());
+        Assert.Equal("1", iteratorsProfile["Size"].ToString());
+    }
+
+    [Fact]
+    public async Task SearchProfileAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        Schema sc = new Schema().AddTextField("t1", 1.0).AddTextField("t2", 1.0);
+        Assert.True(ft.Create(index, new FTCreateParams(), sc));
+
+        db.HashSet("doc1", new HashEntry[] {
+                                new HashEntry("t1", "foo"),
+                                new HashEntry("t2", "bar")});
+
+        var profile = await ft.ProfileSearchAsync(index, new Query("foo"));
+        // Iterators profile={Type=TEXT, Time=0.0, Term=foo, Counter=1, Size=1}
+        profile.Item2["Iterators profile"].ToDictionary();
+        var iteratorsProfile =  profile.Item2["Iterators profile"].ToDictionary();
+        Assert.Equal("TEXT", iteratorsProfile["Type"].ToString());
+        Assert.Equal("foo", iteratorsProfile["Term"].ToString());
+        Assert.Equal("1", iteratorsProfile["Counter"].ToString());
+        Assert.Equal("1", iteratorsProfile["Size"].ToString());
+    }
+
+    [Fact]
     public void TestModulePrefixs1()
     {
         {

@@ -654,13 +654,24 @@ namespace NRedisStack
             }
             return list;
         }
+        public static Dictionary<string, RedisResult> ToStringRedisResultDictionary(this RedisResult value)
+        {
+            var res = (RedisResult[])value!;
+            var dict = new Dictionary<string, RedisResult>();
+            foreach (var pair in res)
+            {
+                var arr = (RedisResult[])pair!;
+                dict.Add(arr[0].ToString(), arr[1]);
+            }
+            return dict;
+        }
 
         public static Tuple<SearchResult, Dictionary<string, RedisResult>> ToProfileSearchResult(this RedisResult result, Query q)
         {
             var results = (RedisResult[])result!;
 
             var searchResult = results[0].ToSearchResult(q);
-            var profile = results[1].ToDictionary();
+            var profile = results[1].ToStringRedisResultDictionary();
             return new Tuple<SearchResult, Dictionary<string, RedisResult>>(searchResult, profile);
         }
 
@@ -673,7 +684,7 @@ namespace NRedisStack
         {
             var results = (RedisResult[])result!;
             var aggregateResult = results[0].ToAggregationResult(q);
-            var profile = results[1].ToDictionary();
+            var profile = results[1].ToStringRedisResultDictionary();
             return new Tuple<AggregationResult, Dictionary<string, RedisResult>>(aggregateResult, profile);
         }
 
