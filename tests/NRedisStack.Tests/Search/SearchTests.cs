@@ -2684,6 +2684,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("1", iteratorsProfile["Size"].ToString());
     }
 
+
     [Fact]
     public void TestProfile()
     {
@@ -2740,6 +2741,18 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var aggregateDet = profileAggregate.Item2;
         Assert.Equal(aggregateDet.Count , 5);
         Assert.Equal(aggregateRes.TotalResults, 1);
+    }
+
+    [Fact]
+    public void TestProfileCommandBuilder()
+    {
+        var search = SearchCommandBuilder.ProfileSearch("index", new Query(), true);
+        var aggregate = SearchCommandBuilder.ProfileAggregate("index", new AggregationRequest(), true);
+
+        Assert.Equal("FT.PROFILE", search.Command);
+        Assert.Equal("FT.PROFILE", aggregate.Command);
+        Assert.Equal(new object[] { "index", "SEARCH", "LIMITED", "QUERY", "*" }, search.Args);
+        Assert.Equal(new object[] { "index", "AGGREGATE", "LIMITED", "QUERY", "*" }, aggregate.Args);
     }
 
     [Fact]
