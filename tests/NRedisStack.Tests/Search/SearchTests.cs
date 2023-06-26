@@ -2637,7 +2637,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void SearchProfile()
+    public void TestProfileSearch()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -2661,7 +2661,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async Task SearchProfileAsync()
+    public async Task TestProfileSearchAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -2682,6 +2682,64 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("foo", iteratorsProfile["Term"].ToString());
         Assert.Equal("1", iteratorsProfile["Counter"].ToString());
         Assert.Equal("1", iteratorsProfile["Size"].ToString());
+    }
+
+    [Fact]
+    public void TestProfile()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+       ft.Create(index, new FTCreateParams(), new Schema().AddTextField("t"));
+       db.HashSet("1", "t", "hello");
+       db.HashSet("2", "t", "world");
+
+        // check using Query
+        var q = new Query("hello|world").SetNoContent();
+        var profileSearch = ft.ProfileSearch(index, q);
+        var searchRes = profileSearch.Item1;
+        var searchDet = profileSearch.Item2;
+
+        Assert.Equal(searchDet.Count , 5);
+        Assert.Equal(searchRes.Documents.Count , 2);
+
+        // check using AggregationRequest
+        var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
+        var profileAggregate = ft.ProfileAggregate(index, aggReq);
+        var aggregateRes  = profileAggregate.Item1;
+        var aggregateDet = profileAggregate.Item2;
+        Assert.Equal(aggregateDet.Count , 5);
+        Assert.Equal(aggregateRes.TotalResults, 1);
+    }
+
+    [Fact]
+    public async Task TestProfileAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+       ft.Create(index, new FTCreateParams(), new Schema().AddTextField("t"));
+       db.HashSet("1", "t", "hello");
+       db.HashSet("2", "t", "world");
+
+        // check using Query
+        var q = new Query("hello|world").SetNoContent();
+        var profileSearch = await ft.ProfileSearchAsync(index, q);
+        var searchRes = profileSearch.Item1;
+        var searchDet = profileSearch.Item2;
+
+        Assert.Equal(searchDet.Count , 5);
+        Assert.Equal(searchRes.Documents.Count , 2);
+
+        // check using AggregationRequest
+        var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
+        var profileAggregate = await ft.ProfileAggregateAsync(index, aggReq);
+        var aggregateRes  = profileAggregate.Item1;
+        var aggregateDet = profileAggregate.Item2;
+        Assert.Equal(aggregateDet.Count , 5);
+        Assert.Equal(aggregateRes.TotalResults, 1);
     }
 
     [Fact]
