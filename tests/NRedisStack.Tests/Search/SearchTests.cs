@@ -413,7 +413,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         AggregationRequest r = new AggregationRequest("$name")
                 .GroupBy("@name", Reducers.Sum("@count").As("sum"))
                 .Params(parameters); // From documentation - To use PARAMS, DIALECT must be set to 2
-                                     // which is the default as we set in the constructor (FT(2))
+                                    // which is the default as we set in the constructor (FT(2))
 
         AggregationResult res = await ft.AggregateAsync(index, r);
         Assert.Equal(1, res.TotalResults);
