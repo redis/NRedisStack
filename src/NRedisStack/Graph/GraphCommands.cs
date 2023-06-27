@@ -85,15 +85,11 @@ namespace NRedisStack
         }
 
         /// <inheritdoc/>
-        public ResultSet Delete(string graphName)
+        public bool Delete(string graphName)
         {
-            var result = _db.Execute(GraphCommandBuilder.Delete(graphName));
-
-            var processedResult = new ResultSet(result, _graphCaches[graphName]);
-
+            var result = _db.Execute(GraphCommandBuilder.Delete(graphName)).OKtoBoolean();
             _graphCaches.Remove(graphName);
-
-            return processedResult;
+            return result;
         }
 
         /// <inheritdoc/>

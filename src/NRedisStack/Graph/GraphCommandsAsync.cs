@@ -87,15 +87,11 @@ namespace NRedisStack
 
 
         /// <inheritdoc/>
-        public async Task<ResultSet> DeleteAsync(string graphName)
+        public async Task<bool> DeleteAsync(string graphName)
         {
-            var result = await _db.ExecuteAsync(GRAPH.DELETE, graphName);
-
-            var processedResult = new ResultSet(result, _graphCaches[graphName]);
-
+            var result = (await _db.ExecuteAsync(GraphCommandBuilder.Delete(graphName))).OKtoBoolean();
             _graphCaches.Remove(graphName);
-
-            return processedResult;
+            return result;
         }
 
         /// <inheritdoc/>
