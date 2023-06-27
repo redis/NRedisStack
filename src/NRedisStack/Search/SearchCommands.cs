@@ -130,23 +130,23 @@ namespace NRedisStack
         }
 
         /// <inheritdoc/>
-        public string Explain(string indexName, Query q)
+        public string Explain(string indexName, string query, int? dialect = null)
         {
-            if (q.dialect == null && defaultDialect != null)
+            if (dialect == null && defaultDialect != null)
             {
-                q.Dialect((int)defaultDialect);
+                dialect = defaultDialect;
             }
-            return _db.Execute(SearchCommandBuilder.Explain(indexName, q)).ToString();
+            return _db.Execute(SearchCommandBuilder.Explain(indexName, query, dialect)).ToString();
         }
 
         /// <inheritdoc/>
-        public RedisResult[] ExplainCli(string indexName, Query q)
+        public RedisResult[] ExplainCli(string indexName, string query, int? dialect = null)
         {
-            if (q.dialect == null && defaultDialect != null)
+            if (dialect == null && defaultDialect != null)
             {
-                q.Dialect((int)defaultDialect);
+                dialect = defaultDialect;
             }
-            return _db.Execute(SearchCommandBuilder.ExplainCli(indexName, q)).ToArray();
+            return _db.Execute(SearchCommandBuilder.ExplainCli(indexName, query, dialect)).ToArray();
         }
 
         /// <inheritdoc/>

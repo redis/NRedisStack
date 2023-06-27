@@ -145,19 +145,21 @@ namespace NRedisStack
         /// Return the execution plan for a complex query
         /// </summary>
         /// <param name="indexName">The index name</param>
-        /// <param name="q">The query to explain</param>
+        /// <param name="query">The query to explain</param>
+        /// <param name="dialect">Dialect version under which to execute the query</param>
         /// <returns>String that representing the execution plan</returns>
         /// <remarks><seealso href="https://redis.io/commands/ft.explain/"/></remarks>
-        Task<string> ExplainAsync(string indexName, Query q);
+        Task<string> ExplainAsync(string indexName, string query, int? dialect = null);
 
         /// <summary>
         /// Return the execution plan for a complex query
         /// </summary>
         /// <param name="indexName">The index name</param>
-        /// <param name="q">The query to explain</param>
+        /// <param name="query">The query to explain</param>
+        /// <param name="dialect">Dialect version under which to execute the query</param>
         /// <returns>An array reply with a string representing the execution plan</returns>
         /// <remarks><seealso href="https://redis.io/commands/ft.explaincli/"/></remarks>
-        Task<RedisResult[]> ExplainCliAsync(string indexName, Query q);
+        Task<RedisResult[]> ExplainCliAsync(string indexName, string query, int? dialect = null);
 
         /// <summary>
         /// Return information and statistics on the index.

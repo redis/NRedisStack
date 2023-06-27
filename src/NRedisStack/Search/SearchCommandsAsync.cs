@@ -121,25 +121,25 @@ namespace NRedisStack
         }
 
         /// <inheritdoc/>
-        public async Task<string> ExplainAsync(string indexName, Query q)
+        public async Task<string> ExplainAsync(string indexName, string query, int? dialect = null)
         {
-            if (q.dialect == null && defaultDialect != null)
+            if (dialect == null && defaultDialect != null)
             {
-                q.Dialect((int)defaultDialect);
+                dialect = defaultDialect;
             }
 
-            return (await _db.ExecuteAsync(SearchCommandBuilder.Explain(indexName, q))).ToString();
+            return (await _db.ExecuteAsync(SearchCommandBuilder.Explain(indexName, query, dialect))).ToString();
         }
 
         /// <inheritdoc/>
-        public async Task<RedisResult[]> ExplainCliAsync(string indexName, Query q)
+        public async Task<RedisResult[]> ExplainCliAsync(string indexName, string query, int? dialect = null)
         {
-            if (q.dialect == null && defaultDialect != null)
+            if (dialect == null && defaultDialect != null)
             {
-                q.Dialect((int)defaultDialect);
+                dialect = defaultDialect;
             }
 
-            return (await _db.ExecuteAsync(SearchCommandBuilder.ExplainCli(indexName, q))).ToArray();
+            return (await _db.ExecuteAsync(SearchCommandBuilder.ExplainCli(indexName, query, dialect))).ToArray();
         }
 
         /// <inheritdoc/>
