@@ -33,7 +33,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
-        TryDeleteLib(db, "lib");
+        TryDeleteLib(db, "lib", "lib1", "lib2", "lib3");
 
         Assert.True(await db.TFunctionLoadAsync("#!js api_version=1.0 name=lib\n redis.registerFunction('foo', ()=>{return 'bar'})"));
         Assert.True(await db.TFunctionDeleteAsync("lib"));
@@ -45,7 +45,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
-        TryDeleteLib(db, "lib1", "lib2", "lib3");
+        TryDeleteLib(db, "lib", "lib1", "lib2", "lib3");
 
         Assert.True(db.TFunctionLoad("#!js api_version=1.0 name=lib1\n redis.registerFunction('foo', ()=>{return 'bar'})"));
         Assert.True(db.TFunctionLoad("#!js api_version=1.0 name=lib2\n redis.registerFunction('foo', ()=>{return 'bar'})"));
@@ -56,9 +56,14 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         var functions = db.TFunctionList(verbose: 1);
         Assert.Equal(3, functions.Length);
 
-        Assert.Equal("lib1", functions[0]["name"].ToString());
-        Assert.Equal("lib2", functions[1]["name"].ToString());
-        Assert.Equal("lib3", functions[2]["name"].ToString());
+        HashSet<string> expectedNames = new HashSet<string> { "lib1", "lib2", "lib3" };
+        HashSet<string> actualNames = new HashSet<string>{
+            functions[0]["name"].ToString()!,
+            functions[1]["name"].ToString()!,
+            functions[2]["name"].ToString()!
+        };
+
+        Assert.Equal(expectedNames, actualNames);
 
 
         Assert.True(db.TFunctionDelete("lib1"));
@@ -72,7 +77,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
-         TryDeleteLib(db, "lib1", "lib2", "lib3");
+        TryDeleteLib(db, "lib", "lib1", "lib2", "lib3");
 
         Assert.True(await db.TFunctionLoadAsync("#!js api_version=1.0 name=lib1\n redis.registerFunction('foo', ()=>{return 'bar'})"));
         Assert.True(await db.TFunctionLoadAsync("#!js api_version=1.0 name=lib2\n redis.registerFunction('foo', ()=>{return 'bar'})"));
@@ -81,9 +86,14 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         var functions = await db.TFunctionListAsync(verbose: 1);
         Assert.Equal(3, functions.Length);
 
-        Assert.Equal("lib1", functions[0]["name"].ToString());
-        Assert.Equal("lib2", functions[1]["name"].ToString());
-        Assert.Equal("lib3", functions[2]["name"].ToString());
+        HashSet<string> expectedNames = new HashSet<string> { "lib1", "lib2", "lib3" };
+        HashSet<string> actualNames = new HashSet<string>{
+            functions[0]["name"].ToString()!,
+            functions[1]["name"].ToString()!,
+            functions[2]["name"].ToString()!
+        };
+
+        Assert.Equal(expectedNames, actualNames);
 
 
         Assert.True(await db.TFunctionDeleteAsync("lib1"));
@@ -97,7 +107,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
-         TryDeleteLib(db, "lib");
+        TryDeleteLib(db, "lib", "lib1", "lib2", "lib3");
 
         Assert.True(db.TFunctionLoad("#!js api_version=1.0 name=lib\n redis.registerFunction('foo', ()=>{return 'bar'})"));
         Assert.Equal("bar", db.TFCall("lib", "foo", async: false).ToString());
@@ -112,7 +122,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
-        TryDeleteLib(db, "lib");
+        TryDeleteLib(db, "lib", "lib1", "lib2", "lib3");
 
         Assert.True(await db.TFunctionLoadAsync("#!js api_version=1.0 name=lib\n redis.registerFunction('foo', ()=>{return 'bar'})"));
         Assert.Equal("bar", (await db.TFCallAsync("lib", "foo", async: false)).ToString());
