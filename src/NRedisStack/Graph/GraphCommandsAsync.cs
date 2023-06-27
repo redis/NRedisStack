@@ -90,11 +90,7 @@ namespace NRedisStack
         public async Task<bool> DeleteAsync(string graphName)
         {
             var result = (await _db.ExecuteAsync(GraphCommandBuilder.Delete(graphName))).OKtoBoolean();
-            // var processedResult = new ResultSet(result, _graphCaches[graphName]);
-
             _graphCaches.Remove(graphName);
-
-            //return processedResult;
             return result;
         }
 
