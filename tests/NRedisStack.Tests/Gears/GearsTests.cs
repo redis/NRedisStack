@@ -179,8 +179,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
 
         expected = new List<object>
         {
-            "libName",
-            "funcName",
+            "libName.funcName",
             2,
             "key1",
             "key2",
