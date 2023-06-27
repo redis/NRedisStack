@@ -79,9 +79,9 @@ namespace NRedisStack
         /// Delete an existing graph.
         /// </summary>
         /// <param name="graphName">The graph to delete.</param>
-        /// <returns>A result set.</returns>
+        /// <returns><see langword="true"/> if executed correctly, error otherwise/></returns>
         /// <remarks><seealso href="https://redis.io/commands/graph.delete"/></remarks>
-        ResultSet Delete(string graphName);
+        bool Delete(string graphName);
 
         /// <summary>
         /// Constructs a query execution plan but does not run it. Inspect this execution plan to better understand how your
