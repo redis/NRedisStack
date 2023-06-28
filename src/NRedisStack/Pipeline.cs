@@ -14,15 +14,15 @@ public class Pipeline
     public void Execute() => _batch.Execute();
 
 
-    public IBloomCommandsAsync Bf => new BloomCommandsAsync(_batch);
-    public ICmsCommandsAsync Cms => new CmsCommandsAsync(_batch);
-    public ICuckooCommandsAsync Cf => new CuckooCommandsAsync(_batch);
-    public IGraphCommandsAsync Graph => new GraphCommandsAsync(_batch);
-    public IJsonCommandsAsync Json => new JsonCommandsAsync(_batch);
-    public ISearchCommandsAsync Ft => new SearchCommandsAsync(_batch);
-    public ITdigestCommandsAsync Tdigest => new TdigestCommandsAsync(_batch);
-    public ITimeSeriesCommandsAsync Ts => new TimeSeriesCommandsAsync(_batch);
-    public ITopKCommandsAsync TopK => new TopKCommandsAsync(_batch);
+    public BloomCommandsAsync Bf => new BloomCommandsAsync(_batch);
+    public CmsCommandsAsync Cms => new CmsCommandsAsync(_batch);
+    public CuckooCommandsAsync Cf => new CuckooCommandsAsync(_batch);
+    public GraphCommandsAsync Graph => new GraphCommandsAsync(_batch);
+    public JsonCommandsAsync Json => new JsonCommandsAsync(_batch);
+    public SearchCommandsAsync Ft => new SearchCommandsAsync(_batch);
+    public TdigestCommandsAsync Tdigest => new TdigestCommandsAsync(_batch);
+    public TimeSeriesCommandsAsync Ts => new TimeSeriesCommandsAsync(_batch);
+    public TopKCommandsAsync TopK => new TopKCommandsAsync(_batch);
 
     public IDatabaseAsync Db => _batch;
 }
