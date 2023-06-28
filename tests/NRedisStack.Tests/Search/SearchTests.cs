@@ -241,7 +241,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var ft = db.FT();
         var sc = new Schema().AddTextField("t1").AddTextField("t2");
-        ft.Create("idx", new FTCreateParams(), sc);
+        ft.Create("idx", sc);
 
         AddDocument(db, new Document("doc1").Set("t1", "hello").Set("t2", "world"));
 
@@ -269,7 +269,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         await db.ExecuteAsync("FLUSHALL");
         var ft = db.FT();
         var sc = new Schema().AddTextField("t1").AddTextField("t2");
-        await ft.CreateAsync("idx", new FTCreateParams(), sc);
+        await ft.CreateAsync("idx", sc);
 
         AddDocument(db, new Document("doc1").Set("t1", "hello").Set("t2", "world"));
 
@@ -1061,7 +1061,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT();
 
         // Creating the index definition and schema
-        ft.Create("idx", new FTCreateParams(), new Schema().AddNumericField("random_num")
+        ft.Create("idx", new Schema().AddNumericField("random_num")
                                                            .AddTextField("title")
                                                            .AddTextField("body")
                                                            .AddTextField("parent"));
@@ -1705,7 +1705,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddTextField("txt")
             .AddNumericField("num")
             .AddGeoField("loc");
-        ft.Create("idx", new FTCreateParams(), sc);
+        ft.Create("idx", sc);
 
         // Add the two documents to the index
         AddDocument(db, "doc1", new Dictionary<string, object> {
@@ -1755,7 +1755,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddTextField("txt")
             .AddNumericField("num")
             .AddGeoField("loc");
-        await ft.CreateAsync("idx", new FTCreateParams(), sc);
+        await ft.CreateAsync("idx", sc);
 
         // Add the two documents to the index
         AddDocument(db, "doc1", new Dictionary<string, object> {
@@ -1887,7 +1887,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var ft = db.FT();
-        ft.Create("idx", new FTCreateParams(), new Schema().AddTextField("txt"));
+        ft.Create("idx", new Schema().AddTextField("txt"));
         var res = ft.Search("idx", testQuery);
         Assert.Equal(0, res.Documents.Count());
     }
@@ -1923,7 +1923,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var ft = db.FT();
-        ft.Create("idx", new FTCreateParams(), new Schema().AddTextField("txt"));
+        ft.Create("idx", new Schema().AddTextField("txt"));
         var res = ft.Search("idx", testQuery);
         Assert.Equal(0, res.Documents.Count());
     }
@@ -2010,7 +2010,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var ft = db.FT();
 
-        ft.Create("idx", new FTCreateParams(), new Schema().AddTextField("t1").AddTextField("t2"));
+        ft.Create("idx", new Schema().AddTextField("t1").AddTextField("t2"));
         Document doc1 = new Document("doc1", new Dictionary<string, RedisValue> { { "t1", "a" }, { "t2", "b" } });
         Document doc2 = new Document("doc2", new Dictionary<string, RedisValue> { { "t1", "b" }, { "t2", "a" } });
         AddDocument(db, doc1);
@@ -2030,7 +2030,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var ft = db.FT();
 
-        ft.Create("idx", new FTCreateParams(), new Schema().AddTextField("t1").AddTextField("t2"));
+        ft.Create("idx", new Schema().AddTextField("t1").AddTextField("t2"));
         Document doc1 = new Document("doc1", new Dictionary<string, RedisValue> { { "t1", "a" }, { "t2", "b" } });
         Document doc2 = new Document("doc2", new Dictionary<string, RedisValue> { { "t1", "b" }, { "t2", "a" } });
         AddDocument(db, doc1);
@@ -2153,7 +2153,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             ["DISTANCE_METRIC"] = "L2",
         });
 
-        ft.Create("idx", new FTCreateParams(), schema);
+        ft.Create("idx", schema);
 
         db.HashSet("a", "v", "aaaaaaaa");
         db.HashSet("b", "v", "aaaabaaa");
@@ -2194,7 +2194,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT(2);
 
         var sc = new Schema().AddNumericField("numval");
-        Assert.True(ft.Create("idx", new FTCreateParams(), sc));
+        Assert.True(ft.Create("idx", sc));
 
         db.HashSet("1", "numval", 1);
         db.HashSet("2", "numval", 2);
@@ -2213,7 +2213,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT(2);
 
         var sc = new Schema().AddNumericField("numval");
-        Assert.True(await ft.CreateAsync("idx", new FTCreateParams(), sc));
+        Assert.True(await ft.CreateAsync("idx", sc));
 
         db.HashSet("1", "numval", 1);
         db.HashSet("2", "numval", 2);
@@ -2232,7 +2232,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT(2);
 
         var sc = new Schema().AddNumericField("numval");
-        Assert.True(ft.Create("idx", new FTCreateParams(), sc));
+        Assert.True(ft.Create("idx", sc));
 
         db.HashSet("1", "numval", 1);
         db.HashSet("2", "numval", 2);
@@ -2259,7 +2259,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var ft = db.FT();
 
-        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+        ft.Create(index, new Schema().AddTextField("name").AddTextField("body"));
 
         db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name1"), new HashEntry("body", "body1") });
         db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name2"), new HashEntry("body", "body2") });
@@ -2279,7 +2279,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var ft = db.FT();
 
-        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+        ft.Create(index, new Schema().AddTextField("name").AddTextField("body"));
 
         db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name1"), new HashEntry("body", "body1") });
         db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name2"), new HashEntry("body", "body2") });
@@ -2299,7 +2299,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var ft = db.FT();
 
-        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+        ft.Create(index, new Schema().AddTextField("name").AddTextField("body"));
         ft.DictAdd("slang", "timmies", "toque", "toonie", "serviette", "kerfuffle", "chesterfield");
         var expected = new Dictionary<string, Dictionary<string, double>>()
         {
@@ -2323,7 +2323,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var ft = db.FT();
 
-        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+        ft.Create(index, new Schema().AddTextField("name").AddTextField("body"));
         ft.DictAdd("slang", "timmies", "toque", "toonie", "serviette", "kerfuffle", "chesterfield");
         var expected = new Dictionary<string, Dictionary<string, double>>()
         {
@@ -2347,7 +2347,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var ft = db.FT();
 
-        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+        ft.Create(index, new Schema().AddTextField("name").AddTextField("body"));
         // distance suppose to be between 1 and 4
         Assert.Throws<RedisServerException>(() => ft.SpellCheck(index, "name", new FTSpellCheckParams().Distance(0)));
     }
@@ -2359,7 +2359,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var ft = db.FT();
 
-        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+        ft.Create(index, new Schema().AddTextField("name").AddTextField("body"));
         // distance suppose to be between 1 and 4
         await Assert.ThrowsAsync<RedisServerException>(async () => await ft.SpellCheckAsync(index, "name", new FTSpellCheckParams().Distance(0)));
     }
@@ -2371,7 +2371,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var ft = db.FT();
 
-        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("t"));
+        ft.Create(index, new Schema().AddTextField("t"));
         // dialect 0 is not valid
         Assert.Throws<RedisServerException>(() => ft.SpellCheck(index, "name", new FTSpellCheckParams().Dialect(0)));
     }
@@ -2383,7 +2383,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var ft = db.FT();
 
-        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("t"));
+        ft.Create(index, new Schema().AddTextField("t"));
         // dialect 0 is not valid
         await Assert.ThrowsAsync<RedisServerException>(async () => await ft.SpellCheckAsync(index, "name", new FTSpellCheckParams().Dialect(0)));
     }
@@ -2396,7 +2396,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT(2);
 
         var sc = new Schema().AddNumericField("numval");
-        Assert.True(await ft.CreateAsync("idx", new FTCreateParams(), sc));
+        Assert.True(await ft.CreateAsync("idx", sc));
 
         db.HashSet("1", "numval", 1);
         db.HashSet("2", "numval", 2);
@@ -2644,7 +2644,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT();
 
         Schema sc = new Schema().AddTextField("t1", 1.0).AddTextField("t2", 1.0);
-        Assert.True(ft.Create(index, new FTCreateParams(), sc));
+        Assert.True(ft.Create(index, sc));
 
         db.HashSet("doc1", new HashEntry[] {
                                 new HashEntry("t1", "foo"),
@@ -2668,7 +2668,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT();
 
         Schema sc = new Schema().AddTextField("t1", 1.0).AddTextField("t2", 1.0);
-        Assert.True(ft.Create(index, new FTCreateParams(), sc));
+        Assert.True(ft.Create(index, sc));
 
         db.HashSet("doc1", new HashEntry[] {
                                 new HashEntry("t1", "foo"),
@@ -2692,7 +2692,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var ft = db.FT();
 
-       ft.Create(index, new FTCreateParams(), new Schema().AddTextField("t"));
+       ft.Create(index, new Schema().AddTextField("t"));
        db.HashSet("1", "t", "hello");
        db.HashSet("2", "t", "world");
 
@@ -2721,7 +2721,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var ft = db.FT();
 
-       ft.Create(index, new FTCreateParams(), new Schema().AddTextField("t"));
+       ft.Create(index, new Schema().AddTextField("t"));
        db.HashSet("1", "t", "hello");
        db.HashSet("2", "t", "world");
 

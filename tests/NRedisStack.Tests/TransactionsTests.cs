@@ -47,7 +47,7 @@ namespace NRedisStack.Tests
             tran.Cf.ReserveAsync("cf-key", 100);
             tran.Graph.QueryAsync("graph-key", "CREATE ({name:'shachar',age:23})");
             tran.Json.SetAsync("json-key", "$", "{}");
-            tran.Ft.CreateAsync("ft-key", new FTCreateParams(), new Schema().AddTextField("txt"));
+            tran.Ft.CreateAsync("ft-key", new Schema().AddTextField("txt"));
             tran.Tdigest.CreateAsync("tdigest-key", 100);
             tran.Ts.CreateAsync("ts-key", 100);
             tran.TopK.ReserveAsync("topk-key", 100, 100, 100);

@@ -31,7 +31,7 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
         pipeline.Cf.ReserveAsync("cf-key", 100);
         pipeline.Graph.QueryAsync("graph-key", "CREATE ({name:'shachar',age:23})");
         pipeline.Json.SetAsync("json-key", "$", "{}");
-        pipeline.Ft.CreateAsync("ft-key", new FTCreateParams(), new Schema().AddTextField("txt"));
+        pipeline.Ft.CreateAsync("ft-key", new Schema().AddTextField("txt"));
         pipeline.Tdigest.CreateAsync("tdigest-key", 100);
         pipeline.Ts.CreateAsync("ts-key", 100);
         pipeline.TopK.ReserveAsync("topk-key", 100, 100, 100);
