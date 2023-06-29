@@ -87,7 +87,7 @@ namespace NRedisStack
         /// <inheritdoc/>
         public bool Create(string indexName, Schema schema)
         {
-            return Create(indexName, schema);
+            return Create(indexName, new FTCreateParams(),  schema);
         }
 
         /// <inheritdoc/>

@@ -2692,7 +2692,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var ft = db.FT();
 
-       ft.Create(index, new FTCreateParams(), new Schema().AddTextField("t"));
+       ft.Create(index, new Schema().AddTextField("t")); // Calling FT.CREATR without FTCreateParams
        db.HashSet("1", "t", "hello");
        db.HashSet("2", "t", "world");
 
@@ -2721,7 +2721,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var ft = db.FT();
 
-       ft.Create(index, new FTCreateParams(), new Schema().AddTextField("t"));
+       await ft.CreateAsync(index, new Schema().AddTextField("t")); // Calling FT.CREATR without FTCreateParams
        db.HashSet("1", "t", "hello");
        db.HashSet("2", "t", "world");
 
