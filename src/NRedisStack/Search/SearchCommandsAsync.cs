@@ -84,6 +84,12 @@ namespace NRedisStack
         }
 
         /// <inheritdoc/>
+        public async Task<bool> CreateAsync(string indexName, Schema schema)
+        {
+            return (await CreateAsync(indexName, new FTCreateParams(), schema));
+        }
+
+        /// <inheritdoc/>
         public async Task<bool> CursorDelAsync(string indexName, long cursorId)
         {
             return (await _db.ExecuteAsync(SearchCommandBuilder.CursorDel(indexName, cursorId))).OKtoBoolean();

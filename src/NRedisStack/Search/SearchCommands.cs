@@ -77,12 +77,17 @@ namespace NRedisStack
             return _db.Execute(SearchCommandBuilder.ConfigSet(option, value)).OKtoBoolean();
         }
 
-        // TODO: ft.Create with FTCreatePArams as optional parameter
         // TODO: Add an ability to add fildes like that: TextField.Of("name")
         /// <inheritdoc/>
         public bool Create(string indexName, FTCreateParams parameters, Schema schema)
         {
             return _db.Execute(SearchCommandBuilder.Create(indexName, parameters, schema)).OKtoBoolean();
+        }
+
+        /// <inheritdoc/>
+        public bool Create(string indexName, Schema schema)
+        {
+            return Create(indexName, schema);
         }
 
         /// <inheritdoc/>
