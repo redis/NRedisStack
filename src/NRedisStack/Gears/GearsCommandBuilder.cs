@@ -7,7 +7,7 @@ namespace NRedisStack
     {
         public static SerializedCommand TFunctionLoad(string libraryCode, bool replace = false, string? config = null)
         {
-            var args = new List<object>() { "LOAD" };
+            var args = new List<object>() { GearsArgs.LOAD };
 
             if (replace)
             {
@@ -20,21 +20,21 @@ namespace NRedisStack
                 args.Add(config);
             }
             args.Add(libraryCode);
-            return new SerializedCommand("TFUNCTION", args);
+            return new SerializedCommand(RG.TFUNCTION, args);
         }
 
         public static SerializedCommand TFunctionDelete(string libraryName)
         {
-            return new SerializedCommand("TFUNCTION", "DELETE", libraryName);
+            return new SerializedCommand(RG.TFUNCTION, GearsArgs.DELETE, libraryName);
         }
 
         public static SerializedCommand TFunctionList(bool withCode = false, int verbose = 0, string? libraryName = null)
         {
-            var args = new List<object>() { "LIST" };
+            var args = new List<object>() { GearsArgs.LIST };
 
             if (withCode)
             {
-                args.Add("WITHCODE");
+                args.Add(GearsArgs.WITHCODE);
             }
 
             if (verbose > 0 && verbose < 4)
@@ -48,16 +48,16 @@ namespace NRedisStack
 
             if (libraryName != null)
             {
-                args.Add("LIBRARY");
+                args.Add(GearsArgs.LIBRARY);
                 args.Add(libraryName);
             }
 
-            return new SerializedCommand("TFUNCTION", args);
+            return new SerializedCommand(RG.TFUNCTION, args);
         }
 
         public static SerializedCommand TFCall(string libraryName, string functionName, string[]? keys = null, string[]? args = null, bool async = false)
         {
-            string command = async ? "TFCALLASYNC" : "TFCALL";
+            string command = async ? RG.TFCALLASYNC : RG.TFCALL;
             var commandArgs = new List<object>() {$"{libraryName}.{functionName}"};
 
             if (keys != null)

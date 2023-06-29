@@ -22,7 +22,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
-        Assert.True(db.TFunctionLoad("#!js api_version=1.0 name=lib\n redis.registerFunction('foo', ()=>{return 'bar'})"));
+        Assert.True(db.TFunctionLoad(GenerateLibCode("lib")));
         Assert.True(db.TFunctionDelete("lib"));
     }
 
@@ -35,7 +35,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         TryDeleteLib(db, "lib", "lib1", "lib2", "lib3");
 
-        Assert.True(await db.TFunctionLoadAsync("#!js api_version=1.0 name=lib\n redis.registerFunction('foo', ()=>{return 'bar'})"));
+        Assert.True(await db.TFunctionLoadAsync(GenerateLibCode("lib")));
         Assert.True(await db.TFunctionDeleteAsync("lib"));
     }
 
@@ -47,9 +47,9 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         TryDeleteLib(db, "lib", "lib1", "lib2", "lib3");
 
-        Assert.True(db.TFunctionLoad("#!js api_version=1.0 name=lib1\n redis.registerFunction('foo', ()=>{return 'bar'})"));
-        Assert.True(db.TFunctionLoad("#!js api_version=1.0 name=lib2\n redis.registerFunction('foo', ()=>{return 'bar'})"));
-        Assert.True(db.TFunctionLoad("#!js api_version=1.0 name=lib3\n redis.registerFunction('foo', ()=>{return 'bar'})"));
+        Assert.True(db.TFunctionLoad(GenerateLibCode("lib1")));
+        Assert.True(db.TFunctionLoad(GenerateLibCode("lib2")));
+        Assert.True(db.TFunctionLoad(GenerateLibCode("lib3")));
 
         // test error throwing:
         Assert.Throws<ArgumentOutOfRangeException>(() => db.TFunctionList(verbose: 8));
@@ -79,9 +79,9 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         TryDeleteLib(db, "lib", "lib1", "lib2", "lib3");
 
-        Assert.True(await db.TFunctionLoadAsync("#!js api_version=1.0 name=lib1\n redis.registerFunction('foo', ()=>{return 'bar'})"));
-        Assert.True(await db.TFunctionLoadAsync("#!js api_version=1.0 name=lib2\n redis.registerFunction('foo', ()=>{return 'bar'})"));
-        Assert.True(await db.TFunctionLoadAsync("#!js api_version=1.0 name=lib3\n redis.registerFunction('foo', ()=>{return 'bar'})"));
+        Assert.True(await db.TFunctionLoadAsync(GenerateLibCode("lib1")));
+        Assert.True(await db.TFunctionLoadAsync(GenerateLibCode("lib2")));
+        Assert.True(await db.TFunctionLoadAsync(GenerateLibCode("lib3")));
 
         var functions = await db.TFunctionListAsync(verbose: 1);
         Assert.Equal(3, functions.Length);
@@ -109,7 +109,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         TryDeleteLib(db, "lib", "lib1", "lib2", "lib3");
 
-        Assert.True(db.TFunctionLoad("#!js api_version=1.0 name=lib\n redis.registerFunction('foo', ()=>{return 'bar'})"));
+        Assert.True(db.TFunctionLoad(GenerateLibCode("lib")));
         Assert.Equal("bar", db.TFCall("lib", "foo", async: false).ToString());
         Assert.Equal("bar", db.TFCall("lib", "foo", async: true).ToString());
 
@@ -124,7 +124,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         TryDeleteLib(db, "lib", "lib1", "lib2", "lib3");
 
-        Assert.True(await db.TFunctionLoadAsync("#!js api_version=1.0 name=lib\n redis.registerFunction('foo', ()=>{return 'bar'})"));
+        Assert.True(await db.TFunctionLoadAsync(GenerateLibCode("lib")));
         Assert.Equal("bar", (await db.TFCallAsync("lib", "foo", async: false)).ToString());
         Assert.Equal("bar", (await db.TFCallAsync("lib", "foo", async: true)).ToString());
 
@@ -137,7 +137,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     {
         // TFunctionLoad:
         var buildCommand = GearsCommandBuilder
-            .TFunctionLoad("#!js api_version=1.0 name=lib\n redis.registerFunction('foo', ()=>{return 'bar'})",
+            .TFunctionLoad(GenerateLibCode("lib"),
             true, "config");
         var expected = new List<object>
         {
@@ -145,7 +145,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
             "REPLACE",
             "CONFIG",
             "config",
-            "#!js api_version=1.0 name=lib\n redis.registerFunction('foo', ()=>{return 'bar'})"
+            GenerateLibCode("lib")
         };
         Assert.Equal("TFUNCTION", buildCommand.Command);
         Assert.Equal(expected, buildCommand.Args);
@@ -202,5 +202,10 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
                 db.TFunctionDelete(libName);
         }
         catch (RedisServerException) { }
+    }
+
+    private static string GenerateLibCode(string libName)
+    {
+        return $"#!js api_version=1.0 name={libName}\n redis.registerFunction('foo', ()=>{{return 'bar'}})";
     }
 }
