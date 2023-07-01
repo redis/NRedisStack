@@ -114,8 +114,13 @@ namespace NRedisStack.Graph
         {
             var quotedString = new StringBuilder(unquotedString.Length + 12);
 
+            // Replace order is important, otherwise too many backslashes will be added.
+            var sanitizedUnquotedString = unquotedString
+                .Replace("\\", "\\\\")
+                .Replace("\"", "\\\"");
+
             quotedString.Append('"');
-            quotedString.Append(unquotedString.Replace("\"", "\\\""));
+            quotedString.Append(sanitizedUnquotedString);
             quotedString.Append('"');
 
             return quotedString.ToString();
