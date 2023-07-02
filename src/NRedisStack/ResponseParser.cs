@@ -700,6 +700,7 @@ namespace NRedisStack
             {
                 return new AggregationResult(result);
             }
+        }
 
         public static Dictionary<string, RedisResult>[] ToDictionarys(this RedisResult result)
         {
