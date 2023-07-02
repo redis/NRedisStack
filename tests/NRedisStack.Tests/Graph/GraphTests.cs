@@ -2009,74 +2009,74 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         var graph = redisFixture.Redis.GetDatabase().GRAPH();
 
         // handle chars
-        var preparedQuery1 = RedisGraphUtilities.PrepareQuery(return1Query, new Dictionary<string, object> { { "a", (char)'c' } });
+        var buildCommand = GraphCommandBuilder.Query("graph", return1Query, new Dictionary<string, object> { { "a", (char)'c' }} );
         var expectedPreparedQuery1 = $"CYPHER a=\"c\" {return1Query}";
-        Assert.Equal(expectedPreparedQuery1, preparedQuery1);
-        var res1 = graph.Query("graph", preparedQuery1);
+        Assert.Equal(expectedPreparedQuery1, buildCommand.Args[1].ToString()!);
+        var res1 = graph.Query("graph", buildCommand.Args[1].ToString()!);
         Assert.Single(res1);
         Assert.Equal(return1QueryRecordString, res1.Single().ToString());
 
         // handle null
-        var preparedQuery2 = RedisGraphUtilities.PrepareQuery(return1Query, new Dictionary<string, object> { { "a", null } });
+        var buildCommand2 = GraphCommandBuilder.Query("graph", return1Query, new Dictionary<string, object> { { "a", null } });
         var expectedPreparedQuery2 = $"CYPHER a=null {return1Query}";
-        Assert.Equal(expectedPreparedQuery2, preparedQuery2);
-        var res2 = graph.Query("graph", preparedQuery2);
+        Assert.Equal(expectedPreparedQuery2,buildCommand2.Args[1].ToString()!);
+        var res2 = graph.Query("graph",buildCommand2.Args[1].ToString()!);
         Assert.Single(res2);
         Assert.Equal(return1QueryRecordString, res2.Single().ToString());
 
         // handle arrays
-        var preparedQuery3 = RedisGraphUtilities.PrepareQuery(return1Query, new Dictionary<string, object> { { "a", new string[] { "foo", "bar" } } });
+        var buildCommand3 = GraphCommandBuilder.Query("graph", return1Query, new Dictionary<string, object> { { "a", new string[] { "foo", "bar" } } });
         var expectedPreparedQuery3 = $"CYPHER a=[\"foo\", \"bar\"] {return1Query}";
-        Assert.Equal(expectedPreparedQuery3, preparedQuery3);
-        var res3 = graph.Query("graph", preparedQuery3);
+        Assert.Equal(expectedPreparedQuery3,buildCommand3.Args[1].ToString()!);
+        var res3 = graph.Query("graph",buildCommand3.Args[1].ToString()!);
         Assert.Single(res3);
         Assert.Equal(return1QueryRecordString, res3.Single().ToString());
 
         // handle lists
-        var preparedQuery4 = RedisGraphUtilities.PrepareQuery(return1Query, new Dictionary<string, object> { { "a", new List<string> { "foo2", "bar2" } } });
+        var buildCommand4 = GraphCommandBuilder.Query("graph", return1Query, new Dictionary<string, object> { { "a", new List<string> { "foo2", "bar2" } } });
         var expectedPreparedQuery4 = $"CYPHER a=[\"foo2\", \"bar2\"] {return1Query}";
-        Assert.Equal(expectedPreparedQuery4, preparedQuery4);
-        var res4 = graph.Query("graph", preparedQuery4);
+        Assert.Equal(expectedPreparedQuery4,buildCommand4.Args[1].ToString()!);
+        var res4 = graph.Query("graph",buildCommand4.Args[1].ToString()!);
         Assert.Single(res4);
         Assert.Equal(return1QueryRecordString, res4.Single().ToString());
 
         // handle bools
-        var preparedQuery5 = RedisGraphUtilities.PrepareQuery(return1Query, new Dictionary<string, object> { { "a", true }, { "b", false } });
+        var buildCommand5 = GraphCommandBuilder.Query("graph", return1Query, new Dictionary<string, object> { { "a", true }, { "b", false } });
         var expectedPreparedQuery5 = $"CYPHER a=true b=false {return1Query}";
-        Assert.Equal(expectedPreparedQuery5, preparedQuery5);
-        var res5 = graph.Query("graph", preparedQuery5);
+        Assert.Equal(expectedPreparedQuery5,buildCommand5.Args[1].ToString()!);
+        var res5 = graph.Query("graph",buildCommand5.Args[1].ToString()!);
         Assert.Single(res5);
         Assert.Equal(return1QueryRecordString, res4.Single().ToString());
 
         // handle floats
-        var preparedQuery6 = RedisGraphUtilities.PrepareQuery(return1Query, new Dictionary<string, object> { { "a", 1.4d } });
+        var buildCommand6 = GraphCommandBuilder.Query("graph", return1Query, new Dictionary<string, object> { { "a", 1.4d } });
         var expectedPreparedQuery6 = $"CYPHER a=1.4 {return1Query}";
-        Assert.Equal(expectedPreparedQuery6, preparedQuery6);
-        var res6 = graph.Query("graph", preparedQuery6);
+        Assert.Equal(expectedPreparedQuery6,buildCommand6.Args[1].ToString()!);
+        var res6 = graph.Query("graph",buildCommand6.Args[1].ToString()!);
         Assert.Single(res6);
         Assert.Equal(return1QueryRecordString, res4.Single().ToString());
 
         // handle ints
-        var preparedQuery7 = RedisGraphUtilities.PrepareQuery(return1Query, new Dictionary<string, object> { { "a", 5 } });
+        var buildCommand7 = GraphCommandBuilder.Query("graph", return1Query, new Dictionary<string, object> { { "a", 5 } });
         var expectedPreparedQuery7 = $"CYPHER a=5 {return1Query}";
-        Assert.Equal(expectedPreparedQuery7, preparedQuery7);
-        var res7 = graph.Query("graph", preparedQuery7);
+        Assert.Equal(expectedPreparedQuery7,buildCommand7.Args[1].ToString()!);
+        var res7 = graph.Query("graph",buildCommand7.Args[1].ToString()!);
         Assert.Single(res7);
         Assert.Equal(return1QueryRecordString, res4.Single().ToString());
 
         // handle quotes
-        var preparedQuery8 = RedisGraphUtilities.PrepareQuery(return1Query, new Dictionary<string, object> { { "a", "\"abc\"" } });
+        var buildCommand8 = GraphCommandBuilder.Query("graph", return1Query, new Dictionary<string, object> { { "a", "\"abc\"" } });
         var expectedPreparedQuery8 = $"CYPHER a=\"\\\"abc\\\"\" {return1Query}";
-        Assert.Equal(expectedPreparedQuery8, preparedQuery8);
-        var res8 = graph.Query("graph", preparedQuery8);
+        Assert.Equal(expectedPreparedQuery8,buildCommand8.Args[1].ToString()!);
+        var res8 = graph.Query("graph",buildCommand8.Args[1].ToString()!);
         Assert.Single(res8);
         Assert.Equal(return1QueryRecordString, res5.Single().ToString());
 
         // handle backslashes
-        var preparedQuery9 = RedisGraphUtilities.PrepareQuery(return1Query, new Dictionary<string, object> { { "a", "abc\\" } });
+        var buildCommand9 = GraphCommandBuilder.Query("graph", return1Query, new Dictionary<string, object> { { "a", "abc\\" } });
         var expectedPreparedQuery9 = $"CYPHER a=\"abc\\\\\" {return1Query}";
-        Assert.Equal(expectedPreparedQuery9, preparedQuery9);
-        var res9 = graph.Query("graph", preparedQuery9);
+        Assert.Equal(expectedPreparedQuery9,buildCommand9.Args[1].ToString()!);
+        var res9 = graph.Query("graph",buildCommand9.Args[1].ToString()!);
         Assert.Single(res9);
         Assert.Equal(return1QueryRecordString, res6.Single().ToString());
     }
