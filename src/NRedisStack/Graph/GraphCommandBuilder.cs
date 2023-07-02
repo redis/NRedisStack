@@ -1,3 +1,4 @@
+using NRedisStack.Graph;
 using NRedisStack.Graph.Literals;
 using NRedisStack.RedisStackCommands;
 
@@ -6,6 +7,13 @@ namespace NRedisStack
     public static class GraphCommandBuilder
     {
         internal static readonly object CompactQueryFlag = "--COMPACT";
+
+        /// <inheritdoc/>
+        public static SerializedCommand Query(string graphName, string query, Dictionary<string, object> parameters, long? timeout = null)
+        {
+            var preparedQuery = RedisGraphUtilities.PrepareQuery(query, parameters);
+            return Query(graphName, preparedQuery, timeout);
+        }
 
         /// <inheritdoc/>
         public static SerializedCommand Query(string graphName, string query, long? timeout = null)

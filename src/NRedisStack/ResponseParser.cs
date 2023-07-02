@@ -700,6 +700,18 @@ namespace NRedisStack
             {
                 return new AggregationResult(result);
             }
+
+        public static Dictionary<string, RedisResult>[] ToDictionarys(this RedisResult result)
+        {
+            var resArr = (RedisResult[])result!;
+            var dicts = new Dictionary<string, RedisResult>[resArr.Length];
+            for (int i = 0; i < resArr.Length; i++)
+            {
+                dicts[i] = resArr[i].ToDictionary();
+            }
+
+            return dicts;
+
         }
     }
 }
