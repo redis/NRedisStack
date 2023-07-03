@@ -60,15 +60,15 @@ IDatabase db = redis.GetDatabase();
 ```
 Now you can create a variable from any type of module in the following way:
 ```csharp
-IBloomCommands bf = db.BF();
-ICuckooCommands cf = db.CF();
-ICmsCommands cms = db.CMS();
-IGraphCommands graph = db.GRAPH();
-ITopKCommands topk = db.TOPK();
-ITdigestCommands tdigest = db.TDIGEST();
-ISearchCommands ft = db.FT();
-IJsonCommands json = db.JSON();
-ITimeSeriesCommands ts = db.TS();
+BloomCommands bf = db.BF();
+CuckooCommands cf = db.CF();
+CmsCommands cms = db.CMS();
+GraphCommands graph = db.GRAPH();
+TopKCommands topk = db.TOPK();
+TdigestCommands tdigest = db.TDIGEST();
+SearchCommands ft = db.FT();
+JsonCommands json = db.JSON();
+TimeSeriesCommands ts = db.TS();
 ```
 Then, that variable will allow you to call all the commands of that module.
 
@@ -82,7 +82,7 @@ To store a json object in Redis:
 ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
 IDatabase db = redis.GetDatabase();
 
-IJsonCommands json = db.JSON();
+JsonCommands json = db.JSON();
 var key = "myKey";
 json.Set(key, "$", new { Age = 35, Name = "Alice" });
 ```
@@ -99,8 +99,8 @@ using NRedisStack.Search.Literals.Enums;
 ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
 IDatabase db = redis.GetDatabase();
 
-ISearchCommands ft = db.FT();
-IJsonCommands json = db.JSON();
+SearchCommands ft = db.FT();
+JsonCommands json = db.JSON();
 ```
 
 Create an index with fields and weights:
