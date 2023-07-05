@@ -24,22 +24,22 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
     private void AddDocument(IDatabase db, Document doc)
     {
-            string key = doc.Id;
-            var properties = doc.GetProperties();
-            // HashEntry[] hash = new  HashEntry[properties.Count()];
-            // for(int i = 0; i < properties.Count(); i++)
-            // {
-            //     var property = properties.ElementAt(i);
-            //     hash[i] = new HashEntry(property.Key, property.Value);
-            // }
-            // db.HashSet(key, hash);
-            var nameValue = new List<object>() { key };
-            foreach (var item in properties)
-            {
-                nameValue.Add(item.Key);
-                nameValue.Add(item.Value);
-            }
-            db.Execute("HSET", nameValue);
+        string key = doc.Id;
+        var properties = doc.GetProperties();
+        // HashEntry[] hash = new  HashEntry[properties.Count()];
+        // for(int i = 0; i < properties.Count(); i++)
+        // {
+        //     var property = properties.ElementAt(i);
+        //     hash[i] = new HashEntry(property.Key, property.Value);
+        // }
+        // db.HashSet(key, hash);
+        var nameValue = new List<object>() { key };
+        foreach (var item in properties)
+        {
+            nameValue.Add(item.Key);
+            nameValue.Add(item.Value);
+        }
+        db.Execute("HSET", nameValue);
     }
 
     private void AddDocument(IDatabase db, string key, Dictionary<string, object> objDictionary)
@@ -1936,7 +1936,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var ft = db.FT();
 
-        db.Execute("JSON.SET",  "doc:1",  "$",  "[{\"arr\": [1, 2, 3]}, {\"val\": \"hello\"}, {\"val\": \"world\"}]");
+        db.Execute("JSON.SET", "doc:1", "$", "[{\"arr\": [1, 2, 3]}, {\"val\": \"hello\"}, {\"val\": \"world\"}]");
         db.Execute("FT.CREATE", "idx", "ON", "JSON", "PREFIX", "1", "doc:", "SCHEMA", "$..arr", "AS", "arr", "NUMERIC", "$..val", "AS", "val", "TEXT");
         // sleep:
         Thread.Sleep(2000);
@@ -2011,16 +2011,16 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT();
 
         ft.Create("idx", new FTCreateParams(), new Schema().AddTextField("t1").AddTextField("t2"));
-        Document doc1 = new Document("doc1", new Dictionary<string, RedisValue> {{"t1", "a"}, {"t2", "b"}});
-        Document doc2 = new Document("doc2", new Dictionary<string, RedisValue> {{"t1", "b"}, {"t2", "a"}});
+        Document doc1 = new Document("doc1", new Dictionary<string, RedisValue> { { "t1", "a" }, { "t2", "b" } });
+        Document doc2 = new Document("doc2", new Dictionary<string, RedisValue> { { "t1", "b" }, { "t2", "a" } });
         AddDocument(db, doc1);
         AddDocument(db, doc2);
 
         var req = new AggregationRequest("*").SortBy("@t1").Limit(1);
         var res = ft.Aggregate("idx", req);
 
-        Assert.Equal( res.GetResults().Count, 1);
-        Assert.Equal( res.GetResults()[0]["t1"].ToString(), "a");
+        Assert.Equal(res.GetResults().Count, 1);
+        Assert.Equal(res.GetResults()[0]["t1"].ToString(), "a");
     }
 
     [Fact]
@@ -2031,16 +2031,16 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT();
 
         ft.Create("idx", new FTCreateParams(), new Schema().AddTextField("t1").AddTextField("t2"));
-        Document doc1 = new Document("doc1", new Dictionary<string, RedisValue> {{"t1", "a"}, {"t2", "b"}});
-        Document doc2 = new Document("doc2", new Dictionary<string, RedisValue> {{"t1", "b"}, {"t2", "a"}});
+        Document doc1 = new Document("doc1", new Dictionary<string, RedisValue> { { "t1", "a" }, { "t2", "b" } });
+        Document doc2 = new Document("doc2", new Dictionary<string, RedisValue> { { "t1", "b" }, { "t2", "a" } });
         AddDocument(db, doc1);
         AddDocument(db, doc2);
 
         var req = new AggregationRequest("*").SortBy("@t1").Limit(1, 1);
         var res = await ft.AggregateAsync("idx", req);
 
-        Assert.Equal( res.GetResults().Count, 1);
-        Assert.Equal( res.GetResults()[0]["t1"].ToString(), "b");
+        Assert.Equal(res.GetResults().Count, 1);
+        Assert.Equal(res.GetResults()[0]["t1"].ToString(), "b");
     }
 
     [Fact]
@@ -2134,7 +2134,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Assert.Equal(0, res.Documents[0]["__vector_score"]);
 
-       var jsonRes = res.ToJson();
+        var jsonRes = res.ToJson();
         Assert.Equal("{\"vector\":[2,2,2,2]}", jsonRes![0]);
     }
 
@@ -2253,6 +2253,142 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
+    public void TestBasicSpellCheck()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+
+        db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name1"), new HashEntry("body", "body1") });
+        db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name2"), new HashEntry("body", "body2") });
+        db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name2"), new HashEntry("body", "name2") });
+
+        var reply = ft.SpellCheck(index, "name");
+        Assert.Equal(1, reply.Keys.Count);
+        Assert.Equal("name", reply.Keys.First());
+        Assert.Equal(1, reply["name"]["name1"]);
+        Assert.Equal(2, reply["name"]["name2"]);
+    }
+
+    [Fact]
+    public async Task TestBasicSpellCheckAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+
+        db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name1"), new HashEntry("body", "body1") });
+        db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name2"), new HashEntry("body", "body2") });
+        db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name2"), new HashEntry("body", "name2") });
+
+        var reply = await ft.SpellCheckAsync(index, "name");
+        Assert.Equal(1, reply.Keys.Count);
+        Assert.Equal("name", reply.Keys.First());
+        Assert.Equal(1, reply["name"]["name1"]);
+        Assert.Equal(2, reply["name"]["name2"]);
+    }
+
+    [Fact]
+    public void TestCrossTermDictionary()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+        ft.DictAdd("slang", "timmies", "toque", "toonie", "serviette", "kerfuffle", "chesterfield");
+        var expected = new Dictionary<string, Dictionary<string, double>>()
+        {
+            ["tooni"] = new Dictionary<string, double>()
+            {
+                ["toonie"] = 0d
+            }
+        };
+
+        Assert.Equal(expected, ft.SpellCheck(index,
+                                             "Tooni toque kerfuffle",
+                                             new FTSpellCheckParams()
+                                             .IncludeTerm("slang")
+                                             .ExcludeTerm("slang")));
+    }
+
+    [Fact]
+    public async Task TestCrossTermDictionaryAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+        ft.DictAdd("slang", "timmies", "toque", "toonie", "serviette", "kerfuffle", "chesterfield");
+        var expected = new Dictionary<string, Dictionary<string, double>>()
+        {
+            ["tooni"] = new Dictionary<string, double>()
+            {
+                ["toonie"] = 0d
+            }
+        };
+
+        Assert.Equal(expected, await ft.SpellCheckAsync(index,
+                                             "Tooni toque kerfuffle",
+                                             new FTSpellCheckParams()
+                                             .IncludeTerm("slang")
+                                             .ExcludeTerm("slang")));
+    }
+
+    [Fact]
+    public void TestDistanceBound()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+        // distance suppose to be between 1 and 4
+        Assert.Throws<RedisServerException>(() => ft.SpellCheck(index, "name", new FTSpellCheckParams().Distance(0)));
+    }
+
+    [Fact]
+    public async Task TestDistanceBoundAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+        // distance suppose to be between 1 and 4
+        await Assert.ThrowsAsync<RedisServerException>(async () => await ft.SpellCheckAsync(index, "name", new FTSpellCheckParams().Distance(0)));
+    }
+
+    [Fact]
+    public void TestDialectBound()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("t"));
+        // dialect 0 is not valid
+        Assert.Throws<RedisServerException>(() => ft.SpellCheck(index, "name", new FTSpellCheckParams().Dialect(0)));
+    }
+
+    [Fact]
+    public async Task TestDialectBoundAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("t"));
+        // dialect 0 is not valid
+        await Assert.ThrowsAsync<RedisServerException>(async () => await ft.SpellCheckAsync(index, "name", new FTSpellCheckParams().Dialect(0)));
+    }
+
+    [Fact]
     public async Task TestQueryParamsWithParams_DefaultDialectAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2278,6 +2414,345 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         query = new Query("@numval:[$min $max]");
         res = await ft.SearchAsync("idx", query.Params(paramValue));
         Assert.Equal(2, res.TotalResults);
+    }
+
+    string key = "SugTestKey";
+
+    [Fact]
+    public void TestAddAndGetSuggestion()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        string suggestion = "ANOTHER_WORD";
+        string noMatch = "_WORD MISSED";
+
+        Assert.True(ft.SugAdd(key, suggestion, 1d) > 0);
+        Assert.True(ft.SugAdd(key, noMatch, 1d) > 0);
+
+        // test that with a partial part of that string will have the entire word returned
+        Assert.Equal(1, ft.SugGet(key, suggestion.Substring(0, 3), true, max: 5).Count);
+
+        // turn off fuzzy start at second word no hit
+        Assert.Equal(0, ft.SugGet(key, noMatch.Substring(1, 6), false, max: 5).Count);
+
+        // my attempt to trigger the fuzzy by 1 character
+        Assert.Equal(1, ft.SugGet(key, noMatch.Substring(1, 6), true, max: 5).Count);
+    }
+
+    [Fact]
+    public async Task TestAddAndGetSuggestionAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        string suggestion = "ANOTHER_WORD";
+        string noMatch = "_WORD MISSED";
+
+        Assert.True(await ft.SugAddAsync(key, suggestion, 1d) > 0);
+        Assert.True(await ft.SugAddAsync(key, noMatch, 1d) > 0);
+
+        // test that with a partial part of that string will have the entire word returned
+        Assert.Equal(1, (await ft.SugGetAsync(key, suggestion.Substring(0, 3), true, max: 5)).Count);
+
+        // turn off fuzzy start at second word no hit
+        Assert.Equal(0, (await ft.SugGetAsync(key, noMatch.Substring(1, 6), false, max: 5)).Count);
+
+        // my attempt to trigger the fuzzy by 1 character
+        Assert.Equal(1, (await ft.SugGetAsync(key, noMatch.Substring(1, 6), true, max: 5)).Count);
+    }
+
+    [Fact]
+    public void AddSuggestionIncrAndGetSuggestionFuzzy()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        string suggestion = "TOPIC OF WORDS";
+
+        // test can add a suggestion string
+        Assert.True(ft.SugAdd(key, suggestion, 1d, increment: true) > 0);
+
+        // test that the partial part of that string will be returned using fuzzy
+        Assert.Equal(suggestion, ft.SugGet(key, suggestion.Substring(0, 3))[0]);
+    }
+
+    [Fact]
+    public async Task AddSuggestionIncrAndGetSuggestionFuzzyAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        string suggestion = "TOPIC OF WORDS";
+
+        // test can add a suggestion string
+        Assert.True(await ft.SugAddAsync(key, suggestion, 1d, increment: true) > 0);
+
+        // test that the partial part of that string will be returned using fuzzy
+        Assert.Equal(suggestion, (await ft.SugGetAsync(key, suggestion.Substring(0, 3)))[0]);
+    }
+
+    [Fact]
+    public void getSuggestionScores()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        ft.SugAdd(key, "COUNT_ME TOO", 1);
+        ft.SugAdd(key, "COUNT", 1);
+        ft.SugAdd(key, "COUNT_ANOTHER", 1);
+
+        string noScoreOrPayload = "COUNT NO PAYLOAD OR COUNT";
+        Assert.True(ft.SugAdd(key, noScoreOrPayload, 1, increment: true) > 1);
+
+        var result = ft.SugGetWithScores(key, "COU");
+        Assert.Equal(4, result.Count);
+        foreach (var tuple in result)
+        {
+            Assert.True(tuple.Item2 < .999);
+        }
+    }
+
+    [Fact]
+    public async Task getSuggestionScoresAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        await ft.SugAddAsync(key, "COUNT_ME TOO", 1);
+        await ft.SugAddAsync(key, "COUNT", 1);
+        await ft.SugAddAsync(key, "COUNT_ANOTHER", 1);
+
+        string noScoreOrPayload = "COUNT NO PAYLOAD OR COUNT";
+        Assert.True(await ft.SugAddAsync(key, noScoreOrPayload, 1, increment: true) > 1);
+
+        var result = await ft.SugGetWithScoresAsync(key, "COU");
+        Assert.Equal(4, result.Count);
+        foreach (var tuple in result)
+        {
+            Assert.True(tuple.Item2 < .999);
+        }
+    }
+
+    [Fact]
+    public void getSuggestionMax()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        ft.SugAdd(key, "COUNT_ME TOO", 1);
+        ft.SugAdd(key, "COUNT", 1);
+        ft.SugAdd(key, "COUNTNO PAYLOAD OR COUNT", 1);
+
+        // test that with a partial part of that string will have the entire word returned
+        Assert.Equal(3, ft.SugGetWithScores(key, "COU", true, max: 10).Count);
+        Assert.Equal(2, ft.SugGetWithScores(key, "COU", true, max: 2).Count);
+    }
+
+    [Fact]
+    public async Task getSuggestionMaxAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        await ft.SugAddAsync(key, "COUNT_ME TOO", 1);
+        await ft.SugAddAsync(key, "COUNT", 1);
+        await ft.SugAddAsync(key, "COUNTNO PAYLOAD OR COUNT", 1);
+
+        // test that with a partial part of that string will have the entire word returned
+        Assert.Equal(3, (await ft.SugGetWithScoresAsync(key, "COU", true, max: 10)).Count);
+        Assert.Equal(2, (await ft.SugGetWithScoresAsync(key, "COU", true, max: 2)).Count);
+    }
+
+    [Fact]
+    public void getSuggestionNoHit()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        ft.SugAdd(key, "NO WORD", 0.4);
+
+        Assert.Equal(0, ft.SugGetWithScores(key, "DIF").Count);
+        Assert.Equal(0, ft.SugGet(key, "DIF").Count);
+    }
+
+    [Fact]
+    public async Task getSuggestionNoHitAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        await ft.SugAddAsync(key, "NO WORD", 0.4);
+
+        Assert.Equal(0, (await ft.SugGetWithScoresAsync(key, "DIF")).Count);
+        Assert.Equal(0, (await ft.SugGetAsync(key, "DIF")).Count);
+    }
+
+    [Fact]
+    public void getSuggestionLengthAndDeleteSuggestion()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        ft.SugAdd(key, "TOPIC OF WORDS", 1, increment: true);
+        ft.SugAdd(key, "ANOTHER ENTRY", 1, increment: true);
+        Assert.Equal(2L, ft.SugLen(key));
+
+        Assert.True(ft.SugDel(key, "ANOTHER ENTRY"));
+        Assert.Equal(1L, ft.SugLen(key));
+
+        Assert.False(ft.SugDel(key, "ANOTHER ENTRY"));
+        Assert.Equal(1L, ft.SugLen(key));
+
+        Assert.False(ft.SugDel(key, "ANOTHER ENTRY THAT IS NOT PRESENT"));
+        Assert.Equal(1L, ft.SugLen(key));
+
+        ft.SugAdd(key, "LAST ENTRY", 1);
+        Assert.Equal(2L, ft.SugLen(key));
+    }
+
+    [Fact]
+    public async Task getSuggestionLengthAndDeleteSuggestionAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        await ft.SugAddAsync(key, "TOPIC OF WORDS", 1, increment: true);
+        await ft.SugAddAsync(key, "ANOTHER ENTRY", 1, increment: true);
+        Assert.Equal(2L, await ft.SugLenAsync(key));
+
+        Assert.True(await ft.SugDelAsync(key, "ANOTHER ENTRY"));
+        Assert.Equal(1L, await ft.SugLenAsync(key));
+
+        Assert.False(await ft.SugDelAsync(key, "ANOTHER ENTRY"));
+        Assert.Equal(1L, await ft.SugLenAsync(key));
+
+        Assert.False(await ft.SugDelAsync(key, "ANOTHER ENTRY THAT IS NOT PRESENT"));
+        Assert.Equal(1L, await ft.SugLenAsync(key));
+
+        ft.SugAdd(key, "LAST ENTRY", 1);
+        Assert.Equal(2L, await ft.SugLenAsync(key));
+    }
+
+    [Fact]
+    public void TestProfileSearch()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        Schema sc = new Schema().AddTextField("t1", 1.0).AddTextField("t2", 1.0);
+        Assert.True(ft.Create(index, new FTCreateParams(), sc));
+
+        db.HashSet("doc1", new HashEntry[] {
+                                new HashEntry("t1", "foo"),
+                                new HashEntry("t2", "bar")});
+
+        var profile = ft.ProfileSearch(index, new Query("foo"));
+        // Iterators profile={Type=TEXT, Time=0.0, Term=foo, Counter=1, Size=1}
+        profile.Item2["Iterators profile"].ToDictionary();
+        var iteratorsProfile =  profile.Item2["Iterators profile"].ToDictionary();
+        Assert.Equal("TEXT", iteratorsProfile["Type"].ToString());
+        Assert.Equal("foo", iteratorsProfile["Term"].ToString());
+        Assert.Equal("1", iteratorsProfile["Counter"].ToString());
+        Assert.Equal("1", iteratorsProfile["Size"].ToString());
+    }
+
+    [Fact]
+    public async Task TestProfileSearchAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        Schema sc = new Schema().AddTextField("t1", 1.0).AddTextField("t2", 1.0);
+        Assert.True(ft.Create(index, new FTCreateParams(), sc));
+
+        db.HashSet("doc1", new HashEntry[] {
+                                new HashEntry("t1", "foo"),
+                                new HashEntry("t2", "bar")});
+
+        var profile = await ft.ProfileSearchAsync(index, new Query("foo"));
+        // Iterators profile={Type=TEXT, Time=0.0, Term=foo, Counter=1, Size=1}
+        profile.Item2["Iterators profile"].ToDictionary();
+        var iteratorsProfile =  profile.Item2["Iterators profile"].ToDictionary();
+        Assert.Equal("TEXT", iteratorsProfile["Type"].ToString());
+        Assert.Equal("foo", iteratorsProfile["Term"].ToString());
+        Assert.Equal("1", iteratorsProfile["Counter"].ToString());
+        Assert.Equal("1", iteratorsProfile["Size"].ToString());
+    }
+
+
+    [Fact]
+    public void TestProfile()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+       ft.Create(index, new Schema().AddTextField("t")); // Calling FT.CREATR without FTCreateParams
+       db.HashSet("1", "t", "hello");
+       db.HashSet("2", "t", "world");
+
+        // check using Query
+        var q = new Query("hello|world").SetNoContent();
+        var profileSearch = ft.ProfileSearch(index, q);
+        var searchRes = profileSearch.Item1;
+        var searchDet = profileSearch.Item2;
+
+        Assert.Equal(searchDet.Count , 5);
+        Assert.Equal(searchRes.Documents.Count , 2);
+
+        // check using AggregationRequest
+        var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
+        var profileAggregate = ft.ProfileAggregate(index, aggReq);
+        var aggregateRes  = profileAggregate.Item1;
+        var aggregateDet = profileAggregate.Item2;
+        Assert.Equal(aggregateDet.Count , 5);
+        Assert.Equal(aggregateRes.TotalResults, 1);
+    }
+
+    [Fact]
+    public async Task TestProfileAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+       await ft.CreateAsync(index, new Schema().AddTextField("t")); // Calling FT.CREATR without FTCreateParams
+       db.HashSet("1", "t", "hello");
+       db.HashSet("2", "t", "world");
+
+        // check using Query
+        var q = new Query("hello|world").SetNoContent();
+        var profileSearch = await ft.ProfileSearchAsync(index, q);
+        var searchRes = profileSearch.Item1;
+        var searchDet = profileSearch.Item2;
+
+        Assert.Equal(searchDet.Count , 5);
+        Assert.Equal(searchRes.Documents.Count , 2);
+
+        // check using AggregationRequest
+        var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
+        var profileAggregate = await ft.ProfileAggregateAsync(index, aggReq);
+        var aggregateRes  = profileAggregate.Item1;
+        var aggregateDet = profileAggregate.Item2;
+        Assert.Equal(aggregateDet.Count , 5);
+        Assert.Equal(aggregateRes.TotalResults, 1);
+    }
+
+    [Fact]
+    public void TestProfileCommandBuilder()
+    {
+        var search = SearchCommandBuilder.ProfileSearch("index", new Query(), true);
+        var aggregate = SearchCommandBuilder.ProfileAggregate("index", new AggregationRequest(), true);
+
+        Assert.Equal("FT.PROFILE", search.Command);
+        Assert.Equal("FT.PROFILE", aggregate.Command);
+        Assert.Equal(new object[] { "index", "SEARCH", "LIMITED", "QUERY", "*" }, search.Args);
+        Assert.Equal(new object[] { "index", "AGGREGATE", "LIMITED", "QUERY", "*" }, aggregate.Args);
     }
 
     [Fact]

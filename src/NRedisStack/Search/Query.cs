@@ -215,19 +215,19 @@ namespace NRedisStack.Search
 
             if (Verbatim)
             {
-                args.Add("VERBATIM");
+                args.Add(SearchArgs.VERBATIM);
             }
             if (NoContent)
             {
-                args.Add("NOCONTENT");
+                args.Add(SearchArgs.NOCONTENT);
             }
             if (NoStopwords)
             {
-                args.Add("NOSTOPWORDS");
+                args.Add(SearchArgs.NOSTOPWORDS);
             }
             if (WithScores)
             {
-                args.Add("WITHSCORES");
+                args.Add(SearchArgs.WITHSCORES);
                 // if (ExplainScore)
                 // {
                 //     args.Add("EXPLAINSCORE"); // TODO: Check Why Jedis doesn't have it
@@ -235,43 +235,43 @@ namespace NRedisStack.Search
             }
             if (WithPayloads)
             {
-                args.Add("WITHPAYLOADS");
+                args.Add(SearchArgs.WITHPAYLOADS);
             }
             if (Language != null)
             {
-                args.Add("LANGUAGE");
+                args.Add(SearchArgs.LANGUAGE);
                 args.Add(Language);
             }
 
             if (Scorer != null)
             {
-                args.Add("SCORER");
+                args.Add(SearchArgs.SCORER);
                 args.Add(Scorer);
             }
 
             if (_fields?.Length > 0)
             {
-                args.Add("INFIELDS");
+                args.Add(SearchArgs.INFIELDS);
                 args.Add(_fields.Length);
                 args.AddRange(_fields);
             }
 
             if (SortBy != null)
             {
-                args.Add("SORTBY");
+                args.Add(SearchArgs.SORTBY);
                 args.Add(SortBy);
                 if (SortAscending != null)
-                    args.Add(((bool)SortAscending ? "ASC" : "DESC"));
+                    args.Add(((bool)SortAscending ? SearchArgs.ASC : SearchArgs.DESC));
             }
             if (Payload != null)
             {
-                args.Add("PAYLOAD");
+                args.Add(SearchArgs.PAYLOAD);
                 args.Add(Payload);
             }
 
             if (_paging.Offset != 0 || _paging.Count != 10)
             {
-                args.Add("LIMIT");
+                args.Add(SearchArgs.LIMIT);
                 args.Add(_paging.Offset);
                 args.Add(_paging.Count);
             }
@@ -286,10 +286,10 @@ namespace NRedisStack.Search
 
             if (_wantsHighlight)
             {
-                args.Add("HIGHLIGHT");
+                args.Add(SearchArgs.HIGHLIGHT);
                 if (_highlightFields != null)
                 {
-                    args.Add("FIELDS");
+                    args.Add(SearchArgs.FIELDS);
                     args.Add(_highlightFields.Length);
                     foreach (var s in _highlightFields)
                     {
@@ -298,7 +298,7 @@ namespace NRedisStack.Search
                 }
                 if (_highlightTags != null)
                 {
-                    args.Add("TAGS");
+                    args.Add(SearchArgs.TAGS);
                     var tags = _highlightTags.GetValueOrDefault();
                     args.Add(tags.Open);
                     args.Add(tags.Close);
@@ -306,10 +306,10 @@ namespace NRedisStack.Search
             }
             if (_wantsSummarize)
             {
-                args.Add("SUMMARIZE");
+                args.Add(SearchArgs.SUMMARIZE);
                 if (_summarizeFields != null)
                 {
-                    args.Add("FIELDS");
+                    args.Add(SearchArgs.FIELDS);
                     args.Add(_summarizeFields.Length);
                     foreach (var s in _summarizeFields)
                     {
@@ -318,24 +318,24 @@ namespace NRedisStack.Search
                 }
                 if (_summarizeNumFragments != -1)
                 {
-                    args.Add("FRAGS");
+                    args.Add(SearchArgs.FRAGS);
                     args.Add(_summarizeNumFragments);
                 }
                 if (_summarizeFragmentLen != -1)
                 {
-                    args.Add("LEN");
+                    args.Add(SearchArgs.LEN);
                     args.Add(_summarizeFragmentLen);
                 }
                 if (_summarizeSeparator != null)
                 {
-                    args.Add("SEPARATOR");
+                    args.Add(SearchArgs.SEPARATOR);
                     args.Add(_summarizeSeparator);
                 }
             }
 
             if (_keys != null && _keys.Length > 0)
             {
-                args.Add("INKEYS");
+                args.Add(SearchArgs.INKEYS);
                 args.Add(_keys.Length);
 
                 foreach (var key in _keys)
@@ -346,14 +346,14 @@ namespace NRedisStack.Search
 
             if (_returnFields?.Length > 0)
             {
-                args.Add("RETURN");
+                args.Add(SearchArgs.RETURN);
                 args.Add(_returnFields.Length);
                 args.AddRange(_returnFields);
             }
 
             else if (_returnFieldsNames?.Length > 0)
             {
-                args.Add("RETURN");
+                args.Add(SearchArgs.RETURN);
                 int returnCountIndex = args.Count;
                 int returnCount = 0;
                 foreach (FieldName fn in _returnFieldsNames)
@@ -365,7 +365,7 @@ namespace NRedisStack.Search
             }
             if (_params != null && _params.Count > 0)
             {
-                args.Add("PARAMS");
+                args.Add(SearchArgs.PARAMS);
                 args.Add(_params.Count * 2);
                 foreach (var entry in _params)
                 {
@@ -376,30 +376,30 @@ namespace NRedisStack.Search
 
             if (dialect >= 1)
             {
-                args.Add("DIALECT");
+                args.Add(SearchArgs.DIALECT);
                 args.Add(dialect);
             }
 
             if (_slop >= 0)
             {
-                args.Add("SLOP");
+                args.Add(SearchArgs.SLOP);
                 args.Add(_slop);
             }
 
             if (_timeout >= 0)
             {
-                args.Add("TIMEOUT");
+                args.Add(SearchArgs.TIMEOUT);
                 args.Add(_timeout);
             }
 
             if (_inOrder)
             {
-                args.Add("INORDER");
+                args.Add(SearchArgs.INORDER);
             }
 
             if (_expander != null)
             {
-                args.Add("EXPANDER");
+                args.Add(SearchArgs.EXPANDER);
                 args.Add(_expander);
             }
         }
