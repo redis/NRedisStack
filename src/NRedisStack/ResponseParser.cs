@@ -623,7 +623,6 @@ namespace NRedisStack
             foreach (var term in rawTerms)
             {
                 var rawElements = (RedisResult[])term!;
-                string header = rawElements[0].ToString()!; // Should be == "TERM"
 
                 string termValue = rawElements[1].ToString()!;
 
@@ -654,6 +653,7 @@ namespace NRedisStack
             }
             return list;
         }
+        
         public static Dictionary<string, RedisResult> ToStringRedisResultDictionary(this RedisResult value)
         {
             var res = (RedisResult[])value!;

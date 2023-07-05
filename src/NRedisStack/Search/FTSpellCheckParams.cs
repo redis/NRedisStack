@@ -4,7 +4,7 @@ namespace NRedisStack.Search
     public class FTSpellCheckParams
     {
         List<object> args = new List<object>();
-        private List<KeyValuePair<string, string>>? terms = null;
+        private List<KeyValuePair<string, string>> terms = new List<KeyValuePair<string, string>>();
         private int? distance = null;
         private int? dialect = null;
 
@@ -31,10 +31,6 @@ namespace NRedisStack.Search
         /// </summary>
         private FTSpellCheckParams AddTerm(string dict, string type)
         {
-            if (terms == null)
-            {
-                terms = new List<KeyValuePair<string, string>>();
-            }
             terms.Add(new KeyValuePair<string, string>(dict, type));
             return this;
         }
@@ -80,15 +76,12 @@ namespace NRedisStack.Search
 
         private void Terms()
         {
-            if (terms != null)
-            {
                 foreach (var term in terms)
                 {
                     args.Add(SearchArgs.TERMS);
                     args.Add(term.Value);
                     args.Add(term.Key);
                 }
-            }
         }
 
         private void Distance()
