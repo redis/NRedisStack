@@ -50,7 +50,7 @@ The ability to query within a JSON object unlocks further value to the underlyin
 ```
 ## Data Loading <a name="dataload"></a>
 ```c#
-IJsonCommands json = db.JSON();
+JsonCommands json = db.JSON();
 json.Set("warehouse:1", "$", new {
     city = "Boston",
     location = "42.361145, -71.057083",

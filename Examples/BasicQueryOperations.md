@@ -65,7 +65,7 @@ using NRedisStack.Search.Literals.Enums;
 ```
 ## Data Loading <a name="loading"></a>
 ```c#
-IJsonCommands json = db.JSON();
+JsonCommands json = db.JSON();
 json.Set("product:15970", "$", new {
     id = 15970,
     gender = "Men",
@@ -100,7 +100,7 @@ json.Set("product:46885", "$", new {
 
 #### Command
 ```c#
-ISearchCommands ft = db.FT();
+SearchCommands ft = db.FT();
 try {ft.DropIndex("idx1");} catch {};
 ft.Create("idx1",   new FTCreateParams().On(IndexDataType.JSON)
                                         .Prefix("product:"),

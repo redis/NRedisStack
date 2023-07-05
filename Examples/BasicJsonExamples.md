@@ -38,7 +38,7 @@ Document stores are a NoSQL database type that provide flexible schemas and acce
 Insert a simple KVP as a JSON object.
 #### Command
 ```c#
-IJsonCommands json = db.JSON();
+JsonCommands json = db.JSON();
 Console.WriteLine(json.Set("ex1:1", "$", "\"val\""));
 ```
 #### Result

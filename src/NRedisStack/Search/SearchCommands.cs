@@ -32,22 +32,13 @@ namespace NRedisStack
         /// <inheritdoc/>
         public AggregationResult Aggregate(string index, AggregationRequest query)
         {
-            if(query.dialect == null && defaultDialect != null)
+            if (query.dialect == null && defaultDialect != null)
             {
                 query.Dialect((int)defaultDialect);
             }
 
             var result = _db.Execute(SearchCommandBuilder.Aggregate(index, query));
-            if (query.IsWithCursor())
-            {
-                var results = (RedisResult[])result;
-
-                return new AggregationResult(results[0], (long)results[1]);
-            }
-            else
-            {
-                return new AggregationResult(result);
-            }
+            return result.ToAggregationResult(query);
         }
 
         /// <inheritdoc/>
@@ -86,10 +77,17 @@ namespace NRedisStack
             return _db.Execute(SearchCommandBuilder.ConfigSet(option, value)).OKtoBoolean();
         }
 
+        // TODO: Add an ability to add fildes like that: TextField.Of("name")
         /// <inheritdoc/>
         public bool Create(string indexName, FTCreateParams parameters, Schema schema)
         {
             return _db.Execute(SearchCommandBuilder.Create(indexName, parameters, schema)).OKtoBoolean();
+        }
+
+        /// <inheritdoc/>
+        public bool Create(string indexName, Schema schema)
+        {
+            return Create(indexName, new FTCreateParams(),  schema);
         }
 
         /// <inheritdoc/>
@@ -153,8 +151,18 @@ namespace NRedisStack
         public InfoResult Info(RedisValue index) =>
         new InfoResult(_db.Execute(SearchCommandBuilder.Info(index)));
 
-        // TODO: FT.PROFILE (jedis doesn't have it)
-
+        /// <inheritdoc/>
+        public Tuple<SearchResult, Dictionary<string, RedisResult>> ProfileSearch(string indexName, Query q, bool limited = false)
+        {
+            return _db.Execute(SearchCommandBuilder.ProfileSearch(indexName, q, limited))
+                            .ToProfileSearchResult(q);
+        }
+        /// <inheritdoc/>
+        public Tuple<AggregationResult, Dictionary<string, RedisResult>> ProfileAggregate(string indexName, AggregationRequest query, bool limited = false)
+        {
+            return _db.Execute(SearchCommandBuilder.ProfileAggregate(indexName, query, limited))
+                            .ToProfileAggregateResult(query);
+        }
         /// <inheritdoc/>
         public SearchResult Search(string indexName, Query q)
         {
@@ -162,9 +170,48 @@ namespace NRedisStack
             {
                 q.Dialect((int)defaultDialect);
             }
-            var resp = _db.Execute(SearchCommandBuilder.Search(indexName, q)).ToArray();
-            return new SearchResult(resp, !q.NoContent, q.WithScores, q.WithPayloads/*, q.ExplainScore*/);
+            return _db.Execute(SearchCommandBuilder.Search(indexName, q)).ToSearchResult(q);
         }
+
+        /// <inheritdoc/>
+        public Dictionary<string, Dictionary<string, double>> SpellCheck(string indexName, string query, FTSpellCheckParams? spellCheckParams = null)
+        {
+            return _db.Execute(SearchCommandBuilder.SpellCheck(indexName, query, spellCheckParams)).ToFtSpellCheckResult();
+        }
+
+        /// <inheritdoc/>
+        public long SugAdd(string key, string str, double score, bool increment = false, string? payload = null)
+        {
+            return _db.Execute(SearchCommandBuilder.SugAdd(key, str, score, increment, payload)).ToLong();
+        }
+
+
+        /// <inheritdoc/>
+        public bool SugDel(string key, string str)
+        {
+            return _db.Execute(SearchCommandBuilder.SugDel(key, str)).ToString() == "1";
+        }
+
+
+        /// <inheritdoc/>
+        public List<string> SugGet(string key, string prefix, bool fuzzy = false, bool withPayloads = false, int? max = null)
+        {
+            return _db.Execute(SearchCommandBuilder.SugGet(key, prefix, fuzzy, false, withPayloads, max)).ToStringList();
+        }
+
+        /// <inheritdoc/>
+        public List<Tuple<string, double>> SugGetWithScores(string key, string prefix, bool fuzzy = false, bool withPayloads = false, int? max = null)
+        {
+            return _db.Execute(SearchCommandBuilder.SugGet(key, prefix, fuzzy, true, withPayloads, max)).ToStringDoubleTupleList();
+        }
+
+
+        /// <inheritdoc/>
+        public long SugLen(string key)
+        {
+            return _db.Execute(SearchCommandBuilder.SugLen(key)).ToLong();
+        }
+
 
         /// <inheritdoc/>
         public Dictionary<string, List<string>> SynDump(string indexName)
@@ -180,7 +227,6 @@ namespace NRedisStack
             return result;
         }
 
-        // TODO: FT.SPELLCHECK (jedis doesn't have it)
 
         /// <inheritdoc/>
         public bool SynUpdate(string indexName, string synonymGroupId, bool skipInitialScan = false, params string[] terms)

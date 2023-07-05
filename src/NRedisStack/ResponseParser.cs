@@ -7,6 +7,8 @@ using NRedisStack.CuckooFilter.DataTypes;
 using NRedisStack.CountMinSketch.DataTypes;
 using NRedisStack.TopK.DataTypes;
 using NRedisStack.Tdigest.DataTypes;
+using NRedisStack.Search;
+using NRedisStack.Search.Aggregation;
 
 namespace NRedisStack
 {
@@ -614,6 +616,92 @@ namespace NRedisStack
             return sets;
         }
 
+        public static Dictionary<string, Dictionary<string, double>> ToFtSpellCheckResult(this RedisResult result)
+        {
+            var rawTerms = (RedisResult[])result!;
+            var returnTerms = new Dictionary<string, Dictionary<string, double>>(rawTerms.Length);
+            foreach (var term in rawTerms)
+            {
+                var rawElements = (RedisResult[])term!;
+
+                string termValue = rawElements[1].ToString()!;
+
+                var list = (RedisResult[]) rawElements[2]!;
+                Dictionary<string, double> entries = new Dictionary<string, double>(list.Length);
+                foreach (var entry in list)
+                {
+                    var entryElements = (RedisResult[])entry!;
+                    string suggestion = entryElements[1].ToString()!;
+                    double score = (double)entryElements[0];
+                    entries.Add(suggestion, score);
+                }
+                returnTerms.Add(termValue, entries);
+            }
+
+            return returnTerms;
+        }
+
+        public static List<Tuple<string, double>> ToStringDoubleTupleList(this RedisResult result) // TODO: consider create class Suggestion instead of List<Tuple<string, double>>
+        {
+            var results = (RedisResult[])result!;
+            var list = new List<Tuple<string, double>>(results.Length / 2);
+            for (int i = 0; i < results.Length; i += 2)
+            {
+                var suggestion = results[i].ToString()!;
+                var score = (double)results[i + 1];
+                list.Add(new Tuple<string, double>(suggestion, score));
+            }
+            return list;
+        }
+        
+        public static Dictionary<string, RedisResult> ToStringRedisResultDictionary(this RedisResult value)
+        {
+            var res = (RedisResult[])value!;
+            var dict = new Dictionary<string, RedisResult>();
+            foreach (var pair in res)
+            {
+                var arr = (RedisResult[])pair!;
+                dict.Add(arr[0].ToString(), arr[1]);
+            }
+            return dict;
+        }
+
+        public static Tuple<SearchResult, Dictionary<string, RedisResult>> ToProfileSearchResult(this RedisResult result, Query q)
+        {
+            var results = (RedisResult[])result!;
+
+            var searchResult = results[0].ToSearchResult(q);
+            var profile = results[1].ToStringRedisResultDictionary();
+            return new Tuple<SearchResult, Dictionary<string, RedisResult>>(searchResult, profile);
+        }
+
+        public static SearchResult ToSearchResult(this RedisResult result, Query q)
+        {
+            return new SearchResult((RedisResult[])result!, !q.NoContent, q.WithScores, q.WithPayloads/*, q.ExplainScore*/);
+        }
+
+        public static Tuple<AggregationResult, Dictionary<string, RedisResult>> ToProfileAggregateResult(this RedisResult result, AggregationRequest q)
+        {
+            var results = (RedisResult[])result!;
+            var aggregateResult = results[0].ToAggregationResult(q);
+            var profile = results[1].ToStringRedisResultDictionary();
+            return new Tuple<AggregationResult, Dictionary<string, RedisResult>>(aggregateResult, profile);
+        }
+
+        public static AggregationResult ToAggregationResult(this RedisResult result, AggregationRequest query)
+        {
+            if (query.IsWithCursor())
+            {
+                var results = (RedisResult[])result!;
+
+                return new AggregationResult(results[0], (long)results[1]);
+            }
+            else
+            {
+                return new AggregationResult(result);
+            }
+        }
+
         public static Dictionary<string, RedisResult>[] ToDictionarys(this RedisResult result)
         {
             var resArr = (RedisResult[])result!;
@@ -624,6 +712,7 @@ namespace NRedisStack
             }
 
             return dicts;
+
         }
     }
 }

@@ -7,7 +7,7 @@ Aggregation and other more complex RediSearch queries
     1.  [Data Load](#vss_dataload)
     2.  [Index Creation](#vss_index)
     3.  [Search](#vss_search)
-    4.  [Hybrid query Search](#vss_hybrid_query_search) 
+    4.  [Hybrid Query Search](#vss_hybrid_query_search)
 4.  [Advanced Search Queries](#adv_search)
     1.  [Data Set](#advs_dataset)
     2.  [Data Load](#advs_dataload)
@@ -66,7 +66,7 @@ db.HashSet("vec:4", new HashEntry[]
 ### Index Creation <a name="vss_index">
 #### Command
 ```c#
-ISearchCommands ft = db.FT();
+SearchCommands ft = db.FT();
 try {ft.DropIndex("vss_idx");} catch {};
 Console.WriteLine(ft.Create("vss_idx", new FTCreateParams().On(IndexDataType.HASH).Prefix("vec:"),
     new Schema()
@@ -193,7 +193,7 @@ vec:3 is not returned because it has tag B
 
 ### Data Load  <a name="advs_dataload">
 ```c#
-IJsonCommands json = db.JSON();
+JsonCommands json = db.JSON();
 json.Set("warehouse:1", "$", new {
     city = "Boston",
     location = "-71.057083, 42.361145",
@@ -253,7 +253,7 @@ json.Set("warehouse:2", "$", new {
 ### Index Creation <a name="advs_index">
 #### Command
 ```c#
-ISearchCommands ft = db.FT();
+SearchCommands ft = db.FT();
 try {ft.DropIndex("wh_idx");} catch {};
 Console.WriteLine(ft.Create("wh_idx", new FTCreateParams()
                         .On(IndexDataType.JSON)
