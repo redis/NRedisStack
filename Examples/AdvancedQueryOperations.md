@@ -7,7 +7,7 @@ Aggregation and other more complex RediSearch queries
     1.  [Data Load](#vss_dataload)
     2.  [Index Creation](#vss_index)
     3.  [Search](#vss_search)
-    4.  [Hybrid query Search](#vss_hybrid_query_search)
+    4.  [Hybrid Query Search](#vss_hybrid_query_search)
 4.  [Advanced Search Queries](#adv_search)
     1.  [Data Set](#advs_dataset)
     2.  [Data Load](#advs_dataload)
