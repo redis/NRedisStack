@@ -38,28 +38,4 @@ public class TimeSeriesTests : AbstractNRedisStackTest, IDisposable
 
         Assert.NotEqual(ts1.GetHashCode(), ts2.GetHashCode());
     }
-
-    [Fact]
-    public void TestModulePrefixs1()
-    {
-        {
-            var conn = ConnectionMultiplexer.Connect("localhost");
-            IDatabase db = conn.GetDatabase();
-
-            var ts = db.TS();
-            // ...
-            conn.Dispose();
-        }
-
-        {
-            var conn = ConnectionMultiplexer.Connect("localhost");
-            IDatabase db = conn.GetDatabase();
-
-            var ts = db.TS();
-            // ...
-            conn.Dispose();
-        }
-
-    }
-
 }

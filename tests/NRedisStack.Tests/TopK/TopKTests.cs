@@ -100,27 +100,4 @@ public class TopKTests : AbstractNRedisStackTest, IDisposable
 
         Assert.NotEqual(topk1.GetHashCode(), topk2.GetHashCode());
     }
-
-    [Fact]
-    public void TestModulePrefixs1()
-    {
-        {
-            var conn = ConnectionMultiplexer.Connect("localhost");
-            IDatabase db = conn.GetDatabase();
-
-            var topk = db.TOPK();
-            // ...
-            conn.Dispose();
-        }
-
-        {
-            var conn = ConnectionMultiplexer.Connect("localhost");
-            IDatabase db = conn.GetDatabase();
-
-            var topk = db.TOPK();
-            // ...
-            conn.Dispose();
-        }
-
-    }
 }

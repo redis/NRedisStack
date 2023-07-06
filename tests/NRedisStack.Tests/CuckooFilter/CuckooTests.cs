@@ -402,27 +402,4 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
 
         Assert.NotEqual(cf1.GetHashCode(), cf2.GetHashCode());
     }
-
-    [Fact]
-    public void TestModulePrefixs1()
-    {
-        {
-            var conn = ConnectionMultiplexer.Connect("localhost");
-            IDatabase db = conn.GetDatabase();
-
-            var cf = db.CF();
-            // ...
-            conn.Dispose();
-        }
-
-        {
-            var conn = ConnectionMultiplexer.Connect("localhost");
-            IDatabase db = conn.GetDatabase();
-
-            var cf = db.CF();
-            // ...
-            conn.Dispose();
-        }
-
-    }
 }
