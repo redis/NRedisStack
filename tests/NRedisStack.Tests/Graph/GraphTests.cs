@@ -956,29 +956,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.NotEqual(graph1.GetHashCode(), graph2.GetHashCode());
     }
 
-    [Fact]
-    public void TestModulePrefixs1()
-    {
-        {
-            var conn = ConnectionMultiplexer.Connect("localhost");
-            IDatabase db = conn.GetDatabase();
-
-            var graph = db.GRAPH();
-            // ...
-            conn.Dispose();
-        }
-
-        {
-            var conn = ConnectionMultiplexer.Connect("localhost");
-            IDatabase db = conn.GetDatabase();
-
-            var graph = db.GRAPH();
-            // ...
-            conn.Dispose();
-        }
-
-    }
-
     #endregion
 
     #region AsyncTests

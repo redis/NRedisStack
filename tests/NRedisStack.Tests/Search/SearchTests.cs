@@ -2754,26 +2754,4 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(new object[] { "index", "SEARCH", "LIMITED", "QUERY", "*" }, search.Args);
         Assert.Equal(new object[] { "index", "AGGREGATE", "LIMITED", "QUERY", "*" }, aggregate.Args);
     }
-
-    [Fact]
-    public void TestModulePrefixs1()
-    {
-        {
-            var conn = ConnectionMultiplexer.Connect("localhost");
-            IDatabase db = conn.GetDatabase();
-
-            var ft = db.FT();
-            // ...
-            conn.Dispose();
-        }
-
-        {
-            var conn = ConnectionMultiplexer.Connect("localhost");
-            IDatabase db = conn.GetDatabase();
-
-            var ft = db.FT();
-            // ...
-            conn.Dispose();
-        }
-    }
 }

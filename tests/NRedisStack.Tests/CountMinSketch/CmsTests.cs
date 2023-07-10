@@ -326,28 +326,5 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
 
         Assert.NotEqual(cms1.GetHashCode(), cms2.GetHashCode());
     }
-
-    [Fact]
-    public void TestModulePrefixs1()
-    {
-        {
-            var conn = ConnectionMultiplexer.Connect("localhost");
-            IDatabase db = conn.GetDatabase();
-
-            var cms = db.CMS();
-            // ...
-            conn.Dispose();
-        }
-
-        {
-            var conn = ConnectionMultiplexer.Connect("localhost");
-            IDatabase db = conn.GetDatabase();
-
-            var cms = db.CMS();
-            // ...
-            conn.Dispose();
-        }
-
-    }
 }
 

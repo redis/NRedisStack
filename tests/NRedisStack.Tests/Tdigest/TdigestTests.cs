@@ -634,28 +634,6 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         Assert.NotEqual(tdigest1.GetHashCode(), tdigest2.GetHashCode());
     }
 
-    [Fact]
-    public void TestModulePrefixs1()
-    {
-        {
-            var conn = ConnectionMultiplexer.Connect("localhost");
-            IDatabase db = conn.GetDatabase();
-
-            var tdigest = db.TDIGEST();
-            // ...
-            conn.Dispose();
-        }
-
-        {
-            var conn = ConnectionMultiplexer.Connect("localhost");
-            IDatabase db = conn.GetDatabase();
-
-            var tdigest = db.TDIGEST();
-            // ...
-            conn.Dispose();
-        }
-
-    }
     private static double RandomValue()
     {
         Random random = new Random();

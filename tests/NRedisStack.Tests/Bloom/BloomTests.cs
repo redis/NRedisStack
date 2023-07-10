@@ -370,28 +370,6 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void TestModulePrefixs1()
-    {
-        {
-            var conn = ConnectionMultiplexer.Connect("localhost");
-            IDatabase db = conn.GetDatabase();
-
-            var bf  = db.FT();
-            // ...
-            conn.Dispose();
-        }
-
-        {
-            var conn = ConnectionMultiplexer.Connect("localhost");
-            IDatabase db = conn.GetDatabase();
-
-            var bf = db.FT();
-            // ...
-            conn.Dispose();
-        }
-    }
-
-    [Fact]
     public void TestInsertArgsError()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
