@@ -7,8 +7,8 @@ using StackExchange.Redis;
 
 // REMOVE_START
 namespace NRedisStack.Doc;
+[Collection("DocsTests")]
 // REMOVE_END
-
 public class SearchQuickstartExample
 {
     [Fact]

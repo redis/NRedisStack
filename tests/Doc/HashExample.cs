@@ -4,8 +4,8 @@ using StackExchange.Redis;
 
 //REMOVE_START
 namespace NRedisStack.Doc;
+[Collection("DocsTests")]
 //REMOVE_END
-
 public class HashExample
 {
     [Fact]
@@ -37,7 +37,7 @@ public class HashExample
         // Price: 4972
 
         var bike = db.HashGetAll("bike:1");
-        Console.WriteLine("Bike:1:");
+        Console.WriteLine("bike:1");
         Console.WriteLine(string.Join('\n', bike));
         // Bike:1:
         // model: Deimos
