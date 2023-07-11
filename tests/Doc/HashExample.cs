@@ -38,7 +38,7 @@ public class HashExample
 
         var bike = db.HashGetAll("bike:1");
         Console.WriteLine("bike:1");
-        Console.WriteLine(string.Join('\n', bike));
+        Console.WriteLine(string.Join("\n", bike.Select(b=>$"{b.Name}: {b.Value}")));
         // Bike:1:
         // model: Deimos
         // brand: Ergonom
