@@ -9,7 +9,6 @@ namespace NRedisStack.Doc;
 public class HashExample
 {
     [Fact]
-    
     public void run()
     {
         var muxer = ConnectionMultiplexer.Connect("localhost:6379");
@@ -38,7 +37,7 @@ public class HashExample
 
         var bike = db.HashGetAll("bike:1");
         Console.WriteLine("bike:1");
-        Console.WriteLine(string.Join("\n", bike.Select(b=>$"{b.Name}: {b.Value}")));
+        Console.WriteLine(string.Join("\n", bike.Select(b => $"{b.Name}: {b.Value}")));
         // Bike:1:
         // model: Deimos
         // brand: Ergonom
@@ -49,7 +48,7 @@ public class HashExample
         //REMOVE_START
         Assert.Equal(4, bike.Length);
         Assert.Equal("Deimos", model);
-        Assert.Equal(4972,price);
+        Assert.Equal(4972, price);
         //REMOVE_END
 
         //STEP_START hmget
