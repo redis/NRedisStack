@@ -182,6 +182,7 @@ public interface IJsonCommandsAsync
     /// <param name="path">Path within the key to get.</param>
     /// <returns>the resultant resp</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.resp"/></remarks>
+    [Obsolete("JSON.RESP is deprecated")]
     Task<RedisResult[]> RespAsync(RedisKey key, string? path = null);
 
     /// <summary>
