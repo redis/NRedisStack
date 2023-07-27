@@ -5,12 +5,18 @@ namespace NRedisStack.Graph
         private readonly string _graphName;
         private readonly string _procedure;
 
-        private string[]? _data;
+        private string[] _data = Array.Empty<string>();
 
         private readonly GraphCommandsAsync _redisGraph;
 
         private readonly object _locker = new object();
 
+        /// <summary>
+        /// Constructs a <see cref="GraphCacheList"/> for providing cached information about the graph.
+        /// </summary>
+        /// <param name="graphName">The name of the graph to cache information for.</param>
+        /// <param name="procedure">The saved procedure to call to populate cache. Must be a `read` procedure.</param>
+        /// <param name="redisGraph">The graph used for the calling the <paramref name="procedure"/>.</param>
         internal GraphCacheList(string graphName, string procedure, GraphCommands redisGraph)
         {
             _graphName = graphName;
@@ -19,6 +25,12 @@ namespace NRedisStack.Graph
             _redisGraph = redisGraph;
         }
 
+        /// <summary>
+        /// Constructs a <see cref="GraphCacheList"/> for providing cached information about the graph.
+        /// </summary>
+        /// <param name="graphName">The name of the graph to cache information for.</param>
+        /// <param name="procedure">The saved procedure to call to populate cache. Must be a `read` procedure.</param>
+        /// <param name="redisGraph">The graph used for the calling the <paramref name="procedure"/>.</param>
         internal GraphCacheList(string graphName, string procedure, GraphCommandsAsync redisGraphAsync)
         {
             _graphName = graphName;
@@ -30,18 +42,18 @@ namespace NRedisStack.Graph
         // TODO: Change this to use Lazy<T>?
         internal string GetCachedData(int index)
         {
-            if (_data == null || index >= _data.Length)
+            if (index >= _data.Length)
             {
                 lock (_locker)
                 {
-                    if (_data == null || index >= _data.Length)
+                    if (index >= _data.Length)
                     {
                         _data = GetProcedureInfo();
                     }
                 }
             }
 
-            return _data?.ElementAtOrDefault(index) ?? string.Empty;
+            return _data.ElementAtOrDefault(index);
         }
 
         private string[] GetProcedureInfo()
