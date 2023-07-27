@@ -8,7 +8,7 @@ namespace NRedisStack
 {
     public class GraphCommands : GraphCommandsAsync, IGraphCommands
     {
-        IDatabase _db;
+        readonly IDatabase _db;
 
         public GraphCommands(IDatabase db) : base(db)
         {
@@ -55,17 +55,16 @@ namespace NRedisStack
             return new ResultSet(_db.Execute(GraphCommandBuilder.RO_Query(graphName, query, timeout)), _graphCaches[graphName]);
         }
 
-        internal static new readonly Dictionary<string, List<string>> EmptyKwargsDictionary =
+        private static readonly Dictionary<string, List<string>> EmptyKwargsDictionary =
             new Dictionary<string, List<string>>();
 
-        // TODO: Check if this is needed:
         /// <inheritdoc/>
         public ResultSet CallProcedure(string graphName, string procedure, ProcedureMode procedureMode = ProcedureMode.Write) =>
-        CallProcedure(graphName, procedure, Enumerable.Empty<string>(), EmptyKwargsDictionary, procedureMode);
+            CallProcedure(graphName, procedure, Enumerable.Empty<string>(), EmptyKwargsDictionary, procedureMode);
 
         /// <inheritdoc/>
         public ResultSet CallProcedure(string graphName, string procedure, IEnumerable<string> args, ProcedureMode procedureMode = ProcedureMode.Write) =>
-        CallProcedure(graphName, procedure, args, EmptyKwargsDictionary, procedureMode);
+            CallProcedure(graphName, procedure, args, EmptyKwargsDictionary, procedureMode);
 
         /// <inheritdoc/>
         public ResultSet CallProcedure(string graphName, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs, ProcedureMode procedureMode = ProcedureMode.Write)

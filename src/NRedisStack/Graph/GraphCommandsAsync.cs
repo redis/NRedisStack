@@ -9,7 +9,7 @@ namespace NRedisStack
 {
     public class GraphCommandsAsync : IGraphCommandsAsync
     {
-        IDatabaseAsync _db;
+        readonly IDatabaseAsync _db;
 
         public GraphCommandsAsync(IDatabaseAsync db)
         {
@@ -56,16 +56,16 @@ namespace NRedisStack
             return new ResultSet(await _db.ExecuteAsync(GraphCommandBuilder.RO_Query(graphName, query, timeout)), _graphCaches[graphName]);
         }
 
-        internal static readonly Dictionary<string, List<string>> EmptyKwargsDictionary =
+        private static readonly Dictionary<string, List<string>> EmptyKwargsDictionary =
             new Dictionary<string, List<string>>();
 
         /// <inheritdoc/>
-        public async Task<ResultSet> CallProcedureAsync(string graphName, string procedure, ProcedureMode procedureMode = ProcedureMode.Write) =>
-        await CallProcedureAsync(graphName, procedure, Enumerable.Empty<string>(), EmptyKwargsDictionary, procedureMode);
+        public Task<ResultSet> CallProcedureAsync(string graphName, string procedure, ProcedureMode procedureMode = ProcedureMode.Write) =>
+            CallProcedureAsync(graphName, procedure, Enumerable.Empty<string>(), EmptyKwargsDictionary, procedureMode);
 
         /// <inheritdoc/>
-        public async Task<ResultSet> CallProcedureAsync(string graphName, string procedure, IEnumerable<string> args, ProcedureMode procedureMode = ProcedureMode.Write) =>
-        await CallProcedureAsync(graphName, procedure, args, EmptyKwargsDictionary, procedureMode);
+        public Task<ResultSet> CallProcedureAsync(string graphName, string procedure, IEnumerable<string> args, ProcedureMode procedureMode = ProcedureMode.Write) =>
+            CallProcedureAsync(graphName, procedure, args, EmptyKwargsDictionary, procedureMode);
 
         /// <inheritdoc/>
         public async Task<ResultSet> CallProcedureAsync(string graphName, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs, ProcedureMode procedureMode = ProcedureMode.Write)
