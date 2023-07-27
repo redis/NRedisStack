@@ -956,6 +956,49 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.NotEqual(graph1.GetHashCode(), graph2.GetHashCode());
     }
 
+    [Fact]
+    public void TestCallProcedureDbLabels()
+    {
+        var db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+
+        const string graphName = "social";
+
+        var graph = db.GRAPH();
+        // Create empty graph, otherwise call procedure will throw exception
+        graph.Query(graphName, "RETURN 1"); 
+
+        var labels0 = graph.CallProcedure(graphName, "db.labels");
+        Assert.Empty(labels0);
+
+        graph.Query(graphName, "CREATE (:Person { name: 'Bob' })");
+
+        var labels1 = graph.CallProcedure(graphName, "db.labels");
+        Assert.Single(labels1);
+    }
+
+    [Fact]
+    public void TestCallProcedureReadOnly()
+    {
+        var db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+
+        const string graphName = "social";
+
+        var graph = db.GRAPH();
+        // throws RedisServerException when executing a ReadOnly procedure against non-existing graph.
+        Assert.Throws<RedisServerException>(() => graph.CallProcedure(graphName, "db.labels", ProcedureMode.Read));
+
+        graph.Query(graphName, "CREATE (:Person { name: 'Bob' })");
+        var procedureArgs = new List<string>
+        {
+            "Person",
+            "name"
+        };
+        // throws RedisServerException when executing a Write procedure with Read procedure mode.
+        Assert.Throws<RedisServerException>(() => graph.CallProcedure(graphName, "db.idx.fulltext.createNodeIndex", procedureArgs, ProcedureMode.Read));
+    }
+
     #endregion
 
     #region AsyncTests
@@ -1884,6 +1927,49 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         var graph2 = db2.GRAPH();
 
         Assert.NotEqual(graph1.GetHashCode(), graph2.GetHashCode());
+    }
+
+    [Fact]
+    public async Task TestCallProcedureDbLabelsAsync()
+    {
+        var db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+
+        const string graphName = "social";
+
+        var graph = db.GRAPH();
+        // Create empty graph, otherwise call procedure will throw exception
+        await graph.QueryAsync(graphName, "RETURN 1"); 
+
+        var labels0 = await graph.CallProcedureAsync(graphName, "db.labels");
+        Assert.Empty(labels0);
+
+        await graph.QueryAsync(graphName, "CREATE (:Person { name: 'Bob' })");
+
+        var labels1 = await graph.CallProcedureAsync(graphName, "db.labels");
+        Assert.Single(labels1);
+    }
+
+    [Fact]
+    public async Task TestCallProcedureReadOnlyAsync()
+    {
+        var db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+
+        const string graphName = "social";
+
+        var graph = db.GRAPH();
+        // throws RedisServerException when executing a ReadOnly procedure against non-existing graph.
+        await Assert.ThrowsAsync<RedisServerException>(() => graph.CallProcedureAsync(graphName, "db.labels", ProcedureMode.Read));
+
+        await graph.QueryAsync(graphName, "CREATE (:Person { name: 'Bob' })");
+        var procedureArgs = new List<string>
+        {
+            "Person",
+            "name"
+        };
+        // throws RedisServerException when executing a Write procedure with Read procedure mode.
+        await Assert.ThrowsAsync<RedisServerException>(() => graph.CallProcedureAsync(graphName, "db.idx.fulltext.createNodeIndex", procedureArgs, ProcedureMode.Read));
     }
 
     [Fact]
