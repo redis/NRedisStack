@@ -53,8 +53,9 @@ namespace NRedisStack
         /// </summary>
         /// <param name="graphName">The graph containing the saved procedure.</param>
         /// <param name="procedure">The procedure name.</param>
+        /// <param name="procedureMode">The mode of the saved procedure. Defaults to <see cref="ProcedureMode.Write"/>.</param>
         /// <returns>A result set.</returns>
-        Task<ResultSet> CallProcedureAsync(string graphName, string procedure);
+        Task<ResultSet> CallProcedureAsync(string graphName, string procedure, ProcedureMode procedureMode = ProcedureMode.Write);
 
         /// <summary>
         /// Call a saved procedure with parameters.
@@ -62,8 +63,9 @@ namespace NRedisStack
         /// <param name="graphName">The graph containing the saved procedure.</param>
         /// <param name="procedure">The procedure name.</param>
         /// <param name="args">A collection of positional arguments.</param>
+        /// <param name="procedureMode">The mode of the saved procedure. Defaults to <see cref="ProcedureMode.Write"/>.</param>
         /// <returns>A result set.</returns>
-        Task<ResultSet> CallProcedureAsync(string graphName, string procedure, IEnumerable<string> args);
+        Task<ResultSet> CallProcedureAsync(string graphName, string procedure, IEnumerable<string> args, ProcedureMode procedureMode = ProcedureMode.Write);
 
         /// <summary>
         /// Call a saved procedure with parameters.
@@ -72,8 +74,9 @@ namespace NRedisStack
         /// <param name="procedure">The procedure name.</param>
         /// <param name="args">A collection of positional arguments.</param>
         /// <param name="kwargs">A collection of keyword arguments.</param>
+        /// <param name="procedureMode">The mode of the saved procedure. Defaults to <see cref="ProcedureMode.Write"/>.</param>
         /// <returns>A result set.</returns>
-        Task<ResultSet> CallProcedureAsync(string graphName, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs);
+        Task<ResultSet> CallProcedureAsync(string graphName, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs, ProcedureMode procedureMode = ProcedureMode.Write);
 
         /// <summary>
         /// Delete an existing graph.

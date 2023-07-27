@@ -1,33 +1,30 @@
 namespace NRedisStack.Graph
 {
-    internal class GraphCacheList
+    internal sealed class GraphCacheList
     {
-        protected readonly string GraphName;
-        protected readonly string Procedure;
-        private string[] _data;
+        private readonly string _graphName;
+        private readonly string _procedure;
 
-        protected readonly GraphCommands graph;
-        protected readonly GraphCommandsAsync asyncGraph;
-        private bool asyncGraphUsed;
+        private string[]? _data;
+
+        private readonly GraphCommandsAsync _redisGraph;
 
         private readonly object _locker = new object();
 
-        internal GraphCacheList(string graphName, string procedure, GraphCommands redisGraph) : this(graphName, procedure)
+        internal GraphCacheList(string graphName, string procedure, GraphCommands redisGraph)
         {
-            graph = redisGraph;
-            asyncGraphUsed = false;
+            _graphName = graphName;
+            _procedure = procedure;
+
+            _redisGraph = redisGraph;
         }
 
-        internal GraphCacheList(string graphName, string procedure, GraphCommandsAsync redisGraph) : this(graphName, procedure)
+        internal GraphCacheList(string graphName, string procedure, GraphCommandsAsync redisGraphAsync)
         {
-            asyncGraph = redisGraph;
-            asyncGraphUsed = true;
-        }
+            _graphName = graphName;
+            _procedure = procedure;
 
-        private GraphCacheList(string graphName, string procedure)
-        {
-            GraphName = graphName;
-            Procedure = procedure;
+            _redisGraph = redisGraphAsync;
         }
 
         // TODO: Change this to use Lazy<T>?
@@ -39,33 +36,27 @@ namespace NRedisStack.Graph
                 {
                     if (_data == null || index >= _data.Length)
                     {
-                        GetProcedureInfo();
+                        _data = GetProcedureInfo();
                     }
                 }
             }
 
-            return _data.ElementAtOrDefault(index);
+            return _data?.ElementAtOrDefault(index) ?? string.Empty;
         }
 
-        private void GetProcedureInfo()
+        private string[] GetProcedureInfo()
         {
-            var resultSet = CallProcedure(asyncGraphUsed);
-            var newData = new string[resultSet.Count];
-            var i = 0;
-
-            foreach (var record in resultSet)
-            {
-                newData[i++] = record.GetString(0);
-            }
-
-            _data = newData;
+            var resultSet = CallProcedure();
+            return resultSet
+                .Select(r => r.GetString(0))
+                .ToArray();
         }
 
-        protected virtual ResultSet CallProcedure(bool asyncGraphUsed = false)
+        private ResultSet CallProcedure()
         {
-            return asyncGraphUsed
-                ? asyncGraph.CallProcedureAsync(GraphName, Procedure).Result
-                : graph.CallProcedure(GraphName, Procedure);
+            return _redisGraph is GraphCommands graphSync
+                ? graphSync.CallProcedure(_graphName, _procedure, ProcedureMode.Read)
+                : _redisGraph.CallProcedureAsync(_graphName, _procedure, ProcedureMode.Read).Result;
         }
     }
 }
