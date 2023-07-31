@@ -966,7 +966,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         var graph = db.GRAPH();
         // Create empty graph, otherwise call procedure will throw exception
-        graph.Query(graphName, "RETURN 1"); 
+        graph.Query(graphName, "RETURN 1");
 
         var labels0 = graph.CallProcedure(graphName, "db.labels");
         Assert.Empty(labels0);
@@ -1939,7 +1939,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         var graph = db.GRAPH();
         // Create empty graph, otherwise call procedure will throw exception
-        await graph.QueryAsync(graphName, "RETURN 1"); 
+        await graph.QueryAsync(graphName, "RETURN 1");
 
         var labels0 = await graph.CallProcedureAsync(graphName, "db.labels");
         Assert.Empty(labels0);
