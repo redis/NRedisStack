@@ -69,7 +69,7 @@ namespace NRedisStack
         /// <inheritdoc/>
         public ResultSet CallProcedure(string graphName, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs, ProcedureMode procedureMode = ProcedureMode.Write)
         {
-            args = args.Select(a => QuoteString(a));
+            args = args.Select(QuoteString);
 
             var queryBody = new StringBuilder();
 
