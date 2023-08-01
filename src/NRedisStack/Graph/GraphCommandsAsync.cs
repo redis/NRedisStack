@@ -9,7 +9,7 @@ namespace NRedisStack
 {
     public class GraphCommandsAsync : IGraphCommandsAsync
     {
-        IDatabaseAsync _db;
+        readonly IDatabaseAsync _db;
 
         public GraphCommandsAsync(IDatabaseAsync db)
         {
@@ -56,22 +56,21 @@ namespace NRedisStack
             return new ResultSet(await _db.ExecuteAsync(GraphCommandBuilder.RO_Query(graphName, query, timeout)), _graphCaches[graphName]);
         }
 
-        internal static readonly Dictionary<string, List<string>> EmptyKwargsDictionary =
+        private static readonly Dictionary<string, List<string>> EmptyKwargsDictionary =
             new Dictionary<string, List<string>>();
 
-        // TODO: Check if this is needed:
         /// <inheritdoc/>
-        public async Task<ResultSet> CallProcedureAsync(string graphName, string procedure) =>
-        await CallProcedureAsync(graphName, procedure, Enumerable.Empty<string>(), EmptyKwargsDictionary);
+        public Task<ResultSet> CallProcedureAsync(string graphName, string procedure, ProcedureMode procedureMode = ProcedureMode.Write) =>
+            CallProcedureAsync(graphName, procedure, Enumerable.Empty<string>(), EmptyKwargsDictionary, procedureMode);
 
         /// <inheritdoc/>
-        public async Task<ResultSet> CallProcedureAsync(string graphName, string procedure, IEnumerable<string> args) =>
-        await CallProcedureAsync(graphName, procedure, args, EmptyKwargsDictionary);
+        public Task<ResultSet> CallProcedureAsync(string graphName, string procedure, IEnumerable<string> args, ProcedureMode procedureMode = ProcedureMode.Write) =>
+            CallProcedureAsync(graphName, procedure, args, EmptyKwargsDictionary, procedureMode);
 
         /// <inheritdoc/>
-        public async Task<ResultSet> CallProcedureAsync(string graphName, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs)
+        public async Task<ResultSet> CallProcedureAsync(string graphName, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs, ProcedureMode procedureMode = ProcedureMode.Write)
         {
-            args = args.Select(a => QuoteString(a));
+            args = args.Select(QuoteString);
 
             var queryBody = new StringBuilder();
 
@@ -82,7 +81,9 @@ namespace NRedisStack
                 queryBody.Append(string.Join(",", kwargsList));
             }
 
-            return await QueryAsync(graphName, queryBody.ToString());
+            return procedureMode is ProcedureMode.Read
+                ? await RO_QueryAsync(graphName, queryBody.ToString())
+                : await QueryAsync(graphName, queryBody.ToString());
         }
 
 

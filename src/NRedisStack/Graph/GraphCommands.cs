@@ -8,7 +8,7 @@ namespace NRedisStack
 {
     public class GraphCommands : GraphCommandsAsync, IGraphCommands
     {
-        IDatabase _db;
+        readonly IDatabase _db;
 
         public GraphCommands(IDatabase db) : base(db)
         {
@@ -55,22 +55,21 @@ namespace NRedisStack
             return new ResultSet(_db.Execute(GraphCommandBuilder.RO_Query(graphName, query, timeout)), _graphCaches[graphName]);
         }
 
-        internal static readonly Dictionary<string, List<string>> EmptyKwargsDictionary =
+        private static readonly Dictionary<string, List<string>> EmptyKwargsDictionary =
             new Dictionary<string, List<string>>();
 
-        // TODO: Check if this is needed:
         /// <inheritdoc/>
-        public ResultSet CallProcedure(string graphName, string procedure) =>
-        CallProcedure(graphName, procedure, Enumerable.Empty<string>(), EmptyKwargsDictionary);
+        public ResultSet CallProcedure(string graphName, string procedure, ProcedureMode procedureMode = ProcedureMode.Write) =>
+            CallProcedure(graphName, procedure, Enumerable.Empty<string>(), EmptyKwargsDictionary, procedureMode);
 
         /// <inheritdoc/>
-        public ResultSet CallProcedure(string graphName, string procedure, IEnumerable<string> args) =>
-        CallProcedure(graphName, procedure, args, EmptyKwargsDictionary);
+        public ResultSet CallProcedure(string graphName, string procedure, IEnumerable<string> args, ProcedureMode procedureMode = ProcedureMode.Write) =>
+            CallProcedure(graphName, procedure, args, EmptyKwargsDictionary, procedureMode);
 
         /// <inheritdoc/>
-        public ResultSet CallProcedure(string graphName, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs)
+        public ResultSet CallProcedure(string graphName, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs, ProcedureMode procedureMode = ProcedureMode.Write)
         {
-            args = args.Select(a => QuoteString(a));
+            args = args.Select(QuoteString);
 
             var queryBody = new StringBuilder();
 
@@ -81,7 +80,9 @@ namespace NRedisStack
                 queryBody.Append(string.Join(",", kwargsList));
             }
 
-            return Query(graphName, queryBody.ToString());
+            return procedureMode is ProcedureMode.Read
+                ? RO_Query(graphName, queryBody.ToString())
+                : Query(graphName, queryBody.ToString());
         }
 
         /// <inheritdoc/>
