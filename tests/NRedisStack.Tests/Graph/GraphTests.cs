@@ -21,7 +21,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     #region SyncTests
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestReserveBasic()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -30,7 +29,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestCreateNode()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -54,7 +52,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestCreateLabeledNode()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -76,7 +73,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestConnectNodes()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -104,7 +100,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestDeleteNodes()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -152,7 +147,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestDeleteRelationship()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -183,7 +177,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestIndex()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -211,7 +204,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestHeader()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -243,7 +235,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestRecord()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -369,7 +360,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestAdditionToProcedures()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -450,7 +440,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestEscapedQuery()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -470,7 +459,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestArraySupport()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -571,7 +559,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestPath()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -624,7 +611,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestNullGraphEntities()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -679,7 +665,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void Test64BitNumber()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -698,7 +683,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestCachedExecution()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -730,7 +714,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestMapDataType()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -761,7 +744,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestGeoPointLatLon()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -776,7 +758,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestGeoPointLonLat()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -806,7 +787,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestPoint()
     {
         var point = new Point(30.27822306, -97.75134723);
@@ -819,7 +799,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void timeoutArgument()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -834,7 +813,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestCachedExecutionReadOnly()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -868,7 +846,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestSimpleReadOnly()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -884,7 +861,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestProfile()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -903,7 +879,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestExplain()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -922,7 +897,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestSlowlog()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -938,7 +912,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestList()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -952,7 +925,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestConfig()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -973,7 +945,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestModulePrefixs()
     {
         IDatabase db1 = redisFixture.Redis.GetDatabase();
@@ -986,7 +957,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestCallProcedureDbLabels()
     {
         var db = redisFixture.Redis.GetDatabase();
@@ -1008,7 +978,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestCallProcedureReadOnly()
     {
         var db = redisFixture.Redis.GetDatabase();
@@ -1035,7 +1004,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     #region AsyncTests
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task TestReserveBasicAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1044,7 +1012,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task TestCreateNodeAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1068,7 +1035,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task TestCreateLabeledNodeAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1090,7 +1056,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task TestConnectNodesAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1119,7 +1084,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task TestDeleteNodesAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1167,7 +1131,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task TestDeleteRelationshipAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1198,7 +1161,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task TestIndexAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1226,7 +1188,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task TestHeaderAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1258,7 +1219,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task TestRecordAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1386,7 +1346,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task TestAdditionToProceduresAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1467,7 +1426,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task TestEscapedQueryAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1487,7 +1445,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task TestArraySupportAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1588,7 +1545,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task TestPathAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1641,7 +1597,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task TestNullGraphEntitiesAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1696,7 +1651,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task Test64bitnumberAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1715,7 +1669,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task TestCachedExecutionAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1747,7 +1700,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task TestMapDataTypeAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1778,7 +1730,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task TestGeoPointLatLonAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1793,7 +1744,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task TestGeoPointLonLatAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1822,7 +1772,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task timeoutArgumentAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1837,7 +1786,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task TestCachedExecutionReadOnlyAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1871,7 +1819,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task TestSimpleReadOnlyAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1887,7 +1834,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task TestProfileAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1906,7 +1852,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task TestExplainAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1925,7 +1870,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task TestSlowlogAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1941,7 +1885,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task TestListAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1955,7 +1898,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task TestConfigAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1976,7 +1918,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task TestModulePrefixsAsync()
     {
         IDatabase db1 = redisFixture.Redis.GetDatabase();
@@ -1989,7 +1930,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task TestCallProcedureDbLabelsAsync()
     {
         var db = redisFixture.Redis.GetDatabase();
@@ -2011,7 +1951,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public async Task TestCallProcedureReadOnlyAsync()
     {
         var db = redisFixture.Redis.GetDatabase();
@@ -2034,7 +1973,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestParseInfinity()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2049,7 +1987,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestEqualsAndToString()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2127,7 +2064,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "7.2.0-RC3")]
     public void TestPrepareQuery()
     {
         const string return1Query = "RETURN 1";
@@ -2136,7 +2072,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         var graph = redisFixture.Redis.GetDatabase().GRAPH();
 
         // handle chars
-        var buildCommand = GraphCommandBuilder.Query("graph", return1Query, new Dictionary<string, object> { { "a", (char)'c' }} );
+        var buildCommand = GraphCommandBuilder.Query("graph", return1Query, new Dictionary<string, object> { { "a", (char)'c' } });
         var expectedPreparedQuery1 = $"CYPHER a=\"c\" {return1Query}";
         Assert.Equal(expectedPreparedQuery1, buildCommand.Args[1].ToString()!);
         var res1 = graph.Query("graph", buildCommand.Args[1].ToString()!);
@@ -2146,64 +2082,64 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         // handle null
         var buildCommand2 = GraphCommandBuilder.Query("graph", return1Query, new Dictionary<string, object> { { "a", null } });
         var expectedPreparedQuery2 = $"CYPHER a=null {return1Query}";
-        Assert.Equal(expectedPreparedQuery2,buildCommand2.Args[1].ToString()!);
-        var res2 = graph.Query("graph",buildCommand2.Args[1].ToString()!);
+        Assert.Equal(expectedPreparedQuery2, buildCommand2.Args[1].ToString()!);
+        var res2 = graph.Query("graph", buildCommand2.Args[1].ToString()!);
         Assert.Single(res2);
         Assert.Equal(return1QueryRecordString, res2.Single().ToString());
 
         // handle arrays
         var buildCommand3 = GraphCommandBuilder.Query("graph", return1Query, new Dictionary<string, object> { { "a", new string[] { "foo", "bar" } } });
         var expectedPreparedQuery3 = $"CYPHER a=[\"foo\", \"bar\"] {return1Query}";
-        Assert.Equal(expectedPreparedQuery3,buildCommand3.Args[1].ToString()!);
-        var res3 = graph.Query("graph",buildCommand3.Args[1].ToString()!);
+        Assert.Equal(expectedPreparedQuery3, buildCommand3.Args[1].ToString()!);
+        var res3 = graph.Query("graph", buildCommand3.Args[1].ToString()!);
         Assert.Single(res3);
         Assert.Equal(return1QueryRecordString, res3.Single().ToString());
 
         // handle lists
         var buildCommand4 = GraphCommandBuilder.Query("graph", return1Query, new Dictionary<string, object> { { "a", new List<string> { "foo2", "bar2" } } });
         var expectedPreparedQuery4 = $"CYPHER a=[\"foo2\", \"bar2\"] {return1Query}";
-        Assert.Equal(expectedPreparedQuery4,buildCommand4.Args[1].ToString()!);
-        var res4 = graph.Query("graph",buildCommand4.Args[1].ToString()!);
+        Assert.Equal(expectedPreparedQuery4, buildCommand4.Args[1].ToString()!);
+        var res4 = graph.Query("graph", buildCommand4.Args[1].ToString()!);
         Assert.Single(res4);
         Assert.Equal(return1QueryRecordString, res4.Single().ToString());
 
         // handle bools
         var buildCommand5 = GraphCommandBuilder.Query("graph", return1Query, new Dictionary<string, object> { { "a", true }, { "b", false } });
         var expectedPreparedQuery5 = $"CYPHER a=true b=false {return1Query}";
-        Assert.Equal(expectedPreparedQuery5,buildCommand5.Args[1].ToString()!);
-        var res5 = graph.Query("graph",buildCommand5.Args[1].ToString()!);
+        Assert.Equal(expectedPreparedQuery5, buildCommand5.Args[1].ToString()!);
+        var res5 = graph.Query("graph", buildCommand5.Args[1].ToString()!);
         Assert.Single(res5);
         Assert.Equal(return1QueryRecordString, res4.Single().ToString());
 
         // handle floats
         var buildCommand6 = GraphCommandBuilder.Query("graph", return1Query, new Dictionary<string, object> { { "a", 1.4d } });
         var expectedPreparedQuery6 = $"CYPHER a=1.4 {return1Query}";
-        Assert.Equal(expectedPreparedQuery6,buildCommand6.Args[1].ToString()!);
-        var res6 = graph.Query("graph",buildCommand6.Args[1].ToString()!);
+        Assert.Equal(expectedPreparedQuery6, buildCommand6.Args[1].ToString()!);
+        var res6 = graph.Query("graph", buildCommand6.Args[1].ToString()!);
         Assert.Single(res6);
         Assert.Equal(return1QueryRecordString, res4.Single().ToString());
 
         // handle ints
         var buildCommand7 = GraphCommandBuilder.Query("graph", return1Query, new Dictionary<string, object> { { "a", 5 } });
         var expectedPreparedQuery7 = $"CYPHER a=5 {return1Query}";
-        Assert.Equal(expectedPreparedQuery7,buildCommand7.Args[1].ToString()!);
-        var res7 = graph.Query("graph",buildCommand7.Args[1].ToString()!);
+        Assert.Equal(expectedPreparedQuery7, buildCommand7.Args[1].ToString()!);
+        var res7 = graph.Query("graph", buildCommand7.Args[1].ToString()!);
         Assert.Single(res7);
         Assert.Equal(return1QueryRecordString, res4.Single().ToString());
 
         // handle quotes
         var buildCommand8 = GraphCommandBuilder.Query("graph", return1Query, new Dictionary<string, object> { { "a", "\"abc\"" } });
         var expectedPreparedQuery8 = $"CYPHER a=\"\\\"abc\\\"\" {return1Query}";
-        Assert.Equal(expectedPreparedQuery8,buildCommand8.Args[1].ToString()!);
-        var res8 = graph.Query("graph",buildCommand8.Args[1].ToString()!);
+        Assert.Equal(expectedPreparedQuery8, buildCommand8.Args[1].ToString()!);
+        var res8 = graph.Query("graph", buildCommand8.Args[1].ToString()!);
         Assert.Single(res8);
         Assert.Equal(return1QueryRecordString, res5.Single().ToString());
 
         // handle backslashes
         var buildCommand9 = GraphCommandBuilder.Query("graph", return1Query, new Dictionary<string, object> { { "a", "abc\\" } });
         var expectedPreparedQuery9 = $"CYPHER a=\"abc\\\\\" {return1Query}";
-        Assert.Equal(expectedPreparedQuery9,buildCommand9.Args[1].ToString()!);
-        var res9 = graph.Query("graph",buildCommand9.Args[1].ToString()!);
+        Assert.Equal(expectedPreparedQuery9, buildCommand9.Args[1].ToString()!);
+        var res9 = graph.Query("graph", buildCommand9.Args[1].ToString()!);
         Assert.Single(res9);
         Assert.Equal(return1QueryRecordString, res6.Single().ToString());
     }
