@@ -59,7 +59,7 @@ jobs:
           echo "${{secrets.REDIS_USER_CRT}}" > tests/NRedisStack.Tests/bin/Debug/net7.0/redis_user.crt
           echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > tests/NRedisStack.Tests/bin/Debug/net7.0/redis_user_private.key
           ls -R
-          if [ "$REDIS_VERSION" != "edge" ]; then
+          if [ "$REDIS_VERSION" != "edge"  && "$REDIS_VERSION" != "7.2.0-RC3"]; then
             dotnet test -f net7.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --filter RunOnlyOnThisVersion!=edge
           elif [ "$REDIS_VERSION" == "7.2.0-RC3" ]; then
             dotnet test -f net7.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --filter SkipIfThisIsTheVersoin!=7.2.0-RC3
