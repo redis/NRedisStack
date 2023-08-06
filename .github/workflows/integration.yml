@@ -48,7 +48,7 @@ jobs:
           ls -R
           if [ "$REDIS_VERSION" != "edge" ]; then
             dotnet test -f net6.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --filter Category!=edge
-          else if [ "$REDIS_VERSION" != "7.2.0-RC3" ]; then
+          elif [ "$REDIS_VERSION" != "7.2.0-RC3" ]; then
             dotnet test -f net6.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --filter Category!=7.2.0-RC3
           else
             dotnet test -f net6.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
