@@ -17,7 +17,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
 
 
     [Fact]
-    [Trait("Category", "edge")]
+    [Trait("RunOnlyOnThisVersion", "edge")]
     public void TestTFunctionLoadDelete()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -28,7 +28,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
 
 
     [Fact]
-    [Trait("Category", "edge")]
+    [Trait("RunOnlyOnThisVersion", "edge")]
     public async Task TestTFunctionLoadDeleteAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -40,7 +40,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "edge")]
+    [Trait("RunOnlyOnThisVersion", "edge")]
     public void TestTFunctionList()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -72,7 +72,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "edge")]
+    [Trait("RunOnlyOnThisVersion", "edge")]
     public async Task TestTFunctionListAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -102,7 +102,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "edge")]
+    [Trait("RunOnlyOnThisVersion", "edge")]
     public void TestTFCall()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -117,7 +117,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "edge")]
+    [Trait("RunOnlyOnThisVersion", "edge")]
     public async Task TestTFCallAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -132,7 +132,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("Category", "edge")]
+    [Trait("RunOnlyOnThisVersion", "edge")]
     public void TestGearsCommandBuilder()
     {
         // TFunctionLoad:
