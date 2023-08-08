@@ -1,15 +1,13 @@
-using System;
 using Xunit;
-using Xunit.Sdk;
 using StackExchange.Redis;
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-public class SkipIfRedisVersionLessThanAttribute : FactAttribute
+public class SkipIfRedisVersionGteAttribute : FactAttribute
 {
     private readonly string _minVersion;
-    private string DefaultRedisConnectionString = Environment.GetEnvironmentVariable("REDIS") ?? "localhost:6379";
+    private readonly string DefaultRedisConnectionString = Environment.GetEnvironmentVariable("REDIS") ?? "localhost:6379";
 
-    public SkipIfRedisVersionLessThanAttribute(string minVersion)
+    public SkipIfRedisVersionGteAttribute(string minVersion)
     {
         _minVersion = minVersion;
     }
@@ -24,7 +22,7 @@ public class SkipIfRedisVersionLessThanAttribute : FactAttribute
 
                 if (serverVersion < new Version(_minVersion))
                 {
-                    return $"Test skipped because Redis server version ({serverVersion}) is less than {_minVersion}.";
+                    return $"Test skipped because Redis server version ({serverVersion}) is >= {_minVersion}.";
                 }
 
                 return null;
