@@ -18,7 +18,7 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
         redisFixture.Redis.GetDatabase().KeyDelete(key);
     }
 
-    [SkipIfRedisVersionGte("7.2.0")]
+    [SkipIfRedisVersionGte("7.2.0-RC3")]
     public async Task TestModulsPipeline()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
