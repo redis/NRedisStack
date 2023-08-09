@@ -20,7 +20,7 @@ public class SkipIfRedisVersionGteAttribute : FactAttribute
             {
                 var serverVersion = connection.GetServer(connection.GetEndPoints()[0]).Version;
 
-                if (serverVersion < new Version(_minVersion))
+                if (serverVersion >= new Version(_minVersion))
                 {
                     return $"Test skipped because Redis server version ({serverVersion}) is >= {_minVersion}.";
                 }
