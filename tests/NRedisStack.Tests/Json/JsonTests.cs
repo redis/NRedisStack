@@ -704,7 +704,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("RunOnlyOnThisVersion", "edge")]
+    [Trait("Category", "edge")]
     public void MSet()
     {
         IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
@@ -729,7 +729,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("RunOnlyOnThisVersion", "edge")]
+    [Trait("Category", "edge")]
     public async Task MSetAsync()
     {
         IJsonCommandsAsync commands = new JsonCommands(redisFixture.Redis.GetDatabase());
@@ -753,7 +753,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("RunOnlyOnThisVersion", "edge")]
+    [Trait("Category", "edge")]
     public void Merge()
     {
         // Create a connection to Redis
@@ -773,7 +773,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [Trait("RunOnlyOnThisVersion", "edge")]
+    [Trait("Category", "edge")]
     public async Task MergeAsync()
     {
         // Create a connection to Redis

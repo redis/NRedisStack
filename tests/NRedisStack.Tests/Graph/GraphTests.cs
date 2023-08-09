@@ -23,7 +23,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedisVersionLt("7.2.0")]
     public void TestReserveBasic()
     {
-        Skip.IfServerLessThan(ServerVersion, "7.2.0");
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var graph = db.GRAPH();
@@ -32,7 +31,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedisVersionLt("7.2.0")]
     public void TestCreateNode()
     {
-        Skip.IfServerLessThan(ServerVersion, "7.2.0");
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var graph = db.GRAPH();
@@ -56,7 +54,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedisVersionLt("7.2.0")]
     public void TestCreateLabeledNode()
     {
-        Skip.IfServerLessThan(ServerVersion, "7.2.0");
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var graph = db.GRAPH();
@@ -78,7 +75,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedisVersionLt("7.2.0")]
     public void TestConnectNodes()
     {
-        Skip.IfServerLessThan(ServerVersion, "7.2.0");
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var graph = db.GRAPH();
@@ -106,7 +102,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedisVersionLt("7.2.0")]
     public void TestDeleteNodes()
     {
-        Skip.IfServerLessThan(ServerVersion, "7.2.0");
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var graph = db.GRAPH();
@@ -184,7 +179,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedisVersionLt("7.2.0")]
     public void TestIndex()
     {
-        Skip.IfServerLessThan(ServerVersion, "7.2.0");
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var graph = db.GRAPH();
@@ -241,7 +235,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedisVersionLt("7.2.0")]
-    // [Trait("SkipIfThisIsTheVersoin", "7.2.0")]
     public void TestRecord()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();

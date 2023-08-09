@@ -47,9 +47,7 @@ jobs:
           echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > tests/NRedisStack.Tests/bin/Debug/net6.0/redis_user_private.key
           ls -R
           if [ "$REDIS_VERSION" != "edge" ]; then
-            dotnet test -f net6.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --filter RunOnlyOnThisVersion!=edge
-          elif [ "$REDIS_VERSION" == "7.2.0-RC3" ]; then
-            dotnet test -f net6.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --filter SkipIfThisIsTheVersoin!=7.2.0-RC3
+            dotnet test -f net6.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --filter Category!=edge
           else
             dotnet test -f net6.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
           fi
@@ -59,10 +57,8 @@ jobs:
           echo "${{secrets.REDIS_USER_CRT}}" > tests/NRedisStack.Tests/bin/Debug/net7.0/redis_user.crt
           echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > tests/NRedisStack.Tests/bin/Debug/net7.0/redis_user_private.key
           ls -R
-          if [ "$REDIS_VERSION" != "edge"  && "$REDIS_VERSION" != "7.2.0-RC3"]; then
-            dotnet test -f net7.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --filter RunOnlyOnThisVersion!=edge
-          elif [ "$REDIS_VERSION" == "7.2.0-RC3" ]; then
-            dotnet test -f net7.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --filter SkipIfThisIsTheVersoin!=7.2.0-RC3
+          if [ "$REDIS_VERSION" != "edge" ]; then
+            dotnet test -f net7.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --filter Category!=edge
           else
             dotnet test -f net7.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
           fi
@@ -109,4 +105,4 @@ jobs:
         shell: cmd
         run: |
           START wsl ./redis-stack-server-${{env.redis_stack_version}}/bin/redis-stack-server &
-          dotnet test -f net481 --no-build --verbosity normal --filter RunOnlyOnThisVersion!=edge
+          dotnet test -f net481 --no-build --verbosity normal --filter Category!=edge
