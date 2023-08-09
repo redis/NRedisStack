@@ -20,19 +20,19 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
     #region SyncTests
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestReserveBasic()
     {
+        Skip.IfServerLessThan(ServerVersion, "7.2.0");
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var graph = db.GRAPH();
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestCreateNode()
     {
+        Skip.IfServerLessThan(ServerVersion, "7.2.0");
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var graph = db.GRAPH();
@@ -53,10 +53,10 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         graph.Delete("social");
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestCreateLabeledNode()
     {
+        Skip.IfServerLessThan(ServerVersion, "7.2.0");
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var graph = db.GRAPH();
@@ -75,10 +75,10 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         // Assert.False(resultSet..iterator().MoveNext());
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestConnectNodes()
     {
+        Skip.IfServerLessThan(ServerVersion, "7.2.0");
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var graph = db.GRAPH();
@@ -103,10 +103,10 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, resultSet.Count);
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestDeleteNodes()
     {
+        Skip.IfServerLessThan(ServerVersion, "7.2.0");
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var graph = db.GRAPH();
@@ -151,8 +151,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         // Assert.False(deleteResult.iterator().MoveNext());
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestDeleteRelationship()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -182,10 +181,10 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         // Assert.False(deleteResult.iterator().MoveNext());
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestIndex()
     {
+        Skip.IfServerLessThan(ServerVersion, "7.2.0");
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var graph = db.GRAPH();
@@ -210,8 +209,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, deleteExistingIndexResult.Statistics.IndicesDeleted);
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestHeader()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -242,8 +240,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("a.age", schemaNames[2]);
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
+    // [Trait("SkipIfThisIsTheVersoin", "7.2.0")]
     public void TestRecord()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -368,8 +366,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestAdditionToProcedures()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -449,8 +446,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expectedEdge.ToString(), record.Values[1].ToString());
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestEscapedQuery()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -469,8 +465,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(graph.Query("social", "MATCH (n) where n.s1='S\"' RETURN n"));
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestArraySupport()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -570,8 +565,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         }
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestPath()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -623,8 +617,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         }
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestNullGraphEntities()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -678,8 +671,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(record.Values[0]);
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void Test64BitNumber()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -697,8 +689,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestCachedExecution()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -729,8 +720,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.True(resultSet.Statistics.CachedExecution);
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestMapDataType()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -760,8 +750,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal((object)expected, actual);
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestGeoPointLatLon()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -775,8 +764,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         AssertTestGeoPoint(graph);
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestGeoPointLonLat()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -805,8 +793,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal((object)(point), property);
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestPoint()
     {
         var point = new Point(30.27822306, -97.75134723);
@@ -818,8 +805,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Throws<ArgumentOutOfRangeException>(() => new Point(new List<double> { 1, 2, 3 }));
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void timeoutArgument()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -833,8 +819,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(100l, (long)r.Values[0]);
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestCachedExecutionReadOnly()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -867,8 +852,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.True(resultSet.Statistics.CachedExecution);
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestSimpleReadOnly()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -883,8 +867,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("30", r.Values[0].ToString());
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestProfile()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -902,8 +885,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         }
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestExplain()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -921,8 +903,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         }
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestSlowlog()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -937,8 +918,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         slowlogs.ForEach(sl => sl.ForEach(s => Assert.NotNull(s)));
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestList()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -951,8 +931,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(new List<string>() { "social" }, graph.List());
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestConfig()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -972,8 +951,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         graph.ConfigSet(name, existingValue != null ? existingValue.ToString() : -1);
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestModulePrefixs()
     {
         IDatabase db1 = redisFixture.Redis.GetDatabase();
@@ -985,8 +963,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.NotEqual(graph1.GetHashCode(), graph2.GetHashCode());
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestCallProcedureDbLabels()
     {
         var db = redisFixture.Redis.GetDatabase();
@@ -1007,8 +984,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Single(labels1);
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestCallProcedureReadOnly()
     {
         var db = redisFixture.Redis.GetDatabase();
@@ -1034,8 +1010,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
     #region AsyncTests
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task TestReserveBasicAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1043,8 +1018,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         var graph = db.GRAPH();
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task TestCreateNodeAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1067,8 +1041,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         await graph.DeleteAsync("social");
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task TestCreateLabeledNodeAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1089,8 +1062,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         // Assert.False(resultSet..iterator().MoveNext());
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task TestConnectNodesAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1118,8 +1090,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         // Assert.False(resultSet.GetEnumerator().MoveNext());
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task TestDeleteNodesAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1166,8 +1137,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         // Assert.False(deleteResult.iterator().MoveNext());
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task TestDeleteRelationshipAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1197,8 +1167,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         // Assert.False(deleteResult.iterator().MoveNext());
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task TestIndexAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1225,8 +1194,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, deleteExistingIndexResult.Statistics.IndicesDeleted);
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task TestHeaderAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1257,8 +1225,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("a.age", schemaNames[2]);
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task TestRecordAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1385,8 +1352,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task TestAdditionToProceduresAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1466,8 +1432,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expectedEdge.ToString(), record.Values[1].ToString());
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task TestEscapedQueryAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1486,8 +1451,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(await graph.QueryAsync("social", "MATCH (n) where n.s1='S\"' RETURN n"));
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task TestArraySupportAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1587,8 +1551,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         }
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task TestPathAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1640,8 +1603,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         }
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task TestNullGraphEntitiesAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1695,8 +1657,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(record.Values[0]);
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task Test64bitnumberAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1714,8 +1675,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task TestCachedExecutionAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1746,8 +1706,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.True(resultSet.Statistics.CachedExecution);
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task TestMapDataTypeAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1777,8 +1736,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal((object)expected, actual);
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task TestGeoPointLatLonAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1792,8 +1750,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         AssertTestGeoPoint(graph);
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task TestGeoPointLonLatAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1821,8 +1778,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal((object)(new Point(30.27822306, -97.75134723)), property);
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task timeoutArgumentAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1836,8 +1792,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(100l, (long)r.Values[0]);
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task TestCachedExecutionReadOnlyAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1870,8 +1825,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.True(resultSet.Statistics.CachedExecution);
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task TestSimpleReadOnlyAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1886,8 +1840,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("30", r.Values[0].ToString());
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task TestProfileAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1905,8 +1858,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         }
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task TestExplainAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1924,8 +1876,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         }
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task TestSlowlogAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1940,8 +1891,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         slowlogs.ForEach(sl => sl.ForEach(s => Assert.NotNull(s)));
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task TestListAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1954,8 +1904,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(new List<string>() { "social" }, await graph.ListAsync());
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task TestConfigAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1975,8 +1924,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         await graph.ConfigSetAsync(name, existingValue != null ? existingValue.ToString() : -1);
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task TestModulePrefixsAsync()
     {
         IDatabase db1 = redisFixture.Redis.GetDatabase();
@@ -1988,8 +1936,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.NotEqual(graph1.GetHashCode(), graph2.GetHashCode());
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task TestCallProcedureDbLabelsAsync()
     {
         var db = redisFixture.Redis.GetDatabase();
@@ -2010,8 +1957,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Single(labels1);
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public async Task TestCallProcedureReadOnlyAsync()
     {
         var db = redisFixture.Redis.GetDatabase();
@@ -2033,8 +1979,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         await Assert.ThrowsAsync<RedisServerException>(() => graph.CallProcedureAsync(graphName, "db.idx.fulltext.createNodeIndex", procedureArgs, ProcedureMode.Read));
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestParseInfinity()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2048,8 +1993,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(double.PositiveInfinity, r.Values[0]);
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestEqualsAndToString()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2126,8 +2070,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expectedPathString, pathString);
     }
 
-    [Fact]
-    [Trait("SkipIfThisIsTheVersoin", "7.2.0-RC3")]
+    [SkipIfRedisVersionLt("7.2.0")]
     public void TestPrepareQuery()
     {
         const string return1Query = "RETURN 1";
