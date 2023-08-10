@@ -1,7 +1,6 @@
 using Xunit;
 using StackExchange.Redis;
 using NRedisStack.RedisStackCommands;
-using Moq;
 using System.Text.Json;
 using NRedisStack.Search;
 
@@ -9,7 +8,6 @@ namespace NRedisStack.Tests;
 
 public class PipelineTests : AbstractNRedisStackTest, IDisposable
 {
-    Mock<IDatabase> _mock = new Mock<IDatabase>();
     private readonly string key = "PIPELINE_TESTS";
     public PipelineTests(RedisFixture redisFixture) : base(redisFixture) { }
 

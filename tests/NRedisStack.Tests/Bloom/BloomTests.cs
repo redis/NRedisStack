@@ -1,13 +1,11 @@
 using Xunit;
 using StackExchange.Redis;
 using NRedisStack.RedisStackCommands;
-using Moq;
 
 namespace NRedisStack.Tests.Bloom;
 
 public class BloomTests : AbstractNRedisStackTest, IDisposable
 {
-    Mock<IDatabase> _mock = new Mock<IDatabase>();
     private readonly string key = "BLOOM_TESTS";
     public BloomTests(RedisFixture redisFixture) : base(redisFixture) { }
 

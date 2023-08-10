@@ -1,7 +1,6 @@
 using Xunit;
 using StackExchange.Redis;
 using NRedisStack.RedisStackCommands;
-using Moq;
 using NRedisStack.Search;
 using static NRedisStack.Search.Schema;
 using NRedisStack.Search.Aggregation;
@@ -12,7 +11,6 @@ namespace NRedisStack.Tests.Search;
 
 public class SearchTests : AbstractNRedisStackTest, IDisposable
 {
-    Mock<IDatabase> _mock = new Mock<IDatabase>();
     // private readonly string key = "SEARCH_TESTS";
     private readonly string index = "TEST_INDEX";
     public SearchTests(RedisFixture redisFixture) : base(redisFixture) { }

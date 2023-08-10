@@ -1,13 +1,11 @@
 using Xunit;
 using StackExchange.Redis;
 using NRedisStack.RedisStackCommands;
-using Moq;
 
 namespace NRedisStack.Tests.TopK;
 
 public class TopKTests : AbstractNRedisStackTest, IDisposable
 {
-    Mock<IDatabase> _mock = new Mock<IDatabase>();
     private readonly string key = "TOPK_TESTS";
     public TopKTests(RedisFixture redisFixture) : base(redisFixture) { }
 

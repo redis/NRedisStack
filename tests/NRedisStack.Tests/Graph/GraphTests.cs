@@ -1,7 +1,6 @@
 using Xunit;
 using StackExchange.Redis;
 using NRedisStack.RedisStackCommands;
-using Moq;
 using NRedisStack.Graph;
 using NRedisStack.Graph.DataTypes;
 
@@ -9,7 +8,6 @@ namespace NRedisStack.Tests.Graph;
 
 public class GraphTests : AbstractNRedisStackTest, IDisposable
 {
-    Mock<IDatabase> _mock = new Mock<IDatabase>();
     private readonly string key = "GRAPH_TESTS";
     public GraphTests(RedisFixture redisFixture) : base(redisFixture) { }
 

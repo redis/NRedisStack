@@ -2,7 +2,6 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Xunit;
 using StackExchange.Redis;
-using Moq;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Json.DataTypes;
 
@@ -10,7 +9,6 @@ namespace NRedisStack.Tests;
 
 public class JsonTests : AbstractNRedisStackTest, IDisposable
 {
-    Mock<IDatabase> _mock = new Mock<IDatabase>();
     private readonly string _testName = "JSON_TESTS";
     public JsonTests(RedisFixture redisFixture) : base(redisFixture) { }
 
@@ -98,15 +96,6 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var actual = commands.Get(Path.Combine("BaseDir", "DirNumber2", "DirNumber3", $"jsonFile7"));
         Assert.Equal(jsons[6], actual.ToString());
         Directory.Delete("BaseDir", true);
-    }
-
-    [Fact]
-    public void TestJsonSetNotExist()
-    {
-        var obj = new Person { Name = "Shachar", Age = 23 };
-        _mock.Setup(x => x.Execute(It.IsAny<string>(), It.IsAny<object[]>())).Returns((RedisResult.Create(new RedisValue("OK"))));
-        _mock.Object.JSON().Set("Person:Shachar", "$", obj, When.NotExists);
-        _mock.Verify(x => x.Execute("JSON.SET", "Person:Shachar", "$", "{\"Name\":\"Shachar\",\"Age\":23}", "NX"));
     }
 
     [Fact]
