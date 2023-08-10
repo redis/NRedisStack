@@ -105,11 +105,12 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var conn = redisFixture.Redis;
         var db = conn.GetDatabase();
         IJsonCommands commands = new JsonCommands(db);
+        db.Execute("FLUSHALL");
 
         var obj = new Person { Name = "Shachar", Age = 23 };
         Assert.True(commands.Set("Person:Shachar", "$", obj, When.NotExists));
         Assert.False(commands.Set("Person:Shachar", "$", obj, When.NotExists));
-        Assert.False(commands.Set("Person:Shachar", "$", obj, When.Exists));
+        Assert.True(commands.Set("Person:Shachar", "$", obj, When.Exists));
     }
 
     [Fact]
@@ -119,11 +120,12 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var conn = redisFixture.Redis;
         var db = conn.GetDatabase();
         IJsonCommandsAsync commands = new JsonCommands(db);
+        db.Execute("FLUSHALL");
 
         var obj = new Person { Name = "Shachar", Age = 23 };
         Assert.True(await commands.SetAsync("Person:Shachar", "$", obj, When.NotExists));
         Assert.False(await commands.SetAsync("Person:Shachar", "$", obj, When.NotExists));
-        Assert.False(await commands.SetAsync("Person:Shachar", "$", obj, When.Exists));
+        Assert.True(await commands.SetAsync("Person:Shachar", "$", obj, When.Exists));
     }
 
     [Fact]
