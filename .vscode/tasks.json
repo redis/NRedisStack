@@ -38,8 +38,13 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "test",
+            "label": "test 6.2.6",
             "dependsOn": [],
+            "options": {
+                "env": {
+                    "REDIS": "${env:REDIS__6_2_6}"
+                }
+            },
             "command": "dotnet",
             "type": "process",
             "args": [
@@ -48,6 +53,54 @@
                 "/p:CollectCoverage=true",
                 "/p:CoverletOutputFormat=lcov",
                 "/p:CoverletOutput=./lcov.info"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "test 7.0.6",
+            "dependsOn": [],
+            "options": {
+                "env": {
+                    "REDIS": "${env:REDIS__7_0_6}"
+                }
+            },
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "test",
+                "${workspaceFolder}/tests/NRedisStack.Tests/NRedisStack.Tests.csproj",
+                "/p:CollectCoverage=true",
+                "/p:CoverletOutputFormat=lcov",
+                "/p:CoverletOutput=./lcov.info"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "test edge",
+            "dependsOn": [],
+            "options": {
+                "env": {
+                    "REDIS": "${env:REDIS__edge}"
+                }
+            },
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "test",
+                "${workspaceFolder}/tests/NRedisStack.Tests/NRedisStack.Tests.csproj",
+                "/p:CollectCoverage=true",
+                "/p:CoverletOutputFormat=lcov",
+                "/p:CoverletOutput=./lcov.info"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "test all",
+            "dependsOrder": "parallel",
+            "dependsOn": [
+                "test 6.2.6",
+                "test 7.0.6",
+                "test edge"
             ],
             "problemMatcher": "$msCompile",
             "group": {
