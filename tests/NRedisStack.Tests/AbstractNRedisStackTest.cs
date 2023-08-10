@@ -7,8 +7,6 @@ namespace NRedisStack.Tests
 {
     public abstract class AbstractNRedisStackTest : IClassFixture<RedisFixture>, IAsyncLifetime
     {
-        public Version ServerVersion => redisFixture.ServerVersion;
-
         protected internal RedisFixture redisFixture;
 
         protected internal AbstractNRedisStackTest(RedisFixture redisFixture) => this.redisFixture = redisFixture;

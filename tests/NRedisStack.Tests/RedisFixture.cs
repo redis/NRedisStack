@@ -16,7 +16,5 @@ namespace NRedisStack.Tests
         }
 
         public ConnectionMultiplexer Redis { get; private set; }
-
-        public Version ServerVersion => Redis.GetServer(redis).Version;
     }
 }

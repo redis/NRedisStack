@@ -16,8 +16,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [Fact]
-    [Trait("Category", "edge")]
+    [SkipIfRedisVersionLt("7.1.242")]
     public void TestTFunctionLoadDelete()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -27,8 +26,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [Fact]
-    [Trait("Category", "edge")]
+    [SkipIfRedisVersionLt("7.1.242")]
     public async Task TestTFunctionLoadDeleteAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -39,8 +37,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await db.TFunctionDeleteAsync("lib"));
     }
 
-    [Fact]
-    [Trait("Category", "edge")]
+    [SkipIfRedisVersionLt("7.1.242")]
     public void TestTFunctionList()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -71,8 +68,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         Assert.True(db.TFunctionDelete("lib3"));
     }
 
-    [Fact]
-    [Trait("Category", "edge")]
+    [SkipIfRedisVersionLt("7.1.242")]
     public async Task TestTFunctionListAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -101,8 +97,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await db.TFunctionDeleteAsync("lib3"));
     }
 
-    [Fact]
-    [Trait("Category", "edge")]
+    [SkipIfRedisVersionLt("7.1.242")]
     public void TestTFCall()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -116,8 +111,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         Assert.True(db.TFunctionDelete("lib"));
     }
 
-    [Fact]
-    [Trait("Category", "edge")]
+    [SkipIfRedisVersionLt("7.1.242")]
     public async Task TestTFCallAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -131,8 +125,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await db.TFunctionDeleteAsync("lib"));
     }
 
-    [Fact]
-    [Trait("Category", "edge")]
+    [SkipIfRedisVersionLt("7.1.242")]
     public void TestGearsCommandBuilder()
     {
         // TFunctionLoad:
