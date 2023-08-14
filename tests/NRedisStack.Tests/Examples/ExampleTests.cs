@@ -1,7 +1,6 @@
 using System.Net.Security;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
-using Moq;
 using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
@@ -21,7 +20,6 @@ namespace NRedisStack.Tests;
 public class ExampleTests : AbstractNRedisStackTest, IDisposable
 {
     private readonly ITestOutputHelper testOutputHelper;
-    Mock<IDatabase> _mock = new Mock<IDatabase>();
     private readonly string key = "EXAMPLES_TESTS";
     public ExampleTests(RedisFixture redisFixture, ITestOutputHelper testOutputHelper) : base(redisFixture)
     {

@@ -1,5 +1,4 @@
-﻿using Moq;
-using NRedisStack.RedisStackCommands;
+﻿using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
 using StackExchange.Redis;
 using System.Text.Json;
@@ -9,7 +8,6 @@ namespace NRedisStack.Tests
 {
     public class TransactionTests : AbstractNRedisStackTest, IDisposable
     {
-        Mock<IDatabase> _mock = new Mock<IDatabase>();
         private readonly string key = "TRX_TESTS";
         public TransactionTests(RedisFixture redisFixture) : base(redisFixture) { }
 
