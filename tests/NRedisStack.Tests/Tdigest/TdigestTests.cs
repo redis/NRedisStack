@@ -1,13 +1,11 @@
 using Xunit;
 using StackExchange.Redis;
 using NRedisStack.RedisStackCommands;
-using Moq;
 
 namespace NRedisStack.Tests.Tdigest;
 
 public class TdigestTests : AbstractNRedisStackTest, IDisposable
 {
-    Mock<IDatabase> _mock = new Mock<IDatabase>();
     private readonly string key = "TDIGEST_TESTS";
     public TdigestTests(RedisFixture redisFixture) : base(redisFixture) { }
 

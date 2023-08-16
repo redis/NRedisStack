@@ -1,13 +1,11 @@
 using Xunit;
 using StackExchange.Redis;
 using NRedisStack.RedisStackCommands;
-using Moq;
 
 namespace NRedisStack.Tests.CuckooFilter;
 
 public class CuckooTests : AbstractNRedisStackTest, IDisposable
 {
-    Mock<IDatabase> _mock = new Mock<IDatabase>();
     private readonly string key = "CUCKOO_TESTS";
     public CuckooTests(RedisFixture redisFixture) : base(redisFixture) { }
 

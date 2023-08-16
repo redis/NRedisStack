@@ -2,7 +2,6 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Xunit;
 using StackExchange.Redis;
-using Moq;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Json.DataTypes;
 
@@ -10,7 +9,6 @@ namespace NRedisStack.Tests;
 
 public class JsonTests : AbstractNRedisStackTest, IDisposable
 {
-    Mock<IDatabase> _mock = new Mock<IDatabase>();
     private readonly string _testName = "JSON_TESTS";
     public JsonTests(RedisFixture redisFixture) : base(redisFixture) { }
 
@@ -25,7 +23,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         //arrange
         var conn = redisFixture.Redis;
         var db = conn.GetDatabase();
-        IJsonCommands commands = new JsonCommands(db);
+        var commands = new JsonCommands(db);
         var keys = CreateKeyNames(1);
 
         //creating json string:
@@ -53,7 +51,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         //arrange
         var conn = redisFixture.Redis;
         var db = conn.GetDatabase();
-        IJsonCommands commands = new JsonCommands(db);
+        var commands = new JsonCommands(db);
 
         //creating json string:
         object[] persons = new object[10];
@@ -103,10 +101,31 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void TestJsonSetNotExist()
     {
+        //arrange
+        var conn = redisFixture.Redis;
+        var db = conn.GetDatabase();
+        var commands = new JsonCommands(db);
+        db.Execute("FLUSHALL");
+
         var obj = new Person { Name = "Shachar", Age = 23 };
-        _mock.Setup(x => x.Execute(It.IsAny<string>(), It.IsAny<object[]>())).Returns((RedisResult.Create(new RedisValue("OK"))));
-        _mock.Object.JSON().Set("Person:Shachar", "$", obj, When.NotExists);
-        _mock.Verify(x => x.Execute("JSON.SET", "Person:Shachar", "$", "{\"Name\":\"Shachar\",\"Age\":23}", "NX"));
+        Assert.True(commands.Set("Person:Shachar", "$", obj, When.NotExists));
+        Assert.False(commands.Set("Person:Shachar", "$", obj, When.NotExists));
+        Assert.True(commands.Set("Person:Shachar", "$", obj, When.Exists));
+    }
+
+    [Fact]
+    public async Task TestJsonSetNotExistAsync()
+    {
+        //arrange
+        var conn = redisFixture.Redis;
+        var db = conn.GetDatabase();
+        var commands = new JsonCommands(db);
+        db.Execute("FLUSHALL");
+
+        var obj = new Person { Name = "Shachar", Age = 23 };
+        Assert.True(await commands.SetAsync("Person:Shachar", "$", obj, When.NotExists));
+        Assert.False(await commands.SetAsync("Person:Shachar", "$", obj, When.NotExists));
+        Assert.True(await commands.SetAsync("Person:Shachar", "$", obj, When.Exists));
     }
 
     [Fact]
@@ -127,7 +146,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         //arrange
         var conn = redisFixture.Redis;
         var db = conn.GetDatabase();
-        IJsonCommands commands = new JsonCommands(db);
+        var commands = new JsonCommands(db);
         var keys = CreateKeyNames(1);
 
         var key = keys[0];
@@ -152,7 +171,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         //arrange
         var conn = redisFixture.Redis;
         var db = conn.GetDatabase();
-        IJsonCommandsAsync commands = new JsonCommandsAsync(db);
+        var commands = new JsonCommandsAsync(db);
         var keys = CreateKeyNames(1);
 
         var key = keys[0];
@@ -177,7 +196,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         //arrange
         var conn = redisFixture.Redis;
         var db = conn.GetDatabase();
-        IJsonCommands commands = new JsonCommands(db);
+        var commands = new JsonCommands(db);
         var keys = CreateKeyNames(2);
 
         var key = keys[0];
@@ -205,7 +224,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         //arrange
         var conn = redisFixture.Redis;
         var db = conn.GetDatabase();
-        IJsonCommandsAsync commands = new JsonCommandsAsync(db);
+        var commands = new JsonCommandsAsync(db);
         var keys = CreateKeyNames(2);
 
         var key = keys[0];
@@ -233,7 +252,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         //arrange
         var conn = redisFixture.Redis;
         var db = conn.GetDatabase();
-        IJsonCommands commands = new JsonCommands(db);
+        var commands = new JsonCommands(db);
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleStringKey = keys[1];
@@ -258,7 +277,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         //arrange
         var conn = redisFixture.Redis;
         var db = conn.GetDatabase();
-        IJsonCommandsAsync commands = new JsonCommandsAsync(db);
+        var commands = new JsonCommandsAsync(db);
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleStringKey = keys[1];
@@ -283,7 +302,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         //arrange
         var conn = redisFixture.Redis;
         var db = conn.GetDatabase();
-        IJsonCommands commands = new JsonCommands(db);
+        var commands = new JsonCommands(db);
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -305,7 +324,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         //arrange
         var conn = redisFixture.Redis;
         var db = conn.GetDatabase();
-        IJsonCommandsAsync commands = new JsonCommandsAsync(db);
+        var commands = new JsonCommandsAsync(db);
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -327,7 +346,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         //arrange
         var conn = redisFixture.Redis;
         var db = conn.GetDatabase();
-        IJsonCommands commands = new JsonCommands(db);
+        var commands = new JsonCommands(db);
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -351,7 +370,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         //arrange
         var conn = redisFixture.Redis;
         var db = conn.GetDatabase();
-        IJsonCommandsAsync commands = new JsonCommandsAsync(db);
+        var commands = new JsonCommandsAsync(db);
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -374,7 +393,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     {
         var conn = redisFixture.Redis;
         var db = conn.GetDatabase();
-        IJsonCommands commands = new JsonCommands(db);
+        var commands = new JsonCommands(db);
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var complexKey = keys[1];
@@ -392,7 +411,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     {
         var conn = redisFixture.Redis;
         var db = conn.GetDatabase();
-        IJsonCommandsAsync commands = new JsonCommandsAsync(db);
+        var commands = new JsonCommandsAsync(db);
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var complexKey = keys[1];
@@ -410,7 +429,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     {
         var conn = redisFixture.Redis;
         var db = conn.GetDatabase();
-        IJsonCommands commands = new JsonCommands(db);
+        var commands = new JsonCommands(db);
         var keys = CreateKeyNames(1);
         var key = keys[0];
         commands.Set(key, "$", new { name = "Elizabeth", nicknames = new[] { "Beth", "Betty", "Liz" }, sibling = new { name = "Johnathan", nicknames = new[] { "Jon", "Johnny" } } });
@@ -424,7 +443,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     {
         var conn = redisFixture.Redis;
         var db = conn.GetDatabase();
-        IJsonCommandsAsync commands = new JsonCommandsAsync(db);
+        var commands = new JsonCommandsAsync(db);
         var keys = CreateKeyNames(1);
         var key = keys[0];
         await commands.SetAsync(key, "$", new { name = "Elizabeth", nicknames = new[] { "Beth", "Betty", "Liz" }, sibling = new { name = "Johnathan", nicknames = new[] { "Jon", "Johnny" } } });
@@ -436,7 +455,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void ArrayInsert()
     {
-        IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -453,7 +472,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public async Task ArrayInsertAsync()
     {
-        IJsonCommandsAsync commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -470,7 +489,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void ArrayLength()
     {
-        IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -486,7 +505,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public async Task ArrayLengthAsync()
     {
-        IJsonCommandsAsync commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -502,7 +521,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void ArrayPop()
     {
-        IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -520,7 +539,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public async Task ArrayPopAsync()
     {
-        IJsonCommandsAsync commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -538,7 +557,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void ArrayTrim()
     {
-        IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -554,7 +573,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public async Task ArrayTrimAsync()
     {
-        IJsonCommandsAsync commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -570,7 +589,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void Clear()
     {
-        IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -586,7 +605,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public async Task ClearAsync()
     {
-        IJsonCommandsAsync commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -602,7 +621,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void Del()
     {
-        IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -618,7 +637,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public async Task DelAsync()
     {
-        IJsonCommandsAsync commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -634,7 +653,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void Forget()
     {
-        IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -650,7 +669,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public async Task ForgetAsync()
     {
-        IJsonCommandsAsync commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -666,7 +685,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void Get()
     {
-        IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var complexKey = keys[1];
@@ -686,7 +705,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public async Task GetAsync()
     {
-        IJsonCommandsAsync commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var complexKey = keys[1];
@@ -706,7 +725,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedisVersion("7.1.242")]
     public void MSet()
     {
-        IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(2);
         var key1 = keys[0];
         var key2 = keys[1];
@@ -730,7 +749,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedisVersion("7.1.242")]
     public async Task MSetAsync()
     {
-        IJsonCommandsAsync commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(2);
         var key1 = keys[0];
         var key2 = keys[1];
@@ -754,7 +773,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     public void Merge()
     {
         // Create a connection to Redis
-        IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
 
         Assert.True(commands.Set("test_merge", "$", new { person = new { name = "John Doe", age = 25, address = new {home = "123 Main Street"}, phone = "123-456-7890" } }));
         Assert.True(commands.Merge("test_merge", "$", new { person = new { age = 30 } }));
@@ -773,7 +792,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     public async Task MergeAsync()
     {
         // Create a connection to Redis
-        IJsonCommandsAsync commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
 
         Assert.True(await commands.SetAsync("test_merge", "$", new { person = new { name = "John Doe", age = 25, address = new {home = "123 Main Street"}, phone = "123-456-7890" } }));
         Assert.True(await commands.MergeAsync("test_merge", "$", new { person = new { age = 30 } }));
@@ -791,7 +810,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void MGet()
     {
-        IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(2);
         var key1 = keys[0];
         var key2 = keys[1];
@@ -806,7 +825,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public async Task MGetAsync()
     {
-        IJsonCommandsAsync commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(2);
         var key1 = keys[0];
         var key2 = keys[1];
@@ -821,7 +840,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void NumIncrby()
     {
-        IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(1);
         var key = keys[0];
         commands.Set(key, "$", new { age = 33, a = new { age = 34 }, b = new { age = "cat" } });
@@ -834,7 +853,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public async Task NumIncrbyAsync()
     {
-        IJsonCommandsAsync commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(1);
         var key = keys[0];
         await commands.SetAsync(key, "$", new { age = 33, a = new { age = 34 }, b = new { age = "cat" } });
@@ -847,7 +866,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void ObjectKeys()
     {
-        IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(3);
         var key = keys[0];
         commands.Set(key, "$", new { a = 5, b = 10, c = "hello", d = new { a = new { a = 6, b = "hello" }, b = 7 } });
@@ -865,7 +884,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public async Task ObjectKeysAsync()
     {
-        IJsonCommandsAsync commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(3);
         var key = keys[0];
         await commands.SetAsync(key, "$", new { a = 5, b = 10, c = "hello", d = new { a = new { a = 6, b = "hello" }, b = 7 } });
@@ -883,7 +902,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void ObjectLength()
     {
-        IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(3);
         var key = keys[0];
         commands.Set(key, "$", new { a = 5, b = 10, c = "hello", d = new { a = new { a = 6, b = "hello" }, b = 7 } });
@@ -899,7 +918,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public async Task ObjectLengthAsync()
     {
-        IJsonCommandsAsync commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(3);
         var key = keys[0];
         await commands.SetAsync(key, "$", new { a = 5, b = 10, c = "hello", d = new { a = new { a = 6, b = "hello" }, b = 7 } });
@@ -915,7 +934,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void TestMultiPathGet()
     {
-        IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(1);
         var key = keys[0];
         commands.Set(key, "$", new { a = "hello", b = new { a = "world" } });
@@ -939,7 +958,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public async Task TestMultiPathGetAsync()
     {
-        IJsonCommandsAsync commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(1);
         var key = keys[0];
         await commands.SetAsync(key, "$", new { a = "hello", b = new { a = "world" } });
@@ -963,7 +982,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void Memory()
     {
-        IJsonCommands commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(1);
         var key = keys[0];
 
@@ -977,7 +996,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public async Task MemoryAsync()
     {
-        IJsonCommandsAsync commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
         var keys = CreateKeyNames(1);
         var key = keys[0];
 
@@ -994,7 +1013,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         //arrange
         var conn = redisFixture.Redis;
         var db = conn.GetDatabase();
-        IJsonCommandsAsync commands = new JsonCommandsAsync(db);
+        var commands = new JsonCommandsAsync(db);
         var keys = CreateKeyNames(1);
 
         //creating json string:
@@ -1022,7 +1041,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         //arrange
         var conn = redisFixture.Redis;
         var db = conn.GetDatabase();
-        IJsonCommandsAsync commands = new JsonCommandsAsync(db);
+        var commands = new JsonCommandsAsync(db);
 
         //creating json string:
         object[] persons = new object[10];
