@@ -57,11 +57,11 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "test 7.0.6",
+            "label": "test 7.2.0",
             "dependsOn": [],
             "options": {
                 "env": {
-                    "REDIS": "${env:REDIS__7_0_6}"
+                    "REDIS": "${env:REDIS__7_2_0}"
                 }
             },
             "command": "dotnet",
@@ -96,10 +96,10 @@
         },
         {
             "label": "test all",
-            "dependsOrder": "parallel",
+            "dependsOrder": "sequence",
             "dependsOn": [
                 "test 6.2.6",
-                "test 7.0.6",
+                "test 7.2.0",
                 "test edge"
             ],
             "problemMatcher": "$msCompile",
