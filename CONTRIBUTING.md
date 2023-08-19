@@ -39,14 +39,14 @@ Here's how to get started with your code contribution:
 6.  Push your changes to GitHub
 7.  Open a pull request
 
-### Dev Container
+### Development Container
 
-Dev Containers are an easy way to define and setup a reproducible development environment by using containers.
+Development Containers are an easy way to define and setup a reproducible development environment by using containers.
 NRedisStack provides a [development container environment](https://containers.dev/) that can be used to get running relatively fast without focusing on the different Redis deployments.
 
-The devcontainer comes packed with .NET 6 and 7, required by the testing suite, as well as the currently supported Redis versions that are run as part of the CI pipeline.
+The development container comes packed with .NET 6 and 7, required by the testing suite, as well as the currently supported Redis versions that are run as part of the CI pipeline.
 
-Devcontainers are supported in a few [editors](https://containers.dev/supporting#editors) or by using the [`devcontainer-cli` tool](https://github.com/devcontainers/cli).
+Development containers are supported in a few [editors](https://containers.dev/supporting#editors) or by using the [`devcontainer-cli` tool](https://github.com/devcontainers/cli).
 
 ## Testing
 
