@@ -1962,30 +1962,30 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             "SCHEMA",
             "txt",
             "TEXT",
-            "SORTABLE",
-            "UNF",
             "NOSTEM",
             "NOINDEX",
             "PHONETIC",
             "dm:en",
             "WITHSUFFIXTRIE",
-            "num",
-            "NUMERIC",
-            "SORTABLE",
-            "NOINDEX",
-            "loc",
-            "GEO",
-            "SORTABLE",
-            "NOINDEX",
-            "tag",
-            "TAG",
             "SORTABLE",
             "UNF",
+            "num",
+            "NUMERIC",
+            "NOINDEX",
+            "SORTABLE",
+            "loc",
+            "GEO",
+            "NOINDEX",
+            "SORTABLE",
+            "tag",
+            "TAG",
             "NOINDEX",
             "WITHSUFFIXTRIE",
             "SEPARATOR",
             ";",
             "CASESENSITIVE",
+            "SORTABLE",
+            "UNF",
             "vec",
             "VECTOR",
             "FLAT",
@@ -2751,5 +2751,24 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("FT.PROFILE", aggregate.Command);
         Assert.Equal(new object[] { "index", "SEARCH", "LIMITED", "QUERY", "*" }, search.Args);
         Assert.Equal(new object[] { "index", "AGGREGATE", "LIMITED", "QUERY", "*" }, aggregate.Args);
+    }
+
+    [Fact]
+    public void Issue175()
+    {
+        ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost:6379");
+        IDatabase db = redis.GetDatabase();
+        db.Execute("FLUSHALL");
+
+        SearchCommands ft = db.FT();
+
+        var sortable = true;
+        //Add a tag field with sortable = true
+        var schema = new Schema().AddTagField("", sortable, false, false, "|");
+
+        //following line throws exception (Note: sortable = true)
+        Assert.True(ft.Create("myIndex", new FTCreateParams()
+                .On(IndexDataType.JSON)
+                .Prefix("doc:"), schema));
     }
 }

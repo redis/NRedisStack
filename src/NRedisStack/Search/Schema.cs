@@ -1,4 +1,5 @@
-﻿using static NRedisStack.Search.Schema.VectorField;
+﻿using NRedisStack.Search.Literals;
+using static NRedisStack.Search.Schema.VectorField;
 
 namespace NRedisStack.Search
 {
@@ -84,13 +85,13 @@ namespace NRedisStack.Search
 
             internal override void AddFieldTypeArgs(List<object> args)
             {
-                if (Sortable) args.Add("SORTABLE");
-                if (Unf) args.Add("UNF");
                 if (NoStem) args.Add("NOSTEM");
                 if (NoIndex) args.Add("NOINDEX");
                 AddPhonetic(args);
                 AddWeight(args);
                 if (WithSuffixTrie) args.Add("WITHSUFFIXTRIE");
+                if (Sortable) args.Add(AttributeOptions.SORTABLE);
+                if (Unf) args.Add("UNF");
             }
 
             private void AddWeight(List<object> args)
@@ -141,8 +142,6 @@ namespace NRedisStack.Search
 
             internal override void AddFieldTypeArgs(List<object> args)
             {
-                if (Sortable) args.Add("SORTABLE");
-                if (Unf) args.Add("UNF");
                 if (NoIndex) args.Add("NOINDEX");
                 if (WithSuffixTrie) args.Add("WITHSUFFIXTRIE");
                 if (Separator != ",")
@@ -152,6 +151,8 @@ namespace NRedisStack.Search
                     args.Add(Separator);
                 }
                 if (CaseSensitive) args.Add("CASESENSITIVE");
+                if (Sortable) args.Add(AttributeOptions.SORTABLE);
+                if (Unf) args.Add("UNF");
             }
         }
 
@@ -171,8 +172,8 @@ namespace NRedisStack.Search
 
             internal override void AddFieldTypeArgs(List<object> args)
             {
-                if (Sortable) args.Add("SORTABLE");
                 if (NoIndex) args.Add("NOINDEX");
+                if (Sortable) args.Add(AttributeOptions.SORTABLE);
             }
 
         }
@@ -193,8 +194,8 @@ namespace NRedisStack.Search
 
             internal override void AddFieldTypeArgs(List<object> args)
             {
-                if (Sortable) args.Add("SORTABLE");
                 if (NoIndex) args.Add("NOINDEX");
+                if (Sortable) args.Add(AttributeOptions.SORTABLE);
             }
 
         }
