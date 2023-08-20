@@ -2763,12 +2763,12 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         SearchCommands ft = db.FT();
 
         var sortable = true;
-        //Add a tag field with sortable = true
-        var schema = new Schema().AddTagField("", sortable, false, false, "|");
-
-        //following line throws exception (Note: sortable = true)
-        Assert.True(ft.Create("myIndex", new FTCreateParams()
+        var ftParams = new FTCreateParams()
                 .On(IndexDataType.JSON)
-                .Prefix("doc:"), schema));
+                .Prefix("doc:");
+        var schema = new Schema().AddTagField("tag", sortable, false, false, "|")
+                                 .AddTextField("text", 1, sortable);
+
+        Assert.True(ft.Create("myIndex", ftParams, schema));
     }
 }
