@@ -34,12 +34,12 @@ Here's how to get started with your code contribution:
 2.  Do the changes in your fork
 3.  Write your tests
 
-4.  Use the `docker run -p 6379:6379 -it redis/redis-stack-server:edge` as your local environment for running the functional tests.
+4.  Use the `docker run -p 6379:6379 -it redis/redis-stack-server:edge` as your local environment for running the functional tests. You can also use Development Container as described below.
 5.  Make sure your tests pass using `dotnet test`
 6.  Push your changes to GitHub
 7.  Open a pull request
 
-### Development Container
+## Development Container
 
 Development Containers are an easy way to define and setup a reproducible development environment by using containers.
 NRedisStack provides a [development container environment](https://containers.dev/) that can be used to get running relatively fast without focusing on the different Redis deployments.
@@ -47,6 +47,53 @@ NRedisStack provides a [development container environment](https://containers.de
 The development container comes packed with .NET 6 and 7, required by the testing suite, as well as the currently supported Redis versions that are run as part of the CI pipeline.
 
 Development containers are supported in a few [editors](https://containers.dev/supporting#editors) or by using the [`devcontainer-cli` tool](https://github.com/devcontainers/cli).
+
+This guide explains how to use the existing development container setup for this project.
+
+### Prerequisites
+
+Before you start, make sure you have the following installed:
+
+- [Visual Studio Code](https://code.visualstudio.com/)
+- [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) for VS Code
+
+### Steps to Use the Existing Development Container Setup
+
+1. **Clone the Project:** Start by cloning the project's repository to your local machine using Git.
+
+2. **Install Prerequisites:** Ensure you have Visual Studio Code and the Dev Containers extension installed.
+
+3. **Open in Development Container:**
+
+   a. Open the cloned project directory using Visual Studio Code.
+
+   b. VS Code should detect the `.devcontainer` folder and the associated configuration files.
+
+   c. You will likely see a notification suggesting reopening the project in a development container:
+   ![devcontainer notification](./docs/devcontainerNotification.png)
+
+   Click on this notification or press `Ctrl + Shift + P` (or `Cmd + Shift + P` on Mac) and type _"Dev Containers: Reopen in Container"_. Select the suggestion that appears.
+
+   d. Visual Studio Code will build the Docker image according to the configuration and start a container using the specified setup.
+
+4. **Develop Inside the DevContainer:**
+
+   You're now working within the development container environment. Access extensions, dependencies, and settings specified in `devcontainer.json`. Edit code, use the integrated terminal, and run commands as usual.
+
+5. **Save and Commit:**
+
+   Changes made within the development container will be saved to your local repository. Use Git within the container to manage changes, create branches, commit, and push code.
+
+6. **Stop the DevContainer:**
+
+   Close the development container by clicking the "Close Remote Connection" button in the bottom-left corner of the VS Code window. This stops the container while preserving changes.
+
+7. **Resume Work:**
+
+   Reopen the project in the development container to work on it again using the same steps.
+
+By using the existing `.devcontainer` setup, you benefit from a consistent development environment tailored to the project's requirements. For specific configuration details or issues, consult the project documentation or ask maintainers for assistance.
+
 
 ## Testing
 
