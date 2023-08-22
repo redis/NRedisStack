@@ -1,0 +1,16 @@
+{
+	"name": "NRedisStack (.NET)",
+
+	"dockerComposeFile": "docker-compose.yml",
+    "service": "devcontainer",
+	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-dotnettools.csharp",
+				"ms-dotnettools.csdevkit",
+				"ms-dotnettools.vscodeintellicode-csharp"
+			]
+		}
+	}
+}

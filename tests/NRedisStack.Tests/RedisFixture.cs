@@ -47,6 +47,6 @@ namespace NRedisStack.Tests
             Redis.Close();
         }
 
-        public ConnectionMultiplexer Redis { get; private set; }
+        public ConnectionMultiplexer Redis { get; }
     }
 }
