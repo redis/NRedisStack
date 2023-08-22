@@ -6,14 +6,13 @@ namespace NRedisStack.Tests
 {
     public class RedisFixture : IDisposable
     {
-        // Set the enviroment variable to specify your own alternet host and port:
-        string redisStandalone = Environment.GetEnvironmentVariable("REDIS") ?? "localhost:6379";
-        string? redisCluster = Environment.GetEnvironmentVariable("REDIS_CLUSTER");
-        string? numRedisClusterNodesEnv = Environment.GetEnvironmentVariable("NUM_REDIS_CLUSTER_NODES");
-        // bool redisClusterMode = false; // TODO: check if this is needed
-
         public RedisFixture()
         {
+            // Set the enviroment variable to specify your own alternet host and port:
+            var redisStandalone = Environment.GetEnvironmentVariable("REDIS") ?? "localhost:6379";
+            var redisCluster = Environment.GetEnvironmentVariable("REDIS_CLUSTER");
+            var numRedisClusterNodesEnv = Environment.GetEnvironmentVariable("NUM_REDIS_CLUSTER_NODES");
+            // bool redisClusterMode = false; // TODO: check if this is needed
             // Redis Cluster
             if (redisCluster != null && numRedisClusterNodesEnv != null)
             {
