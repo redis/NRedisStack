@@ -14,7 +14,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [SkipIfRedisVersion(Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
     public void TestTFunctionLoadDelete()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -24,7 +24,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [SkipIfRedisVersion(Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
     public async Task TestTFunctionLoadDeleteAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -35,7 +35,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await db.TFunctionDeleteAsync("lib"));
     }
 
-    [SkipIfRedisVersion(Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
     public void TestTFunctionList()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -66,7 +66,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         Assert.True(db.TFunctionDelete("lib3"));
     }
 
-    [SkipIfRedisVersion(Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
     public async Task TestTFunctionListAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -95,7 +95,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await db.TFunctionDeleteAsync("lib3"));
     }
 
-    [SkipIfRedisVersion(Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
     public void TestTFCall()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -109,7 +109,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         Assert.True(db.TFunctionDelete("lib"));
     }
 
-    [SkipIfRedisVersion(Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
     public async Task TestTFCallAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -123,7 +123,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await db.TFunctionDeleteAsync("lib"));
     }
 
-    [SkipIfRedisVersion(Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
     public void TestGearsCommandBuilder()
     {
         // TFunctionLoad:

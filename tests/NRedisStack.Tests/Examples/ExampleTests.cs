@@ -31,7 +31,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         redisFixture.Redis.GetDatabase().KeyDelete(key);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.Cluster)]
     public void HSETandSearch()
     {
         // Connect to the Redis server
@@ -132,7 +132,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expected, result.ToString());
     }
 
-    [Fact]
+    [SkipIfRedis(Is.Cluster)]
     public async Task JsonWithSearchPipeline()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -176,7 +176,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         // Assert.Equal("person:01", firstPerson?.Id);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.Cluster)]
     public async Task PipelineWithAsync()
     {
         // Connect to the Redis server
@@ -234,7 +234,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("temp:JLM", respons[0].key);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.Cluster)]
     public async Task TransactionExample()
     {
         // Connect to the Redis server
@@ -278,7 +278,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("[1200]", totalAmtOfShachar.Result.ToString());
     }
 
-    [Fact]
+    [SkipIfRedis(Is.Cluster)]
     public void TestJsonConvert()
     {
         // ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
@@ -960,7 +960,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expected, res.ToString());
     }
 
-    [Fact]
+    [SkipIfRedis(Is.Cluster)]
     public void BasicQueryOperationsTest()
     {
         // ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
@@ -1120,7 +1120,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expected, res[0].ToString());
     }
 
-    [Fact]
+    [SkipIfRedis(Is.Cluster)]
     public void AdvancedQueryOperationsTest()
     {
         // ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");

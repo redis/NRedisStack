@@ -32,7 +32,7 @@ namespace NRedisStack.Tests
             Assert.Equal("{\"Name\":\"Shachar\",\"Age\":23}", getResponse.Result.ToString());
         }
 
-        [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+        [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
         public async Task TestModulsTransaction()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
