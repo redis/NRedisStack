@@ -17,7 +17,9 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
     public void Dispose()
     {
-        redisFixture.Redis.GetDatabase().KeyDelete(index);
+        // redisFixture.Redis.GetDatabase().KeyDelete(index);
+        redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
+
     }
 
     private void AddDocument(IDatabase db, Document doc)
@@ -322,7 +324,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(10, r1.GetLong("sum"));
     }
 
-    [SkipIfRedis(Is.Cluster)]
+    [Fact]
     public async Task TestAggregationRequestParamsDialectAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -390,7 +392,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(10, r1.GetLong("sum"));
     }
 
-    [SkipIfRedis(Is.Cluster)]
+    [Fact]
     public async Task TestAggregationRequestParamsWithDefaultDialectAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -859,7 +861,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("100", configMap["TIMEOUT"].ToString());
     }
 
-    [SkipIfRedis(Is.Cluster)]
+    [Fact]
     public void configOnTimeout()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2250,7 +2252,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, res.TotalResults);
     }
 
-    [SkipIfRedis(Is.Cluster)]
+    [Fact]
     public void TestBasicSpellCheck()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2270,7 +2272,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, reply["name"]["name2"]);
     }
 
-    [SkipIfRedis(Is.Cluster)]
+    [Fact]
     public async Task TestBasicSpellCheckAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2338,7 +2340,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                                              .ExcludeTerm("slang")));
     }
 
-    [SkipIfRedis(Is.Cluster)]
+    [Fact]
     public void TestDistanceBound()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2753,7 +2755,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(new object[] { "index", "AGGREGATE", "LIMITED", "QUERY", "*" }, aggregate.Args);
     }
 
-    [SkipIfRedis(Is.Cluster)]
+    [Fact]
     public void Issue175()
     {
         ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost:6379");

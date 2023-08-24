@@ -46,7 +46,8 @@ namespace NRedisStack.Tests
         public async Task DisposeAsync()
         {
             var redis = redisFixture.Redis.GetDatabase();
-            await redis.KeyDeleteAsync(keyNames.Select(i => (RedisKey)i).ToArray());
+            // await redis.KeyDeleteAsync(keyNames.Select(i => (RedisKey)i).ToArray());
+            await redis.ExecuteBroadcastAsync("FLUSHALL");
         }
     }
 }

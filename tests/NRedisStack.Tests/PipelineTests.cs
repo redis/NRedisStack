@@ -13,10 +13,10 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
 
     public void Dispose()
     {
-        redisFixture.Redis.GetDatabase().KeyDelete(key);
+        redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
     }
 
-    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Is.Cluster, Comparison.GreaterThanOrEqual, "7.1.242")]
     public async Task TestModulsPipeline()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -67,7 +67,7 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(db.TOPK().Info("topk-key"));
     }
 
-    [Fact]
+    [SkipIfRedis(Is.Cluster)]
     public async Task TestModulsPipelineWithotGraph()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();

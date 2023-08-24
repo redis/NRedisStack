@@ -28,7 +28,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
 
     public void Dispose()
     {
-        redisFixture.Redis.GetDatabase().KeyDelete(key);
+        redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
     }
 
     [SkipIfRedis(Is.Cluster)]

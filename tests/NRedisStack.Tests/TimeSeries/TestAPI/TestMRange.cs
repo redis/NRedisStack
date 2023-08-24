@@ -16,7 +16,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             foreach (string key in keys)
             {
-                redisFixture.Redis.GetDatabase().KeyDelete(key);
+                redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
             }
         }
 
@@ -36,7 +36,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             return tuples;
         }
 
-        [Fact]
+        [SkipIfRedis(Is.Cluster)]
         public void TestSimpleMRange()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -59,7 +59,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
                 Assert.Equal(tuples, results[i].values);
             }
         }
-        [Fact]
+        [SkipIfRedis(Is.Cluster)]
         public void TestMRangeWithLabels()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -83,7 +83,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [Fact]
+        [SkipIfRedis(Is.Cluster)]
         public void TestMRangeSelectLabels()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -112,7 +112,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [Fact]
+        [SkipIfRedis(Is.Cluster)]
         public void TestMRangeFilter()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -129,7 +129,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(tuples, results[0].values);
         }
 
-        [Fact]
+        [SkipIfRedis(Is.Cluster)]
         public void TestMRangeCount()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -154,7 +154,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [Fact]
+        [SkipIfRedis(Is.Cluster)]
         public void TestMRangeAggregation()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -178,7 +178,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [Fact]
+        [SkipIfRedis(Is.Cluster)]
         public void TestMRangeAlign()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -237,7 +237,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal("RANGE Aggregation should have timeBucket value", ex.Message);
         }
 
-        [Fact]
+        [SkipIfRedis(Is.Cluster)]
         public void TestMRangeGroupby()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -263,7 +263,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [Fact]
+        [SkipIfRedis(Is.Cluster)]
         public void TestMRangeReduce()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -288,7 +288,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [Fact]
+        [SkipIfRedis(Is.Cluster)]
         public void TestMRangeFilterBy()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();

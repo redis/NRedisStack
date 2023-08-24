@@ -14,11 +14,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             foreach (var key in keys)
             {
-                redisFixture.Redis.GetDatabase().KeyDelete(key);
+                redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
             }
         }
 
-        [Fact]
+        [SkipIfRedis(Is.Cluster)]
         public void TestTSQueryIndex()
         {
             var db = redisFixture.Redis.GetDatabase();

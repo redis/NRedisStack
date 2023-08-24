@@ -16,11 +16,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             foreach (string key in keys)
             {
-                redisFixture.Redis.GetDatabase().KeyDelete(key);
+                redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
             }
         }
 
-        [Fact]
+        [SkipIfRedis(Is.Cluster)]
         public void TestMGetQuery()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -47,7 +47,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
         }
 
-        [Fact]
+        [SkipIfRedis(Is.Cluster)]
         public void TestMGetQueryWithLabels()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -74,7 +74,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(labels2, results[1].labels);
         }
 
-        [Fact]
+        [SkipIfRedis(Is.Cluster)]
         public void TestMGetQuerySelectedLabels()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();

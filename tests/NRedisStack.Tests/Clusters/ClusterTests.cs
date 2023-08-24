@@ -10,10 +10,10 @@ public class ClusterTests : AbstractNRedisStackTest, IDisposable
 
     public void Dispose()
     {
-        redisFixture.Redis.GetDatabase().KeyDelete(key);
+        redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
     }
 
-    [Fact(Skip = "This test needs to run on a cluster")]
+    [SkipIfRedis(Is.Standalone)]
     public void ClusterConnect()
     {
         // first, run a cluster,
@@ -38,5 +38,15 @@ public class ClusterTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("bar", value);
         // var endpoints = conn.GetEndPoints();
         // Console.WriteLine("endpoints:" + endpoints.ToString());
+    }
+
+    [Fact]
+    public void ClusterChecks()
+    {
+        var db = redisFixture.Redis.GetDatabase();
+        var endpoints1 = db.Multiplexer.GetEndPoints();
+        var endpoints2 = redisFixture.Redis.GetEndPoints();
+        var isCtr = redisFixture.isCluster;
+        var isCtr2 = "";
     }
 }

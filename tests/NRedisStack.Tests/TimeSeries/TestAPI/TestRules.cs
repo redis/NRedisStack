@@ -37,11 +37,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             redisFixture.Redis.GetDatabase().KeyDelete(srcKey);
             foreach (var key in destKeys.Values)
             {
-                redisFixture.Redis.GetDatabase().KeyDelete(key);
+                redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
             }
         }
 
-        [Fact]
+        [SkipIfRedis(Is.Cluster)]
         public void TestRulesAdditionDeletion()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -104,7 +104,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal("ERR TSDB: compaction rule does not exist", ex.Message);
         }
 
-        [Fact]
+        [SkipIfRedis(Is.Cluster)]
         public void TestAlignTimestamp()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();

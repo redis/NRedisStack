@@ -722,7 +722,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(35, people[1]!.Age);
     }
 
-    [SkipIfRedis("7.1.242")]
+    [SkipIfRedis(Is.Cluster, Comparison.LessThan, "7.1.242")]
     public void MSet()
     {
         var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
@@ -746,7 +746,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Throws<ArgumentOutOfRangeException>(() => commands.MSet(new KeyPathValue[0]));
     }
 
-    [SkipIfRedis("7.1.242")]
+    [SkipIfRedis(Is.Cluster, Comparison.LessThan, "7.1.242")]
     public async Task MSetAsync()
     {
         var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
@@ -807,7 +807,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("{\"person\":{\"name\":\"John Doe\",\"phone\":\"123-456-7890\",\"address\":{\"home\":\"123 Main Street\",\"work\":\"Redis office\"}}}", (await commands.GetAsync("test_merge")).ToString());
     }
 
-    [Fact]
+    [SkipIfRedis(Is.Cluster)]
     public void MGet()
     {
         var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
@@ -822,7 +822,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("[\"world\"]", result[1].ToString());
     }
 
-    [Fact]
+    [SkipIfRedis(Is.Cluster)]
     public async Task MGetAsync()
     {
         var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());

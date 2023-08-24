@@ -49,19 +49,18 @@ public class SkipIfRedisAttribute : FactAttribute
     {
         get
         {
-            using (var connection = ConnectionMultiplexer.Connect(DefaultRedisConnectionString))
+            string skipReason = "";
+            bool skipped = false;
+            using (RedisFixture redisFixture = new RedisFixture())
             {
-                string skipReason = "";
-                bool skipped = false;
 
                 // Cluster check
                 if (_is != null)
                 {
-                    bool isCluster = connection.GetEndPoints().Length > 1;
                     switch (_is)
                     {
                         case Is.Cluster:
-                            if (isCluster)
+                            if (redisFixture.isCluster)
                             {
                                 skipReason = skipReason + " Redis server is a cluster.";
                                 skipped = true;
@@ -69,7 +68,7 @@ public class SkipIfRedisAttribute : FactAttribute
                             break;
 
                         case Is.Standalone:
-                            if (!isCluster)
+                            if (!redisFixture.isCluster)
                             {
                                 skipReason = skipReason + " Redis server is not a cluster.";
                                 skipped = true;
@@ -78,7 +77,8 @@ public class SkipIfRedisAttribute : FactAttribute
                     }
                 }
                 // Version check (if Is.Standalone/Is.Cluster is set then )
-                var serverVersion = connection.GetServer(connection.GetEndPoints()[0]).Version;
+
+                var serverVersion = redisFixture.Redis.GetServer(redisFixture.Redis.GetEndPoints()[0]).Version;
                 var targetVersion = new Version(_targetVersion);
                 int comparisonResult = serverVersion.CompareTo(targetVersion);
 
@@ -99,11 +99,11 @@ public class SkipIfRedisAttribute : FactAttribute
                         }
                         break;
                 }
-
-                if (skipped)
-                    return "Test skipped, because:" + skipReason;
-                return null;
             }
+
+            if (skipped)
+                return "Test skipped, because:" + skipReason;
+            return null;
         }
     }
 }

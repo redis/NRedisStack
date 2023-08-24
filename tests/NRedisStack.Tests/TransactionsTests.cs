@@ -13,7 +13,7 @@ namespace NRedisStack.Tests
 
         public void Dispose()
         {
-            redisFixture.Redis.GetDatabase().KeyDelete(key);
+            redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
         }
 
         [Fact]
@@ -83,7 +83,7 @@ namespace NRedisStack.Tests
             Assert.NotNull(db.TOPK().Info("topk-key"));
         }
 
-        [Fact]
+        [SkipIfRedis(Is.Cluster)]
         public async Task TestModulsTransactionWithoutGraph()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();

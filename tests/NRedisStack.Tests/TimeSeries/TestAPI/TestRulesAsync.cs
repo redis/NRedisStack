@@ -10,7 +10,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
     {
         public TestRulesAsync(RedisFixture redisFixture) : base(redisFixture) { }
 
-        [Fact]
+        [SkipIfRedis(Is.Cluster)]
         public async Task TestRulesAdditionDeletion()
         {
             var key = CreateKeyName();
@@ -88,7 +88,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal("ERR TSDB: compaction rule does not exist", ex.Message);
         }
 
-        [Fact]
+        [SkipIfRedis(Is.Cluster)]
         public async Task TestAlignTimestampAsync()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();

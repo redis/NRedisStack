@@ -11,7 +11,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
 
     public void Dispose()
     {
-        redisFixture.Redis.GetDatabase().KeyDelete(key);
+        redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
     }
 
     [Fact]
@@ -215,7 +215,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(new long[] { 10, 15 }, resp);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.Cluster)]
     public void TestMerge()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -264,7 +264,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [Fact]
+    [SkipIfRedis(Is.Cluster)]
     public async Task TestMergeAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();

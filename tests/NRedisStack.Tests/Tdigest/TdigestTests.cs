@@ -11,7 +11,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
 
     public void Dispose()
     {
-        redisFixture.Redis.GetDatabase().KeyDelete(key);
+        redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
     }
 
     private void AssertMergedUnmergedNodes(ITdigestCommands tdigest, string key, int mergedNodes, int unmergedNodes)
@@ -370,7 +370,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         AssertMergedUnmergedNodes(tdigest, "tdadd", 0, 5);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.Cluster)]
     public void TestMerge()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -393,7 +393,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [Fact]
+    [SkipIfRedis(Is.Cluster)]
     public async Task TestMergeAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -416,7 +416,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         AssertMergedUnmergedNodes(tdigest, "td2", 3, 2);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.Cluster)]
     public void MergeMultiAndParams()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -437,7 +437,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(50, tdigest.Info("to").Compression);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.Cluster)]
     public async Task MergeMultiAndParamsAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
