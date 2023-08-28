@@ -12,17 +12,37 @@ on:
     - cron: "0 1 * * *"
 
 jobs:
+  dotnet_6_cluster:
+    uses: ./.github/workflows/reusable.yml
+    with:
+      redis_stack_type: cluster
+      dotnet_version: 6.0.x
+      clr_version: net6.0
+      dotenv_file: .github/cluster.env
+    secrets: inherit
+
   dotnet_6:
     uses: ./.github/workflows/reusable.yml
     strategy:
       fail-fast: false
       max-parallel: 5
       matrix:
-        redis-stack-type: ['edge', 'cluster', '6.2.6', '7.2.0']
+        redis-stack-type: ['edge', '6.2.6', '7.2.0']
     with:
       redis_stack_type: ${{matrix.redis-stack-type}}
       dotnet_version: 6.0.x
       clr_version: net6.0
+      dotenv_file: .github/standalone.env
+    secrets: inherit
+
+  dotnet_7_cluster:
+    uses: ./.github/workflows/reusable.yml
+
+    with:
+      redis_stack_type: cluster
+      dotnet_version: 7.0.x
+      clr_version: net7.0
+      dotenv_file: .github/cluster.env
     secrets: inherit
 
   dotnet_7:
@@ -31,18 +51,23 @@ jobs:
       fail-fast: false
       max-parallel: 5
       matrix:
-        redis-stack-type: ['edge', 'cluster', '6.2.6', '7.2.0']
+        redis-stack-type: ['edge', '6.2.6', '7.2.0']
     with:
       redis_stack_type: ${{matrix.redis-stack-type}}
       dotnet_version: 7.0.x
       clr_version: net7.0
+      dotenv_file: .github/standalone.env
     secrets: inherit
 
   build_and_test_windows:
     name: Windows Test ${{matrix.redis-stack-version}}
     runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        redis-stack-version: ['6.2.9-v9', '7.2.0']
     env:
-      redis_stack_version: 6.2.6-v9
+      redis_stack_version: ${{matrix.redis-stack-version}}
       USER_NAME: ${{ secrets.USER_NAME }}
       PASSWORD: ${{ secrets.PASSWORD }}
       ENDPOINT: ${{ secrets.ENDPOINT }}
