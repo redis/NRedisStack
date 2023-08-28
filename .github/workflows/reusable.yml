@@ -39,7 +39,7 @@ jobs:
               dotnet-version: ${{inputs.dotnet_version}}
 
           - name: run redis-stack-server docker
-            working-directory: ./github
+            working-directory: .github
             run: docker-compose up redis-stack-${{inputs.redis_stack_type}} -d
           - name: set variables in dotenv
             uses: c-py/action-dotenv-to-setenv@v2
