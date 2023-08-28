@@ -47,6 +47,8 @@ jobs:
             with:
               env-file: ${{inputs.dotenv_file}}
 
+          - name: Restore dependencies
+            run: dotnet restore
           - name: Build
             run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
           - name: Test
