@@ -1,0 +1,56 @@
+name: Build and Test
+on:
+    workflow_call:
+      inputs:
+
+        redis_stack_type:
+            required: true
+            type: string
+
+
+        dotnet_version:
+            required: true
+            type: string
+
+        clr_version:
+            required: true
+            type: string
+
+jobs:
+
+    build_and_Test:
+        name: Test [redis-stack ${{inputs.redis_stack_type}}]
+        runs-on: ubuntu-latest
+
+        env:
+          USER_NAME: ${{ secrets.USER_NAME }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          ENDPOINT: ${{ secrets.ENDPOINT }}
+        steps:
+          - uses: actions/checkout@v3
+          - name: .NET Core ${{inputs.dotnet_version}}
+            uses: actions/setup-dotnet@v2
+            with:
+              dotnet-version: ${{inputs.dotnet_version}}
+
+          - name: run redis-stack-server docker
+            run: docker-compose up redis-stack-${{inputs.redis_stack_type}} -d
+          - name: Restore dependencies
+            run: dotnet restore
+          - name: Build
+            run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
+          - name: Test
+            run: |
+              echo "${{secrets.REDIS_CA_PEM}}" > tests/NRedisStack.Tests/bin/Debug/net6.0/redis_ca.pem
+              echo "${{secrets.REDIS_USER_CRT}}" > tests/NRedisStack.Tests/bin/Debug/net6.0/redis_user.crt
+              echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > tests/NRedisStack.Tests/bin/Debug/net6.0/redis_user_private.key
+              ls -R
+              dotnet test -f ${{inputs.clr_version}} --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+          - name: Codecov
+            uses: codecov/codecov-action@v3
+            with:
+              token: ${{secrets.CODECOV_TOKEN}}
+              verbose: true
+          - name: Build
+            run: dotnet pack -c Release
+
