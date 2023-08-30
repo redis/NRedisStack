@@ -27,7 +27,7 @@ jobs:
       fail-fast: false
       max-parallel: 5
       matrix:
-        redis-stack-type: ['edge', '6.2.6', '7.2.0']
+        redis-stack-type: ['edge', '6.2.6', '7.2.0-RC3']
     with:
       redis_stack_type: ${{matrix.redis-stack-type}}
       dotnet_version: 6.0.x
@@ -51,7 +51,7 @@ jobs:
       fail-fast: false
       max-parallel: 5
       matrix:
-        redis-stack-type: ['edge', '6.2.6', '7.2.0']
+        redis-stack-type: ['edge', '6.2.6', '7.2.0-RC3']
     with:
       redis_stack_type: ${{matrix.redis-stack-type}}
       dotnet_version: 7.0.x
@@ -65,7 +65,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        redis-stack-version: ['6.2.9-v9', '7.2.0']
+        redis-stack-version: ['6.2.9-v9', '7.2.0-RC3']
     env:
       redis_stack_version: ${{matrix.redis-stack-version}}
       USER_NAME: ${{ secrets.USER_NAME }}

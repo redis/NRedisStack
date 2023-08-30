@@ -17,7 +17,7 @@ services:
       REDIS__edge: "redis-stack-edge:6379"
 
   redis-stack-7.2.0:
-    image: redis/redis-stack-server:7.2.0
+    image: redis/redis-stack-server:7.2.0-RC3
     restart: unless-stopped
     networks:
       - redis
