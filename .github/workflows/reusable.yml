@@ -21,7 +21,7 @@ on:
 jobs:
 
     build_and_test:
-        name: Test [redis-stack ${{inputs.redis_stack_type}}]
+        name: Test
         runs-on: ubuntu-latest
 
         env:
