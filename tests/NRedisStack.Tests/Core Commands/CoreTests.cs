@@ -30,7 +30,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedisVersion(Comparison.LessThan, "7.1.242")]
-    public async Task TestSetInfoç()
+    public async Task TestSetInfoAsync()
     {
         var redis = redisFixture.Redis;
 
