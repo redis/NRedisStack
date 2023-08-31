@@ -839,7 +839,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(4, info.CursorStats.Count);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.Cluster)]
     public void TestConfig()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -850,7 +850,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("100", configMap["TIMEOUT"].ToString());
     }
 
-    [Fact]
+    [SkipIfRedis(Is.Cluster)]
     public async Task TestConfigAsnyc()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2755,7 +2755,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(new object[] { "index", "AGGREGATE", "LIMITED", "QUERY", "*" }, aggregate.Args);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.Cluster)]
     public void Issue175()
     {
         ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost:6379");

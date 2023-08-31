@@ -1,5 +1,6 @@
 // EXAMPLE: hash_tutorial
 // HIDE_START
+using NRedisStack.Tests;
 using StackExchange.Redis;
 
 //REMOVE_START
@@ -8,7 +9,7 @@ namespace NRedisStack.Doc;
 //REMOVE_END
 public class HashExample
 {
-    [Fact]
+    [SkipIfRedis(Is.Cluster)]
     public void run()
     {
         var muxer = ConnectionMultiplexer.Connect("localhost:6379");

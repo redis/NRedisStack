@@ -1,8 +1,6 @@
 using Xunit;
-using StackExchange.Redis;
-using NRedisStack.Tests;
-using System.Text;
 
+namespace NRedisStack.Tests;
 public enum Comparison
 {
     LessThan,

@@ -1,6 +1,7 @@
 ﻿// EXAMPLE: set_and_get
 // HIDE_START
 using System;
+using NRedisStack.Tests;
 using StackExchange.Redis;
 
 //REMOVE_START
@@ -9,7 +10,7 @@ namespace NRedisStack.Doc;
 //REMOVE_END
 public class SetGetExample
 {
-    [Fact]
+    [SkipIfRedis(Is.Cluster)]
     public void run()
     {
         var redis = ConnectionMultiplexer.Connect("localhost:6379");
@@ -17,7 +18,7 @@ public class SetGetExample
 
         //HIDE_END
         bool status = db.StringSet("bike:1", "Process 134");
-            
+
         if (status)
             Console.WriteLine("Successfully added a bike.");
 

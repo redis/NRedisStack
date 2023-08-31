@@ -114,7 +114,7 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(db.TOPK().Info("topk-key"));
     }
 
-    [Fact]
+    [SkipIfRedis(Is.Cluster)]
     public async Task TestBloomPipeline()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
