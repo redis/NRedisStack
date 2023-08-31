@@ -26,7 +26,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.True(db.ClientSetInfo(SetInfoAttr.LibraryName, "anylibname"));
         Assert.True(db.ClientSetInfo(SetInfoAttr.LibraryVersion, "1.2.3"));
         info = db.Execute("CLIENT", "INFO").ToString();
-        Assert.EndsWith("lib-name=nredisstack lib-ver=0.8.1\n", info);
+        Assert.EndsWith("lib-name=anylibname lib-ver=1.2.3\n", info);
     }
 
     [SkipIfRedisVersion(Comparison.LessThan, "7.1.242")]
@@ -42,6 +42,6 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.True( await db.ClientSetInfoAsync(SetInfoAttr.LibraryName, "anylibname"));
         Assert.True( await db.ClientSetInfoAsync(SetInfoAttr.LibraryVersion, "1.2.3"));
         info = (await db.ExecuteAsync("CLIENT", "INFO")).ToString();
-        Assert.EndsWith("lib-name=nredisstack lib-ver=0.8.1\n", info);
+        Assert.EndsWith("lib-name=anylibname lib-ver=1.2.3\n", info);
     }
 }
