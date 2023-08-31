@@ -13,6 +13,7 @@ on:
 
 jobs:
   dotnet_6_cluster:
+    name: .NET 6 on Redis Cluster
     uses: ./.github/workflows/reusable.yml
     with:
       redis_stack_type: cluster
@@ -22,6 +23,7 @@ jobs:
     secrets: inherit
 
   dotnet_6:
+    name: .NET 6 on Redis Standalone
     uses: ./.github/workflows/reusable.yml
     strategy:
       fail-fast: false
@@ -36,8 +38,8 @@ jobs:
     secrets: inherit
 
   dotnet_7_cluster:
+    name: .NET 7 on Redis Cluster
     uses: ./.github/workflows/reusable.yml
-
     with:
       redis_stack_type: cluster
       dotnet_version: 7.0.x
@@ -46,6 +48,7 @@ jobs:
     secrets: inherit
 
   dotnet_7:
+    name: .NET 7 on Redis Standalone
     uses: ./.github/workflows/reusable.yml
     strategy:
       fail-fast: false
