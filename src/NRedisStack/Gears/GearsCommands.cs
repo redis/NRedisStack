@@ -48,19 +48,31 @@ namespace NRedisStack
         }
 
         /// <summary>
-        /// Trigger a sync or async (Coroutine) function.
+        /// Trigger a sync function.
         /// </summary>
         /// <param name="libraryName">The library name contains the function.</param>
         /// <param name="functionName">The function name to run.</param>
         /// <param name="keys">keys that will be touched by the function.</param>
         /// <param name="args">Additional argument to pass to the function.</param>
-        /// <param name="async">If true, Invoke an async function (Coroutine).</param>
         /// <returns>The return value from the sync & async function on error in case of failure.</returns>
-        /// <remarks><seealso href="https://redis.io/commands/tfcall"/></remarks> //TODO: check this link when it's available
-        /// <remarks><seealso href="https://redis.io/commands/tfcallasync"/></remarks> //TODO: check this link when it's available
-        public static RedisResult TFCall(this IDatabase db, string libraryName, string functionName, string[]? keys = null, string[]? args = null, bool async = false)
+        /// <remarks><seealso href="https://redis.io/commands/tfcall"/></remarks>
+        public static RedisResult TFCall_(this IDatabase db, string libraryName, string functionName, string[]? keys = null, string[]? args = null)
         {
-            return db.Execute(GearsCommandBuilder.TFCall(libraryName, functionName, keys, args, async));
+            return db.Execute(GearsCommandBuilder.TFCall(libraryName, functionName, keys, args, async : false));
+        }
+
+        /// <summary>
+        /// Trigger a async (Coroutine) function.
+        /// </summary>
+        /// <param name="libraryName">The library name contains the function.</param>
+        /// <param name="functionName">The function name to run.</param>
+        /// <param name="keys">keys that will be touched by the function.</param>
+        /// <param name="args">Additional argument to pass to the function.</param>
+        /// <returns>The return value from the sync & async function on error in case of failure.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/tfcallasync"/></remarks>
+        public static RedisResult TFCallAsync_(this IDatabase db, string libraryName, string functionName, string[]? keys = null, string[]? args = null)
+        {
+            return db.Execute(GearsCommandBuilder.TFCall(libraryName, functionName, keys, args, async : true));
         }
     }
 }
