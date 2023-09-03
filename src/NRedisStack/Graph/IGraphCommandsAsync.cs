@@ -3,7 +3,7 @@ using StackExchange.Redis;
 
 namespace NRedisStack
 {
-    [Obsolete("RedisGraph is not supported since Redis 7.2 (https://redis.com/blog/redisgraph-eol/)")]
+    [Obsolete("RedisGraph supported is deprecated as of Redis Stack 7.2 (https://redis.com/blog/redisgraph-eol/)")]
     public interface IGraphCommandsAsync
     {
         /// <summary>
