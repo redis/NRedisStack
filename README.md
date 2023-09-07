@@ -37,7 +37,7 @@ dotnet add package NRedisStack
 
 ### Supported Redis versions
 
-The most recent version of this library supports Redis version [6.2](https://github.com/redis/redis/blob/6.2/00-RELEASENOTES), [7.0](https://github.com/redis/redis/blob/7.0/00-RELEASENOTES).
+The most recent version of this library supports Redis version [6.2](https://github.com/redis/redis/blob/6.2/00-RELEASENOTES), [7.2](https://github.com/redis/redis/blob/7.2/00-RELEASENOTES).
 
 ### Starting Redis
 
