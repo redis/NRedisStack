@@ -21,7 +21,10 @@ You can use Redis OSS commands in the same way as you use them in [StackExchange
 
 ### Stack commands
 Each module has a command class with its own commands.
-The supported modules are [Search](https://redis.io/commands/?group=search), [JSON](https://redis.io/commands/?group=json), [Graph](https://redis.io/commands/?group=graph), [TimeSeries](https://redis.io/commands/?group=timeseries), [Bloom Filter](https://redis.io/commands/?group=bf), [Cuckoo Filter](https://redis.io/commands/?group=cf), [T-Digest](https://redis.io/commands/?group=tdigest), [Count-min Sketch](https://redis.io/commands/?group=cms), and [Top-K](https://redis.io/commands/?group=topk).
+The supported modules are [Search](https://redis.io/commands/?group=search), [JSON](https://redis.io/commands/?group=json), [TimeSeries](https://redis.io/commands/?group=timeseries), [Bloom Filter](https://redis.io/commands/?group=bf), [Cuckoo Filter](https://redis.io/commands/?group=cf), [T-Digest](https://redis.io/commands/?group=tdigest), [Count-min Sketch](https://redis.io/commands/?group=cms), and [Top-K](https://redis.io/commands/?group=topk).
+
+**Note:** RedisGraph support has been deprecated starting from Redis Stack version 7.2. For more information, please refer to [this blog post](https://redis.com/blog/redisgraph-eol/).
+
 
 # Usage
 
@@ -37,7 +40,7 @@ dotnet add package NRedisStack
 
 ### Supported Redis versions
 
-The most recent version of this library supports Redis version [6.2](https://github.com/redis/redis/blob/6.2/00-RELEASENOTES), [7.0](https://github.com/redis/redis/blob/7.0/00-RELEASENOTES).
+The most recent version of this library supports Redis version [6.2](https://github.com/redis/redis/blob/6.2/00-RELEASENOTES), [7.2](https://github.com/redis/redis/blob/7.2/00-RELEASENOTES).
 
 ### Starting Redis
 
@@ -63,12 +66,12 @@ Now you can create a variable from any type of module in the following way:
 BloomCommands bf = db.BF();
 CuckooCommands cf = db.CF();
 CmsCommands cms = db.CMS();
-GraphCommands graph = db.GRAPH();
 TopKCommands topk = db.TOPK();
 TdigestCommands tdigest = db.TDIGEST();
 SearchCommands ft = db.FT();
 JsonCommands json = db.JSON();
 TimeSeriesCommands ts = db.TS();
+GraphCommands graph = db.GRAPH(); // If Redis version is less than 7.2
 ```
 Then, that variable will allow you to call all the commands of that module.
 

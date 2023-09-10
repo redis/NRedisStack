@@ -9,9 +9,9 @@
 	<Owners>Redis OSS</Owners>
 	<Description>.Net Client for Redis Stack</Description>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
-	<Version>0.8.1</Version>
-	<ReleaseVersion>0.8.1</ReleaseVersion>
-	<PackageVersion>0.8.1</PackageVersion>
+	<Version>0.9.0</Version>
+	<ReleaseVersion>0.9.0</ReleaseVersion>
+	<PackageVersion>0.9.0</PackageVersion>
   </PropertyGroup>
 
   <ItemGroup>

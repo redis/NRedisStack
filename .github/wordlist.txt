@@ -17,6 +17,7 @@ OSS
 oss
 pre
 redis
+RedisGraph
 StackExchange
 TimeSeries
 triaging

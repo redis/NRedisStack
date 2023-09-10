@@ -103,8 +103,8 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         TryDeleteLib(db, "lib", "lib1", "lib2", "lib3");
 
         Assert.True(db.TFunctionLoad(GenerateLibCode("lib")));
-        Assert.Equal("bar", db.TFCall("lib", "foo", async: false).ToString());
-        Assert.Equal("bar", db.TFCall("lib", "foo", async: true).ToString());
+        Assert.Equal("bar", db.TFCall_("lib", "foo").ToString());
+        Assert.Equal("bar", db.TFCallAsync_("lib", "foo").ToString());
 
         Assert.True(db.TFunctionDelete("lib"));
     }
@@ -117,8 +117,8 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         TryDeleteLib(db, "lib", "lib1", "lib2", "lib3");
 
         Assert.True(await db.TFunctionLoadAsync(GenerateLibCode("lib")));
-        Assert.Equal("bar", (await db.TFCallAsync("lib", "foo", async: false)).ToString());
-        Assert.Equal("bar", (await db.TFCallAsync("lib", "foo", async: true)).ToString());
+        Assert.Equal("bar", (await db.TFCall_Async("lib", "foo")).ToString());
+        Assert.Equal("bar", (await db.TFCallAsync_Async("lib", "foo")).ToString());
 
         Assert.True(await db.TFunctionDeleteAsync("lib"));
     }
