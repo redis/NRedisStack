@@ -55,7 +55,7 @@ namespace NRedisStack.Tests
             Assert.False(db.KeyExists("cf-key"));
             Assert.False(db.KeyExists("graph-key"));
             Assert.False(db.KeyExists("json-key"));
-            Assert.Equal(0, db.FT()._List().Length);
+            Assert.Empty(db.FT()._List());
             Assert.False(db.KeyExists("tdigest-key"));
             Assert.False(db.KeyExists("ts-key"));
             Assert.False(db.KeyExists("topk-key"));
@@ -104,7 +104,7 @@ namespace NRedisStack.Tests
             Assert.False(db.KeyExists("cms-key"));
             Assert.False(db.KeyExists("cf-key"));
             Assert.False(db.KeyExists("json-key"));
-            Assert.Equal(0, db.FT()._List().Length);
+            Assert.Empty(db.FT()._List());
             Assert.False(db.KeyExists("tdigest-key"));
             Assert.False(db.KeyExists("ts-key"));
             Assert.False(db.KeyExists("topk-key"));

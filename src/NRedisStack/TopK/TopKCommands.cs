@@ -14,7 +14,7 @@ namespace NRedisStack
         /// <inheritdoc/>
         public RedisResult[]? Add(RedisKey key, params RedisValue[] items)
         {
-            return (RedisResult[]?) _db.Execute(TopKCommandBuilder.Add(key, items));
+            return (RedisResult[]?)_db.Execute(TopKCommandBuilder.Add(key, items));
         }
 
         /// <inheritdoc/>

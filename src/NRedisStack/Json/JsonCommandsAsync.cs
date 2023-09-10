@@ -169,7 +169,7 @@ public class JsonCommandsAsync : IJsonCommandsAsync
             throw new FileNotFoundException($"File {filePath} not found.");
         }
 
-        string fileContent  = File.ReadAllText(filePath);
+        string fileContent = File.ReadAllText(filePath);
         return await SetAsync(key, path, fileContent, when);
     }
 
@@ -181,7 +181,7 @@ public class JsonCommandsAsync : IJsonCommandsAsync
         foreach (var filePath in files)
         {
             key = filePath.Substring(0, filePath.IndexOf("."));
-            if(await SetFromFileAsync(key, path, filePath, when))
+            if (await SetFromFileAsync(key, path, filePath, when))
             {
                 inserted++;
             }

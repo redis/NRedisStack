@@ -43,7 +43,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, stats.PropertiesSet);
         Assert.NotNull(stats.QueryInternalExecutionTime);
 
-        Assert.Equal(0, resultSet.Count);
+        Assert.Empty(resultSet);
 
         // delete
         graph.Delete("social");
@@ -66,7 +66,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         //        Assert.NotNull(stats.getstringValue(Label.QUERY_INTERNAL_EXECUTION_TIME));
         Assert.NotNull(stats.QueryInternalExecutionTime);
 
-        Assert.Equal(0, resultSet.Count);
+        Assert.Empty(resultSet);
         // Assert.False(resultSet..iterator().MoveNext());
     }
 
@@ -94,7 +94,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         //        Assert.NotNull(stats.getstringValue(Label.QUERY_INTERNAL_EXECUTION_TIME));
         Assert.NotNull(stats.QueryInternalExecutionTime);
 
-        Assert.Equal(0, resultSet.Count);
+        Assert.Empty(resultSet);
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
@@ -120,7 +120,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, delStats.PropertiesSet);
         //        Assert.NotNull(delStats.getstringValue(Label.QUERY_INTERNAL_EXECUTION_TIME));
         Assert.NotNull(delStats.QueryInternalExecutionTime);
-        Assert.Equal(0, deleteResult.Count);
+        Assert.Empty(deleteResult);
         // Assert.False(deleteResult.iterator().MoveNext());
 
         Assert.NotNull(graph.Query("social", "CREATE (:person{name:'roi',age:32})"));
@@ -140,7 +140,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, delStats.PropertiesSet);
         //        Assert.NotNull(delStats.getstringValue(Label.QUERY_INTERNAL_EXECUTION_TIME));
         Assert.NotNull(delStats.QueryInternalExecutionTime);
-        Assert.Equal(0, deleteResult.Count);
+        Assert.Empty(deleteResult);
         // Assert.False(deleteResult.iterator().MoveNext());
     }
 
@@ -170,7 +170,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, delStats.PropertiesSet);
         //        Assert.NotNull(delStats.getstringValue(Label.QUERY_INTERNAL_EXECUTION_TIME));
         Assert.NotNull(delStats.QueryInternalExecutionTime);
-        Assert.Equal(0, deleteResult.Count);
+        Assert.Empty(deleteResult);
         // Assert.False(deleteResult.iterator().MoveNext());
     }
 
@@ -936,7 +936,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.True(graph.ConfigSet(name, 250L));
 
         var actual = graph.ConfigGet(name);
-        Assert.Equal(actual.Count, 1);
+        Assert.Equal(1, actual.Count);
         Assert.Equal("250", actual[name].ToString());
 
         graph.ConfigSet(name, existingValue != null ? existingValue.ToString() : -1);
@@ -1026,7 +1026,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, stats.PropertiesSet);
         Assert.NotNull(stats.QueryInternalExecutionTime);
 
-        Assert.Equal(0, resultSet.Count);
+        Assert.Empty(resultSet);
 
         // delete
         await graph.DeleteAsync("social");
@@ -1049,7 +1049,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         //        Assert.NotNull(stats.getstringValue(Label.QUERY_INTERNAL_EXECUTION_TIME));
         Assert.NotNull(stats.QueryInternalExecutionTime);
 
-        Assert.Equal(0, resultSet.Count);
+        Assert.Empty(resultSet);
         // Assert.False(resultSet..iterator().MoveNext());
     }
 
@@ -1077,7 +1077,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         //        Assert.NotNull(stats.getstringValue(Label.QUERY_INTERNAL_EXECUTION_TIME));
         Assert.NotNull(stats.QueryInternalExecutionTime);
 
-        Assert.Equal(0, resultSet.Count);
+        Assert.Empty(resultSet);
         // Assert.False(resultSet.GetEnumerator().MoveNext());
     }
 
@@ -1104,7 +1104,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, delStats.PropertiesSet);
         //        Assert.NotNull(delStats.getstringValue(Label.QUERY_INTERNAL_EXECUTION_TIME));
         Assert.NotNull(delStats.QueryInternalExecutionTime);
-        Assert.Equal(0, deleteResult.Count);
+        Assert.Empty(deleteResult);
         // Assert.False(deleteResult.iterator().MoveNext());
 
         Assert.NotNull(await graph.QueryAsync("social", "CREATE (:person{name:'roi',age:32})"));
@@ -1124,7 +1124,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, delStats.PropertiesSet);
         //        Assert.NotNull(delStats.getstringValue(Label.QUERY_INTERNAL_EXECUTION_TIME));
         Assert.NotNull(delStats.QueryInternalExecutionTime);
-        Assert.Equal(0, deleteResult.Count);
+        Assert.Empty(deleteResult);
         // Assert.False(deleteResult.iterator().MoveNext());
     }
 
@@ -1154,7 +1154,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, delStats.PropertiesSet);
         //        Assert.NotNull(delStats.getstringValue(Label.QUERY_INTERNAL_EXECUTION_TIME));
         Assert.NotNull(delStats.QueryInternalExecutionTime);
-        Assert.Equal(0, deleteResult.Count);
+        Assert.Empty(deleteResult);
         // Assert.False(deleteResult.iterator().MoveNext());
     }
 
@@ -1909,7 +1909,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await graph.ConfigSetAsync(name, 250L));
 
         var actual = await graph.ConfigGetAsync(name);
-        Assert.Equal(actual.Count, 1);
+        Assert.Equal(1, actual.Count);
         Assert.Equal("250", actual[name].ToString());
 
         await graph.ConfigSetAsync(name, existingValue != null ? existingValue.ToString() : -1);

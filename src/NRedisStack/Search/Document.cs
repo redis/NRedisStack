@@ -8,7 +8,7 @@ namespace NRedisStack.Search
     public class Document
     {
         public string Id { get; }
-        public double Score { get; set;}
+        public double Score { get; set; }
         public byte[] Payload { get; }
         public string[] ScoreExplained { get; private set; } // TODO: check if this is needed (Jedis does not have it)
         internal readonly Dictionary<string, RedisValue> _properties;
@@ -35,10 +35,12 @@ namespace NRedisStack.Search
                 for (int i = 0; i < fields.Length; i += 2)
                 {
                     string fieldName = (string)fields[i];
-                    if (fieldName == "$") {
+                    if (fieldName == "$")
+                    {
                         ret["json"] = fields[i + 1];
                     }
-                    else {
+                    else
+                    {
                         ret[fieldName] = fields[i + 1];
                     }
                 }

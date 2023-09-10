@@ -124,6 +124,6 @@ namespace NRedisStack
         /// <param name="iterator">Iterator value; either 0 or the iterator from a previous invocation of this command.</param>
         /// <returns>Tuple of iterator and data.</returns>
         /// <remarks><seealso href="https://redis.io/commands/cf.scandump"/></remarks>
-        Task<Tuple<long,Byte[]>> ScanDumpAsync(RedisKey key, long iterator);
+        Task<Tuple<long, Byte[]>> ScanDumpAsync(RedisKey key, long iterator);
     }
 }

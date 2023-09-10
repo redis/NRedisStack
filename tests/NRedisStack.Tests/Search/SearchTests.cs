@@ -177,7 +177,6 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, res.TotalResults);
 
         Row r1 = res.GetRow(0);
-        Assert.NotNull(r1);
         Assert.Equal("def", r1.GetString("name"));
         Assert.Equal(30, r1.GetLong("sum"));
         Assert.Equal(30, r1.GetDouble("sum"), 0);
@@ -187,7 +186,6 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(r1.GetString("nosuchcol"));
 
         Row r2 = res.GetRow(1);
-        Assert.NotNull(r2);
         Assert.Equal("abc", r2.GetString("name"));
         Assert.Equal(10, r2.GetLong("sum"));
     }
@@ -218,7 +216,6 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, res.TotalResults);
 
         Row r1 = res.GetRow(0);
-        Assert.NotNull(r1);
         Assert.Equal("def", r1.GetString("name"));
         Assert.Equal(30, r1.GetLong("sum"));
         Assert.Equal(30, r1.GetDouble("sum"), 0);
@@ -228,7 +225,6 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(r1.GetString("nosuchcol"));
 
         Row r2 = res.GetRow(1);
-        Assert.NotNull(r2);
         Assert.Equal("abc", r2.GetString("name"));
         Assert.Equal(10, r2.GetLong("sum"));
     }
@@ -248,18 +244,18 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         // load t1
         var req = new AggregationRequest("*").Load(new FieldName("t1"));
         var res = ft.Aggregate("idx", req);
-        Assert.Equal(res[0]["t1"].ToString(), "hello");
+        Assert.Equal("hello", res[0]["t1"].ToString());
 
         // load t2
         req = new AggregationRequest("*").Load(new FieldName("t2"));
         res = ft.Aggregate("idx", req);
-        Assert.Equal(res[0]["t2"], "world");
+        Assert.Equal("world", res[0]["t2"]);
 
         // load all
         req = new AggregationRequest("*").LoadAll();
         res = ft.Aggregate("idx", req);
-        Assert.Equal(res[0]["t1"].ToString(), "hello");
-        Assert.Equal(res[0]["t2"], "world");
+        Assert.Equal("hello", res[0]["t1"].ToString());
+        Assert.Equal("world", res[0]["t2"]);
     }
 
     [SkipIfRedis(Is.Cluster)]
@@ -276,18 +272,18 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         // load t1
         var req = new AggregationRequest("*").Load(new FieldName("t1"));
         var res = await ft.AggregateAsync("idx", req);
-        Assert.Equal(res[0]["t1"].ToString(), "hello");
+        Assert.Equal("hello", res[0]["t1"].ToString());
 
         // load t2
         req = new AggregationRequest("*").Load(new FieldName("t2"));
         res = await ft.AggregateAsync("idx", req);
-        Assert.Equal(res[0]["t2"], "world");
+        Assert.Equal("world", res[0]["t2"]);
 
         // load all
         req = new AggregationRequest("*").LoadAll();
         res = await ft.AggregateAsync("idx", req);
-        Assert.Equal(res[0]["t1"].ToString(), "hello");
-        Assert.Equal(res[0]["t2"], "world");
+        Assert.Equal("hello", res[0]["t1"].ToString());
+        Assert.Equal("world", res[0]["t2"]);
     }
 
 
@@ -319,7 +315,6 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, res.TotalResults);
 
         Row r1 = res.GetRow(0);
-        Assert.NotNull(r1);
         Assert.Equal("abc", r1.GetString("name"));
         Assert.Equal(10, r1.GetLong("sum"));
     }
@@ -355,7 +350,6 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, res.TotalResults);
 
         Row r1 = res.GetRow(0);
-        Assert.NotNull(r1);
         Assert.Equal("abc", r1.GetString("name"));
         Assert.Equal(10, r1.GetLong("sum"));
     }
@@ -387,7 +381,6 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, res.TotalResults);
 
         Row r1 = res.GetRow(0);
-        Assert.NotNull(r1);
         Assert.Equal("abc", r1.GetString("name"));
         Assert.Equal(10, r1.GetLong("sum"));
     }
@@ -419,7 +412,6 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, res.TotalResults);
 
         Row r1 = res.GetRow(0);
-        Assert.NotNull(r1);
         Assert.Equal("abc", r1.GetString("name"));
         Assert.Equal(10, r1.GetLong("sum"));
     }
@@ -525,12 +517,10 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(3, res.TotalResults);
 
         Row r1 = res.GetRow(0);
-        Assert.NotNull(r1);
         Assert.Equal("def", r1.GetString("name"));
         Assert.Equal(52.5, r1.GetDouble("avgscore"), 0);
 
         Row r2 = res.GetRow(1);
-        Assert.NotNull(r2);
         Assert.Equal("ghi", r2.GetString("name"));
         Assert.Equal(67.5, r2.GetDouble("avgscore"), 0);
     }
@@ -748,7 +738,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         var info = ft.Info(index);
         Assert.Equal(index, info.IndexName);
-        Assert.Equal(0, info.IndexOption.Count);
+        Assert.Empty(info.IndexOption);
         // Assert.Equal(,info.IndexDefinition);
         Assert.Equal("title", (info.Attributes[0]["identifier"]).ToString());
         Assert.Equal("TAG", (info.Attributes[1]["type"]).ToString());
@@ -1090,68 +1080,68 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var req = new AggregationRequest("redis").GroupBy("@parent", Reducers.Count());
         var res = ft.Aggregate("idx", req).GetRow(0);
         Assert.True(res.ContainsKey("parent"));
-        Assert.Equal(res["parent"], "redis");
+        Assert.Equal("redis", res["parent"]);
         // Assert.Equal(res["__generated_aliascount"], "3");
 
         req = new AggregationRequest("redis").GroupBy("@parent", Reducers.CountDistinct("@title"));
         res = ft.Aggregate("idx", req).GetRow(0);
-        Assert.Equal(res["parent"], "redis");
-        Assert.Equal(res.GetLong("__generated_aliascount_distincttitle"), 3);
+        Assert.Equal("redis", res["parent"]);
+        Assert.Equal(3, res.GetLong("__generated_aliascount_distincttitle"));
 
         req = new AggregationRequest("redis").GroupBy("@parent", Reducers.CountDistinctish("@title"));
         res = ft.Aggregate("idx", req).GetRow(0);
-        Assert.Equal(res["parent"], "redis");
-        Assert.Equal(res.GetLong("__generated_aliascount_distinctishtitle"), 3);
+        Assert.Equal("redis", res["parent"]);
+        Assert.Equal(3, res.GetLong("__generated_aliascount_distinctishtitle"));
 
         req = new AggregationRequest("redis").GroupBy("@parent", Reducers.Sum("@random_num"));
         res = ft.Aggregate("idx", req).GetRow(0);
-        Assert.Equal(res["parent"], "redis");
-        Assert.Equal(res.GetLong("__generated_aliassumrandom_num"), 21); // 10+8+3
+        Assert.Equal("redis", res["parent"]);
+        Assert.Equal(21, res.GetLong("__generated_aliassumrandom_num")); // 10+8+3
 
         req = new AggregationRequest("redis").GroupBy("@parent", Reducers.Min("@random_num"));
         res = ft.Aggregate("idx", req).GetRow(0);
-        Assert.Equal(res["parent"], "redis");
-        Assert.Equal(res.GetLong("__generated_aliasminrandom_num"), 3); // min(10,8,3)
+        Assert.Equal("redis", res["parent"]);
+        Assert.Equal(3, res.GetLong("__generated_aliasminrandom_num")); // min(10,8,3)
 
         req = new AggregationRequest("redis").GroupBy("@parent", Reducers.Max("@random_num"));
         res = ft.Aggregate("idx", req).GetRow(0);
-        Assert.Equal(res["parent"], "redis");
-        Assert.Equal(res.GetLong("__generated_aliasmaxrandom_num"), 10); // max(10,8,3)
+        Assert.Equal("redis", res["parent"]);
+        Assert.Equal(10, res.GetLong("__generated_aliasmaxrandom_num")); // max(10,8,3)
 
         req = new AggregationRequest("redis").GroupBy("@parent", Reducers.Avg("@random_num"));
         res = ft.Aggregate("idx", req).GetRow(0);
-        Assert.Equal(res["parent"], "redis");
-        Assert.Equal(res.GetLong("__generated_aliasavgrandom_num"), 7); // (10+3+8)/3
+        Assert.Equal("redis", res["parent"]);
+        Assert.Equal(7, res.GetLong("__generated_aliasavgrandom_num")); // (10+3+8)/3
 
         req = new AggregationRequest("redis").GroupBy("@parent", Reducers.StdDev("@random_num"));
         res = ft.Aggregate("idx", req).GetRow(0);
-        Assert.Equal(res["parent"], "redis");
-        Assert.Equal(res.GetDouble("__generated_aliasstddevrandom_num"), 3.60555127546);
+        Assert.Equal("redis", res["parent"]);
+        Assert.Equal(3.60555127546, res.GetDouble("__generated_aliasstddevrandom_num"));
 
         req = new AggregationRequest("redis").GroupBy(
             "@parent", Reducers.Quantile("@random_num", 0.5));
         res = ft.Aggregate("idx", req).GetRow(0);
-        Assert.Equal(res["parent"], "redis");
-        Assert.Equal(res.GetLong("__generated_aliasquantilerandom_num,0.5"), 8);  // median of 3,8,10
+        Assert.Equal("redis", res["parent"]);
+        Assert.Equal(8, res.GetLong("__generated_aliasquantilerandom_num,0.5"));  // median of 3,8,10
 
         req = new AggregationRequest("redis").GroupBy(
             "@parent", Reducers.ToList("@title"));
         var rawRes = ft.Aggregate("idx", req);
         res = rawRes.GetRow(0);
-        Assert.Equal(res["parent"], "redis");
+        Assert.Equal("redis", res["parent"]);
         // TODO: complete this assert after handling multi bulk reply
         //Assert.Equal((RedisValue[])res["__generated_aliastolisttitle"], { "RediSearch", "RedisAI", "RedisJson"});
 
         req = new AggregationRequest("redis").GroupBy(
             "@parent", Reducers.FirstValue("@title").As("first"));
         res = ft.Aggregate("idx", req).GetRow(0);
-        Assert.Equal(res["parent"], "redis");
-        Assert.Equal(res["first"], "RediSearch");
+        Assert.Equal("redis", res["parent"]);
+        Assert.Equal("RediSearch", res["first"]);
 
         req = new AggregationRequest("redis").GroupBy(
             "@parent", Reducers.RandomSample("@title", 2).As("random"));
         res = ft.Aggregate("idx", req).GetRow(0);
-        Assert.Equal(res["parent"], "redis");
+        Assert.Equal("redis", res["parent"]);
         // TODO: complete this assert after handling multi bulk reply
         // Assert.Equal(res[2], "random");
         // Assert.Equal(len(res[3]), 2);
@@ -1177,7 +1167,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("hello world", dumResult[i].ToString());
 
         Assert.Equal(3L, ft.DictDel("dict", "foo", "bar", "hello world"));
-        Assert.Equal(ft.DictDump("dict").Length, 0);
+        Assert.Equal(0, ft.DictDump("dict").Length);
     }
 
     [SkipIfRedis(Is.Cluster)]
@@ -1208,7 +1198,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         }
         catch (RedisServerException ex)
         {
-            Assert.True(ex.Message.Contains("no such index"));
+            Assert.Contains("no such index", ex.Message);
         }
         Assert.Equal("100", db.Execute("DBSIZE").ToString());
     }
@@ -1241,7 +1231,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         }
         catch (RedisServerException ex)
         {
-            Assert.True(ex.Message.Contains("no such index"));
+            Assert.Contains("no such index", ex.Message);
         }
         Assert.Equal("100", db.Execute("DBSIZE").ToString());
     }
@@ -1314,7 +1304,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("hello world", dumResult[i].ToString());
 
         Assert.Equal(3L, await ft.DictDelAsync("dict", "foo", "bar", "hello world"));
-        Assert.Equal((await ft.DictDumpAsync("dict")).Length, 0);
+        Assert.Equal(0, (await ft.DictDumpAsync("dict")).Length);
     }
 
     string explainQuery = "@f3:f3_val @f2:f2_val @f1:f1_val";
@@ -1552,19 +1542,19 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         var SyncRes = ft.TagVals(index, "category");
         int i = 0;
-        Assert.Equal(SyncRes[i++].ToString(), "blue");
-        Assert.Equal(SyncRes[i++].ToString(), "green");
-        Assert.Equal(SyncRes[i++].ToString(), "orange;purple");
-        Assert.Equal(SyncRes[i++].ToString(), "red");
-        Assert.Equal(SyncRes[i++].ToString(), "yellow");
+        Assert.Equal("blue", SyncRes[i++].ToString());
+        Assert.Equal("green", SyncRes[i++].ToString());
+        Assert.Equal("orange;purple", SyncRes[i++].ToString());
+        Assert.Equal("red", SyncRes[i++].ToString());
+        Assert.Equal("yellow", SyncRes[i++].ToString());
 
         var AsyncRes = await ft.TagValsAsync(index, "category");
         i = 0;
-        Assert.Equal(SyncRes[i++].ToString(), "blue");
-        Assert.Equal(SyncRes[i++].ToString(), "green");
-        Assert.Equal(SyncRes[i++].ToString(), "orange;purple");
-        Assert.Equal(SyncRes[i++].ToString(), "red");
-        Assert.Equal(SyncRes[i++].ToString(), "yellow");
+        Assert.Equal("blue", SyncRes[i++].ToString());
+        Assert.Equal("green", SyncRes[i++].ToString());
+        Assert.Equal("orange;purple", SyncRes[i++].ToString());
+        Assert.Equal("red", SyncRes[i++].ToString());
+        Assert.Equal("yellow", SyncRes[i++].ToString());
     }
 
     [SkipIfRedis(Is.Cluster)]
@@ -1610,19 +1600,19 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         var SyncRes = ft.TagVals(index, "category");
         int i = 0;
-        Assert.Equal(SyncRes[i++].ToString(), "blue");
-        Assert.Equal(SyncRes[i++].ToString(), "green");
-        Assert.Equal(SyncRes[i++].ToString(), "orange,purple");
-        Assert.Equal(SyncRes[i++].ToString(), "red");
-        Assert.Equal(SyncRes[i++].ToString(), "yellow");
+        Assert.Equal("blue", SyncRes[i++].ToString());
+        Assert.Equal("green", SyncRes[i++].ToString());
+        Assert.Equal("orange,purple", SyncRes[i++].ToString());
+        Assert.Equal("red", SyncRes[i++].ToString());
+        Assert.Equal("yellow", SyncRes[i++].ToString());
 
         var AsyncRes = await ft.TagValsAsync(index, "category");
         i = 0;
-        Assert.Equal(SyncRes[i++].ToString(), "blue");
-        Assert.Equal(SyncRes[i++].ToString(), "green");
-        Assert.Equal(SyncRes[i++].ToString(), "orange,purple");
-        Assert.Equal(SyncRes[i++].ToString(), "red");
-        Assert.Equal(SyncRes[i++].ToString(), "yellow");
+        Assert.Equal("blue", SyncRes[i++].ToString());
+        Assert.Equal("green", SyncRes[i++].ToString());
+        Assert.Equal("orange,purple", SyncRes[i++].ToString());
+        Assert.Equal("red", SyncRes[i++].ToString());
+        Assert.Equal("yellow", SyncRes[i++].ToString());
     }
 
 
@@ -1889,7 +1879,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT();
         ft.Create("idx", new FTCreateParams(), new Schema().AddTextField("txt"));
         var res = ft.Search("idx", testQuery);
-        Assert.Equal(0, res.Documents.Count());
+        Assert.Empty(res.Documents);
     }
 
     [Fact]
@@ -1925,7 +1915,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT();
         ft.Create("idx", new FTCreateParams(), new Schema().AddTextField("txt"));
         var res = ft.Search("idx", testQuery);
-        Assert.Equal(0, res.Documents.Count());
+        Assert.Empty(res.Documents);
     }
 
     [SkipIfRedis(Is.Cluster)]
@@ -2019,8 +2009,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var req = new AggregationRequest("*").SortBy("@t1").Limit(1);
         var res = ft.Aggregate("idx", req);
 
-        Assert.Equal(res.GetResults().Count, 1);
-        Assert.Equal(res.GetResults()[0]["t1"].ToString(), "a");
+        Assert.Equal(1, res.GetResults().Count);
+        Assert.Equal("a", res.GetResults()[0]["t1"].ToString());
     }
 
     [SkipIfRedis(Is.Cluster)]
@@ -2039,8 +2029,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var req = new AggregationRequest("*").SortBy("@t1").Limit(1, 1);
         var res = await ft.AggregateAsync("idx", req);
 
-        Assert.Equal(res.GetResults().Count, 1);
-        Assert.Equal(res.GetResults()[0]["t1"].ToString(), "b");
+        Assert.Equal(1, res.GetResults().Count);
+        Assert.Equal("b", res.GetResults()[0]["t1"].ToString());
     }
 
     [Fact]
@@ -2435,7 +2425,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, ft.SugGet(key, suggestion.Substring(0, 3), true, max: 5).Count);
 
         // turn off fuzzy start at second word no hit
-        Assert.Equal(0, ft.SugGet(key, noMatch.Substring(1, 6), false, max: 5).Count);
+        Assert.Empty(ft.SugGet(key, noMatch.Substring(1, 6), false, max: 5));
 
         // my attempt to trigger the fuzzy by 1 character
         Assert.Equal(1, ft.SugGet(key, noMatch.Substring(1, 6), true, max: 5).Count);
@@ -2458,7 +2448,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, (await ft.SugGetAsync(key, suggestion.Substring(0, 3), true, max: 5)).Count);
 
         // turn off fuzzy start at second word no hit
-        Assert.Equal(0, (await ft.SugGetAsync(key, noMatch.Substring(1, 6), false, max: 5)).Count);
+        Assert.Empty((await ft.SugGetAsync(key, noMatch.Substring(1, 6), false, max: 5)));
 
         // my attempt to trigger the fuzzy by 1 character
         Assert.Equal(1, (await ft.SugGetAsync(key, noMatch.Substring(1, 6), true, max: 5)).Count);
@@ -2574,8 +2564,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT();
         ft.SugAdd(key, "NO WORD", 0.4);
 
-        Assert.Equal(0, ft.SugGetWithScores(key, "DIF").Count);
-        Assert.Equal(0, ft.SugGet(key, "DIF").Count);
+        Assert.Empty(ft.SugGetWithScores(key, "DIF"));
+        Assert.Empty(ft.SugGet(key, "DIF"));
     }
 
     [Fact]
@@ -2586,8 +2576,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT();
         await ft.SugAddAsync(key, "NO WORD", 0.4);
 
-        Assert.Equal(0, (await ft.SugGetWithScoresAsync(key, "DIF")).Count);
-        Assert.Equal(0, (await ft.SugGetAsync(key, "DIF")).Count);
+        Assert.Empty((await ft.SugGetWithScoresAsync(key, "DIF")));
+        Assert.Empty((await ft.SugGetAsync(key, "DIF")));
     }
 
     [Fact]
@@ -2702,16 +2692,16 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var searchRes = profileSearch.Item1;
         var searchDet = profileSearch.Item2;
 
-        Assert.Equal(searchDet.Count, 5);
-        Assert.Equal(searchRes.Documents.Count, 2);
+        Assert.Equal(5, searchDet.Count);
+        Assert.Equal(2, searchRes.Documents.Count);
 
         // check using AggregationRequest
         var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
         var profileAggregate = ft.ProfileAggregate(index, aggReq);
         var aggregateRes = profileAggregate.Item1;
         var aggregateDet = profileAggregate.Item2;
-        Assert.Equal(aggregateDet.Count, 5);
-        Assert.Equal(aggregateRes.TotalResults, 1);
+        Assert.Equal(5, aggregateDet.Count);
+        Assert.Equal(1, aggregateRes.TotalResults);
     }
 
     [Fact]
@@ -2731,16 +2721,16 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var searchRes = profileSearch.Item1;
         var searchDet = profileSearch.Item2;
 
-        Assert.Equal(searchDet.Count, 5);
-        Assert.Equal(searchRes.Documents.Count, 2);
+        Assert.Equal(5, searchDet.Count);
+        Assert.Equal(2, searchRes.Documents.Count);
 
         // check using AggregationRequest
         var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
         var profileAggregate = await ft.ProfileAggregateAsync(index, aggReq);
         var aggregateRes = profileAggregate.Item1;
         var aggregateDet = profileAggregate.Item2;
-        Assert.Equal(aggregateDet.Count, 5);
-        Assert.Equal(aggregateRes.TotalResults, 1);
+        Assert.Equal(5, aggregateDet.Count);
+        Assert.Equal(1, aggregateRes.TotalResults);
     }
 
     [Fact]

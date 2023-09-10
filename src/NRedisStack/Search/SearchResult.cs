@@ -66,7 +66,7 @@ namespace NRedisStack.Search
                     // }
                     //else
                     //{
-                        score = (double)resp[i + scoreOffset];
+                    score = (double)resp[i + scoreOffset];
                     //}
                 }
                 if (hasPayloads)

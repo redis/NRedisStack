@@ -39,7 +39,7 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
         Assert.False(db.KeyExists("cf-key"));
         Assert.False(db.KeyExists("graph-key"));
         Assert.False(db.KeyExists("json-key"));
-        Assert.Equal(0, db.FT()._List().Length);
+        Assert.Empty(db.FT()._List());
         Assert.False(db.KeyExists("tdigest-key"));
         Assert.False(db.KeyExists("ts-key"));
         Assert.False(db.KeyExists("topk-key"));
@@ -88,7 +88,7 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
         Assert.False(db.KeyExists("cms-key"));
         Assert.False(db.KeyExists("cf-key"));
         Assert.False(db.KeyExists("json-key"));
-        Assert.Equal(0, db.FT()._List().Length);
+        Assert.Empty(db.FT()._List());
         Assert.False(db.KeyExists("tdigest-key"));
         Assert.False(db.KeyExists("ts-key"));
         Assert.False(db.KeyExists("topk-key"));
@@ -122,19 +122,19 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
         var pipeline = new Pipeline(db);
 
         pipeline.Bf.ReserveAsync(key, 0.001, 100);
-        for(int i = 0; i < 1000; i++)
+        for (int i = 0; i < 1000; i++)
         {
             pipeline.Bf.AddAsync(key, i.ToString());
         }
 
-        for(int i = 0; i < 100; i++)
+        for (int i = 0; i < 100; i++)
         {
             Assert.False(db.BF().Exists(key, i.ToString()));
         }
 
         pipeline.Execute();
 
-        for(int i = 0; i < 1000; i++)
+        for (int i = 0; i < 1000; i++)
         {
             Assert.True(db.BF().Exists(key, i.ToString()));
         }

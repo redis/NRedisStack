@@ -38,7 +38,7 @@ public class SearchQuickstartExample
             Brand = "Velorim",
             Model = "Jigger",
             Price = 270M,
-            Description =   "Small and powerful, the Jigger is the best ride " +
+            Description = "Small and powerful, the Jigger is the best ride " +
                             "for the smallest of tikes! This is the tiniest " +
                             "kids’ pedal bike on the market available without" +
                             " a coaster brake, the Jigger is the vehicle of " +

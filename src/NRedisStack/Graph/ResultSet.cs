@@ -255,7 +255,7 @@ namespace NRedisStack.Graph
             for (int i = 0; i < size; i += 2)
             {
                 string key = keyTypeValueEntries[i].ToString();
-                object value = DeserializeScalar((RedisResult[])keyTypeValueEntries[i+1]);
+                object value = DeserializeScalar((RedisResult[])keyTypeValueEntries[i + 1]);
                 dict.Add(key, value);
             }
             return dict;

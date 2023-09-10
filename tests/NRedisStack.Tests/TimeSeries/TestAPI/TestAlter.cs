@@ -57,8 +57,8 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             ts.Create(key);
             Assert.True(ts.Alter(key, chunkSizeBytes: 128, duplicatePolicy: TsDuplicatePolicy.MIN));
             TimeSeriesInformation info = ts.Info(key);
-            Assert.Equal(info.ChunkSize, 128);
-            Assert.Equal(info.DuplicatePolicy, TsDuplicatePolicy.MIN);
+            Assert.Equal(128, info.ChunkSize);
+            Assert.Equal(TsDuplicatePolicy.MIN, info.DuplicatePolicy);
         }
     }
 }

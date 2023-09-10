@@ -580,7 +580,7 @@ namespace NRedisStack
                 return new[] { (long?)result };
             }
 
-            return ((RedisResult[])result!).Select(x=>(long?)x).ToArray();
+            return ((RedisResult[])result!).Select(x => (long?)x).ToArray();
         }
 
         public static IEnumerable<HashSet<string>> ToHashSets(this RedisResult result)
@@ -626,7 +626,7 @@ namespace NRedisStack
 
                 string termValue = rawElements[1].ToString()!;
 
-                var list = (RedisResult[]) rawElements[2]!;
+                var list = (RedisResult[])rawElements[2]!;
                 Dictionary<string, double> entries = new Dictionary<string, double>(list.Length);
                 foreach (var entry in list)
                 {
@@ -653,7 +653,7 @@ namespace NRedisStack
             }
             return list;
         }
-        
+
         public static Dictionary<string, RedisResult> ToStringRedisResultDictionary(this RedisResult value)
         {
             var res = (RedisResult[])value!;

@@ -192,7 +192,7 @@ namespace NRedisStack.Search
         // public bool ExplainScore { get; set; } // TODO: Check if this is needed because Jedis doesn't have it
 
         private Dictionary<string, object> _params = new Dictionary<string, object>();
-        public int? dialect { get; private set;} = null;
+        public int? dialect { get; private set; } = null;
         private int _slop = -1;
         private long _timeout = -1;
         private bool _inOrder = false;

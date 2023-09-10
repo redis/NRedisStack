@@ -16,7 +16,7 @@ namespace NRedisStack
 
         public void SetDefaultDialect(int? defaultDialect)
         {
-            if(defaultDialect == 0)
+            if (defaultDialect == 0)
             {
                 throw new System.ArgumentOutOfRangeException("DIALECT=0 cannot be set.");
             }
@@ -87,7 +87,7 @@ namespace NRedisStack
         /// <inheritdoc/>
         public bool Create(string indexName, Schema schema)
         {
-            return Create(indexName, new FTCreateParams(),  schema);
+            return Create(indexName, new FTCreateParams(), schema);
         }
 
         /// <inheritdoc/>

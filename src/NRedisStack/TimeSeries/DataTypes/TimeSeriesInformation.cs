@@ -68,12 +68,12 @@ namespace NRedisStack.DataTypes
         /// <summary>
         /// The policy will define handling of duplicate samples.
         /// </summary>
-        public TsDuplicatePolicy? DuplicatePolicy {  get; private set; }
+        public TsDuplicatePolicy? DuplicatePolicy { get; private set; }
 
         /// <summary>
         /// In DEBUG mode: Key self name.
         /// </summary>
-        public string? KeySelfName {  get; private set; }
+        public string? KeySelfName { get; private set; }
 
         /// <summary>
         /// In DEBUG mode: gives more information about the chunks
@@ -95,7 +95,7 @@ namespace NRedisStack.DataTypes
             SourceKey = sourceKey;
             Rules = rules;
             // backwards compatible with RedisTimeSeries < v1.4
-            MaxSamplesPerChunk = chunkSize/16;
+            MaxSamplesPerChunk = chunkSize / 16;
             ChunkSize = chunkSize;
             // configure what to do on duplicate sample > v1.4
             DuplicatePolicy = policy;

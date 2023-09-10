@@ -12,9 +12,9 @@ namespace NRedisStack
             _transaction = db.CreateTransaction();
         }
 
-        public ConditionResult AddCondition(Condition condition) =>  _transaction.AddCondition(condition);
+        public ConditionResult AddCondition(Condition condition) => _transaction.AddCondition(condition);
 
-        public bool Execute(CommandFlags flags = CommandFlags.None) =>  _transaction.Execute(flags);
+        public bool Execute(CommandFlags flags = CommandFlags.None) => _transaction.Execute(flags);
 
         public Task<bool> ExecuteAsync(CommandFlags flags = CommandFlags.None) => _transaction.ExecuteAsync(flags);
 
