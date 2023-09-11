@@ -86,7 +86,7 @@ namespace NRedisStack
 
         public static IReadOnlyList<TimeStamp> ToTimeStampArray(this RedisResult result)
         {
-            RedisResult[] redisResults = (RedisResult[])result;
+            RedisResult[] redisResults = (RedisResult[])result!;
             var list = new List<TimeStamp>(redisResults.Length);
             if (redisResults.Length == 0) return list;
             Array.ForEach(redisResults, timestamp => list.Add(ToTimeStamp(timestamp)));
@@ -100,11 +100,11 @@ namespace NRedisStack
             return new TimeSeriesTuple(ToTimeStamp(redisResults[0]), (double)redisResults[1]);
         }
 
-        public static Tuple<long, Byte[]> ToScanDumpTuple(this RedisResult result)
+        public static Tuple<long, byte[]>? ToScanDumpTuple(this RedisResult result)
         {
             RedisResult[] redisResults = result.ToArray();
             if (redisResults == null || redisResults.Length == 0) return null;
-            return new Tuple<long, Byte[]>((long)redisResults[0], (Byte[])redisResults[1]);
+            return new Tuple<long, byte[]>((long)redisResults[0], (byte[])redisResults[1]!);
         }
 
         // TODO: check if this is needed:
@@ -131,22 +131,22 @@ namespace NRedisStack
 
         public static IReadOnlyList<TimeSeriesTuple> ToTimeSeriesTupleArray(this RedisResult result)
         {
-            RedisResult[] redisResults = (RedisResult[])result;
+            RedisResult[] redisResults = (RedisResult[])result!;
             var list = new List<TimeSeriesTuple>(redisResults.Length);
             if (redisResults.Length == 0) return list;
-            Array.ForEach(redisResults, tuple => list.Add(ToTimeSeriesTuple(tuple)));
+            Array.ForEach(redisResults, tuple => list.Add(ToTimeSeriesTuple(tuple)!));
             return list;
         }
 
         public static IReadOnlyList<TimeSeriesLabel> ToLabelArray(this RedisResult result)
         {
-            RedisResult[] redisResults = (RedisResult[])result;
+            RedisResult[] redisResults = (RedisResult[])result!;
             var list = new List<TimeSeriesLabel>(redisResults.Length);
             if (redisResults.Length == 0) return list;
             Array.ForEach(redisResults, labelResult =>
             {
-                RedisResult[] labelTuple = (RedisResult[])labelResult;
-                list.Add(new TimeSeriesLabel((string)labelTuple[0], (string)labelTuple[1]));
+                var labelTuple = (RedisResult[])labelResult!;
+                list.Add(new TimeSeriesLabel(labelTuple[0].ToString(), labelTuple[1].ToString()));
             });
             return list;
         }
@@ -166,29 +166,29 @@ namespace NRedisStack
 
         public static IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, TimeSeriesTuple value)> ParseMGetResponse(this RedisResult result)
         {
-            RedisResult[] redisResults = (RedisResult[])result;
+            var redisResults = (RedisResult[])result!;
             var list = new List<(string key, IReadOnlyList<TimeSeriesLabel> labels, TimeSeriesTuple values)>(redisResults.Length);
             if (redisResults.Length == 0) return list;
             Array.ForEach(redisResults, MRangeValue =>
             {
-                RedisResult[] MRangeTuple = (RedisResult[])MRangeValue;
-                string key = (string)MRangeTuple[0];
+                var MRangeTuple = (RedisResult[])MRangeValue!;
+                string key = MRangeTuple[0].ToString();
                 IReadOnlyList<TimeSeriesLabel> labels = ToLabelArray(MRangeTuple[1]);
-                TimeSeriesTuple value = ToTimeSeriesTuple(MRangeTuple[2]);
-                list.Add((key, labels, value));
+                TimeSeriesTuple? value = ToTimeSeriesTuple(MRangeTuple[2]);
+                list.Add((key!, labels!, value!));
             });
             return list;
         }
 
         public static IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)> ParseMRangeResponse(this RedisResult result)
         {
-            RedisResult[] redisResults = (RedisResult[])result;
+            var redisResults = (RedisResult[])result!;
             var list = new List<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)>(redisResults.Length);
             if (redisResults.Length == 0) return list;
             Array.ForEach(redisResults, MRangeValue =>
             {
-                RedisResult[] MRangeTuple = (RedisResult[])MRangeValue;
-                string key = (string)MRangeTuple[0];
+                var MRangeTuple = (RedisResult[])MRangeValue!;
+                string key = MRangeTuple[0].ToString();
                 IReadOnlyList<TimeSeriesLabel> labels = ToLabelArray(MRangeTuple[1]);
                 IReadOnlyList<TimeSeriesTuple> values = ToTimeSeriesTupleArray(MRangeTuple[2]);
                 list.Add((key, labels, values));
@@ -198,16 +198,16 @@ namespace NRedisStack
 
         public static TimeSeriesRule ToRule(this RedisResult result)
         {
-            RedisResult[] redisResults = (RedisResult[])result;
-            string destKey = (string)redisResults[0];
+            var redisResults = (RedisResult[])result!;
+            string destKey = redisResults[0].ToString();
             long bucketTime = (long)redisResults[1];
-            var aggregation = AggregationExtensions.AsAggregation((string)redisResults[2]);
+            var aggregation = AggregationExtensions.AsAggregation(redisResults[2].ToString());
             return new TimeSeriesRule(destKey, bucketTime, aggregation);
         }
 
         public static IReadOnlyList<TimeSeriesRule> ToRuleArray(this RedisResult result)
         {
-            RedisResult[] redisResults = (RedisResult[])result;
+            var redisResults = (RedisResult[])result!;
             var list = new List<TimeSeriesRule>();
             if (redisResults.Length == 0) return list;
             Array.ForEach(redisResults, rule => list.Add(ToRule(rule)));
@@ -216,7 +216,7 @@ namespace NRedisStack
 
         public static TsDuplicatePolicy? ToPolicy(this RedisResult result)
         {
-            var policyStatus = (string)result;
+            var policyStatus = result.ToString();
             if (String.IsNullOrEmpty(policyStatus) || policyStatus == "(nil)")
             {
                 return null;
@@ -419,6 +419,7 @@ namespace NRedisStack
                                           mergedWeight, unmergedWeight, observations, totalCompressions, memoryUsage);
         }
 
+        [Obsolete]
         public static TimeSeriesInformation ToTimeSeriesInfo(this RedisResult result)
         {
             long totalSamples = -1, memoryUsage = -1, retentionTime = -1, chunkSize = -1, chunkCount = -1;
@@ -428,10 +429,10 @@ namespace NRedisStack
             string? sourceKey = null, keySelfName = null;
             TsDuplicatePolicy? duplicatePolicy = null;
             IReadOnlyList<TimeSeriesChunck>? chunks = null;
-            RedisResult[] redisResults = (RedisResult[])result;
+            var redisResults = (RedisResult[])result!;
             for (int i = 0; i < redisResults.Length; ++i)
             {
-                string label = (string)redisResults[i++];
+                string label = redisResults[i++].ToString();
                 switch (label)
                 {
                     case "totalSamples":
@@ -464,7 +465,7 @@ namespace NRedisStack
                         labels = ToLabelArray(redisResults[i]);
                         break;
                     case "sourceKey":
-                        sourceKey = (string)redisResults[i];
+                        sourceKey = redisResults[i].ToString();
                         break;
                     case "rules":
                         rules = ToRuleArray(redisResults[i]);
@@ -506,11 +507,11 @@ namespace NRedisStack
 
         public static Dictionary<string, string> ToConfigDictionary(this RedisResult value)
         {
-            var res = (RedisResult[])value;
+            var res = (RedisResult[])value!;
             var dict = new Dictionary<string, string>();
             foreach (var pair in res)
             {
-                var arr = (RedisResult[])pair;
+                var arr = (RedisResult[])pair!;
                 dict.Add(arr[0].ToString(), arr[1].ToString());
             }
             return dict;
@@ -518,7 +519,7 @@ namespace NRedisStack
 
         public static IReadOnlyList<TimeSeriesChunck> ToTimeSeriesChunkArray(this RedisResult result)
         {
-            RedisResult[] redisResults = (RedisResult[])result;
+            var redisResults = (RedisResult[])result!;
             var list = new List<TimeSeriesChunck>();
             if (redisResults.Length == 0) return list;
             Array.ForEach(redisResults, chunk => list.Add(ToTimeSeriesChunk(chunk)));
@@ -529,10 +530,10 @@ namespace NRedisStack
         {
             long startTimestamp = -1, endTimestamp = -1, samples = -1, size = -1;
             string bytesPerSample = "";
-            RedisResult[] redisResults = (RedisResult[])result;
+            var redisResults = (RedisResult[])result!;
             for (int i = 0; i < redisResults.Length; ++i)
             {
-                string label = (string)redisResults[i++];
+                string label = redisResults[i++].ToString();
                 switch (label)
                 {
                     case "startTimestamp":
@@ -564,7 +565,7 @@ namespace NRedisStack
 
             var list = new List<string>();
             if (redisResults.Length == 0) return list;
-            Array.ForEach(redisResults, str => list.Add((string)str));
+            Array.ForEach(redisResults, str => list.Add(str.ToString()));
             return list;
         }
 

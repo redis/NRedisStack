@@ -22,12 +22,12 @@ namespace NRedisStack.DataTypes
         /// <summary>
         /// First timestamp present in the time-series.
         /// </summary>
-        public TimeStamp FirstTimeStamp { get; private set; }
+        public TimeStamp? FirstTimeStamp { get; private set; }
 
         /// <summary>
         /// Last timestamp present in the time-series.
         /// </summary>
-        public TimeStamp LastTimeStamp { get; private set; }
+        public TimeStamp? LastTimeStamp { get; private set; }
 
         /// <summary>
         /// Retention time, in milliseconds, for the time-series.
@@ -53,17 +53,17 @@ namespace NRedisStack.DataTypes
         /// <summary>
         /// A readonly list of TimeSeriesLabel that represent metadata labels of the time-series.
         /// </summary>
-        public IReadOnlyList<TimeSeriesLabel> Labels { get; private set; }
+        public IReadOnlyList<TimeSeriesLabel>? Labels { get; private set; }
 
         /// <summary>
         /// Source key for the queries time series key.
         /// </summary>
-        public string SourceKey { get; private set; }
+        public string? SourceKey { get; private set; }
 
         /// <summary>
         /// A readonly list of TimeSeriesRules that represent compaction Rules of the time-series.
         /// </summary>
-        public IReadOnlyList<TimeSeriesRule> Rules { get; private set; }
+        public IReadOnlyList<TimeSeriesRule>? Rules { get; private set; }
 
         /// <summary>
         /// The policy will define handling of duplicate samples.
@@ -79,10 +79,12 @@ namespace NRedisStack.DataTypes
         /// In DEBUG mode: gives more information about the chunks
         /// </summary>
         public IReadOnlyList<TimeSeriesChunck>? Chunks { get; private set; }
+
+        [Obsolete]
         internal TimeSeriesInformation(long totalSamples, long memoryUsage,
-                                    TimeStamp firstTimeStamp, TimeStamp lastTimeStamp, long retentionTime,
-                                    long chunkCount, long chunkSize, IReadOnlyList<TimeSeriesLabel> labels,
-                                    string sourceKey, IReadOnlyList<TimeSeriesRule> rules, TsDuplicatePolicy? policy,
+                                    TimeStamp? firstTimeStamp, TimeStamp? lastTimeStamp, long retentionTime,
+                                    long chunkCount, long chunkSize, IReadOnlyList<TimeSeriesLabel>? labels,
+                                    string? sourceKey, IReadOnlyList<TimeSeriesRule>? rules, TsDuplicatePolicy? policy,
                                     string? keySelfName = null, IReadOnlyList<TimeSeriesChunck>? chunks = null)
         {
             TotalSamples = totalSamples;

@@ -2256,7 +2256,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name2"), new HashEntry("body", "name2") });
 
         var reply = ft.SpellCheck(index, "name");
-        Assert.Equal(1, reply.Keys.Count);
+        Assert.Single(reply.Keys);
         Assert.Equal("name", reply.Keys.First());
         Assert.Equal(1, reply["name"]["name1"]);
         Assert.Equal(2, reply["name"]["name2"]);
@@ -2276,7 +2276,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name2"), new HashEntry("body", "name2") });
 
         var reply = await ft.SpellCheckAsync(index, "name");
-        Assert.Equal(1, reply.Keys.Count);
+        Assert.Single(reply.Keys);
         Assert.Equal("name", reply.Keys.First());
         Assert.Equal(1, reply["name"]["name1"]);
         Assert.Equal(2, reply["name"]["name2"]);
@@ -2422,13 +2422,13 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.True(ft.SugAdd(key, noMatch, 1d) > 0);
 
         // test that with a partial part of that string will have the entire word returned
-        Assert.Equal(1, ft.SugGet(key, suggestion.Substring(0, 3), true, max: 5).Count);
+        Assert.Single(ft.SugGet(key, suggestion.Substring(0, 3), true, max: 5));
 
         // turn off fuzzy start at second word no hit
         Assert.Empty(ft.SugGet(key, noMatch.Substring(1, 6), false, max: 5));
 
         // my attempt to trigger the fuzzy by 1 character
-        Assert.Equal(1, ft.SugGet(key, noMatch.Substring(1, 6), true, max: 5).Count);
+        Assert.Single(ft.SugGet(key, noMatch.Substring(1, 6), true, max: 5));
     }
 
     [Fact]
@@ -2445,13 +2445,13 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await ft.SugAddAsync(key, noMatch, 1d) > 0);
 
         // test that with a partial part of that string will have the entire word returned
-        Assert.Equal(1, (await ft.SugGetAsync(key, suggestion.Substring(0, 3), true, max: 5)).Count);
+        Assert.Single((await ft.SugGetAsync(key, suggestion.Substring(0, 3), true, max: 5)));
 
         // turn off fuzzy start at second word no hit
         Assert.Empty((await ft.SugGetAsync(key, noMatch.Substring(1, 6), false, max: 5)));
 
         // my attempt to trigger the fuzzy by 1 character
-        Assert.Equal(1, (await ft.SugGetAsync(key, noMatch.Substring(1, 6), true, max: 5)).Count);
+        Assert.Single((await ft.SugGetAsync(key, noMatch.Substring(1, 6), true, max: 5)));
     }
 
     [Fact]

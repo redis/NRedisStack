@@ -153,29 +153,29 @@ namespace NRedisStack.Search
         /// <summary>
         /// Set the query language, for stemming purposes; see http://redisearch.io for documentation on languages and stemming
         /// </summary>
-        public string Language { get; set; }
+        public string? Language { get; set; }
 
-        internal string[] _fields = null;
-        internal string[] _keys = null;
-        internal string[] _returnFields = null;
-        internal FieldName[] _returnFieldsNames = null;
-        internal string[] _highlightFields = null;
-        internal string[] _summarizeFields = null;
-        internal HighlightTags? _highlightTags = null;
-        internal string _summarizeSeparator = null;
+        internal string[]? _fields;
+        internal string[]? _keys;
+        internal string[]? _returnFields;
+        internal FieldName[]? _returnFieldsNames;
+        internal string[]? _highlightFields;
+        internal string[]? _summarizeFields;
+        internal HighlightTags? _highlightTags;
+        internal string? _summarizeSeparator;
         internal int _summarizeNumFragments = -1, _summarizeFragmentLen = -1;
 
         /// <summary>
         /// Set the query payload to be evaluated by the scoring function
         /// </summary>
-        public string Payload { get; set; } // TODO: should this be a byte[]?
+        public string? Payload { get; set; } // TODO: should this be a byte[]?
 
         // TODO: Check if I need to add here WITHSORTKEYS
 
         /// <summary>
         /// Set the query parameter to sort by
         /// </summary>
-        public string SortBy { get; set; }
+        public string? SortBy { get; set; }
 
         /// <summary>
         /// Set the query parameter to sort by ASC by default
@@ -188,7 +188,7 @@ namespace NRedisStack.Search
         /// <summary>
         /// Set the query scoring. see https://oss.redislabs.com/redisearch/Scoring.html for documentation
         /// </summary>
-        public string Scorer { get; set; }
+        public string? Scorer { get; set; }
         // public bool ExplainScore { get; set; } // TODO: Check if this is needed because Jedis doesn't have it
 
         private Dictionary<string, object> _params = new Dictionary<string, object>();

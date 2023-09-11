@@ -25,18 +25,18 @@ namespace NRedisStack.Graph
             VALUE_POINT
         }
 
-        private readonly RedisResult[] _rawResults;
-        private readonly GraphCache _graphCache;
+        private readonly RedisResult[]? _rawResults;
+        private readonly GraphCache? _graphCache;
 
         public Statistics Statistics { get; }
-        public Header Header { get; }
+        public Header? Header { get; }
         public int Count { get; }
 
         internal ResultSet(RedisResult result, GraphCache graphCache)
         {
             if (result.Type == ResultType.MultiBulk)
             {
-                var resultArray = (RedisResult[])result;
+                var resultArray = (RedisResult[])result!;
 
                 ScanForErrors(resultArray);
 
@@ -47,7 +47,7 @@ namespace NRedisStack.Graph
                     Header = new Header(resultArray[0]);
                     Statistics = ParseStatistics(resultArray[2]);
 
-                    _rawResults = (RedisResult[])resultArray[1];
+                    _rawResults = (RedisResult[])resultArray[1]!;
 
                     Count = _rawResults.Length;
                 }
@@ -73,14 +73,17 @@ namespace NRedisStack.Graph
         /// Get the enumerator for this result set.
         /// </summary>
         /// <returns></returns>
+        [Obsolete]
         public IEnumerator<Record> GetEnumerator() => RecordIterator().GetEnumerator();
 
         /// <summary>
         /// Get the enumerator for this result set.
         /// </summary>
         /// <returns></returns>
+        [Obsolete]
         IEnumerator IEnumerable.GetEnumerator() => RecordIterator().GetEnumerator();
 
+        [Obsolete]
         private IEnumerable<Record> RecordIterator()
         {
             if (_rawResults == default)
@@ -89,14 +92,14 @@ namespace NRedisStack.Graph
             }
             else
             {
-                foreach (RedisResult[] row in _rawResults)
+                foreach (RedisResult[]? row in _rawResults)
                 {
-                    var parsedRow = new List<object>(row.Length);
+                    var parsedRow = new List<object?>(row!.Length);
 
                     for (int i = 0; i < row.Length; i++)
                     {
-                        var obj = (RedisResult[])row[i];
-                        var objType = Header.SchemaTypes[i];
+                        var obj = (RedisResult[])row[i]!;
+                        var objType = Header!.SchemaTypes[i];
 
                         switch (objType)
                         {
@@ -115,7 +118,7 @@ namespace NRedisStack.Graph
                         }
                     }
 
-                    yield return new Record(Header.SchemaNames, parsedRow);
+                    yield return new Record(Header!.SchemaNames, parsedRow!);
                 }
 
                 yield break;
