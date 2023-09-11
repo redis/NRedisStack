@@ -12,7 +12,7 @@ namespace NRedisStack.Graph.DataTypes
         /// The relationship type.
         /// </summary>
         /// <value></value>
-        public string RelationshipType { get; set; }
+        public string? RelationshipType { get; set; }
 
         /// <summary>
         /// The ID of the source node.
