@@ -4,7 +4,7 @@ namespace NRedisStack.Search
 {
     public class FTCreateParams
     {
-        private IndexDataType? dataType;
+        private IndexDataType dataType;
         private List<string>? prefixes;
         private string? filter;
         private string? language;
