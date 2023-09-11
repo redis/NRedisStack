@@ -23,16 +23,16 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var pipeline = new Pipeline(db);
 
-        pipeline.Bf.ReserveAsync("bf-key", 0.001, 100);
-        pipeline.Bf.AddAsync("bf-key", "1");
-        pipeline.Cms.InitByDimAsync("cms-key", 100, 5);
-        pipeline.Cf.ReserveAsync("cf-key", 100);
-        pipeline.Graph.QueryAsync("graph-key", "CREATE ({name:'shachar',age:23})");
-        pipeline.Json.SetAsync("json-key", "$", "{}");
-        pipeline.Ft.CreateAsync("ft-key", new FTCreateParams(), new Schema().AddTextField("txt"));
-        pipeline.Tdigest.CreateAsync("tdigest-key", 100);
-        pipeline.Ts.CreateAsync("ts-key", 100);
-        pipeline.TopK.ReserveAsync("topk-key", 100, 100, 100);
+        _ = pipeline.Bf.ReserveAsync("bf-key", 0.001, 100);
+        _ = pipeline.Bf.AddAsync("bf-key", "1");
+        _ = pipeline.Cms.InitByDimAsync("cms-key", 100, 5);
+        _ = pipeline.Cf.ReserveAsync("cf-key", 100);
+        _ = pipeline.Graph.QueryAsync("graph-key", "CREATE ({name:'shachar',age:23})");
+        _ = pipeline.Json.SetAsync("json-key", "$", "{}");
+        _ = pipeline.Ft.CreateAsync("ft-key", new FTCreateParams(), new Schema().AddTextField("txt"));
+        _ = pipeline.Tdigest.CreateAsync("tdigest-key", 100);
+        _ = pipeline.Ts.CreateAsync("ts-key", 100);
+        _ = pipeline.TopK.ReserveAsync("topk-key", 100, 100, 100);
 
         Assert.False(db.KeyExists("bf-key"));
         Assert.False(db.KeyExists("cms-key"));
@@ -51,13 +51,13 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
         Assert.True(db.KeyExists("cf-key"));
         Assert.True(db.KeyExists("graph-key"));
         Assert.True(db.KeyExists("json-key"));
-        Assert.True(db.FT()._List().Length == 1);
+        Assert.Equal(1, db.FT()._List().Length);
         Assert.True(db.KeyExists("tdigest-key"));
         Assert.True(db.KeyExists("ts-key"));
         Assert.True(db.KeyExists("topk-key"));
 
         Assert.True(db.BF().Exists("bf-key", "1"));
-        Assert.True(db.CMS().Info("cms-key").Width == 100);
+        Assert.Equal(100, db.CMS().Info("cms-key").Width);
         Assert.True(db.CF().Info("cf-key").Size > 0);
         Assert.True(db.GRAPH().List().Count > 0);
         Assert.False(db.JSON().Get("json-key").IsNull);
@@ -74,15 +74,15 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var pipeline = new Pipeline(db);
 
-        pipeline.Bf.ReserveAsync("bf-key", 0.001, 100);
-        pipeline.Bf.AddAsync("bf-key", "1");
-        pipeline.Cms.InitByDimAsync("cms-key", 100, 5);
-        pipeline.Cf.ReserveAsync("cf-key", 100);
-        pipeline.Json.SetAsync("json-key", "$", "{}");
-        pipeline.Ft.CreateAsync("ft-key", new FTCreateParams(), new Schema().AddTextField("txt"));
-        pipeline.Tdigest.CreateAsync("tdigest-key", 100);
-        pipeline.Ts.CreateAsync("ts-key", 100);
-        pipeline.TopK.ReserveAsync("topk-key", 100, 100, 100);
+        _ = pipeline.Bf.ReserveAsync("bf-key", 0.001, 100);
+        _ = pipeline.Bf.AddAsync("bf-key", "1");
+        _ = pipeline.Cms.InitByDimAsync("cms-key", 100, 5);
+        _ = pipeline.Cf.ReserveAsync("cf-key", 100);
+        _ = pipeline.Json.SetAsync("json-key", "$", "{}");
+        _ = pipeline.Ft.CreateAsync("ft-key", new FTCreateParams(), new Schema().AddTextField("txt"));
+        _ = pipeline.Tdigest.CreateAsync("tdigest-key", 100);
+        _ = pipeline.Ts.CreateAsync("ts-key", 100);
+        _ = pipeline.TopK.ReserveAsync("topk-key", 100, 100, 100);
 
         Assert.False(db.KeyExists("bf-key"));
         Assert.False(db.KeyExists("cms-key"));
@@ -99,13 +99,13 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
         Assert.True(db.KeyExists("cms-key"));
         Assert.True(db.KeyExists("cf-key"));
         Assert.True(db.KeyExists("json-key"));
-        Assert.True(db.FT()._List().Length == 1);
+        Assert.Equal(1, db.FT()._List().Length);
         Assert.True(db.KeyExists("tdigest-key"));
         Assert.True(db.KeyExists("ts-key"));
         Assert.True(db.KeyExists("topk-key"));
 
         Assert.True(db.BF().Exists("bf-key", "1"));
-        Assert.True(db.CMS().Info("cms-key").Width == 100);
+        Assert.Equal(100, db.CMS().Info("cms-key").Width);
         Assert.True(db.CF().Info("cf-key").Size > 0);
         Assert.False(db.JSON().Get("json-key").IsNull);
         Assert.NotNull(db.FT().Info("ft-key"));
