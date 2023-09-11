@@ -64,7 +64,7 @@
         /// Implicit cast from TimeStamp to string.
         /// </summary>
         /// <param name="ts">TimeStamp</param>
-        public static implicit operator string(TimeStamp ts) => ts.Value.ToString();
+        public static implicit operator string? (TimeStamp ts) => ts.Value.ToString();
 
         /// <summary>
         /// Implicit cast from DateTime to TimeStamp.

@@ -14,7 +14,7 @@ namespace NRedisStack
         #region Create
 
         /// <inheritdoc/>
-        public bool Create(string key, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel> labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
+        public bool Create(string key, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
         {
             return _db.Execute(TimeSeriesCommandsBuilder.Create(key, retentionTime, labels,
                                                                 uncompressed, chunkSizeBytes,
@@ -34,7 +34,7 @@ namespace NRedisStack
 
         /// <inheritdoc/>
         public TimeStamp Add(string key, TimeStamp timestamp, double value, long? retentionTime = null,
-        IReadOnlyCollection<TimeSeriesLabel> labels = null, bool? uncompressed = null,
+        IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null,
         long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
         {
             return _db.Execute(TimeSeriesCommandsBuilder.Add(key, timestamp, value, retentionTime, labels,
@@ -195,6 +195,7 @@ namespace NRedisStack
         #region General
 
         /// <inheritdoc/>
+        [Obsolete]
         public TimeSeriesInformation Info(string key, bool debug = false)
         {
             return _db.Execute(TimeSeriesCommandsBuilder.Info(key, debug)).ToTimeSeriesInfo();
