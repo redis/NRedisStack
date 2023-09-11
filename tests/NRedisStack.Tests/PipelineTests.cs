@@ -51,7 +51,7 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
         Assert.True(db.KeyExists("cf-key"));
         Assert.True(db.KeyExists("graph-key"));
         Assert.True(db.KeyExists("json-key"));
-        Assert.Equal(1, db.FT()._List().Length);
+        Assert.Single(db.FT()._List());
         Assert.True(db.KeyExists("tdigest-key"));
         Assert.True(db.KeyExists("ts-key"));
         Assert.True(db.KeyExists("topk-key"));
@@ -99,7 +99,7 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
         Assert.True(db.KeyExists("cms-key"));
         Assert.True(db.KeyExists("cf-key"));
         Assert.True(db.KeyExists("json-key"));
-        Assert.Equal(1, db.FT()._List().Length);
+        Assert.Single(db.FT()._List());
         Assert.True(db.KeyExists("tdigest-key"));
         Assert.True(db.KeyExists("ts-key"));
         Assert.True(db.KeyExists("topk-key"));

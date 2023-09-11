@@ -12,7 +12,7 @@ namespace NRedisStack.Search
         public byte[]? Payload { get; }
         public string[]? ScoreExplained { get; private set; } // TODO: check if this is needed (Jedis does not have it)
         internal readonly Dictionary<string, RedisValue> _properties;
-        public Document(string id, double score, byte[] payload) : this(id, null, score, payload) { }
+        public Document(string id, double score, byte[]? payload) : this(id, null, score, payload) { }
         public Document(string id) : this(id, null, 1.0, null) { }
 
         public Document(string id, Dictionary<string, RedisValue> fields, double score = 1.0) : this(id, fields, score, null) { }
@@ -27,7 +27,7 @@ namespace NRedisStack.Search
 
         public IEnumerable<KeyValuePair<string, RedisValue>> GetProperties() => _properties;
 
-        public static Document Load(string id, double score, byte[] payload, RedisValue[] fields)
+        public static Document Load(string id, double score, byte[]? payload, RedisValue[]? fields)
         {
             Document ret = new Document(id, score, payload);
             if (fields != null)

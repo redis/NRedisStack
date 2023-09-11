@@ -20,8 +20,8 @@ namespace NRedisStack.Graph
             RelationshipsDeleted = GetIntValue("Relationships deleted");
             RelationshipsCreated = GetIntValue("Relationships created");
             PropertiesSet = GetIntValue("Properties set");
-            QueryInternalExecutionTime = GetStringValue("Query internal execution time");
-            GraphRemovedInternalExecutionTime = GetStringValue("Graph removed, internal execution time");
+            QueryInternalExecutionTime = GetStringValue("Query internal execution time")!;
+            GraphRemovedInternalExecutionTime = GetStringValue("Graph removed, internal execution time")!;
             CachedExecution = (GetIntValue("Cached execution") == 1);
 
         }

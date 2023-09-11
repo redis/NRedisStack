@@ -585,7 +585,7 @@ namespace NRedisStack.Search
             return this;
         }
 
-        public Query SummarizeFields(int contextLen, int fragmentCount, string separator, params string[] fields)
+        public Query SummarizeFields(int contextLen, int fragmentCount, string? separator, params string[] fields)
         {
             if (fields == null || fields.Length > 0)
             {

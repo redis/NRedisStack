@@ -44,7 +44,7 @@ namespace NRedisStack
         /// <inheritdoc/>
         public IReadOnlyList<TimeStamp> MAdd(IReadOnlyCollection<(string key, TimeStamp timestamp, double value)> sequence)
         {
-            return _db.Execute(TimeSeriesCommandsBuilder.MAdd(sequence)).ToTimeStampArray();
+            return _db.Execute(TimeSeriesCommandsBuilder.MAdd(sequence)).ToTimeStampArray()!;
         }
 
         /// <inheritdoc/>

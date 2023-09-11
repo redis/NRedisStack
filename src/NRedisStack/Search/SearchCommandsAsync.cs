@@ -31,7 +31,7 @@ namespace NRedisStack
             var result = await _db.ExecuteAsync(SearchCommandBuilder.Aggregate(index, query));
             if (query.IsWithCursor())
             {
-                var results = (RedisResult[])result;
+                var results = (RedisResult[])result!;
 
                 return new AggregationResult(results[0], (long)results[1]);
             }
@@ -134,7 +134,7 @@ namespace NRedisStack
                 dialect = defaultDialect;
             }
 
-            return (await _db.ExecuteAsync(SearchCommandBuilder.Explain(indexName, query, dialect))).ToString();
+            return (await _db.ExecuteAsync(SearchCommandBuilder.Explain(indexName, query, dialect))).ToString()!;
         }
 
         /// <inheritdoc/>
@@ -227,7 +227,7 @@ namespace NRedisStack
             {
                 var term = resp[i].ToString();
                 var synonyms = (resp[i + 1]).ToArray().Select(x => x.ToString()).ToList(); // TODO: consider leave synonyms as RedisValue[]
-                result.Add(term, synonyms);
+                result.Add(term!, synonyms!);
             }
             return result;
         }

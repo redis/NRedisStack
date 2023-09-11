@@ -79,7 +79,7 @@ namespace NRedisStack.Search
                     fields = (RedisValue[]?)resp[i + contentOffset];
                 }
 
-                docs.Add(Document.Load(id, score, payload, fields, scoreExplained));
+                docs.Add(Document.Load(id!, score, payload, fields, scoreExplained));
             }
         }
     }
