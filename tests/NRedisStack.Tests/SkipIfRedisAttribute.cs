@@ -60,7 +60,7 @@ public class SkipIfRedisAttribute : FactAttribute
                         case Is.OSSCluster:
                             if (redisFixture.isOSSCluster)
                             {
-                                skipReason = skipReason + " Redis server is a cluster.";
+                                skipReason = skipReason + " Redis server is OSS cluster.";
                                 skipped = true;
                             }
                             break;
@@ -68,7 +68,7 @@ public class SkipIfRedisAttribute : FactAttribute
                         case Is.Standalone:
                             if (!redisFixture.isOSSCluster)
                             {
-                                skipReason = skipReason + " Redis server is not a cluster.";
+                                skipReason = skipReason + " Redis server is not OSS cluster.";
                                 skipped = true;
                             }
                             break;
