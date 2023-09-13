@@ -12,7 +12,7 @@ namespace NRedisStack
         /// <param name="value">the attribute value</param>
         /// <returns><see langword="true"/> if the attribute name was successfully set, Error otherwise.</returns>
         /// <remarks><seealso href="https://redis.io/commands/client-setinfo/"/></remarks>
-        public static async Task<bool> ClientSetInfoAsync(this IDatabase db, SetInfoAttr attr, string value)
+        public static async Task<bool> ClientSetInfoAsync(this IDatabaseAsync db, SetInfoAttr attr, string value)
         {
             return (await db.ExecuteAsync(CoreCommandBuilder.ClientSetInfo(attr, value))).OKtoBoolean();
         }

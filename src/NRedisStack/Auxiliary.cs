@@ -1,3 +1,8 @@
+using System.Diagnostics;
+using System.IO.Pipelines;
+using System.Reflection;
+using System.Xml.Linq;
+using NRedisStack.Core;
 using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
 
@@ -26,6 +31,30 @@ namespace NRedisStack
             return args.ToArray();
         }
 
+        public static IDatabase GetDatabase(this ConnectionMultiplexer redis,
+                                            string? LibraryName = "",
+                                            string? LibraryVersion = "")
+        {
+            var _db = redis.GetDatabase();
+            if(LibraryName == null  && LibraryVersion == null)
+            {
+                return _db;
+            }
+
+            // Set the default values for LibraryName and LibraryVersion if they are not set.
+            if (LibraryName == "")
+                LibraryName = $"NRedisStack(SE.Redis-v{GetStackExchangeRedisVersion()};.NET-{Environment.Version})";
+            if (LibraryVersion == "")
+                LibraryVersion = GetNRedisStackVersion();
+
+            Pipeline pipeline = new Pipeline(_db);
+            _ = pipeline.Db.ClientSetInfoAsync(SetInfoAttr.LibraryName, LibraryName!);
+            _ = pipeline.Db.ClientSetInfoAsync(SetInfoAttr.LibraryVersion, LibraryVersion!);
+            pipeline.Execute();
+
+            return _db;
+        }
+
         public static RedisResult Execute(this IDatabase db, SerializedCommand command)
         {
             return db.Execute(command.Command, command.Args);
@@ -34,6 +63,41 @@ namespace NRedisStack
         public async static Task<RedisResult> ExecuteAsync(this IDatabaseAsync db, SerializedCommand command)
         {
             return await db.ExecuteAsync(command.Command, command.Args);
+        }
+
+        public static string GetNRedisStackVersion()
+        {
+            XDocument csprojDocument = GetCsprojDocument();
+
+            // Find the Version element and get its value.
+            var versionElement = csprojDocument.Root!
+                .Descendants("Version")
+                .FirstOrDefault();
+
+            return versionElement!.Value;
+        }
+
+        public static string GetStackExchangeRedisVersion()
+        {
+            XDocument csprojDocument = GetCsprojDocument();
+
+            // Find the PackageReference element with Include="StackExchange.Redis" and get its Version attribute.
+            var stackExchangeRedisVersion = csprojDocument.Root!
+                .Descendants("PackageReference")
+                .Where(element => element.Attribute("Include")?.Value == "StackExchange.Redis")
+                .Select(element => element.Attribute("Version")?.Value)
+                .FirstOrDefault();
+
+            return stackExchangeRedisVersion!;
+        }
+
+        private static XDocument GetCsprojDocument()
+        {
+            string csprojFilePath = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "..", "..", "src", "NRedisStack", "NRedisStack.csproj");
+
+            // Load the .csproj file.
+            var csprojDocument = XDocument.Load(csprojFilePath);
+            return csprojDocument;
         }
     }
 }
