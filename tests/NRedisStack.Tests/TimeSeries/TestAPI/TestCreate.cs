@@ -12,11 +12,6 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
         public TestCreate(RedisFixture redisFixture) : base(redisFixture) { }
 
-        public void Dispose()
-        {
-            redisFixture.Redis.GetDatabase().KeyDelete(key);
-        }
-
         [Fact]
         public void TestCreateOK()
         {

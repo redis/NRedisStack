@@ -15,11 +15,6 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     private readonly string index = "TEST_INDEX";
     public SearchTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-    public void Dispose()
-    {
-        redisFixture.Redis.GetDatabase().KeyDelete(index);
-    }
-
     private void AddDocument(IDatabase db, Document doc)
     {
         string key = doc.Id;
@@ -149,7 +144,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, res.TotalResults);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void TestAggregations()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -190,7 +185,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(10, r2.GetLong("sum"));
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task TestAggregationsAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -232,7 +227,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void TestAggregationsLoad()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -260,7 +255,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(res[0]["t2"], "world");
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task TestAggregationsLoadAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -411,7 +406,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         AggregationRequest r = new AggregationRequest("$name")
                 .GroupBy("@name", Reducers.Sum("@count").As("sum"))
                 .Params(parameters); // From documentation - To use PARAMS, DIALECT must be set to 2
-                                    // which is the default as we set in the constructor (FT(2))
+                                     // which is the default as we set in the constructor (FT(2))
 
         AggregationResult res = await ft.AggregateAsync(index, r);
         Assert.Equal(1, res.TotalResults);
@@ -431,7 +426,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Throws<ArgumentOutOfRangeException>(() => db.FT(0));
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void TestAlias()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -460,7 +455,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Throws<RedisServerException>(() => ft.AliasDel("ALIAS2"));
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task TestAliasAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -489,7 +484,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         await Assert.ThrowsAsync<RedisServerException>(async () => await ft.AliasDelAsync("ALIAS2"));
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void TestApplyAndFilterAggregations()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -533,7 +528,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(67.5, r2.GetDouble("avgscore"), 0);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void TestCreate()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -565,7 +560,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, res3.TotalResults);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task TestCreateAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -591,7 +586,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, res3.TotalResults);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void CreateNoParams()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -619,7 +614,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, res3.TotalResults);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task CreateNoParamsAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -647,7 +642,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, res3.TotalResults);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void CreateWithFieldNames()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -679,7 +674,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, nonAttribute.TotalResults);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task CreateWithFieldNamesAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -711,7 +706,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, nonAttribute.TotalResults);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void AlterAdd()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -775,7 +770,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(4, info.CursorStats.Count);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task AlterAddAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -837,7 +832,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(4, info.CursorStats.Count);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void TestConfig()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -848,7 +843,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("100", configMap["TIMEOUT"].ToString());
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task TestConfigAsnyc()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -859,7 +854,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("100", configMap["TIMEOUT"].ToString());
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void configOnTimeout()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -871,7 +866,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         try { ft.ConfigSet("ON_TIMEOUT", "null"); } catch (RedisServerException) { }
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task configOnTimeoutAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -883,7 +878,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         try { ft.ConfigSet("ON_TIMEOUT", "null"); } catch (RedisServerException) { }
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void TestDialectConfig()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -905,7 +900,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.True(ft.ConfigSet("DEFAULT_DIALECT", "1"));
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task TestDialectConfigAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -927,7 +922,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.True(ft.ConfigSet("DEFAULT_DIALECT", "1"));
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task TestCursor()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -989,7 +984,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         catch (RedisException) { }
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task TestCursorAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1051,7 +1046,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         catch (RedisException) { }
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void TestAggregationGroupBy()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1159,7 +1154,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void TestDictionary()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1178,7 +1173,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(ft.DictDump("dict").Length, 0);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void TestDropIndex()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1211,7 +1206,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("100", db.Execute("DBSIZE").ToString());
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task TestDropIndexAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1244,7 +1239,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("100", db.Execute("DBSIZE").ToString());
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void dropIndexDD()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1270,7 +1265,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("0", db.Execute("DBSIZE").ToString());
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task dropIndexDDAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1296,7 +1291,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("0", db.Execute("DBSIZE").ToString());
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task TestDictionaryAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1507,7 +1502,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.NotEqual(ft1.GetHashCode(), ft2.GetHashCode());
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task GetTagFieldSyncAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1565,7 +1560,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(SyncRes[i++].ToString(), "yellow");
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task TestGetTagFieldWithNonDefaultSeparatorSyncAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1692,7 +1687,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("FT.CREATE", builedCommand.Command.ToString());
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void TestFilters()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1742,7 +1737,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("doc1", res1.Documents[0].Id);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task TestFiltersAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1926,7 +1921,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, res.Documents.Count());
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void TestQueryCommandBuilderScore()
     {
         // TODO: write better test for scores and payloads
@@ -2001,7 +1996,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         }
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void TestLimit()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2021,7 +2016,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(res.GetResults()[0]["t1"].ToString(), "a");
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task TestLimitAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2093,7 +2088,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expected.Count(), actual.Args.Length);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void VectorSimilaritySearch()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2136,7 +2131,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("{\"vector\":[2,2,2,2]}", jsonRes![0]);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void QueryingVectorFields()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2184,7 +2179,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await ft.CreateAsync("my_index", new FTCreateParams().On(IndexDataType.JSON), schema));
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void TestQueryAddParam_DefaultDialect()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2203,7 +2198,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, res.TotalResults);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task TestQueryAddParam_DefaultDialectAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2222,7 +2217,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, res.TotalResults);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void TestQueryParamsWithParams_DefaultDialect()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2290,7 +2285,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, reply["name"]["name2"]);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void TestCrossTermDictionary()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2314,7 +2309,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                                              .ExcludeTerm("slang")));
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task TestCrossTermDictionaryAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2386,7 +2381,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         await Assert.ThrowsAsync<RedisServerException>(async () => await ft.SpellCheckAsync(index, "name", new FTSpellCheckParams().Dialect(0)));
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task TestQueryParamsWithParams_DefaultDialectAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2651,7 +2646,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var profile = ft.ProfileSearch(index, new Query("foo"));
         // Iterators profile={Type=TEXT, Time=0.0, Term=foo, Counter=1, Size=1}
         profile.Item2["Iterators profile"].ToDictionary();
-        var iteratorsProfile =  profile.Item2["Iterators profile"].ToDictionary();
+        var iteratorsProfile = profile.Item2["Iterators profile"].ToDictionary();
         Assert.Equal("TEXT", iteratorsProfile["Type"].ToString());
         Assert.Equal("foo", iteratorsProfile["Term"].ToString());
         Assert.Equal("1", iteratorsProfile["Counter"].ToString());
@@ -2675,7 +2670,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var profile = await ft.ProfileSearchAsync(index, new Query("foo"));
         // Iterators profile={Type=TEXT, Time=0.0, Term=foo, Counter=1, Size=1}
         profile.Item2["Iterators profile"].ToDictionary();
-        var iteratorsProfile =  profile.Item2["Iterators profile"].ToDictionary();
+        var iteratorsProfile = profile.Item2["Iterators profile"].ToDictionary();
         Assert.Equal("TEXT", iteratorsProfile["Type"].ToString());
         Assert.Equal("foo", iteratorsProfile["Term"].ToString());
         Assert.Equal("1", iteratorsProfile["Counter"].ToString());
@@ -2690,9 +2685,9 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var ft = db.FT();
 
-       ft.Create(index, new Schema().AddTextField("t")); // Calling FT.CREATR without FTCreateParams
-       db.HashSet("1", "t", "hello");
-       db.HashSet("2", "t", "world");
+        ft.Create(index, new Schema().AddTextField("t")); // Calling FT.CREATR without FTCreateParams
+        db.HashSet("1", "t", "hello");
+        db.HashSet("2", "t", "world");
 
         // check using Query
         var q = new Query("hello|world").SetNoContent();
@@ -2700,15 +2695,15 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var searchRes = profileSearch.Item1;
         var searchDet = profileSearch.Item2;
 
-        Assert.Equal(searchDet.Count , 5);
-        Assert.Equal(searchRes.Documents.Count , 2);
+        Assert.Equal(searchDet.Count, 5);
+        Assert.Equal(searchRes.Documents.Count, 2);
 
         // check using AggregationRequest
         var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
         var profileAggregate = ft.ProfileAggregate(index, aggReq);
-        var aggregateRes  = profileAggregate.Item1;
+        var aggregateRes = profileAggregate.Item1;
         var aggregateDet = profileAggregate.Item2;
-        Assert.Equal(aggregateDet.Count , 5);
+        Assert.Equal(aggregateDet.Count, 5);
         Assert.Equal(aggregateRes.TotalResults, 1);
     }
 
@@ -2719,9 +2714,9 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var ft = db.FT();
 
-       await ft.CreateAsync(index, new Schema().AddTextField("t")); // Calling FT.CREATR without FTCreateParams
-       db.HashSet("1", "t", "hello");
-       db.HashSet("2", "t", "world");
+        await ft.CreateAsync(index, new Schema().AddTextField("t")); // Calling FT.CREATR without FTCreateParams
+        db.HashSet("1", "t", "hello");
+        db.HashSet("2", "t", "world");
 
         // check using Query
         var q = new Query("hello|world").SetNoContent();
@@ -2729,15 +2724,15 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var searchRes = profileSearch.Item1;
         var searchDet = profileSearch.Item2;
 
-        Assert.Equal(searchDet.Count , 5);
-        Assert.Equal(searchRes.Documents.Count , 2);
+        Assert.Equal(searchDet.Count, 5);
+        Assert.Equal(searchRes.Documents.Count, 2);
 
         // check using AggregationRequest
         var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
         var profileAggregate = await ft.ProfileAggregateAsync(index, aggReq);
-        var aggregateRes  = profileAggregate.Item1;
+        var aggregateRes = profileAggregate.Item1;
         var aggregateDet = profileAggregate.Item2;
-        Assert.Equal(aggregateDet.Count , 5);
+        Assert.Equal(aggregateDet.Count, 5);
         Assert.Equal(aggregateRes.TotalResults, 1);
     }
 
@@ -2753,7 +2748,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(new object[] { "index", "AGGREGATE", "LIMITED", "QUERY", "*" }, aggregate.Args);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void Issue175()
     {
         ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost:6379");

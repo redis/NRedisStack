@@ -11,7 +11,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public TestMAddAsync(RedisFixture redisFixture) : base(redisFixture) { }
 
 
-        [Fact]
+        [SkipIfRedis(Is.OSSCluster)]
         public async Task TestStarMADD()
         {
             var keys = CreateKeyNames(2);
@@ -43,7 +43,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
 
-        [Fact]
+        [SkipIfRedis(Is.OSSCluster)]
         public async Task TestSuccessfulMAdd()
         {
             var keys = CreateKeyNames(2);
@@ -73,7 +73,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [Fact]
+        [SkipIfRedis(Is.OSSCluster)]
         public async Task TestOverrideMAdd()
         {
             var keys = CreateKeyNames(2);
