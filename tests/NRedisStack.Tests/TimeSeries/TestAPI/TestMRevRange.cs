@@ -27,7 +27,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             return tuples;
         }
 
-        [SkipIfRedis(Is.Cluster)]
+        [SkipIfRedis(Is.OSSCluster)]
         public void TestSimpleMRevRange()
         {
             var keys = CreateKeyNames(2);
@@ -52,7 +52,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.Cluster)]
+        [SkipIfRedis(Is.OSSCluster)]
         public void TestMRevRangeWithLabels()
         {
             var keys = CreateKeyNames(2);
@@ -78,7 +78,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.Cluster)]
+        [SkipIfRedis(Is.OSSCluster)]
         public void TestMRevRangeSelectLabels()
         {
             var keys = CreateKeyNames(2);
@@ -103,7 +103,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.Cluster)]
+        [SkipIfRedis(Is.OSSCluster)]
         public void TestMRevRangeFilter()
         {
             var keys = CreateKeyNames(2);
@@ -121,7 +121,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(ReverseData(tuples), results[0].values);
         }
 
-        [SkipIfRedis(Is.Cluster)]
+        [SkipIfRedis(Is.OSSCluster)]
         public void TestMRevRangeCount()
         {
             var keys = CreateKeyNames(2);
@@ -147,7 +147,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.Cluster)]
+        [SkipIfRedis(Is.OSSCluster)]
         public void TestMRevRangeAggregation()
         {
             var keys = CreateKeyNames(2);
@@ -172,7 +172,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.Cluster)]
+        [SkipIfRedis(Is.OSSCluster)]
         public void TestMRevRangeAlign()
         {
             var keys = CreateKeyNames(2);
@@ -196,7 +196,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(expected[0], results[0].values[0]);
         }
 
-        [SkipIfRedis(Is.Cluster)]
+        [SkipIfRedis(Is.OSSCluster)]
         public void TestMissingFilter()
         {
             var keys = CreateKeyNames(2);
@@ -215,7 +215,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal("There should be at least one filter on MRANGE/MREVRANGE", ex.Message);
         }
 
-        [SkipIfRedis(Is.Cluster)]
+        [SkipIfRedis(Is.OSSCluster)]
         public void TestMissingTimeBucket()
         {
             var keys = CreateKeyNames(2);
@@ -234,7 +234,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal("RANGE Aggregation should have timeBucket value", ex.Message);
         }
 
-        [SkipIfRedis(Is.Cluster)]
+        [SkipIfRedis(Is.OSSCluster)]
         public void TestMRevRangeGroupby()
         {
             var keys = CreateKeyNames(2);
@@ -261,7 +261,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.Cluster)]
+        [SkipIfRedis(Is.OSSCluster)]
         public void TestMRevRangeReduce()
         {
             var keys = CreateKeyNames(2);
@@ -288,7 +288,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.Cluster)]
+        [SkipIfRedis(Is.OSSCluster)]
         public void TestMRevRangeFilterBy()
         {
             var keys = CreateKeyNames(2);

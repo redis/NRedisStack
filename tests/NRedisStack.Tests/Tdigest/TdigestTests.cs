@@ -370,7 +370,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         AssertMergedUnmergedNodes(tdigest, "tdadd", 0, 5);
     }
 
-    [SkipIfRedis(Is.Cluster)]
+    [SkipIfRedis(Is.OSSCluster)]
     public void TestMerge()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -393,7 +393,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [SkipIfRedis(Is.Cluster)]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task TestMergeAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -416,7 +416,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         AssertMergedUnmergedNodes(tdigest, "td2", 3, 2);
     }
 
-    [SkipIfRedis(Is.Cluster)]
+    [SkipIfRedis(Is.OSSCluster)]
     public void MergeMultiAndParams()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -437,7 +437,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(50, tdigest.Info("to").Compression);
     }
 
-    [SkipIfRedis(Is.Cluster)]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task MergeMultiAndParamsAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();

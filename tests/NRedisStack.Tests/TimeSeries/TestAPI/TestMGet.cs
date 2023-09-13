@@ -20,7 +20,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.Cluster)]
+        [SkipIfRedis(Is.OSSCluster)]
         public void TestMGetQuery()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -47,7 +47,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
         }
 
-        [SkipIfRedis(Is.Cluster)]
+        [SkipIfRedis(Is.OSSCluster)]
         public void TestMGetQueryWithLabels()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -74,7 +74,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(labels2, results[1].labels);
         }
 
-        [SkipIfRedis(Is.Cluster)]
+        [SkipIfRedis(Is.OSSCluster)]
         public void TestMGetQuerySelectedLabels()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();

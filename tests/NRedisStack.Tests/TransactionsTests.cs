@@ -83,7 +83,7 @@ namespace NRedisStack.Tests
             Assert.NotNull(db.TOPK().Info("topk-key"));
         }
 
-        [SkipIfRedis(Is.Cluster)]
+        [SkipIfRedis(Is.OSSCluster)]
         public async Task TestModulsTransactionWithoutGraph()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();

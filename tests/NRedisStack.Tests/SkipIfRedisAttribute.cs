@@ -10,7 +10,7 @@ public enum Comparison
 public enum Is
 {
     Standalone,
-    Cluster
+    OSSCluster
 }
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
@@ -57,7 +57,7 @@ public class SkipIfRedisAttribute : FactAttribute
                 {
                     switch (_is)
                     {
-                        case Is.Cluster:
+                        case Is.OSSCluster:
                             if (redisFixture.isCluster)
                             {
                                 skipReason = skipReason + " Redis server is a cluster.";

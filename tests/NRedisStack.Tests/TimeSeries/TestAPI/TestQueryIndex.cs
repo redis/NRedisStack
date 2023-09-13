@@ -18,7 +18,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.Cluster)]
+        [SkipIfRedis(Is.OSSCluster)]
         public void TestTSQueryIndex()
         {
             var db = redisFixture.Redis.GetDatabase();
