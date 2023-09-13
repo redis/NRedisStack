@@ -43,6 +43,11 @@ namespace NRedisStack.Tests
 
         public Task InitializeAsync() => Task.CompletedTask;
 
+        public void Dispose()
+        {
+            redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
+        }
+
         public async Task DisposeAsync()
         {
             var redis = redisFixture.Redis.GetDatabase();

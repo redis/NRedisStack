@@ -9,11 +9,6 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     private readonly string key = "CUCKOO_TESTS";
     public CuckooTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-    public void Dispose()
-    {
-        redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
-    }
-
     [Fact]
     public void TestReserveBasic()
     {

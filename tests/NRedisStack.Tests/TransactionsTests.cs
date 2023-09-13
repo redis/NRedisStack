@@ -11,11 +11,6 @@ namespace NRedisStack.Tests
         private readonly string key = "TRX_TESTS";
         public TransactionTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-        public void Dispose()
-        {
-            redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
-        }
-
         [Fact]
         public async Task TestJsonTransaction()
         {

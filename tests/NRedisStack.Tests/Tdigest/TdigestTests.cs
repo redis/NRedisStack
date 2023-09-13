@@ -9,11 +9,6 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     private readonly string key = "TDIGEST_TESTS";
     public TdigestTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-    public void Dispose()
-    {
-        redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
-    }
-
     private void AssertMergedUnmergedNodes(ITdigestCommands tdigest, string key, int mergedNodes, int unmergedNodes)
     {
         var info = tdigest.Info(key);

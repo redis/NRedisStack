@@ -11,11 +11,6 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
     private readonly string key = "PIPELINE_TESTS";
     public PipelineTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-    public void Dispose()
-    {
-        redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
-    }
-
     [SkipIfRedis(Is.OSSCluster, Comparison.GreaterThanOrEqual, "7.1.242")]
     public async Task TestModulsPipeline()
     {

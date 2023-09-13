@@ -9,10 +9,6 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     private readonly string key = "CMS_TESTS";
     public CmsTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-    public void Dispose()
-    {
-        redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
-    }
 
     [Fact]
     public void TestInitByDim()

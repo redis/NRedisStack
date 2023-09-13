@@ -26,11 +26,6 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         this.testOutputHelper = testOutputHelper;
     }
 
-    public void Dispose()
-    {
-        redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
-    }
-
     [SkipIfRedis(Is.OSSCluster)]
     public void HSETandSearch()
     {
