@@ -10,14 +10,6 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
         public TestQueryIndex(RedisFixture redisFixture) : base(redisFixture) { }
 
-        public void Dispose()
-        {
-            foreach (var key in keys)
-            {
-                redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
-            }
-        }
-
         [SkipIfRedis(Is.OSSCluster)]
         public void TestTSQueryIndex()
         {

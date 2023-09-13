@@ -15,13 +15,6 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     private readonly string index = "TEST_INDEX";
     public SearchTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-    public void Dispose()
-    {
-        // redisFixture.Redis.GetDatabase().KeyDelete(index);
-        redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
-
-    }
-
     private void AddDocument(IDatabase db, Document doc)
     {
         string key = doc.Id;

@@ -32,15 +32,6 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             };
         }
 
-        public void Dispose()
-        {
-            redisFixture.Redis.GetDatabase().KeyDelete(srcKey);
-            foreach (var key in destKeys.Values)
-            {
-                redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
-            }
-        }
-
         [SkipIfRedis(Is.OSSCluster)]
         public void TestRulesAdditionDeletion()
         {

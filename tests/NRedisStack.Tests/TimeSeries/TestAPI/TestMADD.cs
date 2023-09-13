@@ -13,14 +13,6 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
         public TestMADD(RedisFixture redisFixture) : base(redisFixture) { }
 
-        public void Dispose()
-        {
-            foreach (string key in keys)
-            {
-                redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
-            }
-        }
-
         [SkipIfRedis(Is.OSSCluster)]
         public void TestStarMADD()
         {
