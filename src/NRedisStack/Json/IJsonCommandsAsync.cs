@@ -1,5 +1,6 @@
 ﻿using NRedisStack.Json.DataTypes;
 using StackExchange.Redis;
+using System.Text.Json;
 
 namespace NRedisStack;
 
@@ -123,10 +124,11 @@ public interface IJsonCommandsAsync
     /// </summary>
     /// <param name="key">The key to retrieve</param>
     /// <param name="path">The path to retrieve</param>
+    /// <param name="serializerOptions">Json serializer options to use for deserialization.</param>
     /// <typeparam name="T">The type retrieved</typeparam>
     /// <returns>The object requested</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.get"/></remarks>
-    Task<T?> GetAsync<T>(RedisKey key, string path = "$");
+    Task<T?> GetAsync<T>(RedisKey key, string path = "$", JsonSerializerOptions? serializerOptions = default);
 
     /// <summary>
     /// retrieves a group of items stored in redis, appropriate if the path will  resolve to multiple records.
