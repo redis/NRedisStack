@@ -1,0 +1,30 @@
+---
+version: "3.8"
+services:
+
+  redis-stack-7.2.0-RC3:
+    image: redis/redis-stack-server:7.2.0-RC3
+    ports: ["6379:6379"]
+
+  redis-stack-6.2.6:
+    image: redis/redis-stack-server:6.2.6-v9
+    ports: ["6379:6379"]
+
+  redis-stack-edge:
+    image: redis/redis-stack-server:edge
+    ports: ["6379:6379"]
+
+  redis-stack-cluster:
+    container_name: redis-cluster
+    build:
+      context: .
+      dockerfile: dockers/Dockerfile.cluster
+    ports:
+      - 16379:16379
+      - 16380:16380
+      - 16381:16381
+      - 16382:16382
+      - 16383:16383
+      - 16384:16384
+    volumes:
+      - "./dockers/cluster.redis.conf:/redis.conf:ro"

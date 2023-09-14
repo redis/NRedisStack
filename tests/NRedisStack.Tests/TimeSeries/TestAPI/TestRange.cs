@@ -12,11 +12,6 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
         public TestRange(RedisFixture redisFixture) : base(redisFixture) { }
 
-        public void Dispose()
-        {
-            redisFixture.Redis.GetDatabase().KeyDelete(key);
-        }
-
         private List<TimeSeriesTuple> CreateData(ITimeSeriesCommands ts, int timeBucket)
         {
             var tuples = new List<TimeSeriesTuple>();
@@ -130,7 +125,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(tuples.GetRange(2, 1), res);
         }
 
-        [Fact]
+        [SkipIfRedis(Is.OSSCluster)]
         public void latest()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -165,7 +160,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(new List<TimeSeriesTuple>() { latest, compact }, ts.RevRange("ts2", 0, 10, true));
         }
 
-        [Fact]
+        [SkipIfRedis(Is.OSSCluster)]
         public void TestAlignTimestamp()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();

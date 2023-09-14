@@ -11,11 +11,6 @@ namespace NRedisStack.Tests
         private readonly string key = "TRX_TESTS";
         public TransactionTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-        public void Dispose()
-        {
-            redisFixture.Redis.GetDatabase().KeyDelete(key);
-        }
-
         [Fact]
         public async Task TestJsonTransaction()
         {
@@ -32,7 +27,7 @@ namespace NRedisStack.Tests
             Assert.Equal("{\"Name\":\"Shachar\",\"Age\":23}", getResponse.Result.ToString());
         }
 
-        [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+        [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
         public async Task TestModulsTransaction()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -83,7 +78,7 @@ namespace NRedisStack.Tests
             Assert.NotNull(db.TOPK().Info("topk-key"));
         }
 
-        [Fact]
+        [SkipIfRedis(Is.OSSCluster)]
         public async Task TestModulsTransactionWithoutGraph()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();

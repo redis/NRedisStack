@@ -9,11 +9,6 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     private readonly string key = "BLOOM_TESTS";
     public BloomTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-    public void Dispose()
-    {
-        redisFixture.Redis.GetDatabase().KeyDelete(key);
-    }
-
     [Fact]
     public void TestReserveBasic()
     {

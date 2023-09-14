@@ -112,6 +112,15 @@ e.g:
 ```bash
 dotnet test --environment="REDIS=172.17.0.1:6379"
 ```
+
+To run your tests against an oss cluster:
+```bash
+dotnet test --environment "REDIS_CLUSTER=<redisServer:port>" --environment "NUM_REDIS_CLUSTER_NODES=<number of nodes in the cluster>"
+```
+e.g. :
+```bash
+dotnet test --environment "REDIS_CLUSTER=127.0.0.1:16379" --environment "NUM_REDIS_CLUSTER_NODES=6"
+```
 ## How to Report a Bug
 
 ### Security Vulnerabilities
