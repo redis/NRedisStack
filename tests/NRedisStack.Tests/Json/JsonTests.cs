@@ -697,9 +697,9 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("Alice", result!.Name);
         Assert.Equal(35, result.Age);
         var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        result = commands.Get<Person>(caseInsensitiveKey, jsonOptions);
+        result = commands.Get<Person>(caseInsensitiveKey, "$", jsonOptions);
         Assert.NotNull(result);
-        Assert.Equal("Alice", result.Name);
+        Assert.Equal("Alice", result!.Name);
         Assert.Equal(35, result.Age);
         var people = commands.GetEnumerable<Person>(complexKey, "$..a").ToArray();
         Assert.Equal(2, people.Length);
@@ -724,9 +724,9 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("Alice", result!.Name);
         Assert.Equal(35, result.Age);
         var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        result = await commands.GetAsync<Person>(caseInsensitiveKey, jsonOptions);
+        result = await commands.GetAsync<Person>(caseInsensitiveKey, "$", jsonOptions);
         Assert.NotNull(result);
-        Assert.Equal("Alice", result.Name);
+        Assert.Equal("Alice", result!.Name);
         Assert.Equal(35, result.Age);
         var people = (await commands.GetEnumerableAsync<Person>(complexKey, "$..a")).ToArray();
         Assert.Equal(2, people.Length);
