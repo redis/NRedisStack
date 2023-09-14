@@ -13,12 +13,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     private readonly string key = "CORE_TESTS";
     public CoreTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-    public void Dispose()
-    {
-        redisFixture.Redis.GetDatabase().KeyDelete(key);
-    }
-
-    [SkipIfRedisVersion(Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
     public void TestSetInfo()
     {
         var redis = ConnectionMultiplexer.Connect("localhost");
@@ -34,7 +29,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.EndsWith("lib-name=anylibname lib-ver=1.2.3\n", info);
     }
 
-    [SkipIfRedisVersion(Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
     public async Task TestSetInfoAsync()
     {
         var redis = ConnectionMultiplexer.Connect("localhost");
