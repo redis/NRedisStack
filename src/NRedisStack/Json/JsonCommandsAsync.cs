@@ -78,7 +78,7 @@ public class JsonCommandsAsync : IJsonCommandsAsync
         return await _db.ExecuteAsync(JsonCommandBuilder.Get(key, paths, indent, newLine, space));
     }
 
-    public async Task<T?> GetAsync<T>(RedisKey key, string path = "$", JsonSerializerOptions serializerOptions? = default)
+    public async Task<T?> GetAsync<T>(RedisKey key, string path = "$", JsonSerializerOptions? serializerOptions = default)
     {
         var res = await _db.ExecuteAsync(JsonCommandBuilder.Get<T>(key, path));
         if (res.Type == ResultType.BulkString)

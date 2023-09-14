@@ -222,7 +222,7 @@ public class JsonCommands : JsonCommandsAsync, IJsonCommands
     }
 
     /// <inheritdoc/>
-    public T? Get<T>(RedisKey key, string path = "$", JsonSerializerOptions serializerOptions? = default)
+    public T? Get<T>(RedisKey key, string path = "$", JsonSerializerOptions? serializerOptions = default)
     {
         var res = _db.Execute(JsonCommandBuilder.Get<T>(key, path));
         if (res.Type == ResultType.BulkString)

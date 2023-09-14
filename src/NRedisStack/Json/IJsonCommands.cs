@@ -128,7 +128,7 @@ public interface IJsonCommands
     /// <typeparam name="T">The type retrieved</typeparam>
     /// <returns>The object requested</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.get"/></remarks>
-    T? Get<T>(RedisKey key, string path = "$", JsonSerializerOptions serializerOptions? = default);
+    T? Get<T>(RedisKey key, string path = "$", JsonSerializerOptions? serializerOptions = default);
 
     /// <summary>
     /// Retrieves a group of items stored in Redis, appropriate if the path will resolve to multiple records.
