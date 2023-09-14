@@ -686,13 +686,20 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     public void Get()
     {
         var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
-        var keys = CreateKeyNames(2);
+        var keys = CreateKeyNames(3);
         var key = keys[0];
         var complexKey = keys[1];
+        var caseInsensitiveKey = keys[2];
         commands.Set(key, "$", new Person() { Age = 35, Name = "Alice" });
         commands.Set(complexKey, "$", new { a = new Person() { Age = 35, Name = "Alice" }, b = new { a = new Person() { Age = 35, Name = "Alice" } } });
+        commands.Set(caseInsensitiveKey, "$", new { name = "Alice", AGE = 35 });
         var result = commands.Get<Person>(key);
         Assert.Equal("Alice", result!.Name);
+        Assert.Equal(35, result.Age);
+        var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        result = commands.Get<Person>(caseInsensitiveKey, jsonOptions);
+        Assert.NotNull(result);
+        Assert.Equal("Alice", result.Name);
         Assert.Equal(35, result.Age);
         var people = commands.GetEnumerable<Person>(complexKey, "$..a").ToArray();
         Assert.Equal(2, people.Length);
@@ -706,13 +713,20 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     public async Task GetAsync()
     {
         var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
-        var keys = CreateKeyNames(2);
+        var keys = CreateKeyNames(3);
         var key = keys[0];
         var complexKey = keys[1];
+        var caseInsensitiveKey = keys[2];
         await commands.SetAsync(key, "$", new Person() { Age = 35, Name = "Alice" });
         await commands.SetAsync(complexKey, "$", new { a = new Person() { Age = 35, Name = "Alice" }, b = new { a = new Person() { Age = 35, Name = "Alice" } } });
+        await commands.SetAsync(caseInsensitiveKey, "$", new { name = "Alice", AGE = 35 });
         var result = await commands.GetAsync<Person>(key);
         Assert.Equal("Alice", result!.Name);
+        Assert.Equal(35, result.Age);
+        var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        result = await commands.GetAsync<Person>(caseInsensitiveKey, jsonOptions);
+        Assert.NotNull(result);
+        Assert.Equal("Alice", result.Name);
         Assert.Equal(35, result.Age);
         var people = (await commands.GetEnumerableAsync<Person>(complexKey, "$..a")).ToArray();
         Assert.Equal(2, people.Length);
@@ -735,8 +749,8 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
             new KeyPathValue(key1, "$", new { a = "hello" }),
             new KeyPathValue(key2, "$", new { a = "world" })
         };
-        commands.MSet(values)
-;
+        commands.MSet(values);
+
         var result = commands.MGet(keys.Select(x => new RedisKey(x)).ToArray(), "$.a");
 
         Assert.Equal("[\"hello\"]", result[0].ToString());
@@ -758,8 +772,8 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
             new KeyPathValue(key1, "$", new { a = "hello" }),
             new KeyPathValue(key2, "$", new { a = "world" })
         };
-        await commands.MSetAsync(values)
-;
+        await commands.MSetAsync(values);
+
         var result = await commands.MGetAsync(keys.Select(x => new RedisKey(x)).ToArray(), "$.a");
 
         Assert.Equal("[\"hello\"]", result[0].ToString());
