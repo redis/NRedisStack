@@ -60,15 +60,15 @@ namespace NRedisStack
             return db.Execute(command.Command, command.Args);
         }
 
-        public async static Task<RedisResult> ExecuteAsync(this IDatabaseAsync db, SerializedCommand command)
+        public async static Task<RedisResult> ExecuteAsync(this IDatabase db, SerializedCommand command)
         {
             return await db.ExecuteAsync(command.Command, command.Args);
         }
 
-        public static List<RedisResult> ExecuteBroadcast(this IDatabaseAsync db, string command)
+        public static List<RedisResult> ExecuteBroadcast(this IDatabase db, string command)
                 => db.ExecuteBroadcast(new SerializedCommand(command));
 
-        public static List<RedisResult> ExecuteBroadcast(this IDatabaseAsync db, SerializedCommand command)
+        public static List<RedisResult> ExecuteBroadcast(this IDatabase db, SerializedCommand command)
         {
             var redis = db.Multiplexer;
             var endpoints = redis.GetEndPoints();
@@ -89,10 +89,10 @@ namespace NRedisStack
             return results;
         }
 
-        public async static Task<List<RedisResult>> ExecuteBroadcastAsync(this IDatabaseAsync db, string command)
+        public async static Task<List<RedisResult>> ExecuteBroadcastAsync(this IDatabase db, string command)
                 => await db.ExecuteBroadcastAsync(new SerializedCommand(command));
 
-        public async static Task<List<RedisResult>> ExecuteBroadcastAsync(this IDatabaseAsync db, SerializedCommand command)
+        public async static Task<List<RedisResult>> ExecuteBroadcastAsync(this IDatabase db, SerializedCommand command)
         {
             var redis = db.Multiplexer;
             var endpoints = redis.GetEndPoints();
