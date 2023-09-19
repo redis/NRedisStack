@@ -46,20 +46,23 @@ namespace NRedisStack
             return _db;
         }
 
-        private static void SetInfoInPipeline(this IDatabase db)
-        {
-            if (_libraryName == null) return;
-            Pipeline pipeline = new Pipeline(db);
-            _ = pipeline.Db.ClientSetInfoAsync(SetInfoAttr.LibraryName, _libraryName!);
-            _ = pipeline.Db.ClientSetInfoAsync(SetInfoAttr.LibraryVersion, GetNRedisStackVersion()!);
-            pipeline.Execute();
-        }
+        // TODO: understand why this method is not working:
+        // private static void SetInfoInPipeline(this IDatabase db)
+        // {
+        //     if (_libraryName == null) return;
+        //     Pipeline pipeline = new Pipeline(db);
+        //     _ = pipeline.Db.ClientSetInfoAsync(SetInfoAttr.LibraryName, _libraryName!);
+        //     _ = pipeline.Db.ClientSetInfoAsync(SetInfoAttr.LibraryVersion, GetNRedisStackVersion());
+        //     pipeline.Execute();
+        // }
 
         public static RedisResult Execute(this IDatabase db, SerializedCommand command)
         {
             if(_setInfo)
             {
-                db.SetInfoInPipeline();
+                // db.SetInfoInPipeline();
+                db.ClientSetInfo(SetInfoAttr.LibraryName, _libraryName!);
+                db.ClientSetInfo(SetInfoAttr.LibraryVersion, GetNRedisStackVersion());
                 _setInfo = false;
             }
             return db.Execute(command.Command, command.Args);
@@ -69,7 +72,9 @@ namespace NRedisStack
         {
             if(_setInfo)
             {
-                ((IDatabase)db).SetInfoInPipeline();
+                // ((IDatabase)db).SetInfoInPipeline();
+                await db.ClientSetInfoAsync(SetInfoAttr.LibraryName, _libraryName!);
+                await db.ClientSetInfoAsync(SetInfoAttr.LibraryVersion, GetNRedisStackVersion());
                 _setInfo = false;
             }
             return await db.ExecuteAsync(command.Command, command.Args);
