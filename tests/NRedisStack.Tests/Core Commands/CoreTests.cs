@@ -29,6 +29,19 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.LessThan, "7.1.242")]
+    public async Task TestSetInfoDefaultValueAsync()
+    {
+        var redis = ConnectionMultiplexer.Connect("localhost");
+        var db = redis.GetDatabase();
+
+        db.Execute("FLUSHALL");
+        await db.ExecuteAsync(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
+
+        var info = (await db.ExecuteAsync("CLIENT", "INFO")).ToString();
+        Assert.EndsWith($"lib-name=NRedisStack;.NET-{Environment.Version} lib-ver={GetNRedisStackVersion()}\n", info);
+    }
+
+    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
     public void TestSetInfoWithValue()
     {
         var redis = ConnectionMultiplexer.Connect("localhost");
@@ -38,6 +51,19 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.Execute(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
         var info = db.Execute("CLIENT", "INFO").ToString();
+        Assert.EndsWith($"NRedisStack(MyLibraryName;v1.0.0);.NET-{Environment.Version}) lib-ver={GetNRedisStackVersion()}\n", info);
+    }
+
+    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
+    public async Task TestSetInfoWithValueAsync()
+    {
+        var redis = ConnectionMultiplexer.Connect("localhost");
+        var db = redis.GetDatabase("MyLibraryName;v1.0.0");
+
+        db.Execute("FLUSHALL");
+        await db.ExecuteAsync(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
+
+        var info = (await db.ExecuteAsync("CLIENT", "INFO")).ToString();
         Assert.EndsWith($"NRedisStack(MyLibraryName;v1.0.0);.NET-{Environment.Version}) lib-ver={GetNRedisStackVersion()}\n", info);
     }
 

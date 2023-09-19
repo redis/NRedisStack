@@ -2,7 +2,7 @@ namespace NRedisStack.Core.Literals
 {
     internal class CoreArgs
     {
-        public const string lib_name = "lib-name";
-        public const string lib_ver = "lib-ver";
+        public const string lib_name = "LIB-NAME";
+        public const string lib_ver = "LIB-VER";
     }
 }
