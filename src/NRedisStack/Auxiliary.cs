@@ -60,10 +60,10 @@ namespace NRedisStack
         {
             if(_setInfo)
             {
+                _setInfo = false;
                 // db.SetInfoInPipeline();
                 db.ClientSetInfo(SetInfoAttr.LibraryName, _libraryName!);
                 db.ClientSetInfo(SetInfoAttr.LibraryVersion, GetNRedisStackVersion());
-                _setInfo = false;
             }
             return db.Execute(command.Command, command.Args);
         }
@@ -72,10 +72,10 @@ namespace NRedisStack
         {
             if(_setInfo)
             {
+                _setInfo = false;
                 // ((IDatabase)db).SetInfoInPipeline();
                 await db.ClientSetInfoAsync(SetInfoAttr.LibraryName, _libraryName!);
                 await db.ClientSetInfoAsync(SetInfoAttr.LibraryVersion, GetNRedisStackVersion());
-                _setInfo = false;
             }
             return await db.ExecuteAsync(command.Command, command.Args);
         }
