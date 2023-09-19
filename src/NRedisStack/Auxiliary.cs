@@ -1,6 +1,3 @@
-using System.Diagnostics;
-using System.IO.Pipelines;
-using System.Reflection;
 using System.Xml.Linq;
 using NRedisStack.Core;
 using NRedisStack.RedisStackCommands;
@@ -10,6 +7,8 @@ namespace NRedisStack
 {
     public static class Auxiliary
     {
+        private static bool _setInfo = false;
+        private static string _libraryName = "";
         public static List<object> MergeArgs(RedisKey key, params RedisValue[] items)
         {
             var args = new List<object>(items.Length + 1) { key };
@@ -31,37 +30,53 @@ namespace NRedisStack
             return args.ToArray();
         }
 
+        // public static IDatabase GetDatabase(this ConnectionMultiplexer redis) => redis.GetDatabase("", "");
+
+        // TODO: add all the signatures of GetDatabase
         public static IDatabase GetDatabase(this ConnectionMultiplexer redis,
-                                            string? LibraryName = "",
-                                            string? LibraryVersion = "")
+                                            string? LibraryName = "")
         {
             var _db = redis.GetDatabase();
-            if (LibraryName == null && LibraryVersion == null)
+            if (LibraryName == null)
             {
                 return _db;
             }
 
-            // Set the default values for LibraryName and LibraryVersion if they are not set.
-            if (LibraryName == "")
-                LibraryName = $"NRedisStack(SE.Redis-v{GetStackExchangeRedisVersion()};.NET-{Environment.Version})";
-            if (LibraryVersion == "")
-                LibraryVersion = GetNRedisStackVersion();
-
-            Pipeline pipeline = new Pipeline(_db);
-            _ = pipeline.Db.ClientSetInfoAsync(SetInfoAttr.LibraryName, LibraryName!);
-            _ = pipeline.Db.ClientSetInfoAsync(SetInfoAttr.LibraryVersion, LibraryVersion!);
-            pipeline.Execute();
+            if (LibraryName != "")
+                _libraryName = $"NRedisStack({LibraryName});.NET-{Environment.Version})";
+            else
+                _libraryName = $"NRedisStack;.NET-{Environment.Version}";
 
             return _db;
         }
 
+        private static void SetInfoInPipeline(this IDatabase _db, string? LibraryName)
+        {
+            Pipeline pipeline = new Pipeline(_db);
+            _ = pipeline.Db.ClientSetInfoAsync(SetInfoAttr.LibraryName, LibraryName!);
+            _ = pipeline.Db.ClientSetInfoAsync(SetInfoAttr.LibraryVersion, GetNRedisStackVersion()!);
+            pipeline.Execute();
+        }
+
         public static RedisResult Execute(this IDatabase db, SerializedCommand command)
         {
+            if(!_setInfo)
+            {
+                db.SetInfoInPipeline(_libraryName);
+                _setInfo = true;
+            }
             return db.Execute(command.Command, command.Args);
         }
 
-        public async static Task<RedisResult> ExecuteAsync(this IDatabase db, SerializedCommand command)
+        public async static Task<RedisResult> ExecuteAsync(this IDatabaseAsync db, SerializedCommand command)
         {
+            if(!_setInfo)
+            {
+                // TODO: check if I can do it in pipeline
+                _ = db.ClientSetInfoAsync(SetInfoAttr.LibraryName, _libraryName);
+                _ = db.ClientSetInfoAsync(SetInfoAttr.LibraryVersion, GetNRedisStackVersion());
+                _setInfo = true;
+            }
             return await db.ExecuteAsync(command.Command, command.Args);
         }
 
@@ -89,10 +104,10 @@ namespace NRedisStack
             return results;
         }
 
-        public async static Task<List<RedisResult>> ExecuteBroadcastAsync(this IDatabase db, string command)
+        public async static Task<List<RedisResult>> ExecuteBroadcastAsync(this IDatabaseAsync db, string command)
                 => await db.ExecuteBroadcastAsync(new SerializedCommand(command));
 
-        public async static Task<List<RedisResult>> ExecuteBroadcastAsync(this IDatabase db, SerializedCommand command)
+        public async static Task<List<RedisResult>> ExecuteBroadcastAsync(this IDatabaseAsync db, SerializedCommand command)
         {
             var redis = db.Multiplexer;
             var endpoints = redis.GetEndPoints();
