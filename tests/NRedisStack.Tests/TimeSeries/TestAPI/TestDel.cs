@@ -12,11 +12,6 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
         public TestDel(RedisFixture redisFixture) : base(redisFixture) { }
 
-        public void Dispose()
-        {
-            redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
-        }
-
         private List<TimeSeriesTuple> CreateData(ITimeSeriesCommands ts, int timeBucket) //TODO: check this
         {
             var tuples = new List<TimeSeriesTuple>();

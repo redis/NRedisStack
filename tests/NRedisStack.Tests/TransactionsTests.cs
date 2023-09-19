@@ -11,11 +11,6 @@ namespace NRedisStack.Tests
         private readonly string key = "TRX_TESTS";
         public TransactionTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-        public void Dispose()
-        {
-            redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
-        }
-
         [Fact]
         public async Task TestJsonTransaction()
         {
@@ -83,7 +78,7 @@ namespace NRedisStack.Tests
             Assert.NotNull(db.TOPK().Info("topk-key"));
         }
 
-        [SkipIfRedis(Is.Cluster)]
+        [SkipIfRedis(Is.OSSCluster)]
         public async Task TestModulsTransactionWithoutGraph()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();

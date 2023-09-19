@@ -10,7 +10,7 @@ public enum Comparison
 public enum Is
 {
     Standalone,
-    Cluster
+    OSSCluster
 }
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
@@ -57,24 +57,25 @@ public class SkipIfRedisAttribute : FactAttribute
                 {
                     switch (_is)
                     {
-                        case Is.Cluster:
-                            if (redisFixture.isCluster)
+                        case Is.OSSCluster:
+                            if (redisFixture.isOSSCluster)
                             {
-                                skipReason = skipReason + " Redis server is a cluster.";
+                                skipReason = skipReason + " Redis server is OSS cluster.";
                                 skipped = true;
                             }
                             break;
 
                         case Is.Standalone:
-                            if (!redisFixture.isCluster)
+
+                            if (!redisFixture.isOSSCluster)
                             {
-                                skipReason = skipReason + " Redis server is not a cluster.";
+                                skipReason = skipReason + " Redis server is not OSS cluster.";
                                 skipped = true;
                             }
                             break;
                     }
                 }
-                // Version check (if Is.Standalone/Is.Cluster is set then )
+                // Version check (if Is.Standalone/Is.OSSCluster is set then )
 
                 var serverVersion = redisFixture.Redis.GetServer(redisFixture.Redis.GetEndPoints()[0]).Version;
                 var targetVersion = new Version(_targetVersion);
