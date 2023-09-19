@@ -7,8 +7,8 @@ namespace NRedisStack
 {
     public static class Auxiliary
     {
-        private static bool _setInfo = false;
-        private static string _libraryName = "";
+        private static bool _setInfo = true;
+        private static string? _libraryName = $"NRedisStack;.NET-{Environment.Version}";
         public static List<object> MergeArgs(RedisKey key, params RedisValue[] items)
         {
             var args = new List<object>(items.Length + 1) { key };
@@ -34,48 +34,43 @@ namespace NRedisStack
 
         // TODO: add all the signatures of GetDatabase
         public static IDatabase GetDatabase(this ConnectionMultiplexer redis,
-                                            string? LibraryName = "")
+                                            string? LibraryName)
         {
             var _db = redis.GetDatabase();
-            if (LibraryName == null)
-            {
-                return _db;
-            }
+            if (LibraryName == null) // the user wants to disable the library name and version sending
+                _libraryName = null;
 
-            if (LibraryName != "")
+            else // the user set his own the library name
                 _libraryName = $"NRedisStack({LibraryName});.NET-{Environment.Version})";
-            else
-                _libraryName = $"NRedisStack;.NET-{Environment.Version}";
 
             return _db;
         }
 
-        private static void SetInfoInPipeline(this IDatabase _db, string? LibraryName)
+        private static void SetInfoInPipeline(this IDatabase db)
         {
-            Pipeline pipeline = new Pipeline(_db);
-            _ = pipeline.Db.ClientSetInfoAsync(SetInfoAttr.LibraryName, LibraryName!);
+            if (_libraryName == null) return;
+            Pipeline pipeline = new Pipeline(db);
+            _ = pipeline.Db.ClientSetInfoAsync(SetInfoAttr.LibraryName, _libraryName!);
             _ = pipeline.Db.ClientSetInfoAsync(SetInfoAttr.LibraryVersion, GetNRedisStackVersion()!);
             pipeline.Execute();
         }
 
         public static RedisResult Execute(this IDatabase db, SerializedCommand command)
         {
-            if(!_setInfo)
+            if(_setInfo)
             {
-                db.SetInfoInPipeline(_libraryName);
-                _setInfo = true;
+                db.SetInfoInPipeline();
+                _setInfo = false;
             }
             return db.Execute(command.Command, command.Args);
         }
 
         public async static Task<RedisResult> ExecuteAsync(this IDatabaseAsync db, SerializedCommand command)
         {
-            if(!_setInfo)
+            if(_setInfo)
             {
-                // TODO: check if I can do it in pipeline
-                _ = db.ClientSetInfoAsync(SetInfoAttr.LibraryName, _libraryName);
-                _ = db.ClientSetInfoAsync(SetInfoAttr.LibraryVersion, GetNRedisStackVersion());
-                _setInfo = true;
+                ((IDatabase)db).SetInfoInPipeline();
+                _setInfo = false;
             }
             return await db.ExecuteAsync(command.Command, command.Args);
         }
