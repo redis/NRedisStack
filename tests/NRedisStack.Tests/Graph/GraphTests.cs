@@ -300,7 +300,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(stats.QueryInternalExecutionTime);
         Assert.NotEmpty(stats.QueryInternalExecutionTime);
 
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         // IReadOnlyCollection<Record> iterator = resultSet.GetEnumerator();
         var iterator = resultSet.GetEnumerator();
         Assert.True(iterator.MoveNext());
@@ -389,7 +389,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, schemaNames.Count);
         Assert.Equal("a", schemaNames[0]);
         Assert.Equal("r", schemaNames[1]);
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         var iterator = resultSet.GetEnumerator();
         Assert.True(iterator.MoveNext());
         var record = iterator.Current;
@@ -422,7 +422,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, schemaNames.Count);
         Assert.Equal("a", schemaNames[0]);
         Assert.Equal("r", schemaNames[1]);
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         iterator = resultSet.GetEnumerator();
         Assert.True(iterator.MoveNext());
         record = iterator.Current;
@@ -491,11 +491,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         List<string> schemaNames = header.SchemaNames;
         Assert.NotNull(schemaNames);
-        Assert.Equal(1, schemaNames.Count);
+        Assert.Single(schemaNames);
         Assert.Equal("x", schemaNames[0]);
 
         // check record
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         var iterator = resultSet.GetEnumerator();
         Assert.True(iterator.MoveNext());
         NRedisStack.Graph.Record record = iterator.Current;
@@ -513,11 +513,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         schemaNames = header.SchemaNames;
         Assert.NotNull(schemaNames);
-        Assert.Equal(1, schemaNames.Count);
+        Assert.Single(schemaNames);
         Assert.Equal("x", schemaNames[0]);
 
         // check record
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         iterator = resultSet.GetEnumerator();
         Assert.True(iterator.MoveNext());
         record = iterator.Current;
@@ -536,7 +536,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         schemaNames = header.SchemaNames;
         Assert.NotNull(schemaNames);
-        Assert.Equal(1, schemaNames.Count);
+        Assert.Single(schemaNames);
         Assert.Equal("x", schemaNames[0]);
 
         // check record
@@ -613,7 +613,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(graph.Query("social", "CREATE (:L)-[:E]->(:L2)"));
         // Test a query that produces 1 record with 3 null values.
         ResultSet resultSet = graph.Query("social", "OPTIONAL MATCH (a:NONEXISTENT)-[e]->(b) RETURN a, e, b");
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         IEnumerator<NRedisStack.Graph.Record> iterator = resultSet.GetEnumerator();
         Assert.True(iterator.MoveNext());
         NRedisStack.Graph.Record record = iterator.Current;
@@ -667,7 +667,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Dictionary<string, object> parameters = new Dictionary<string, object>();
         parameters.Add("val", value);
         ResultSet resultSet = graph.Query("social", "CREATE (n {val:$val}) RETURN n.val", parameters);
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
 
         // NRedisStack.Graph.Record r = resultSet.GetEnumerator().Current;
         // Assert.Equal(value, r.Values[0]);
@@ -687,7 +687,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Dictionary<string, object> parameters = new Dictionary<string, object>();
         parameters.Add("val", 1L);
         ResultSet resultSet = graph.Query("social", "MATCH (n:N {val:$val}) RETURN n.val", parameters);
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         // NRedisStack.Graph.Record r = resultSet.GetEnumerator().Current;
         Assert.Equal(parameters["val"], resultSet.First().Values[0]);
         Assert.False(resultSet.Statistics.CachedExecution);
@@ -698,7 +698,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         {
             resultSet = graph.Query("social", "MATCH (n:N {val:$val}) RETURN n.val", parameters);
         }
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         // r = resultSet.GetEnumerator().Current;
         // Assert.Equal(parameters["val"], r.Values[0]);
         Assert.Equal(parameters["val"], resultSet.First().Values[0]);
@@ -727,7 +727,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         f.Add("y", (long)2);
         expected.Add("f", f);
         ResultSet res = graph.Query("social", "RETURN {a:1, b:'str', c:NULL, d:[1,2,3], e:True, f:{x:1, y:2}}");
-        Assert.Equal(1, res.Count);
+        Assert.Single(res);
 
         var iterator = res.GetEnumerator();
         iterator.MoveNext();
@@ -767,7 +767,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     private void AssertTestGeoPoint(IGraphCommands graph)
     {
         ResultSet results = graph.Query("social", "MATCH (restaurant) RETURN restaurant");
-        Assert.Equal(1, results.Count);
+        Assert.Single(results);
         var record = results.GetEnumerator();
         record.MoveNext();
         Assert.Equal(1, record.Current.Size);
@@ -798,7 +798,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var graph = db.GRAPH();
         ResultSet rs = graph.Query("social", "UNWIND range(0,100) AS x WITH x AS x WHERE x = 100 RETURN x", 1L);
-        Assert.Equal(1, rs.Count);
+        Assert.Single(rs);
         var iterator = rs.GetEnumerator();
         iterator.MoveNext();
         var r = iterator.Current;
@@ -817,7 +817,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Dictionary<string, object> parameters = new Dictionary<string, object>();
         parameters.Add("val", 1L);
         ResultSet resultSet = graph.RO_Query("social", "MATCH (n:N {val:$val}) RETURN n.val", parameters);
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         var iterator = resultSet.GetEnumerator();
         iterator.MoveNext();
         NRedisStack.Graph.Record r = iterator.Current;
@@ -830,7 +830,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         {
             resultSet = graph.RO_Query("social", "MATCH (n:N {val:$val}) RETURN n.val", parameters);
         }
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         iterator = resultSet.GetEnumerator();
         iterator.MoveNext();
         r = iterator.Current;
@@ -846,7 +846,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         var graph = db.GRAPH();
         graph.Query("social", "CREATE (:person{name:'filipe',age:30})");
         ResultSet rsRo = graph.RO_Query("social", "MATCH (a:person) WHERE (a.name = 'filipe') RETURN a.age");
-        Assert.Equal(1, rsRo.Count);
+        Assert.Single(rsRo);
         var iterator = rsRo.GetEnumerator();
         iterator.MoveNext();
         var r = iterator.Current;
@@ -931,7 +931,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.True(graph.ConfigSet(name, 250L));
 
         var actual = graph.ConfigGet(name);
-        Assert.Equal(1, actual.Count);
+        Assert.Single(actual);
         Assert.Equal("250", actual[name].ToString());
 
         graph.ConfigSet(name, existingValue != null ? existingValue.ToString() : -1);
@@ -1286,7 +1286,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(stats.QueryInternalExecutionTime);
         Assert.NotEmpty(stats.QueryInternalExecutionTime);
 
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         // IReadOnlyCollection<Record> iterator = resultSet.GetEnumerator();
         var iterator = resultSet.GetEnumerator();
         Assert.True(iterator.MoveNext());
@@ -1375,7 +1375,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, schemaNames.Count);
         Assert.Equal("a", schemaNames[0]);
         Assert.Equal("r", schemaNames[1]);
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         var iterator = resultSet.GetEnumerator();
         Assert.True(iterator.MoveNext());
         var record = iterator.Current;
@@ -1408,7 +1408,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, schemaNames.Count);
         Assert.Equal("a", schemaNames[0]);
         Assert.Equal("r", schemaNames[1]);
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         iterator = resultSet.GetEnumerator();
         Assert.True(iterator.MoveNext());
         record = iterator.Current;
@@ -1477,11 +1477,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         List<string> schemaNames = header.SchemaNames;
         Assert.NotNull(schemaNames);
-        Assert.Equal(1, schemaNames.Count);
+        Assert.Single(schemaNames);
         Assert.Equal("x", schemaNames[0]);
 
         // check record
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         var iterator = resultSet.GetEnumerator();
         Assert.True(iterator.MoveNext());
         NRedisStack.Graph.Record record = iterator.Current;
@@ -1499,11 +1499,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         schemaNames = header.SchemaNames;
         Assert.NotNull(schemaNames);
-        Assert.Equal(1, schemaNames.Count);
+        Assert.Single(schemaNames);
         Assert.Equal("x", schemaNames[0]);
 
         // check record
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         iterator = resultSet.GetEnumerator();
         Assert.True(iterator.MoveNext());
         record = iterator.Current;
@@ -1522,7 +1522,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         schemaNames = header.SchemaNames;
         Assert.NotNull(schemaNames);
-        Assert.Equal(1, schemaNames.Count);
+        Assert.Single(schemaNames);
         Assert.Equal("x", schemaNames[0]);
 
         // check record
@@ -1599,7 +1599,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(await graph.QueryAsync("social", "CREATE (:L)-[:E]->(:L2)"));
         // Test a query that produces 1 record with 3 null values.
         ResultSet resultSet = await graph.QueryAsync("social", "OPTIONAL MATCH (a:NONEXISTENT)-[e]->(b) RETURN a, e, b");
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         IEnumerator<NRedisStack.Graph.Record> iterator = resultSet.GetEnumerator();
         Assert.True(iterator.MoveNext());
         NRedisStack.Graph.Record record = iterator.Current;
@@ -1653,7 +1653,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Dictionary<string, object> parameters = new Dictionary<string, object>();
         parameters.Add("val", value);
         ResultSet resultSet = await graph.QueryAsync("social", "CREATE (n {val:$val}) RETURN n.val", parameters);
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
 
         // NRedisStack.Graph.Record r = resultSet.GetEnumerator().Current;
         // Assert.Equal(value, r.Values[0]);
@@ -1673,7 +1673,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Dictionary<string, object> parameters = new Dictionary<string, object>();
         parameters.Add("val", 1L);
         ResultSet resultSet = await graph.QueryAsync("social", "MATCH (n:N {val:$val}) RETURN n.val", parameters);
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         // NRedisStack.Graph.Record r = resultSet.GetEnumerator().Current;
         Assert.Equal(parameters["val"], resultSet.First().Values[0]);
         Assert.False(resultSet.Statistics.CachedExecution);
@@ -1684,7 +1684,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         {
             resultSet = await graph.QueryAsync("social", "MATCH (n:N {val:$val}) RETURN n.val", parameters);
         }
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         // r = resultSet.GetEnumerator().Current;
         // Assert.Equal(parameters["val"], r.Values[0]);
         Assert.Equal(parameters["val"], resultSet.First().Values[0]);
@@ -1713,7 +1713,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         f.Add("y", (long)2);
         expected.Add("f", f);
         ResultSet res = await graph.QueryAsync("social", "RETURN {a:1, b:'str', c:NULL, d:[1,2,3], e:True, f:{x:1, y:2}}");
-        Assert.Equal(1, res.Count);
+        Assert.Single(res);
 
         var iterator = res.GetEnumerator();
         iterator.MoveNext();
@@ -1753,7 +1753,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     private async Task AssertTestGeoPointAsync(GraphCommands graph)
     {
         ResultSet results = await graph.QueryAsync("social", "MATCH (restaurant) RETURN restaurant");
-        Assert.Equal(1, results.Count);
+        Assert.Single(results);
         var record = results.GetEnumerator();
         record.MoveNext();
         Assert.Equal(1, record.Current.Size);
@@ -1771,7 +1771,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var graph = db.GRAPH();
         ResultSet rs = await graph.QueryAsync("social", "UNWIND range(0,100) AS x WITH x AS x WHERE x = 100 RETURN x", 1L);
-        Assert.Equal(1, rs.Count);
+        Assert.Single(rs);
         var iterator = rs.GetEnumerator();
         iterator.MoveNext();
         var r = iterator.Current;
@@ -1790,7 +1790,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Dictionary<string, object> parameters = new Dictionary<string, object>();
         parameters.Add("val", 1L);
         ResultSet resultSet = await graph.RO_QueryAsync("social", "MATCH (n:N {val:$val}) RETURN n.val", parameters);
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         var iterator = resultSet.GetEnumerator();
         iterator.MoveNext();
         NRedisStack.Graph.Record r = iterator.Current;
@@ -1803,7 +1803,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         {
             resultSet = await graph.RO_QueryAsync("social", "MATCH (n:N {val:$val}) RETURN n.val", parameters);
         }
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         iterator = resultSet.GetEnumerator();
         iterator.MoveNext();
         r = iterator.Current;
@@ -1819,7 +1819,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         var graph = db.GRAPH();
         await graph.QueryAsync("social", "CREATE (:person{name:'filipe',age:30})");
         ResultSet rsRo = await graph.RO_QueryAsync("social", "MATCH (a:person) WHERE (a.name = 'filipe') RETURN a.age");
-        Assert.Equal(1, rsRo.Count);
+        Assert.Single(rsRo);
         var iterator = rsRo.GetEnumerator();
         iterator.MoveNext();
         var r = iterator.Current;
@@ -1904,7 +1904,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await graph.ConfigSetAsync(name, 250L));
 
         var actual = await graph.ConfigGetAsync(name);
-        Assert.Equal(1, actual.Count);
+        Assert.Single(actual);
         Assert.Equal("250", actual[name].ToString());
 
         await graph.ConfigSetAsync(name, existingValue != null ? existingValue.ToString() : -1);
@@ -1972,7 +1972,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var graph = db.GRAPH();
         ResultSet rs = graph.Query("db", "RETURN 10^100000");
-        Assert.Equal(1, rs.Count());
+        Assert.Single(rs);
         var iterator = rs.GetEnumerator();
         iterator.MoveNext();
         var r = iterator.Current;
