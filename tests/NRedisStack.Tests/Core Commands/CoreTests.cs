@@ -12,7 +12,6 @@ namespace NRedisStack.Tests.Core;
 
 public class CoreTests : AbstractNRedisStackTest, IDisposable
 {
-    private readonly string key = "CORE_TESTS";
     public CoreTests(RedisFixture redisFixture) : base(redisFixture) { }
 
     [SkipIfRedis(Comparison.LessThan, "7.1.242")]
