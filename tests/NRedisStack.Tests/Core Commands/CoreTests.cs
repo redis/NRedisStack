@@ -22,8 +22,6 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
 
         db.Execute("FLUSHALL");
         db.Execute(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
-        // sleep for 1 second to make sure that the PING command is executed before the CLIENT INFO command.
-        Thread.Sleep(1000);
 
         var info = db.Execute("CLIENT", "INFO").ToString();
         Assert.EndsWith($"lib-name=NRedisStack;.NET-{Environment.Version} lib-ver={GetNRedisStackVersion()}\n", info);
@@ -37,8 +35,6 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
 
         db.Execute("FLUSHALL");
         await db.ExecuteAsync(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
-        // sleep for 1 second to make sure that the PING command is executed before the CLIENT INFO command.
-        Thread.Sleep(1000);
 
         var info = (await db.ExecuteAsync("CLIENT", "INFO")).ToString();
         Assert.EndsWith($"lib-name=NRedisStack;.NET-{Environment.Version} lib-ver={GetNRedisStackVersion()}\n", info);
@@ -52,8 +48,6 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
 
         db.Execute("FLUSHALL");
         db.Execute(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
-        // sleep for 1 second to make sure that the PING command is executed before the CLIENT INFO command.
-        Thread.Sleep(1000);
 
         var info = db.Execute("CLIENT", "INFO").ToString();
         Assert.EndsWith($"NRedisStack(MyLibraryName;v1.0.0);.NET-{Environment.Version}) lib-ver={GetNRedisStackVersion()}\n", info);
@@ -67,9 +61,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
 
         db.Execute("FLUSHALL");
         await db.ExecuteAsync(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
-        // sleep for 1 second to make sure that the PING command is executed before the CLIENT INFO command.
-        Thread.Sleep(1000);
-        
+
         var info = (await db.ExecuteAsync("CLIENT", "INFO")).ToString();
         Assert.EndsWith($"NRedisStack(MyLibraryName;v1.0.0);.NET-{Environment.Version}) lib-ver={GetNRedisStackVersion()}\n", info);
     }
