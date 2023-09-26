@@ -1160,7 +1160,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("hello world", dumResult[i].ToString());
 
         Assert.Equal(3L, ft.DictDel("dict", "foo", "bar", "hello world"));
-        Assert.Equal(0, ft.DictDump("dict").Length);
+        Assert.Empty(ft.DictDump("dict"));
     }
 
     [SkipIfRedis(Is.OSSCluster)]
@@ -1297,7 +1297,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("hello world", dumResult[i].ToString());
 
         Assert.Equal(3L, await ft.DictDelAsync("dict", "foo", "bar", "hello world"));
-        Assert.Equal(0, (await ft.DictDumpAsync("dict")).Length);
+        Assert.Empty((await ft.DictDumpAsync("dict")));
     }
 
     string explainQuery = "@f3:f3_val @f2:f2_val @f1:f1_val";
