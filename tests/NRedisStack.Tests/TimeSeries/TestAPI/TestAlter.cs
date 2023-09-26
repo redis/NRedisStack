@@ -12,10 +12,6 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
         public TestAlter(RedisFixture redisFixture) : base(redisFixture) { }
 
-        public void Dispose()
-        {
-            redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
-        }
 
         [Fact]
         public void TestAlterRetentionTime()

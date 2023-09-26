@@ -13,15 +13,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
         public TestMADD(RedisFixture redisFixture) : base(redisFixture) { }
 
-        public void Dispose()
-        {
-            foreach (string key in keys)
-            {
-                redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
-            }
-        }
-
-        [SkipIfRedis(Is.Cluster)]
+        [SkipIfRedis(Is.OSSCluster)]
         public void TestStarMADD()
         {
 
@@ -50,7 +42,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.Cluster)]
+        [SkipIfRedis(Is.OSSCluster)]
         public void TestSuccessfulMADD()
         {
 
@@ -80,7 +72,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.Cluster)]
+        [SkipIfRedis(Is.OSSCluster)]
         public void TestOverrideMADD()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();

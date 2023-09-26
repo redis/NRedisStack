@@ -9,10 +9,6 @@ public class TopKTests : AbstractNRedisStackTest, IDisposable
     private readonly string key = "TOPK_TESTS";
     public TopKTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-    public void Dispose()
-    {
-        redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
-    }
 
     [Fact]
     public void CreateTopKFilter()

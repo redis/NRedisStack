@@ -8,12 +8,6 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     private readonly string key = "GEARS_TESTS";
     public GearsTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-    public void Dispose()
-    {
-        redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
-    }
-
-
     [SkipIfRedis(Comparison.LessThan, "7.1.242")]
     public void TestTFunctionLoadDelete()
     {

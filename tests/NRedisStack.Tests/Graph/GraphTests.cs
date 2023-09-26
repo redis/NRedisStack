@@ -11,11 +11,6 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     private readonly string key = "GRAPH_TESTS";
     public GraphTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-    public void Dispose()
-    {
-        redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
-    }
-
     #region SyncTests
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]

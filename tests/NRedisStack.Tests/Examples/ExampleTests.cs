@@ -26,12 +26,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         this.testOutputHelper = testOutputHelper;
     }
 
-    public void Dispose()
-    {
-        redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
-    }
-
-    [SkipIfRedis(Is.Cluster)]
+    [SkipIfRedis(Is.OSSCluster)]
     public void HSETandSearch()
     {
         // Connect to the Redis server
@@ -132,7 +127,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expected, result.ToString());
     }
 
-    [SkipIfRedis(Is.Cluster)]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task JsonWithSearchPipeline()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -176,7 +171,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         // Assert.Equal("person:01", firstPerson?.Id);
     }
 
-    [SkipIfRedis(Is.Cluster)]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task PipelineWithAsync()
     {
         // Connect to the Redis server
@@ -234,7 +229,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("temp:JLM", respons[0].key);
     }
 
-    [SkipIfRedis(Is.Cluster)]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task TransactionExample()
     {
         // Connect to the Redis server
@@ -278,7 +273,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("[1200]", totalAmtOfShachar.Result.ToString());
     }
 
-    [SkipIfRedis(Is.Cluster)]
+    [SkipIfRedis(Is.OSSCluster)]
     public void TestJsonConvert()
     {
         // ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
@@ -960,7 +955,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expected, res.ToString());
     }
 
-    [SkipIfRedis(Is.Cluster)]
+    [SkipIfRedis(Is.OSSCluster)]
     public void BasicQueryOperationsTest()
     {
         // ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
@@ -1120,7 +1115,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expected, res[0].ToString());
     }
 
-    [SkipIfRedis(Is.Cluster)]
+    [SkipIfRedis(Is.OSSCluster)]
     public void AdvancedQueryOperationsTest()
     {
         // ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");

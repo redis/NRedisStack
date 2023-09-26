@@ -11,10 +11,6 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
         public TestAdd(RedisFixture redisFixture) : base(redisFixture) { }
 
-        public void Dispose()
-        {
-            redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
-        }
 
         [Fact]
         public void TestAddNotExistingTimeSeries()

@@ -10,11 +10,6 @@ public class TimeSeriesTests : AbstractNRedisStackTest, IDisposable
     private readonly string key = "TIME_SERIES_TESTS";
     public TimeSeriesTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-    public void Dispose()
-    {
-        redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
-    }
-
     // [Fact]
     // public void TestCreateOK()
     // {

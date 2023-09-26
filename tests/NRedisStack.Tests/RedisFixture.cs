@@ -10,7 +10,7 @@ namespace NRedisStack.Tests
         string redisStandalone = Environment.GetEnvironmentVariable("REDIS") ?? "localhost:6379";
         string? redisCluster = Environment.GetEnvironmentVariable("REDIS_CLUSTER");
         string? numRedisClusterNodesEnv = Environment.GetEnvironmentVariable("NUM_REDIS_CLUSTER_NODES");
-        public bool isCluster = false;
+        public bool isOSSCluster = false;
 
         public RedisFixture()
         {
@@ -34,7 +34,8 @@ namespace NRedisStack.Tests
                 {
                     EndPoints = endpoints
                 };
-                isCluster = true;
+
+                isOSSCluster = true;
                 Redis = ConnectionMultiplexer.Connect(clusterConfig);
             }
 

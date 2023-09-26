@@ -12,7 +12,7 @@ namespace NRedisStack.Doc;
 // REMOVE_END
 public class SearchQuickstartExample
 {
-    [SkipIfRedis(Is.Cluster)]
+    [SkipIfRedis(Is.OSSCluster)]
     public void run()
     {
         // STEP_START connect
