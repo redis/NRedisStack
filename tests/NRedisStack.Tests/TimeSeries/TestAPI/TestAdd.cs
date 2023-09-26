@@ -13,6 +13,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
 
         [Fact]
+        [Obsolete]
         public void TestAddNotExistingTimeSeries()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -27,6 +28,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
+        [Obsolete]
         public void TestAddExistingTimeSeries()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -42,6 +44,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
+        [Obsolete]
         public void TestAddStar()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -50,11 +53,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
             ts.Add(key, "*", 1.1);
             TimeSeriesInformation info = ts.Info(key);
-            Assert.True(info.FirstTimeStamp > 0);
+            Assert.True(info.FirstTimeStamp! > 0);
             Assert.Equal(info.FirstTimeStamp, info.LastTimeStamp);
         }
 
         [Fact]
+        [Obsolete]
         public void TestAddWithRetentionTime()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -70,6 +74,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
+        [Obsolete]
         public void TestAddWithLabels()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -86,6 +91,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
+        [Obsolete]
         public void TestAddWithUncompressed()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -100,6 +106,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
+        [Obsolete]
         public void TestAddWithChunkSize()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();

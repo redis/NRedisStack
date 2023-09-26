@@ -33,6 +33,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [SkipIfRedis(Is.OSSCluster)]
+        [Obsolete]
         public void TestRulesAdditionDeletion()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();

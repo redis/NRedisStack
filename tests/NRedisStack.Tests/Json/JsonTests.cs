@@ -12,11 +12,6 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     private readonly string _testName = "JSON_TESTS";
     public JsonTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-    public void Dispose()
-    {
-        redisFixture.Redis.GetDatabase().KeyDelete(_testName);
-    }
-
     [Fact]
     public void TestSetFromFile()
     {
@@ -939,8 +934,8 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var key = keys[0];
         commands.Set(key, "$", new { a = "hello", b = new { a = "world" } });
         var res = commands.Get(key, new[] { "$..a", "$.b" }).ToString();
-        var obj = JsonSerializer.Deserialize<JsonObject>(res);
-        Assert.True(obj.ContainsKey("$..a"));
+        var obj = JsonSerializer.Deserialize<JsonObject>(res!);
+        Assert.True(obj!.ContainsKey("$..a"));
         Assert.True(obj.ContainsKey("$.b"));
         if (obj["$..a"] is JsonArray arr)
         {
@@ -963,8 +958,8 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var key = keys[0];
         await commands.SetAsync(key, "$", new { a = "hello", b = new { a = "world" } });
         var res = (await commands.GetAsync(key, new[] { "$..a", "$.b" })).ToString();
-        var obj = JsonSerializer.Deserialize<JsonObject>(res);
-        Assert.True(obj.ContainsKey("$..a"));
+        var obj = JsonSerializer.Deserialize<JsonObject>(res!);
+        Assert.True(obj!.ContainsKey("$..a"));
         Assert.True(obj.ContainsKey("$.b"));
         if (obj["$..a"] is JsonArray arr)
         {

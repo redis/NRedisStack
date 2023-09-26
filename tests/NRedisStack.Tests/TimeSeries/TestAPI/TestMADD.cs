@@ -14,6 +14,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public TestMADD(RedisFixture redisFixture) : base(redisFixture) { }
 
         [SkipIfRedis(Is.OSSCluster)]
+        [Obsolete]
         public void TestStarMADD()
         {
 
@@ -37,7 +38,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             foreach (var key in keys)
             {
                 TimeSeriesInformation info = ts.Info(key);
-                Assert.True(info.FirstTimeStamp > 0);
+                Assert.True(info.FirstTimeStamp! > 0);
                 Assert.Equal(info.FirstTimeStamp, info.LastTimeStamp);
             }
         }

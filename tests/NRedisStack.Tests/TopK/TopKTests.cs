@@ -58,7 +58,7 @@ public class TopKTests : AbstractNRedisStackTest, IDisposable
         await topk.ReserveAsync(key, 30, 2000, 7, 0.925);
 
         var res = await topk.AddAsync(key, "bb", "cc");
-        Assert.True(res[0].IsNull && res[1].IsNull);
+        Assert.True(res![0].IsNull && res[1].IsNull);
 
         Assert.Equal(await topk.QueryAsync(key, "bb", "gg", "cc"), new bool[] { true, false, true });
         Assert.False(await topk.QueryAsync(key, "notExists"));

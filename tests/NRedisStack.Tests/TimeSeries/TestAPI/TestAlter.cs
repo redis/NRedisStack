@@ -14,6 +14,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
 
         [Fact]
+        [Obsolete]
         public void TestAlterRetentionTime()
         {
             long retentionTime = 5000;
@@ -27,6 +28,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
+        [Obsolete]
         public void TestAlterLabels()
         {
             TimeSeriesLabel label = new TimeSeriesLabel("key", "value");
@@ -45,6 +47,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
+        [Obsolete]
         public void TestAlterPolicyAndChunk()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();

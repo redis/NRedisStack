@@ -11,6 +11,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public TestRulesAsync(RedisFixture redisFixture) : base(redisFixture) { }
 
         [SkipIfRedis(Is.OSSCluster)]
+        [Obsolete]
         public async Task TestRulesAdditionDeletion()
         {
             var key = CreateKeyName();

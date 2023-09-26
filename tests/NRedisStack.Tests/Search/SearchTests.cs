@@ -237,18 +237,18 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         // load t1
         var req = new AggregationRequest("*").Load(new FieldName("t1"));
         var res = ft.Aggregate("idx", req);
-        Assert.Equal("hello", res[0]["t1"].ToString());
+        Assert.Equal("hello", res[0]!["t1"].ToString());
 
         // load t2
         req = new AggregationRequest("*").Load(new FieldName("t2"));
         res = ft.Aggregate("idx", req);
-        Assert.Equal("world", res[0]["t2"]);
+        Assert.Equal("world", res[0]!["t2"]);
 
         // load all
         req = new AggregationRequest("*").LoadAll();
         res = ft.Aggregate("idx", req);
-        Assert.Equal("hello", res[0]["t1"].ToString());
-        Assert.Equal("world", res[0]["t2"]);
+        Assert.Equal("hello", res[0]!["t1"].ToString());
+        Assert.Equal("world", res[0]!["t2"]);
     }
 
     [SkipIfRedis(Is.OSSCluster)]
@@ -265,18 +265,18 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         // load t1
         var req = new AggregationRequest("*").Load(new FieldName("t1"));
         var res = await ft.AggregateAsync("idx", req);
-        Assert.Equal("hello", res[0]["t1"].ToString());
+        Assert.Equal("hello", res[0]!["t1"].ToString());
 
         // load t2
         req = new AggregationRequest("*").Load(new FieldName("t2"));
         res = await ft.AggregateAsync("idx", req);
-        Assert.Equal("world", res[0]["t2"]);
+        Assert.Equal("world", res[0]!["t2"]);
 
         // load all
         req = new AggregationRequest("*").LoadAll();
         res = await ft.AggregateAsync("idx", req);
-        Assert.Equal("hello", res[0]["t1"].ToString());
-        Assert.Equal("world", res[0]["t2"]);
+        Assert.Equal("hello", res[0]!["t1"].ToString());
+        Assert.Equal("world", res[0]!["t2"]);
     }
 
 
@@ -1250,8 +1250,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Assert.True(ft.DropIndex(index, true));
 
-        RedisResult[] keys = (RedisResult[])db.Execute("KEYS", "*");
-        Assert.True(keys.Length == 0);
+        RedisResult[] keys = (RedisResult[])db.Execute("KEYS", "*")!;
+        Assert.Empty(keys);
         Assert.Equal("0", db.Execute("DBSIZE").ToString());
     }
 
@@ -1276,8 +1276,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Assert.True(await ft.DropIndexAsync(index, true));
 
-        RedisResult[] keys = (RedisResult[])db.Execute("KEYS", "*");
-        Assert.True(keys.Length == 0);
+        RedisResult[] keys = (RedisResult[])db.Execute("KEYS", "*")!;
+        Assert.Empty(keys);
         Assert.Equal("0", db.Execute("DBSIZE").ToString());
     }
 
@@ -2045,7 +2045,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async Task TestVectorCount_Issue70()
+    public void TestVectorCount_Issue70()
     {
         var schema = new Schema().AddVectorField("fieldTest", Schema.VectorField.VectorAlgo.HNSW, new Dictionary<string, object>()
         {

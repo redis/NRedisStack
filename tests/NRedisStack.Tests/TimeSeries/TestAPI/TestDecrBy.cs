@@ -20,7 +20,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(ts.DecrBy(key, -value) > 0);
-            Assert.Equal(value, ts.Get(key).Val);
+            Assert.Equal(value, ts.Get(key)!.Val);
         }
 
         [Fact]
@@ -31,7 +31,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(ts.DecrBy(key, -value, timestamp: "*") > 0);
-            Assert.Equal(value, ts.Get(key).Val);
+            Assert.Equal(value, ts.Get(key)!.Val);
         }
 
         [Fact]
@@ -47,6 +47,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
+        [Obsolete]
         public void TestDefaultDecrByWithRetentionTime()
         {
             double value = 5.5;
@@ -55,12 +56,13 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(ts.DecrBy(key, -value, retentionTime: retentionTime) > 0);
-            Assert.Equal(value, ts.Get(key).Val);
+            Assert.Equal(value, ts.Get(key)!.Val);
             TimeSeriesInformation info = ts.Info(key);
             Assert.Equal(retentionTime, info.RetentionTime);
         }
 
         [Fact]
+        [Obsolete]
         public void TestDefaultDecrByWithLabels()
         {
             double value = 5.5;
@@ -70,7 +72,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var ts = db.TS();
             var labels = new List<TimeSeriesLabel> { label };
             Assert.True(ts.DecrBy(key, -value, labels: labels) > 0);
-            Assert.Equal(value, ts.Get(key).Val);
+            Assert.Equal(value, ts.Get(key)!.Val);
             TimeSeriesInformation info = ts.Info(key);
             Assert.Equal(labels, info.Labels);
         }
@@ -83,7 +85,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(ts.DecrBy(key, -value, uncompressed: true) > 0);
-            Assert.Equal(value, ts.Get(key).Val);
+            Assert.Equal(value, ts.Get(key)!.Val);
         }
 
         [Fact]

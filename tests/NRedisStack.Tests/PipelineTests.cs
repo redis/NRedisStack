@@ -12,7 +12,8 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
     public PipelineTests(RedisFixture redisFixture) : base(redisFixture) { }
 
     [SkipIfRedis(Is.OSSCluster, Comparison.GreaterThanOrEqual, "7.1.242")]
-    public async Task TestModulsPipeline()
+    [Obsolete]
+    public void TestModulsPipeline()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -63,7 +64,8 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Is.OSSCluster)]
-    public async Task TestModulsPipelineWithotGraph()
+    [Obsolete]
+    public void TestModulsPipelineWithotGraph()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -110,16 +112,16 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Is.OSSCluster)]
-    public async Task TestBloomPipeline()
+    public void TestBloomPipeline()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var pipeline = new Pipeline(db);
 
-        pipeline.Bf.ReserveAsync(key, 0.001, 100);
+        _ = pipeline.Bf.ReserveAsync(key, 0.001, 100);
         for (int i = 0; i < 1000; i++)
         {
-            pipeline.Bf.AddAsync(key, i.ToString());
+            _ = pipeline.Bf.AddAsync(key, i.ToString());
         }
 
         for (int i = 0; i < 100; i++)
@@ -136,14 +138,14 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public async Task TestJsonPipeline()
+    public void TestJsonPipeline()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         var pipeline = new Pipeline(db);
         pipeline.Db.ExecuteAsync("FLUSHALL");
 
         string jsonPerson = JsonSerializer.Serialize(new Person { Name = "Shachar", Age = 23 });
-        pipeline.Json.SetAsync("key", "$", jsonPerson);
+        _ = pipeline.Json.SetAsync("key", "$", jsonPerson);
         // var setResponse = pipeline.Json.SetAsync("key", "$", jsonPerson);
         var getResponse = pipeline.Json.GetAsync("key");
 

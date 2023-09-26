@@ -105,13 +105,13 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         pipeline.Json.SetAsync("person", "$", new { name = "John", age = 30, city = "New York", nicknames = new[] { "John", "Johny", "Jo" } });
 
         // Increase age by 2
-        pipeline.Json.NumIncrbyAsync("person", "$.age", 2);
+        _ = pipeline.Json.NumIncrbyAsync("person", "$.age", 2);
 
         // Clear the nicknames from the Json
-        pipeline.Json.ClearAsync("person", "$.nicknames");
+        _ = pipeline.Json.ClearAsync("person", "$.nicknames");
 
         // Del the nicknames
-        pipeline.Json.DelAsync("person", "$.nicknames");
+        _ = pipeline.Json.DelAsync("person", "$.nicknames");
 
         // Get the Json response
         var getResponse = pipeline.Json.GetAsync("person");
@@ -192,8 +192,8 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         var labels2 = new List<TimeSeriesLabel> { label2 };
 
         // Create a new time-series.
-        pipeline.Ts.CreateAsync("temp:TLV", labels: labels1);
-        pipeline.Ts.CreateAsync("temp:JLM", labels: labels2);
+        _ = pipeline.Ts.CreateAsync("temp:TLV", labels: labels1);
+        _ = pipeline.Ts.CreateAsync("temp:JLM", labels: labels2);
 
         // Adding multiple sequenece of time-series data.
         List<(string, TimeStamp, double)> sequence1 = new List<(string, TimeStamp, double)>()
@@ -212,8 +212,8 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         };
 
         // Adding mutiple samples to mutiple series.
-        pipeline.Ts.MAddAsync(sequence1);
-        pipeline.Ts.MAddAsync(sequence2);
+        _ = pipeline.Ts.MAddAsync(sequence1);
+        _ = pipeline.Ts.MAddAsync(sequence2);
 
         // Execute the pipeline
         pipeline.Execute();
@@ -230,7 +230,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Is.OSSCluster)]
-    public async Task TransactionExample()
+    public void TransactionExample()
     {
         // Connect to the Redis server
         // var redis = ConnectionMultiplexer.Connect("localhost");
@@ -245,18 +245,18 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         var tran = new Transaction(db);
 
         // Add account details with Json.Set to transaction
-        tran.Json.SetAsync("accdetails:Jeeva", "$", new { name = "Jeeva", totalAmount = 1000, bankName = "City" });
-        tran.Json.SetAsync("accdetails:Shachar", "$", new { name = "Shachar", totalAmount = 1000, bankName = "City" });
+        _ = tran.Json.SetAsync("accdetails:Jeeva", "$", new { name = "Jeeva", totalAmount = 1000, bankName = "City" });
+        _ = tran.Json.SetAsync("accdetails:Shachar", "$", new { name = "Shachar", totalAmount = 1000, bankName = "City" });
 
         // Get the Json response
         var getShachar = tran.Json.GetAsync("accdetails:Shachar");
         var getJeeva = tran.Json.GetAsync("accdetails:Jeeva");
 
         // Debit 200 from Jeeva
-        tran.Json.NumIncrbyAsync("accdetails:Jeeva", "$.totalAmount", -200);
+        _ = tran.Json.NumIncrbyAsync("accdetails:Jeeva", "$.totalAmount", -200);
 
         // Credit 200 from Shachar
-        tran.Json.NumIncrbyAsync("accdetails:Shachar", "$.totalAmount", 200);
+        _ = tran.Json.NumIncrbyAsync("accdetails:Shachar", "$.totalAmount", 200);
 
         // Get total amount for both Jeeva = 800 & Shachar = 1200
         var totalAmtOfJeeva = tran.Json.GetAsync("accdetails:Jeeva", path: "$.totalAmount");
