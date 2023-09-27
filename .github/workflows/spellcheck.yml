@@ -1,6 +1,12 @@
 name: spellcheck
+
 on:
   pull_request:
+
+concurrency:
+  group: ${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   check-spelling:
     runs-on: ubuntu-latest

@@ -30,7 +30,7 @@ namespace NRedisStack.Tests
 
         [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
         [Obsolete]
-        public async Task TestModulsTransaction()
+        public void TestModulsTransaction()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
@@ -82,7 +82,7 @@ namespace NRedisStack.Tests
 
         [SkipIfRedis(Is.OSSCluster)]
         [Obsolete]
-        public async Task TestModulsTransactionWithoutGraph()
+        public void TestModulsTransactionWithoutGraph()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
