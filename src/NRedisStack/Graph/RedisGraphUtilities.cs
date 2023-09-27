@@ -76,7 +76,7 @@ namespace NRedisStack.Graph
                 return ConvertibleToString(floatValue);
             }
 
-            return value.ToString();
+            return value.ToString()!;
         }
 
         private static string ConvertibleToString(IConvertible floatValue)

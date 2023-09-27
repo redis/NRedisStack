@@ -7,6 +7,7 @@ using static NRedisStack.Graph.RedisGraphUtilities;
 
 namespace NRedisStack
 {
+    [Obsolete]
     public class GraphCommandsAsync : IGraphCommandsAsync
     {
         readonly IDatabaseAsync _db;

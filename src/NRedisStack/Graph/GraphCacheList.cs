@@ -6,7 +6,7 @@ namespace NRedisStack.Graph
         private readonly string _procedure;
 
         private string[] _data = Array.Empty<string>();
-
+        [Obsolete]
         private readonly GraphCommandsAsync _redisGraph;
 
         private readonly object _locker = new object();
@@ -17,6 +17,7 @@ namespace NRedisStack.Graph
         /// <param name="graphName">The name of the graph to cache information for.</param>
         /// <param name="procedure">The saved procedure to call to populate cache. Must be a `read` procedure.</param>
         /// <param name="redisGraph">The graph used for the calling the <paramref name="procedure"/>.</param>
+        [Obsolete]
         internal GraphCacheList(string graphName, string procedure, GraphCommands redisGraph)
         {
             _graphName = graphName;
@@ -31,6 +32,7 @@ namespace NRedisStack.Graph
         /// <param name="graphName">The name of the graph to cache information for.</param>
         /// <param name="procedure">The saved procedure to call to populate cache. Must be a `read` procedure.</param>
         /// <param name="redisGraph">The graph used for the calling the <paramref name="procedure"/>.</param>
+        [Obsolete]
         internal GraphCacheList(string graphName, string procedure, GraphCommandsAsync redisGraphAsync)
         {
             _graphName = graphName;
@@ -40,7 +42,8 @@ namespace NRedisStack.Graph
         }
 
         // TODO: Change this to use Lazy<T>?
-        internal string GetCachedData(int index)
+        [Obsolete]
+        internal string? GetCachedData(int index)
         {
             if (index >= _data.Length)
             {
@@ -56,6 +59,7 @@ namespace NRedisStack.Graph
             return _data.ElementAtOrDefault(index);
         }
 
+        [Obsolete]
         private string[] GetProcedureInfo()
         {
             var resultSet = CallProcedure();
@@ -64,6 +68,7 @@ namespace NRedisStack.Graph
                 .ToArray();
         }
 
+        [Obsolete]
         private ResultSet CallProcedure()
         {
             return _redisGraph is GraphCommands graphSync

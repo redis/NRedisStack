@@ -34,6 +34,7 @@ namespace NRedisStack.Tests
                 {
                     EndPoints = endpoints
                 };
+
                 isOSSCluster = true;
                 Redis = ConnectionMultiplexer.Connect(clusterConfig);
             }

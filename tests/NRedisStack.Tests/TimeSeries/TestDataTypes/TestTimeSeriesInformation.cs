@@ -13,6 +13,7 @@ namespace NRedisTimeSeries.Test.TestDataTypes
         public TestInformation(NRedisStack.Tests.RedisFixture redisFixture) : base(redisFixture) { }
 
         [Fact]
+        [Obsolete]
         public void TestInformationSync()
         {
             string key = CreateKeyName();
@@ -41,6 +42,7 @@ namespace NRedisTimeSeries.Test.TestDataTypes
         }
 
         [Fact]
+        [Obsolete]
         public async Task TestInformationAsync()
         {
             string key = CreateKeyName();

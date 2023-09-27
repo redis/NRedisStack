@@ -50,11 +50,11 @@ namespace NRedisStack.Search
             Documents = docs;
             for (int i = 1; i < resp.Length; i += step)
             {
-                var id = (string)resp[i];
+                var id = resp[i].ToString();
                 double score = 1.0;
-                byte[] payload = null;
-                RedisValue[] fields = null;
-                string[] scoreExplained = null;
+                byte[]? payload = null;
+                RedisValue[]? fields = null;
+                string[]? scoreExplained = null;
                 if (hasScores)
                 {
                     // if (shouldExplainScore)
@@ -71,15 +71,15 @@ namespace NRedisStack.Search
                 }
                 if (hasPayloads)
                 {
-                    payload = (byte[])resp[i + payloadOffset];
+                    payload = (byte[]?)resp[i + payloadOffset];
                 }
 
                 if (hasContent)
                 {
-                    fields = (RedisValue[])resp[i + contentOffset];
+                    fields = (RedisValue[]?)resp[i + contentOffset];
                 }
 
-                docs.Add(Document.Load(id, score, payload, fields, scoreExplained));
+                docs.Add(Document.Load(id!, score, payload, fields, scoreExplained));
             }
         }
     }

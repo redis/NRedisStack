@@ -20,6 +20,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
+        [Obsolete]
         public async Task TestCreateRetentionTime()
         {
             var key = CreateKeyName();
@@ -34,6 +35,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
+        [Obsolete]
         public async Task TestCreateLabels()
         {
             var key = CreateKeyName();
@@ -49,6 +51,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
+        [Obsolete]
         public async Task TestCreateEmptyLabels()
         {
             var key = CreateKeyName();

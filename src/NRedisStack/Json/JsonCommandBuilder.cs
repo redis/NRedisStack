@@ -16,7 +16,7 @@ public static class JsonCommandBuilder
             return new SerializedCommand(JSON.RESP, key);
         }
 
-        return new SerializedCommand(JSON.RESP, key, path);
+        return new SerializedCommand(JSON.RESP, key, path!);
     }
 
     public static SerializedCommand Set(RedisKey key, RedisValue path, RedisValue json, When when = When.Always)

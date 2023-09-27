@@ -29,18 +29,21 @@ namespace NRedisStack.Graph
         /// <value></value>
         public List<string> SchemaNames { get; }
 
+        [Obsolete]
         internal Header(RedisResult result)
         {
             SchemaTypes = new List<ResultSetColumnTypes>();
             SchemaNames = new List<string>();
 
-            foreach (RedisResult[] tuple in (RedisResult[])result)
+            foreach (RedisResult[]? tuple in (RedisResult[])result!)
             {
-                SchemaTypes.Add((ResultSetColumnTypes)(int)tuple[0]);
-                SchemaNames.Add((string)tuple[1]);
+                SchemaTypes.Add((ResultSetColumnTypes)(int)tuple![0]);
+                SchemaNames.Add((string)tuple[1]!);
             }
         }
 
+#pragma warning disable CS0809
+        [Obsolete]
         public override bool Equals(object? obj)
         {
             if (obj == null) return this == null;
@@ -61,6 +64,7 @@ namespace NRedisStack.Graph
                 && Object.Equals(SchemaNames, header.SchemaNames);
         }
 
+        [Obsolete]
         public override int GetHashCode()
         {
             unchecked
@@ -72,9 +76,9 @@ namespace NRedisStack.Graph
             }
         }
 
-
-
+        [Obsolete]
         public override string ToString() =>
             $"Header{{schemaTypes=[{string.Join(", ", SchemaTypes)}], schemaNames=[{string.Join(", ", SchemaNames)}]}}";
     }
+#pragma warning restore CS0809
 }
