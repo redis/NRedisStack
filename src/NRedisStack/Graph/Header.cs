@@ -42,6 +42,7 @@ namespace NRedisStack.Graph
             }
         }
 
+#pragma warning disable CS0809
         [Obsolete]
         public override bool Equals(object? obj)
         {
@@ -79,4 +80,5 @@ namespace NRedisStack.Graph
         public override string ToString() =>
             $"Header{{schemaTypes=[{string.Join(", ", SchemaTypes)}], schemaNames=[{string.Join(", ", SchemaNames)}]}}";
     }
+#pragma warning restore CS0809
 }
