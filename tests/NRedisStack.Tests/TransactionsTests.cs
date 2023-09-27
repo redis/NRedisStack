@@ -36,16 +36,16 @@ namespace NRedisStack.Tests
             db.Execute("FLUSHALL");
             var tran = new Transaction(db);
 
-            await tran.Bf.ReserveAsync("bf-key", 0.001, 100);
-            await tran.Bf.AddAsync("bf-key", "1");
-            await tran.Cms.InitByDimAsync("cms-key", 100, 5);
-            await tran.Cf.ReserveAsync("cf-key", 100);
-            await tran.Graph.QueryAsync("graph-key", "CREATE ({name:'shachar',age:23})");
-            await tran.Json.SetAsync("json-key", "$", "{}");
-            await tran.Ft.CreateAsync("ft-key", new FTCreateParams(), new Schema().AddTextField("txt"));
-            await tran.Tdigest.CreateAsync("tdigest-key", 100);
-            await tran.Ts.CreateAsync("ts-key", 100);
-            await tran.TopK.ReserveAsync("topk-key", 100, 100, 100);
+            _ = tran.Bf.ReserveAsync("bf-key", 0.001, 100);
+            _ = tran.Bf.AddAsync("bf-key", "1");
+            _ = tran.Cms.InitByDimAsync("cms-key", 100, 5);
+            _ = tran.Cf.ReserveAsync("cf-key", 100);
+            _ = tran.Graph.QueryAsync("graph-key", "CREATE ({name:'shachar',age:23})");
+            _ = tran.Json.SetAsync("json-key", "$", "{}");
+            _ = tran.Ft.CreateAsync("ft-key", new FTCreateParams(), new Schema().AddTextField("txt"));
+            _ = tran.Tdigest.CreateAsync("tdigest-key", 100);
+            _ = tran.Ts.CreateAsync("ts-key", 100);
+            _ = tran.TopK.ReserveAsync("topk-key", 100, 100, 100);
 
             Assert.False(db.KeyExists("bf-key"));
             Assert.False(db.KeyExists("cms-key"));
@@ -88,15 +88,15 @@ namespace NRedisStack.Tests
             db.Execute("FLUSHALL");
             var tran = new Transaction(db);
 
-            await tran.Bf.ReserveAsync("bf-key", 0.001, 100);
-            await tran.Bf.AddAsync("bf-key", "1");
-            await tran.Cms.InitByDimAsync("cms-key", 100, 5);
-            await tran.Cf.ReserveAsync("cf-key", 100);
-            await tran.Json.SetAsync("json-key", "$", "{}");
-            await tran.Ft.CreateAsync("ft-key", new FTCreateParams(), new Schema().AddTextField("txt"));
-            await tran.Tdigest.CreateAsync("tdigest-key", 100);
-            await tran.Ts.CreateAsync("ts-key", 100);
-            await tran.TopK.ReserveAsync("topk-key", 100, 100, 100);
+            _ = tran.Bf.ReserveAsync("bf-key", 0.001, 100);
+            _ = tran.Bf.AddAsync("bf-key", "1");
+            _ = tran.Cms.InitByDimAsync("cms-key", 100, 5);
+            _ = tran.Cf.ReserveAsync("cf-key", 100);
+            _ = tran.Json.SetAsync("json-key", "$", "{}");
+            _ = tran.Ft.CreateAsync("ft-key", new FTCreateParams(), new Schema().AddTextField("txt"));
+            _ = tran.Tdigest.CreateAsync("tdigest-key", 100);
+            _ = tran.Ts.CreateAsync("ts-key", 100);
+            _ = tran.TopK.ReserveAsync("topk-key", 100, 100, 100);
 
             Assert.False(db.KeyExists("bf-key"));
             Assert.False(db.KeyExists("cms-key"));
