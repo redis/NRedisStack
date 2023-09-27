@@ -20,7 +20,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.True(await ts.DecrByAsync(key, -value) > 0);
 
             var result = await ts.GetAsync(key);
-            Assert.Equal(value, result.Val);
+            Assert.Equal(value, result!.Val);
         }
 
         [Fact]
@@ -34,7 +34,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.True(await ts.DecrByAsync(key, -value, timestamp: "*") > 0);
 
             var result = await ts.GetAsync(key);
-            Assert.Equal(value, result.Val);
+            Assert.Equal(value, result!.Val);
         }
 
         [Fact]

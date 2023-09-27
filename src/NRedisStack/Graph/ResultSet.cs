@@ -32,6 +32,7 @@ namespace NRedisStack.Graph
         public Header? Header { get; }
         public int Count { get; }
 
+        [Obsolete]
         internal ResultSet(RedisResult result, GraphCache graphCache)
         {
             if (result.Type == ResultType.MultiBulk)
@@ -125,6 +126,7 @@ namespace NRedisStack.Graph
             }
         }
 
+        [Obsolete]
         private Node DeserializeNode(RedisResult[] rawNodeData)
         {
             var node = new Node();
@@ -145,6 +147,7 @@ namespace NRedisStack.Graph
             return node;
         }
 
+        [Obsolete]
         private Edge DeserializeEdge(RedisResult[] rawEdgeData)
         {
             var edge = new Edge();
@@ -160,6 +163,7 @@ namespace NRedisStack.Graph
             return edge;
         }
 
+        [Obsolete]
         private object? DeserializeScalar(RedisResult[] rawScalarData)
         {
             var type = GetValueTypeFromObject(rawScalarData[0]);
@@ -197,6 +201,7 @@ namespace NRedisStack.Graph
         private static void DeserializeGraphEntityId(GraphEntity graphEntity, RedisResult rawEntityId) =>
             graphEntity.Id = (int)rawEntityId;
 
+        [Obsolete]
         private void DeserializeGraphEntityProperties(GraphEntity graphEntity, RedisResult[] rawProperties)
         {
             foreach (RedisResult[]? rawProperty in rawProperties)
@@ -209,6 +214,7 @@ namespace NRedisStack.Graph
             }
         }
 
+        [Obsolete]
         private object[] DeserializeArray(RedisResult[] serializedArray)
         {
             var result = new object[serializedArray.Length];
@@ -221,6 +227,7 @@ namespace NRedisStack.Graph
             return result;
         }
 
+        [Obsolete]
         private DataTypes.Path DeserializePath(RedisResult[] rawPath)
         {
             var deserializedNodes = (object[])DeserializeScalar((RedisResult[])rawPath[0]!)!;
@@ -248,6 +255,7 @@ namespace NRedisStack.Graph
         }
 
         // @SuppressWarnings("unchecked")
+        [Obsolete]
         private Dictionary<string, object> DeserializeDictionary(RedisResult rawPath)
         {
             RedisResult[] keyTypeValueEntries = (RedisResult[])rawPath!;

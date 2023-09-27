@@ -10,6 +10,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public TestAlterAsync(RedisFixture redisFixture) : base(redisFixture) { }
 
         [Fact]
+        [Obsolete]
         public async Task TestAlterRetentionTime()
         {
             var key = CreateKeyName();
@@ -25,6 +26,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
+        [Obsolete]
         public async Task TestAlterLabels()
         {
             var key = CreateKeyName();
@@ -47,6 +49,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
+        [Obsolete]
         public async Task TestAlterPolicyAndChunkAsync()
         {
             var key = CreateKeyName();

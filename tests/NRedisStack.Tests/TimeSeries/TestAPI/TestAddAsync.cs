@@ -11,6 +11,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public TestAddAsync(RedisFixture redisFixture) : base(redisFixture) { }
 
         [Fact]
+        [Obsolete]
         public async Task TestAddNotExistingTimeSeries()
         {
             var key = CreateKeyName();
@@ -26,6 +27,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
+        [Obsolete]
         public async Task TestAddExistingTimeSeries()
         {
             var key = CreateKeyName();
@@ -42,6 +44,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
+        [Obsolete]
         public async Task TestAddStar()
         {
             var key = CreateKeyName();
@@ -50,11 +53,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var ts = db.TS();
             await ts.AddAsync(key, "*", 1.1);
             var info = await ts.InfoAsync(key);
-            Assert.True(info.FirstTimeStamp > 0);
+            Assert.True(info.FirstTimeStamp! > 0);
             Assert.Equal(info.FirstTimeStamp, info.LastTimeStamp);
         }
 
         [Fact]
+        [Obsolete]
         public async Task TestAddWithRetentionTime()
         {
             var key = CreateKeyName();
@@ -72,6 +76,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
+        [Obsolete]
         public async Task TestAddWithLabels()
         {
             var key = CreateKeyName();
@@ -106,6 +111,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
+        [Obsolete]
         public async Task TestAddWithUncompressed()
         {
             var key = CreateKeyName();
