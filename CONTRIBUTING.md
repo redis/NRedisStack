@@ -35,10 +35,9 @@ Here's how to get started with your code contribution:
 3.  Write your tests
 
 4.  Use the `docker run -p 6379:6379 -it redis/redis-stack-server:edge` as your local environment for running the functional tests. You can also use Development Container as described below.
-5.  run `dotnet format` to make sure your code is formatted correctly
+5.  Run dotnet format to make sure your code is formatted
 6.  Make sure your tests pass using `dotnet test`
-7.  Push your changes to GitHub
-8.  Open a pull request
+7.  Open a pull request
 
 ## Development Container
 
