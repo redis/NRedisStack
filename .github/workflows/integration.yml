@@ -11,6 +11,10 @@ on:
   schedule:
     - cron: "0 1 * * *"
 
+concurrency:
+  group: ${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   dotnet_6_cluster:
     name: .NET 6 on [redis-stack cluster]
