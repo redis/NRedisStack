@@ -30,7 +30,7 @@ namespace NRedisStack
             }
         }
 
-        public static void AddLabels(this IList<object> args, IReadOnlyCollection<TimeSeriesLabel> labels)
+        public static void AddLabels(this IList<object> args, IReadOnlyCollection<TimeSeriesLabel>? labels)
         {
             if (labels != null)
             {
@@ -215,7 +215,7 @@ namespace NRedisStack
             args.Add(rule.TimeBucket);
         }
 
-        public static List<object> BuildTsCreateArgs(string key, long? retentionTime, IReadOnlyCollection<TimeSeriesLabel> labels, bool? uncompressed,
+        public static List<object> BuildTsCreateArgs(string key, long? retentionTime, IReadOnlyCollection<TimeSeriesLabel>? labels, bool? uncompressed,
             long? chunkSizeBytes, TsDuplicatePolicy? policy)
         {
             var args = new List<object> { key };
@@ -239,7 +239,7 @@ namespace NRedisStack
         }
 
         public static List<object> BuildTsAddArgs(string key, TimeStamp timestamp, double value, long? retentionTime,
-            IReadOnlyCollection<TimeSeriesLabel> labels, bool? uncompressed, long? chunkSizeBytes, TsDuplicatePolicy? policy)
+            IReadOnlyCollection<TimeSeriesLabel>? labels, bool? uncompressed, long? chunkSizeBytes, TsDuplicatePolicy? policy)
         {
             var args = new List<object> { key, timestamp.Value, value };
             args.AddRetentionTime(retentionTime);

@@ -18,7 +18,7 @@ public struct KeyPathValue
     {
         if (Value is string)
         {
-            return new string[] { Key, Path, Value.ToString() };
+            return new string[] { Key, Path, Value.ToString()! };
         }
         return new string[] { Key, Path, JsonSerializer.Serialize(Value) };
     }

@@ -76,12 +76,12 @@ namespace NRedisStack.Search
 
         private void Terms()
         {
-                foreach (var term in terms)
-                {
-                    args.Add(SearchArgs.TERMS);
-                    args.Add(term.Value);
-                    args.Add(term.Key);
-                }
+            foreach (var term in terms)
+            {
+                args.Add(SearchArgs.TERMS);
+                args.Add(term.Value);
+                args.Add(term.Key);
+            }
         }
 
         private void Distance()

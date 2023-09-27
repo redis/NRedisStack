@@ -58,7 +58,7 @@ namespace NRedisStack
         public static SerializedCommand TFCall(string libraryName, string functionName, string[]? keys = null, string[]? args = null, bool async = false)
         {
             string command = async ? RG.TFCALLASYNC : RG.TFCALL;
-            var commandArgs = new List<object>() {$"{libraryName}.{functionName}"};
+            var commandArgs = new List<object>() { $"{libraryName}.{functionName}" };
 
             if (keys != null)
             {

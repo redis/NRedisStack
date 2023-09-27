@@ -8,7 +8,7 @@ namespace NRedisStack.Tests.Graph
         [Fact]
         public void TestPathBuilderSizeException()
         {
-            var thrownException = Assert.Throws<ArgumentException>(()=>
+            var thrownException = Assert.Throws<ArgumentException>(() =>
             {
                 var pathBuilder = new PathBuilder(0);
 

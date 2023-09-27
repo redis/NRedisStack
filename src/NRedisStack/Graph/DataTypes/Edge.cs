@@ -12,7 +12,7 @@ namespace NRedisStack.Graph.DataTypes
         /// The relationship type.
         /// </summary>
         /// <value></value>
-        public string RelationshipType { get; set; }
+        public string? RelationshipType { get; set; }
 
         /// <summary>
         /// The ID of the source node.
@@ -66,7 +66,7 @@ namespace NRedisStack.Graph.DataTypes
                 int hash = 17;
 
                 hash = hash * 31 + base.GetHashCode();
-                hash = hash * 31 + RelationshipType.GetHashCode();
+                hash = hash * 31 + RelationshipType!.GetHashCode();
                 hash = hash * 31 + Source.GetHashCode();
                 hash = hash * 31 + Destination.GetHashCode();
 

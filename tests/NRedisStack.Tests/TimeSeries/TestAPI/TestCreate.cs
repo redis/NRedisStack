@@ -12,7 +12,9 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
         public TestCreate(RedisFixture redisFixture) : base(redisFixture) { }
 
+
         [Fact]
+        [Obsolete]
         public void TestCreateOK()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -23,6 +25,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
+        [Obsolete]
         public void TestCreateRetentionTime()
         {
             long retentionTime = 5000;
@@ -35,6 +38,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
+        [Obsolete]
         public void TestCreateLabels()
         {
             TimeSeriesLabel label = new TimeSeriesLabel("key", "value");
@@ -48,6 +52,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
+        [Obsolete]
         public void TestCreateEmptyLabels()
         {
             var labels = new List<TimeSeriesLabel>();

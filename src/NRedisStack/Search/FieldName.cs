@@ -3,11 +3,11 @@ namespace NRedisStack.Search
     public class FieldName
     {
         private readonly string fieldName;
-        private string alias;
+        private string? alias;
 
         public FieldName(string name) : this(name, null) { }
 
-        public FieldName(string name, string attribute)
+        public FieldName(string name, string? attribute)
         {
             this.fieldName = name;
             this.alias = attribute;

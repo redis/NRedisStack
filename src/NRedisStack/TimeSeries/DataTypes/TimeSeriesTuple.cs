@@ -37,7 +37,7 @@
         /// </summary>
         /// <param name="tst">TimeSeriesTuple</param>
         public static implicit operator string(TimeSeriesTuple tst) =>
-            string.Format("Time: {0}, Val:{1}", (string)tst.Time, tst.Val);
+            string.Format("Time: {0}, Val:{1}", (string)tst.Time!, tst.Val);
 
         /// <summary>
         /// TimeSeriesTuple object hash code.

@@ -18,7 +18,7 @@ namespace NRedisStack
         /// <param name="duplicatePolicy">Optinal: Define handling of duplicate samples behavior (avalible for RedisTimeseries >= 1.4)</param>
         /// <returns>If the operation executed successfully</returns>
         /// <remarks><seealso href="https://redis.io/commands/ts.create"/></remarks>
-        bool Create(string key, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel> labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null);
+        bool Create(string key, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null);
 
         #endregion
 
@@ -52,7 +52,7 @@ namespace NRedisStack
         /// <returns>The timestamp value of the new sample</returns>
         /// <remarks><seealso href="https://redis.io/commands/ts.add"/></remarks>
         TimeStamp Add(string key, TimeStamp timestamp, double value, long? retentionTime = null,
-                            IReadOnlyCollection<TimeSeriesLabel> labels = null, bool? uncompressed = null,
+                            IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null,
                             long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null);
 
         /// <summary>

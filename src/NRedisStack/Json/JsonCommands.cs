@@ -241,7 +241,7 @@ public class JsonCommands : JsonCommandsAsync, IJsonCommands
     public IEnumerable<T?> GetEnumerable<T>(RedisKey key, string path = "$")
     {
         RedisResult res = _db.Execute(JsonCommandBuilder.Get<T>(key, path));
-        return JsonSerializer.Deserialize<IEnumerable<T>>(res.ToString());
+        return JsonSerializer.Deserialize<IEnumerable<T>>(res.ToString()!)!;
     }
 
     /// <inheritdoc/>
@@ -254,7 +254,7 @@ public class JsonCommands : JsonCommandsAsync, IJsonCommands
     public double?[] NumIncrby(RedisKey key, string path, double value)
     {
         var res = _db.Execute(JsonCommandBuilder.NumIncrby(key, path, value));
-        return JsonSerializer.Deserialize<double?[]>(res.ToString());
+        return JsonSerializer.Deserialize<double?[]>(res.ToString()!)!;
     }
 
     /// <inheritdoc/>

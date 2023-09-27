@@ -14,7 +14,7 @@ namespace NRedisStack
         #region Create
 
         /// <inheritdoc/>
-        public async Task<bool> CreateAsync(string key, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel> labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
+        public async Task<bool> CreateAsync(string key, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
         {
             return (await _db.ExecuteAsync(TimeSeriesCommandsBuilder.Create(key, retentionTime, labels,
                                                                            uncompressed, chunkSizeBytes,
@@ -32,7 +32,7 @@ namespace NRedisStack
         }
 
         /// <inheritdoc/>
-        public async Task<TimeStamp> AddAsync(string key, TimeStamp timestamp, double value, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel> labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
+        public async Task<TimeStamp> AddAsync(string key, TimeStamp timestamp, double value, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
         {
             return (await _db.ExecuteAsync(TimeSeriesCommandsBuilder.Add(key, timestamp, value, retentionTime, labels,
                                                                         uncompressed, chunkSizeBytes, duplicatePolicy))).ToTimeStamp();
@@ -192,6 +192,7 @@ namespace NRedisStack
         #region General
 
         /// <inheritdoc/>
+        [Obsolete]
         public async Task<TimeSeriesInformation> InfoAsync(string key, bool debug = false)
         {
             return (await _db.ExecuteAsync(TimeSeriesCommandsBuilder.Info(key, debug))).ToTimeSeriesInfo();

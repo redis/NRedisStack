@@ -17,6 +17,8 @@ public class Pipeline
     public BloomCommandsAsync Bf => new BloomCommandsAsync(_batch);
     public CmsCommandsAsync Cms => new CmsCommandsAsync(_batch);
     public CuckooCommandsAsync Cf => new CuckooCommandsAsync(_batch);
+
+    [Obsolete]
     public GraphCommandsAsync Graph => new GraphCommandsAsync(_batch);
     public JsonCommandsAsync Json => new JsonCommandsAsync(_batch);
     public SearchCommandsAsync Ft => new SearchCommandsAsync(_batch);

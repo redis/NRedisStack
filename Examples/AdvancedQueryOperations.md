@@ -1,33 +1,38 @@
 # Advanced Querying
 Aggregation and other more complex RediSearch queries
+
 ## Contents
-1.  [Business Value Statement](#value)
-2.  [Modules Needed](#modules)
-3.  [Vector Similarity Search](#vss)
-    1.  [Data Load](#vss_dataload)
-    2.  [Index Creation](#vss_index)
-    3.  [Search](#vss_search)
-    4.  [Hybrid Query Search](#vss_hybrid_query_search)
-4.  [Advanced Search Queries](#adv_search)
-    1.  [Data Set](#advs_dataset)
-    2.  [Data Load](#advs_dataload)
-    3.  [Index Creation](#advs_index)
-    4.  [Search w/JSON Filtering - Example 1](#advs_ex1)
-    5.  [Search w/JSON Filtering - Example 2](#advs_ex2)
-5.  [Aggregation](#aggr)
-    1.  [Data Set](#aggr_dataset)
-    2.  [Data Load](#aggr_dataload)
-    3.  [Index Creation](#aggr_index)
-    4.  [Aggregation - Count](#aggr_count)
-    5.  [Aggregation - Sum](#aggr_sum)
+
+1. [Business Value Statement](#value)
+2. [Modules Needed](#modules)
+3. [Vector Similarity Search](#vss)
+    1. [Data Load](#vss_dataload)
+    2. [Index Creation](#vss_index)
+    3. [Search](#vss_search)
+    4. [Hybrid Query Search](#vss_hybrid_query_search)
+4. [Advanced Search Queries](#adv_search)
+    1. [Data Set](#advs_dataset)
+    2. [Data Load](#advs_dataload)
+    3. [Index Creation](#advs_index)
+    4. [Search w/JSON Filtering - Example 1](#advs_ex1)
+    5. [Search w/JSON Filtering - Example 2](#advs_ex2)
+5. [Aggregation](#aggr)
+    1. [Data Set](#aggr_dataset)
+    2. [Data Load](#aggr_dataload)
+    3. [Index Creation](#aggr_index)
+    4. [Aggregation - Count](#aggr_count)
+    5. [Aggregation - Sum](#aggr_sum)
 
 ## Business Value Statement <a name="value"></a>
+
 Redis provides the following additional advanced search capabilities to derive further value of Redis-held data:
+
 * Vector Similarity Search - Store and search by ML-generated encodings of text and images
 * Search + JSON Filtering - Combine the power of search with JSONPath filtering of search results
 * Aggregation - Create processing pipelines of search results to extract analytic insights.
 
 ## Modules Needed <a name="modules"></a>
+
 ```c#
 using StackExchange.Redis;
 using NRedisStack;
@@ -36,11 +41,15 @@ using NRedisStack.Search;
 using NRedisStack.Search.Literals.Enums;
 using NRedisStack.Search.Aggregation;
 ```
+
 ## Vector Similarity Search (VSS) <a name="vss"></a>
+
 ### Syntax
+
 [VSS](https://redis.io/docs/stack/search/reference/vectors/)
 
 ### Data Load <a name="vss_dataload"></a>
+
 ```c#
 db.HashSet("vec:1", new HashEntry[]
 {
@@ -63,8 +72,11 @@ db.HashSet("vec:4", new HashEntry[]
     new("tag", "A")
 });
 ```
+
 ### Index Creation <a name="vss_index">
+
 #### Command
+
 ```c#
 SearchCommands ft = db.FT();
 try {ft.DropIndex("vss_idx");} catch {};
@@ -80,13 +92,17 @@ Console.WriteLine(ft.Create("vss_idx", new FTCreateParams().On(IndexDataType.HAS
         }
 )));
 ```
+
 #### Result
+
 ```bash
 True
 ```
 
 ### Search <a name="vss_search">
+
 #### Command
+
 ```c#
 float[] vec = new[] { 2f, 3f, 3f, 3f};
 var res = ft.Search("vss_idx",
@@ -102,14 +118,18 @@ foreach (var doc in res.Documents) {
     }
 }
 ```
+
 #### Result
+
 ```bash
 id: vec:2, score: 2
 id: vec:3, score: 2
 ```
 
 ### Hybrid query Search <a name="vss_hybrid_query_search">
+
 #### Search only documents with tag A
+
 ```c#
 float[] vec = new[] { 2f, 3f, 3f, 3f};
 var res = ft.Search("vss_idx",
@@ -125,15 +145,21 @@ foreach (var doc in res.Documents) {
     }
 }
 ```
+
 #### Result
+
 ```bash
 id: vec:2, score: 3
 id: vec:4, score: 7
 ```
+
 vec:3 is not returned because it has tag B
 
 ## Advanced Search Queries <a name="adv_search">
+
+
 ### Data Set <a name="advs_dataset">
+
 ```json
 {
     "city": "Boston",
@@ -192,6 +218,7 @@ vec:3 is not returned because it has tag B
 ```
 
 ### Data Load  <a name="advs_dataload">
+
 ```c#
 JsonCommands json = db.JSON();
 json.Set("warehouse:1", "$", new {
@@ -251,7 +278,9 @@ json.Set("warehouse:2", "$", new {
 ```
 
 ### Index Creation <a name="advs_index">
+
 #### Command
+
 ```c#
 SearchCommands ft = db.FT();
 try {ft.DropIndex("wh_idx");} catch {};
@@ -260,14 +289,19 @@ Console.WriteLine(ft.Create("wh_idx", new FTCreateParams()
                         .Prefix("warehouse:"),
                         new Schema().AddTextField(new FieldName("$.city", "city"))));
 ```
+
 #### Result
+
 ```bash
 True
 ```
 
 ### Search w/JSON Filtering - Example 1 <a name="advs_ex1">
+
 Find all inventory ids from all the Boston warehouse that have a price > $50.
+
 #### Command
+
 ```c#
 foreach (var doc in ft.Search("wh_idx",
                         new Query("@city:Boston")
@@ -278,14 +312,19 @@ foreach (var doc in ft.Search("wh_idx",
     Console.WriteLine(doc);
 }
 ```
+
 #### Result
+
 ```json
 [59263]
 ```
 
 ### Search w/JSON Filtering - Example 2 <a name="advs_ex2">
+
 Find all inventory items in Dallas that are for Women or Girls
+
 #### Command
+
 ```c#
 foreach (var doc in ft.Search("wh_idx",
                         new Query("@city:(Dallas)")
@@ -296,7 +335,9 @@ foreach (var doc in ft.Search("wh_idx",
     Console.WriteLine(doc);
 }
 ```
+
 #### Result
+
 ```json
 [{"id":51919,"gender":"Women","season":["Summer"],"description":"Nyk Black Horado Handbag","price":52.49},{"id":37561,"gender":"Girls","season":["Spring","Summer"],"description":"Madagascar3 Infant Pink Snapsuit Romper","price":23.95}]
 ```
@@ -353,7 +394,9 @@ json.Set("book:4", "$", new {
 ```
 
 ### Index Creation <a name="aggr_index">
+
 #### Command
+
 ```c#
 Console.WriteLine(ft.Create("book_idx", new FTCreateParams()
                         .On(IndexDataType.JSON)
@@ -362,14 +405,19 @@ Console.WriteLine(ft.Create("book_idx", new FTCreateParams()
                             .AddNumericField(new FieldName("$.year", "year"))
                             .AddNumericField(new FieldName("$.price", "price"))));
 ```
+
 #### Result
+
 ```bash
 True
 ```
 
 ### Aggregation - Count <a name="aggr_count">
+
 Find the total number of books per year
+
 #### Command
+
 ```c#
 var request = new AggregationRequest("*").GroupBy("@year", Reducers.Count().As("count"));
 var result = ft.Aggregate("book_idx", request);
@@ -379,7 +427,9 @@ for (var i=0; i<result.TotalResults; i++)
     Console.WriteLine($"{row["year"]}: {row["count"]}");
 }
 ```
+
 #### Result
+
 ```bash
 2021: 1
 2020: 2
@@ -387,8 +437,10 @@ for (var i=0; i<result.TotalResults; i++)
 ```
 
 ### Aggregation - Sum <a name="aggr_sum">
+
 Sum of inventory dollar value by year
 #### Command
+
 ```c#
 request = new AggregationRequest("*").GroupBy("@year", Reducers.Sum("@price").As("sum"));
 result = ft.Aggregate("book_idx", request);
@@ -398,7 +450,9 @@ for (var i=0; i<result.TotalResults; i++)
     Console.WriteLine($"{row["year"]}: {row["sum"]}");
 }
 ```
+
 #### Result
+
 ```bash
 2021: 13.99
 2020: 56.98

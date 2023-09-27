@@ -6,15 +6,15 @@ namespace NRedisStack.Search.DataTypes
     {
         private readonly Dictionary<string, RedisResult> _all = new Dictionary<string, RedisResult>();
 
-        public string IndexName => GetString("index_name");
-        public Dictionary<string, RedisResult> IndexOption => GetRedisResultDictionary("index_options");
+        public string IndexName => GetString("index_name")!;
+        public Dictionary<string, RedisResult> IndexOption => GetRedisResultDictionary("index_options")!;
 
-        public Dictionary<string, RedisResult>[] Attributes => GetRedisResultDictionaryArray("attributes");
+        public Dictionary<string, RedisResult>[] Attributes => GetRedisResultDictionaryArray("attributes")!;
 
 
         public long NumDocs => GetLong("num_docs");
 
-        public string MaxDocId => GetString("max_doc_id");
+        public string MaxDocId => GetString("max_doc_id")!;
 
         public long NumTerms => GetLong("num_terms");
 
@@ -59,24 +59,24 @@ namespace NRedisStack.Search.DataTypes
         public long NumberOfUses => GetLong("number_of_uses");
 
 
-        public Dictionary<string, RedisResult> GcStats => GetRedisResultDictionary("gc_stats");
+        public Dictionary<string, RedisResult> GcStats => GetRedisResultDictionary("gc_stats")!;
 
-        public Dictionary<string, RedisResult> CursorStats => GetRedisResultDictionary("cursor_stats");
+        public Dictionary<string, RedisResult> CursorStats => GetRedisResultDictionary("cursor_stats")!;
 
         public InfoResult(RedisResult result)
         {
-            var results = (RedisResult[])result;
+            var results = (RedisResult[])result!;
 
             for (var i = 0; i < results.Length; i += 2)
             {
-                var key = (string)results[i];
+                var key = (string)results[i]!;
                 var value = results[i + 1];
 
                 _all.Add(key, value);
             }
         }
 
-        private string GetString(string key) => _all.TryGetValue(key, out var value) ? (string)value : default;
+        private string? GetString(string key) => _all.TryGetValue(key, out var value) ? (string)value! : default;
 
         private long GetLong(string key) => _all.TryGetValue(key, out var value) ? (long)value : default;
 
@@ -84,7 +84,7 @@ namespace NRedisStack.Search.DataTypes
         {
             if (_all.TryGetValue(key, out var value))
             {
-                if ((string)value == "-nan")
+                if ((string)value! == "-nan")
                 {
                     return default;
                 }
@@ -99,16 +99,16 @@ namespace NRedisStack.Search.DataTypes
             }
         }
 
-        private Dictionary<string, RedisResult> GetRedisResultDictionary(string key)
+        private Dictionary<string, RedisResult>? GetRedisResultDictionary(string key)
         {
             if (_all.TryGetValue(key, out var value))
             {
-                var values = (RedisResult[])value;
+                var values = (RedisResult[])value!;
                 var result = new Dictionary<string, RedisResult>();
 
                 for (var ii = 0; ii < values.Length; ii += 2)
                 {
-                    result.Add((string)values[ii], values[ii + 1]);
+                    result.Add((string)values[ii]!, values[ii + 1]);
                 }
 
                 return result;
@@ -119,19 +119,19 @@ namespace NRedisStack.Search.DataTypes
             }
         }
 
-        private Dictionary<string, RedisResult>[] GetRedisResultDictionaryArray(string key)
+        private Dictionary<string, RedisResult>[]? GetRedisResultDictionaryArray(string key)
         {
             if (_all.TryGetValue(key, out var value))
             {
-                var values = (RedisResult[])value;
+                var values = (RedisResult[])value!;
                 var result = new Dictionary<string, RedisResult>[values.Length];
                 for (int i = 0; i < values.Length; i++)
                 {
-                    var fv = (RedisResult[])values[i];
+                    var fv = (RedisResult[])values[i]!;
                     var dict = new Dictionary<string, RedisResult>();
                     for (int j = 0; j < fv.Length; j += 2)
                     {
-                        dict.Add((string)fv[j], fv[j + 1]);
+                        dict.Add((string)fv[j]!, fv[j + 1]);
                     }
                     result[i] = dict;
                 }

@@ -163,8 +163,8 @@ namespace NRedisStack
         {
             var args =
                 (limited)
-                ? new List<object>(){IndexName, SearchArgs.SEARCH, SearchArgs.LIMITED, SearchArgs.QUERY}
-                : new List<object>(){IndexName, SearchArgs.SEARCH, SearchArgs.QUERY};
+                ? new List<object>() { IndexName, SearchArgs.SEARCH, SearchArgs.LIMITED, SearchArgs.QUERY }
+                : new List<object>() { IndexName, SearchArgs.SEARCH, SearchArgs.QUERY };
 
             q.SerializeRedisArgs(args);
             return new SerializedCommand(FT.PROFILE, args);
@@ -172,9 +172,9 @@ namespace NRedisStack
 
         public static SerializedCommand ProfileAggregate(string IndexName, AggregationRequest query, bool limited = false)
         {
-            var args =  (limited)
-                        ? new List<object>{IndexName, SearchArgs.AGGREGATE, SearchArgs.LIMITED, SearchArgs.QUERY}
-                        : new List<object>{IndexName, SearchArgs.AGGREGATE, SearchArgs.QUERY};
+            var args = (limited)
+                        ? new List<object> { IndexName, SearchArgs.AGGREGATE, SearchArgs.LIMITED, SearchArgs.QUERY }
+                        : new List<object> { IndexName, SearchArgs.AGGREGATE, SearchArgs.QUERY };
 
             query.SerializeRedisArgs();
             args.AddRange(query.GetArgs());

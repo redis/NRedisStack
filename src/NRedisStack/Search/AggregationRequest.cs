@@ -39,7 +39,7 @@ namespace NRedisStack.Search.Aggregation
 
         // Params:
         private Dictionary<string, object> nameValue = new Dictionary<string, object>();
-        public int? dialect {get; private set;} = null;
+        public int? dialect { get; private set; } = null;
 
         public AggregationRequest(string query, int? defaultDialect = null)
         {
@@ -57,7 +57,7 @@ namespace NRedisStack.Search.Aggregation
 
         private void Verbatim()
         {
-            if(verbatim == true)
+            if (verbatim == true)
                 args.Add("VERBATIM");
         }
 

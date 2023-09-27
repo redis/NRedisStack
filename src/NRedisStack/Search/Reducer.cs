@@ -10,10 +10,10 @@
         public abstract string Name { get; }
 
         public string? Alias { get; set; }
-        private readonly string _field;
+        private readonly string? _field;
 
 
-        protected Reducer(string field)
+        protected Reducer(string? field)
         {
             _field = field;
             Alias = null;

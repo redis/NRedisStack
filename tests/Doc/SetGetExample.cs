@@ -31,7 +31,7 @@ public class SetGetExample
         Assert.True(status);
         Assert.Equal("Process 134", value.ToString());
         //REMOVE_END
-    //HIDE_START
+        //HIDE_START
     }
 }
 //HIDE_END

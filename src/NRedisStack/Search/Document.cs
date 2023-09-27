@@ -8,16 +8,16 @@ namespace NRedisStack.Search
     public class Document
     {
         public string Id { get; }
-        public double Score { get; set;}
-        public byte[] Payload { get; }
-        public string[] ScoreExplained { get; private set; } // TODO: check if this is needed (Jedis does not have it)
+        public double Score { get; set; }
+        public byte[]? Payload { get; }
+        public string[]? ScoreExplained { get; private set; } // TODO: check if this is needed (Jedis does not have it)
         internal readonly Dictionary<string, RedisValue> _properties;
-        public Document(string id, double score, byte[] payload) : this(id, null, score, payload) { }
+        public Document(string id, double score, byte[]? payload) : this(id, null, score, payload) { }
         public Document(string id) : this(id, null, 1.0, null) { }
 
         public Document(string id, Dictionary<string, RedisValue> fields, double score = 1.0) : this(id, fields, score, null) { }
 
-        public Document(string id, Dictionary<string, RedisValue> fields, double score, byte[] payload)
+        public Document(string id, Dictionary<string, RedisValue>? fields, double score, byte[]? payload)
         {
             Id = id;
             _properties = fields ?? new Dictionary<string, RedisValue>();
@@ -27,18 +27,20 @@ namespace NRedisStack.Search
 
         public IEnumerable<KeyValuePair<string, RedisValue>> GetProperties() => _properties;
 
-        public static Document Load(string id, double score, byte[] payload, RedisValue[] fields)
+        public static Document Load(string id, double score, byte[]? payload, RedisValue[]? fields)
         {
             Document ret = new Document(id, score, payload);
             if (fields != null)
             {
                 for (int i = 0; i < fields.Length; i += 2)
                 {
-                    string fieldName = (string)fields[i];
-                    if (fieldName == "$") {
+                    string fieldName = (string)fields[i]!;
+                    if (fieldName == "$")
+                    {
                         ret["json"] = fields[i + 1];
                     }
-                    else {
+                    else
+                    {
                         ret[fieldName] = fields[i + 1];
                     }
                 }
@@ -46,7 +48,7 @@ namespace NRedisStack.Search
             return ret;
         }
 
-        public static Document Load(string id, double score, byte[] payload, RedisValue[] fields, string[] scoreExplained)
+        public static Document Load(string id, double score, byte[]? payload, RedisValue[]? fields, string[]? scoreExplained)
         {
             Document ret = Document.Load(id, score, payload, fields);
             if (scoreExplained != null)

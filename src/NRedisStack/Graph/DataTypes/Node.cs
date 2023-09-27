@@ -53,7 +53,7 @@ namespace NRedisStack.Graph.DataTypes
             {
                 int hash = 17;
 
-                foreach(var label in Labels)
+                foreach (var label in Labels)
                 {
                     hash = hash * 31 + label.GetHashCode();
                 }
