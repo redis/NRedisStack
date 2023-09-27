@@ -14,7 +14,7 @@ namespace NRedisStack.Search.Aggregation
         public bool ContainsKey(string key) => _fields.ContainsKey(key);
         public RedisValue this[string key] => _fields.TryGetValue(key, out var result) ? result : RedisValue.Null;
 
-        public string GetString(string key) => _fields.TryGetValue(key, out var result) ? (string)result : default;
+        public string? GetString(string key) => _fields.TryGetValue(key, out var result) ? result.ToString() : default;
         public long GetLong(string key) => _fields.TryGetValue(key, out var result) ? (long)result : default;
         public double GetDouble(string key) => _fields.TryGetValue(key, out var result) ? (double)result : default;
     }

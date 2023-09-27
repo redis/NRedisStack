@@ -16,7 +16,7 @@ namespace NRedisStack
 
         public void SetDefaultDialect(int? defaultDialect)
         {
-            if(defaultDialect == 0)
+            if (defaultDialect == 0)
             {
                 throw new System.ArgumentOutOfRangeException("DIALECT=0 cannot be set.");
             }
@@ -87,7 +87,7 @@ namespace NRedisStack
         /// <inheritdoc/>
         public bool Create(string indexName, Schema schema)
         {
-            return Create(indexName, new FTCreateParams(),  schema);
+            return Create(indexName, new FTCreateParams(), schema);
         }
 
         /// <inheritdoc/>
@@ -134,7 +134,7 @@ namespace NRedisStack
             {
                 dialect = defaultDialect;
             }
-            return _db.Execute(SearchCommandBuilder.Explain(indexName, query, dialect)).ToString();
+            return _db.Execute(SearchCommandBuilder.Explain(indexName, query, dialect)).ToString()!;
         }
 
         /// <inheritdoc/>
@@ -222,7 +222,7 @@ namespace NRedisStack
             {
                 var term = resp[i].ToString();
                 var synonyms = (resp[i + 1]).ToArray().Select(x => x.ToString()).ToList(); // TODO: consider leave synonyms as RedisValue[]
-                result.Add(term, synonyms);
+                result.Add(term!, synonyms!);
             }
             return result;
         }

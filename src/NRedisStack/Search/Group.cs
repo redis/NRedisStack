@@ -36,7 +36,7 @@
                 if (!string.IsNullOrEmpty(alias))
                 {
                     args.Add("AS");
-                    args.Add(alias);
+                    args.Add(alias!);
                 }
             }
             _limit.SerializeRedisArgs(args);

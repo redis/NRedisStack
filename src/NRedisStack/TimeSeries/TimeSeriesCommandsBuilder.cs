@@ -9,7 +9,7 @@ namespace NRedisStack
     {
         #region Create
 
-        public static SerializedCommand Create(string key, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel> labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
+        public static SerializedCommand Create(string key, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
         {
             var args = TimeSeriesAux.BuildTsCreateArgs(key, retentionTime, labels, uncompressed, chunkSizeBytes, duplicatePolicy);
             return new SerializedCommand(TS.CREATE, args);
@@ -26,7 +26,7 @@ namespace NRedisStack
         }
 
         public static SerializedCommand Add(string key, TimeStamp timestamp, double value, long? retentionTime = null,
-        IReadOnlyCollection<TimeSeriesLabel> labels = null, bool? uncompressed = null,
+        IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null,
         long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
         {
             var args = TimeSeriesAux.BuildTsAddArgs(key, timestamp, value, retentionTime, labels, uncompressed, chunkSizeBytes, duplicatePolicy);

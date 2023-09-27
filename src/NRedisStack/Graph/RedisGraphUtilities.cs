@@ -60,7 +60,7 @@ namespace NRedisStack.Graph
 
                 foreach (var val in valueList)
                 {
-                    objectValueList.Add((object) val);
+                    objectValueList.Add((object)val);
                 }
 
                 return ArrayToString(objectValueList.ToArray());
@@ -76,7 +76,7 @@ namespace NRedisStack.Graph
                 return ConvertibleToString(floatValue);
             }
 
-            return value.ToString();
+            return value.ToString()!;
         }
 
         private static string ConvertibleToString(IConvertible floatValue)
@@ -90,7 +90,7 @@ namespace NRedisStack.Graph
             {
                 if (x.GetType().IsArray)
                 {
-                    return ArrayToString((object[]) x);
+                    return ArrayToString((object[])x);
                 }
                 else
                 {

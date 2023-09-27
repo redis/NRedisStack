@@ -5,7 +5,7 @@ namespace NRedisStack.Tests.Gears;
 
 public class GearsTests : AbstractNRedisStackTest, IDisposable
 {
-    private readonly string key = "GEARS_TESTS";
+    // private readonly string key = "GEARS_TESTS";
     public GearsTests(RedisFixture redisFixture) : base(redisFixture) { }
 
     [SkipIfRedis(Comparison.LessThan, "7.1.242")]

@@ -11,8 +11,8 @@ namespace NRedisStack.Graph.DataTypes
     /// </summary>
     public class Path
     {
-        public ReadOnlyCollection<Node> Nodes { get;}
-        public ReadOnlyCollection<Edge> Edges { get;}
+        public ReadOnlyCollection<Node> Nodes { get; }
+        public ReadOnlyCollection<Edge> Edges { get; }
 
         public Path(IList<Node> nodes, IList<Edge> edges)
         {

@@ -12,6 +12,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
         public TestGet(RedisFixture redisFixture) : base(redisFixture) { }
 
+
         [Fact]
         public void TestGetNotExists()
         {
@@ -42,7 +43,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var ts = db.TS();
             ts.Create(key);
             ts.Add(key, now, 1.1);
-            TimeSeriesTuple actual = ts.Get(key);
+            TimeSeriesTuple actual = ts.Get(key)!;
             Assert.Equal(expected, actual);
         }
     }

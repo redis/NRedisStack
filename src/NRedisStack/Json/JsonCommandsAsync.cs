@@ -97,7 +97,7 @@ public class JsonCommandsAsync : IJsonCommandsAsync
     public async Task<IEnumerable<T?>> GetEnumerableAsync<T>(RedisKey key, string path = "$")
     {
         RedisResult res = await _db.ExecuteAsync(JsonCommandBuilder.Get<T>(key, path));
-        return JsonSerializer.Deserialize<IEnumerable<T>>(res.ToString());
+        return JsonSerializer.Deserialize<IEnumerable<T>>(res.ToString()!)!;
     }
 
     public async Task<RedisResult[]> MGetAsync(RedisKey[] keys, string path)
@@ -108,7 +108,7 @@ public class JsonCommandsAsync : IJsonCommandsAsync
     public async Task<double?[]> NumIncrbyAsync(RedisKey key, string path, double value)
     {
         var res = await _db.ExecuteAsync(JsonCommandBuilder.NumIncrby(key, path, value));
-        return JsonSerializer.Deserialize<double?[]>(res.ToString());
+        return JsonSerializer.Deserialize<double?[]>(res.ToString()!)!;
     }
 
     public async Task<IEnumerable<HashSet<string>>> ObjKeysAsync(RedisKey key, string? path = null)
@@ -169,7 +169,7 @@ public class JsonCommandsAsync : IJsonCommandsAsync
             throw new FileNotFoundException($"File {filePath} not found.");
         }
 
-        string fileContent  = File.ReadAllText(filePath);
+        string fileContent = File.ReadAllText(filePath);
         return await SetAsync(key, path, fileContent, when);
     }
 
@@ -181,7 +181,7 @@ public class JsonCommandsAsync : IJsonCommandsAsync
         foreach (var filePath in files)
         {
             key = filePath.Substring(0, filePath.IndexOf("."));
-            if(await SetFromFileAsync(key, path, filePath, when))
+            if (await SetFromFileAsync(key, path, filePath, when))
             {
                 inserted++;
             }

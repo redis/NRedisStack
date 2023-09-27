@@ -122,7 +122,7 @@ public class HashExample
         //REMOVE_END
         // Bike stats: crashes=1, owners=1
         //STEP_END
-    //HIDE_START
+        //HIDE_START
     }
 }
 //HIDE_END

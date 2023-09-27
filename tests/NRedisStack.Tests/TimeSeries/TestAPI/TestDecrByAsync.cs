@@ -20,7 +20,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.True(await ts.DecrByAsync(key, -value) > 0);
 
             var result = await ts.GetAsync(key);
-            Assert.Equal(value, result.Val);
+            Assert.Equal(value, result!.Val);
         }
 
         [Fact]
@@ -34,7 +34,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.True(await ts.DecrByAsync(key, -value, timestamp: "*") > 0);
 
             var result = await ts.GetAsync(key);
-            Assert.Equal(value, result.Val);
+            Assert.Equal(value, result!.Val);
         }
 
         [Fact]
@@ -51,6 +51,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
+        [Obsolete]
         public async Task TestDefaultDecrByWithRetentionTime()
         {
             var key = CreateKeyName();
@@ -62,13 +63,14 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.True(await ts.DecrByAsync(key, -value, retentionTime: retentionTime) > 0);
 
             var result = await ts.GetAsync(key);
-            Assert.Equal(value, result.Val);
+            Assert.Equal(value, result!.Val);
 
             var info = await ts.InfoAsync(key);
             Assert.Equal(retentionTime, info.RetentionTime);
         }
 
         [Fact]
+        [Obsolete]
         public async Task TestDefaultDecrByWithLabels()
         {
             var key = CreateKeyName();
@@ -81,7 +83,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.True(await ts.DecrByAsync(key, -value, labels: labels) > 0);
 
             var result = await ts.GetAsync(key);
-            Assert.Equal(value, result.Val);
+            Assert.Equal(value, result!.Val);
 
             var info = await ts.InfoAsync(key);
             Assert.Equal(labels, info.Labels);
@@ -98,7 +100,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.True(await ts.DecrByAsync(key, -value, uncompressed: true) > 0);
 
             var result = await ts.GetAsync(key);
-            Assert.Equal(value, result.Val);
+            Assert.Equal(value, result!.Val);
         }
 
         [Fact]
