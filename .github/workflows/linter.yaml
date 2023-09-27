@@ -19,7 +19,7 @@ jobs:
       - name: Check for modified files
         run: |
           if (git status | Select-String -Pattern 'modified') {
-            Write-Host "Modified files found."
+            Write-Host "Modified files found. Please run dotnet format and commit the changes."
             exit 1
           } else {
             Write-Host "No modified files found."
