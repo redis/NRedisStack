@@ -20,7 +20,7 @@ namespace NRedisStack.Tests;
 public class ExampleTests : AbstractNRedisStackTest, IDisposable
 {
     private readonly ITestOutputHelper testOutputHelper;
-    private readonly string key = "EXAMPLES_TESTS";
+    // private readonly string key = "EXAMPLES_TESTS";
     public ExampleTests(RedisFixture redisFixture, ITestOutputHelper testOutputHelper) : base(redisFixture)
     {
         this.testOutputHelper = testOutputHelper;

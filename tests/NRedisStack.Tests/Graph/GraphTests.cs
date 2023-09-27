@@ -8,7 +8,7 @@ namespace NRedisStack.Tests.Graph;
 
 public class GraphTests : AbstractNRedisStackTest, IDisposable
 {
-    private readonly string key = "GRAPH_TESTS";
+    // private readonly string key = "GRAPH_TESTS";
     public GraphTests(RedisFixture redisFixture) : base(redisFixture) { }
 
     #region SyncTests

@@ -9,7 +9,7 @@ namespace NRedisStack.Tests;
 
 public class JsonTests : AbstractNRedisStackTest, IDisposable
 {
-    private readonly string _testName = "JSON_TESTS";
+    // private readonly string _testName = "JSON_TESTS";
     public JsonTests(RedisFixture redisFixture) : base(redisFixture) { }
 
     [Fact]

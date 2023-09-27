@@ -90,6 +90,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
+        [Obsolete]
         public async Task TestAddWithChunkSize()
         {
             var key = CreateKeyName();
