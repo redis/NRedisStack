@@ -12,6 +12,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
 
         [SkipIfRedis(Is.OSSCluster)]
+        [Obsolete]
         public async Task TestStarMADD()
         {
             var keys = CreateKeyNames(2);
@@ -37,7 +38,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             foreach (var key in keys)
             {
                 TimeSeriesInformation info = await ts.InfoAsync(key);
-                Assert.True(info.FirstTimeStamp > 0);
+                Assert.True(info.FirstTimeStamp! > 0);
                 Assert.Equal(info.FirstTimeStamp, info.LastTimeStamp);
             }
         }

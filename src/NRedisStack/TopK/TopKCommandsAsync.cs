@@ -14,7 +14,7 @@ namespace NRedisStack
         /// <inheritdoc/>
         public async Task<RedisResult[]?> AddAsync(RedisKey key, params RedisValue[] items)
         {
-            return (RedisResult[]?) await _db.ExecuteAsync(TopKCommandBuilder.Add(key, items));
+            return (RedisResult[]?)await _db.ExecuteAsync(TopKCommandBuilder.Add(key, items));
         }
 
         /// <inheritdoc/>

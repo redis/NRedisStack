@@ -12,7 +12,9 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
         public TestAlter(RedisFixture redisFixture) : base(redisFixture) { }
 
+
         [Fact]
+        [Obsolete]
         public void TestAlterRetentionTime()
         {
             long retentionTime = 5000;
@@ -26,6 +28,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
+        [Obsolete]
         public void TestAlterLabels()
         {
             TimeSeriesLabel label = new TimeSeriesLabel("key", "value");
@@ -44,6 +47,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
+        [Obsolete]
         public void TestAlterPolicyAndChunk()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -52,8 +56,8 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             ts.Create(key);
             Assert.True(ts.Alter(key, chunkSizeBytes: 128, duplicatePolicy: TsDuplicatePolicy.MIN));
             TimeSeriesInformation info = ts.Info(key);
-            Assert.Equal(info.ChunkSize, 128);
-            Assert.Equal(info.DuplicatePolicy, TsDuplicatePolicy.MIN);
+            Assert.Equal(128, info.ChunkSize);
+            Assert.Equal(TsDuplicatePolicy.MIN, info.DuplicatePolicy);
         }
     }
 }

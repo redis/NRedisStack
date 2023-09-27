@@ -16,7 +16,7 @@ public static class JsonCommandBuilder
             return new SerializedCommand(JSON.RESP, key);
         }
 
-        return new SerializedCommand(JSON.RESP, key, path);
+        return new SerializedCommand(JSON.RESP, key, path!);
     }
 
     public static SerializedCommand Set(RedisKey key, RedisValue path, RedisValue json, When when = When.Always)
@@ -34,8 +34,8 @@ public static class JsonCommandBuilder
         if (KeyPathValueList.Length < 1)
             throw new ArgumentOutOfRangeException(nameof(KeyPathValueList));
 
-            var args = KeyPathValueList.SelectMany(x => x.ToArray()).ToArray();
-            return new SerializedCommand(JSON.MSET, args);
+        var args = KeyPathValueList.SelectMany(x => x.ToArray()).ToArray();
+        return new SerializedCommand(JSON.MSET, args);
     }
 
     public static SerializedCommand Merge(RedisKey key, RedisValue path, RedisValue json)

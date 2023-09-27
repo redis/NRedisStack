@@ -6,6 +6,7 @@ namespace NRedisStack.Graph
         public GraphCacheList PropertyNames { get; set; }
         public GraphCacheList RelationshipTypes { get; set; }
 
+        [Obsolete]
         public GraphCache(string graphName, GraphCommands redisGraph)
         {
             Labels = new GraphCacheList(graphName, "db.labels", redisGraph);
@@ -13,6 +14,7 @@ namespace NRedisStack.Graph
             RelationshipTypes = new GraphCacheList(graphName, "db.relationshipTypes", redisGraph);
         }
 
+        [Obsolete]
         public GraphCache(string graphName, GraphCommandsAsync redisGraph)
         {
             Labels = new GraphCacheList(graphName, "db.labels", redisGraph);
@@ -20,11 +22,14 @@ namespace NRedisStack.Graph
             RelationshipTypes = new GraphCacheList(graphName, "db.relationshipTypes", redisGraph);
         }
 
-        public string GetLabel(int index) => Labels.GetCachedData(index);
+        [Obsolete]
+        public string GetLabel(int index) => Labels.GetCachedData(index)!;
 
-        public string GetRelationshipType(int index) => RelationshipTypes.GetCachedData(index);
+        [Obsolete]
+        public string GetRelationshipType(int index) => RelationshipTypes.GetCachedData(index)!;
 
-        public string GetPropertyName(int index) => PropertyNames.GetCachedData(index);
+        [Obsolete]
+        public string GetPropertyName(int index) => PropertyNames.GetCachedData(index)!;
 
     }
 }

@@ -13,6 +13,7 @@ namespace NRedisTimeSeries.Test.TestDataTypes
         public TestInformation(NRedisStack.Tests.RedisFixture redisFixture) : base(redisFixture) { }
 
         [Fact]
+        [Obsolete]
         public void TestInformationSync()
         {
             string key = CreateKeyName();
@@ -28,19 +29,20 @@ namespace NRedisTimeSeries.Test.TestDataTypes
             Assert.Equal(4184, info.MemoryUsage);
             Assert.Equal(0, info.RetentionTime);
             Assert.Equal(1, info.ChunkCount);
-            Assert.Equal(null, info.DuplicatePolicy);
+            Assert.Null(info.DuplicatePolicy);
             Assert.Null(info.KeySelfName);
             Assert.Null(info.Chunks);
 
             Assert.Equal(4184, infoDebug.MemoryUsage);
             Assert.Equal(0, infoDebug.RetentionTime);
             Assert.Equal(1, infoDebug.ChunkCount);
-            Assert.Equal(null, infoDebug.DuplicatePolicy);
+            Assert.Null(infoDebug.DuplicatePolicy);
             Assert.Equal(infoDebug.KeySelfName, key);
-            Assert.Equal(infoDebug.Chunks.Count, 1);
+            Assert.Equal(1, infoDebug.Chunks!.Count);
         }
 
         [Fact]
+        [Obsolete]
         public async Task TestInformationAsync()
         {
             string key = CreateKeyName();
@@ -56,16 +58,16 @@ namespace NRedisTimeSeries.Test.TestDataTypes
             Assert.Equal(4184, info.MemoryUsage);
             Assert.Equal(0, info.RetentionTime);
             Assert.Equal(1, info.ChunkCount);
-            Assert.Equal(null, info.DuplicatePolicy);
+            Assert.Null(info.DuplicatePolicy);
             Assert.Null(info.KeySelfName);
             Assert.Null(info.Chunks);
 
             Assert.Equal(4184, infoDebug.MemoryUsage);
             Assert.Equal(0, infoDebug.RetentionTime);
             Assert.Equal(1, infoDebug.ChunkCount);
-            Assert.Equal(null, infoDebug.DuplicatePolicy);
+            Assert.Null(infoDebug.DuplicatePolicy);
             Assert.Equal(infoDebug.KeySelfName, key);
-            Assert.Equal(infoDebug.Chunks.Count, 1);
+            Assert.Equal(1, infoDebug.Chunks!.Count);
         }
     }
 }

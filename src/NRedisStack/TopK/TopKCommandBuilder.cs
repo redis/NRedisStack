@@ -40,7 +40,7 @@ namespace NRedisStack
 
         public static SerializedCommand Info(RedisKey key)
         {
-             return new SerializedCommand(TOPK.INFO, key);
+            return new SerializedCommand(TOPK.INFO, key);
         }
 
         public static SerializedCommand List(RedisKey key, bool withcount = false)

@@ -10,6 +10,7 @@ namespace NRedisStack.RedisStackCommands
 
         public static CmsCommands CMS(this IDatabase db) => new CmsCommands(db);
 
+        [Obsolete]
         public static GraphCommands GRAPH(this IDatabase db) => new GraphCommands(db);
 
         public static TopKCommands TOPK(this IDatabase db) => new TopKCommands(db);
