@@ -42,7 +42,7 @@ namespace NRedisStack
         }
 
         /// <inheritdoc/>
-        public bool AliasAdd     (string alias, string index)
+        public bool AliasAdd(string alias, string index)
         {
             return _db.Execute(SearchCommandBuilder.AliasAdd(alias, index)).OKtoBoolean();
         }

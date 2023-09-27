@@ -760,7 +760,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         };
         await commands.MSetAsync(values)
 ;
-        var result = await commands.MGetAsync   (keys.Select(x => new RedisKey(x)).ToArray(), "$.a");
+        var result = await commands.MGetAsync(keys.Select(x => new RedisKey(x)).ToArray(), "$.a");
 
         Assert.Equal("[\"hello\"]", result[0].ToString());
         Assert.Equal("[\"world\"]", result[1].ToString());

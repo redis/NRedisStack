@@ -12,7 +12,7 @@ namespace NRedisStack
         }
 
         /// <inheritdoc/>
-        public bool Add    (RedisKey key, RedisValue item)
+        public bool Add(RedisKey key, RedisValue item)
         {
             return _db.Execute(BloomCommandBuilder.Add(key, item)).ToString() == "1";
         }
