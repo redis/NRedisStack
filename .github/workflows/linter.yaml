@@ -16,6 +16,11 @@ jobs:
         run: |
           dotnet format
 
-      - name: fail if files modified
+      - name: Check for modified files
         run: |
-          git status|grep modified && exit 1
+          if (git status | Select-String -Pattern 'modified') {
+            Write-Host "Modified files found."
+            exit 1
+          } else {
+            Write-Host "No modified files found."
+          }
