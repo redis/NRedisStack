@@ -12,24 +12,10 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
 
-      - name: Run dotnet format
-        id: format
-        uses: jfversluis/dotnet-format@v1.0.5
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          action: "fix"
-          only-changed-files: true
-
-      - name: Commit files
-        if: steps.format.outputs.has-changes == 'true'
+      - name: lint
         run: |
-          git config --local user.name "github-actions[bot]"
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -a -m 'Automated dotnet-format update
-          Co-authored-by: ${{ github.event.pull_request.user.login }} <${{ github.event.pull_request.user.id }}+${{ github.event.pull_request.user.login }}@users.noreply.github.com>'
-      - name: Push changes
-        if: steps.format.outputs.has-changes == 'true'
-        uses: ad-m/github-push-action@v0.5.0
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.head_ref }}
+          dotnet format
+
+      - name: fail if files modified
+        run: |
+          git status|grep modified && exit 1
