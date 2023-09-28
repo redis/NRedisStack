@@ -22,7 +22,6 @@ public class TopKTests : AbstractNRedisStackTest, IDisposable
 
         var res = topk.Add(key, "bb", "cc");
         Assert.True(res![0].IsNull && res[1].IsNull);
-
         Assert.Equal(topk.Query(key, "bb", "gg", "cc"), new bool[] { true, false, true });
         Assert.False(topk.Query(key, "notExists"));
 
