@@ -75,7 +75,6 @@ public class SkipIfRedisAttribute : FactAttribute
                             break;
                     }
                 }
-
                 // Version check (if Is.Standalone/Is.OSSCluster is set then )
 
                 var serverVersion = redisFixture.Redis.GetServer(redisFixture.Redis.GetEndPoints()[0]).Version;
