@@ -13,6 +13,7 @@ namespace NRedisStack.Search
         {
             Text,
             Geo,
+            GeoShape,
             Numeric,
             Tag,
             Vector
@@ -38,6 +39,7 @@ namespace NRedisStack.Search
                 {
                     FieldType.Text => "TEXT",
                     FieldType.Geo => "GEO",
+                    FieldType.GeoShape => "GEOSHAPE",
                     FieldType.Numeric => "NUMERIC",
                     FieldType.Tag => "TAG",
                     FieldType.Vector => "VECTOR",
@@ -176,6 +178,37 @@ namespace NRedisStack.Search
                 if (Sortable) args.Add(AttributeOptions.SORTABLE);
             }
 
+        }
+
+        public class GeoShapeField : Field
+        {
+            public enum CoordinateSystem
+            {
+                /// <summary>
+                /// For cartesian (X,Y).
+                /// </summary>
+                FLAT,
+
+                /// <summary>
+                /// For geographic (lon, lat).
+                /// </summary>
+                SPHERICAL
+            }
+            private CoordinateSystem system { get; }
+
+            internal GeoShapeField(FieldName name, CoordinateSystem system)
+            : base(name, FieldType.GeoShape)
+            {
+                this.system = system;
+            }
+
+            internal GeoShapeField(string name, CoordinateSystem system)
+            : this(FieldName.Of(name), system) { }
+
+            internal override void AddFieldTypeArgs(List<object> args)
+            {
+                args.Add(system.ToString());
+            }
         }
 
         public class NumericField : Field
