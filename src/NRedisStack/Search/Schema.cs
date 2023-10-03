@@ -1,4 +1,5 @@
 ﻿using NRedisStack.Search.Literals;
+using static NRedisStack.Search.Schema.GeoShapeField;
 using static NRedisStack.Search.Schema.VectorField;
 
 namespace NRedisStack.Search
@@ -318,6 +319,30 @@ namespace NRedisStack.Search
                                    string? phonetic = null, bool noIndex = false, bool withSuffixTrie = false)
         {
             Fields.Add(new TextField(name, weight, noStem, phonetic, sortable, unf, noIndex, withSuffixTrie));
+            return this;
+        }
+
+        /// <summary>
+        /// Add a GeoShape field to the schema.
+        /// </summary>
+        /// <param name="name">The field's name.</param>
+        /// <param name="system">The coordinate system to use.</param>
+        /// <returns>The <see cref="Schema"/> object.</returns>
+        public Schema AddGeoShapeField(string name, CoordinateSystem system)
+        {
+            Fields.Add(new GeoShapeField(name, system));
+            return this;
+        }
+
+        /// <summary>
+        /// Add a GeoShape field to the schema.
+        /// </summary>
+        /// <param name="name">The field's name.</param>
+        /// <param name="system">The coordinate system to use.</param>
+        /// <returns>The <see cref="Schema"/> object.</returns>
+        public Schema AddGeoShapeField(FieldName name, CoordinateSystem system)
+        {
+            Fields.Add(new GeoShapeField(name, system));
             return this;
         }
 
