@@ -9,10 +9,6 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     private readonly string key = "CMS_TESTS";
     public CmsTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-    public void Dispose()
-    {
-        redisFixture.Redis.GetDatabase().KeyDelete(key);
-    }
 
     [Fact]
     public void TestInitByDim()
@@ -215,7 +211,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(new long[] { 10, 15 }, resp);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void TestMerge()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -264,7 +260,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task TestMergeAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();

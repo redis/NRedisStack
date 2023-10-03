@@ -1,17 +1,21 @@
 # Pipeline With Async
+
 ## An example of pipelines Redis Stack Redis commands (JSON.SET & JSON.CLEAR & JSON.GET)
 
 Connect to the Redis server
+
 ```csharp
 var redis = ConnectionMultiplexer.Connect("localhost");
 ```
 
 Get a reference to the database
+
 ```csharp
 var db = redis.GetDatabase();
 ```
 
 Setup pipeline connection
+
 ```csharp
 var pipeline = new Pipeline(db);
 ```
@@ -62,11 +66,13 @@ pipeline.Execute();
 ```
 
 Get a reference to the database and for TimeSeries commands:
+
 ```csharp
 var ts = db.TS();
 ```
 
 Get only the location label for each last sample, use SELECTED_LABELS.
+
 ```csharp
 var respons = await ts.MGetAsync(new List<string> { "temp=JLM" }, selectedLabels: new List<string> { "location" });
 ```

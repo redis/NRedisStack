@@ -37,14 +37,14 @@ namespace NRedisStack.Graph
         /// </summary>
         /// <param name="index">The index of the value that you want to get.</param>
         /// <returns>The string value at the index that you specified.</returns>
-        public string GetString(int index) => Values[index].ToString();
+        public string GetString(int index) => Values[index].ToString()!;
 
         /// <summary>
         /// Gets the string representation of a value by key.
         /// </summary>
         /// <param name="key">The key of the value that you want to get.</param>
         /// <returns>The string value at the key that you specified.</returns>
-        public string GetString(string key) => Values[Header.IndexOf(key)].ToString();
+        public string GetString(string key) => Values[Header.IndexOf(key)].ToString()!;
 
         /// <summary>
         /// Does the key exist in the record?

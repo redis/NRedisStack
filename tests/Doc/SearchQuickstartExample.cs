@@ -3,6 +3,7 @@ using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
 using NRedisStack.Search.Aggregation;
 using NRedisStack.Search.Literals.Enums;
+using NRedisStack.Tests;
 using StackExchange.Redis;
 
 // REMOVE_START
@@ -11,7 +12,7 @@ namespace NRedisStack.Doc;
 // REMOVE_END
 public class SearchQuickstartExample
 {
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void run()
     {
         // STEP_START connect
@@ -21,7 +22,7 @@ public class SearchQuickstartExample
         var json = db.JSON();
         // STEP_END
 
-        // REMOVE_START    
+        // REMOVE_START
         try
         {
             ft.DropIndex("idx:bicycle");
@@ -37,11 +38,11 @@ public class SearchQuickstartExample
             Brand = "Velorim",
             Model = "Jigger",
             Price = 270M,
-            Description =   "Small and powerful, the Jigger is the best ride " +
+            Description = "Small and powerful, the Jigger is the best ride " +
                             "for the smallest of tikes! This is the tiniest " +
                             "kids’ pedal bike on the market available without" +
                             " a coaster brake, the Jigger is the vehicle of " +
-                            "choice for the rare tenacious little rider " + 
+                            "choice for the rare tenacious little rider " +
                             "raring to go.",
             Condition = "used"
         };

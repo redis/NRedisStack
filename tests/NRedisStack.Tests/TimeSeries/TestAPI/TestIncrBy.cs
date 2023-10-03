@@ -11,10 +11,6 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
         public TestIncrBy(RedisFixture redisFixture) : base(redisFixture) { }
 
-        public void Dispose()
-        {
-            redisFixture.Redis.GetDatabase().KeyDelete(key);
-        }
 
         [Fact]
         public void TestDefaultIncrBy()
@@ -24,7 +20,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(ts.IncrBy(key, value) > 0);
-            Assert.Equal(value, ts.Get(key).Val);
+            Assert.Equal(value, ts.Get(key)!.Val);
         }
 
         [Fact]
@@ -35,7 +31,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(ts.IncrBy(key, value, timestamp: "*") > 0);
-            Assert.Equal(value, ts.Get(key).Val);
+            Assert.Equal(value, ts.Get(key)!.Val);
         }
 
         [Fact]
@@ -51,6 +47,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
+        [Obsolete]
         public void TestDefaultIncrByWithRetentionTime()
         {
             double value = 5.5;
@@ -59,12 +56,13 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(ts.IncrBy(key, value, retentionTime: retentionTime) > 0);
-            Assert.Equal(value, ts.Get(key).Val);
+            Assert.Equal(value, ts.Get(key)!.Val);
             TimeSeriesInformation info = ts.Info(key);
             Assert.Equal(retentionTime, info.RetentionTime);
         }
 
         [Fact]
+        [Obsolete]
         public void TestDefaultIncrByWithLabels()
         {
             double value = 5.5;
@@ -74,7 +72,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var ts = db.TS();
             var labels = new List<TimeSeriesLabel> { label };
             Assert.True(ts.IncrBy(key, value, labels: labels) > 0);
-            Assert.Equal(value, ts.Get(key).Val);
+            Assert.Equal(value, ts.Get(key)!.Val);
             TimeSeriesInformation info = ts.Info(key);
             Assert.Equal(labels, info.Labels);
         }
@@ -87,7 +85,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(ts.IncrBy(key, value, uncompressed: true) > 0);
-            Assert.Equal(value, ts.Get(key).Val);
+            Assert.Equal(value, ts.Get(key)!.Val);
         }
 
         [Fact]

@@ -58,7 +58,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/tfcall"/></remarks>
         public static RedisResult TFCall_(this IDatabase db, string libraryName, string functionName, string[]? keys = null, string[]? args = null)
         {
-            return db.Execute(GearsCommandBuilder.TFCall(libraryName, functionName, keys, args, async : false));
+            return db.Execute(GearsCommandBuilder.TFCall(libraryName, functionName, keys, args, async: false));
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/tfcallasync"/></remarks>
         public static RedisResult TFCallAsync_(this IDatabase db, string libraryName, string functionName, string[]? keys = null, string[]? args = null)
         {
-            return db.Execute(GearsCommandBuilder.TFCall(libraryName, functionName, keys, args, async : true));
+            return db.Execute(GearsCommandBuilder.TFCall(libraryName, functionName, keys, args, async: true));
         }
     }
 }

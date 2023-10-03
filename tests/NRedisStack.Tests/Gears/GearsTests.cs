@@ -5,29 +5,25 @@ namespace NRedisStack.Tests.Gears;
 
 public class GearsTests : AbstractNRedisStackTest, IDisposable
 {
-    private readonly string key = "BLOOM_TESTS";
+    // private readonly string key = "GEARS_TESTS";
     public GearsTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-    public void Dispose()
-    {
-        redisFixture.Redis.GetDatabase().KeyDelete(key);
-    }
-
-
-    [SkipIfRedisVersion(Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
     public void TestTFunctionLoadDelete()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
+        db.ExecuteBroadcast("REDISGEARS_2.REFRESHCLUSTER");
         db.Execute("FLUSHALL");
         Assert.True(db.TFunctionLoad(GenerateLibCode("lib")));
         Assert.True(db.TFunctionDelete("lib"));
     }
 
 
-    [SkipIfRedisVersion(Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
     public async Task TestTFunctionLoadDeleteAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
+        db.ExecuteBroadcast("REDISGEARS_2.REFRESHCLUSTER");
         db.Execute("FLUSHALL");
         TryDeleteLib(db, "lib", "lib1", "lib2", "lib3");
 
@@ -35,10 +31,11 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await db.TFunctionDeleteAsync("lib"));
     }
 
-    [SkipIfRedisVersion(Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
     public void TestTFunctionList()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
+        db.ExecuteBroadcast("REDISGEARS_2.REFRESHCLUSTER");
         db.Execute("FLUSHALL");
         TryDeleteLib(db, "lib", "lib1", "lib2", "lib3");
 
@@ -66,10 +63,11 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         Assert.True(db.TFunctionDelete("lib3"));
     }
 
-    [SkipIfRedisVersion(Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
     public async Task TestTFunctionListAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
+        db.ExecuteBroadcast("REDISGEARS_2.REFRESHCLUSTER");
         db.Execute("FLUSHALL");
         TryDeleteLib(db, "lib", "lib1", "lib2", "lib3");
 
@@ -95,10 +93,11 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await db.TFunctionDeleteAsync("lib3"));
     }
 
-    [SkipIfRedisVersion(Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
     public void TestTFCall()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
+        db.ExecuteBroadcast("REDISGEARS_2.REFRESHCLUSTER");
         db.Execute("FLUSHALL");
         TryDeleteLib(db, "lib", "lib1", "lib2", "lib3");
 
@@ -109,10 +108,11 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         Assert.True(db.TFunctionDelete("lib"));
     }
 
-    [SkipIfRedisVersion(Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
     public async Task TestTFCallAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
+        db.ExecuteBroadcast("REDISGEARS_2.REFRESHCLUSTER");
         db.Execute("FLUSHALL");
         TryDeleteLib(db, "lib", "lib1", "lib2", "lib3");
 
@@ -123,7 +123,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await db.TFunctionDeleteAsync("lib"));
     }
 
-    [SkipIfRedisVersion(Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
     public void TestGearsCommandBuilder()
     {
         // TFunctionLoad:
@@ -187,12 +187,14 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
 
     private static void TryDeleteLib(IDatabase db, params string[] libNames)
     {
-        try
+        foreach (var libName in libNames)
         {
-            foreach(var libName in libNames)
-                db.TFunctionDelete(libName);
+            try
+            {
+                db.ExecuteBroadcast(GearsCommandBuilder.TFunctionDelete(libName));
+            }
+            catch (RedisServerException) { } // ignore
         }
-        catch (RedisServerException) { }
     }
 
     private static string GenerateLibCode(string libName)

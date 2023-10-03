@@ -18,7 +18,7 @@ namespace NRedisStack
         /// <param name="duplicatePolicy">Optinal: Define handling of duplicate samples behavior (avalible for RedisTimeseries >= 1.4)</param>
         /// <returns>If the operation executed successfully</returns>
         /// <remarks><seealso href="https://redis.io/commands/ts.create"/></remarks>
-        Task<bool> CreateAsync(string key, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel> labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null);
+        Task<bool> CreateAsync(string key, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null);
 
         #endregion
 
@@ -51,7 +51,7 @@ namespace NRedisStack
         /// <param name="duplicatePolicy">Optioal: overwrite key and database configuration for DUPLICATE_POLICY</param>
         /// <returns>The timestamp value of the new sample</returns>
         /// <remarks><seealso href="https://redis.io/commands/ts.add"/></remarks>
-        Task<TimeStamp> AddAsync(string key, TimeStamp timestamp, double value, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel> labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null);
+        Task<TimeStamp> AddAsync(string key, TimeStamp timestamp, double value, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null);
 
         /// <summary>
         /// Append new samples to multiple series.

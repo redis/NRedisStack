@@ -9,10 +9,6 @@ public class TopKTests : AbstractNRedisStackTest, IDisposable
     private readonly string key = "TOPK_TESTS";
     public TopKTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-    public void Dispose()
-    {
-        redisFixture.Redis.GetDatabase().KeyDelete(key);
-    }
 
     [Fact]
     public void CreateTopKFilter()
@@ -21,34 +17,34 @@ public class TopKTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var topk = db.TOPK();
 
-        topk.Reserve("aaa", 30, 2000, 7, 0.925);
+        //db.KeyDelete(key, CommandFlags.FireAndForget);
+        topk.Reserve(key, 30, 2000, 7, 0.925);
 
-        var res = topk.Add("aaa", "bb", "cc");
-        Assert.True(res[0].IsNull && res[1].IsNull);
+        var res = topk.Add(key, "bb", "cc");
+        Assert.True(res![0].IsNull && res[1].IsNull);
+        Assert.Equal(topk.Query(key, "bb", "gg", "cc"), new bool[] { true, false, true });
+        Assert.False(topk.Query(key, "notExists"));
 
-        Assert.Equal(topk.Query("aaa", "bb", "gg", "cc"), new bool[] { true, false, true });
-        Assert.False(topk.Query("aaa", "notExists"));
+        Assert.Equal(topk.Count(key, "bb", "gg", "cc"), new long[] { 1, 0, 1 });
 
-        Assert.Equal(topk.Count("aaa", "bb", "gg", "cc"), new long[] { 1, 0, 1 });
-
-        var res2 = topk.List("aaa");
-        Assert.Equal(res2[0].ToString(), "bb");
-        Assert.Equal(res2[1].ToString(), "cc");
+        var res2 = topk.List(key);
+        Assert.Equal("bb", res2[0].ToString());
+        Assert.Equal("cc", res2[1].ToString());
 
         var tuple = new Tuple<RedisValue, long>("ff", 10);
-        var del = topk.IncrBy("aaa", tuple);
-        Assert.True(topk.IncrBy("aaa", tuple)[0].IsNull);
+        var del = topk.IncrBy(key, tuple);
+        Assert.True(topk.IncrBy(key, tuple)[0].IsNull);
 
-        res2 = topk.List("aaa");
-        Assert.Equal(res2[0].ToString(), "ff");
-        Assert.Equal(res2[1].ToString(), "bb");
-        Assert.Equal(res2[2].ToString(), "cc");
+        res2 = topk.List(key);
+        Assert.Equal("ff", res2[0].ToString());
+        Assert.Equal("bb", res2[1].ToString());
+        Assert.Equal("cc", res2[2].ToString());
 
-        var info = topk.Info("aaa");
-        Assert.Equal(info.Decay, 0.925);
-        Assert.Equal(info.Depth, 7);
-        Assert.Equal(info.K, 30);
-        Assert.Equal(info.Width, 2000);
+        var info = topk.Info(key);
+        Assert.Equal(0.925, info.Decay);
+        Assert.Equal(7, info.Depth);
+        Assert.Equal(30, info.K);
+        Assert.Equal(2000, info.Width);
     }
 
     [Fact]
@@ -58,33 +54,33 @@ public class TopKTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var topk = db.TOPK();
 
-        await topk.ReserveAsync("aaa", 30, 2000, 7, 0.925);
+        await topk.ReserveAsync(key, 30, 2000, 7, 0.925);
 
-        var res = await topk.AddAsync("aaa", "bb", "cc");
-        Assert.True(res[0].IsNull && res[1].IsNull);
+        var res = await topk.AddAsync(key, "bb", "cc");
+        Assert.True(res![0].IsNull && res[1].IsNull);
 
-        Assert.Equal(await topk.QueryAsync("aaa", "bb", "gg", "cc"), new bool[] { true, false, true });
-        Assert.False(await topk.QueryAsync("aaa", "notExists"));
+        Assert.Equal(await topk.QueryAsync(key, "bb", "gg", "cc"), new bool[] { true, false, true });
+        Assert.False(await topk.QueryAsync(key, "notExists"));
 
-        Assert.Equal(await topk.CountAsync("aaa", "bb", "gg", "cc"), new long[] { 1, 0, 1 });
+        Assert.Equal(await topk.CountAsync(key, "bb", "gg", "cc"), new long[] { 1, 0, 1 });
 
-        var res2 = await topk.ListAsync("aaa");
-        Assert.Equal(res2[0].ToString(), "bb");
-        Assert.Equal(res2[1].ToString(), "cc");
+        var res2 = await topk.ListAsync(key);
+        Assert.Equal("bb", res2[0].ToString());
+        Assert.Equal("cc", res2[1].ToString());
 
         var tuple = new Tuple<RedisValue, long>("ff", 10);
-        Assert.True((await topk.IncrByAsync("aaa", tuple))[0].IsNull);
+        Assert.True((await topk.IncrByAsync(key, tuple))[0].IsNull);
 
-        res2 = await topk.ListAsync("aaa");
-        Assert.Equal(res2[0].ToString(), "ff");
-        Assert.Equal(res2[1].ToString(), "bb");
-        Assert.Equal(res2[2].ToString(), "cc");
+        res2 = await topk.ListAsync(key);
+        Assert.Equal("ff", res2[0].ToString());
+        Assert.Equal("bb", res2[1].ToString());
+        Assert.Equal("cc", res2[2].ToString());
 
-        var info = await topk.InfoAsync("aaa");
-        Assert.Equal(info.Decay, 0.925);
-        Assert.Equal(info.Depth, 7);
-        Assert.Equal(info.K, 30);
-        Assert.Equal(info.Width, 2000);
+        var info = await topk.InfoAsync(key);
+        Assert.Equal(0.925, info.Decay);
+        Assert.Equal(7, info.Depth);
+        Assert.Equal(30, info.K);
+        Assert.Equal(2000, info.Width);
     }
 
     [Fact]

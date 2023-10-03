@@ -8,25 +8,13 @@ namespace NRedisStack.Tests.Graph;
 
 public class GraphTests : AbstractNRedisStackTest, IDisposable
 {
-    private readonly string key = "GRAPH_TESTS";
+    // private readonly string key = "GRAPH_TESTS";
     public GraphTests(RedisFixture redisFixture) : base(redisFixture) { }
-
-    public void Dispose()
-    {
-        redisFixture.Redis.GetDatabase().KeyDelete(key);
-    }
 
     #region SyncTests
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
-    public void TestReserveBasic()
-    {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
-        var graph = db.GRAPH();
-    }
-
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestCreateNode()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -43,13 +31,14 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, stats.PropertiesSet);
         Assert.NotNull(stats.QueryInternalExecutionTime);
 
-        Assert.Equal(0, resultSet.Count);
+        Assert.Empty(resultSet);
 
         // delete
         graph.Delete("social");
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestCreateLabeledNode()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -66,11 +55,12 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         //        Assert.NotNull(stats.getstringValue(Label.QUERY_INTERNAL_EXECUTION_TIME));
         Assert.NotNull(stats.QueryInternalExecutionTime);
 
-        Assert.Equal(0, resultSet.Count);
+        Assert.Empty(resultSet);
         // Assert.False(resultSet..iterator().MoveNext());
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestConnectNodes()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -94,10 +84,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         //        Assert.NotNull(stats.getstringValue(Label.QUERY_INTERNAL_EXECUTION_TIME));
         Assert.NotNull(stats.QueryInternalExecutionTime);
 
-        Assert.Equal(0, resultSet.Count);
+        Assert.Empty(resultSet);
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestDeleteNodes()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -120,7 +111,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, delStats.PropertiesSet);
         //        Assert.NotNull(delStats.getstringValue(Label.QUERY_INTERNAL_EXECUTION_TIME));
         Assert.NotNull(delStats.QueryInternalExecutionTime);
-        Assert.Equal(0, deleteResult.Count);
+        Assert.Empty(deleteResult);
         // Assert.False(deleteResult.iterator().MoveNext());
 
         Assert.NotNull(graph.Query("social", "CREATE (:person{name:'roi',age:32})"));
@@ -140,11 +131,12 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, delStats.PropertiesSet);
         //        Assert.NotNull(delStats.getstringValue(Label.QUERY_INTERNAL_EXECUTION_TIME));
         Assert.NotNull(delStats.QueryInternalExecutionTime);
-        Assert.Equal(0, deleteResult.Count);
+        Assert.Empty(deleteResult);
         // Assert.False(deleteResult.iterator().MoveNext());
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestDeleteRelationship()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -170,11 +162,12 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, delStats.PropertiesSet);
         //        Assert.NotNull(delStats.getstringValue(Label.QUERY_INTERNAL_EXECUTION_TIME));
         Assert.NotNull(delStats.QueryInternalExecutionTime);
-        Assert.Equal(0, deleteResult.Count);
+        Assert.Empty(deleteResult);
         // Assert.False(deleteResult.iterator().MoveNext());
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestIndex()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -201,7 +194,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, deleteExistingIndexResult.Statistics.IndicesDeleted);
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestHeader()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -215,7 +209,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         ResultSet queryResult = graph.Query("social", "MATCH (a:person)-[r:knows]->(b:person) RETURN a,r, a.age");
 
-        Header header = queryResult.Header;
+        Header header = queryResult.Header!;
         Assert.NotNull(header);
         Assert.Equal("Header{"
                 //                + "schemaTypes=[COLUMN_SCALAR, COLUMN_SCALAR, COLUMN_SCALAR], "
@@ -232,7 +226,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("a.age", schemaNames[2]);
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestRecord()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -305,7 +300,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(stats.QueryInternalExecutionTime);
         Assert.NotEmpty(stats.QueryInternalExecutionTime);
 
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         // IReadOnlyCollection<Record> iterator = resultSet.GetEnumerator();
         var iterator = resultSet.GetEnumerator();
         Assert.True(iterator.MoveNext());
@@ -357,7 +352,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestAdditionToProcedures()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -388,13 +384,13 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         ResultSet resultSet = graph.Query("social", "MATCH (a:person)-[r:knows]->(b:person) RETURN a,r");
         Assert.NotNull(resultSet.Header);
-        Header header = resultSet.Header;
+        Header header = resultSet.Header!;
         List<string> schemaNames = header.SchemaNames;
         Assert.NotNull(schemaNames);
         Assert.Equal(2, schemaNames.Count);
         Assert.Equal("a", schemaNames[0]);
         Assert.Equal("r", schemaNames[1]);
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         var iterator = resultSet.GetEnumerator();
         Assert.True(iterator.MoveNext());
         var record = iterator.Current;
@@ -421,13 +417,13 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
                 "MATCH (a:worker), (b:worker) WHERE (a.lastName = 'a' AND b.lastName='b')  CREATE (a)-[:worksWith]->(b)"));
         resultSet = graph.Query("social", "MATCH (a:worker)-[r:worksWith]->(b:worker) RETURN a,r");
         Assert.NotNull(resultSet.Header);
-        header = resultSet.Header;
+        header = resultSet.Header!;
         schemaNames = header.SchemaNames;
         Assert.NotNull(schemaNames);
         Assert.Equal(2, schemaNames.Count);
         Assert.Equal("a", schemaNames[0]);
         Assert.Equal("r", schemaNames[1]);
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         iterator = resultSet.GetEnumerator();
         Assert.True(iterator.MoveNext());
         record = iterator.Current;
@@ -437,7 +433,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expectedEdge.ToString(), record.Values[1].ToString());
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestEscapedQuery()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -456,7 +453,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(graph.Query("social", "MATCH (n) where n.s1='S\"' RETURN n"));
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestArraySupport()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -492,15 +490,15 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         // check header
         Assert.NotNull(resultSet.Header);
-        Header header = resultSet.Header;
+        Header header = resultSet.Header!;
 
         List<string> schemaNames = header.SchemaNames;
         Assert.NotNull(schemaNames);
-        Assert.Equal(1, schemaNames.Count);
+        Assert.Single(schemaNames);
         Assert.Equal("x", schemaNames[0]);
 
         // check record
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         var iterator = resultSet.GetEnumerator();
         Assert.True(iterator.MoveNext());
         NRedisStack.Graph.Record record = iterator.Current;
@@ -514,15 +512,15 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         resultSet = graph.Query("social", "MATCH(n) return collect(n) as x");
 
         Assert.NotNull(resultSet.Header);
-        header = resultSet.Header;
+        header = resultSet.Header!;
 
         schemaNames = header.SchemaNames;
         Assert.NotNull(schemaNames);
-        Assert.Equal(1, schemaNames.Count);
+        Assert.Single(schemaNames);
         Assert.Equal("x", schemaNames[0]);
 
         // check record
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         iterator = resultSet.GetEnumerator();
         Assert.True(iterator.MoveNext());
         record = iterator.Current;
@@ -537,11 +535,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         resultSet = graph.Query("social", "unwind([0,1,2]) as x return x");
 
         Assert.NotNull(resultSet.Header);
-        header = resultSet.Header;
+        header = resultSet.Header!;
 
         schemaNames = header.SchemaNames;
         Assert.NotNull(schemaNames);
-        Assert.Equal(1, schemaNames.Count);
+        Assert.Single(schemaNames);
         Assert.Equal("x", schemaNames[0]);
 
         // check record
@@ -556,7 +554,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         }
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestPath()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -608,7 +607,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         }
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestNullGraphEntities()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -618,12 +618,14 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(graph.Query("social", "CREATE (:L)-[:E]->(:L2)"));
         // Test a query that produces 1 record with 3 null values.
         ResultSet resultSet = graph.Query("social", "OPTIONAL MATCH (a:NONEXISTENT)-[e]->(b) RETURN a, e, b");
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         IEnumerator<NRedisStack.Graph.Record> iterator = resultSet.GetEnumerator();
         Assert.True(iterator.MoveNext());
         NRedisStack.Graph.Record record = iterator.Current;
         Assert.False(iterator.MoveNext());
-        Assert.Equal(new List<object>() { null, null, null }, record.Values);
+        Assert.Equal(new List<object>() { null!, null!, null! }, record.Values);
+
+
 
         // Test a query that produces 2 records, with 2 null values in the second.
         resultSet = graph.Query("social", "MATCH (a) OPTIONAL MATCH (a)-[e]->(b) RETURN a, e, b ORDER BY ID(a)");
@@ -662,7 +664,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(record.Values[0]);
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void Test64BitNumber()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -672,7 +675,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Dictionary<string, object> parameters = new Dictionary<string, object>();
         parameters.Add("val", value);
         ResultSet resultSet = graph.Query("social", "CREATE (n {val:$val}) RETURN n.val", parameters);
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
 
         // NRedisStack.Graph.Record r = resultSet.GetEnumerator().Current;
         // Assert.Equal(value, r.Values[0]);
@@ -680,7 +683,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestCachedExecution()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -692,7 +696,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Dictionary<string, object> parameters = new Dictionary<string, object>();
         parameters.Add("val", 1L);
         ResultSet resultSet = graph.Query("social", "MATCH (n:N {val:$val}) RETURN n.val", parameters);
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         // NRedisStack.Graph.Record r = resultSet.GetEnumerator().Current;
         Assert.Equal(parameters["val"], resultSet.First().Values[0]);
         Assert.False(resultSet.Statistics.CachedExecution);
@@ -703,7 +707,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         {
             resultSet = graph.Query("social", "MATCH (n:N {val:$val}) RETURN n.val", parameters);
         }
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         // r = resultSet.GetEnumerator().Current;
         // Assert.Equal(parameters["val"], r.Values[0]);
         Assert.Equal(parameters["val"], resultSet.First().Values[0]);
@@ -711,28 +715,30 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.True(resultSet.Statistics.CachedExecution);
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestMapDataType()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var graph = db.GRAPH();
-        Dictionary<string, object> expected = new Dictionary<string, object>();
-        expected.Add("a", (long)1);
-        expected.Add("b", "str");
-        expected.Add("c", null);
-        List<object> d = new List<object>();
-        d.Add((long)1);
-        d.Add((long)2);
-        d.Add((long)3);
+        Dictionary<string, object?> expected = new Dictionary<string, object?>
+        {
+            { "a", (long)1 },
+            { "b", "str" },
+            { "c", null }
+        };
+        List<object> d = new List<object> { 1L, 2L, 3L };
         expected.Add("d", d);
         expected.Add("e", true);
-        Dictionary<string, object> f = new Dictionary<string, object>();
-        f.Add("x", (long)1);
-        f.Add("y", (long)2);
+        Dictionary<string, object> f = new Dictionary<string, object>
+        {
+            { "x", (long)1 },
+            { "y", (long)2 }
+        };
         expected.Add("f", f);
         ResultSet res = graph.Query("social", "RETURN {a:1, b:'str', c:NULL, d:[1,2,3], e:True, f:{x:1, y:2}}");
-        Assert.Equal(1, res.Count);
+        Assert.Single(res);
 
         var iterator = res.GetEnumerator();
         iterator.MoveNext();
@@ -741,7 +747,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal((object)expected, actual);
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestGeoPointLatLon()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -755,7 +762,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         AssertTestGeoPoint(graph);
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestGeoPointLonLat()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -769,10 +777,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         AssertTestGeoPoint(graph);
     }
 
+    [Obsolete]
     private void AssertTestGeoPoint(IGraphCommands graph)
     {
         ResultSet results = graph.Query("social", "MATCH (restaurant) RETURN restaurant");
-        Assert.Equal(1, results.Count);
+        Assert.Single(results);
         var record = results.GetEnumerator();
         record.MoveNext();
         Assert.Equal(1, record.Current.Size);
@@ -784,7 +793,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal((object)(point), property);
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestPoint()
     {
         var point = new Point(30.27822306, -97.75134723);
@@ -796,21 +806,23 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Throws<ArgumentOutOfRangeException>(() => new Point(new List<double> { 1, 2, 3 }));
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void timeoutArgument()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var graph = db.GRAPH();
         ResultSet rs = graph.Query("social", "UNWIND range(0,100) AS x WITH x AS x WHERE x = 100 RETURN x", 1L);
-        Assert.Equal(1, rs.Count);
+        Assert.Single(rs);
         var iterator = rs.GetEnumerator();
         iterator.MoveNext();
         var r = iterator.Current;
-        Assert.Equal(100l, (long)r.Values[0]);
+        Assert.Equal(100, (long)r.Values[0]);
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestCachedExecutionReadOnly()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -822,7 +834,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Dictionary<string, object> parameters = new Dictionary<string, object>();
         parameters.Add("val", 1L);
         ResultSet resultSet = graph.RO_Query("social", "MATCH (n:N {val:$val}) RETURN n.val", parameters);
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         var iterator = resultSet.GetEnumerator();
         iterator.MoveNext();
         NRedisStack.Graph.Record r = iterator.Current;
@@ -835,7 +847,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         {
             resultSet = graph.RO_Query("social", "MATCH (n:N {val:$val}) RETURN n.val", parameters);
         }
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         iterator = resultSet.GetEnumerator();
         iterator.MoveNext();
         r = iterator.Current;
@@ -843,7 +855,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.True(resultSet.Statistics.CachedExecution);
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestSimpleReadOnly()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -851,14 +864,15 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         var graph = db.GRAPH();
         graph.Query("social", "CREATE (:person{name:'filipe',age:30})");
         ResultSet rsRo = graph.RO_Query("social", "MATCH (a:person) WHERE (a.name = 'filipe') RETURN a.age");
-        Assert.Equal(1, rsRo.Count);
+        Assert.Single(rsRo);
         var iterator = rsRo.GetEnumerator();
         iterator.MoveNext();
         var r = iterator.Current;
         Assert.Equal("30", r.Values[0].ToString());
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestProfile()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -876,7 +890,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         }
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestExplain()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -894,7 +909,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         }
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestSlowlog()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -909,7 +925,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         slowlogs.ForEach(sl => sl.ForEach(s => Assert.NotNull(s)));
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestList()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -922,7 +939,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(new List<string>() { "social" }, graph.List());
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestConfig()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -936,13 +954,14 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.True(graph.ConfigSet(name, 250L));
 
         var actual = graph.ConfigGet(name);
-        Assert.Equal(actual.Count, 1);
+        Assert.Single(actual);
         Assert.Equal("250", actual[name].ToString());
 
-        graph.ConfigSet(name, existingValue != null ? existingValue.ToString() : -1);
+        graph.ConfigSet(name, existingValue != null ? existingValue.ToString()! : -1);
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestModulePrefixs()
     {
         IDatabase db1 = redisFixture.Redis.GetDatabase();
@@ -954,7 +973,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.NotEqual(graph1.GetHashCode(), graph2.GetHashCode());
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestCallProcedureDbLabels()
     {
         var db = redisFixture.Redis.GetDatabase();
@@ -975,7 +995,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Single(labels1);
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestCallProcedureReadOnly()
     {
         var db = redisFixture.Redis.GetDatabase();
@@ -1001,15 +1022,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
     #region AsyncTests
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
-    public async Task TestReserveBasicAsync()
-    {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
-        var graph = db.GRAPH();
-    }
-
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public async Task TestCreateNodeAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1026,13 +1040,14 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, stats.PropertiesSet);
         Assert.NotNull(stats.QueryInternalExecutionTime);
 
-        Assert.Equal(0, resultSet.Count);
+        Assert.Empty(resultSet);
 
         // delete
         await graph.DeleteAsync("social");
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public async Task TestCreateLabeledNodeAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1049,11 +1064,12 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         //        Assert.NotNull(stats.getstringValue(Label.QUERY_INTERNAL_EXECUTION_TIME));
         Assert.NotNull(stats.QueryInternalExecutionTime);
 
-        Assert.Equal(0, resultSet.Count);
+        Assert.Empty(resultSet);
         // Assert.False(resultSet..iterator().MoveNext());
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public async Task TestConnectNodesAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1077,11 +1093,12 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         //        Assert.NotNull(stats.getstringValue(Label.QUERY_INTERNAL_EXECUTION_TIME));
         Assert.NotNull(stats.QueryInternalExecutionTime);
 
-        Assert.Equal(0, resultSet.Count);
+        Assert.Empty(resultSet);
         // Assert.False(resultSet.GetEnumerator().MoveNext());
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public async Task TestDeleteNodesAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1104,7 +1121,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, delStats.PropertiesSet);
         //        Assert.NotNull(delStats.getstringValue(Label.QUERY_INTERNAL_EXECUTION_TIME));
         Assert.NotNull(delStats.QueryInternalExecutionTime);
-        Assert.Equal(0, deleteResult.Count);
+        Assert.Empty(deleteResult);
         // Assert.False(deleteResult.iterator().MoveNext());
 
         Assert.NotNull(await graph.QueryAsync("social", "CREATE (:person{name:'roi',age:32})"));
@@ -1124,11 +1141,12 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, delStats.PropertiesSet);
         //        Assert.NotNull(delStats.getstringValue(Label.QUERY_INTERNAL_EXECUTION_TIME));
         Assert.NotNull(delStats.QueryInternalExecutionTime);
-        Assert.Equal(0, deleteResult.Count);
+        Assert.Empty(deleteResult);
         // Assert.False(deleteResult.iterator().MoveNext());
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public async Task TestDeleteRelationshipAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1154,11 +1172,12 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, delStats.PropertiesSet);
         //        Assert.NotNull(delStats.getstringValue(Label.QUERY_INTERNAL_EXECUTION_TIME));
         Assert.NotNull(delStats.QueryInternalExecutionTime);
-        Assert.Equal(0, deleteResult.Count);
+        Assert.Empty(deleteResult);
         // Assert.False(deleteResult.iterator().MoveNext());
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public async Task TestIndexAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1185,7 +1204,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, deleteExistingIndexResult.Statistics.IndicesDeleted);
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public async Task TestHeaderAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1199,7 +1219,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         ResultSet queryResult = await graph.QueryAsync("social", "MATCH (a:person)-[r:knows]->(b:person) RETURN a,r, a.age");
 
-        Header header = queryResult.Header;
+        Header header = queryResult.Header!;
         Assert.NotNull(header);
         Assert.Equal("Header{"
                 //                + "schemaTypes=[COLUMN_SCALAR, COLUMN_SCALAR, COLUMN_SCALAR], "
@@ -1216,7 +1236,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("a.age", schemaNames[2]);
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public async Task TestRecordAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1291,7 +1312,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(stats.QueryInternalExecutionTime);
         Assert.NotEmpty(stats.QueryInternalExecutionTime);
 
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         // IReadOnlyCollection<Record> iterator = resultSet.GetEnumerator();
         var iterator = resultSet.GetEnumerator();
         Assert.True(iterator.MoveNext());
@@ -1343,7 +1364,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public async Task TestAdditionToProceduresAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1374,13 +1396,13 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         ResultSet resultSet = await graph.QueryAsync("social", "MATCH (a:person)-[r:knows]->(b:person) RETURN a,r");
         Assert.NotNull(resultSet.Header);
-        Header header = resultSet.Header;
+        Header header = resultSet.Header!;
         List<string> schemaNames = header.SchemaNames;
         Assert.NotNull(schemaNames);
         Assert.Equal(2, schemaNames.Count);
         Assert.Equal("a", schemaNames[0]);
         Assert.Equal("r", schemaNames[1]);
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         var iterator = resultSet.GetEnumerator();
         Assert.True(iterator.MoveNext());
         var record = iterator.Current;
@@ -1407,13 +1429,13 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
                 "MATCH (a:worker), (b:worker) WHERE (a.lastName = 'a' AND b.lastName='b')  CREATE (a)-[:worksWith]->(b)"));
         resultSet = await graph.QueryAsync("social", "MATCH (a:worker)-[r:worksWith]->(b:worker) RETURN a,r");
         Assert.NotNull(resultSet.Header);
-        header = resultSet.Header;
+        header = resultSet.Header!;
         schemaNames = header.SchemaNames;
         Assert.NotNull(schemaNames);
         Assert.Equal(2, schemaNames.Count);
         Assert.Equal("a", schemaNames[0]);
         Assert.Equal("r", schemaNames[1]);
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         iterator = resultSet.GetEnumerator();
         Assert.True(iterator.MoveNext());
         record = iterator.Current;
@@ -1423,7 +1445,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expectedEdge.ToString(), record.Values[1].ToString());
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public async Task TestEscapedQueryAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1442,7 +1465,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(await graph.QueryAsync("social", "MATCH (n) where n.s1='S\"' RETURN n"));
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public async Task TestArraySupportAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1478,15 +1502,15 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
         // check header
         Assert.NotNull(resultSet.Header);
-        Header header = resultSet.Header;
+        Header header = resultSet.Header!;
 
         List<string> schemaNames = header.SchemaNames;
         Assert.NotNull(schemaNames);
-        Assert.Equal(1, schemaNames.Count);
+        Assert.Single(schemaNames);
         Assert.Equal("x", schemaNames[0]);
 
         // check record
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         var iterator = resultSet.GetEnumerator();
         Assert.True(iterator.MoveNext());
         NRedisStack.Graph.Record record = iterator.Current;
@@ -1500,15 +1524,15 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         resultSet = await graph.QueryAsync("social", "MATCH(n) return collect(n) as x");
 
         Assert.NotNull(resultSet.Header);
-        header = resultSet.Header;
+        header = resultSet.Header!;
 
         schemaNames = header.SchemaNames;
         Assert.NotNull(schemaNames);
-        Assert.Equal(1, schemaNames.Count);
+        Assert.Single(schemaNames);
         Assert.Equal("x", schemaNames[0]);
 
         // check record
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         iterator = resultSet.GetEnumerator();
         Assert.True(iterator.MoveNext());
         record = iterator.Current;
@@ -1523,11 +1547,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         resultSet = await graph.QueryAsync("social", "unwind([0,1,2]) as x return x");
 
         Assert.NotNull(resultSet.Header);
-        header = resultSet.Header;
+        header = resultSet.Header!;
 
         schemaNames = header.SchemaNames;
         Assert.NotNull(schemaNames);
-        Assert.Equal(1, schemaNames.Count);
+        Assert.Single(schemaNames);
         Assert.Equal("x", schemaNames[0]);
 
         // check record
@@ -1542,7 +1566,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         }
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public async Task TestPathAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1594,7 +1619,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         }
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public async Task TestNullGraphEntitiesAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1604,12 +1630,12 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(await graph.QueryAsync("social", "CREATE (:L)-[:E]->(:L2)"));
         // Test a query that produces 1 record with 3 null values.
         ResultSet resultSet = await graph.QueryAsync("social", "OPTIONAL MATCH (a:NONEXISTENT)-[e]->(b) RETURN a, e, b");
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         IEnumerator<NRedisStack.Graph.Record> iterator = resultSet.GetEnumerator();
         Assert.True(iterator.MoveNext());
         NRedisStack.Graph.Record record = iterator.Current;
         Assert.False(iterator.MoveNext());
-        Assert.Equal(new List<object>() { null, null, null }, record.Values);
+        Assert.Equal(new List<object>() { null!, null!, null! }, record.Values);
 
         // Test a query that produces 2 records, with 2 null values in the second.
         resultSet = await graph.QueryAsync("social", "MATCH (a) OPTIONAL MATCH (a)-[e]->(b) RETURN a, e, b ORDER BY ID(a)");
@@ -1648,7 +1674,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(record.Values[0]);
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public async Task Test64bitnumberAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1658,7 +1685,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Dictionary<string, object> parameters = new Dictionary<string, object>();
         parameters.Add("val", value);
         ResultSet resultSet = await graph.QueryAsync("social", "CREATE (n {val:$val}) RETURN n.val", parameters);
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
 
         // NRedisStack.Graph.Record r = resultSet.GetEnumerator().Current;
         // Assert.Equal(value, r.Values[0]);
@@ -1666,7 +1693,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public async Task TestCachedExecutionAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1678,7 +1706,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Dictionary<string, object> parameters = new Dictionary<string, object>();
         parameters.Add("val", 1L);
         ResultSet resultSet = await graph.QueryAsync("social", "MATCH (n:N {val:$val}) RETURN n.val", parameters);
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         // NRedisStack.Graph.Record r = resultSet.GetEnumerator().Current;
         Assert.Equal(parameters["val"], resultSet.First().Values[0]);
         Assert.False(resultSet.Statistics.CachedExecution);
@@ -1689,7 +1717,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         {
             resultSet = await graph.QueryAsync("social", "MATCH (n:N {val:$val}) RETURN n.val", parameters);
         }
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         // r = resultSet.GetEnumerator().Current;
         // Assert.Equal(parameters["val"], r.Values[0]);
         Assert.Equal(parameters["val"], resultSet.First().Values[0]);
@@ -1697,16 +1725,19 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.True(resultSet.Statistics.CachedExecution);
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public async Task TestMapDataTypeAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var graph = db.GRAPH();
-        Dictionary<string, object> expected = new Dictionary<string, object>();
-        expected.Add("a", (long)1);
-        expected.Add("b", "str");
-        expected.Add("c", null);
+        Dictionary<string, object> expected = new Dictionary<string, object>
+        {
+            { "a", (long)1 },
+            { "b", "str" },
+            { "c", null! }
+        };
         List<object> d = new List<object>();
         d.Add((long)1);
         d.Add((long)2);
@@ -1718,7 +1749,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         f.Add("y", (long)2);
         expected.Add("f", f);
         ResultSet res = await graph.QueryAsync("social", "RETURN {a:1, b:'str', c:NULL, d:[1,2,3], e:True, f:{x:1, y:2}}");
-        Assert.Equal(1, res.Count);
+        Assert.Single(res);
 
         var iterator = res.GetEnumerator();
         iterator.MoveNext();
@@ -1727,7 +1758,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal((object)expected, actual);
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public async Task TestGeoPointLatLonAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1741,7 +1773,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         AssertTestGeoPoint(graph);
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public async Task TestGeoPointLonLatAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1755,10 +1788,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         AssertTestGeoPoint(graph);
     }
 
+    [Obsolete]
     private async Task AssertTestGeoPointAsync(GraphCommands graph)
     {
         ResultSet results = await graph.QueryAsync("social", "MATCH (restaurant) RETURN restaurant");
-        Assert.Equal(1, results.Count);
+        Assert.Single(results);
         var record = results.GetEnumerator();
         record.MoveNext();
         Assert.Equal(1, record.Current.Size);
@@ -1769,21 +1803,23 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal((object)(new Point(30.27822306, -97.75134723)), property);
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public async Task timeoutArgumentAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var graph = db.GRAPH();
         ResultSet rs = await graph.QueryAsync("social", "UNWIND range(0,100) AS x WITH x AS x WHERE x = 100 RETURN x", 1L);
-        Assert.Equal(1, rs.Count);
+        Assert.Single(rs);
         var iterator = rs.GetEnumerator();
         iterator.MoveNext();
         var r = iterator.Current;
-        Assert.Equal(100l, (long)r.Values[0]);
+        Assert.Equal(100, (long)r.Values[0]);
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public async Task TestCachedExecutionReadOnlyAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1795,7 +1831,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Dictionary<string, object> parameters = new Dictionary<string, object>();
         parameters.Add("val", 1L);
         ResultSet resultSet = await graph.RO_QueryAsync("social", "MATCH (n:N {val:$val}) RETURN n.val", parameters);
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         var iterator = resultSet.GetEnumerator();
         iterator.MoveNext();
         NRedisStack.Graph.Record r = iterator.Current;
@@ -1808,7 +1844,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         {
             resultSet = await graph.RO_QueryAsync("social", "MATCH (n:N {val:$val}) RETURN n.val", parameters);
         }
-        Assert.Equal(1, resultSet.Count);
+        Assert.Single(resultSet);
         iterator = resultSet.GetEnumerator();
         iterator.MoveNext();
         r = iterator.Current;
@@ -1816,7 +1852,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.True(resultSet.Statistics.CachedExecution);
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public async Task TestSimpleReadOnlyAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1824,14 +1861,15 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         var graph = db.GRAPH();
         await graph.QueryAsync("social", "CREATE (:person{name:'filipe',age:30})");
         ResultSet rsRo = await graph.RO_QueryAsync("social", "MATCH (a:person) WHERE (a.name = 'filipe') RETURN a.age");
-        Assert.Equal(1, rsRo.Count);
+        Assert.Single(rsRo);
         var iterator = rsRo.GetEnumerator();
         iterator.MoveNext();
         var r = iterator.Current;
         Assert.Equal("30", r.Values[0].ToString());
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public async Task TestProfileAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1849,7 +1887,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         }
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public async Task TestExplainAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1867,7 +1906,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         }
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public async Task TestSlowlogAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1882,7 +1922,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         slowlogs.ForEach(sl => sl.ForEach(s => Assert.NotNull(s)));
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public async Task TestListAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1895,7 +1936,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(new List<string>() { "social" }, await graph.ListAsync());
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public async Task TestConfigAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1909,25 +1951,14 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await graph.ConfigSetAsync(name, 250L));
 
         var actual = await graph.ConfigGetAsync(name);
-        Assert.Equal(actual.Count, 1);
+        Assert.Single(actual);
         Assert.Equal("250", actual[name].ToString());
 
-        await graph.ConfigSetAsync(name, existingValue != null ? existingValue.ToString() : -1);
+        await graph.ConfigSetAsync(name, existingValue != null ? existingValue.ToString()! : -1);
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
-    public async Task TestModulePrefixsAsync()
-    {
-        IDatabase db1 = redisFixture.Redis.GetDatabase();
-        IDatabase db2 = redisFixture.Redis.GetDatabase();
-
-        var graph1 = db1.GRAPH();
-        var graph2 = db2.GRAPH();
-
-        Assert.NotEqual(graph1.GetHashCode(), graph2.GetHashCode());
-    }
-
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public async Task TestCallProcedureDbLabelsAsync()
     {
         var db = redisFixture.Redis.GetDatabase();
@@ -1948,7 +1979,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Single(labels1);
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public async Task TestCallProcedureReadOnlyAsync()
     {
         var db = redisFixture.Redis.GetDatabase();
@@ -1970,21 +2002,23 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         await Assert.ThrowsAsync<RedisServerException>(() => graph.CallProcedureAsync(graphName, "db.idx.fulltext.createNodeIndex", procedureArgs, ProcedureMode.Read));
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestParseInfinity()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var graph = db.GRAPH();
         ResultSet rs = graph.Query("db", "RETURN 10^100000");
-        Assert.Equal(1, rs.Count());
+        Assert.Single(rs);
         var iterator = rs.GetEnumerator();
         iterator.MoveNext();
         var r = iterator.Current;
         Assert.Equal(double.PositiveInfinity, r.Values[0]);
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestEqualsAndToString()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1999,7 +2033,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.True(iterator2.MoveNext());
         var record2 = iterator2.Current;
 
-        Assert.True(resultSet1.Header.Equals(resultSet1.Header));
+        Assert.True(resultSet1.Header!.Equals(resultSet1.Header));
         Assert.False(resultSet1.Header.Equals(resultSet2.Header));
         Assert.False(resultSet1.Header.Equals(new object()));
         Assert.False(resultSet1.Header.Equals(null));
@@ -2036,22 +2070,22 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
 
 
 
-        var path = new NRedisStack.Graph.DataTypes.Path(new List<Node>() { node1, node2 },
-                                                        new List<Edge>() { edge1, edge2 });
-        var pathCopy = new NRedisStack.Graph.DataTypes.Path(new List<Node>() { node1, node2 },
-                                                            new List<Edge>() { edge1, edge2 });
-        var path2 = new NRedisStack.Graph.DataTypes.Path(new List<Node>() { node1, node2 },
-                                                         new List<Edge>() { edge1 });
+        var path = new NRedisStack.Graph.DataTypes.Path(new List<Node>() { node1!, node2 },
+                                                        new List<Edge>() { edge1!, edge2 });
+        var pathCopy = new NRedisStack.Graph.DataTypes.Path(new List<Node>() { node1!, node2 },
+                                                            new List<Edge>() { edge1!, edge2 });
+        var path2 = new NRedisStack.Graph.DataTypes.Path(new List<Node>() { node1!, node2 },
+                                                         new List<Edge>() { edge1! });
         Assert.True(path.Equals(pathCopy));
         Assert.True(path.Equals(path));
         Assert.False(path.Equals(path2));
         Assert.False(path.Equals(node1));
 
-        Assert.True(record1.ToString() == "Record{values=Infinity}" || record1.ToString() == "Record{values=∞}");
+        Assert.True(record1!.ToString() == "Record{values=Infinity}" || record1.ToString() == "Record{values=∞}");
         Assert.NotEqual(record2.GetHashCode(), record1.GetHashCode());
 
-        var node1String = node1.ToString();
-        var edge1String = edge1.ToString();
+        var node1String = node1!.ToString();
+        var edge1String = edge1!.ToString();
         var pathString = path.ToString();
         var expectedNode1String = "Node{labels=[], id=1, propertyMap={}}";
         var expectedEdge1String = "Edge{relationshipType='', source=0, destination=0, id=1, propertyMap={}}";
@@ -2061,7 +2095,8 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expectedPathString, pathString);
     }
 
-    [SkipIfRedisVersion(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [Obsolete]
     public void TestPrepareQuery()
     {
         const string return1Query = "RETURN 1";
@@ -2078,7 +2113,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(return1QueryRecordString, res1.Single().ToString());
 
         // handle null
-        var buildCommand2 = GraphCommandBuilder.Query("graph", return1Query, new Dictionary<string, object> { { "a", null } });
+        var buildCommand2 = GraphCommandBuilder.Query("graph", return1Query, new Dictionary<string, object> { { "a", null! } });
         var expectedPreparedQuery2 = $"CYPHER a=null {return1Query}";
         Assert.Equal(expectedPreparedQuery2, buildCommand2.Args[1].ToString()!);
         var res2 = graph.Query("graph", buildCommand2.Args[1].ToString()!);

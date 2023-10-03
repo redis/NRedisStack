@@ -66,6 +66,7 @@ public class SkipIfRedisAttribute : FactAttribute
                             break;
 
                         case Is.Standalone:
+
                             if (!redisFixture.isOSSCluster)
                             {
                                 skipReason = skipReason + " Redis server is not OSS cluster.";
@@ -74,7 +75,8 @@ public class SkipIfRedisAttribute : FactAttribute
                             break;
                     }
                 }
-                // Version check (if Is.Standalone/Is.Cluster is set then )
+
+                // Version check (if Is.Standalone/Is.OSSCluster is set then )
 
                 var serverVersion = redisFixture.Redis.GetServer(redisFixture.Redis.GetEndPoints()[0]).Version;
                 var targetVersion = new Version(_targetVersion);

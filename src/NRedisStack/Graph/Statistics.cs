@@ -11,28 +11,28 @@ namespace NRedisStack.Graph
         {
             _statistics = statistics;
 
-        NodesCreated = GetIntValue("Nodes created");
-        NodesDeleted = GetIntValue("Nodes deleted");
-        IndicesAdded = GetIntValue("Indices added");
-        IndicesCreated = GetIntValue("Indices created");
-        IndicesDeleted = GetIntValue("Indices deleted");
-        LabelsAdded = GetIntValue("Labels added");
-        RelationshipsDeleted = GetIntValue("Relationships deleted");
-        RelationshipsCreated = GetIntValue("Relationships created");
-        PropertiesSet = GetIntValue("Properties set");
-        QueryInternalExecutionTime = GetStringValue("Query internal execution time");
-        GraphRemovedInternalExecutionTime = GetStringValue("Graph removed, internal execution time");
-        CachedExecution = (GetIntValue("Cached execution") == 1);
+            NodesCreated = GetIntValue("Nodes created");
+            NodesDeleted = GetIntValue("Nodes deleted");
+            IndicesAdded = GetIntValue("Indices added");
+            IndicesCreated = GetIntValue("Indices created");
+            IndicesDeleted = GetIntValue("Indices deleted");
+            LabelsAdded = GetIntValue("Labels added");
+            RelationshipsDeleted = GetIntValue("Relationships deleted");
+            RelationshipsCreated = GetIntValue("Relationships created");
+            PropertiesSet = GetIntValue("Properties set");
+            QueryInternalExecutionTime = GetStringValue("Query internal execution time")!;
+            GraphRemovedInternalExecutionTime = GetStringValue("Graph removed, internal execution time")!;
+            CachedExecution = (GetIntValue("Cached execution") == 1);
 
-    }
+        }
 
-    /// <summary>
-    /// Retrieves the relevant statistic.
-    /// </summary>
-    /// <param name="label">The requested statistic label.</param>
-    /// <returns>A string representation of the specific statistic or null</returns>
-    public string? GetStringValue(string label) =>
-                _statistics.TryGetValue(label, out string? value) ? value : null;
+        /// <summary>
+        /// Retrieves the relevant statistic.
+        /// </summary>
+        /// <param name="label">The requested statistic label.</param>
+        /// <returns>A string representation of the specific statistic or null</returns>
+        public string? GetStringValue(string label) =>
+                    _statistics.TryGetValue(label, out string? value) ? value : null;
 
 
         private int GetIntValue(string label)

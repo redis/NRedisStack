@@ -8,7 +8,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
     {
         public TestMGetAsync(RedisFixture redisFixture) : base(redisFixture) { }
 
-        [Fact]
+        [SkipIfRedis(Is.OSSCluster)]
         public async Task TestMGetQuery()
         {
             var keys = CreateKeyNames(2);
@@ -64,7 +64,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(labels2, results[1].labels);
         }
 
-        [Fact]
+        [SkipIfRedis(Is.OSSCluster)]
         public async Task TestMGetQuerySelectedLabelsAsync()
         {
             var keys = CreateKeyNames(2);

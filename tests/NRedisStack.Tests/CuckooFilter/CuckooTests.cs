@@ -9,11 +9,6 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     private readonly string key = "CUCKOO_TESTS";
     public CuckooTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-    public void Dispose()
-    {
-        redisFixture.Redis.GetDatabase().KeyDelete(key);
-    }
-
     [Fact]
     public void TestReserveBasic()
     {
@@ -35,7 +30,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var cf = db.CF();
         Assert.True(await cf.ReserveAsync(key, 100L, maxIterations: 20, expansion: 1));
-        Assert.ThrowsAsync<RedisServerException>(async () => await cf.ReserveAsync(key, 100L));
+        _ = Assert.ThrowsAsync<RedisServerException>(async () => await cf.ReserveAsync(key, 100L));
 
         Assert.True(await (cf.AddAsync(key, "item1")));
         Assert.True(await cf.ExistsAsync(key, "item1"));
@@ -95,7 +90,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var cf = db.CF();
 
-        Assert.Equal(cf.Count("notExistFilter", "notExistItem"), 0);
+        Assert.Equal(0, cf.Count("notExistFilter", "notExistItem"));
     }
 
     [Fact]
@@ -105,7 +100,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var cf = db.CF();
 
-        Assert.Equal(await cf.CountAsync("notExistFilter", "notExistItem"), 0);
+        Assert.Equal(0, await cf.CountAsync("notExistFilter", "notExistItem"));
     }
 
     [Fact]
@@ -116,7 +111,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         var cf = db.CF();
 
         cf.Insert(key, new RedisValue[] { "foo" });
-        Assert.Equal(cf.Count(key, "notExistItem"), 0);
+        Assert.Equal(0, cf.Count(key, "notExistItem"));
     }
 
     [Fact]
@@ -127,7 +122,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         var cf = db.CF();
 
         await cf.InsertAsync(key, new RedisValue[] { "foo" });
-        Assert.Equal(await cf.CountAsync(key, "notExistItem"), 0);
+        Assert.Equal(0, await cf.CountAsync(key, "notExistItem"));
     }
 
     [Fact]
@@ -138,7 +133,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         var cf = db.CF();
 
         cf.Insert(key, new RedisValue[] { "foo" });
-        Assert.Equal(cf.Count(key, "foo"), 1);
+        Assert.Equal(1, cf.Count(key, "foo"));
     }
 
     [Fact]
@@ -149,7 +144,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         var cf = db.CF();
 
         await cf.InsertAsync(key, new RedisValue[] { "foo" });
-        Assert.Equal(await cf.CountAsync(key, "foo"), 1);
+        Assert.Equal(1, await cf.CountAsync(key, "foo"));
     }
 
     [Fact]
@@ -285,7 +280,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(result, new bool[] { false, false, false });
 
         // test empty items:
-        Assert.Throws<ArgumentOutOfRangeException>(() => cf.InsertNX(key, new RedisValue[]{}));
+        Assert.Throws<ArgumentOutOfRangeException>(() => cf.InsertNX(key, new RedisValue[] { }));
     }
 
     [Fact]
@@ -297,7 +292,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
 
         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
 
-        Assert.ThrowsAsync<RedisServerException>(async () => await cf.InsertNXAsync(key, items, 1024, true));
+        _ = Assert.ThrowsAsync<RedisServerException>(async () => await cf.InsertNXAsync(key, items, 1024, true));
         var result = await cf.InsertNXAsync(key, items, 1024);
         await cf.InsertNXAsync(key, items, 10245, true);
         var trues = new bool[] { true, true, true };
@@ -313,7 +308,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(result, new bool[] { false, false, false });
 
         // test empty items:
-        Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await cf.InsertNXAsync(key, new RedisValue[]{}));
+        _ = Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await cf.InsertNXAsync(key, new RedisValue[] { }));
     }
 
     [Fact]

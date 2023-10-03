@@ -10,6 +10,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public TestAlterAsync(RedisFixture redisFixture) : base(redisFixture) { }
 
         [Fact]
+        [Obsolete]
         public async Task TestAlterRetentionTime()
         {
             var key = CreateKeyName();
@@ -25,6 +26,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
+        [Obsolete]
         public async Task TestAlterLabels()
         {
             var key = CreateKeyName();
@@ -47,6 +49,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
+        [Obsolete]
         public async Task TestAlterPolicyAndChunkAsync()
         {
             var key = CreateKeyName();
@@ -56,8 +59,8 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             ts.Create(key);
             Assert.True(await ts.AlterAsync(key, chunkSizeBytes: 128, duplicatePolicy: TsDuplicatePolicy.MIN));
             TimeSeriesInformation info = ts.Info(key);
-            Assert.Equal(info.ChunkSize, 128);
-            Assert.Equal(info.DuplicatePolicy, TsDuplicatePolicy.MIN);
+            Assert.Equal(128, info.ChunkSize);
+            Assert.Equal(TsDuplicatePolicy.MIN, info.DuplicatePolicy);
         }
 
     }

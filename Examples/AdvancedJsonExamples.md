@@ -1,24 +1,30 @@
 # Advanced JSON
+
 Redis JSON array filtering examples
+
 ## Contents
-1.  [Business Value Statement](#value)
-2.  [Data Set](#dataset)
-3.  [Data Loading](#dataload)
-4.  [Array Filtering Examples](#arrayfiltering)
-    1.  [All Properties of Array](#allprops)
-    2.  [All Properties of a Field](#allfield)
-    3.  [Relational - Equality](#equality)
-    4.  [Relational - Less Than](#lessthan)
-    5.  [Relational - Greater Than or Equal](#greaterthan)
-    6.  [Logical AND](#logicaland)
-    7.  [Logical OR](#logicalor)
-    8.  [Regex - Contains Exact](#regex_exact)
-    9.  [Regex - Contains, Case Insensitive](#regex_contains)
-    10.  [Regex - Begins With](#regex_begins)
+
+1. [Business Value Statement](#value)
+2. [Data Set](#dataset)
+3. [Data Loading](#dataload)
+4. [Array Filtering Examples](#arrayfiltering)
+    1. [All Properties of Array](#allprops)
+    2. [All Properties of a Field](#allfield)
+    3. [Relational - Equality](#equality)
+    4. [Relational - Less Than](#lessthan)
+    5. [Relational - Greater Than or Equal](#greaterthan)
+    6. [Logical AND](#logicaland)
+    7. [Logical OR](#logicalor)
+    8. [Regex - Contains Exact](#regex_exact)
+    9. [Regex - Contains, Case Insensitive](#regex_contains)
+    10. [Regex - Begins With](#regex_begins)
 
 ## Business Value Statement <a name="value"></a>
+
 The ability to query within a JSON object unlocks further value to the underlying data.  Redis supports JSONPath array filtering natively.
+
 ## Data Set <a name="dataset"></a>
+
 ```JSON
 {
     "city": "Boston",
@@ -48,7 +54,9 @@ The ability to query within a JSON object unlocks further value to the underlyin
     ]
 }
 ```
+
 ## Data Loading <a name="dataload"></a>
+
 ```c#
 JsonCommands json = db.JSON();
 json.Set("warehouse:1", "$", new {
@@ -79,13 +87,19 @@ json.Set("warehouse:1", "$", new {
     }
 });
 ```
+
 ## Array Filtering Examples <a name="arrayfiltering"></a>
+
 ### Syntax
+
 [JSON.GET](https://redis.io/commands/json.get/)
 
 ### All Properties of Array <a name="allprops"></a>
+
 Fetch all properties of an array.
+
 #### Command
+
 ```c#
 Console.WriteLine(json.Get(key: "warehouse:1",
     path: "$.inventory[*]",
@@ -93,7 +107,9 @@ Console.WriteLine(json.Get(key: "warehouse:1",
     newLine: "\n"
 ));
 ```
+
 #### Result
+
 ```json
 [
         {
@@ -131,8 +147,11 @@ Console.WriteLine(json.Get(key: "warehouse:1",
 ```
 
 ### All Properties of a Field <a name="allfield"></a>
+
 Fetch all values of a field within an array.
+
 #### Command
+
 ```c#
 Console.WriteLine(json.Get(key: "warehouse:1",
     path: "$.inventory[*].price",
@@ -140,7 +159,9 @@ Console.WriteLine(json.Get(key: "warehouse:1",
     newLine: "\n"
 ));
 ```
+
 #### Result
+
 ```json
 [
         34.95,
@@ -150,8 +171,11 @@ Console.WriteLine(json.Get(key: "warehouse:1",
 ```
 
 ### Relational - Equality <a name="equality"></a>
+
 Fetch all items within an array where a text field matches a given value.
+
 #### Command
+
 ```c#
 Console.WriteLine(json.Get(key: "warehouse:1",
     path: "$.inventory[?(@.description==\"Turtle Check Men Navy Blue Shirt\")]",
@@ -159,7 +183,9 @@ Console.WriteLine(json.Get(key: "warehouse:1",
     newLine: "\n"
 ));
 ```
+
 #### Result
+
 ```json
 [
         {
@@ -176,8 +202,11 @@ Console.WriteLine(json.Get(key: "warehouse:1",
 ```
 
 ### Relational - Less Than <a name="lessthan"></a>
+
 Fetch all items within an array where a numeric field is less than a given value.
+
 #### Command
+
 ```c#
 Console.WriteLine(json.Get(key: "warehouse:1",
     path: "$.inventory[?(@.price<100)]",
@@ -185,7 +214,9 @@ Console.WriteLine(json.Get(key: "warehouse:1",
     newLine: "\n"
 ));
 ```
+
 #### Result
+
 ```json
 [
         {
@@ -211,8 +242,11 @@ Console.WriteLine(json.Get(key: "warehouse:1",
 ```
 
 ### Relational - Greater Than or Equal <a name="greaterthan"></a>
+
 Fetch all items within an array where a numeric field is greater than or equal to a given value.
+
 #### Command
+
 ```c#
 Console.WriteLine(json.Get(key: "warehouse:1",
     path: "$.inventory[?(@.id>=20000)]",
@@ -220,7 +254,9 @@ Console.WriteLine(json.Get(key: "warehouse:1",
     newLine: "\n"
 ));
 ```
+
 #### Result
+
 ```json
 [
         {
@@ -248,8 +284,11 @@ Console.WriteLine(json.Get(key: "warehouse:1",
 ```
 
 ### Logical AND <a name="logicaland"></a>
+
 Fetch all items within an array that meet two relational operations.
+
 #### Command
+
 ```c#
 Console.WriteLine(json.Get(key: "warehouse:1",
     path: "$.inventory[?(@.gender==\"Men\"&&@.price>20)]",
@@ -257,7 +296,9 @@ Console.WriteLine(json.Get(key: "warehouse:1",
     newLine: "\n"
 ));
 ```
+
 #### Result
+
 ```json
 [
         {
@@ -274,8 +315,11 @@ Console.WriteLine(json.Get(key: "warehouse:1",
 ```
 
 ### Logical OR <a name="logicalor"></a>
+
 Fetch all items within an array that meet at least one relational operation.  In this case, return only the ids of those items.
+
 #### Command
+
 ```c#
 Console.WriteLine(json.Get(key: "warehouse:1",
     path: "$.inventory[?(@.price<100||@.gender==\"Women\")].id",
@@ -283,7 +327,9 @@ Console.WriteLine(json.Get(key: "warehouse:1",
     newLine: "\n"
 ));
 ```
+
 #### Result
+
 ```json
 [
         15970,
@@ -293,8 +339,11 @@ Console.WriteLine(json.Get(key: "warehouse:1",
 ```
 
 ### Regex - Contains Exact <a name="regex_exact"></a>
+
 Fetch all items within an array that match a given regex pattern.
+
 #### Command
+
 ```c#
 Console.WriteLine(json.Get(key: "warehouse:1",
     path: "$.inventory[?(@.description =~ \"Blue\")]",
@@ -302,7 +351,9 @@ Console.WriteLine(json.Get(key: "warehouse:1",
     newLine: "\n"
 ));
 ```
+
 #### Result
+
 ```json
 [
         {
@@ -328,8 +379,11 @@ Console.WriteLine(json.Get(key: "warehouse:1",
 ```
 
 ### Regex - Contains, Case Insensitive <a name="regex_contains"></a>
+
 Fetch all items within an array where a field contains a term, case insensitive.
+
 #### Command
+
 ```c#
 Console.WriteLine(json.Get(key: "warehouse:1",
     path: "$.inventory[?(@.description =~ \"(?i)watch\")]",
@@ -337,7 +391,9 @@ Console.WriteLine(json.Get(key: "warehouse:1",
     newLine: "\n"
 ));
 ```
+
 #### Result
+
 ```json
 [
         {
@@ -356,8 +412,11 @@ Console.WriteLine(json.Get(key: "warehouse:1",
 ```
 
 ### Regex - Begins With <a name="regex_begins"></a>
+
 Fetch all items within an array where a field begins with a given expression.
+
 #### Command
+
 ```c#
 Console.WriteLine(json.Get(key: "warehouse:1",
     path: "$.inventory[?(@.description =~ \"^T\")]",
@@ -365,7 +424,9 @@ Console.WriteLine(json.Get(key: "warehouse:1",
     newLine: "\n"
 ));
 ```
+
 #### Result
+
 ```json
 [
         {
