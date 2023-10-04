@@ -6,6 +6,9 @@ using static NRedisStack.Search.Schema;
 using NRedisStack.Search.Aggregation;
 using NRedisStack.Search.Literals.Enums;
 using System.Runtime.InteropServices;
+using NetTopologySuite.IO;
+using NetTopologySuite.Geometries;
+
 
 namespace NRedisStack.Tests.Search;
 
@@ -2756,5 +2759,71 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                                  .AddTextField("text", 1, sortable);
 
         Assert.True(ft.Create("myIndex", ftParams, schema));
+    }
+
+    [Fact]
+    public void GeoShapeFilterSpherical()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        WKTReader reader = new WKTReader();
+        GeometryFactory factory = new GeometryFactory();
+
+        Assert.True(ft.Create(index, new Schema().AddGeoShapeField("geom", GeoShapeField.CoordinateSystem.SPHERICAL)));
+
+        // Create polygons
+        Polygon small = factory.CreatePolygon(new Coordinate[] {
+            new Coordinate(34.9001, 29.7001),
+            new Coordinate(34.9001, 29.7100),
+            new Coordinate(34.9100, 29.7100),
+            new Coordinate(34.9100, 29.7001),
+            new Coordinate(34.9001, 29.7001)
+        });
+        db.HashSet("small", "geom", small.ToString());
+
+        Polygon large = factory.CreatePolygon(new Coordinate[] {
+            new Coordinate(34.9001, 29.7001),
+            new Coordinate(34.9001, 29.7200),
+            new Coordinate(34.9200, 29.7200),
+            new Coordinate(34.9200, 29.7001),
+            new Coordinate(34.9001, 29.7001)
+        });
+        db.HashSet("large", "geom", large.ToString());
+
+        Polygon within = factory.CreatePolygon(new Coordinate[] {
+            new Coordinate(34.9000, 29.7000),
+            new Coordinate(34.9000, 29.7150),
+            new Coordinate(34.9150, 29.7150),
+            new Coordinate(34.9150, 29.7000),
+            new Coordinate(34.9000, 29.7000)
+        });
+
+        var res = ft.Search(index, new Query($"@geom:[within $poly]").AddParam("poly", within).Dialect(3));
+        Assert.Equal(1, res.TotalResults);
+        Assert.Single(res.Documents);
+        Assert.Equal(small, reader.Read(res.Documents[0]["geom"].ToString()));
+
+        Polygon contains = factory.CreatePolygon(new Coordinate[] {
+            new Coordinate(34.9002, 29.7002),
+            new Coordinate(34.9002, 29.7050),
+            new Coordinate(34.9050, 29.7050),
+            new Coordinate(34.9050, 29.7002),
+            new Coordinate(34.9002, 29.7002)
+        });
+
+        res = ft.Search(index, new Query($"@geom:[contains $poly]").AddParam("poly", contains).Dialect(3));
+        Assert.Equal(2, res.TotalResults);
+        Assert.Equal(2, res.Documents.Count);
+
+        // Create a point
+        Point point = factory.CreatePoint(new Coordinate(34.9010, 29.7010));
+        db.HashSet("point", "geom", point.ToString());
+
+        res = ft.Search(index, new Query($"@geom:[within $poly]").AddParam("poly", point).Dialect(3));
+        Assert.Equal(2, res.TotalResults);
+        Assert.Equal(2, res.Documents.Count);
+
     }
 }
