@@ -2761,7 +2761,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.True(ft.Create("myIndex", ftParams, schema));
     }
 
-    [Fact]
+    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
     public void GeoShapeFilterSpherical()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2826,7 +2826,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, res.Documents.Count);
     }
 
-    [Fact]
+    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
     public async Task GeoShapeFilterSphericalAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2887,6 +2887,98 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.HashSet("point", "geom", point.ToString());
 
         res = await ft.SearchAsync(index, new Query($"@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
+        Assert.Equal(2, res.TotalResults);
+        Assert.Equal(2, res.Documents.Count);
+    }
+
+    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
+    public void GeoShapeFilterFlat()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        WKTReader reader = new WKTReader();
+        GeometryFactory factory = new GeometryFactory();
+
+        Assert.True(ft.Create(index, new Schema().AddGeoShapeField("geom", GeoShapeField.CoordinateSystem.FLAT)));
+
+        // polygon type
+        Polygon small = factory.CreatePolygon(new Coordinate[]{new Coordinate(1, 1),
+        new Coordinate(1, 100), new Coordinate(100, 100), new Coordinate(100, 1), new Coordinate(1, 1)});
+        db.HashSet("small", "geom", small.ToString());
+
+        Polygon large = factory.CreatePolygon(new Coordinate[]{new Coordinate(1, 1),
+        new Coordinate(1, 200), new Coordinate(200, 200), new Coordinate(200, 1), new Coordinate(1, 1)});
+        db.HashSet("large", "geom", large.ToString());
+
+        // within condition
+        Polygon within = factory.CreatePolygon(new Coordinate[]{new Coordinate(0, 0),
+        new Coordinate(0, 150), new Coordinate(150, 150), new Coordinate(150, 0), new Coordinate(0, 0)});
+
+        SearchResult res = ft.Search(index, new Query("@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
+        Assert.Equal(1, res.TotalResults);
+        Assert.Single(res.Documents);
+        Assert.Equal(small, reader.Read(res.Documents[0]["geom"].ToString()));
+
+        // contains condition
+        Polygon contains = factory.CreatePolygon(new Coordinate[]{new Coordinate(2, 2),
+        new Coordinate(2, 50), new Coordinate(50, 50), new Coordinate(50, 2), new Coordinate(2, 2)});
+
+        res = ft.Search(index, new Query("@geom:[contains $poly]").AddParam("poly", contains.ToString()).Dialect(3));
+        Assert.Equal(2, res.TotalResults);
+        Assert.Equal(2, res.Documents.Count);
+
+        // point type
+        Point point = factory.CreatePoint(new Coordinate(10, 10));
+        db.HashSet("point", "geom", point.ToString());
+
+        res = ft.Search(index, new Query("@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
+        Assert.Equal(2, res.TotalResults);
+        Assert.Equal(2, res.Documents.Count);
+    }
+
+    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
+    public async Task GeoShapeFilterFlatAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        WKTReader reader = new WKTReader();
+        GeometryFactory factory = new GeometryFactory();
+
+        Assert.True(await ft.CreateAsync(index, new Schema().AddGeoShapeField("geom", GeoShapeField.CoordinateSystem.FLAT)));
+
+        // polygon type
+        Polygon small = factory.CreatePolygon(new Coordinate[]{new Coordinate(1, 1),
+        new Coordinate(1, 100), new Coordinate(100, 100), new Coordinate(100, 1), new Coordinate(1, 1)});
+        db.HashSet("small", "geom", small.ToString());
+
+        Polygon large = factory.CreatePolygon(new Coordinate[]{new Coordinate(1, 1),
+        new Coordinate(1, 200), new Coordinate(200, 200), new Coordinate(200, 1), new Coordinate(1, 1)});
+        db.HashSet("large", "geom", large.ToString());
+
+        // within condition
+        Polygon within = factory.CreatePolygon(new Coordinate[]{new Coordinate(0, 0),
+        new Coordinate(0, 150), new Coordinate(150, 150), new Coordinate(150, 0), new Coordinate(0, 0)});
+
+        SearchResult res = await ft.SearchAsync(index, new Query("@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
+        Assert.Equal(1, res.TotalResults);
+        Assert.Single(res.Documents);
+        Assert.Equal(small, reader.Read(res.Documents[0]["geom"].ToString()));
+
+        // contains condition
+        Polygon contains = factory.CreatePolygon(new Coordinate[]{new Coordinate(2, 2),
+        new Coordinate(2, 50), new Coordinate(50, 50), new Coordinate(50, 2), new Coordinate(2, 2)});
+
+        res = await ft.SearchAsync(index, new Query("@geom:[contains $poly]").AddParam("poly", contains.ToString()).Dialect(3));
+        Assert.Equal(2, res.TotalResults);
+        Assert.Equal(2, res.Documents.Count);
+
+        // point type
+        Point point = factory.CreatePoint(new Coordinate(10, 10));
+        db.HashSet("point", "geom", point.ToString());
+
+        res = await ft.SearchAsync(index, new Query("@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
         Assert.Equal(2, res.TotalResults);
         Assert.Equal(2, res.Documents.Count);
     }
