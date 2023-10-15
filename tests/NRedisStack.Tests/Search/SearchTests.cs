@@ -2761,7 +2761,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.True(ft.Create("myIndex", ftParams, schema));
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.2.1")]
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.2.1")]
     public void GeoShapeFilterSpherical()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2826,7 +2826,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, res.Documents.Count);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.2.1")]
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.2.1")]
     public async Task GeoShapeFilterSphericalAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2891,7 +2891,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, res.Documents.Count);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.2.1")]
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.2.1")]
     public void GeoShapeFilterFlat()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2937,7 +2937,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, res.Documents.Count);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.2.1")]
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.2.1")]
     public async Task GeoShapeFilterFlatAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
