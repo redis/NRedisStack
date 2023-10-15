@@ -2800,7 +2800,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             new Coordinate(34.9000, 29.7000)
         });
 
-        var res = ft.Search(index, new Query($"@geom:[within $poly]").AddParam("poly", within).Dialect(3));
+        var res = ft.Search(index, new Query($"@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
         Assert.Equal(1, res.TotalResults);
         Assert.Single(res.Documents);
         Assert.Equal(small, reader.Read(res.Documents[0]["geom"].ToString()));
@@ -2813,7 +2813,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             new Coordinate(34.9002, 29.7002)
         });
 
-        res = ft.Search(index, new Query($"@geom:[contains $poly]").AddParam("poly", contains).Dialect(3));
+        res = ft.Search(index, new Query($"@geom:[contains $poly]").AddParam("poly", contains.ToString()).Dialect(3));
         Assert.Equal(2, res.TotalResults);
         Assert.Equal(2, res.Documents.Count);
 
@@ -2821,9 +2821,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Point point = factory.CreatePoint(new Coordinate(34.9010, 29.7010));
         db.HashSet("point", "geom", point.ToString());
 
-        res = ft.Search(index, new Query($"@geom:[within $poly]").AddParam("poly", point).Dialect(3));
+        res = ft.Search(index, new Query($"@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
         Assert.Equal(2, res.TotalResults);
         Assert.Equal(2, res.Documents.Count);
-
     }
 }
