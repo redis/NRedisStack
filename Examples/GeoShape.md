@@ -1,11 +1,11 @@
 # GeoShape Fields Usage In RediSearch
 
-As of RediSearch 2.8.4, advanced GEO querying with GEOSHAPE fields is supported.
+NRedisStack now supports GEOSHAPE field querying.
 
-Any object/library producing a
-[well-known text (WKT)](https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry) in `string` format can be used.
 
-In this example, we'll demonstrate how to use GeoShape fields in RediSearch with [NetTopologySuite](https://github.com/NetTopologySuite/NetTopologySuite) library.
+Any object that serializes the [well-known text (WKT)](https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry) as a `string` can be used with NRedisStack.
+
+Using GeoShape fields in searches with the [NetTopologySuite](https://github.com/NetTopologySuite/NetTopologySuite) library.
 
 ## Example
 
