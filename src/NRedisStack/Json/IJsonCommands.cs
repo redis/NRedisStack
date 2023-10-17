@@ -1,5 +1,6 @@
 ﻿using NRedisStack.Json.DataTypes;
 using StackExchange.Redis;
+using System.Text.Json;
 
 namespace NRedisStack;
 
@@ -103,7 +104,7 @@ public interface IJsonCommands
     /// <param name="newLine">sets the string that's printed at the end of each line</param>
     /// <param name="space">sets the string that's put between a key and a value</param>
     /// <param name="path">the path to get.</param>
-    /// <returns>The requested Items</returns>
+    /// <returns>The requested items</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.get"/></remarks>
     RedisResult Get(RedisKey key, RedisValue? indent = null, RedisValue? newLine = null, RedisValue? space = null, RedisValue? path = null);
 
@@ -119,17 +120,18 @@ public interface IJsonCommands
     RedisResult Get(RedisKey key, string[] paths, RedisValue? indent = null, RedisValue? newLine = null, RedisValue? space = null);
 
     /// <summary>
-    /// Generically gets an Item stored in Redis.
+    /// Generically gets an item stored in Redis.
     /// </summary>
     /// <param name="key">The key to retrieve</param>
     /// <param name="path">The path to retrieve</param>
+    /// <param name="serializerOptions">Json serializer options to use for deserialization.</param>
     /// <typeparam name="T">The type retrieved</typeparam>
     /// <returns>The object requested</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.get"/></remarks>
-    T? Get<T>(RedisKey key, string path = "$");
+    T? Get<T>(RedisKey key, string path = "$", JsonSerializerOptions? serializerOptions = default);
 
     /// <summary>
-    /// retrieves a group of items stored in redis, appropriate if the path will  resolve to multiple records.
+    /// Retrieves a group of items stored in Redis, appropriate if the path will resolve to multiple records.
     /// </summary>
     /// <param name="key">The key to pull from.</param>
     /// <param name="path">The path to pull.</param>
