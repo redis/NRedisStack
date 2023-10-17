@@ -2,7 +2,6 @@
 
 NRedisStack now supports GEOSHAPE field querying.
 
-
 Any object that serializes the [well-known text (WKT)](https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry) as a `string` can be used with NRedisStack.
 
 Using GeoShape fields in searches with the [NetTopologySuite](https://github.com/NetTopologySuite/NetTopologySuite) library.
@@ -60,7 +59,9 @@ db.HashSet("large", "geom", large.ToString());
 Polygon within = factory.CreatePolygon(new Coordinate[]{new Coordinate(0, 0),
 new Coordinate(0, 150), new Coordinate(150, 150), new Coordinate(150, 0), new Coordinate(0, 0)});
 
-SearchResult res = ft.Search(index, new Query("@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
+SearchResult res = ft.Search(index, new Query("@geom:[within $poly]")
+   .AddParam("poly", within.ToString()) // Note serializing the argument to string
+   .Dialect(3)); // DIALECT 3 is required for this query
 ```
 
 The search result from redis is:
@@ -72,7 +73,7 @@ The search result from redis is:
    2) "POLYGON ((1 1, 1 100, 100 100, 100 1, 1 1))"
 ```
 
-we can use the reader to get the polygon object:
+Use the reader to get the polygon:
 
 ```csharp
 reader.Read(res.Documents[0]["geom"].ToString());
@@ -84,11 +85,13 @@ reader.Read(res.Documents[0]["geom"].ToString());
 Polygon contains = factory.CreatePolygon(new Coordinate[]{new Coordinate(2, 2),
 new Coordinate(2, 50), new Coordinate(50, 50), new Coordinate(50, 2), new Coordinate(2, 2)});
 
-res = ft.Search(index, new Query("@geom:[contains $poly]").AddParam("poly", contains.ToString()).Dialect(3)); // DIALECT 3 is required for this query
+res = ft.Search(index, new Query("@geom:[contains $poly]")
+    .AddParam("poly", contains.ToString()) // Note serializing the argument to string
+    .Dialect(3)); // DIALECT 3 is required for this query
 
 ```
 
-The search result from redis is:
+Our search result:
 
 ```bash
 1) (integer) 2
@@ -100,17 +103,19 @@ The search result from redis is:
    2) "POLYGON ((1 1, 1 200, 200 200, 200 1, 1 1))"
 ```
 
-### Point type
+### Searching with Coordinates
 
 ```csharp
 Point point = factory.CreatePoint(new Coordinate(10, 10));
 db.HashSet("point", "geom", point.ToString());
 
-res = ft.Search(index, new Query("@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
+res = ft.Search(index, new Query("@geom:[within $poly]")
+   .AddParam("poly", within.ToString()) // Note serializing the argument to string
+   .Dialect(3)); // DIALECT 3 is required for this query
 
 ```
 
-The search result from redis is:
+Our search result:
 
 ```bash
 1) (integer) 2
