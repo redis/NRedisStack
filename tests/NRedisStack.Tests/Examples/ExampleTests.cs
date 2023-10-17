@@ -1373,6 +1373,8 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expectedResSet, resSet);
     }
 
+    // GeoShape Example Test is in SearchTests.cs, The test name is: GeoShapeFilterFlat.
+
     private static void SortAndCompare(List<string> expectedList, List<string> res)
     {
         res.Sort();
