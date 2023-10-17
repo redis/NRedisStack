@@ -617,6 +617,7 @@ namespace NRedisStack.Search
         /// Parameters can be referenced in the query string by a $ , followed by the parameter name,
         /// e.g., $user , and each such reference in the search query to a parameter name is substituted
         /// by the corresponding parameter value.
+        /// Note: when calling this function with an externally supplied parameter, value should be a string.
         /// </summary>
         /// <param name="name"></param>
         /// <param name="value"> can be String, long or float</param>

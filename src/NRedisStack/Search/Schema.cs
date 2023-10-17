@@ -1,4 +1,5 @@
 ﻿using NRedisStack.Search.Literals;
+using static NRedisStack.Search.Schema.GeoShapeField;
 using static NRedisStack.Search.Schema.VectorField;
 
 namespace NRedisStack.Search
@@ -13,6 +14,7 @@ namespace NRedisStack.Search
         {
             Text,
             Geo,
+            GeoShape,
             Numeric,
             Tag,
             Vector
@@ -38,6 +40,7 @@ namespace NRedisStack.Search
                 {
                     FieldType.Text => "TEXT",
                     FieldType.Geo => "GEO",
+                    FieldType.GeoShape => "GEOSHAPE",
                     FieldType.Numeric => "NUMERIC",
                     FieldType.Tag => "TAG",
                     FieldType.Vector => "VECTOR",
@@ -178,6 +181,37 @@ namespace NRedisStack.Search
 
         }
 
+        public class GeoShapeField : Field
+        {
+            public enum CoordinateSystem
+            {
+                /// <summary>
+                /// For cartesian (X,Y).
+                /// </summary>
+                FLAT,
+
+                /// <summary>
+                /// For geographic (lon, lat).
+                /// </summary>
+                SPHERICAL
+            }
+            private CoordinateSystem system { get; }
+
+            internal GeoShapeField(FieldName name, CoordinateSystem system)
+            : base(name, FieldType.GeoShape)
+            {
+                this.system = system;
+            }
+
+            internal GeoShapeField(string name, CoordinateSystem system)
+            : this(FieldName.Of(name), system) { }
+
+            internal override void AddFieldTypeArgs(List<object> args)
+            {
+                args.Add(system.ToString());
+            }
+        }
+
         public class NumericField : Field
         {
             public bool Sortable { get; }
@@ -285,6 +319,30 @@ namespace NRedisStack.Search
                                    string? phonetic = null, bool noIndex = false, bool withSuffixTrie = false)
         {
             Fields.Add(new TextField(name, weight, noStem, phonetic, sortable, unf, noIndex, withSuffixTrie));
+            return this;
+        }
+
+        /// <summary>
+        /// Add a GeoShape field to the schema.
+        /// </summary>
+        /// <param name="name">The field's name.</param>
+        /// <param name="system">The coordinate system to use.</param>
+        /// <returns>The <see cref="Schema"/> object.</returns>
+        public Schema AddGeoShapeField(string name, CoordinateSystem system)
+        {
+            Fields.Add(new GeoShapeField(name, system));
+            return this;
+        }
+
+        /// <summary>
+        /// Add a GeoShape field to the schema.
+        /// </summary>
+        /// <param name="name">The field's name.</param>
+        /// <param name="system">The coordinate system to use.</param>
+        /// <returns>The <see cref="Schema"/> object.</returns>
+        public Schema AddGeoShapeField(FieldName name, CoordinateSystem system)
+        {
+            Fields.Add(new GeoShapeField(name, system));
             return this;
         }
 
