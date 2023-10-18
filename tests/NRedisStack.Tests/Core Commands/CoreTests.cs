@@ -70,16 +70,33 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.EndsWith($"NRedisStack(MyLibraryName;v1.0.0);.NET-{Environment.Version}) lib-ver={GetNRedisStackVersion()}\n", info);
     }
 
-    // [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.1.242")]
-    // public void TestSetInfoNull()
-    // {
-    //     var redis = ConnectionMultiplexer.Connect("localhost");
-    //     var db = redis.GetDatabase(null);
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.1.242")]
+    public void TestSetInfoNull()
+    {
+        ResetInfoDefaults(); // demonstrate first connection
+        var redis = ConnectionMultiplexer.Connect("localhost");
+        var db = redis.GetDatabase(null);
 
-    //     db.Execute("FLUSHALL");
-    //     db.Execute(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
+        db.Execute("FLUSHALL");
+        var infoBefore = db.Execute("CLIENT", "INFO").ToString();
+        db.Execute(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
-    //     var info = db.Execute("CLIENT", "INFO").ToString();
-    //     Assert.EndsWith($"lib-name= lib-ver=\n", info);
-    // }
+        var infoAfter = db.Execute("CLIENT", "INFO").ToString();
+        Assert.EndsWith(infoAfter, infoBefore);
+    }
+
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.1.242")]
+    public async Task TestSetInfoNullAsync()
+    {
+        ResetInfoDefaults(); // demonstrate first connection
+        var redis = ConnectionMultiplexer.Connect("localhost");
+        var db = redis.GetDatabase(null);
+
+        db.Execute("FLUSHALL");
+        var infoBefore = (await db.ExecuteAsync("CLIENT", "INFO")).ToString();
+        await db.ExecuteAsync(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
+
+        var infoAfter = (await db.ExecuteAsync("CLIENT", "INFO")).ToString();
+        Assert.EndsWith(infoAfter, infoBefore);
+    }
 }

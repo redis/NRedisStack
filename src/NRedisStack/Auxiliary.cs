@@ -43,7 +43,7 @@ namespace NRedisStack
         {
             var _db = redis.GetDatabase();
             if (LibraryName == null) // the user wants to disable the library name and version sending
-                _libraryName = null;
+                _setInfo = false;
 
             else // the user set his own the library name
                 _libraryName = $"NRedisStack({LibraryName});.NET-{Environment.Version})";
@@ -51,7 +51,6 @@ namespace NRedisStack
             return _db;
         }
 
-        // TODO: understand why this method is not working:
         private static void SetInfoInPipeline(this IDatabase db)
         {
             if (_libraryName == null) return;
