@@ -17,10 +17,10 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Comparison.LessThan, "7.1.242")]
     public void TestSetInfoDefaultValue()
     {
+        ResetInfoDefaults(); // demonstrate first connection
         var redis = ConnectionMultiplexer.Connect("localhost");
         var db = redis.GetDatabase();
         db.Execute("FLUSHALL");
-        SetInfoTrue(); // demonstrate first connection
 
         db.Execute(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
@@ -31,10 +31,10 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Comparison.LessThan, "7.1.242")]
     public async Task TestSetInfoDefaultValueAsync()
     {
+        ResetInfoDefaults(); // demonstrate first connection
         var redis = ConnectionMultiplexer.Connect("localhost");
         var db = redis.GetDatabase();
         db.Execute("FLUSHALL");
-        SetInfoTrue(); // demonstrate first connection
 
         await db.ExecuteAsync(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
@@ -45,10 +45,10 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Comparison.LessThan, "7.1.242")]
     public void TestSetInfoWithValue()
     {
+        ResetInfoDefaults(); // demonstrate first connection
         var redis = ConnectionMultiplexer.Connect("localhost");
         var db = redis.GetDatabase("MyLibraryName;v1.0.0");
         db.Execute("FLUSHALL");
-        SetInfoTrue(); // demonstrate first connection
 
         db.Execute(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
@@ -59,10 +59,10 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Comparison.LessThan, "7.1.242")]
     public async Task TestSetInfoWithValueAsync()
     {
+        ResetInfoDefaults(); // demonstrate first connection
         var redis = ConnectionMultiplexer.Connect("localhost");
         var db = redis.GetDatabase("MyLibraryName;v1.0.0");
         db.Execute("FLUSHALL");
-        SetInfoTrue(); // demonstrate first connection
 
         await db.ExecuteAsync(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 

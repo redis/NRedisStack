@@ -9,7 +9,11 @@ namespace NRedisStack
     {
         private static string? _libraryName = $"NRedisStack;.NET-{Environment.Version}";
         private static bool _setInfo  = true;
-        public static void SetInfoTrue() => _setInfo = true;
+        public static void ResetInfoDefaults()
+        {
+            _setInfo = true;
+            _libraryName = $"NRedisStack;.NET-{Environment.Version}";
+        }
         public static List<object> MergeArgs(RedisKey key, params RedisValue[] items)
         {
             var args = new List<object>(items.Length + 1) { key };
