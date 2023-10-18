@@ -14,7 +14,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
 {
     public CoreTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.1.242")]
     public void TestSetInfoDefaultValue()
     {
         ResetInfoDefaults(); // demonstrate first connection
@@ -28,7 +28,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.EndsWith($"lib-name=NRedisStack;.NET-{Environment.Version} lib-ver={GetNRedisStackVersion()}\n", info);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.1.242")]
     public async Task TestSetInfoDefaultValueAsync()
     {
         ResetInfoDefaults(); // demonstrate first connection
@@ -42,7 +42,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.EndsWith($"lib-name=NRedisStack;.NET-{Environment.Version} lib-ver={GetNRedisStackVersion()}\n", info);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.1.242")]
     public void TestSetInfoWithValue()
     {
         ResetInfoDefaults(); // demonstrate first connection
@@ -56,7 +56,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.EndsWith($"NRedisStack(MyLibraryName;v1.0.0);.NET-{Environment.Version}) lib-ver={GetNRedisStackVersion()}\n", info);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.1.242")]
     public async Task TestSetInfoWithValueAsync()
     {
         ResetInfoDefaults(); // demonstrate first connection
@@ -70,7 +70,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.EndsWith($"NRedisStack(MyLibraryName;v1.0.0);.NET-{Environment.Version}) lib-ver={GetNRedisStackVersion()}\n", info);
     }
 
-    // [SkipIfRedis(Comparison.LessThan, "7.1.242")]
+    // [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.1.242")]
     // public void TestSetInfoNull()
     // {
     //     var redis = ConnectionMultiplexer.Connect("localhost");
