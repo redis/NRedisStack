@@ -82,7 +82,16 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.Execute(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
         var infoAfter = db.Execute("CLIENT", "INFO").ToString();
-        Assert.EndsWith(infoAfter, infoBefore);
+        // Find the indices of "lib-name=" in the strings
+        int infoAfterLibNameIndex = infoAfter!.IndexOf("lib-name=");
+        int infoBeforeLibNameIndex = infoBefore!.IndexOf("lib-name=");
+
+        // Extract the sub-strings starting from "lib-name="
+        string infoAfterLibNameToEnd = infoAfter.Substring(infoAfterLibNameIndex);
+        string infoBeforeLibNameToEnd = infoBefore.Substring(infoBeforeLibNameIndex);
+
+        // Assert that the extracted sub-strings are equal
+        Assert.Equal(infoAfterLibNameToEnd, infoBeforeLibNameToEnd);
     }
 
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.1.242")]
@@ -97,6 +106,15 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         await db.ExecuteAsync(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
         var infoAfter = (await db.ExecuteAsync("CLIENT", "INFO")).ToString();
-        Assert.EndsWith(infoAfter, infoBefore);
+        // Find the indices of "lib-name=" in the strings
+        int infoAfterLibNameIndex = infoAfter!.IndexOf("lib-name=");
+        int infoBeforeLibNameIndex = infoBefore!.IndexOf("lib-name=");
+
+        // Extract the sub-strings starting from "lib-name="
+        string infoAfterLibNameToEnd = infoAfter.Substring(infoAfterLibNameIndex);
+        string infoBeforeLibNameToEnd = infoBefore.Substring(infoBeforeLibNameIndex);
+
+        // Assert that the extracted sub-strings are equal
+        Assert.Equal(infoAfterLibNameToEnd, infoBeforeLibNameToEnd);
     }
 }
