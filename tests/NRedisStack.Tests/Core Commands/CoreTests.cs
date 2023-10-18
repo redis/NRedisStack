@@ -19,8 +19,9 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     {
         var redis = ConnectionMultiplexer.Connect("localhost");
         var db = redis.GetDatabase();
-
         db.Execute("FLUSHALL");
+        SetInfoTrue(); // demonstrate first connection
+
         db.Execute(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
         var info = db.Execute("CLIENT", "INFO").ToString();
@@ -32,8 +33,9 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     {
         var redis = ConnectionMultiplexer.Connect("localhost");
         var db = redis.GetDatabase();
-
         db.Execute("FLUSHALL");
+        SetInfoTrue(); // demonstrate first connection
+
         await db.ExecuteAsync(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
         var info = (await db.ExecuteAsync("CLIENT", "INFO")).ToString();
@@ -45,8 +47,9 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     {
         var redis = ConnectionMultiplexer.Connect("localhost");
         var db = redis.GetDatabase("MyLibraryName;v1.0.0");
-
         db.Execute("FLUSHALL");
+        SetInfoTrue(); // demonstrate first connection
+
         db.Execute(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
         var info = db.Execute("CLIENT", "INFO").ToString();
@@ -58,8 +61,9 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     {
         var redis = ConnectionMultiplexer.Connect("localhost");
         var db = redis.GetDatabase("MyLibraryName;v1.0.0");
-
         db.Execute("FLUSHALL");
+        SetInfoTrue(); // demonstrate first connection
+
         await db.ExecuteAsync(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
         var info = (await db.ExecuteAsync("CLIENT", "INFO")).ToString();

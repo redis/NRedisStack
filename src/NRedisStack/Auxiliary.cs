@@ -7,8 +7,9 @@ namespace NRedisStack
 {
     public static class Auxiliary
     {
-        private static bool _setInfo = true;
         private static string? _libraryName = $"NRedisStack;.NET-{Environment.Version}";
+        private static bool _setInfo  = true;
+        public static void SetInfoTrue() => _setInfo = true;
         public static List<object> MergeArgs(RedisKey key, params RedisValue[] items)
         {
             var args = new List<object>(items.Length + 1) { key };
