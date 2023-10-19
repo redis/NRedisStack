@@ -1,4 +1,3 @@
-using System.Xml.Linq;
 using NRedisStack.Core;
 using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
@@ -132,23 +131,7 @@ namespace NRedisStack
 
         public static string GetNRedisStackVersion()
         {
-            XDocument csprojDocument = GetCsprojDocument();
-
-            // Find the Version element and get its value.
-            var versionElement = csprojDocument.Root!
-                .Descendants("Version")
-                .FirstOrDefault();
-
-            return versionElement!.Value;
-        }
-
-        private static XDocument GetCsprojDocument()
-        {
-            string csprojFilePath = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "..", "..", "src", "NRedisStack", "NRedisStack.csproj");
-
-            // Load the .csproj file.
-            var csprojDocument = XDocument.Load(csprojFilePath);
-            return csprojDocument;
+            return typeof(NRedisStack.Auxiliary).Assembly.GetName().Version.ToString();
         }
     }
 }
