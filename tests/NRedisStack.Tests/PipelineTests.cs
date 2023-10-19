@@ -146,12 +146,15 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
 
         string jsonPerson = JsonSerializer.Serialize(new Person { Name = "Shachar", Age = 23 });
         _ = pipeline.Json.SetAsync("key", "$", jsonPerson);
-        // var setResponse = pipeline.Json.SetAsync("key", "$", jsonPerson);
+        var setResponse = pipeline.Json.SetAsync("key", "$", jsonPerson);
         var getResponse = pipeline.Json.GetAsync("key");
 
         pipeline.Execute();
 
-        // Assert.Equal("True", setResponse.Result.ToString());
+        setResponse.Wait();
+        getResponse.Wait();
+
+        Assert.True(setResponse.Result);
         Assert.Equal("{\"Name\":\"Shachar\",\"Age\":23}", getResponse.Result.ToString());
     }
 }

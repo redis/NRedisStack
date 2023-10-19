@@ -24,7 +24,10 @@ namespace NRedisStack.Tests
 
             transaction.Execute();
 
-            Assert.Equal("True", setResponse.Result.ToString());
+            setResponse.Wait();
+            getResponse.Wait();
+
+            Assert.True(setResponse.Result);
             Assert.Equal("{\"Name\":\"Shachar\",\"Age\":23}", getResponse.Result.ToString());
         }
 
