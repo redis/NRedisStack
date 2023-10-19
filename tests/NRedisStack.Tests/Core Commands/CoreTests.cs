@@ -14,6 +14,35 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
 {
     public CoreTests(RedisFixture redisFixture) : base(redisFixture) { }
 
+
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.1.242")]
+    public void TestSimpleSetInfo()
+    {
+        var redis = ConnectionMultiplexer.Connect("localhost");
+        var db = redis.GetDatabase();
+        db.Execute("FLUSHALL");
+
+        db.ClientSetInfo(SetInfoAttr.LibraryName, "TestLibraryName");
+        db.ClientSetInfo(SetInfoAttr.LibraryVersion, "1.2.3");
+
+        var info = db.Execute("CLIENT", "INFO").ToString();
+        Assert.EndsWith($"lib-name=TestLibraryName lib-ver=1.2.3\n", info);
+    }
+
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.1.242")]
+    public async Task TestSimpleSetInfoAsync()
+    {
+        var redis = ConnectionMultiplexer.Connect("localhost");
+        var db = redis.GetDatabase();
+        db.Execute("FLUSHALL");
+
+        await db.ClientSetInfoAsync(SetInfoAttr.LibraryName, "TestLibraryName");
+        await db.ClientSetInfoAsync(SetInfoAttr.LibraryVersion, "1.2.3");
+
+        var info = db.Execute("CLIENT", "INFO").ToString();
+        Assert.EndsWith($"lib-name=TestLibraryName lib-ver=1.2.3\n", info);
+    }
+
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.1.242")]
     public void TestSetInfoDefaultValue()
     {

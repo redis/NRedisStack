@@ -1,5 +1,4 @@
 using NRedisStack.Core;
-using NRedisStack.Core.Literals;
 using StackExchange.Redis;
 namespace NRedisStack
 {
@@ -15,7 +14,6 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/client-setinfo/"/></remarks>
         public static bool ClientSetInfo(this IDatabase db, SetInfoAttr attr, string value)
         {
-
             return db.Execute(CoreCommandBuilder.ClientSetInfo(attr, value)).OKtoBoolean();
         }
     }

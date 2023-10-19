@@ -8,7 +8,7 @@ namespace NRedisStack
     public static class Auxiliary
     {
         private static string? _libraryName = $"NRedisStack;.NET-{Environment.Version}";
-        private static bool _setInfo  = true;
+        private static bool _setInfo = true;
         public static void ResetInfoDefaults()
         {
             _setInfo = true;
@@ -140,20 +140,6 @@ namespace NRedisStack
                 .FirstOrDefault();
 
             return versionElement!.Value;
-        }
-
-        public static string GetStackExchangeRedisVersion()
-        {
-            XDocument csprojDocument = GetCsprojDocument();
-
-            // Find the PackageReference element with Include="StackExchange.Redis" and get its Version attribute.
-            var stackExchangeRedisVersion = csprojDocument.Root!
-                .Descendants("PackageReference")
-                .Where(element => element.Attribute("Include")?.Value == "StackExchange.Redis")
-                .Select(element => element.Attribute("Version")?.Value)
-                .FirstOrDefault();
-
-            return stackExchangeRedisVersion!;
         }
 
         private static XDocument GetCsprojDocument()
