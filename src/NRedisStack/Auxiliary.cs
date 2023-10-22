@@ -131,7 +131,8 @@ namespace NRedisStack
 
         public static string GetNRedisStackVersion()
         {
-            return typeof(NRedisStack.Auxiliary).Assembly.GetName().Version.ToString();
+            Version version = typeof(Auxiliary).Assembly.GetName().Version!;
+            return $"{version.Major}.{version.Minor}.{version.Build}";
         }
     }
 }
