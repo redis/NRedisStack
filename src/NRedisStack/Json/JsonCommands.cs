@@ -225,7 +225,7 @@ public class JsonCommands : JsonCommandsAsync, IJsonCommands
     public T? Get<T>(RedisKey key, string path = "$", JsonSerializerOptions? serializerOptions = default)
     {
         var res = _db.Execute(JsonCommandBuilder.Get<T>(key, path));
-        if (res.Type == ResultType.BulkString)
+        if (res.Type == ResultType.BulkString && !res.IsNull)
         {
             var arr = JsonSerializer.Deserialize<JsonArray>(res.ToString()!);
             if (arr?.Count > 0)
