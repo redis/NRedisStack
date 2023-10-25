@@ -81,7 +81,7 @@ public class JsonCommandsAsync : IJsonCommandsAsync
     public async Task<T?> GetAsync<T>(RedisKey key, string path = "$", JsonSerializerOptions? serializerOptions = default)
     {
         var res = await _db.ExecuteAsync(JsonCommandBuilder.Get<T>(key, path));
-        if (res.Type == ResultType.BulkString)
+        if (res.Type == ResultType.BulkString && !res.IsNull)
         {
             var arr = JsonSerializer.Deserialize<JsonArray>(res.ToString()!);
             if (arr?.Count > 0)

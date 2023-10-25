@@ -1118,4 +1118,38 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         }
         Assert.Equal("JSON.GET", getBuild2.Command);
     }
+
+    [Fact]
+    public void TestGetIssue198()
+    {
+        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var keys = CreateKeyNames(1);
+        var key = keys[0];
+        commands.Set(key, "$", new Person() { Age = 35, Name = "Alice" });
+
+        // Path not found:
+        var result = commands.Get<Person>(key, "$.a"); // returns "[]" because the path is not found (but the key is)
+        // Key not found:
+        var result2 = commands.Get<Person>("notExistKey", "$.a"); // returns (nil) because the key is not found
+
+        Assert.Null(result);
+        Assert.Null(result2);
+    }
+
+    [Fact]
+    public async Task TestGetIssue198_Async()
+    {
+        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var keys = CreateKeyNames(1);
+        var key = keys[0];
+        await commands.SetAsync(key, "$", new Person() { Age = 35, Name = "Alice" });
+
+        // Path not found:
+        var result = await commands.GetAsync<Person>(key, "$.a"); // returns "[]" because the path is not found (but the key is)
+        // Key not found:
+        var result2 = await commands.GetAsync<Person>("notExistKey", "$.a"); // returns (nil) because the key is not found
+
+        Assert.Null(result);
+        Assert.Null(result2);
+    }
 }
