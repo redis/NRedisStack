@@ -61,7 +61,7 @@ namespace NRedisStack
 
         public static RedisResult Execute(this IDatabase db, SerializedCommand command)
         {
-            // var compareVersions = db.Multiplexer.GetServer(db.Multiplexer.GetEndPoints()[0]).Version.CompareTo(new Version(7, 2, 0));
+            // var compareVersions = db.Multiplexer.GetServer(db.Multiplexer.GetEndPoints()[0]).Version.CompareTo(new Version(7, 1, 242));
             if (_setInfo /*&& compareVersions >= 0*/)
             {
                 _setInfo = false;
