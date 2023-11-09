@@ -54,7 +54,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.Execute(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
         var info = db.Execute("CLIENT", "INFO").ToString();
-        Assert.EndsWith($"lib-name=NRedisStack;.NET-{Environment.Version} lib-ver={GetNRedisStackVersion()}\n", info);
+        Assert.EndsWith($"lib-name=NRedisStack(.NET_v{Environment.Version}) lib-ver={GetNRedisStackVersion()}\n", info);
     }
 
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.1.242")]
@@ -68,7 +68,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         await db.ExecuteAsync(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
         var info = (await db.ExecuteAsync("CLIENT", "INFO")).ToString();
-        Assert.EndsWith($"lib-name=NRedisStack;.NET-{Environment.Version} lib-ver={GetNRedisStackVersion()}\n", info);
+        Assert.EndsWith($"lib-name=NRedisStack(.NET_v{Environment.Version}) lib-ver={GetNRedisStackVersion()}\n", info);
     }
 
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.1.242")]
@@ -82,7 +82,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.Execute(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
         var info = db.Execute("CLIENT", "INFO").ToString();
-        Assert.EndsWith($"NRedisStack(MyLibraryName;v1.0.0);.NET-{Environment.Version}) lib-ver={GetNRedisStackVersion()}\n", info);
+        Assert.EndsWith($"NRedisStack(MyLibraryName;v1.0.0;.NET_v{Environment.Version}) lib-ver={GetNRedisStackVersion()}\n", info);
     }
 
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.1.242")]
@@ -96,7 +96,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         await db.ExecuteAsync(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
         var info = (await db.ExecuteAsync("CLIENT", "INFO")).ToString();
-        Assert.EndsWith($"NRedisStack(MyLibraryName;v1.0.0);.NET-{Environment.Version}) lib-ver={GetNRedisStackVersion()}\n", info);
+        Assert.EndsWith($"NRedisStack(MyLibraryName;v1.0.0;.NET_v{Environment.Version}) lib-ver={GetNRedisStackVersion()}\n", info);
     }
 
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.1.242")]

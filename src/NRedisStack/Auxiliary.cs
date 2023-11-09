@@ -6,12 +6,12 @@ namespace NRedisStack
 {
     public static class Auxiliary
     {
-        private static string? _libraryName = $"NRedisStack;.NET-{Environment.Version}";
+        private static string? _libraryName = $"NRedisStack(.NET_v{Environment.Version})";
         private static bool _setInfo = true;
         public static void ResetInfoDefaults()
         {
             _setInfo = true;
-            _libraryName = $"NRedisStack;.NET-{Environment.Version}";
+            _libraryName = $"NRedisStack(.NET_v{Environment.Version})";
         }
         public static List<object> MergeArgs(RedisKey key, params RedisValue[] items)
         {
@@ -34,8 +34,6 @@ namespace NRedisStack
             return args.ToArray();
         }
 
-        // public static IDatabase GetDatabase(this ConnectionMultiplexer redis) => redis.GetDatabase("", "");
-
         // TODO: add all the signatures of GetDatabase
         public static IDatabase GetDatabase(this ConnectionMultiplexer redis,
                                             string? LibraryName)
@@ -45,7 +43,7 @@ namespace NRedisStack
                 _setInfo = false;
 
             else // the user set his own the library name
-                _libraryName = $"NRedisStack({LibraryName});.NET-{Environment.Version})";
+                _libraryName = $"NRedisStack({LibraryName};.NET_v{Environment.Version})";
 
             return _db;
         }
