@@ -21,7 +21,6 @@ jobs:
     uses: ./.github/workflows/reusable.yml
     with:
       redis_stack_type: cluster
-      dotnet_version: 6.0.x
       clr_version: net6.0
       dotenv_file: .github/cluster.env
     secrets: inherit
@@ -36,7 +35,6 @@ jobs:
         redis-stack-type: ['edge', '6.2.6', '7.2.0-RC3']
     with:
       redis_stack_type: ${{matrix.redis-stack-type}}
-      dotnet_version: 6.0.x
       clr_version: net6.0
       dotenv_file: .github/standalone.env
     secrets: inherit
@@ -46,7 +44,6 @@ jobs:
     uses: ./.github/workflows/reusable.yml
     with:
       redis_stack_type: cluster
-      dotnet_version: 7.0.x
       clr_version: net7.0
       dotenv_file: .github/cluster.env
     secrets: inherit
@@ -61,8 +58,30 @@ jobs:
         redis-stack-type: ['edge', '6.2.6', '7.2.0-RC3']
     with:
       redis_stack_type: ${{matrix.redis-stack-type}}
-      dotnet_version: 7.0.x
       clr_version: net7.0
+      dotenv_file: .github/standalone.env
+    secrets: inherit
+
+  dotnet_8_cluster:
+    name: .NET 8 on [redis-stack cluster]
+    uses: ./.github/workflows/reusable.yml
+    with:
+      redis_stack_type: cluster
+      clr_version: net8.0
+      dotenv_file: .github/cluster.env
+    secrets: inherit
+
+  dotnet_8:
+    name: .NET 8 on [redis-stack ${{matrix.redis-stack-type}}]
+    uses: ./.github/workflows/reusable.yml
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        redis-stack-type: ['edge', '6.2.6', '7.2.0-RC3']
+    with:
+      redis_stack_type: ${{matrix.redis-stack-type}}
+      clr_version: net8.0
       dotenv_file: .github/standalone.env
     secrets: inherit
 
