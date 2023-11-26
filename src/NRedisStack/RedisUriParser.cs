@@ -16,7 +16,7 @@ namespace NRedisStack
         /// </summary>
         /// <param name="redisUri">Redis Uri string</param>
         /// <returns>A configuration options result for SE.Redis.</returns>
-        internal static ConfigurationOptions ParseConfigFromUri(string redisUri)
+        internal static ConfigurationOptions FromUri(string redisUri)
         {
             var options = new ConfigurationOptions();
 
@@ -82,32 +82,38 @@ namespace NRedisStack
 
         private static void ParseQueryArguments(ConfigurationOptions options, Uri uri)
         {
-            if (!string.IsNullOrEmpty(uri.Query))
+            if (string.IsNullOrEmpty(uri.Query))
             {
-                var queryArgs = ParseQuery(uri.Query.Substring(1));
-                if (queryArgs.Any(x => x.Key == "timeout"))
-                {
-                    var timeout = int.Parse(queryArgs.First(x => x.Key == "timeout").Value);
-                    options.AsyncTimeout = timeout;
-                    options.SyncTimeout = timeout;
-                    options.ConnectTimeout = timeout;
-                }
+                return;
+            }
 
-                if (queryArgs.Any(x => x.Key.ToLower() == "clientname"))
-                {
-                    options.ClientName = queryArgs.First(x => x.Key.ToLower() == "clientname").Value;
-                }
+            var queryArgs = ParseQuery(uri.Query.Substring(1));
 
-                if (queryArgs.Any(x => x.Key.ToLower() == "sentinel_primary_name"))
-                {
-                    options.ServiceName = queryArgs.First(x => x.Key.ToLower() == "sentinel_primary_name").Value;
-                }
+            var actions = new Dictionary<string, Action<string>>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "timeout", value => SetTimeoutOptions(options, value) },
+                { "clientname", value => options.ClientName = value },
+                { "sentinel_primary_name", value => options.ServiceName = value },
+                { "endpoint", value => options.EndPoints.Add(value) },
+                { "allowadmin", value => options.AllowAdmin = bool.Parse(value) },
+                { "abortConnect", value => options.AbortOnConnectFail = bool.Parse(value) },
+                { "asynctimeout", value => options.AsyncTimeout = int.Parse(value) },
+                // TODO: add more options
+            };
 
-                foreach (var endpoint in queryArgs.Where(x => x.Key == "endpoint").Select(x => x.Value))
-                {
-                    options.EndPoints.Add(endpoint);
-                }
+            foreach (var arg in queryArgs.Where(arg => actions.ContainsKey(arg.Key)))
+            {
+                actions[arg.Key](arg.Value);
             }
         }
+
+        private static void SetTimeoutOptions(ConfigurationOptions options, string value)
+        {
+            var timeout = int.Parse(value);
+            options.AsyncTimeout = timeout;
+            options.SyncTimeout = timeout;
+            options.ConnectTimeout = timeout;
+        }
+
     }
 }
