@@ -7,10 +7,6 @@ on:
             required: true
             type: string
 
-        dotnet_version:
-            required: true
-            type: string
-
         clr_version:
             required: true
             type: string
@@ -41,6 +37,12 @@ jobs:
             uses: actions/setup-dotnet@v2
             with:
               dotnet-version: '7.0.x'
+
+          - name: .NET Core 8 preview
+            uses: actions/setup-dotnet@v3
+            with:
+              dotnet-version: 8
+              dotnet-quality: 'preview'
 
           - name: run redis-stack-server docker
             working-directory: .github
