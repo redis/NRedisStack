@@ -98,6 +98,7 @@ namespace NRedisStack
                 { "allowadmin", value => options.AllowAdmin = bool.Parse(value) },
                 { "abortConnect", value => options.AbortOnConnectFail = bool.Parse(value) },
                 { "asynctimeout", value => options.AsyncTimeout = int.Parse(value) },
+                { "retry", value => options.ConnectRetry = int.Parse(value)}
                 // TODO: add more options
             };
 
