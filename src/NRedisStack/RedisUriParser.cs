@@ -98,13 +98,27 @@ namespace NRedisStack
                 { "allowadmin", value => options.AllowAdmin = bool.Parse(value) },
                 { "abortConnect", value => options.AbortOnConnectFail = bool.Parse(value) },
                 { "asynctimeout", value => options.AsyncTimeout = int.Parse(value) },
-                { "retry", value => options.ConnectRetry = int.Parse(value)}
+                { "retry", value => options.ConnectRetry = int.Parse(value) },
+                { "protocol", value => ParseRedisProtocol(options, value) }
                 // TODO: add more options
             };
 
             foreach (var arg in queryArgs.Where(arg => actions.ContainsKey(arg.Key)))
             {
                 actions[arg.Key](arg.Value);
+            }
+        }
+
+        private static RedisProtocol ParseRedisProtocol(ConfigurationOptions options, string value)
+        {
+            switch (value)
+            {
+                case "2":
+                    return RedisProtocol.Resp2;
+                case "3":
+                    return RedisProtocol.Resp3;
+                default:
+                    throw new FormatException("Invalid protocol specified");
             }
         }
 
