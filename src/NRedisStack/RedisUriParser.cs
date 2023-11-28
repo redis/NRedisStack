@@ -105,7 +105,7 @@ namespace NRedisStack
 
             foreach (var arg in queryArgs.Where(arg => actions.ContainsKey(arg.Key)))
             {
-                actions[arg.Key](arg.Value);
+                actions[arg.Key.ToLower()](arg.Value);
             }
         }
 
