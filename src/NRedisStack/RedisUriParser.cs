@@ -11,6 +11,20 @@ namespace NRedisStack
     /// </summary>
     internal static class RedisUriParser
     {
+        internal static string defaultHost = "localhost";
+        internal static int defaultPort = 6379;
+
+        internal const string
+            Timeout = "timeout",
+            ClientName = "clientname",
+            Sentinel_primary_name = "sentinel_primary_name",
+            Endpoint = "endpoint",
+            AllowAdmin = "allowadmin",
+            AbortConnect = "abortconnect",
+            AsyncTimeout = "asynctimeout",
+            Retry = "retry",
+            Protocol = "protocol";
+
         /// <summary>
         /// Parses a Config options for StackExchange Redis from the URI.
         /// </summary>
@@ -22,7 +36,7 @@ namespace NRedisStack
 
             if (string.IsNullOrEmpty(redisUri))
             {
-                options.EndPoints.Add("localhost:6379");
+                options.EndPoints.Add($"{defaultHost}:{defaultPort}");
                 return options;
             }
 
@@ -57,26 +71,30 @@ namespace NRedisStack
 
         private static void ParseUserInfo(ConfigurationOptions options, Uri uri)
         {
-            if (!string.IsNullOrEmpty(uri.UserInfo))
+            if (string.IsNullOrEmpty(uri.UserInfo))
             {
-                var userInfo = uri.UserInfo.Split(':');
-                if (userInfo.Length > 1)
-                {
-                    options.User = Uri.UnescapeDataString(userInfo[0]);
-                    options.Password = Uri.UnescapeDataString(userInfo[1]);
-                }
-                else
-                {
-                    throw new FormatException(
-                        "Username and password must be in the form username:password - if there is no username use the format :password");
-                }
+                return;
+            }
+
+            var userInfo = uri.UserInfo.Split(':');
+
+            if (userInfo.Length > 1)
+            {
+                options.User = Uri.UnescapeDataString(userInfo[0]);
+                options.Password = Uri.UnescapeDataString(userInfo[1]);
+            }
+
+            else
+            {
+                throw new FormatException("Username and password must be in the form username:password - if there is no username use the format :password");
             }
         }
 
+
         private static void ParseHost(ConfigurationOptions options, Uri uri)
         {
-            var port = uri.Port >= 0 ? uri.Port : 6379;
-            var host = !string.IsNullOrEmpty(uri.Host) ? uri.Host : "localhost";
+            var port = uri.Port >= 0 ? uri.Port : defaultPort;
+            var host = !string.IsNullOrEmpty(uri.Host) ? uri.Host : defaultHost;
             options.EndPoints.Add($"{host}:{port}");
         }
 
@@ -91,15 +109,15 @@ namespace NRedisStack
 
             var actions = new Dictionary<string, Action<string>>(StringComparer.OrdinalIgnoreCase)
             {
-                { "timeout", value => SetTimeoutOptions(options, value) },
-                { "clientname", value => options.ClientName = value },
-                { "sentinel_primary_name", value => options.ServiceName = value },
-                { "endpoint", value => options.EndPoints.Add(value) },
-                { "allowadmin", value => options.AllowAdmin = bool.Parse(value) },
-                { "abortConnect", value => options.AbortOnConnectFail = bool.Parse(value) },
-                { "asynctimeout", value => options.AsyncTimeout = int.Parse(value) },
-                { "retry", value => options.ConnectRetry = int.Parse(value) },
-                { "protocol", value => ParseRedisProtocol(options, value) }
+                { Timeout, value => SetTimeoutOptions(options, value) },
+                { ClientName, value => options.ClientName = value },
+                { Sentinel_primary_name, value => options.ServiceName = value },
+                { Endpoint, value => options.EndPoints.Add(value) },
+                { AllowAdmin, value => options.AllowAdmin = bool.Parse(value) },
+                { AbortConnect, value => options.AbortOnConnectFail = bool.Parse(value) },
+                { AsyncTimeout, value => options.AsyncTimeout = int.Parse(value) },
+                { Retry, value => options.ConnectRetry = int.Parse(value) },
+                { Protocol, value => ParseRedisProtocol(options, value) }
                 // TODO: add more options
             };
 

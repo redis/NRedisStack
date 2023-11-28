@@ -10,7 +10,7 @@ namespace NRedisStack
         public static Configuration Parse(string redisConnectionString) =>
             new Configuration().DoParse(redisConnectionString);
 
-        public Configuration DoParse(string redisConnectionString)
+        private Configuration DoParse(string redisConnectionString)
         {
             try // Redis URI parsing
             {
