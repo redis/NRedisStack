@@ -14,6 +14,7 @@ namespace NRedisStack
         internal static string defaultHost = "localhost";
         internal static int defaultPort = 6379;
 
+        // The options:
         internal const string
             Timeout = "timeout",
             ClientName = "clientname",
@@ -127,14 +128,16 @@ namespace NRedisStack
             }
         }
 
-        private static RedisProtocol ParseRedisProtocol(ConfigurationOptions options, string value)
+        private static void ParseRedisProtocol(ConfigurationOptions options, string value)
         {
             switch (value)
             {
                 case "2":
-                    return RedisProtocol.Resp2;
+                    options.Protocol = RedisProtocol.Resp2;
+                    break;
                 case "3":
-                    return RedisProtocol.Resp3;
+                    options.Protocol = RedisProtocol.Resp3;;
+                    break;
                 default:
                     throw new FormatException("Invalid protocol specified");
             }

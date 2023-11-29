@@ -26,12 +26,12 @@ namespace NRedisStack
 
         public static IConnectionMultiplexer Connect(ConfigurationOptions options)
         {
-            return ConnectionMultiplexer.Connect(options);
+            return Connect(Configuration.Parse(options));
         }
 
         public static async Task<IConnectionMultiplexer> ConnectAsync(ConfigurationOptions options)
         {
-            return await ConnectionMultiplexer.ConnectAsync(options);
+            return await ConnectAsync(Configuration.Parse(options));
         }
     }
 }

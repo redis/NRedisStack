@@ -1,4 +1,3 @@
-using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
 
 namespace NRedisStack
@@ -9,6 +8,9 @@ namespace NRedisStack
 
         public static Configuration Parse(string redisConnectionString) =>
             new Configuration().DoParse(redisConnectionString);
+
+        public static Configuration Parse(ConfigurationOptions options) =>
+            new Configuration().DoParse(options);
 
         private Configuration DoParse(string redisConnectionString)
         {
@@ -24,10 +26,11 @@ namespace NRedisStack
             return this;
         }
 
-
-        Configuration()
+        private Configuration DoParse(ConfigurationOptions options)
         {
+            _options = options;
             SetLibName(_options);
+            return this;
         }
 
         public ConfigurationOptions GetOptions()
@@ -35,7 +38,7 @@ namespace NRedisStack
             return _options;
         }
 
-        private static void SetLibName(ConfigurationOptions options)
+        internal static void SetLibName(ConfigurationOptions options)
         {
             if (options.LibraryName != null) // the user set his own the library name
                 options.LibraryName = $"NRedisStack({options.LibraryName});.NET-{Environment.Version})";
