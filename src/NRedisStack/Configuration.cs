@@ -1,10 +1,11 @@
+using System.Dynamic;
 using StackExchange.Redis;
 
 namespace NRedisStack
 {
     public class Configuration
     {
-        private ConfigurationOptions _options = new ConfigurationOptions();
+        public ConfigurationOptions Options { get; set; } = new ConfigurationOptions();
 
         public static Configuration Parse(string redisConnectionString) =>
             new Configuration().DoParse(redisConnectionString);
@@ -16,34 +17,29 @@ namespace NRedisStack
         {
             try // Redis URI parsing
             {
-                _options = RedisUriParser.FromUri(redisConnectionString);
+                Options = RedisUriParser.FromUri(redisConnectionString);
             }
             catch (UriFormatException) // StackExchange.Redis connection string parsing
             {
-                _options = ConfigurationOptions.Parse(redisConnectionString);
+                Options = ConfigurationOptions.Parse(redisConnectionString);
             }
-            SetLibName(_options);
+            SetLibName(Options);
             return this;
         }
 
         private Configuration DoParse(ConfigurationOptions options)
         {
-            _options = options;
-            SetLibName(_options);
+            Options = options;
+            SetLibName(Options);
             return this;
-        }
-
-        public ConfigurationOptions GetOptions()
-        {
-            return _options;
         }
 
         internal static void SetLibName(ConfigurationOptions options)
         {
             if (options.LibraryName != null) // the user set his own the library name
-                options.LibraryName = $"NRedisStack({options.LibraryName});.NET-{Environment.Version})";
+                options.LibraryName = $"NRedisStack({options.LibraryName};.NET_v{Environment.Version})";
             else // the default library name and version sending
-                options.LibraryName = $"NRedisStack;.NET-{Environment.Version}";
+                options.LibraryName = $"NRedisStack(.NET_v{Environment.Version})";
         }
 
     }

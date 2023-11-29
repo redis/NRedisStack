@@ -14,14 +14,14 @@ namespace NRedisStack
             return await ConnectAsync(Configuration.Parse(redisConnectionString));
         }
 
-        public static IConnectionMultiplexer Connect(Configuration options)
+        public static IConnectionMultiplexer Connect(Configuration configuration)
         {
-            return ConnectionMultiplexer.Connect(options.GetOptions());
+            return ConnectionMultiplexer.Connect(configuration.Options);
         }
 
-        public static async Task<IConnectionMultiplexer> ConnectAsync(Configuration options)
+        public static async Task<IConnectionMultiplexer> ConnectAsync(Configuration configuration)
         {
-            return await ConnectionMultiplexer.ConnectAsync(options.GetOptions());
+            return await ConnectionMultiplexer.ConnectAsync(configuration.Options);
         }
 
         public static IConnectionMultiplexer Connect(ConfigurationOptions options)

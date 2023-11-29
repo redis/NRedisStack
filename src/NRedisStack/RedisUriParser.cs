@@ -24,7 +24,9 @@ namespace NRedisStack
             AbortConnect = "abortconnect",
             AsyncTimeout = "asynctimeout",
             Retry = "retry",
-            Protocol = "protocol";
+            Protocol = "protocol",
+            LibraryName = "lib_name";
+        // TODO: add library version when it will be available
 
         /// <summary>
         /// Parses a Config options for StackExchange Redis from the URI.
@@ -118,8 +120,9 @@ namespace NRedisStack
                 { AbortConnect, value => options.AbortOnConnectFail = bool.Parse(value) },
                 { AsyncTimeout, value => options.AsyncTimeout = int.Parse(value) },
                 { Retry, value => options.ConnectRetry = int.Parse(value) },
-                { Protocol, value => ParseRedisProtocol(options, value) }
-                // TODO: add more options
+                { Protocol, value => ParseRedisProtocol(options, value) },
+                { LibraryName, value => options.LibraryName = value }
+                // TODO: add more options (especially the library version when it will be available)
             };
 
             foreach (var arg in queryArgs.Where(arg => actions.ContainsKey(arg.Key)))
@@ -136,7 +139,7 @@ namespace NRedisStack
                     options.Protocol = RedisProtocol.Resp2;
                     break;
                 case "3":
-                    options.Protocol = RedisProtocol.Resp3;;
+                    options.Protocol = RedisProtocol.Resp3; ;
                     break;
                 default:
                     throw new FormatException("Invalid protocol specified");
