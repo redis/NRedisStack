@@ -1152,4 +1152,82 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
         Assert.Null(result2);
     }
+
+    [Fact]
+    public void TestSetWithSerializationOptions()
+    {
+        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var keys = CreateKeyNames(1);
+        var key = keys[0];
+        var jsonOptions = new JsonSerializerOptions { IncludeFields = true };
+        var person = new Person { Name = "Developer", Age = 23, Birthday = DateTime.Today };
+        
+        commands.Set(key, "$", person, serializerOptions: jsonOptions);
+        Person? result = commands.Get<Person>(key, serializerOptions: jsonOptions);
+        
+        Assert.NotNull(result);
+        Assert.Equal(person.Name, result!.Name);
+        Assert.Equal(person.Age, result!.Age);
+        Assert.NotNull(result!.Birthday);
+        Assert.Equal(person.Birthday, result!.Birthday);
+    }
+
+    [Fact]
+    public async Task TestSetWithSerializationOptionsAsync()
+    {
+        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var keys = CreateKeyNames(1);
+        var key = keys[0];
+        var jsonOptions = new JsonSerializerOptions { IncludeFields = true };
+        var person = new Person { Name = "Developer", Age = 23, Birthday = DateTime.Today };
+
+        await commands.SetAsync(key, "$", person, serializerOptions: jsonOptions);
+        Person? result = await commands.GetAsync<Person>(key, serializerOptions: jsonOptions);
+        
+        Assert.NotNull(result);
+        Assert.Equal(person.Name, result!.Name);
+        Assert.Equal(person.Age, result!.Age);
+        Assert.NotNull(result!.Birthday);
+        Assert.Equal(person.Birthday, result!.Birthday);
+    }
+
+    [SkipIfRedis("7.1.242")]
+    public void MergeWithSerializationOptions()
+    {
+        string expected = "{\"age\":23,\"birthday\":\"2023-12-31T00:00:00\",\"name\":\"Developer\"}";
+
+        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var keys = CreateKeyNames(1);
+        var key = keys[0];
+        commands.Set(key, "$", new { age = 5, birthday = new DateTime(2000, 1, 1) });
+
+        var jsonOptions = new JsonSerializerOptions { IncludeFields = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        var person = new Person { Name = "Developer", Age = 23, Birthday = new DateTime(2023, 12, 31) };
+        commands.Merge(key, "$", person, serializerOptions: jsonOptions);
+        RedisResult rr = commands.Get(key);
+
+        Assert.False(rr.IsNull);
+        string actual = rr.ToString()!;
+        Assert.Equal(expected, actual);
+    }
+
+    [SkipIfRedis("7.1.242")]
+    public async Task MergeWithSerializationOptionsAsync()
+    {
+        string expected = "{\"age\":23,\"birthday\":\"2023-12-31T00:00:00\",\"name\":\"Developer\"}";
+
+        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var keys = CreateKeyNames(1);
+        var key = keys[0];
+        await commands.SetAsync(key, "$", new { age = 5, birthday = new DateTime(2000, 1, 1) });
+
+        var jsonOptions = new JsonSerializerOptions { IncludeFields = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        var person = new Person { Name = "Developer", Age = 23, Birthday = new DateTime(2023, 12, 31) };
+        await commands.MergeAsync(key, "$", person, serializerOptions: jsonOptions);
+        RedisResult rr = await commands.GetAsync(key);
+
+        Assert.False(rr.IsNull);
+        string actual = rr.ToString()!;
+        Assert.Equal(expected, actual);
+    }
 }
