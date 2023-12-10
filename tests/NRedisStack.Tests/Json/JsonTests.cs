@@ -1161,10 +1161,10 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var key = keys[0];
         var jsonOptions = new JsonSerializerOptions { IncludeFields = true };
         var person = new Person { Name = "Developer", Age = 23, Birthday = DateTime.Today };
-        
+
         commands.Set(key, "$", person, serializerOptions: jsonOptions);
         Person? result = commands.Get<Person>(key, serializerOptions: jsonOptions);
-        
+
         Assert.NotNull(result);
         Assert.Equal(person.Name, result!.Name);
         Assert.Equal(person.Age, result!.Age);
@@ -1183,7 +1183,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
 
         await commands.SetAsync(key, "$", person, serializerOptions: jsonOptions);
         Person? result = await commands.GetAsync<Person>(key, serializerOptions: jsonOptions);
-        
+
         Assert.NotNull(result);
         Assert.Equal(person.Name, result!.Name);
         Assert.Equal(person.Age, result!.Age);
