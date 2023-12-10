@@ -4,6 +4,6 @@ namespace NRedisStack.Tests
     {
         public string? Name { get; set; }
         public int Age { get; set; }
-        public DateTime? Birthday;
+        public DateTime? Birthday { get; set; }
     }
 }
