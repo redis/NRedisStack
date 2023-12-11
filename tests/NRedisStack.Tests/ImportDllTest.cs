@@ -5,12 +5,12 @@ namespace NRedisStack.Tests
 {
     public class ImportDllTest : AbstractNRedisStackTest, IDisposable
     {
-        const string LibName = "libcommands.dylib";
+        const string LibName = "libcommands";
 
-        [DllImport(LibName, EntryPoint = "numbers", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibName, EntryPoint = "numbers")]
         private static extern int numbers(int a, int b);
 
-        [DllImport(LibName, EntryPoint = "hello_world", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibName, EntryPoint = "hello_world")]
         private static extern string hello_world();
 
         public ImportDllTest(RedisFixture redisFixture) : base(redisFixture) { }
