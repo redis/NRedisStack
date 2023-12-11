@@ -193,9 +193,10 @@ public interface IJsonCommands
     /// <param name="path">The path to set within the key.</param>
     /// <param name="obj">The value to set.</param>
     /// <param name="when">When to set the value.</param>
+    /// <param name="serializerOptions">Json serializer options to use for serialization.</param>
     /// <returns>The disposition of the command</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.set"/></remarks>
-    bool Set(RedisKey key, RedisValue path, object obj, When when = When.Always);
+    bool Set(RedisKey key, RedisValue path, object obj, When when = When.Always, JsonSerializerOptions? serializerOptions = default);
 
     /// <summary>
     /// Set's the key/path to the provided value.
@@ -235,9 +236,10 @@ public interface IJsonCommands
     /// <param name="key">The key.</param>
     /// <param name="path">The path to set within the key.</param>
     /// <param name="obj">The value to set.</param>
+    /// <param name="serializerOptions">Json serializer options to use for serialization.</param>
     /// <returns>The disposition of the command</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.merge"/></remarks>
-    bool Merge(RedisKey key, RedisValue path, object obj);
+    bool Merge(RedisKey key, RedisValue path, object obj, JsonSerializerOptions? serializerOptions = default);
 
     /// <summary>
     /// Sets or updates the JSON value of one or more keys.
