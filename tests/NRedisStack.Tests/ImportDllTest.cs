@@ -5,7 +5,7 @@ namespace NRedisStack.Tests
 {
     public class ImportDllTest : AbstractNRedisStackTest, IDisposable
     {
-        const string LibName = "libcommands.dylib";
+        const string LibName = "libcommands";
 
         [DllImport(LibName, EntryPoint = "numbers")]
         private static extern int numbers(int a, int b);
