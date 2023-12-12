@@ -19,12 +19,12 @@
 	<PackageReference Include="System.Text.Json" Version="7.0.2" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
 	<PackageReference Include="StackExchange.Redis" Version="2.6.122" />
 	<None Include="..\..\README.md" Pack="true" PackagePath="\" />
-   <None Include="libcommands.dylib" Condition="'$(OS)' == 'Windows_NT'">
-     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-   </None>
-   <None Include="libcommands.dylib" Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))'">
-     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-   </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="libcommands.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
