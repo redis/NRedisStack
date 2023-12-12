@@ -40,7 +40,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="libcommands.so">
+    <None Include="libcommands.so" Condition="'$(OS)' == 'Unix'">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="libcommands.so" Condition="'$(OS)' == 'Windows'">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
