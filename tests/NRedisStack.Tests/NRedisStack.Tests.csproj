@@ -40,13 +40,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="libcommands.so" Condition="'$(OS)' == 'Unix'">
+    <None Include="libcommands.so" Condition=" '$(IsWindows)' != 'true'">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="libcommands.dll" Condition="'$(OS)' == 'Windows'">
+    <None Include="libcommands.dll" Condition=" '$(IsWindows)' == 'true'">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
