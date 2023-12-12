@@ -28,9 +28,9 @@ public class JsonCommands : JsonCommandsAsync, IJsonCommands
     }
 
     /// <inheritdoc/>
-    public bool Set(RedisKey key, RedisValue path, object obj, When when = When.Always)
+    public bool Set(RedisKey key, RedisValue path, object obj, When when = When.Always, JsonSerializerOptions? serializerOptions = default)
     {
-        string json = JsonSerializer.Serialize(obj);
+        string json = JsonSerializer.Serialize(obj, options: serializerOptions);
         return Set(key, path, json, when);
     }
 
@@ -53,9 +53,9 @@ public class JsonCommands : JsonCommandsAsync, IJsonCommands
     }
 
     /// <inheritdoc/>
-    public bool Merge(RedisKey key, RedisValue path, object obj)
+    public bool Merge(RedisKey key, RedisValue path, object obj, JsonSerializerOptions? serializerOptions = default)
     {
-        string json = JsonSerializer.Serialize(obj);
+        string json = JsonSerializer.Serialize(obj, options: serializerOptions);
         return _db.Execute(JsonCommandBuilder.Merge(key, path, json)).OKtoBoolean();
     }
 
