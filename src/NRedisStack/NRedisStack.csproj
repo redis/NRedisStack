@@ -22,9 +22,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="libcommands.dylib" Pack="true" PackagePath="lib"/>
-    <Content Include="libcommands.so" Pack="true" PackagePath="lib"/>
-    <Content Include="libcommands.dll" Pack="true" PackagePath="lib"/>
+    <Content Include="lib/libcommands.dylib" Pack="true" PackagePath="lib"/>
+    <Content Include="lib/libcommands.so" Pack="true" PackagePath="lib"/>
+    <Content Include="lib/libcommands.dll" Pack="true" PackagePath="lib"/>
 
 	<Content Include="$(MSBuildThisFileDirectory)NRedisStack.props" Pack="true" PackagePath="build"/>
   </ItemGroup>
