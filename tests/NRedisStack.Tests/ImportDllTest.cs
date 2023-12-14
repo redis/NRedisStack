@@ -23,8 +23,10 @@ namespace NRedisStack.Tests
             Console.WriteLine($"LibPath: {Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}");
 
             Assert.Equal(3, numbers(1, 2));
-            Assert.Equal(3, numbers(1, 2));
             Assert.Equal("Hello, world", hello_world());
+
+            // check the Numbers wrapper
+            Assert.Equal(3, Auxiliary.Numbers(1, 2));
         }
     }
 }

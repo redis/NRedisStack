@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using NRedisStack.Core;
 using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
@@ -133,6 +134,20 @@ namespace NRedisStack
         {
             Version version = typeof(Auxiliary).Assembly.GetName().Version!;
             return $"{version.Major}.{version.Minor}.{version.Build}";
+        }
+
+        const string LibName = "lib/libcommands";
+
+        [DllImport(LibName, EntryPoint = "numbers")]
+        private static extern int numbers(int a, int b);
+
+        /// <summary>
+        /// try numbers function from libcommands
+        /// </summary>
+        public static int Numbers(int a, int b)
+        {
+            var res = numbers(a, b);
+            return res;
         }
     }
 }

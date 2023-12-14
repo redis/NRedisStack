@@ -9,9 +9,9 @@
 	<Owners>Redis OSS</Owners>
 	<Description>.Net Client for Redis Stack</Description>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
-	<Version>0.10.1</Version>
-	<ReleaseVersion>0.10.1</ReleaseVersion>
-	<PackageVersion>0.10.1</PackageVersion>
+	<Version>0.10.2</Version>
+	<ReleaseVersion>0.10.2</ReleaseVersion>
+	<PackageVersion>0.10.2</PackageVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,6 +19,14 @@
 	<PackageReference Include="System.Text.Json" Version="7.0.2" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
 	<PackageReference Include="StackExchange.Redis" Version="2.6.122" />
 	<None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="libcommands.dylib" Pack="true" PackagePath="lib"/>
+    <Content Include="libcommands.so" Pack="true" PackagePath="lib"/>
+    <Content Include="libcommands.dll" Pack="true" PackagePath="lib"/>
+
+	<Content Include="$(MSBuildThisFileDirectory)NRedisStack.props" Pack="true" PackagePath="build"/>
   </ItemGroup>
 
 </Project>
