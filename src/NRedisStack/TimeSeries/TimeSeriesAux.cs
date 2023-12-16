@@ -250,11 +250,11 @@ namespace NRedisStack
             return args;
         }
 
-        public static List<object> BuildTsIncrDecrByArgs(string key, double value, TimeStamp? timestamp, long? retentionTime,
+        public static List<object> BuildTsIncrDecrByArgs(string key, double value, TimeStamp? timestampMaybe, long? retentionTime,
             IReadOnlyCollection<TimeSeriesLabel>? labels, bool? uncompressed, long? chunkSizeBytes)
         {
             var args = new List<object> { key, value };
-            if (timestamp != null) args.AddTimeStamp(timestamp);
+            if (timestampMaybe is {} timestamp) args.AddTimeStamp(timestamp);
             args.AddRetentionTime(retentionTime);
             args.AddChunkSize(chunkSizeBytes);
             if (labels != null) args.AddLabels(labels);
