@@ -79,9 +79,9 @@ namespace NRedisStack
             }
         }
 
-        public static void AddAlign(this IList<object> args, TimeStamp? align)
+        public static void AddAlign(this IList<object> args, TimeStamp? alignMaybe)
         {
-            if (align != null)
+            if (alignMaybe is {} align)
             {
                 args.Add(TimeSeriesArgs.ALIGN);
                 args.Add(align.Value);
