@@ -76,7 +76,7 @@
         /// Implicit cast from TimeStamp to DateTime.
         /// </summary>
         /// <param name="timeStamp">TimeStamp</param>
-        public static implicit operator DateTime(TimeStamp timeStamp) => new DateTime(timeStamp);
+        public static implicit operator DateTime(TimeStamp timeStamp) => DateTimeOffset.FromUnixTimeMilliseconds(timeStamp).DateTime;
 
         /// <summary>
         /// TimeStamp object hash code.
