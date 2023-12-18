@@ -133,9 +133,10 @@ public class JsonCommandsAsync : IJsonCommandsAsync
         return (RedisResult[])result!;
     }
 
-    public Task<bool> SetAsync(RedisKey key, RedisValue path, object obj, When when = When.Always)
+    /// <inheritdoc/>
+    public Task<bool> SetAsync(RedisKey key, RedisValue path, object obj, When when = When.Always, JsonSerializerOptions? serializerOptions = default)
     {
-        string json = JsonSerializer.Serialize(obj);
+        string json = JsonSerializer.Serialize(obj, options: serializerOptions);
         return SetAsync(key, path, json, when);
     }
 
@@ -156,9 +157,9 @@ public class JsonCommandsAsync : IJsonCommandsAsync
     }
 
     /// <inheritdoc/>
-    public async Task<bool> MergeAsync(RedisKey key, RedisValue path, object obj)
+    public async Task<bool> MergeAsync(RedisKey key, RedisValue path, object obj, JsonSerializerOptions? serializerOptions = default)
     {
-        string json = JsonSerializer.Serialize(obj);
+        string json = JsonSerializer.Serialize(obj, options: serializerOptions);
         return (await _db.ExecuteAsync(JsonCommandBuilder.Merge(key, path, json))).OKtoBoolean();
     }
 

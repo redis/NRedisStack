@@ -4,14 +4,14 @@
     /// A class represents timestamp.
     /// Value can be either primitive long, DateTime or one of the strings "-", "+", "*".
     /// </summary>
-    public class TimeStamp
+    public readonly record struct TimeStamp
     {
         private static readonly string[] constants = { "-", "+", "*" };
 
         /// <summary>
         /// TimeStamp value.
         /// </summary>
-        public object Value { get; private set; }
+        public object Value { get; }
 
         /// <summary>
         /// Build a TimeStamp from primitive long.
@@ -34,7 +34,7 @@
         {
             if (Array.IndexOf(constants, timestamp) == -1)
             {
-                throw new NotSupportedException(string.Format("The string {0} cannot be used", timestamp));
+                throw new NotSupportedException($"The string {timestamp} cannot be used");
             }
             Value = timestamp;
         }
@@ -76,15 +76,7 @@
         /// Implicit cast from TimeStamp to DateTime.
         /// </summary>
         /// <param name="timeStamp">TimeStamp</param>
-        public static implicit operator DateTime(TimeStamp timeStamp) => new DateTime(timeStamp);
-
-        /// <summary>
-        /// Equality of TimeSeriesTuple objects
-        /// </summary>
-        /// <param name="obj">Object to compare</param>
-        /// <returns>If two TimeStamp objects are equal</returns>
-        public override bool Equals(object? obj) =>
-            obj is TimeStamp stamp && EqualityComparer<object>.Default.Equals(Value, stamp.Value);
+        public static implicit operator DateTime(TimeStamp timeStamp) => DateTimeOffset.FromUnixTimeMilliseconds(timeStamp).DateTime;
 
         /// <summary>
         /// TimeStamp object hash code.
