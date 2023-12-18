@@ -79,9 +79,9 @@ namespace NRedisStack
             }
         }
 
-        public static void AddAlign(this IList<object> args, TimeStamp? align)
+        public static void AddAlign(this IList<object> args, TimeStamp? alignMaybe)
         {
-            if (align != null)
+            if (alignMaybe is {} align)
             {
                 args.Add(TimeSeriesArgs.ALIGN);
                 args.Add(align.Value);
@@ -200,11 +200,8 @@ namespace NRedisStack
 
         public static void AddTimeStamp(this IList<object> args, TimeStamp timeStamp)
         {
-            if (timeStamp != null)
-            {
-                args.Add(TimeSeriesArgs.TIMESTAMP);
-                args.Add(timeStamp.Value);
-            }
+            args.Add(TimeSeriesArgs.TIMESTAMP);
+            args.Add(timeStamp.Value);
         }
 
         public static void AddRule(this IList<object> args, TimeSeriesRule rule)
@@ -250,11 +247,11 @@ namespace NRedisStack
             return args;
         }
 
-        public static List<object> BuildTsIncrDecrByArgs(string key, double value, TimeStamp? timestamp, long? retentionTime,
+        public static List<object> BuildTsIncrDecrByArgs(string key, double value, TimeStamp? timestampMaybe, long? retentionTime,
             IReadOnlyCollection<TimeSeriesLabel>? labels, bool? uncompressed, long? chunkSizeBytes)
         {
             var args = new List<object> { key, value };
-            if (timestamp != null) args.AddTimeStamp(timestamp);
+            if (timestampMaybe is {} timestamp) args.AddTimeStamp(timestamp);
             args.AddRetentionTime(retentionTime);
             args.AddChunkSize(chunkSizeBytes);
             if (labels != null) args.AddLabels(labels);
