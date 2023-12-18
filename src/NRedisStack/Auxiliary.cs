@@ -59,8 +59,7 @@ namespace NRedisStack
 
         public static RedisResult Execute(this IDatabase db, SerializedCommand command)
         {
-            // var compareVersions = db.Multiplexer.GetServer(db.Multiplexer.GetEndPoints()[0]).Version.CompareTo(new Version(7, 1, 242));
-            if (_setInfo /*&& compareVersions >= 0*/)
+            if (_setInfo)
             {
                 _setInfo = false;
                 db.SetInfoInPipeline();
@@ -70,8 +69,7 @@ namespace NRedisStack
 
         public async static Task<RedisResult> ExecuteAsync(this IDatabaseAsync db, SerializedCommand command)
         {
-            // var compareVersions = db.Multiplexer.GetServer(db.Multiplexer.GetEndPoints()[0]).Version.CompareTo(new Version(7, 1, 242));
-            if (_setInfo /*&& compareVersions >= 0*/)
+            if (_setInfo)
             {
                 _setInfo = false;
                 ((IDatabase)db).SetInfoInPipeline();
