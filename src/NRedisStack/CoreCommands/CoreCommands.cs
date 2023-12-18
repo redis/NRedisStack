@@ -14,6 +14,9 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/client-setinfo/"/></remarks>
         public static bool ClientSetInfo(this IDatabase db, SetInfoAttr attr, string value)
         {
+            var compareVersions = db.Multiplexer.GetServer(db.Multiplexer.GetEndPoints()[0]).Version.CompareTo(new Version(7, 1, 242));
+            if (compareVersions < 0) // the server does not support the CLIENT SETNAME command
+                return false;
             return db.Execute(CoreCommandBuilder.ClientSetInfo(attr, value)).OKtoBoolean();
         }
     }
