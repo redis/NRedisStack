@@ -63,7 +63,7 @@ jobs:
         run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
 
       - name: Test
-        run: dotnet test --environment="REDIS=172.0.0.1:6379" --environment="NUM_REDIS_CLUSTER_NODES=6" --no-build --verbosity normal
+        run: dotnet test --environment="REDIS=127.0.0.1:6379" --environment="NUM_REDIS_CLUSTER_NODES=6" --no-build --verbosity normal
 
   dotnet_6_cluster:
     name: .NET 6 on [redis-stack cluster]
