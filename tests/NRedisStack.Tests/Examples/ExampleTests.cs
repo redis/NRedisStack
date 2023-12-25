@@ -229,7 +229,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("temp:JLM", respons[0].key);
     }
 
-    [SkipIfRedis(Is.OSSCluster)]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
     public void TransactionExample()
     {
         // Connect to the Redis server

@@ -83,7 +83,7 @@ namespace NRedisStack.Tests
             Assert.NotNull(db.TOPK().Info("topk-key"));
         }
 
-        [SkipIfRedis(Is.OSSCluster)]
+        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
         [Obsolete]
         public void TestModulsTransactionWithoutGraph()
         {
