@@ -24,6 +24,8 @@ jobs:
 
     strategy:
       fail-fast: false
+      matrix:
+        oss-cluster: ['true', 'false']
 
     steps:
       - name: Clone Redis EE docker repository
@@ -65,7 +67,12 @@ jobs:
         run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
 
       - name: Test
+        if: ${{matrix.oss_cluster}} == 'false'
         run: dotnet test --environment="REDIS=127.0.0.1:6379" --environment="NUM_REDIS_CLUSTER_NODES=6" --no-build --verbosity normal
+
+      - name: Test
+        if: ${{matrix.oss_cluster}} == 'true'
+        run: dotnet test --environment="REDIS=127.0.0.1:6379" --no-build --verbosity normal
 
   dotnet_6_cluster:
     name: .NET 6 on [redis-stack cluster]
