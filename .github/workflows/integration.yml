@@ -36,6 +36,7 @@ jobs:
 
       - name: Build cluster
         env:
+          IS_REDIS_ENTERPRISE: 'true'
           IMAGE: redislabs/redis-internal:100.0.1-64402
           RE_USERNAME: test@test.com
           RE_PASS: 12345
