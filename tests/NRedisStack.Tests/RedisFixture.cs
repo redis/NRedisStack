@@ -24,6 +24,9 @@ namespace NRedisStack.Tests
                 int startPort = int.Parse(parts[1]);
 
                 var endpoints = new EndPointCollection();
+                if (redisStandalone != null)
+                    endpoints.Add(redisStandalone);
+
                 int numRedisClusterNodes = int.Parse(numRedisClusterNodesEnv!);
                 for (int i = 0; i < numRedisClusterNodes; i++)
                 {
