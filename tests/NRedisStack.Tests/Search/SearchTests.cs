@@ -57,7 +57,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.Execute("HSET", nameValue);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.Enterprise)]
     public void TestAggregationRequestVerbatim()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -80,7 +80,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, res.TotalResults);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.Enterprise)]
     public async Task TestAggregationRequestVerbatimAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -699,7 +699,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, nonAttribute.TotalResults);
     }
 
-    [SkipIfRedis(Is.OSSCluster)]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
     public void AlterAdd()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -763,7 +763,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(4, info.CursorStats.Count);
     }
 
-    [SkipIfRedis(Is.OSSCluster)]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
     public async Task AlterAddAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1039,7 +1039,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         catch (RedisException) { }
     }
 
-    [SkipIfRedis(Is.OSSCluster)]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
     public void TestAggregationGroupBy()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2622,7 +2622,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2L, await ft.SugLenAsync(key));
     }
 
-    [Fact]
+    [SkipIfRedis(Is.Enterprise)]
     public void TestProfileSearch()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2646,7 +2646,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("1", iteratorsProfile["Size"].ToString());
     }
 
-    [Fact]
+    [SkipIfRedis(Is.Enterprise)]
     public async Task TestProfileSearchAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2671,7 +2671,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [Fact]
+    [SkipIfRedis(Is.Enterprise)]
     public void TestProfile()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2701,7 +2701,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, aggregateRes.TotalResults);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.Enterprise)]
     public async Task TestProfileAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
