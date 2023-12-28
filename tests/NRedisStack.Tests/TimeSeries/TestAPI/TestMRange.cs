@@ -28,7 +28,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             return tuples;
         }
 
-        [SkipIfRedis(Is.OSSCluster)]
+        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
         public void TestSimpleMRange()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -51,7 +51,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
                 Assert.Equal(tuples, results[i].values);
             }
         }
-        [SkipIfRedis(Is.OSSCluster)]
+        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
         public void TestMRangeWithLabels()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -75,7 +75,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster)]
+        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
         public void TestMRangeSelectLabels()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -104,7 +104,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster)]
+        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
         public void TestMRangeFilter()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -121,7 +121,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(tuples, results[0].values);
         }
 
-        [SkipIfRedis(Is.OSSCluster)]
+        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
         public void TestMRangeCount()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -146,7 +146,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster)]
+        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
         public void TestMRangeAggregation()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -170,7 +170,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster)]
+        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
         public void TestMRangeAlign()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -229,7 +229,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal("RANGE Aggregation should have timeBucket value", ex.Message);
         }
 
-        [SkipIfRedis(Is.OSSCluster)]
+        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
         public void TestMRangeGroupby()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -255,7 +255,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster)]
+        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
         public void TestMRangeReduce()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -280,7 +280,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster)]
+        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
         public void TestMRangeFilterBy()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();

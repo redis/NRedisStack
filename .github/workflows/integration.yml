@@ -38,12 +38,12 @@ jobs:
 
       - name: Build cluster
         env:
-          IMAGE: redislabs/redis-internal:100.0.1-64402
+          IMAGE: redislabs/redis-internal:7.2.4-92
           RE_USERNAME: test@test.com
           RE_PASS: 12345
           RE_CLUSTER_NAME: test
-          RE_USE_OSS_CLUSTER: false
-          RE_DB_PORT: 6379
+          OSS_CLUSTER: false
+          DB_PORT: 6379
           DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
@@ -89,12 +89,12 @@ jobs:
 
       - name: Build cluster
         env:
-          IMAGE: redislabs/redis-internal:100.0.1-64402
+          IMAGE: redislabs/redis-internal:7.2.4-92
           RE_USERNAME: test@test.com
           RE_PASS: 12345
           RE_CLUSTER_NAME: test
-          RE_USE_OSS_CLUSTER: true
-          RE_DB_PORT: 6378
+          OSS_CLUSTER: true
+          DB_PORT: 6378
           DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
