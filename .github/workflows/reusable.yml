@@ -63,7 +63,7 @@ jobs:
               echo "${{secrets.REDIS_USER_CRT}}" > tests/NRedisStack.Tests/bin/Debug/net6.0/redis_user.crt
               echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > tests/NRedisStack.Tests/bin/Debug/net6.0/redis_user_private.key
               ls -R
-              dotnet test -f ${{inputs.clr_version}} --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+              dotnet test -f ${{inputs.clr_version}} --no-build --verbosity detailed /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
           - name: Codecov
             uses: codecov/codecov-action@v3
             with:

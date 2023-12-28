@@ -65,7 +65,7 @@ jobs:
         run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
 
       - name: Test
-        run: dotnet test --environment="REDIS=127.0.0.1:6379" --no-build --verbosity normal
+        run: dotnet test --environment="REDIS=127.0.0.1:6379" --no-build --verbosity detailed
 
   NRedisStack-Enterprise-Test-OssCluster:
     name: NRedisStack Enterprise Test - OSS Cluster
@@ -116,7 +116,7 @@ jobs:
         run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
 
       - name: Test
-        run: dotnet test --environment="REDIS_CLUSTER=127.0.0.1:6372" --environment="NUM_REDIS_CLUSTER_NODES=3" --no-build --verbosity normal
+        run: dotnet test --environment="REDIS_CLUSTER=127.0.0.1:6372" --environment="NUM_REDIS_CLUSTER_NODES=3" --no-build --verbosity detailed
 
   dotnet_6_cluster:
     name: .NET 6 on [redis-stack cluster]
@@ -226,4 +226,4 @@ jobs:
         shell: cmd
         run: |
           START wsl ./redis-stack-server-${{env.redis_stack_version}}/bin/redis-stack-server &
-          dotnet test -f net481 --no-build --verbosity normal
+          dotnet test -f net481 --no-build --verbosity detailed
