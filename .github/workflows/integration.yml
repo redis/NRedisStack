@@ -42,8 +42,8 @@ jobs:
           RE_USERNAME: test@test.com
           RE_PASS: 12345
           RE_CLUSTER_NAME: test
-          OSS_CLUSTER: false
-          DB_PORT: 6379
+          RE_USE_OSS_CLUSTER: false
+          RE_DB_PORT: 6379
           DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
@@ -93,8 +93,8 @@ jobs:
           RE_USERNAME: test@test.com
           RE_PASS: 12345
           RE_CLUSTER_NAME: test
-          OSS_CLUSTER: true
-          DB_PORT: 6378
+          RE_USE_OSS_CLUSTER: true
+          RE_DB_PORT: 6378
           DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
