@@ -11,7 +11,7 @@ on:
             required: true
             type: string
 
-        dotenv_file:
+        mode:
             required: true
             type: string
 jobs:
@@ -47,10 +47,11 @@ jobs:
             working-directory: .github
             run: docker-compose up -d redis-stack-${{inputs.redis_stack_type}}
 
-          - name: set variables in dotenv
-            uses: c-py/action-dotenv-to-setenv@v2
+          - name: Set .env variables
+            uses: xom9ikk/dotenv@v2
             with:
-              env-file: ${{inputs.dotenv_file}}
+              path: .github/modes
+              mode: ${{ inputs.mode }}
 
           - name: Restore dependencies
             run: dotnet restore

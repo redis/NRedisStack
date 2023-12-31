@@ -24,7 +24,6 @@ jobs:
       fail-fast: false
       matrix:
         enterprise_version: ['7.2.4-92']
-        oss_cluster: ['false']
         env_file_mode: ['enterprise', 'enterprise_oss_cluster']
 
     steps:
@@ -33,23 +32,22 @@ jobs:
       - name: Load dotnenv for CI
         uses: xom9ikk/dotenv@v2
         with:
-          path: .github
+          path: .github/modes
           mode: ${{ matrix.env_file_mode }}
 
-      - name: clone ee docker code
+      - name: Clone ee docker code
         uses: actions/checkout@v4
         with:
           repository: redislabs/redis-ee-docker
           path: redis-ee-docker
 
 
-      - name: start docker
+      - name: Start docker
         working-directory: redis-ee-docker
         env:
           IMAGE: redislabs/redis-internal:${{ matrix.enterprise_version }}
           DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          OSS_CLUSTER: ${{ matrix.oss_cluster }}
         run: ./build.sh
 
       - name: .NET Core 7
@@ -72,7 +70,7 @@ jobs:
     with:
       redis_stack_type: cluster
       clr_version: net6.0
-      dotenv_file: .github/cluster.env
+      mode: oss_cluster
     secrets: inherit
 
   dotnet_6:
@@ -86,7 +84,7 @@ jobs:
     with:
       redis_stack_type: ${{matrix.redis-stack-type}}
       clr_version: net6.0
-      dotenv_file: .github/standalone.env
+      mode: standalone
     secrets: inherit
 
   dotnet_7_cluster:
@@ -95,7 +93,7 @@ jobs:
     with:
       redis_stack_type: cluster
       clr_version: net7.0
-      dotenv_file: .github/cluster.env
+      mode: oss_cluster
     secrets: inherit
 
   dotnet_7:
@@ -109,7 +107,7 @@ jobs:
     with:
       redis_stack_type: ${{matrix.redis-stack-type}}
       clr_version: net7.0
-      dotenv_file: .github/standalone.env
+      mode: standalone
     secrets: inherit
 
   dotnet_8_cluster:
@@ -118,7 +116,7 @@ jobs:
     with:
       redis_stack_type: cluster
       clr_version: net8.0
-      dotenv_file: .github/cluster.env
+      mode: oss_cluster
     secrets: inherit
 
   dotnet_8:
@@ -132,7 +130,7 @@ jobs:
     with:
       redis_stack_type: ${{matrix.redis-stack-type}}
       clr_version: net8.0
-      dotenv_file: .github/standalone.env
+      mode: standalone
     secrets: inherit
 
   build_and_test_windows:
