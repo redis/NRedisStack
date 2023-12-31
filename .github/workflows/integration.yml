@@ -68,7 +68,7 @@ jobs:
   NRedisStack-Enterprise-Test-OssCluster:
     name: NRedisStack Enterprise Test - OSS Cluster
     env:
-      IS_REDIS_ENTERPRISE: 'true'
+      IS_ENTERPRISE: 'true'
     runs-on: ubuntu-latest
 
     strategy:
