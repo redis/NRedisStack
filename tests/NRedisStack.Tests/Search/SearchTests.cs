@@ -103,7 +103,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, res.TotalResults);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void TestAggregationRequestTimeout()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -125,7 +125,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, res.TotalResults);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task TestAggregationRequestTimeoutAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1397,7 +1397,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.False(res.Length == 0);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void TestExplainWithDefaultDialect()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1414,7 +1414,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.False(res.Length == 0);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task TestExplainWithDefaultDialectAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
