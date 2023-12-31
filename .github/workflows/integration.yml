@@ -16,40 +16,40 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  NRedisStack-Enterprise-Test:
-    name: NRedisStack Enterprise Test
-    env:
-      IS_REDIS_ENTERPRISE: 'true'
+  enterprise-tests:
+    name: Redis Enterprise
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
+      matrix:
+        enterprise_version: ['7.2.4-92']
+        oss_cluster: ['false']
 
     steps:
-      - name: Clone Redis EE docker repository
-        run: |
-          git clone https://github.com/RedisLabs/redis-ee-docker.git redis-ee
+      - uses: actions/checkout@v4
 
-      # - name: Install Docker-compose
-      #   run: |
-      #     DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
-      #     mkdir -p $DOCKER_CONFIG/cli-plugins
-      #     curl -SL https://github.com/docker/compose/releases/download/v2.23.3/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose
-
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: set variables in dotenv
-        uses: c-py/action-dotenv-to-setenv@v2
+      - name: Load dotnenv for CI
+        uses: xom9ikk/dotenv@v2
         with:
-          env-file: .github/enterprise.env
+          path: .github
+          mode: enterprise
 
-      - name: Build cluster
+      - name: clone ee docker code
+        uses: actions/checkout@v4
+        with:
+          repository: redislabs/redis-ee-docker
+          path: redis-ee-docker
+
+
+      - name: start docker
+        working-directory: redis-ee-docker
         env:
+          IMAGE: redislabs/redis-internal:${{ matrix.enterprise_version }}
           DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        run: |
-          cd redis-ee/
-          ./build.sh
+          OSS_CLUSTER: ${{ matrix.oss_cluster }}
+        run: ./build.sh
 
       - name: .NET Core 7
         uses: actions/setup-dotnet@v2
