@@ -81,7 +81,7 @@ namespace NRedisStack
 
         public static void AddAlign(this IList<object> args, TimeStamp? alignMaybe)
         {
-            if (alignMaybe is {} align)
+            if (alignMaybe is { } align)
             {
                 args.Add(TimeSeriesArgs.ALIGN);
                 args.Add(align.Value);
@@ -251,7 +251,7 @@ namespace NRedisStack
             IReadOnlyCollection<TimeSeriesLabel>? labels, bool? uncompressed, long? chunkSizeBytes)
         {
             var args = new List<object> { key, value };
-            if (timestampMaybe is {} timestamp) args.AddTimeStamp(timestamp);
+            if (timestampMaybe is { } timestamp) args.AddTimeStamp(timestamp);
             args.AddRetentionTime(retentionTime);
             args.AddChunkSize(chunkSizeBytes);
             if (labels != null) args.AddLabels(labels);

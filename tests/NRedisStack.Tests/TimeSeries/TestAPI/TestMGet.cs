@@ -12,7 +12,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
         public TestMGet(RedisFixture redisFixture) : base(redisFixture) { }
 
-        [SkipIfRedis(Is.OSSCluster,Is.Enterprise)]
+        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
         public void TestMGetQuery()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
