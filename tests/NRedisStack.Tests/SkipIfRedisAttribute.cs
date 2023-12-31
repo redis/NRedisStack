@@ -20,7 +20,6 @@ public class SkipIfRedisAttribute : FactAttribute
     private readonly string _targetVersion;
     private readonly Comparison _comparison;
     private readonly List<Is> _environments = new List<Is>();
-    private readonly string DefaultRedisConnectionString = Environment.GetEnvironmentVariable("REDIS") ?? "localhost:6379";
 
     public SkipIfRedisAttribute(
             Is environment,
