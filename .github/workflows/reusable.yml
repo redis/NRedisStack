@@ -25,7 +25,6 @@ jobs:
           PASSWORD: ${{ secrets.PASSWORD }}
           ENDPOINT: ${{ secrets.ENDPOINT }}
         steps:
-
           - uses: actions/checkout@v3
 
           - name: .NET Core 6
