@@ -32,7 +32,7 @@ jobs:
       - name: Load dotnenv for CI
         uses: xom9ikk/dotenv@v2
         with:
-          path: .github/modes
+          path: .github/workflows/modes
           mode: ${{ matrix.env_file_mode }}
 
       - name: Clone ee docker code

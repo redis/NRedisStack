@@ -50,7 +50,7 @@ jobs:
           - name: Set .env variables
             uses: xom9ikk/dotenv@v2
             with:
-              path: .github/modes
+              path: .github/workflows/modes
               mode: ${{ inputs.mode }}
 
           - name: Restore dependencies
