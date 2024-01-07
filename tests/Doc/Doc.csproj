@@ -9,15 +9,17 @@
     <IsPackable>false</IsPackable>
     <OutputType>Module</OutputType>
   </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
-    <PackageReference Include="xunit" Version="2.4.2" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="StackExchange.Redis" Version="2.7.4" />
+    <PackageReference Include="StackExchange.Redis" />
   </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\NRedisStack\NRedisStack.csproj" />
     <ProjectReference Include="..\..\tests\NRedisStack.Tests\NRedisStack.Tests.csproj" />

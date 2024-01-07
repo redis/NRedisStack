@@ -15,9 +15,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="NetTopologySuite" Version="2.5.0" />
-	<PackageReference Include="System.Text.Json" Version="7.0.2" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
-	<PackageReference Include="StackExchange.Redis" Version="2.7.4" />
+	<PackageReference Include="NetTopologySuite" />
+	<PackageReference Include="System.Text.Json" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
+	<PackageReference Include="StackExchange.Redis" />
 	<None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
