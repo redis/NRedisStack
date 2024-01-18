@@ -300,10 +300,9 @@ namespace NRedisStack
                                                   TsBucketTimestamps? bt,
                                                   bool empty)
         {
-            var args = new List<object>()
-                {key, fromTimeStamp.Value, toTimeStamp.Value};
+            var args = new List<object>() { key, fromTimeStamp.Value, toTimeStamp.Value };
             args.AddLatest(latest);
-            if (filterByTs != null) args.AddFilterByTs(filterByTs);
+            args.AddFilterByTs(filterByTs);
             args.AddFilterByValue(filterByValue);
             args.AddCount(count);
             args.AddAggregation(align, aggregation, timeBucket, bt, empty);
@@ -328,6 +327,7 @@ namespace NRedisStack
                                                        (string, TsReduce)? groupbyTuple)
         {
             var args = new List<object>() { fromTimeStamp.Value, toTimeStamp.Value };
+            args.AddLatest(latest);
             args.AddFilterByTs(filterByTs);
             args.AddFilterByValue(filterByValue);
             args.AddWithLabels(withLabels, selectLabels);
