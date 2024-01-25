@@ -147,7 +147,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(infoAfterLibNameToEnd, infoBeforeLibNameToEnd);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
     public void TestBzmPop()
     {
         var redis = ConnectionMultiplexer.Connect("localhost");
@@ -181,7 +181,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("d", resultWithDescendingOrder.Item2[0].Value.ToString());
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
     public void TestBzmPopNull()
     {
         var redis = ConnectionMultiplexer.Connect("localhost");
@@ -196,7 +196,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [SkipIfRedis(Comparison.LessThan, "7.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
     public void TestBzmPopMultiplexerTimeout()
     {
         var configurationOptions = new ConfigurationOptions();
