@@ -31,14 +31,16 @@ This project builds on [StackExchange.Redis](https://github.com/StackExchange/St
 The complete documentation for Redis  module commands can be found at the [Redis commands website](https://redis.io/commands/).
 
 ### Redis OSS commands
+
 You can use Redis OSS commands in the same way as you use them in [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis).
 
 ### Stack commands
+
 Each module has a command class with its own commands.
+
 The supported modules are [Search](https://redis.io/commands/?group=search), [JSON](https://redis.io/commands/?group=json), [TimeSeries](https://redis.io/commands/?group=timeseries), [Bloom Filter](https://redis.io/commands/?group=bf), [Cuckoo Filter](https://redis.io/commands/?group=cf), [T-Digest](https://redis.io/commands/?group=tdigest), [Count-min Sketch](https://redis.io/commands/?group=cms), and [Top-K](https://redis.io/commands/?group=topk).
 
 **Note:** RedisGraph support has been deprecated starting from Redis Stack version 7.2. For more information, please refer to [this blog post](https://redis.com/blog/redisgraph-eol/).
-
 
 # Usage
 
