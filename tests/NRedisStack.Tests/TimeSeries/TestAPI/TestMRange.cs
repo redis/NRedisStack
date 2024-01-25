@@ -318,7 +318,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var compactedLabel = new TimeSeriesLabel("compact", "true");
             string primaryTsKey = _keys[0], compactedTsKey = _keys[1];
             var compactionRule = new TimeSeriesRule(
-                compactedTsKey, 
+                compactedTsKey,
                 (long)TimeSpan.FromHours(1).TotalMilliseconds, // 1h used to force partial bucket 
                 TsAggregation.Sum);
 
