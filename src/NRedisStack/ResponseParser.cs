@@ -3,6 +3,7 @@ using NRedisStack.DataTypes;
 using NRedisStack.Extensions;
 using StackExchange.Redis;
 using NRedisStack.Bloom.DataTypes;
+using NRedisStack.Core.DataTypes;
 using NRedisStack.CuckooFilter.DataTypes;
 using NRedisStack.CountMinSketch.DataTypes;
 using NRedisStack.TopK.DataTypes;
@@ -82,6 +83,16 @@ namespace NRedisStack
         {
             if (result.Type == ResultType.None) return null!;
             return new TimeStamp((long)result);
+        }
+
+        public static RedisKey ToRedisKey(this RedisResult result)
+        {
+            return new RedisKey(result.ToString());
+        }
+
+        public static RedisValue ToRedisValue(this RedisResult result)
+        {
+            return new RedisValue(result.ToString());
         }
 
         public static IReadOnlyList<TimeStamp> ToTimeStampArray(this RedisResult result)
@@ -714,6 +725,30 @@ namespace NRedisStack
 
             return dicts;
 
+        }
+
+        public static Tuple<RedisKey, List<RedisValueWithScore>>? ToSortedSetPopResult(this RedisResult result)
+        {
+            if (result.IsNull)
+            {
+                return null;
+            }
+
+            var resultArray = (RedisResult[])result!;
+            var resultKey = resultArray[0].ToRedisKey();
+            var resultSetItems = resultArray[1].ToArray();
+
+            List<RedisValueWithScore> valuesWithScores = [];
+
+            foreach (var resultSetItem in resultSetItems)
+            {
+                var resultSetItemArray = (RedisResult[])resultSetItem!;
+                var value = resultSetItemArray[0].ToRedisValue();
+                var score = resultSetItemArray[1].ToDouble();
+                valuesWithScores.Add(new RedisValueWithScore(value, score));
+            }
+
+            return new Tuple<RedisKey, List<RedisValueWithScore>>(resultKey, valuesWithScores);
         }
     }
 }

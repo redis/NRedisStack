@@ -146,4 +146,68 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         // Assert that the extracted sub-strings are equal
         Assert.Equal(infoAfterLibNameToEnd, infoBeforeLibNameToEnd);
     }
+
+    [SkipIfRedis(Comparison.LessThan, "7.0.0")]
+    public void TestBzmPop()
+    {
+        var redis = ConnectionMultiplexer.Connect("localhost");
+
+        var db = redis.GetDatabase(null);
+        db.Execute("FLUSHALL");
+
+        var sortedSetKey = "my-set";
+
+        db.SortedSetAdd(sortedSetKey, "a", 1.5);
+        db.SortedSetAdd(sortedSetKey, "b", 5.1);
+        db.SortedSetAdd(sortedSetKey, "c", 3.7);
+        db.SortedSetAdd(sortedSetKey, "d", 9.4);
+        db.SortedSetAdd(sortedSetKey, "e", 7.76);
+
+        // Pop two items with default order, which means it will pop the minimum values.
+        var resultWithDefaultOrder = db.BzmPop([sortedSetKey], count: 2);
+
+        Assert.NotNull(resultWithDefaultOrder);
+        Assert.Equal(sortedSetKey, resultWithDefaultOrder!.Item1);
+        Assert.Equal(2, resultWithDefaultOrder.Item2.Count);
+        Assert.Equal("a", resultWithDefaultOrder.Item2[0].Value.ToString());
+        Assert.Equal("c", resultWithDefaultOrder.Item2[1].Value.ToString());
+
+        // Pop one more item, with descending order, which means it will pop the maximum value.
+        var resultWithDescendingOrder = db.BzmPop([sortedSetKey], order: Order.Descending);
+
+        Assert.NotNull(resultWithDescendingOrder);
+        Assert.Equal(sortedSetKey, resultWithDescendingOrder!.Item1);
+        Assert.Single(resultWithDescendingOrder.Item2);
+        Assert.Equal("d", resultWithDescendingOrder.Item2[0].Value.ToString());
+    }
+
+    [SkipIfRedis(Comparison.LessThan, "7.0.0")]
+    public void TestBzmPopNull()
+    {
+        var redis = ConnectionMultiplexer.Connect("localhost");
+
+        var db = redis.GetDatabase(null);
+        db.Execute("FLUSHALL");
+
+        // Nothing in the set, and a short server timeout, which yields null.
+        var result = db.BzmPop(["my-set"], timeout: 1);
+
+        Assert.Null(result);
+    }
+
+
+    [SkipIfRedis(Comparison.LessThan, "7.0.0")]
+    public void TestBzmPopMultiplexerTimeout()
+    {
+        var configurationOptions = new ConfigurationOptions();
+        configurationOptions.SyncTimeout = 1000;
+        configurationOptions.EndPoints.Add("localhost");
+        var redis = ConnectionMultiplexer.Connect(configurationOptions);
+
+        var db = redis.GetDatabase(null);
+        db.Execute("FLUSHALL");
+
+        // Server would wait forever, but the multiplexer times out in 1 second.
+        Assert.Throws<RedisTimeoutException>(() => db.BzmPop(["my-set"]));
+    }
 }
