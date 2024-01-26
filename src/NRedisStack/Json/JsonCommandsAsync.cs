@@ -105,7 +105,7 @@ public class JsonCommandsAsync : IJsonCommandsAsync
         return (await _db.ExecuteAsync(JsonCommandBuilder.MGet(keys, path))).ToArray();
     }
 
-    public async Task<double?[]> NumIncrbyAsync(RedisKey key, string path, double value)
+    public async Task<double?[]> NumIncrByAsync(RedisKey key, string path, double value)
     {
         var res = await _db.ExecuteAsync(JsonCommandBuilder.NumIncrby(key, path, value));
         return JsonSerializer.Deserialize<double?[]>(res.ToString()!)!;

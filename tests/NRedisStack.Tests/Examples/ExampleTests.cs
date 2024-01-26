@@ -105,7 +105,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         pipeline.Json.SetAsync("person", "$", new { name = "John", age = 30, city = "New York", nicknames = new[] { "John", "Johny", "Jo" } });
 
         // Increase age by 2
-        _ = pipeline.Json.NumIncrbyAsync("person", "$.age", 2);
+        _ = pipeline.Json.NumIncrByAsync("person", "$.age", 2);
 
         // Clear the nicknames from the Json
         _ = pipeline.Json.ClearAsync("person", "$.nicknames");
@@ -253,10 +253,10 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         var getJeeva = tran.Json.GetAsync("accdetails:Jeeva");
 
         // Debit 200 from Jeeva
-        _ = tran.Json.NumIncrbyAsync("accdetails:Jeeva", "$.totalAmount", -200);
+        _ = tran.Json.NumIncrByAsync("accdetails:Jeeva", "$.totalAmount", -200);
 
         // Credit 200 from Shachar
-        _ = tran.Json.NumIncrbyAsync("accdetails:Shachar", "$.totalAmount", 200);
+        _ = tran.Json.NumIncrByAsync("accdetails:Shachar", "$.totalAmount", 200);
 
         // Get total amount for both Jeeva = 800 & Shachar = 1200
         var totalAmtOfJeeva = tran.Json.GetAsync("accdetails:Jeeva", path: "$.totalAmount");

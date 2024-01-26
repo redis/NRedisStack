@@ -866,7 +866,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var keys = CreateKeyNames(1);
         var key = keys[0];
         await commands.SetAsync(key, "$", new { age = 33, a = new { age = 34 }, b = new { age = "cat" } });
-        var result = await commands.NumIncrbyAsync(key, "$..age", 2);
+        var result = await commands.NumIncrByAsync(key, "$..age", 2);
         Assert.Equal(35, result[0]);
         Assert.Equal(36, result[1]);
         Assert.Null(result[2]);
