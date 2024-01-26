@@ -5,6 +5,5 @@ namespace NRedisStack.Json.Literals
         public const string INDENT = "INDENT";
         public const string NEWLINE = "NEWLINE";
         public const string SPACE = "SPACE";
-
     }
 }
