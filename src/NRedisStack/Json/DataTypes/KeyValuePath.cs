@@ -2,24 +2,14 @@ using System.Text.Json;
 
 namespace NRedisStack.Json.DataTypes;
 
-public struct KeyPathValue
+public struct KeyPathValue(string key, string path, object value)
 {
-    public string Key { get; set; }
-    public string Path { get; set; }
-    public object Value { get; set; }
+    private string Key { get; set; } = key;
+    private string Path { get; set; } = path;
+    private object Value { get; set; } = value;
 
-    public KeyPathValue(string key, string path, object value)
+    public IEnumerable<string> ToArray()
     {
-        Key = key;
-        Path = path;
-        Value = value;
-    }
-    public string[] ToArray()
-    {
-        if (Value is string)
-        {
-            return new string[] { Key, Path, Value.ToString()! };
-        }
-        return new string[] { Key, Path, JsonSerializer.Serialize(Value) };
+        return Value is string ? new string[] { Key, Path, Value.ToString()! } : new string[] { Key, Path, JsonSerializer.Serialize(Value) };
     }
 }
