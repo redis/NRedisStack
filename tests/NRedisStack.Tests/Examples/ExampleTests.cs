@@ -1,15 +1,8 @@
-using System.Net.Security;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
 using NRedisStack.Search.Aggregation;
 using NRedisStack.Search.Literals.Enums;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.OpenSsl;
 using StackExchange.Redis;
 using Xunit;
 using Xunit.Abstractions;
@@ -17,14 +10,11 @@ using static NRedisStack.Search.Schema;
 
 namespace NRedisStack.Tests;
 
-public class ExampleTests : AbstractNRedisStackTest, IDisposable
+public class ExampleTests(RedisFixture redisFixture, ITestOutputHelper testOutputHelper)
+    : AbstractNRedisStackTest(redisFixture), IDisposable
 {
-    private readonly ITestOutputHelper testOutputHelper;
+    private readonly ITestOutputHelper testOutputHelper = testOutputHelper;
     // private readonly string key = "EXAMPLES_TESTS";
-    public ExampleTests(RedisFixture redisFixture, ITestOutputHelper testOutputHelper) : base(redisFixture)
-    {
-        this.testOutputHelper = testOutputHelper;
-    }
 
     [SkipIfRedis(Is.OSSCluster)]
     public void HSETandSearch()
@@ -39,7 +29,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT();
 
         // Use HSET to add a field-value pair to a hash
-        db.HashSet("profesor:5555", new HashEntry[] { new("first", "Albert"), new("last", "Blue"), new("age", "55") });
+        db.HashSet("professor:5555", new HashEntry[] { new("first", "Albert"), new("last", "Blue"), new("age", "55") });
         db.HashSet("student:1111", new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", "18") });
         db.HashSet("pupil:2222", new HashEntry[] { new("first", "Jen"), new("last", "Rod"), new("age", "14") });
         db.HashSet("student:3333", new HashEntry[] { new("first", "El"), new("last", "Mark"), new("age", "17") });
@@ -102,10 +92,11 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         var pipeline = new Pipeline(db);
 
         // Add JsonSet to pipeline
-        pipeline.Json.SetAsync("person", "$", new { name = "John", age = 30, city = "New York", nicknames = new[] { "John", "Johny", "Jo" } });
+        pipeline.Json.SetAsync("person", "$",
+            new { name = "John", age = 30, city = "New York", nicknames = new[] { "John", "Johny", "Jo" } });
 
         // Increase age by 2
-        _ = pipeline.Json.NumIncrByAsync("person", "$.age", 2);
+        _ = pipeline.Json.NumIncrbyAsync("person", "$.age", 2);
 
         // Clear the nicknames from the Json
         _ = pipeline.Json.ClearAsync("person", "$.nicknames");
@@ -185,7 +176,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
 
         var pipeline = new Pipeline(db);
 
-        // Create metedata lables for time-series.
+        // Create metadata labels for time-series.
         TimeSeriesLabel label1 = new TimeSeriesLabel("temp", "TLV");
         TimeSeriesLabel label2 = new TimeSeriesLabel("temp", "JLM");
         var labels1 = new List<TimeSeriesLabel> { label1 };
@@ -195,23 +186,23 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         _ = pipeline.Ts.CreateAsync("temp:TLV", labels: labels1);
         _ = pipeline.Ts.CreateAsync("temp:JLM", labels: labels2);
 
-        // Adding multiple sequenece of time-series data.
-        List<(string, TimeStamp, double)> sequence1 = new List<(string, TimeStamp, double)>()
-        {
-            ("temp:TLV",1000,30),
-            ("temp:TLV", 1010 ,35),
+        // Adding multiple sequence of time-series data.
+        List<(string, TimeStamp, double)> sequence1 =
+        [
+            ("temp:TLV", 1000, 30),
+            ("temp:TLV", 1010, 35),
             ("temp:TLV", 1020, 9999),
             ("temp:TLV", 1030, 40)
-        };
-        List<(string, TimeStamp, double)> sequence2 = new List<(string, TimeStamp, double)>()
-        {
-            ("temp:JLM",1005,30),
-            ("temp:JLM", 1015 ,35),
+        ];
+        List<(string, TimeStamp, double)> sequence2 =
+        [
+            ("temp:JLM", 1005, 30),
+            ("temp:JLM", 1015, 35),
             ("temp:JLM", 1025, 9999),
             ("temp:JLM", 1035, 40)
-        };
+        ];
 
-        // Adding mutiple samples to mutiple series.
+        // Adding multiple samples to multiple series.
         _ = pipeline.Ts.MAddAsync(sequence1);
         _ = pipeline.Ts.MAddAsync(sequence2);
 
@@ -222,11 +213,12 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         var ts = db.TS();
 
         // Get only the location label for each last sample, use SELECTED_LABELS.
-        var respons = await ts.MGetAsync(new List<string> { "temp=JLM" }, selectedLabels: new List<string> { "location" });
+        var response = await ts.MGetAsync(new List<string> { "temp=JLM" },
+            selectedLabels: new List<string> { "location" });
 
-        // Assert the respons
-        Assert.Equal(1, respons.Count);
-        Assert.Equal("temp:JLM", respons[0].key);
+        // Assert the response
+        Assert.Equal(1, response.Count);
+        Assert.Equal("temp:JLM", response[0].key);
     }
 
     [SkipIfRedis(Is.OSSCluster)]
@@ -246,17 +238,18 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
 
         // Add account details with Json.Set to transaction
         _ = tran.Json.SetAsync("accdetails:Jeeva", "$", new { name = "Jeeva", totalAmount = 1000, bankName = "City" });
-        _ = tran.Json.SetAsync("accdetails:Shachar", "$", new { name = "Shachar", totalAmount = 1000, bankName = "City" });
+        _ = tran.Json.SetAsync("accdetails:Shachar", "$",
+            new { name = "Shachar", totalAmount = 1000, bankName = "City" });
 
         // Get the Json response
         var getShachar = tran.Json.GetAsync("accdetails:Shachar");
         var getJeeva = tran.Json.GetAsync("accdetails:Jeeva");
 
         // Debit 200 from Jeeva
-        _ = tran.Json.NumIncrByAsync("accdetails:Jeeva", "$.totalAmount", -200);
+        _ = tran.Json.NumIncrbyAsync("accdetails:Jeeva", "$.totalAmount", -200);
 
         // Credit 200 from Shachar
-        _ = tran.Json.NumIncrByAsync("accdetails:Shachar", "$.totalAmount", 200);
+        _ = tran.Json.NumIncrbyAsync("accdetails:Shachar", "$.totalAmount", 200);
 
         // Get total amount for both Jeeva = 800 & Shachar = 1200
         var totalAmtOfJeeva = tran.Json.GetAsync("accdetails:Jeeva", path: "$.totalAmount");
@@ -290,6 +283,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         {
             json.Set("doc:" + i, "$", "{\"name\":\"foo\"}");
         }
+
         var res = ft.Search("test", new Query("@name:{foo}"));
 
         var docs = res.ToJson();
@@ -298,15 +292,14 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
     }
 
 #if CI_RUN_TESTS
-
 #if NET481
     [Fact]
     public void TestRedisCloudConnection_net481()
     {
         var root = Path.GetFullPath(Directory.GetCurrentDirectory());
         var redisCaPath = Path.GetFullPath(Path.Combine(root, "redis_ca.pem"));
-        var redisUserCrtPath  = Path.GetFullPath(Path.Combine(root, "redis_user.crt"));
-        var redisUserPrivateKeyPath  = Path.GetFullPath(Path.Combine(root, "redis_user_private.key"));
+        var redisUserCrtPath = Path.GetFullPath(Path.Combine(root, "redis_user.crt"));
+        var redisUserPrivateKeyPath = Path.GetFullPath(Path.Combine(root, "redis_user_private.key"));
 
         var password = Environment.GetEnvironmentVariable("PASSWORD") ?? throw new Exception("PASSWORD is not set.");
         var endpoint = Environment.GetEnvironmentVariable("ENDPOINT") ?? throw new Exception("ENDPOINT is not set.");
@@ -330,7 +323,8 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
             Password = password
         };
 
-        redisConfiguration.CertificateSelection += (_, _, _, _, _) => new X509Certificate2(clientCert.Export(X509ContentType.Pfx));
+        redisConfiguration.CertificateSelection +=
+ (_, _, _, _, _) => new X509Certificate2(clientCert.Export(X509ContentType.Pfx));
 
         redisConfiguration.CertificateValidation += (_, cert, _, errors) =>
         {
@@ -416,8 +410,8 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
     {
         var root = Path.GetFullPath(Directory.GetCurrentDirectory());
         var redisCaPath = Path.GetFullPath(Path.Combine(root, "redis_ca.pem"));
-        var redisUserCrtPath  = Path.GetFullPath(Path.Combine(root, "redis_user.crt"));
-        var redisUserPrivateKeyPath  = Path.GetFullPath(Path.Combine(root, "redis_user_private.key"));
+        var redisUserCrtPath = Path.GetFullPath(Path.Combine(root, "redis_user.crt"));
+        var redisUserPrivateKeyPath = Path.GetFullPath(Path.Combine(root, "redis_user_private.key"));
 
         var password = Environment.GetEnvironmentVariable("PASSWORD") ?? throw new Exception("PASSWORD is not set.");
         var endpoint = Environment.GetEnvironmentVariable("ENDPOINT") ?? throw new Exception("ENDPOINT is not set.");
@@ -489,8 +483,8 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         // Replace this with your own Redis Cloud credentials
         var root = Path.GetFullPath(Directory.GetCurrentDirectory());
         var redisCaPath = Path.GetFullPath(Path.Combine(root, "redis_ca.pem"));
-        var redisUserCrtPath  = Path.GetFullPath(Path.Combine(root, "redis_user.crt"));
-        var redisUserPrivateKeyPath  = Path.GetFullPath(Path.Combine(root, "redis_user_private.key"));
+        var redisUserCrtPath = Path.GetFullPath(Path.Combine(root, "redis_user.crt"));
+        var redisUserPrivateKeyPath = Path.GetFullPath(Path.Combine(root, "redis_user_private.key"));
 
         var password = Environment.GetEnvironmentVariable("PASSWORD") ?? throw new Exception("PASSWORD is not set.");
         var endpoint = Environment.GetEnvironmentVariable("ENDPOINT") ?? throw new Exception("ENDPOINT is not set.");
@@ -639,10 +633,10 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
             field1 = "val1"
         });
         res = json.Get(key: "ex2:2",
-             path: "$.field1",
-             indent: "\t",
-             newLine: "\n"
-         );
+            path: "$.field1",
+            indent: "\t",
+            newLine: "\n"
+        );
         Assert.Equal("[\n\t\"val1\"\n]", res.ToString());
 
         // Fetch multiple properties:
@@ -834,124 +828,136 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         {
             city = "Boston",
             location = "42.361145, -71.057083",
-            inventory = new[] {
-                    new {
-                        id = 15970,
-                        gender = "Men",
-                        season = new[] {"Fall", "Winter"},
-                        description = "Turtle Check Men Navy Blue Shirt",
-                        price = 34.95
-                    },
-                    new {
-                        id = 59263,
-                        gender = "Women",
-                        season = new[] {"Fall", "Winter", "Spring", "Summer"},
-                        description = "Titan Women Silver Watch",
-                        price = 129.99
-                    },
-                    new {
-                        id = 46885,
-                        gender = "Boys",
-                        season = new[] {"Fall"},
-                        description =  "Ben 10 Boys Navy Blue Slippers",
-                        price = 45.99
-                    }
+            inventory = new[]
+            {
+                new
+                {
+                    id = 15970,
+                    gender = "Men",
+                    season = new[] { "Fall", "Winter" },
+                    description = "Turtle Check Men Navy Blue Shirt",
+                    price = 34.95
+                },
+                new
+                {
+                    id = 59263,
+                    gender = "Women",
+                    season = new[] { "Fall", "Winter", "Spring", "Summer" },
+                    description = "Titan Women Silver Watch",
+                    price = 129.99
+                },
+                new
+                {
+                    id = 46885,
+                    gender = "Boys",
+                    season = new[] { "Fall" },
+                    description = "Ben 10 Boys Navy Blue Slippers",
+                    price = 45.99
                 }
+            }
         });
 
         // Fetch all properties of an array:
         var res = json.Get(key: "warehouse:1",
-                path: "$.inventory[*]",
-                indent: "\t",
-                newLine: "\n"
-            );
-        var expected = "[\n\t{\n\t\t\"id\":15970,\n\t\t\"gender\":\"Men\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\"\n\t\t],\n\t\t\"description\":\"Turtle Check Men Navy Blue Shirt\",\n\t\t\"price\":34.95\n\t},\n\t{\n\t\t\"id\":59263,\n\t\t\"gender\":\"Women\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\",\n\t\t\t\"Spring\",\n\t\t\t\"Summer\"\n\t\t],\n\t\t\"description\":\"Titan Women Silver Watch\",\n\t\t\"price\":129.99\n\t},\n\t{\n\t\t\"id\":46885,\n\t\t\"gender\":\"Boys\",\n\t\t\"season\":[\n\t\t\t\"Fall\"\n\t\t],\n\t\t\"description\":\"Ben 10 Boys Navy Blue Slippers\",\n\t\t\"price\":45.99\n\t}\n]";
+            path: "$.inventory[*]",
+            indent: "\t",
+            newLine: "\n"
+        );
+        var expected =
+            "[\n\t{\n\t\t\"id\":15970,\n\t\t\"gender\":\"Men\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\"\n\t\t],\n\t\t\"description\":\"Turtle Check Men Navy Blue Shirt\",\n\t\t\"price\":34.95\n\t},\n\t{\n\t\t\"id\":59263,\n\t\t\"gender\":\"Women\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\",\n\t\t\t\"Spring\",\n\t\t\t\"Summer\"\n\t\t],\n\t\t\"description\":\"Titan Women Silver Watch\",\n\t\t\"price\":129.99\n\t},\n\t{\n\t\t\"id\":46885,\n\t\t\"gender\":\"Boys\",\n\t\t\"season\":[\n\t\t\t\"Fall\"\n\t\t],\n\t\t\"description\":\"Ben 10 Boys Navy Blue Slippers\",\n\t\t\"price\":45.99\n\t}\n]";
         Assert.Equal(expected, res.ToString()); // TODO: fine nicer way to compare the two JSON strings
 
 
         // Fetch all values of a field within an array:
         res = json.Get(
-                    key: "warehouse:1",
-                    path: "$.inventory[*].price",
-                    indent: "\t",
-                    newLine: "\n"
+            key: "warehouse:1",
+            path: "$.inventory[*].price",
+            indent: "\t",
+            newLine: "\n"
         );
         expected = "[\n\t34.95,\n\t129.99,\n\t45.99\n]";
         Assert.Equal(expected, res.ToString());
 
         // Fetch all items within an array where a text field matches a given value:
         res = json.Get(
-                    key: "warehouse:1",
-                    path: "$.inventory[?(@.description==\"Turtle Check Men Navy Blue Shirt\")]",
-                    indent: "\t",
-                    newLine: "\n"
+            key: "warehouse:1",
+            path: "$.inventory[?(@.description==\"Turtle Check Men Navy Blue Shirt\")]",
+            indent: "\t",
+            newLine: "\n"
         );
 
-        expected = "[\n\t{\n\t\t\"id\":15970,\n\t\t\"gender\":\"Men\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\"\n\t\t],\n\t\t\"description\":\"Turtle Check Men Navy Blue Shirt\",\n\t\t\"price\":34.95\n\t}\n]";
+        expected =
+            "[\n\t{\n\t\t\"id\":15970,\n\t\t\"gender\":\"Men\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\"\n\t\t],\n\t\t\"description\":\"Turtle Check Men Navy Blue Shirt\",\n\t\t\"price\":34.95\n\t}\n]";
         Assert.Equal(expected, res.ToString());
 
         // Fetch all items within an array where a numeric field is less than a given value:
         res = json.Get(key: "warehouse:1",
-                    path: "$.inventory[?(@.price<100)]",
-                    indent: "\t",
-                    newLine: "\n"
-                );
-        expected = "[\n\t{\n\t\t\"id\":15970,\n\t\t\"gender\":\"Men\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\"\n\t\t],\n\t\t\"description\":\"Turtle Check Men Navy Blue Shirt\",\n\t\t\"price\":34.95\n\t},\n\t{\n\t\t\"id\":46885,\n\t\t\"gender\":\"Boys\",\n\t\t\"season\":[\n\t\t\t\"Fall\"\n\t\t],\n\t\t\"description\":\"Ben 10 Boys Navy Blue Slippers\",\n\t\t\"price\":45.99\n\t}\n]";
+            path: "$.inventory[?(@.price<100)]",
+            indent: "\t",
+            newLine: "\n"
+        );
+        expected =
+            "[\n\t{\n\t\t\"id\":15970,\n\t\t\"gender\":\"Men\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\"\n\t\t],\n\t\t\"description\":\"Turtle Check Men Navy Blue Shirt\",\n\t\t\"price\":34.95\n\t},\n\t{\n\t\t\"id\":46885,\n\t\t\"gender\":\"Boys\",\n\t\t\"season\":[\n\t\t\t\"Fall\"\n\t\t],\n\t\t\"description\":\"Ben 10 Boys Navy Blue Slippers\",\n\t\t\"price\":45.99\n\t}\n]";
         Assert.Equal(expected, res.ToString());
 
         // Fetch all items within an array where a numeric field is less than a given value:
         res = json.Get(key: "warehouse:1",
-                    path: "$.inventory[?(@.id>=20000)]",
-                    indent: "\t",
-                    newLine: "\n"
-                );
-        expected = "[\n\t{\n\t\t\"id\":59263,\n\t\t\"gender\":\"Women\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\",\n\t\t\t\"Spring\",\n\t\t\t\"Summer\"\n\t\t],\n\t\t\"description\":\"Titan Women Silver Watch\",\n\t\t\"price\":129.99\n\t},\n\t{\n\t\t\"id\":46885,\n\t\t\"gender\":\"Boys\",\n\t\t\"season\":[\n\t\t\t\"Fall\"\n\t\t],\n\t\t\"description\":\"Ben 10 Boys Navy Blue Slippers\",\n\t\t\"price\":45.99\n\t}\n]";
+            path: "$.inventory[?(@.id>=20000)]",
+            indent: "\t",
+            newLine: "\n"
+        );
+        expected =
+            "[\n\t{\n\t\t\"id\":59263,\n\t\t\"gender\":\"Women\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\",\n\t\t\t\"Spring\",\n\t\t\t\"Summer\"\n\t\t],\n\t\t\"description\":\"Titan Women Silver Watch\",\n\t\t\"price\":129.99\n\t},\n\t{\n\t\t\"id\":46885,\n\t\t\"gender\":\"Boys\",\n\t\t\"season\":[\n\t\t\t\"Fall\"\n\t\t],\n\t\t\"description\":\"Ben 10 Boys Navy Blue Slippers\",\n\t\t\"price\":45.99\n\t}\n]";
         Assert.Equal(expected, res.ToString());
 
         // Fetch all items within an array where a numeric field is less than a given value:
         res = json.Get(key: "warehouse:1",
-                    path: "$.inventory[?(@.gender==\"Men\"&&@.price>20)]",
-                    indent: "\t",
-                    newLine: "\n"
-                );
-        expected = "[\n\t{\n\t\t\"id\":15970,\n\t\t\"gender\":\"Men\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\"\n\t\t],\n\t\t\"description\":\"Turtle Check Men Navy Blue Shirt\",\n\t\t\"price\":34.95\n\t}\n]";
+            path: "$.inventory[?(@.gender==\"Men\"&&@.price>20)]",
+            indent: "\t",
+            newLine: "\n"
+        );
+        expected =
+            "[\n\t{\n\t\t\"id\":15970,\n\t\t\"gender\":\"Men\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\"\n\t\t],\n\t\t\"description\":\"Turtle Check Men Navy Blue Shirt\",\n\t\t\"price\":34.95\n\t}\n]";
         Assert.Equal(expected, res.ToString());
 
         // Fetch all items within an array that meet at least one relational operation.
         // In this case, return only the ids of those items:
         res = json.Get(key: "warehouse:1",
-                    path: "$.inventory[?(@.price<100||@.gender==\"Women\")].id",
-                    indent: "\t",
-                    newLine: "\n"
-                );
+            path: "$.inventory[?(@.price<100||@.gender==\"Women\")].id",
+            indent: "\t",
+            newLine: "\n"
+        );
         expected = "[\n\t15970,\n\t59263,\n\t46885\n]";
         Assert.Equal(expected, res.ToString());
 
         // Fetch all items within an array that match a given regex pattern.
         res = json.Get(key: "warehouse:1",
-                    path: "$.inventory[?(@.description =~ \"Blue\")]",
-                    indent: "\t",
-                    newLine: "\n"
-                );
-        expected = "[\n\t{\n\t\t\"id\":15970,\n\t\t\"gender\":\"Men\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\"\n\t\t],\n\t\t\"description\":\"Turtle Check Men Navy Blue Shirt\",\n\t\t\"price\":34.95\n\t},\n\t{\n\t\t\"id\":46885,\n\t\t\"gender\":\"Boys\",\n\t\t\"season\":[\n\t\t\t\"Fall\"\n\t\t],\n\t\t\"description\":\"Ben 10 Boys Navy Blue Slippers\",\n\t\t\"price\":45.99\n\t}\n]";
+            path: "$.inventory[?(@.description =~ \"Blue\")]",
+            indent: "\t",
+            newLine: "\n"
+        );
+        expected =
+            "[\n\t{\n\t\t\"id\":15970,\n\t\t\"gender\":\"Men\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\"\n\t\t],\n\t\t\"description\":\"Turtle Check Men Navy Blue Shirt\",\n\t\t\"price\":34.95\n\t},\n\t{\n\t\t\"id\":46885,\n\t\t\"gender\":\"Boys\",\n\t\t\"season\":[\n\t\t\t\"Fall\"\n\t\t],\n\t\t\"description\":\"Ben 10 Boys Navy Blue Slippers\",\n\t\t\"price\":45.99\n\t}\n]";
         Assert.Equal(expected, res.ToString());
 
         // Fetch all items within an array where a field contains a term, case insensitive
         res = json.Get(key: "warehouse:1",
-                    path: "$.inventory[?(@.description =~ \"(?i)watch\")]",
-                    indent: "\t",
-                    newLine: "\n"
-                );
-        expected = "[\n\t{\n\t\t\"id\":59263,\n\t\t\"gender\":\"Women\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\",\n\t\t\t\"Spring\",\n\t\t\t\"Summer\"\n\t\t],\n\t\t\"description\":\"Titan Women Silver Watch\",\n\t\t\"price\":129.99\n\t}\n]";
+            path: "$.inventory[?(@.description =~ \"(?i)watch\")]",
+            indent: "\t",
+            newLine: "\n"
+        );
+        expected =
+            "[\n\t{\n\t\t\"id\":59263,\n\t\t\"gender\":\"Women\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\",\n\t\t\t\"Spring\",\n\t\t\t\"Summer\"\n\t\t],\n\t\t\"description\":\"Titan Women Silver Watch\",\n\t\t\"price\":129.99\n\t}\n]";
         Assert.Equal(expected, res.ToString());
 
         // Fetch all items within an array where a field begins with a given expression
         res = json.Get(key: "warehouse:1",
-                    path: "$.inventory[?(@.description =~ \"^T\")]",
-                    indent: "\t",
-                    newLine: "\n"
-                );
-        expected = "[\n\t{\n\t\t\"id\":15970,\n\t\t\"gender\":\"Men\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\"\n\t\t],\n\t\t\"description\":\"Turtle Check Men Navy Blue Shirt\",\n\t\t\"price\":34.95\n\t},\n\t{\n\t\t\"id\":59263,\n\t\t\"gender\":\"Women\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\",\n\t\t\t\"Spring\",\n\t\t\t\"Summer\"\n\t\t],\n\t\t\"description\":\"Titan Women Silver Watch\",\n\t\t\"price\":129.99\n\t}\n]";
+            path: "$.inventory[?(@.description =~ \"^T\")]",
+            indent: "\t",
+            newLine: "\n"
+        );
+        expected =
+            "[\n\t{\n\t\t\"id\":15970,\n\t\t\"gender\":\"Men\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\"\n\t\t],\n\t\t\"description\":\"Turtle Check Men Navy Blue Shirt\",\n\t\t\"price\":34.95\n\t},\n\t{\n\t\t\"id\":59263,\n\t\t\"gender\":\"Women\",\n\t\t\"season\":[\n\t\t\t\"Fall\",\n\t\t\t\"Winter\",\n\t\t\t\"Spring\",\n\t\t\t\"Summer\"\n\t\t],\n\t\t\"description\":\"Titan Women Silver Watch\",\n\t\t\"price\":129.99\n\t}\n]";
         Assert.Equal(expected, res.ToString());
     }
 
@@ -996,16 +1002,25 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
             coords = "-104.991531, 39.742043"
         });
 
-        try { ft.DropIndex("idx1"); } catch { };
+        try
+        {
+            ft.DropIndex("idx1");
+        }
+        catch
+        {
+            // ignored
+        }
+
+        ;
         ft.Create("idx1", new FTCreateParams().On(IndexDataType.JSON)
-                                              .Prefix("product:"),
-                                        new Schema().AddNumericField(new FieldName("$.id", "id"))
-                                                    .AddTagField(new FieldName("$.gender", "gender"))
-                                                    .AddTagField(new FieldName("$.season.*", "season"))
-                                                    .AddTextField(new FieldName("$.description", "description"))
-                                                    .AddNumericField(new FieldName("$.price", "price"))
-                                                    .AddTextField(new FieldName("$.city", "city"))
-                                                    .AddGeoField(new FieldName("$.coords", "coords")));
+                .Prefix("product:"),
+            new Schema().AddNumericField(new FieldName("$.id", "id"))
+                .AddTagField(new FieldName("$.gender", "gender"))
+                .AddTagField(new FieldName("$.season.*", "season"))
+                .AddTextField(new FieldName("$.description", "description"))
+                .AddNumericField(new FieldName("$.price", "price"))
+                .AddTextField(new FieldName("$.city", "city"))
+                .AddGeoField(new FieldName("$.coords", "coords")));
 
         // sleep:
         Thread.Sleep(2000);
@@ -1015,7 +1030,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
 
         Assert.NotNull(res);
         // Assert.Equal(3, res!.Count);
-        var expectedList = new List<string>()
+        var expectedList = new List<string>
         {
             "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}",
             "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}",
@@ -1025,93 +1040,97 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         SortAndCompare(expectedList, res);
 
 
-
         // Find all documents with a given word in a text field:
         res = ft.Search("idx1", new Query("@description:Slippers")).ToJson();
-        var expected = "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
+        var expected =
+            "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
         Assert.Equal(expected, res![0].ToString());
 
 
         // Find all documents with a given phrase in a text field:
         res = ft.Search("idx1", new Query("@description:(\"Blue Shirt\")")).ToJson();
-        expected = "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}";
-        Assert.Equal(expected, res![0].ToString());
+        expected =
+            "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}";
+        Assert.Equal(expected, res![0]);
 
         // Find all documents with a numeric field in a given range:
         res = ft.Search("idx1", new Query("@price:[40,130]")).ToJson();
 
-        expectedList = new()
-        {
+        expectedList =
+        [
             "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}",
             "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
-        };
+        ];
 
         SortAndCompare(expectedList, res);
 
 
-
         // Find all documents that contain a given value in an array field (tag):
         res = ft.Search("idx1", new Query("@season:{Spring}")).ToJson();
-        expected = "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}";
-        Assert.Equal(expected, res[0].ToString());
+        expected =
+            "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}";
+        Assert.Equal(expected, res[0]);
 
         // Find all documents contain both a numeric field in a range and a word in a text field:
         res = ft.Search("idx1", new Query("@price:[40, 100] @description:Blue")).ToJson();
-        expected = "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
-        Assert.Equal(expected, res[0].ToString());
+        expected =
+            "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
+        Assert.Equal(expected, res[0]);
 
         // Find all documents that either match tag value or text value:
         res = ft.Search("idx1", new Query("(@gender:{Women})|(@city:Boston)")).ToJson();
-        expectedList = new()
-        {
+        expectedList =
+        [
             "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}",
             "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}"
-        };
+        ];
 
         SortAndCompare(expectedList, res);
 
         // Find all documents that do not contain a given word in a text field:
         res = ft.Search("idx1", new Query("-(@description:Shirt)")).ToJson();
 
-        expectedList = new()
-        {
+        expectedList =
+        [
             "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}",
             "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
-        };
+        ];
         SortAndCompare(expectedList, res);
 
         // Find all documents that have a word that begins with a given prefix value:
         res = ft.Search("idx1", new Query("@description:Nav*")).ToJson();
 
-        expectedList = new()
-        {
+        expectedList =
+        [
             "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}",
             "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
-        };
+        ];
         SortAndCompare(expectedList, res);
 
         // Find all documents that contain a word that ends with a given suffix value:
         res = ft.Search("idx1", new Query("@description:*Watch")).ToJson();
 
-        expected = "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}";
+        expected =
+            "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}";
         Assert.Equal(expected, res[0].ToString());
 
         // Find all documents that contain a word that is within 1 Levenshtein distance of a given word:
         res = ft.Search("idx1", new Query("@description:%wavy%")).ToJson();
 
 
-        expectedList = new()
-        {
+        expectedList =
+        [
             "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}",
             "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
-        };
+        ];
         SortAndCompare(expectedList, res);
 
         // Find all documents that have geographic coordinates within a given range of a given coordinate.
         // Colorado Springs coords(long, lat) = -104.800644, 38.846127:
         res = ft.Search("idx1", new Query("@coords:[-104.800644 38.846127 100 mi]")).ToJson();
 
-        expected = "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
+        expected =
+            "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
         Assert.Equal(expected, res[0].ToString());
     }
 
@@ -1149,18 +1168,26 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         });
 
         // Index creation:
-        try { ft.DropIndex("vss_idx"); } catch { };
+        try
+        {
+            ft.DropIndex("vss_idx");
+        }
+        catch
+        {
+        }
+
+        ;
         Assert.True(ft.Create("vss_idx", new FTCreateParams().On(IndexDataType.HASH).Prefix("vec:"),
             new Schema()
-            .AddTagField("tag")
-            .AddVectorField("vector", VectorField.VectorAlgo.FLAT,
-                new Dictionary<string, object>()
-                {
-                    ["TYPE"] = "FLOAT32",
-                    ["DIM"] = "4",
-                    ["DISTANCE_METRIC"] = "L2"
-                }
-        )));
+                .AddTagField("tag")
+                .AddVectorField("vector", VectorField.VectorAlgo.FLAT,
+                    new Dictionary<string, object>()
+                    {
+                        ["TYPE"] = "FLOAT32",
+                        ["DIM"] = "4",
+                        ["DISTANCE_METRIC"] = "L2"
+                    }
+                )));
 
         // Sleep:
         Thread.Sleep(2000);
@@ -1168,11 +1195,11 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         // Search:
         float[] vec = new[] { 2f, 3f, 3f, 3f };
         var res = ft.Search("vss_idx",
-                    new Query("*=>[KNN 2 @vector $query_vec]")
-                    .AddParam("query_vec", vec.SelectMany(BitConverter.GetBytes).ToArray())
-                    .SetSortBy("__vector_score")
-                    .Dialect(2));
-        HashSet<string> resSet = new HashSet<string>();
+            new Query("*=>[KNN 2 @vector $query_vec]")
+                .AddParam("query_vec", vec.SelectMany(BitConverter.GetBytes).ToArray())
+                .SetSortBy("__vector_score")
+                .Dialect(2));
+        HashSet<string> resSet = [];
         foreach (var doc in res.Documents)
         {
             foreach (var item in doc.GetProperties())
@@ -1184,20 +1211,20 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
             }
         }
 
-        HashSet<string> expectedResSet = new HashSet<string>()
-        {
+        HashSet<string> expectedResSet =
+        [
             "id: vec:3, score: 1",
-            "id: vec:2, score: 3",
-        };
+            "id: vec:2, score: 3"
+        ];
 
         Assert.Equal(expectedResSet, resSet);
 
         // hybrid query - search only documents with tag A:
         res = ft.Search("vss_idx",
-                    new Query("@tag:{A}=>[KNN 2 @vector $query_vec]")
-                    .AddParam("query_vec", vec.SelectMany(BitConverter.GetBytes).ToArray())
-                    .SetSortBy("__vector_score")
-                    .Dialect(2));
+            new Query("@tag:{A}=>[KNN 2 @vector $query_vec]")
+                .AddParam("query_vec", vec.SelectMany(BitConverter.GetBytes).ToArray())
+                .SetSortBy("__vector_score")
+                .Dialect(2));
 
         resSet.Clear();
         foreach (var doc in res.Documents)
@@ -1211,11 +1238,11 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
             }
         }
 
-        expectedResSet = new HashSet<string>()
-        {
+        expectedResSet =
+        [
             "id: vec:2, score: 3",
-            "id: vec:4, score: 7",
-        };
+            "id: vec:4, score: 7"
+        ];
 
         //Advanced Search Queries:
         // data load:
@@ -1223,25 +1250,29 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         {
             city = "Boston",
             location = "-71.057083, 42.361145",
-            inventory = new[] {
-                new {
+            inventory = new[]
+            {
+                new
+                {
                     id = 15970,
                     gender = "Men",
-                    season = new[] {"Fall", "Winter"},
+                    season = new[] { "Fall", "Winter" },
                     description = "Turtle Check Men Navy Blue Shirt",
                     price = 34.95
                 },
-                new {
+                new
+                {
                     id = 59263,
                     gender = "Women",
-                    season = new[] {"Fall", "Winter", "Spring", "Summer"},
+                    season = new[] { "Fall", "Winter", "Spring", "Summer" },
                     description = "Titan Women Silver Watch",
                     price = 129.99
                 },
-                new {
+                new
+                {
                     id = 46885,
                     gender = "Boys",
-                    season = new[] {"Fall"},
+                    season = new[] { "Fall" },
                     description = "Ben 10 Boys Navy Blue Slippers",
                     price = 45.99
                 }
@@ -1251,25 +1282,29 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         {
             city = "Dallas",
             location = "-96.808891, 32.779167",
-            inventory = new[] {
-                new {
+            inventory = new[]
+            {
+                new
+                {
                     id = 51919,
                     gender = "Women",
-                    season = new[] {"Summer"},
+                    season = new[] { "Summer" },
                     description = "Nyk Black Horado Handbag",
                     price = 52.49
                 },
-                new {
+                new
+                {
                     id = 4602,
                     gender = "Unisex",
-                    season = new[] {"Fall", "Winter"},
+                    season = new[] { "Fall", "Winter" },
                     description = "Wildcraft Red Trailblazer Backpack",
                     price = 50.99
                 },
-                new {
+                new
+                {
                     id = 37561,
                     gender = "Girls",
-                    season = new[] {"Spring", "Summer"},
+                    season = new[] { "Spring", "Summer" },
                     description = "Madagascar3 Infant Pink Snapsuit Romper",
                     price = 23.95
                 }
@@ -1277,29 +1312,39 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         });
 
         // Index creation:
-        try { ft.DropIndex("wh_idx"); } catch { };
+        try
+        {
+            ft.DropIndex("wh_idx");
+        }
+        catch
+        {
+            // ignored
+        }
+
+        ;
         Assert.True(ft.Create("wh_idx", new FTCreateParams()
-                                .On(IndexDataType.JSON)
-                                .Prefix("warehouse:"),
-                                new Schema().AddTextField(new FieldName("$.city", "city"))));
+                .On(IndexDataType.JSON)
+                .Prefix("warehouse:"),
+            new Schema().AddTextField(new FieldName("$.city", "city"))));
 
         // Sleep:
         Thread.Sleep(2000);
 
         // Find all inventory ids from all the Boston warehouse that have a price > $50:
         res = ft.Search("wh_idx",
-                        new Query("@city:Boston")
-                            .ReturnFields(new FieldName("$.inventory[?(@.price>50)].id", "result"))
-                            .Dialect(3));
+            new Query("@city:Boston")
+                .ReturnFields(new FieldName("$.inventory[?(@.price>50)].id", "result"))
+                .Dialect(3));
 
         Assert.Equal("[59263]", res.Documents[0]["result"].ToString());
 
         // Find all inventory items in Dallas that are for Women or Girls:
         res = ft.Search("wh_idx",
-                        new Query("@city:(Dallas)")
-                            .ReturnFields(new FieldName("$.inventory[?(@.gender==\"Women\" || @.gender==\"Girls\")]", "result"))
-                            .Dialect(3));
-        var expected = "[{\"id\":51919,\"gender\":\"Women\",\"season\":[\"Summer\"],\"description\":\"Nyk Black Horado Handbag\",\"price\":52.49},{\"id\":37561,\"gender\":\"Girls\",\"season\":[\"Spring\",\"Summer\"],\"description\":\"Madagascar3 Infant Pink Snapsuit Romper\",\"price\":23.95}]";
+            new Query("@city:(Dallas)")
+                .ReturnFields(new FieldName("$.inventory[?(@.gender==\"Women\" || @.gender==\"Girls\")]", "result"))
+                .Dialect(3));
+        var expected =
+            "[{\"id\":51919,\"gender\":\"Women\",\"season\":[\"Summer\"],\"description\":\"Nyk Black Horado Handbag\",\"price\":52.49},{\"id\":37561,\"gender\":\"Girls\",\"season\":[\"Spring\",\"Summer\"],\"description\":\"Madagascar3 Infant Pink Snapsuit Romper\",\"price\":23.95}]";
         Assert.Equal(expected, res.Documents[0]["result"].ToString());
 
         // Aggregation
@@ -1324,17 +1369,17 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         });
         json.Set("book:4", "$", new
         {
-            title = "Superintelligence: Path, Dangers, Stategies",
+            title = "Superintelligence: Path, Dangers, Strategies",
             year = 2016,
             price = 14.36
         });
 
         Assert.True(ft.Create("book_idx", new FTCreateParams()
-                        .On(IndexDataType.JSON)
-                        .Prefix("book:"),
-                        new Schema().AddTextField(new FieldName("$.title", "title"))
-                            .AddNumericField(new FieldName("$.year", "year"))
-                            .AddNumericField(new FieldName("$.price", "price"))));
+                .On(IndexDataType.JSON)
+                .Prefix("book:"),
+            new Schema().AddTextField(new FieldName("$.title", "title"))
+                .AddNumericField(new FieldName("$.year", "year"))
+                .AddNumericField(new FieldName("$.price", "price"))));
         // sleep:
         Thread.Sleep(2000);
 
@@ -1348,6 +1393,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
             var row = result.GetRow(i);
             resSet.Add($"{row["year"]}: {row["count"]}");
         }
+
         expectedResSet.Clear();
         expectedResSet.Add("2016: 1");
         expectedResSet.Add("2020: 2");
@@ -1365,6 +1411,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
             var row = result.GetRow(i);
             resSet.Add($"{row["year"]}: {row["sum"]}");
         }
+
         expectedResSet.Clear();
         expectedResSet.Add("2016: 14.36");
         expectedResSet.Add("2020: 56.98");
