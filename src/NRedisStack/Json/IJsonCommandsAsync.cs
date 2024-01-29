@@ -157,7 +157,7 @@ public interface IJsonCommandsAsync
     /// <param name="value">The value to increment by.</param>
     /// <returns>The new values after being incremented, or null if the path resolved a non-numeric.</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.numincrby"/></remarks>
-    Task<double?[]> NumIncrByAsync(RedisKey key, string path, double value);
+    Task<double?[]> NumIncrbyAsync(RedisKey key, string path, double value);
 
     /// <summary>
     /// Gets the keys of the object at the provided path.
