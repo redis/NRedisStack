@@ -75,7 +75,7 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/bzmpop"/></remarks>
         public static Tuple<RedisKey, List<RedisValueWithScore>>? BzmPop(this IDatabase db, int timeout, RedisKey key, MinMaxModifier minMaxModifier, long? count = null)
         {
-            return BzmPop(db, timeout, [key], minMaxModifier, count);
+            return BzmPop(db, timeout, new[] { key }, minMaxModifier, count);
         }
     }
 }

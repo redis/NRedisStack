@@ -153,7 +153,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         var db = redis.GetDatabase(null);
         db.Execute("FLUSHALL");
 
-        var sortedSetKey = "my-set";
+        var sortedSetKey = new RedisKey("my-set");
 
         db.SortedSetAdd(sortedSetKey, "a", 1.5);
         db.SortedSetAdd(sortedSetKey, "b", 5.1);
@@ -162,7 +162,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.SortedSetAdd(sortedSetKey, "e", 7.76);
 
         // Pop two items with default order, which means it will pop the minimum values.
-        var resultWithDefaultOrder = db.BzmPop(0, [sortedSetKey], MinMaxModifier.Min, 2);
+        var resultWithDefaultOrder = db.BzmPop(0, new[] { sortedSetKey }, MinMaxModifier.Min, 2);
 
         Assert.NotNull(resultWithDefaultOrder);
         Assert.Equal(sortedSetKey, resultWithDefaultOrder!.Item1);
@@ -171,7 +171,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("c", resultWithDefaultOrder.Item2[1].Value.ToString());
 
         // Pop one more item, with descending order, which means it will pop the maximum value.
-        var resultWithDescendingOrder = db.BzmPop(0, [sortedSetKey], MinMaxModifier.Max, 1);
+        var resultWithDescendingOrder = db.BzmPop(0, new[] { sortedSetKey }, MinMaxModifier.Max, 1);
 
         Assert.NotNull(resultWithDescendingOrder);
         Assert.Equal(sortedSetKey, resultWithDescendingOrder!.Item1);
@@ -188,7 +188,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
 
         // Nothing in the set, and a short server timeout, which yields null.
-        var result = db.BzmPop(1, ["my-set"], MinMaxModifier.Min, null);
+        var result = db.BzmPop(1, "my-set", MinMaxModifier.Min);
 
         Assert.Null(result);
     }
@@ -205,7 +205,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
 
         // Server would wait forever, but the multiplexer times out in 1 second.
-        Assert.Throws<RedisTimeoutException>(() => db.BzmPop(0, ["my-set"], MinMaxModifier.Min));
+        Assert.Throws<RedisTimeoutException>(() => db.BzmPop(0, "my-set", MinMaxModifier.Min));
     }
 
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
@@ -229,14 +229,14 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Single(result.Item2);
         Assert.Equal("d", result.Item2[0].Value.ToString());
 
-        result = db.BzmPop(0, ["set-two", "set-one"], MinMaxModifier.Min);
+        result = db.BzmPop(0, new[] { new RedisKey("set-two"), new RedisKey("set-one") }, MinMaxModifier.Min);
 
         Assert.NotNull(result);
         Assert.Equal("set-two", result!.Item1);
         Assert.Single(result.Item2);
         Assert.Equal("e", result.Item2[0].Value.ToString());
 
-        result = db.BzmPop(0, ["set-two", "set-one"], MinMaxModifier.Max);
+        result = db.BzmPop(0, new[] { new RedisKey("set-two"), new RedisKey("set-one") }, MinMaxModifier.Max);
 
         Assert.NotNull(result);
         Assert.Equal("set-one", result!.Item1);
@@ -261,7 +261,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
 
         // Server would wait forever, but the multiplexer times out in 1 second.
-        Assert.Throws<ArgumentException>(() => db.BzmPop(0, [], MinMaxModifier.Min));
+        Assert.Throws<ArgumentException>(() => db.BzmPop(0, Array.Empty<RedisKey>(), MinMaxModifier.Min));
     }
 
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
@@ -279,7 +279,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.SortedSetAdd(sortedSetKey, "c", 3.7);
 
         // Pop two items with default order, which means it will pop the minimum values.
-        var resultWithDefaultOrder = db.BzmPop(0, [sortedSetKey], Order.Ascending.ToMinMax());
+        var resultWithDefaultOrder = db.BzmPop(0, sortedSetKey, Order.Ascending.ToMinMax());
 
         Assert.NotNull(resultWithDefaultOrder);
         Assert.Equal(sortedSetKey, resultWithDefaultOrder!.Item1);
@@ -287,7 +287,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("a", resultWithDefaultOrder.Item2[0].Value.ToString());
 
         // Pop one more item, with descending order, which means it will pop the maximum value.
-        var resultWithDescendingOrder = db.BzmPop(0, [sortedSetKey], Order.Descending.ToMinMax());
+        var resultWithDescendingOrder = db.BzmPop(0, sortedSetKey, Order.Descending.ToMinMax());
 
         Assert.NotNull(resultWithDescendingOrder);
         Assert.Equal(sortedSetKey, resultWithDescendingOrder!.Item1);

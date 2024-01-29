@@ -738,7 +738,7 @@ namespace NRedisStack
             var resultKey = resultArray[0].ToRedisKey();
             var resultSetItems = resultArray[1].ToArray();
 
-            List<RedisValueWithScore> valuesWithScores = [];
+            List<RedisValueWithScore> valuesWithScores = new List<RedisValueWithScore>();
 
             foreach (var resultSetItem in resultSetItems)
             {
