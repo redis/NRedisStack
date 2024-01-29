@@ -30,11 +30,31 @@ public sealed class AggregationResult
                     continue; // TODO: handle multi-bulk (maybe change to object?)
                 cur.Add(key, (RedisValue)val);
             }
+
             _results[i - 1] = cur;
         }
 
         CursorId = cursorId;
     }
+
+    
+    /// <summary>
+    /// takes a Redis multi-bulk array represented by a RedisResult[] and recursively processes its elements.
+    /// For each element in the array, it checks if it's another multi-bulk array, and if so, it recursively calls itself.
+    /// If the element is not a multi-bulk array, it's added directly to a List<object>.
+    /// The method returns a nested list structure, reflecting the hierarchy of the original multi-bulk array,
+    /// with each element either being a direct value or a nested list.
+    /// </summary>
+    /// <param name="multiBulkArray"></param>
+    /// <returns>object</returns>
+    private object ConvertMultiBulkToObject(IEnumerable<RedisResult> multiBulkArray)
+    {
+        return multiBulkArray.Select(item => item.Type == ResultType.MultiBulk
+                ? ConvertMultiBulkToObject((RedisResult[])item!)
+                : item)
+            .ToList();
+    }
+
     public IReadOnlyList<Dictionary<string, RedisValue>> GetResults() => _results;
 
     public Dictionary<string, RedisValue>? this[int index]
