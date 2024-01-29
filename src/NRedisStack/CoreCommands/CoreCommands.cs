@@ -46,16 +46,16 @@ namespace NRedisStack
         /// <param name="db">The <see cref="IDatabase"/> class where this extension method is applied.</param>
         /// <param name="timeout">Server-side timeout for the wait. A value of <c>0</c> means to wait indefinitely.</param>
         /// <param name="keys">The keys to check.</param>
-        /// <param name="order">The order to sort by when popping items out of the set. If set to <c>Order.ascending</c>
+        /// <param name="minMaxModifier">Specify from which end of the sorted set to pop values. If set to <c>MinMaxModifier.Min</c>
         /// then the minimum elements will be popped, otherwise the maximum values.</param>
         /// <param name="count">The maximum number of records to pop out. If set to <c>null</c> then the server default
         /// will be used.</param>
         /// <returns>A collection of sorted set entries paired with their scores, together with the key they were popped
         /// from, or <c>null</c> if the server timeout expires.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bzmpop"/></remarks>
-        public static Tuple<RedisKey, List<RedisValueWithScore>>? BzmPop(this IDatabase db, int timeout, RedisKey[] keys, Order order, long? count = null)
+        public static Tuple<RedisKey, List<RedisValueWithScore>>? BzmPop(this IDatabase db, int timeout, RedisKey[] keys, MinMaxModifier minMaxModifier, long? count = null)
         {
-            var command = CoreCommandBuilder.BzmPop(timeout, keys, order, count);
+            var command = CoreCommandBuilder.BzmPop(timeout, keys, minMaxModifier, count);
             return db.Execute(command).ToSortedSetPopResult();
         }
 
@@ -66,16 +66,16 @@ namespace NRedisStack
         /// <param name="db">The <see cref="IDatabase"/> class where this extension method is applied.</param>
         /// <param name="timeout">Server-side timeout for the wait. A value of <c>0</c> means to wait indefinitely.</param>
         /// <param name="key">The key to check.</param>
-        /// <param name="order">The order to sort by when popping items out of the set. If set to <c>Order.ascending</c>
+        /// <param name="minMaxModifier">Specify from which end of the sorted set to pop values. If set to <c>MinMaxModifier.Min</c>
         /// then the minimum elements will be popped, otherwise the maximum values.</param>
         /// <param name="count">The maximum number of records to pop out. If set to <c>null</c> then the server default
         /// will be used.</param>
         /// <returns>A collection of sorted set entries paired with their scores, together with the key they were popped
         /// from, or <c>null</c> if the server timeout expires.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bzmpop"/></remarks>
-        public static Tuple<RedisKey, List<RedisValueWithScore>>? BzmPop(this IDatabase db, int timeout, RedisKey key, Order order, long? count = null)
+        public static Tuple<RedisKey, List<RedisValueWithScore>>? BzmPop(this IDatabase db, int timeout, RedisKey key, MinMaxModifier minMaxModifier, long? count = null)
         {
-            return BzmPop(db, timeout, [key], order, count);
+            return BzmPop(db, timeout, [key], minMaxModifier, count);
         }
     }
 }

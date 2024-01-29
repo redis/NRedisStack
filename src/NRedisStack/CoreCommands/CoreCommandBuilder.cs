@@ -1,6 +1,7 @@
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Core.Literals;
 using NRedisStack.Core;
+using NRedisStack.Core.DataTypes;
 using StackExchange.Redis;
 
 namespace NRedisStack
@@ -20,7 +21,7 @@ namespace NRedisStack
             return new SerializedCommand(RedisCoreCommands.CLIENT, RedisCoreCommands.SETINFO, attrValue, value);
         }
 
-        public static SerializedCommand BzmPop(int timeout, RedisKey[] keys, Order order, long? count)
+        public static SerializedCommand BzmPop(int timeout, RedisKey[] keys, MinMaxModifier minMaxModifier, long? count)
         {
             if (keys.Length == 0)
             {
@@ -31,7 +32,7 @@ namespace NRedisStack
                 timeout,
                 keys.Length,
                 .. keys.Cast<object>(),
-                order == Order.Ascending ? CoreArgs.MIN : CoreArgs.MAX
+                minMaxModifier == MinMaxModifier.Min ? CoreArgs.MIN : CoreArgs.MAX
             ];
 
             if (count != null)
