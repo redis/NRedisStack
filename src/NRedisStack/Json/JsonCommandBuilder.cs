@@ -207,11 +207,7 @@ public static class JsonCommandBuilder
 
     public static SerializedCommand MGet(RedisKey[] keys, string path)
     {
-        var args = new List<object>();
-        foreach (var key in keys)
-        {
-            args.Add(key);
-        }
+        var args = keys.Cast<object>().ToList();
 
         args.Add(path);
         return new SerializedCommand(JSON.MGET, args);
