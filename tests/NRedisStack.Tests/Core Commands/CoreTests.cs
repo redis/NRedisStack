@@ -195,7 +195,6 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
     public void TestBzmPopMultiplexerTimeout()
     {
@@ -253,5 +252,17 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, result.Item2.Count);
         Assert.Equal("a", result.Item2[0].Value.ToString());
         Assert.Equal("c", result.Item2[1].Value.ToString());
+    }
+
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
+    public void TestBzmPopNoKeysProvided()
+    {
+        var redis = ConnectionMultiplexer.Connect("localhost");
+
+        var db = redis.GetDatabase(null);
+        db.Execute("FLUSHALL");
+
+        // Server would wait forever, but the multiplexer times out in 1 second.
+        Assert.Throws<ArgumentException>(() => db.BzmPop(0, [], Order.Ascending));
     }
 }
