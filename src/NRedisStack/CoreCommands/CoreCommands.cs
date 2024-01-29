@@ -27,14 +27,14 @@ namespace NRedisStack
         /// <p/>
         /// Removes and returns up to <paramref name="count"/> entries from the first non-empty sorted set in
         /// <paramref name="keys"/>. If none of the sets contain elements, the call blocks on the server until elements
-        /// become available or the give <paramref name="timeout"/> passes. A <paramref name="timeout"/> of <c>0</c>
+        /// become available or the given <paramref name="timeout"/> passes. A <paramref name="timeout"/> of <c>0</c>
         /// means to wait indefinitely server-side. Returns <c>null</c> if the server timeout expires. 
         /// <p/>
         /// When using this, pay attention to the timeout configured on the <see cref="ConnectionMultiplexer"/>, which
         /// by default can be too small, in which case you want to increase it:
         /// <code>
         /// ConfigurationOptions configurationOptions = new ConfigurationOptions();
-        /// configurationOptions.SyncTimeout = 120000;
+        /// configurationOptions.SyncTimeout = 120000; // set a meaningful value here
         /// configurationOptions.EndPoints.Add("localhost");
         /// ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(configurationOptions);
         /// </code>
@@ -44,18 +44,38 @@ namespace NRedisStack
         /// This is an extension method added to the <see cref="IDatabase"/> class, for convenience.
         /// </summary>
         /// <param name="db">The <see cref="IDatabase"/> class where this extension method is applied.</param>
-        /// <param name="keys">The keys to check.</param>
         /// <param name="timeout">Server-side timeout for the wait. A value of <c>0</c> means to wait indefinitely.</param>
-        /// <param name="count">The maximum number of records to pop out.</param>
+        /// <param name="keys">The keys to check.</param>
         /// <param name="order">The order to sort by when popping items out of the set. If set to <c>Order.ascending</c>
         /// then the minimum elements will be popped, otherwise the maximum values.</param>
+        /// <param name="count">The maximum number of records to pop out. If set to <c>null</c> then the server default
+        /// will be used.</param>
         /// <returns>A collection of sorted set entries paired with their scores, together with the key they were popped
         /// from, or <c>null</c> if the server timeout expires.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bzmpop"/></remarks>
-        public static Tuple<RedisKey, List<RedisValueWithScore>>? BzmPop(this IDatabase db, RedisKey[] keys, int timeout = 0, long count = 1, Order order = Order.Ascending)
+        public static Tuple<RedisKey, List<RedisValueWithScore>>? BzmPop(this IDatabase db, int timeout, RedisKey[] keys, Order order, long? count = null)
         {
-            var command = CoreCommandBuilder.BzmPop(keys, timeout, count, order);
+            var command = CoreCommandBuilder.BzmPop(timeout, keys, order, count);
             return db.Execute(command).ToSortedSetPopResult();
+        }
+
+        /// <summary>
+        /// Syntactic sugar for <see cref="BzmPop(StackExchange.Redis.IDatabase,int,StackExchange.Redis.RedisKey[],StackExchange.Redis.Order,System.Nullable{long})"/>,
+        /// where only one key is used.
+        /// </summary>
+        /// <param name="db">The <see cref="IDatabase"/> class where this extension method is applied.</param>
+        /// <param name="timeout">Server-side timeout for the wait. A value of <c>0</c> means to wait indefinitely.</param>
+        /// <param name="key">The key to check.</param>
+        /// <param name="order">The order to sort by when popping items out of the set. If set to <c>Order.ascending</c>
+        /// then the minimum elements will be popped, otherwise the maximum values.</param>
+        /// <param name="count">The maximum number of records to pop out. If set to <c>null</c> then the server default
+        /// will be used.</param>
+        /// <returns>A collection of sorted set entries paired with their scores, together with the key they were popped
+        /// from, or <c>null</c> if the server timeout expires.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/bzmpop"/></remarks>
+        public static Tuple<RedisKey, List<RedisValueWithScore>>? BzmPop(this IDatabase db, int timeout, RedisKey key, Order order, long? count = null)
+        {
+            return BzmPop(db, timeout, [key], order, count);
         }
     }
 }
