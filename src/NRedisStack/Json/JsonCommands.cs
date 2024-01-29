@@ -21,7 +21,8 @@ public class JsonCommands(IDatabase db) : JsonCommandsAsync(db), IJsonCommands
     }
 
     /// <inheritdoc/>
-    public bool Set(RedisKey key, RedisValue path, object obj, When when = When.Always, JsonSerializerOptions? serializerOptions = default)
+    public bool Set(RedisKey key, RedisValue path, object obj, When when = When.Always,
+        JsonSerializerOptions? serializerOptions = default)
     {
         string json = JsonSerializer.Serialize(obj, options: serializerOptions);
         return Set(key, path, json, when);
@@ -79,10 +80,7 @@ public class JsonCommands(IDatabase db) : JsonCommandsAsync(db), IJsonCommands
             }
         }
 
-        foreach (var dirPath in Directory.EnumerateDirectories(filesPath))
-        {
-            inserted += SetFromDirectory(path, dirPath, when);
-        }
+        inserted += Directory.EnumerateDirectories(filesPath).Sum(dirPath => SetFromDirectory(path, dirPath, when));
 
         return inserted;
     }
@@ -109,12 +107,9 @@ public class JsonCommands(IDatabase db) : JsonCommandsAsync(db), IJsonCommands
             return Array.Empty<bool?>();
         }
 
-        if (result.Type == ResultType.Integer)
-        {
-            return new bool?[] { (long)result == 1 };
-        }
-
-        return ((RedisResult[])result!).Select(x => (bool?)((long)x == 1)).ToArray();
+        return result.Type == ResultType.Integer
+            ? [(long)result == 1]
+            : ((RedisResult[])result!).Select(x => (bool?)((long)x == 1)).ToArray();
     }
 
     /// <inheritdoc/>
@@ -122,18 +117,14 @@ public class JsonCommands(IDatabase db) : JsonCommandsAsync(db), IJsonCommands
     {
         RedisResult result = db.Execute(JsonCommandBuilder.Type(key, path));
 
-        if (result.Type == ResultType.MultiBulk)
+        return result.Type switch
         {
-            return ((RedisResult[])result!).Select(x => (JsonType)Enum.Parse(typeof(JsonType), x.ToString()!.ToUpper())).ToArray();
-        }
-
-        if (result.Type == ResultType.BulkString)
-        {
-            return new[] { (JsonType)Enum.Parse(typeof(JsonType), result.ToString()!.ToUpper()) };
-        }
-
-        return Array.Empty<JsonType>();
-
+            ResultType.MultiBulk => ((RedisResult[])result!)
+                .Select(x => (JsonType)Enum.Parse(typeof(JsonType), x.ToString()!.ToUpper()))
+                .ToArray(),
+            ResultType.BulkString => [(JsonType)Enum.Parse(typeof(JsonType), result.ToString()!.ToUpper())],
+            _ => Array.Empty<JsonType>()
+        };
     }
 
     public long DebugMemory(string key, string? path = null)
@@ -175,12 +166,7 @@ public class JsonCommands(IDatabase db) : JsonCommandsAsync(db), IJsonCommands
             return (RedisResult[])result!;
         }
 
-        if (result.Type == ResultType.BulkString)
-        {
-            return new[] { result };
-        }
-
-        return Array.Empty<RedisResult>();
+        return result.Type == ResultType.BulkString ? [result] : Array.Empty<RedisResult>();
     }
 
     /// <inheritdoc/>
@@ -203,13 +189,15 @@ public class JsonCommands(IDatabase db) : JsonCommandsAsync(db), IJsonCommands
     public long Forget(RedisKey key, string? path = null) => Del(key, path);
 
     /// <inheritdoc/>
-    public RedisResult Get(RedisKey key, RedisValue? indent = null, RedisValue? newLine = null, RedisValue? space = null, RedisValue? path = null)
+    public RedisResult Get(RedisKey key, RedisValue? indent = null, RedisValue? newLine = null,
+        RedisValue? space = null, RedisValue? path = null)
     {
         return db.Execute(JsonCommandBuilder.Get(key, indent, newLine, space, path));
     }
 
     /// <inheritdoc/>
-    public RedisResult Get(RedisKey key, string[] paths, RedisValue? indent = null, RedisValue? newLine = null, RedisValue? space = null)
+    public RedisResult Get(RedisKey key, string[] paths, RedisValue? indent = null, RedisValue? newLine = null,
+        RedisValue? space = null)
     {
         return db.Execute(JsonCommandBuilder.Get(key, paths, indent, newLine, space));
     }
@@ -218,16 +206,9 @@ public class JsonCommands(IDatabase db) : JsonCommandsAsync(db), IJsonCommands
     public T? Get<T>(RedisKey key, string path = "$", JsonSerializerOptions? serializerOptions = default)
     {
         var res = db.Execute(JsonCommandBuilder.Get<T>(key, path));
-        if (res.Type == ResultType.BulkString && !res.IsNull)
-        {
-            var arr = JsonSerializer.Deserialize<JsonArray>(res.ToString()!);
-            if (arr?.Count > 0)
-            {
-                return JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(arr[0]), serializerOptions);
-            }
-        }
-
-        return default;
+        if (res.Type != ResultType.BulkString || res.IsNull) return default;
+        var arr = JsonSerializer.Deserialize<JsonArray>(res.ToString()!);
+        return arr?.Count > 0 ? JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(arr[0]), serializerOptions) : default;
     }
 
     /// <inheritdoc/>
