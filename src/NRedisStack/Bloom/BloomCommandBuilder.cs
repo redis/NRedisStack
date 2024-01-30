@@ -58,7 +58,7 @@ public static class BloomCommandBuilder
         if (items.Length < 1)
             throw new ArgumentOutOfRangeException(nameof(items));
 
-        List<object> args = [key];
+        List<object> args = new List<object> { key };
         args.AddRange(items.Cast<object>());
 
         return new SerializedCommand(BF.MEXISTS, args);

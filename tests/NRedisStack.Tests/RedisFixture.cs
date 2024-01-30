@@ -32,6 +32,8 @@ namespace NRedisStack.Tests
 
                 ConfigurationOptions clusterConfig = new ConfigurationOptions
                 {
+                    SyncTimeout = 10000,
+                    AsyncTimeout = 10000,
                     EndPoints = endpoints
                 };
 

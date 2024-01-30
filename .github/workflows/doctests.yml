@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.event.pull_request.number || github.ref }}-doctests
   cancel-in-progress: true
 
 jobs:
