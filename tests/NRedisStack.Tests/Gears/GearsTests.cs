@@ -12,7 +12,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     public void TestTFunctionLoadDelete()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.ExecuteBroadcast("REDISGEARS_2.REFRESHCLUSTER");
+        db.ExecuteAllShards("REDISGEARS_2.REFRESHCLUSTER");
         db.Execute("FLUSHALL");
         Assert.True(db.TFunctionLoad(GenerateLibCode("lib")));
         Assert.True(db.TFunctionDelete("lib"));
@@ -23,7 +23,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     public async Task TestTFunctionLoadDeleteAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.ExecuteBroadcast("REDISGEARS_2.REFRESHCLUSTER");
+        db.ExecuteAllShards("REDISGEARS_2.REFRESHCLUSTER");
         db.Execute("FLUSHALL");
         TryDeleteLib(db, "lib", "lib1", "lib2", "lib3");
 
@@ -35,7 +35,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     public void TestTFunctionList()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.ExecuteBroadcast("REDISGEARS_2.REFRESHCLUSTER");
+        db.ExecuteAllShards("REDISGEARS_2.REFRESHCLUSTER");
         db.Execute("FLUSHALL");
         TryDeleteLib(db, "lib", "lib1", "lib2", "lib3");
 
@@ -67,7 +67,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     public async Task TestTFunctionListAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.ExecuteBroadcast("REDISGEARS_2.REFRESHCLUSTER");
+        db.ExecuteAllShards("REDISGEARS_2.REFRESHCLUSTER");
         db.Execute("FLUSHALL");
         TryDeleteLib(db, "lib", "lib1", "lib2", "lib3");
 
@@ -97,7 +97,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     public void TestTFCall()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.ExecuteBroadcast("REDISGEARS_2.REFRESHCLUSTER");
+        db.ExecuteAllShards("REDISGEARS_2.REFRESHCLUSTER");
         db.Execute("FLUSHALL");
         TryDeleteLib(db, "lib", "lib1", "lib2", "lib3");
 
@@ -112,7 +112,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     public async Task TestTFCallAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.ExecuteBroadcast("REDISGEARS_2.REFRESHCLUSTER");
+        db.ExecuteAllShards("REDISGEARS_2.REFRESHCLUSTER");
         db.Execute("FLUSHALL");
         TryDeleteLib(db, "lib", "lib1", "lib2", "lib3");
 
@@ -191,7 +191,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         {
             try
             {
-                db.ExecuteBroadcast(GearsCommandBuilder.TFunctionDelete(libName));
+                db.ExecuteAllShards(GearsCommandBuilder.TFunctionDelete(libName));
             }
             catch (RedisServerException) { } // ignore
         }

@@ -45,14 +45,14 @@ namespace NRedisStack.Tests
 
         public void Dispose()
         {
-            redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
+            redisFixture.Redis.GetDatabase().ExecuteAllShards("FLUSHALL");
         }
 
         public async Task DisposeAsync()
         {
             var redis = redisFixture.Redis.GetDatabase();
             // await redis.KeyDeleteAsync(keyNames.Select(i => (RedisKey)i).ToArray());
-            await redis.ExecuteBroadcastAsync("FLUSHALL");
+            await redis.ExecuteAllShardsAsync("FLUSHALL");
         }
     }
 }

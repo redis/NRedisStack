@@ -4,6 +4,7 @@ namespace NRedisStack.RedisStackCommands
     {
         public string Command { get; }
         public object[] Args { get; }
+        public RequestPolicy Policy { get; set; } = RequestPolicy.Default;
 
         public SerializedCommand(string command, params object[] args)
         {
