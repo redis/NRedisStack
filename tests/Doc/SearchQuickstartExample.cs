@@ -1,4 +1,5 @@
 // EXAMPLE: search_quickstart
+
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
 using NRedisStack.Search.Aggregation;
@@ -7,11 +8,18 @@ using NRedisStack.Tests;
 using StackExchange.Redis;
 
 // REMOVE_START
-namespace NRedisStack.Doc;
+namespace Doc;
 [Collection("DocsTests")]
 // REMOVE_END
 public class SearchQuickstartExample
 {
+    private readonly ITestOutputHelper testOutputHelper;
+
+    public SearchQuickstartExample(ITestOutputHelper testOutputHelper)
+    {
+        this.testOutputHelper = testOutputHelper;
+    }
+
     [SkipIfRedis(Is.OSSCluster)]
     public void run()
     {
@@ -29,6 +37,7 @@ public class SearchQuickstartExample
         }
         catch
         {
+            // ignored
         }
         // REMOVE_END
 
@@ -211,7 +220,7 @@ public class SearchQuickstartExample
         // STEP_START wildcard_query
         var query1 = new Query("*");
         var res1 = ft.Search("idx:bicycle", query1).Documents;
-        Console.WriteLine(string.Join("\n", res1.Count()));
+        testOutputHelper.WriteLine(string.Join("\n", res1.Count()));
         // Prints: Documents found: 10
         // STEP_END
         // REMOVE_START
@@ -221,7 +230,7 @@ public class SearchQuickstartExample
         // STEP_START query_single_term
         var query2 = new Query("@Model:Jigger");
         var res2 = ft.Search("idx:bicycle", query2).Documents;
-        Console.WriteLine(string.Join("\n", res2.Select(x => x["json"])));
+        testOutputHelper.WriteLine(string.Join("\n", res2.Select(x => x["json"])));
         // Prints: {"Brand":"Moore PLC","Model":"Award Race","Price":3790.76,
         //          "Description":"This olive folding bike features a carbon frame
         //          and 27.5 inch wheels. This folding bike is perfect for compact
@@ -235,7 +244,7 @@ public class SearchQuickstartExample
         // STEP_START query_single_term_and_num_range
         var query3 = new Query("basic @Price:[500 1000]");
         var res3 = ft.Search("idx:bicycle", query3).Documents;
-        Console.WriteLine(string.Join("\n", res3.Select(x => x["json"])));
+        testOutputHelper.WriteLine(string.Join("\n", res3.Select(x => x["json"])));
         // Prints: {"Brand":"Moore PLC","Model":"Award Race","Price":3790.76,
         //          "Description":"This olive folding bike features a carbon frame
         //          and 27.5 inch wheels. This folding bike is perfect for compact
@@ -249,7 +258,7 @@ public class SearchQuickstartExample
         // STEP_START query_exact_matching
         var query4 = new Query("@Brand:\"Noka Bikes\"");
         var res4 = ft.Search("idx:bicycle", query4).Documents;
-        Console.WriteLine(string.Join("\n", res4.Select(x => x["json"])));
+        testOutputHelper.WriteLine(string.Join("\n", res4.Select(x => x["json"])));
         // Prints: {"Brand":"Moore PLC","Model":"Award Race","Price":3790.76,
         //          "Description":"This olive folding bike features a carbon frame
         //          and 27.5 inch wheels. This folding bike is perfect for compact
@@ -263,7 +272,7 @@ public class SearchQuickstartExample
         // STEP_START query_single_term_limit_fields
         var query5 = new Query("@Model:Jigger").ReturnFields("Price");
         var res5 = ft.Search("idx:bicycle", query5).Documents;
-        Console.WriteLine(res5.First()["Price"]);
+        testOutputHelper.WriteLine(res5.First()["Price"]);
         // Prints: 270
         // STEP_END
         // REMOVE_START
@@ -279,7 +288,7 @@ public class SearchQuickstartExample
         for (var i = 0; i < result.TotalResults; i++)
         {
             var row = result.GetRow(i);
-            Console.WriteLine($"{row["Condition"]} - {row["Count"]}");
+            testOutputHelper.WriteLine($"{row["Condition"]} - {row["Count"]}");
         }
 
         // Prints:

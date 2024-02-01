@@ -1,14 +1,22 @@
 // EXAMPLE: hash_tutorial
 // HIDE_START
+
 using NRedisStack.Tests;
 using StackExchange.Redis;
 
 //REMOVE_START
-namespace NRedisStack.Doc;
+namespace Doc;
 [Collection("DocsTests")]
 //REMOVE_END
 public class HashExample
 {
+    private readonly ITestOutputHelper testOutputHelper;
+
+    public HashExample(ITestOutputHelper testOutputHelper)
+    {
+        this.testOutputHelper = testOutputHelper;
+    }
+
     [SkipIfRedis(Is.OSSCluster)]
     public void run()
     {
@@ -25,20 +33,20 @@ public class HashExample
             new HashEntry("price", 4972)
         });
 
-        Console.WriteLine("Hash Created");
+        testOutputHelper.WriteLine("Hash Created");
         // Hash Created
 
         var model = db.HashGet("bike:1", "model");
-        Console.WriteLine($"Model: {model}");
+        testOutputHelper.WriteLine($"Model: {model}");
         // Model: Deimos
 
         var price = db.HashGet("bike:1", "price");
-        Console.WriteLine($"Price: {price}");
+        testOutputHelper.WriteLine($"Price: {price}");
         // Price: 4972
 
         var bike = db.HashGetAll("bike:1");
-        Console.WriteLine("bike:1");
-        Console.WriteLine(string.Join("\n", bike.Select(b => $"{b.Name}: {b.Value}")));
+        testOutputHelper.WriteLine("bike:1");
+        testOutputHelper.WriteLine(string.Join("\n", bike.Select(b => $"{b.Name}: {b.Value}")));
         // Bike:1:
         // model: Deimos
         // brand: Ergonom
@@ -54,7 +62,7 @@ public class HashExample
 
         //STEP_START hmget
         var values = db.HashGet("bike:1", new RedisValue[] { "model", "price" });
-        Console.WriteLine(string.Join(" ", values));
+        testOutputHelper.WriteLine(string.Join(" ", values));
         // Deimos 4972
         //REMOVE_START
         Assert.Equal("Deimos", values[0]);
@@ -64,14 +72,14 @@ public class HashExample
 
         //STEP_START hincrby
         var newPrice = db.HashIncrement("bike:1", "price", 100);
-        Console.WriteLine($"New price: {newPrice}");
+        testOutputHelper.WriteLine($"New price: {newPrice}");
         //REMOVE_START
         Assert.Equal(5072, newPrice);
         //REMOVE_END
         // New price: 5072
 
         newPrice = db.HashIncrement("bike:1", "price", -100);
-        Console.WriteLine($"New price: {newPrice}");
+        testOutputHelper.WriteLine($"New price: {newPrice}");
         //REMOVE_START
         Assert.Equal(4972, newPrice);
         //REMOVE_END
@@ -80,42 +88,42 @@ public class HashExample
 
         //STEP_START incrby_get_mget
         var rides = db.HashIncrement("bike:1", "rides");
-        Console.WriteLine($"Rides: {rides}");
+        testOutputHelper.WriteLine($"Rides: {rides}");
         //REMOVE_START
         Assert.Equal(1, rides);
         //REMOVE_END
         // Rides: 1
 
         rides = db.HashIncrement("bike:1", "rides");
-        Console.WriteLine($"Rides: {rides}");
+        testOutputHelper.WriteLine($"Rides: {rides}");
         //REMOVE_START
         Assert.Equal(2, rides);
         //REMOVE_END
         // Rides: 2
 
         rides = db.HashIncrement("bike:1", "rides");
-        Console.WriteLine($"Rides: {rides}");
+        testOutputHelper.WriteLine($"Rides: {rides}");
         //REMOVE_START
         Assert.Equal(3, rides);
         //REMOVE_END
         // Rides: 3
 
         var crashes = db.HashIncrement("bike:1", "crashes");
-        Console.WriteLine($"Crashes: {crashes}");
+        testOutputHelper.WriteLine($"Crashes: {crashes}");
         //REMOVE_START
         Assert.Equal(1, crashes);
         //REMOVE_END
         // Crashes: 1
 
         var owners = db.HashIncrement("bike:1", "owners");
-        Console.WriteLine($"Owners: {owners}");
+        testOutputHelper.WriteLine($"Owners: {owners}");
         //REMOVE_START
         Assert.Equal(1, owners);
         //REMOVE_END
         // Owners: 1
 
         var stats = db.HashGet("bike:1", new RedisValue[] { "crashes", "owners" });
-        Console.WriteLine($"Bike stats: crashes={stats[0]}, owners={stats[1]}");
+        testOutputHelper.WriteLine($"Bike stats: crashes={stats[0]}, owners={stats[1]}");
         //REMOVE_START
         Assert.Equal(1, stats[0]);
         Assert.Equal(1, stats[1]);

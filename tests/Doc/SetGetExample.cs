@@ -1,15 +1,22 @@
 ﻿// EXAMPLE: set_and_get
 // HIDE_START
-using System;
+
 using NRedisStack.Tests;
 using StackExchange.Redis;
 
 //REMOVE_START
-namespace NRedisStack.Doc;
+namespace Doc;
 [Collection("DocsTests")]
 //REMOVE_END
 public class SetGetExample
 {
+    private readonly ITestOutputHelper testOutputHelper;
+
+    public SetGetExample(ITestOutputHelper testOutputHelper)
+    {
+        this.testOutputHelper = testOutputHelper;
+    }
+
     [SkipIfRedis(Is.OSSCluster)]
     public void run()
     {
@@ -20,12 +27,12 @@ public class SetGetExample
         bool status = db.StringSet("bike:1", "Process 134");
 
         if (status)
-            Console.WriteLine("Successfully added a bike.");
+            testOutputHelper.WriteLine("Successfully added a bike.");
 
         var value = db.StringGet("bike:1");
 
         if (value.HasValue)
-            Console.WriteLine("The name of the bike is: " + value + ".");
+            testOutputHelper.WriteLine("The name of the bike is: " + value + ".");
 
         //REMOVE_START
         Assert.True(status);
