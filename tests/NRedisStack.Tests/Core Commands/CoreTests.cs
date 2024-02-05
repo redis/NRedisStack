@@ -18,8 +18,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.1.242")]
     public void TestSimpleSetInfo()
     {
-        var redis = ConnectionMultiplexer.Connect("localhost");
-        var db = redis.GetDatabase();
+        var db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
 
         db.ClientSetInfo(SetInfoAttr.LibraryName, "TestLibraryName");
@@ -32,8 +31,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.1.242")]
     public async Task TestSimpleSetInfoAsync()
     {
-        var redis = ConnectionMultiplexer.Connect("localhost");
-        var db = redis.GetDatabase();
+        var db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
 
         await db.ClientSetInfoAsync(SetInfoAttr.LibraryName, "TestLibraryName");
@@ -47,8 +45,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestSetInfoDefaultValue()
     {
         ResetInfoDefaults(); // demonstrate first connection
-        var redis = ConnectionMultiplexer.Connect("localhost");
-        var db = redis.GetDatabase();
+        var db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
 
         db.Execute(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
@@ -61,8 +58,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestSetInfoDefaultValueAsync()
     {
         ResetInfoDefaults(); // demonstrate first connection
-        var redis = ConnectionMultiplexer.Connect("localhost");
-        var db = redis.GetDatabase();
+        var db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
 
         await db.ExecuteAsync(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
@@ -75,8 +71,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestSetInfoWithValue()
     {
         ResetInfoDefaults(); // demonstrate first connection
-        var redis = ConnectionMultiplexer.Connect("localhost");
-        var db = redis.GetDatabase("MyLibraryName;v1.0.0");
+        var db = redisFixture.Redis.GetDatabase("MyLibraryName;v1.0.0");
         db.Execute("FLUSHALL");
 
         db.Execute(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
@@ -89,8 +84,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestSetInfoWithValueAsync()
     {
         ResetInfoDefaults(); // demonstrate first connection
-        var redis = ConnectionMultiplexer.Connect("localhost");
-        var db = redis.GetDatabase("MyLibraryName;v1.0.0");
+        var db = redisFixture.Redis.GetDatabase("MyLibraryName;v1.0.0");
         db.Execute("FLUSHALL");
 
         await db.ExecuteAsync(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
@@ -103,8 +97,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestSetInfoNull()
     {
         ResetInfoDefaults(); // demonstrate first connection
-        var redis = ConnectionMultiplexer.Connect("localhost");
-        var db = redis.GetDatabase(null);
+        var db = redisFixture.Redis.GetDatabase(null);
 
         db.Execute("FLUSHALL");
         var infoBefore = db.Execute("CLIENT", "INFO").ToString();
@@ -127,8 +120,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestSetInfoNullAsync()
     {
         ResetInfoDefaults(); // demonstrate first connection
-        var redis = ConnectionMultiplexer.Connect("localhost");
-        var db = redis.GetDatabase(null);
+        var db = redisFixture.Redis.GetDatabase(null);
 
         db.Execute("FLUSHALL");
         var infoBefore = (await db.ExecuteAsync("CLIENT", "INFO")).ToString();

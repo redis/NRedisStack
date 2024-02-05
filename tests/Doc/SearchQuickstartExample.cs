@@ -10,14 +10,15 @@ using StackExchange.Redis;
 namespace NRedisStack.Doc;
 [Collection("DocsTests")]
 // REMOVE_END
-public class SearchQuickstartExample
+public class SearchQuickstartExample : AbstractNRedisStackTest, IDisposable
 {
+    public SearchQuickstartExample(RedisFixture redisFixture) : base(redisFixture) { }
+
     [SkipIfRedis(Is.OSSCluster)]
     public void run()
     {
         // STEP_START connect
-        var redis = ConnectionMultiplexer.Connect("localhost:6379");
-        var db = redis.GetDatabase();
+        var db = redisFixture.Redis.GetDatabase();
         var ft = db.FT();
         var json = db.JSON();
         // STEP_END
