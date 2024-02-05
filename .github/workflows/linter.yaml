@@ -3,7 +3,7 @@ name: Format check on pull request
 on: pull_request
 
 concurrency:
-  group: ${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.event.pull_request.number || github.ref }}-linter
   cancel-in-progress: true
 
 jobs:
@@ -14,9 +14,7 @@ jobs:
         run: dotnet tool install -g dotnet-format
 
       - name: Checkout repo
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ github.head_ref }}
+        uses: actions/checkout@v3
 
       - name: lint
         run: |
