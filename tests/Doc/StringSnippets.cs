@@ -11,7 +11,8 @@ namespace NRedisStack.Doc;
 //REMOVE_END
 public class StringSnippets : AbstractNRedisStackTest, IDisposable
 {
-    StringSnippets(RedisFixture redisFixture) : base(redisFixture) { }
+    public StringSnippets(RedisFixture redisFixture) : base(redisFixture) { }
+
     //REMOVE_START
     [SkipIfRedis(Is.OSSCluster)]
     //REMOVE_END

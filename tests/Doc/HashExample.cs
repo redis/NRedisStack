@@ -9,7 +9,7 @@ namespace NRedisStack.Doc;
 //REMOVE_END
 public class HashExample : AbstractNRedisStackTest, IDisposable
 {
-    HashExample(RedisFixture redisFixture) : base(redisFixture) { }
+    public HashExample(RedisFixture redisFixture) : base(redisFixture) { }
 
     [SkipIfRedis(Is.OSSCluster)]
     public void run()
