@@ -32,7 +32,9 @@ namespace NRedisStack.Tests
 
                 ConfigurationOptions clusterConfig = new ConfigurationOptions
                 {
-                    EndPoints = endpoints
+                    EndPoints = endpoints,
+                    AsyncTimeout = 10000,
+                    SyncTimeout = 10000
                 };
 
                 isOSSCluster = true;

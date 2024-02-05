@@ -405,3 +405,6 @@ tests/NRedisStack.Tests/redis_ca.pem
 tests/NRedisStack.Tests/redis_credentials/redis_user_private.key
 tests/NRedisStack.Tests/redis_credentials/redis_user.crt
 .env
+
+# global.json
+global.json

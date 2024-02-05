@@ -325,7 +325,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             ts.Create(primaryTsKey, labels: new[] { label });
             ts.Create(compactedTsKey, labels: new[] { label, compactedLabel });
             ts.CreateRule(primaryTsKey, compactionRule);
-            var tuples = CreateData(ts, 50, new [] {primaryTsKey});
+            var tuples = CreateData(ts, 50, new[] { primaryTsKey });
 
             var results = ts.MRange("-", "+", new[] { "key=MRangeLatest", "compact=true" }, latest: true);
             Assert.Single(results);
