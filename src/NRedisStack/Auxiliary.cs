@@ -1,4 +1,3 @@
-using NRedisStack.Core;
 using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
 
@@ -6,13 +5,6 @@ namespace NRedisStack
 {
     public static class Auxiliary
     {
-        private static string? _libraryName = $"NRedisStack(.NET_v{Environment.Version})";
-        private static bool _setInfo = true;
-        public static void ResetInfoDefaults()
-        {
-            _setInfo = true;
-            _libraryName = $"NRedisStack(.NET_v{Environment.Version})";
-        }
         public static List<object> MergeArgs(RedisKey key, params RedisValue[] items)
         {
             var args = new List<object>(items.Length + 1) { key };
@@ -34,46 +26,17 @@ namespace NRedisStack
             return args.ToArray();
         }
 
-        // TODO: add all the signatures of GetDatabase
-        public static IDatabase GetDatabase(this ConnectionMultiplexer redis,
-                                            string? LibraryName)
-        {
-            var _db = redis.GetDatabase();
-            if (LibraryName == null) // the user wants to disable the library name and version sending
-                _setInfo = false;
+        // public static IDatabase GetDatabase(this ConnectionMultiplexer redis) => redis.GetDatabase("", "");
 
-            else // the user set his own the library name
-                _libraryName = $"NRedisStack({LibraryName};.NET_v{Environment.Version})";
-
-            return _db;
-        }
-
-        private static void SetInfoInPipeline(this IDatabase db)
-        {
-            if (_libraryName == null) return;
-            Pipeline pipeline = new Pipeline(db);
-            _ = pipeline.Db.ClientSetInfoAsync(SetInfoAttr.LibraryName, _libraryName!);
-            _ = pipeline.Db.ClientSetInfoAsync(SetInfoAttr.LibraryVersion, GetNRedisStackVersion());
-            pipeline.Execute();
-        }
 
         public static RedisResult Execute(this IDatabase db, SerializedCommand command)
         {
-            if (_setInfo)
-            {
-                _setInfo = false;
-                db.SetInfoInPipeline();
-            }
             return db.Execute(command.Command, command.Args);
         }
 
         public async static Task<RedisResult> ExecuteAsync(this IDatabaseAsync db, SerializedCommand command)
         {
-            if (_setInfo)
-            {
-                _setInfo = false;
-                ((IDatabase)db).SetInfoInPipeline();
-            }
+            var compareVersions = db.Multiplexer.GetServer(db.Multiplexer.GetEndPoints()[0]).Version.CompareTo(new Version(7, 1, 242));
             return await db.ExecuteAsync(command.Command, command.Args);
         }
 
