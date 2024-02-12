@@ -7,14 +7,13 @@ using StackExchange.Redis;
 namespace NRedisStack.Doc;
 [Collection("DocsTests")]
 //REMOVE_END
-public class HashExample : AbstractNRedisStackTest, IDisposable
+public class HashExample
 {
-    public HashExample(RedisFixture redisFixture) : base(redisFixture) { }
-
     [SkipIfRedis(Is.OSSCluster)]
     public void run()
     {
-        var db = redisFixture.Redis.GetDatabase();
+        var muxer = ConnectionMultiplexer.Connect("localhost:6379");
+        var db = muxer.GetDatabase();
         db.KeyDelete("bike:1");
         //HIDE_END
         //STEP_START set_get_all

@@ -8,14 +8,13 @@ using StackExchange.Redis;
 namespace NRedisStack.Doc;
 [Collection("DocsTests")]
 //REMOVE_END
-public class SetGetExample : AbstractNRedisStackTest, IDisposable
+public class SetGetExample
 {
-    public SetGetExample(RedisFixture redisFixture) : base(redisFixture) { }
-
     [SkipIfRedis(Is.OSSCluster)]
     public void run()
     {
-        var db = redisFixture.Redis.GetDatabase();
+        var redis = ConnectionMultiplexer.Connect("localhost:6379");
+        var db = redis.GetDatabase();
 
         //HIDE_END
         bool status = db.StringSet("bike:1", "Process 134");

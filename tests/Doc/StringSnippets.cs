@@ -9,16 +9,15 @@ using StackExchange.Redis;
 namespace NRedisStack.Doc;
 [Collection("DocsTests")]
 //REMOVE_END
-public class StringSnippets : AbstractNRedisStackTest, IDisposable
+public class StringSnippets
 {
-    public StringSnippets(RedisFixture redisFixture) : base(redisFixture) { }
-
     //REMOVE_START
     [SkipIfRedis(Is.OSSCluster)]
     //REMOVE_END
     public void run()
     {
-        var db = redisFixture.Redis.GetDatabase();
+        var redis = ConnectionMultiplexer.Connect("localhost:6379");
+        var db = redis.GetDatabase();
 
         //HIDE_END
 
