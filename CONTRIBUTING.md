@@ -35,7 +35,7 @@ Here's how to get started with your code contribution:
 3.  Write your tests
 
 4.  Use the `docker run -p 6379:6379 -it redis/redis-stack-server:edge` as your local environment for running the functional tests. You can also use Development Container as described below.
-5.  Run dotnet format to make sure your code is formatted
+5.  Run `dotnet format` to make sure your code is formatted
 6.  Make sure your tests pass using `dotnet test`
 7.  Open a pull request
 
@@ -121,6 +121,7 @@ e.g. :
 ```bash
 dotnet test --environment "REDIS_CLUSTER=127.0.0.1:16379" --environment "NUM_REDIS_CLUSTER_NODES=6"
 ```
+
 ## How to Report a Bug
 
 ### Security Vulnerabilities
@@ -145,7 +146,7 @@ issue, so if you're unsure, just email [us](mailto:oss@redis.com).
 When filing an issue, make sure to answer these five questions:
 
 1.  What version of NRedisStack are you using?
-2.  What version of redis are you using?
+2.  What version of Redis are you using?
 3.  What did you do?
 4.  What did you expect to see?
 5.  What did you see instead?
