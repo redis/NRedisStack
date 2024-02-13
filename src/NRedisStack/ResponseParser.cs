@@ -727,7 +727,23 @@ namespace NRedisStack
 
         }
 
-        public static Tuple<RedisKey, List<RedisValueWithScore>>? ToSortedSetPopResult(this RedisResult result)
+        public static Tuple<RedisKey, RedisValueWithScore>? ToSortedSetPopResult(this RedisResult result)
+        {
+            if (result.IsNull)
+            {
+                return null;
+            }
+
+            var resultArray = (RedisResult[])result!;
+            var resultKey = resultArray[0].ToRedisKey();
+            var value = resultArray[1].ToRedisValue();
+            var score = resultArray[2].ToDouble();
+            var valuesWithScores = new RedisValueWithScore(value, score);
+
+            return new Tuple<RedisKey, RedisValueWithScore>(resultKey, valuesWithScores);
+        }
+
+        public static Tuple<RedisKey, List<RedisValueWithScore>>? ToSortedSetPopResults(this RedisResult result)
         {
             if (result.IsNull)
             {
