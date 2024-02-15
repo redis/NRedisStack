@@ -12,10 +12,18 @@ namespace NRedisStack.RedisStackCommands
             Args = args;
         }
 
-        public SerializedCommand(string command, ICollection<object> args)
+        public SerializedCommand(string command, RequestPolicy policy, params object[] args)
+        {
+            Command = command;
+            Args = args;
+            Policy = policy;
+        }
+
+        public SerializedCommand(string command, ICollection<object> args, RequestPolicy policy = RequestPolicy.Default)
         {
             Command = command;
             Args = args.ToArray();
+            Policy = policy;
         }
     }
 }
