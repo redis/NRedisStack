@@ -620,4 +620,86 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("list-one", result!.Item1);
         Assert.Equal("b", result.Item2.ToString());
     }
+
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "6.2.0")]
+    public void TestBLMove()
+    {
+        var redis = ConnectionMultiplexer.Connect("localhost");
+
+        var db = redis.GetDatabase(null);
+        db.Execute("FLUSHALL");
+
+        db.ListRightPush("list-one", "a");
+        db.ListRightPush("list-one", "b");
+
+        db.ListRightPush("list-two", "c");
+        db.ListRightPush("list-two", "d");
+
+        var result = db.BLMove("list-one", "list-two", ListSide.Right, ListSide.Left, 0);
+        Assert.NotNull(result);
+        Assert.Equal("b", result!);
+
+        Assert.Equal(1, db.ListLength("list-one"));
+        Assert.Equal("a", db.ListGetByIndex("list-one", 0));
+        Assert.Equal(3, db.ListLength("list-two"));
+        Assert.Equal("b", db.ListGetByIndex("list-two", 0));
+        Assert.Equal("c", db.ListGetByIndex("list-two", 1));
+        Assert.Equal("d", db.ListGetByIndex("list-two", 2));
+
+        result = db.BLMove("list-two", "list-one", ListSide.Left, ListSide.Right, 0);
+        Assert.NotNull(result);
+        Assert.Equal("b", result!);
+
+        Assert.Equal(2, db.ListLength("list-one"));
+        Assert.Equal("a", db.ListGetByIndex("list-one", 0));
+        Assert.Equal("b", db.ListGetByIndex("list-one", 1));
+        Assert.Equal(2, db.ListLength("list-two"));
+        Assert.Equal("c", db.ListGetByIndex("list-two", 0));
+        Assert.Equal("d", db.ListGetByIndex("list-two", 1));
+
+        result = db.BLMove("list-one", "list-two", ListSide.Left, ListSide.Left, 0);
+        Assert.NotNull(result);
+        Assert.Equal("a", result!);
+
+        Assert.Equal(1, db.ListLength("list-one"));
+        Assert.Equal("b", db.ListGetByIndex("list-one", 0));
+        Assert.Equal(3, db.ListLength("list-two"));
+        Assert.Equal("a", db.ListGetByIndex("list-two", 0));
+        Assert.Equal("c", db.ListGetByIndex("list-two", 1));
+        Assert.Equal("d", db.ListGetByIndex("list-two", 2));
+
+        result = db.BLMove("list-two", "list-one", ListSide.Right, ListSide.Right, 0);
+        Assert.NotNull(result);
+        Assert.Equal("d", result!);
+
+        Assert.Equal(2, db.ListLength("list-one"));
+        Assert.Equal("b", db.ListGetByIndex("list-one", 0));
+        Assert.Equal("d", db.ListGetByIndex("list-one", 1));
+        Assert.Equal(2, db.ListLength("list-two"));
+        Assert.Equal("a", db.ListGetByIndex("list-two", 0));
+        Assert.Equal("c", db.ListGetByIndex("list-two", 1));
+    }
+
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "2.2.0")]
+    public void TestBRPopLPush()
+    {
+        var redis = ConnectionMultiplexer.Connect("localhost");
+
+        var db = redis.GetDatabase(null);
+        db.Execute("FLUSHALL");
+
+        db.ListRightPush("list-one", "a");
+        db.ListRightPush("list-one", "b");
+
+        db.ListRightPush("list-two", "c");
+        db.ListRightPush("list-two", "d");
+
+        var result = db.BRPopLPush("list-one", "list-two", 0);
+        Assert.NotNull(result);
+        Assert.Equal("b", result!);
+
+        Assert.Equal(1, db.ListLength("list-one"));
+        Assert.Equal(3, db.ListLength("list-two"));
+        Assert.Equal("b", db.ListLeftPop("list-two"));
+    }
 }

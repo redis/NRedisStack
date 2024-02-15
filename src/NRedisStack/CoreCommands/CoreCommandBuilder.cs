@@ -87,6 +87,28 @@ namespace NRedisStack
             return BlockingCommandWithKeysAndTimeout(RedisCoreCommands.BRPOP, keys, timeout);
         }
 
+        public static SerializedCommand BLMove(RedisKey source, RedisKey destination, ListSide sourceSide, ListSide destinationSide, double timeout)
+        {
+            List<object> args = new List<object>();
+            args.Add(source);
+            args.Add(destination);
+            args.Add(sourceSide == ListSide.Left ? CoreArgs.LEFT : CoreArgs.RIGHT);
+            args.Add(destinationSide == ListSide.Left ? CoreArgs.LEFT : CoreArgs.RIGHT);
+            args.Add(timeout);
+
+            return new SerializedCommand(RedisCoreCommands.BLMOVE, args);
+        }
+
+        public static SerializedCommand BRPopLPush(RedisKey source, RedisKey destination, double timeout)
+        {
+            List<object> args = new List<object>();
+            args.Add(source);
+            args.Add(destination);
+            args.Add(timeout);
+
+            return new SerializedCommand(RedisCoreCommands.BRPOPLPUSH, args);
+        }
+
         private static SerializedCommand BlockingCommandWithKeysAndTimeout(String command, RedisKey[] keys, double timeout)
         {
             if (keys.Length == 0)

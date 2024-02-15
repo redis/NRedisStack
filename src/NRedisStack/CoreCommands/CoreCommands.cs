@@ -326,5 +326,49 @@ namespace NRedisStack
         {
             return BRPop(db, new[] { key }, timeout);
         }
+
+        /// <summary>
+        /// The BLMOVE command.
+        /// <p/>
+        /// Atomically returns and removes the first or last element of the list stored at <paramref name="source"/>
+        /// (depending on the value of <paramref name="sourceSide"/>), and pushes the element as the first or last
+        /// element of the list stored at <paramref name="destination"/> (depending on the value of
+        /// <paramref name="destinationSide"/>).
+        /// <p/>
+        /// This is an extension method added to the <see cref="IDatabase"/> class, for convenience.
+        /// </summary>
+        /// <param name="db">The <see cref="IDatabase"/> class where this extension method is applied.</param>
+        /// <param name="source">The key of the source list.</param>
+        /// <param name="destination">The key of the destination list.</param>
+        /// <param name="sourceSide">What side of the <paramref name="source"/> list to remove from.</param>
+        /// <param name="destinationSide">What side of the <paramref name="destination"/> list to move to.</param>
+        /// <param name="timeout">Server-side timeout for the wait. A value of <c>0</c> means to wait indefinitely.</param>
+        /// <returns>The element being popped and pushed, or <c>null</c> if the server timeout expires.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/blmove"/></remarks>
+        public static RedisValue? BLMove(this IDatabase db, RedisKey source, RedisKey destination, ListSide sourceSide, ListSide destinationSide, double timeout)
+        {
+            var command = CoreCommandBuilder.BLMove(source, destination, sourceSide, destinationSide, timeout);
+            return db.Execute(command).ToRedisValue();
+        }
+
+        /// <summary>
+        /// The BRPOPLPUSH command.
+        /// <p/>
+        /// Atomically returns and removes the last element (tail) of the list stored at source, and pushes the element
+        /// at the first element (head) of the list stored at destination.
+        /// <p/>
+        /// This is an extension method added to the <see cref="IDatabase"/> class, for convenience.
+        /// </summary>
+        /// <param name="db">The <see cref="IDatabase"/> class where this extension method is applied.</param>
+        /// <param name="source">The key of the source list.</param>
+        /// <param name="destination">The key of the destination list.</param>
+        /// <param name="timeout">Server-side timeout for the wait. A value of <c>0</c> means to wait indefinitely.</param>
+        /// <returns>The element being popped and pushed, or <c>null</c> if the server timeout expires.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/rpoplpush"/></remarks>
+        public static RedisValue? BRPopLPush(this IDatabase db, RedisKey source, RedisKey destination, double timeout)
+        {
+            var command = CoreCommandBuilder.BRPopLPush(source, destination, timeout);
+            return db.Execute(command).ToRedisValue();
+        }
     }
 }
