@@ -89,7 +89,7 @@ namespace NRedisStack
                       bool? withLabels = null, IReadOnlyCollection<string>? selectedLabels = null)
         {
             var args = TimeSeriesAux.BuildTsMgetArgs(latest, filter, withLabels, selectedLabels);
-            return new SerializedCommand(TS.MGET, RequestPolicy.AnyShard, args);
+            return new SerializedCommand(TS.MGET, args);
         }
 
         public static SerializedCommand Range(string key,
@@ -152,7 +152,7 @@ namespace NRedisStack
             var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, latest, filterByTs,
                                                          filterByValue, withLabels, selectLabels, count,
                                                          align, aggregation, timeBucket, bt, empty, groupbyTuple);
-            return new SerializedCommand(TS.MRANGE, RequestPolicy.AnyShard, args);
+            return new SerializedCommand(TS.MRANGE, args);
         }
 
         public static SerializedCommand MRevRange(
@@ -175,7 +175,7 @@ namespace NRedisStack
             var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, latest, filterByTs,
                                                          filterByValue, withLabels, selectLabels, count,
                                                          align, aggregation, timeBucket, bt, empty, groupbyTuple);
-            return new SerializedCommand(TS.MREVRANGE, RequestPolicy.AnyShard, args);
+            return new SerializedCommand(TS.MREVRANGE, args);
         }
 
         #endregion
