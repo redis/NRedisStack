@@ -219,7 +219,7 @@ namespace NRedisStack
             //var endpoints = redis.GetEndPoints();
             //var results = new List<RedisResult>(endpoints.Length);
 
-            return db.Execute(command); // TODO: check if its enough
+            return db.Execute(command.Command, command.Args); // TODO: check if its enough
         }
 
         public static async Task<RedisResult> ExecuteAnyShardAsync(this IDatabaseAsync db, SerializedCommand command)
@@ -228,7 +228,7 @@ namespace NRedisStack
             //var endpoints = redis.GetEndPoints();
             //var results = new List<RedisResult>(endpoints.Length);
 
-            return await db.ExecuteAsync(command); // TODO: check if its enough
+            return await db.ExecuteAsync(command.Command, command.Args); // TODO: check if its enough
         }
 
         // TODO: check if implementing MultiShard and Special policies is nessesary
