@@ -58,6 +58,28 @@ namespace NRedisStack
             pipeline.Execute();
         }
 
+        // public static RedisResult Execute(this IDatabase db, SerializedCommand command)
+        // {
+        //     if (_setInfo)
+        //     {
+        //         _setInfo = false;
+        //         db.SetInfoInPipeline();
+        //     }
+        //     return (db.IsCluster()) ? db.ClusterExecute(command)
+        //                             : db.Execute(command.Command, command.Args);
+        // }
+
+        // public async static Task<RedisResult> ExecuteAsync(this IDatabaseAsync db, SerializedCommand command)
+        // {
+        //     if (_setInfo)
+        //     {
+        //         _setInfo = false;
+        //         ((IDatabase)db).SetInfoInPipeline();
+        //     }
+        //     return (db.IsCluster()) ? db.ClusterExecuteAsync(command)
+        //                             : db.ExecuteAsync(command.Command, command.Args);
+        // }
+
         public static RedisResult Execute(this IDatabase db, SerializedCommand command)
         {
             if (_setInfo)
@@ -65,103 +87,151 @@ namespace NRedisStack
                 _setInfo = false;
                 db.SetInfoInPipeline();
             }
-            return db.Execute(command.Command, command.Args);
+
+            if (!db.IsCluster())
+                return db.Execute(command.Command, command.Args);
+
+            switch (command.Policy)
+            {
+                case RequestPolicy.Default: // add is cluster
+                    return db.Execute(command.Command, command.Args);
+                case RequestPolicy.AllNodes:
+                    return db.ExecuteAllNodes(command);
+                case RequestPolicy.AllShards:
+                    return db.ExecuteAllShards(command);
+                case RequestPolicy.AnyShard:
+                    return db.ExecuteAnyShard(command);
+                case RequestPolicy.MultiShard:
+                    throw new NotImplementedException("MultiShard policy is not implemented yet");
+                case RequestPolicy.Special:
+                    throw new NotImplementedException("Special policy is not implemented yet");
+                default:
+                    throw new NotImplementedException("Unknown policy");
+            }
         }
 
-        // public static List<RedisResult> ClusterExecute(this IDatabase db, SerializedCommand command)
-        // {
-        //     if (_setInfo)
-        //     {
-        //         _setInfo = false;
-        //         db.SetInfoInPipeline();
-        //     }
-        //     switch (command.Policy)
-        //     {
-        //         case RequestPolicy.Default:
-        //             return db.Execute(command.Command, command.Args);
-        //         case RequestPolicy.AllNodes:
-        //             return db.ExecuteAllNodes(command.Command, command.Args);
-        //         case RequestPolicy.AllShards:
-        //             return db.ExecuteAllShards(command.Command, command.Args, CommandFlags.DemandMaster);
-        //         case RequestPolicy.AnyShard:
-        //             return db.ExecuteAnyShard(command.Command, command.Args, CommandFlags.PreferMaster);
-        //         case RequestPolicy.MultiShard:
-        //             return db.ExecuteMultiShard(command.Command, command.Args, CommandFlags.DemandMaster);
-        //         case RequestPolicy.Special:
-        //             throw new NotImplementedException("Special policy is not implemented yet");
-        //         default:
-        //             throw new NotImplementedException("Unknown policy");
-        //     }
-        // }
-
-        // TODO: add Execute for each RequestPolicy (check if I can use SE.Redis CommandFlags)
-        public async static Task<RedisResult> ExecuteAsync(this IDatabaseAsync db, SerializedCommand command)
+        public static async Task<RedisResult> ExecuteAsync(this IDatabaseAsync db, SerializedCommand command)
         {
             if (_setInfo)
             {
                 _setInfo = false;
                 ((IDatabase)db).SetInfoInPipeline();
             }
-            return await db.ExecuteAsync(command.Command, command.Args);
+
+            if (!((IDatabase)db).IsCluster())
+                return await db.ExecuteAsync(command.Command, command.Args);
+
+            switch (command.Policy)
+            {
+                case RequestPolicy.Default:
+                    return await db.ExecuteAsync(command.Command, command.Args);
+                case RequestPolicy.AllNodes:
+                    return await db.ExecuteAllNodesAsync(command);
+                case RequestPolicy.AllShards:
+                    return await db.ExecuteAllShardsAsync(command);
+                case RequestPolicy.AnyShard:
+                    return await db.ExecuteAnyShardAsync(command);
+                case RequestPolicy.MultiShard:
+                    // return db.ExecuteMultiShard(command);
+                    throw new NotImplementedException("MultiShard policy is not implemented yet");
+                case RequestPolicy.Special:
+                    throw new NotImplementedException("Special policy is not implemented yet");
+                default:
+                    throw new NotImplementedException("Unknown policy");
+            }
         }
 
-        public static List<RedisResult> ExecuteAllShards(this IDatabase db, string command)
+        public static RedisResult ExecuteAllNodes(this IDatabase db, SerializedCommand command)
+        {
+            var redis = db.Multiplexer;
+            var endpoints = redis.GetEndPoints();
+            var results = new RedisResult[endpoints.Length];
+
+            for (int i = 0; i < endpoints.Length; i++)
+            {
+                var server = redis.GetServer(endpoints[i]);
+                results[i] = server.Multiplexer.GetDatabase().Execute(command);
+            }
+
+            return RedisResult.Create(results);
+        }
+
+        public static async Task<RedisResult> ExecuteAllNodesAsync(this IDatabaseAsync db, SerializedCommand command)
+        {
+            var redis = db.Multiplexer;
+            var endpoints = redis.GetEndPoints();
+            var results = new RedisResult[endpoints.Length];
+
+            for (int i = 0; i < endpoints.Length; i++)
+            {
+                var server = redis.GetServer(endpoints[i]);
+                results[i] = await server.Multiplexer.GetDatabase().ExecuteAsync(command);
+            }
+
+            return RedisResult.Create(results);
+        }
+
+        public static RedisResult ExecuteAllShards(this IDatabase db, string command)
                 => db.ExecuteAllShards(new SerializedCommand(command));
 
-        public static List<RedisResult> ExecuteAllShards(this IDatabase db, SerializedCommand command)
+        public static RedisResult ExecuteAllShards(this IDatabase db, SerializedCommand command)
         {
             var redis = db.Multiplexer;
             var endpoints = redis.GetEndPoints();
-            var results = new List<RedisResult>(endpoints.Length);
+            var results = new RedisResult[endpoints.Length];
 
-            foreach (var endPoint in endpoints)
+            for (int i = 0; i < endpoints.Length; i++)
             {
-                var server = redis.GetServer(endPoint);
-
+                var server = redis.GetServer(endpoints[i]);
                 if (!server.IsReplica)
                 {
-                    results.Add(server.Multiplexer.GetDatabase().Execute(command));
+                    results[i] = server.Multiplexer.GetDatabase().Execute(command);
                 }
             }
-            return results;
+
+            return RedisResult.Create(results);
         }
 
-        public static List<RedisResult> ExecuteAllNodes(this IDatabase db, SerializedCommand command)
-        {
-            var redis = db.Multiplexer;
-            var endpoints = redis.GetEndPoints();
-            var results = new List<RedisResult>();
-
-            foreach (var endPoint in endpoints)
-            {
-                var server = redis.GetServer(endPoint);
-                results.Add(server.Multiplexer.GetDatabase().Execute(command));
-            }
-
-            return results;
-        }
-
-        public async static Task<List<RedisResult>> ExecuteAllShardsAsync(this IDatabaseAsync db, string command)
+        public async static Task<RedisResult> ExecuteAllShardsAsync(this IDatabaseAsync db, string command)
                 => await db.ExecuteAllShardsAsync(new SerializedCommand(command));
 
-        public async static Task<List<RedisResult>> ExecuteAllShardsAsync(this IDatabaseAsync db, SerializedCommand command)
+        public async static Task<RedisResult> ExecuteAllShardsAsync(this IDatabaseAsync db, SerializedCommand command)
         {
             var redis = db.Multiplexer;
             var endpoints = redis.GetEndPoints();
-            var results = new List<RedisResult>(endpoints.Length);
+            var results = new RedisResult[endpoints.Length];
 
-            foreach (var endPoint in endpoints)
+            for (int i = 0; i < endpoints.Length; i++)
             {
-                var server = redis.GetServer(endPoint);
-
+                var server = redis.GetServer(endpoints[i]);
                 if (!server.IsReplica)
                 {
-                    results.Add(await server.Multiplexer.GetDatabase().ExecuteAsync(command));
+                    results[i] = await server.Multiplexer.GetDatabase().ExecuteAsync(command);
                 }
-
             }
-            return results;
+
+            return RedisResult.Create(results);
         }
+
+        public static RedisResult ExecuteAnyShard(this IDatabase db, SerializedCommand command)
+        {
+            //var redis = db.Multiplexer;
+            //var endpoints = redis.GetEndPoints();
+            //var results = new List<RedisResult>(endpoints.Length);
+
+            return db.Execute(command); // TODO: check if its enough
+        }
+
+        public static async Task<RedisResult> ExecuteAnyShardAsync(this IDatabaseAsync db, SerializedCommand command)
+        {
+            //var redis = db.Multiplexer;
+            //var endpoints = redis.GetEndPoints();
+            //var results = new List<RedisResult>(endpoints.Length);
+
+            return await db.ExecuteAsync(command); // TODO: check if its enough
+        }
+
+        // TODO: check if implementing MultiShard and Special policies is nessesary
 
         public static string GetNRedisStackVersion()
         {
