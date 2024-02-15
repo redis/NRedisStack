@@ -406,4 +406,118 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("set-one", result!.Item1);
         Assert.Equal("b", result.Item2.Value.ToString());
     }
+
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "2.0.0")]
+    public void TestBLPop()
+    {
+        var redis = ConnectionMultiplexer.Connect("localhost");
+
+        var db = redis.GetDatabase(null);
+        db.Execute("FLUSHALL");
+
+        db.ListRightPush("my-list", "a");
+        db.ListRightPush("my-list", "b");
+
+        var result = db.BLPop("my-list", 0);
+
+        Assert.NotNull(result);
+        Assert.Equal("my-list", result!.Item1);
+        Assert.Equal("a", result.Item2.ToString());
+    }
+
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "2.0.0")]
+    public void TestBLPopNull()
+    {
+        var redis = ConnectionMultiplexer.Connect("localhost");
+
+        var db = redis.GetDatabase(null);
+        db.Execute("FLUSHALL");
+
+        // Nothing in the set, and a short server timeout, which yields null.
+        var result = db.BLPop("my-set", 0.5);
+
+        Assert.Null(result);
+    }
+
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "2.0.0")]
+    public void TestBLPopMultipleLists()
+    {
+        var redis = ConnectionMultiplexer.Connect("localhost");
+
+        var db = redis.GetDatabase(null);
+        db.Execute("FLUSHALL");
+
+        db.ListRightPush("list-one", "a");
+        db.ListRightPush("list-one", "b");
+        db.ListRightPush("list-two", "e");
+
+        var result = db.BLPop(new[] { new RedisKey("list-two"), new RedisKey("list-one") }, 0);
+
+        Assert.NotNull(result);
+        Assert.Equal("list-two", result!.Item1);
+        Assert.Equal("e", result.Item2.ToString());
+
+        result = db.BLPop(new[] { new RedisKey("list-two"), new RedisKey("list-one") }, 0);
+
+        Assert.NotNull(result);
+        Assert.Equal("list-one", result!.Item1);
+        Assert.Equal("a", result.Item2.ToString());
+    }
+
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "2.0.0")]
+    public void TestBRPop()
+    {
+        var redis = ConnectionMultiplexer.Connect("localhost");
+
+        var db = redis.GetDatabase(null);
+        db.Execute("FLUSHALL");
+
+        db.ListRightPush("my-list", "a");
+        db.ListRightPush("my-list", "b");
+
+        var result = db.BRPop("my-list", 0);
+
+        Assert.NotNull(result);
+        Assert.Equal("my-list", result!.Item1);
+        Assert.Equal("b", result.Item2.ToString());
+    }
+
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "2.0.0")]
+    public void TestBRPopNull()
+    {
+        var redis = ConnectionMultiplexer.Connect("localhost");
+
+        var db = redis.GetDatabase(null);
+        db.Execute("FLUSHALL");
+
+        // Nothing in the set, and a short server timeout, which yields null.
+        var result = db.BRPop("my-set", 0.5);
+
+        Assert.Null(result);
+    }
+
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "2.0.0")]
+    public void TestBRPopMultipleLists()
+    {
+        var redis = ConnectionMultiplexer.Connect("localhost");
+
+        var db = redis.GetDatabase(null);
+        db.Execute("FLUSHALL");
+
+        db.ListRightPush("list-one", "a");
+        db.ListRightPush("list-one", "b");
+        db.ListRightPush("list-two", "e");
+
+        var result = db.BRPop(new[] { new RedisKey("list-two"), new RedisKey("list-one") }, 0);
+
+        Assert.NotNull(result);
+        Assert.Equal("list-two", result!.Item1);
+        Assert.Equal("e", result.Item2.ToString());
+
+        result = db.BRPop(new[] { new RedisKey("list-two"), new RedisKey("list-one") }, 0);
+
+        Assert.NotNull(result);
+        Assert.Equal("list-one", result!.Item1);
+        Assert.Equal("b", result.Item2.ToString());
+    }
 }

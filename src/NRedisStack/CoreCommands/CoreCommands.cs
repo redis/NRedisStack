@@ -175,5 +175,101 @@ namespace NRedisStack
         {
             return BZPopMax(db, new[] { key }, timeout);
         }
+
+        /// <summary>
+        /// The BLPOP command.
+        /// <p/>
+        /// Removes and returns an entry from the head (left side) of the first non-empty list in <paramref name="keys"/>.
+        /// If none of the lists contain elements, the call blocks on the server until elements
+        /// become available, or the given <paramref name="timeout"/> expires. A <paramref name="timeout"/> of <c>0</c>
+        /// means to wait indefinitely server-side. Returns <c>null</c> if the server timeout expires.
+        /// <p/>
+        /// When using this, pay attention to the timeout configured in the client, on the
+        /// <see cref="ConnectionMultiplexer"/>, which by default can be too small:
+        /// <code>
+        /// ConfigurationOptions configurationOptions = new ConfigurationOptions();
+        /// configurationOptions.SyncTimeout = 120000; // set a meaningful value here
+        /// configurationOptions.EndPoints.Add("localhost");
+        /// ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(configurationOptions);
+        /// </code>
+        /// If the connection multiplexer timeout expires in the client, a <c>StackExchange.Redis.RedisTimeoutException</c>
+        /// is thrown.
+        /// <p/>
+        /// This is an extension method added to the <see cref="IDatabase"/> class, for convenience.
+        /// </summary>
+        /// <param name="db">The <see cref="IDatabase"/> class where this extension method is applied.</param>
+        /// <param name="keys">The keys to check.</param>
+        /// <param name="timeout">Server-side timeout for the wait. A value of <c>0</c> means to wait indefinitely.</param>
+        /// <returns>A value, together with the key it was popped from, or <c>null</c> if the server timeout
+        /// expires.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/blpop"/></remarks>
+        public static Tuple<RedisKey, RedisValue>? BLPop(this IDatabase db, RedisKey[] keys, double timeout)
+        {
+            var command = CoreCommandBuilder.BLPop(keys, timeout);
+            return db.Execute(command).ToListPopResult();
+        }
+
+        /// <summary>
+        /// Syntactic sugar for <see cref="BLPop(StackExchange.Redis.IDatabase,StackExchange.Redis.RedisKey[],double)"/>,
+        /// where only one key is used.
+        /// </summary>
+        /// <param name="db">The <see cref="IDatabase"/> class where this extension method is applied.</param>
+        /// <param name="key">The key to check.</param>
+        /// <param name="timeout">Server-side timeout for the wait. A value of <c>0</c> means to wait indefinitely.</param>
+        /// <returns>A value, together with the key it was popped from, or <c>null</c> if the server timeout
+        /// expires.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/blpop"/></remarks>
+        public static Tuple<RedisKey, RedisValue>? BLPop(this IDatabase db, RedisKey key, double timeout)
+        {
+            return BLPop(db, new[] { key }, timeout);
+        }
+
+        /// <summary>
+        /// The BRPOP command.
+        /// <p/>
+        /// Removes and returns an entry from the tail (right side) of the first non-empty list in <paramref name="keys"/>.
+        /// If none of the lists contain elements, the call blocks on the server until elements
+        /// become available, or the given <paramref name="timeout"/> expires. A <paramref name="timeout"/> of <c>0</c>
+        /// means to wait indefinitely server-side. Returns <c>null</c> if the server timeout expires.
+        /// <p/>
+        /// When using this, pay attention to the timeout configured in the client, on the
+        /// <see cref="ConnectionMultiplexer"/>, which by default can be too small:
+        /// <code>
+        /// ConfigurationOptions configurationOptions = new ConfigurationOptions();
+        /// configurationOptions.SyncTimeout = 120000; // set a meaningful value here
+        /// configurationOptions.EndPoints.Add("localhost");
+        /// ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(configurationOptions);
+        /// </code>
+        /// If the connection multiplexer timeout expires in the client, a <c>StackExchange.Redis.RedisTimeoutException</c>
+        /// is thrown.
+        /// <p/>
+        /// This is an extension method added to the <see cref="IDatabase"/> class, for convenience.
+        /// </summary>
+        /// <param name="db">The <see cref="IDatabase"/> class where this extension method is applied.</param>
+        /// <param name="keys">The keys to check.</param>
+        /// <param name="timeout">Server-side timeout for the wait. A value of <c>0</c> means to wait indefinitely.</param>
+        /// <returns>A value, together with the key it was popped from, or <c>null</c> if the server timeout
+        /// expires.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/brpop"/></remarks>
+        public static Tuple<RedisKey, RedisValue>? BRPop(this IDatabase db, RedisKey[] keys, double timeout)
+        {
+            var command = CoreCommandBuilder.BRPop(keys, timeout);
+            return db.Execute(command).ToListPopResult();
+        }
+
+        /// <summary>
+        /// Syntactic sugar for <see cref="BLPop(StackExchange.Redis.IDatabase,StackExchange.Redis.RedisKey[],double)"/>,
+        /// where only one key is used.
+        /// </summary>
+        /// <param name="db">The <see cref="IDatabase"/> class where this extension method is applied.</param>
+        /// <param name="key">The key to check.</param>
+        /// <param name="timeout">Server-side timeout for the wait. A value of <c>0</c> means to wait indefinitely.</param>
+        /// <returns>A value, together with the key it was popped from, or <c>null</c> if the server timeout
+        /// expires.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/brpop"/></remarks>
+        public static Tuple<RedisKey, RedisValue>? BRPop(this IDatabase db, RedisKey key, double timeout)
+        {
+            return BRPop(db, new[] { key }, timeout);
+        }
     }
 }

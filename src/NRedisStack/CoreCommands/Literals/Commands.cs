@@ -5,6 +5,8 @@ namespace NRedisStack.Core.Literals
     /// </summary>
     internal static class RedisCoreCommands
     {
+        public const string BLPOP = "BLPOP";
+        public const string BRPOP = "BRPOP";
         public const string BZMPOP = "BZMPOP";
         public const string BZPOPMAX = "BZPOPMAX";
         public const string BZPOPMIN = "BZPOPMIN";

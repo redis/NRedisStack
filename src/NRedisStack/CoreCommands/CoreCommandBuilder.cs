@@ -46,19 +46,25 @@ namespace NRedisStack
 
         public static SerializedCommand BZPopMin(RedisKey[] keys, double timeout)
         {
-            if (keys.Length == 0)
-            {
-                throw new ArgumentException("At least one key must be provided.");
-            }
-
-            List<object> args = new List<object>();
-            args.AddRange(keys.Cast<object>());
-            args.Add(timeout);
-
-            return new SerializedCommand(RedisCoreCommands.BZPOPMIN, args);
+            return BlockingCommandWithKeysAndTimeout(RedisCoreCommands.BZPOPMIN, keys, timeout);
         }
 
         public static SerializedCommand BZPopMax(RedisKey[] keys, double timeout)
+        {
+            return BlockingCommandWithKeysAndTimeout(RedisCoreCommands.BZPOPMAX, keys, timeout);
+        }
+
+        public static SerializedCommand BLPop(RedisKey[] keys, double timeout)
+        {
+            return BlockingCommandWithKeysAndTimeout(RedisCoreCommands.BLPOP, keys, timeout);
+        }
+
+        public static SerializedCommand BRPop(RedisKey[] keys, double timeout)
+        {
+            return BlockingCommandWithKeysAndTimeout(RedisCoreCommands.BRPOP, keys, timeout);
+        }
+
+        private static SerializedCommand BlockingCommandWithKeysAndTimeout(String command, RedisKey[] keys, double timeout)
         {
             if (keys.Length == 0)
             {
@@ -69,7 +75,7 @@ namespace NRedisStack
             args.AddRange(keys.Cast<object>());
             args.Add(timeout);
 
-            return new SerializedCommand(RedisCoreCommands.BZPOPMAX, args);
+            return new SerializedCommand(command, args);
         }
     }
 }
