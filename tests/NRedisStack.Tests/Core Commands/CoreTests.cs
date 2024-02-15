@@ -138,7 +138,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
-    public void TestBzmPop()
+    public void TestBZMPop()
     {
         var redis = ConnectionMultiplexer.Connect("localhost");
 
@@ -153,8 +153,8 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.SortedSetAdd(sortedSetKey, "d", 9.4);
         db.SortedSetAdd(sortedSetKey, "e", 7.76);
 
-        // Pop two items with default order, which means it will pop the minimum values.
-        var resultWithDefaultOrder = db.BzmPop(0, sortedSetKey, MinMaxModifier.Min, 2);
+        // Pop two items with Min modifier, which means it will pop the minimum values.
+        var resultWithDefaultOrder = db.BZMPop(0, sortedSetKey, MinMaxModifier.Min, 2);
 
         Assert.NotNull(resultWithDefaultOrder);
         Assert.Equal(sortedSetKey, resultWithDefaultOrder!.Item1);
@@ -162,8 +162,8 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("a", resultWithDefaultOrder.Item2[0].Value.ToString());
         Assert.Equal("c", resultWithDefaultOrder.Item2[1].Value.ToString());
 
-        // Pop one more item, with descending order, which means it will pop the maximum value.
-        var resultWithDescendingOrder = db.BzmPop(0, sortedSetKey, MinMaxModifier.Max, 1);
+        // Pop one more item, with Max modifier, which means it will pop the maximum value.
+        var resultWithDescendingOrder = db.BZMPop(0, sortedSetKey, MinMaxModifier.Max, 1);
 
         Assert.NotNull(resultWithDescendingOrder);
         Assert.Equal(sortedSetKey, resultWithDescendingOrder!.Item1);
@@ -172,7 +172,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
-    public void TestBzmPopNull()
+    public void TestBZMPopNull()
     {
         var redis = ConnectionMultiplexer.Connect("localhost");
 
@@ -180,13 +180,13 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
 
         // Nothing in the set, and a short server timeout, which yields null.
-        var result = db.BzmPop(0.5, "my-set", MinMaxModifier.Min, null);
+        var result = db.BZMPop(0.5, "my-set", MinMaxModifier.Min, null);
 
         Assert.Null(result);
     }
 
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
-    public void TestBzmPopMultiplexerTimeout()
+    public void TestBZMPopMultiplexerTimeout()
     {
         var configurationOptions = new ConfigurationOptions();
         configurationOptions.SyncTimeout = 1000;
@@ -197,11 +197,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
 
         // Server would wait forever, but the multiplexer times out in 1 second.
-        Assert.Throws<RedisTimeoutException>(() => db.BzmPop(0, "my-set", MinMaxModifier.Min));
+        Assert.Throws<RedisTimeoutException>(() => db.BZMPop(0, "my-set", MinMaxModifier.Min));
     }
 
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
-    public void TestBzmPopMultipleSets()
+    public void TestBZMPopMultipleSets()
     {
         var redis = ConnectionMultiplexer.Connect("localhost");
 
@@ -214,28 +214,28 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.SortedSetAdd("set-two", "d", 9.4);
         db.SortedSetAdd("set-two", "e", 7.76);
 
-        var result = db.BzmPop(0, "set-two", MinMaxModifier.Max);
+        var result = db.BZMPop(0, "set-two", MinMaxModifier.Max);
 
         Assert.NotNull(result);
         Assert.Equal("set-two", result!.Item1);
         Assert.Single(result.Item2);
         Assert.Equal("d", result.Item2[0].Value.ToString());
 
-        result = db.BzmPop(0, new[] { new RedisKey("set-two"), new RedisKey("set-one") }, MinMaxModifier.Min);
+        result = db.BZMPop(0, new[] { new RedisKey("set-two"), new RedisKey("set-one") }, MinMaxModifier.Min);
 
         Assert.NotNull(result);
         Assert.Equal("set-two", result!.Item1);
         Assert.Single(result.Item2);
         Assert.Equal("e", result.Item2[0].Value.ToString());
 
-        result = db.BzmPop(0, new[] { new RedisKey("set-two"), new RedisKey("set-one") }, MinMaxModifier.Max);
+        result = db.BZMPop(0, new[] { new RedisKey("set-two"), new RedisKey("set-one") }, MinMaxModifier.Max);
 
         Assert.NotNull(result);
         Assert.Equal("set-one", result!.Item1);
         Assert.Single(result.Item2);
         Assert.Equal("b", result.Item2[0].Value.ToString());
 
-        result = db.BzmPop(0, "set-one", MinMaxModifier.Min, count: 2);
+        result = db.BZMPop(0, "set-one", MinMaxModifier.Min, count: 2);
 
         Assert.NotNull(result);
         Assert.Equal("set-one", result!.Item1);
@@ -245,7 +245,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
-    public void TestBzmPopNoKeysProvided()
+    public void TestBZMPopNoKeysProvided()
     {
         var redis = ConnectionMultiplexer.Connect("localhost");
 
@@ -253,11 +253,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
 
         // Server would wait forever, but the multiplexer times out in 1 second.
-        Assert.Throws<ArgumentException>(() => db.BzmPop(0, Array.Empty<RedisKey>(), MinMaxModifier.Min));
+        Assert.Throws<ArgumentException>(() => db.BZMPop(0, Array.Empty<RedisKey>(), MinMaxModifier.Min));
     }
 
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
-    public void TestBzmPopWithOrderEnum()
+    public void TestBZMPopWithOrderEnum()
     {
         var redis = ConnectionMultiplexer.Connect("localhost");
 
@@ -271,7 +271,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.SortedSetAdd(sortedSetKey, "c", 3.7);
 
         // Pop two items with default order, which means it will pop the minimum values.
-        var resultWithDefaultOrder = db.BzmPop(0, sortedSetKey, Order.Ascending.ToMinMax());
+        var resultWithDefaultOrder = db.BZMPop(0, sortedSetKey, Order.Ascending.ToMinMax());
 
         Assert.NotNull(resultWithDefaultOrder);
         Assert.Equal(sortedSetKey, resultWithDefaultOrder!.Item1);
@@ -279,7 +279,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("a", resultWithDefaultOrder.Item2[0].Value.ToString());
 
         // Pop one more item, with descending order, which means it will pop the maximum value.
-        var resultWithDescendingOrder = db.BzmPop(0, sortedSetKey, Order.Descending.ToMinMax());
+        var resultWithDescendingOrder = db.BZMPop(0, sortedSetKey, Order.Descending.ToMinMax());
 
         Assert.NotNull(resultWithDescendingOrder);
         Assert.Equal(sortedSetKey, resultWithDescendingOrder!.Item1);
@@ -288,7 +288,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "5.0.0")]
-    public void TestBzPopMin()
+    public void TestBZPopMin()
     {
         var redis = ConnectionMultiplexer.Connect("localhost");
 
@@ -300,7 +300,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.SortedSetAdd(sortedSetKey, "a", 1.5);
         db.SortedSetAdd(sortedSetKey, "b", 5.1);
 
-        var result = db.BzPopMin(sortedSetKey, 0);
+        var result = db.BZPopMin(sortedSetKey, 0);
 
         Assert.NotNull(result);
         Assert.Equal(sortedSetKey, result!.Item1);
@@ -309,7 +309,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "5.0.0")]
-    public void TestBzPopMinNull()
+    public void TestBZPopMinNull()
     {
         var redis = ConnectionMultiplexer.Connect("localhost");
 
@@ -317,13 +317,13 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
 
         // Nothing in the set, and a short server timeout, which yields null.
-        var result = db.BzPopMin("my-set", 0.5);
+        var result = db.BZPopMin("my-set", 0.5);
 
         Assert.Null(result);
     }
 
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "5.0.0")]
-    public void TestBzPopMinMultipleSets()
+    public void TestBZPopMinMultipleSets()
     {
         var redis = ConnectionMultiplexer.Connect("localhost");
 
@@ -334,13 +334,13 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.SortedSetAdd("set-one", "b", 5.1);
         db.SortedSetAdd("set-two", "e", 7.76);
 
-        var result = db.BzPopMin(new[] { new RedisKey("set-two"), new RedisKey("set-one") }, 0);
+        var result = db.BZPopMin(new[] { new RedisKey("set-two"), new RedisKey("set-one") }, 0);
 
         Assert.NotNull(result);
         Assert.Equal("set-two", result!.Item1);
         Assert.Equal("e", result.Item2.Value.ToString());
 
-        result = db.BzPopMin(new[] { new RedisKey("set-two"), new RedisKey("set-one") }, 0);
+        result = db.BZPopMin(new[] { new RedisKey("set-two"), new RedisKey("set-one") }, 0);
 
         Assert.NotNull(result);
         Assert.Equal("set-one", result!.Item1);
@@ -348,7 +348,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "5.0.0")]
-    public void TestBzPopMax()
+    public void TestBZPopMax()
     {
         var redis = ConnectionMultiplexer.Connect("localhost");
 
@@ -360,7 +360,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.SortedSetAdd(sortedSetKey, "a", 1.5);
         db.SortedSetAdd(sortedSetKey, "b", 5.1);
 
-        var result = db.BzPopMax(sortedSetKey, 0);
+        var result = db.BZPopMax(sortedSetKey, 0);
 
         Assert.NotNull(result);
         Assert.Equal(sortedSetKey, result!.Item1);
@@ -369,7 +369,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "5.0.0")]
-    public void TestBzPopMaxNull()
+    public void TestBZPopMaxNull()
     {
         var redis = ConnectionMultiplexer.Connect("localhost");
 
@@ -377,13 +377,13 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
 
         // Nothing in the set, and a short server timeout, which yields null.
-        var result = db.BzPopMax("my-set", 0.5);
+        var result = db.BZPopMax("my-set", 0.5);
 
         Assert.Null(result);
     }
 
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "5.0.0")]
-    public void TestBzPopMaxMultipleSets()
+    public void TestBZPopMaxMultipleSets()
     {
         var redis = ConnectionMultiplexer.Connect("localhost");
 
@@ -394,13 +394,13 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.SortedSetAdd("set-one", "b", 5.1);
         db.SortedSetAdd("set-two", "e", 7.76);
 
-        var result = db.BzPopMax(new[] { new RedisKey("set-two"), new RedisKey("set-one") }, 0);
+        var result = db.BZPopMax(new[] { new RedisKey("set-two"), new RedisKey("set-one") }, 0);
 
         Assert.NotNull(result);
         Assert.Equal("set-two", result!.Item1);
         Assert.Equal("e", result.Item2.Value.ToString());
 
-        result = db.BzPopMax(new[] { new RedisKey("set-two"), new RedisKey("set-one") }, 0);
+        result = db.BZPopMax(new[] { new RedisKey("set-two"), new RedisKey("set-one") }, 0);
 
         Assert.NotNull(result);
         Assert.Equal("set-one", result!.Item1);

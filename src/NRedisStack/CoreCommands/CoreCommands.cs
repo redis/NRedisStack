@@ -53,15 +53,15 @@ namespace NRedisStack
         /// <returns>A collection of sorted set entries paired with their scores, together with the key they were popped
         /// from, or <c>null</c> if the server timeout expires.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bzmpop"/></remarks>
-        public static Tuple<RedisKey, List<RedisValueWithScore>>? BzmPop(this IDatabase db, double timeout, RedisKey[] keys, MinMaxModifier minMaxModifier, long? count = null)
+        public static Tuple<RedisKey, List<RedisValueWithScore>>? BZMPop(this IDatabase db, double timeout, RedisKey[] keys, MinMaxModifier minMaxModifier, long? count = null)
         {
-            var command = CoreCommandBuilder.BzmPop(timeout, keys, minMaxModifier, count);
+            var command = CoreCommandBuilder.BZMPop(timeout, keys, minMaxModifier, count);
             return db.Execute(command).ToSortedSetPopResults();
         }
 
         /// <summary>
         /// Syntactic sugar for
-        /// <see cref="BzmPop(StackExchange.Redis.IDatabase,double,StackExchange.Redis.RedisKey[],NRedisStack.Core.DataTypes.MinMaxModifier,System.Nullable{long})"/>,
+        /// <see cref="BZMPop(StackExchange.Redis.IDatabase,double,StackExchange.Redis.RedisKey[],NRedisStack.Core.DataTypes.MinMaxModifier,System.Nullable{long})"/>,
         /// where only one key is used.
         /// </summary>
         /// <param name="db">The <see cref="IDatabase"/> class where this extension method is applied.</param>
@@ -74,9 +74,9 @@ namespace NRedisStack
         /// <returns>A collection of sorted set entries paired with their scores, together with the key they were popped
         /// from, or <c>null</c> if the server timeout expires.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bzmpop"/></remarks>
-        public static Tuple<RedisKey, List<RedisValueWithScore>>? BzmPop(this IDatabase db, double timeout, RedisKey key, MinMaxModifier minMaxModifier, long? count = null)
+        public static Tuple<RedisKey, List<RedisValueWithScore>>? BZMPop(this IDatabase db, double timeout, RedisKey key, MinMaxModifier minMaxModifier, long? count = null)
         {
-            return BzmPop(db, timeout, new[] { key }, minMaxModifier, count);
+            return BZMPop(db, timeout, new[] { key }, minMaxModifier, count);
         }
 
         /// <summary>
@@ -106,14 +106,14 @@ namespace NRedisStack
         /// <returns>A sorted set entry paired with its score, together with the key it was popped from, or <c>null</c>
         /// if the server timeout expires.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bzpopmin"/></remarks>
-        public static Tuple<RedisKey, RedisValueWithScore>? BzPopMin(this IDatabase db, RedisKey[] keys, double timeout)
+        public static Tuple<RedisKey, RedisValueWithScore>? BZPopMin(this IDatabase db, RedisKey[] keys, double timeout)
         {
-            var command = CoreCommandBuilder.BzPopMin(keys, timeout);
+            var command = CoreCommandBuilder.BZPopMin(keys, timeout);
             return db.Execute(command).ToSortedSetPopResult();
         }
 
         /// <summary>
-        /// Syntactic sugar for <see cref="BzPopMin(StackExchange.Redis.IDatabase,StackExchange.Redis.RedisKey[],double)"/>,
+        /// Syntactic sugar for <see cref="BZPopMin(StackExchange.Redis.IDatabase,StackExchange.Redis.RedisKey[],double)"/>,
         /// where only one key is used.
         /// </summary>
         /// <param name="db">The <see cref="IDatabase"/> class where this extension method is applied.</param>
@@ -122,9 +122,9 @@ namespace NRedisStack
         /// <returns>A sorted set entry paired with its score, together with the key it was popped from, or <c>null</c>
         /// if the server timeout expires.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bzpopmin"/></remarks>
-        public static Tuple<RedisKey, RedisValueWithScore>? BzPopMin(this IDatabase db, RedisKey key, double timeout)
+        public static Tuple<RedisKey, RedisValueWithScore>? BZPopMin(this IDatabase db, RedisKey key, double timeout)
         {
-            return BzPopMin(db, new[] { key }, timeout);
+            return BZPopMin(db, new[] { key }, timeout);
         }
 
 
@@ -155,14 +155,14 @@ namespace NRedisStack
         /// <returns>A sorted set entry paired with its score, together with the key it was popped from, or <c>null</c>
         /// if the server timeout expires.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bzpopmax"/></remarks>
-        public static Tuple<RedisKey, RedisValueWithScore>? BzPopMax(this IDatabase db, RedisKey[] keys, double timeout)
+        public static Tuple<RedisKey, RedisValueWithScore>? BZPopMax(this IDatabase db, RedisKey[] keys, double timeout)
         {
-            var command = CoreCommandBuilder.BzPopMax(keys, timeout);
+            var command = CoreCommandBuilder.BZPopMax(keys, timeout);
             return db.Execute(command).ToSortedSetPopResult();
         }
 
         /// <summary>
-        /// Syntactic sugar for <see cref="BzPopMax(StackExchange.Redis.IDatabase,StackExchange.Redis.RedisKey[],double)"/>,
+        /// Syntactic sugar for <see cref="BZPopMax(StackExchange.Redis.IDatabase,StackExchange.Redis.RedisKey[],double)"/>,
         /// where only one key is used.
         /// </summary>
         /// <param name="db">The <see cref="IDatabase"/> class where this extension method is applied.</param>
@@ -171,9 +171,9 @@ namespace NRedisStack
         /// <returns>A sorted set entry paired with its score, together with the key it was popped from, or <c>null</c>
         /// if the server timeout expires.</returns>
         /// <remarks><seealso href="https://redis.io/commands/bzpopmax"/></remarks>
-        public static Tuple<RedisKey, RedisValueWithScore>? BzPopMax(this IDatabase db, RedisKey key, double timeout)
+        public static Tuple<RedisKey, RedisValueWithScore>? BZPopMax(this IDatabase db, RedisKey key, double timeout)
         {
-            return BzPopMax(db, new[] { key }, timeout);
+            return BZPopMax(db, new[] { key }, timeout);
         }
     }
 }

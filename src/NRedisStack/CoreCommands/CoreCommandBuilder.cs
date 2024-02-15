@@ -21,7 +21,7 @@ namespace NRedisStack
             return new SerializedCommand(RedisCoreCommands.CLIENT, RedisCoreCommands.SETINFO, attrValue, value);
         }
 
-        public static SerializedCommand BzmPop(double timeout, RedisKey[] keys, MinMaxModifier minMaxModifier, long? count)
+        public static SerializedCommand BZMPop(double timeout, RedisKey[] keys, MinMaxModifier minMaxModifier, long? count)
         {
             if (keys.Length == 0)
             {
@@ -44,7 +44,7 @@ namespace NRedisStack
             return new SerializedCommand(RedisCoreCommands.BZMPOP, args);
         }
 
-        public static SerializedCommand BzPopMin(RedisKey[] keys, double timeout)
+        public static SerializedCommand BZPopMin(RedisKey[] keys, double timeout)
         {
             if (keys.Length == 0)
             {
@@ -58,7 +58,7 @@ namespace NRedisStack
             return new SerializedCommand(RedisCoreCommands.BZPOPMIN, args);
         }
 
-        public static SerializedCommand BzPopMax(RedisKey[] keys, double timeout)
+        public static SerializedCommand BZPopMax(RedisKey[] keys, double timeout)
         {
             if (keys.Length == 0)
             {
