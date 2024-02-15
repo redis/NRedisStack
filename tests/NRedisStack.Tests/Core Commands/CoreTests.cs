@@ -263,7 +263,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         var db = redis.GetDatabase(null);
         db.Execute("FLUSHALL");
 
-        var sortedSetKey = "my-set";
+        var sortedSetKey = "my-set-" + Guid.NewGuid();
 
         db.SortedSetAdd(sortedSetKey, "a", 1.5);
         db.SortedSetAdd(sortedSetKey, "b", 5.1);
