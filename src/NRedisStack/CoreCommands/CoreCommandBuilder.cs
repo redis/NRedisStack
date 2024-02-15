@@ -54,6 +54,29 @@ namespace NRedisStack
             return BlockingCommandWithKeysAndTimeout(RedisCoreCommands.BZPOPMAX, keys, timeout);
         }
 
+        public static SerializedCommand BLMPop(double timeout, RedisKey[] keys, ListSide listSide, long? count)
+        {
+            if (keys.Length == 0)
+            {
+                throw new ArgumentException("At least one key must be provided.");
+            }
+
+            List<object> args = new List<object>();
+
+            args.Add(timeout);
+            args.Add(keys.Length);
+            args.AddRange(keys.Cast<object>());
+            args.Add(listSide == ListSide.Left ? CoreArgs.LEFT : CoreArgs.RIGHT);
+
+            if (count != null)
+            {
+                args.Add(CoreArgs.COUNT);
+                args.Add(count);
+            }
+
+            return new SerializedCommand(RedisCoreCommands.BLMPOP, args);
+        }
+
         public static SerializedCommand BLPop(RedisKey[] keys, double timeout)
         {
             return BlockingCommandWithKeysAndTimeout(RedisCoreCommands.BLPOP, keys, timeout);

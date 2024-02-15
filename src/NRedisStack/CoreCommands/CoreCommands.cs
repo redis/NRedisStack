@@ -177,6 +177,61 @@ namespace NRedisStack
         }
 
         /// <summary>
+        /// The BLMPOP command.
+        /// <p/>
+        /// Removes and returns up to <paramref name="count"/> entries from the first non-empty list in
+        /// <paramref name="keys"/>. If none of the lists contain elements, the call blocks on the server until elements
+        /// become available, or the given <paramref name="timeout"/> expires. A <paramref name="timeout"/> of <c>0</c>
+        /// means to wait indefinitely server-side. Returns <c>null</c> if the server timeout expires.
+        /// <p/>
+        /// When using this, pay attention to the timeout configured in the client, on the
+        /// <see cref="ConnectionMultiplexer"/>, which by default can be too small:
+        /// <code>
+        /// ConfigurationOptions configurationOptions = new ConfigurationOptions();
+        /// configurationOptions.SyncTimeout = 120000; // set a meaningful value here
+        /// configurationOptions.EndPoints.Add("localhost");
+        /// ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(configurationOptions);
+        /// </code>
+        /// If the connection multiplexer timeout expires in the client, a <c>StackExchange.Redis.RedisTimeoutException</c>
+        /// is thrown.
+        /// <p/>
+        /// This is an extension method added to the <see cref="IDatabase"/> class, for convenience.
+        /// </summary>
+        /// <param name="db">The <see cref="IDatabase"/> class where this extension method is applied.</param>
+        /// <param name="timeout">Server-side timeout for the wait. A value of <c>0</c> means to wait indefinitely.</param>
+        /// <param name="keys">The keys to check.</param>
+        /// <param name="listSide">Specify from which end of the list to pop values: left or right.</param>
+        /// <param name="count">The maximum number of records to pop. If set to <c>null</c> then the server default
+        /// will be used.</param>
+        /// <returns>A collection of values, together with the key they were popped from, or <c>null</c> if the
+        /// server timeout expires.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/blmpop"/></remarks>
+        public static Tuple<RedisKey, List<RedisValue>>? BLMPop(this IDatabase db, double timeout, RedisKey[] keys, ListSide listSide, long? count = null)
+        {
+            var command = CoreCommandBuilder.BLMPop(timeout, keys, listSide, count);
+            return db.Execute(command).ToListPopResults();
+        }
+
+        /// <summary>
+        /// Syntactic sugar for
+        /// <see cref="BLMPop(StackExchange.Redis.IDatabase,double,StackExchange.Redis.RedisKey[],StackExchange.Redis.ListSide,System.Nullable{long})"/>,
+        /// where only one key is used.
+        /// </summary>
+        /// <param name="db">The <see cref="IDatabase"/> class where this extension method is applied.</param>
+        /// <param name="timeout">Server-side timeout for the wait. A value of <c>0</c> means to wait indefinitely.</param>
+        /// <param name="key">The key to check.</param>
+        /// <param name="listSide">Specify from which end of the list to pop values: left or right.</param>
+        /// <param name="count">The maximum number of records to pop. If set to <c>null</c> then the server default
+        /// will be used.</param>
+        /// <returns>A collection of values, together with the key they were popped from, or <c>null</c> if the
+        /// server timeout expires.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/blmpop"/></remarks>
+        public static Tuple<RedisKey, List<RedisValue>>? BLMPop(this IDatabase db, double timeout, RedisKey key, ListSide listSide, long? count = null)
+        {
+            return BLMPop(db, timeout, new[] { key }, listSide, count);
+        }
+
+        /// <summary>
         /// The BLPOP command.
         /// <p/>
         /// Removes and returns an entry from the head (left side) of the first non-empty list in <paramref name="keys"/>.

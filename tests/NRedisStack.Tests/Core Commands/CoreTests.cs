@@ -252,7 +252,6 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         var db = redis.GetDatabase(null);
         db.Execute("FLUSHALL");
 
-        // Server would wait forever, but the multiplexer times out in 1 second.
         Assert.Throws<ArgumentException>(() => db.BZMPop(0, Array.Empty<RedisKey>(), MinMaxModifier.Min));
     }
 
@@ -270,7 +269,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.SortedSetAdd(sortedSetKey, "b", 5.1);
         db.SortedSetAdd(sortedSetKey, "c", 3.7);
 
-        // Pop two items with default order, which means it will pop the minimum values.
+        // Pop two items with Ascending order, which means it will pop the minimum values.
         var resultWithDefaultOrder = db.BZMPop(0, sortedSetKey, Order.Ascending.ToMinMax());
 
         Assert.NotNull(resultWithDefaultOrder);
@@ -278,7 +277,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Single(resultWithDefaultOrder.Item2);
         Assert.Equal("a", resultWithDefaultOrder.Item2[0].Value.ToString());
 
-        // Pop one more item, with descending order, which means it will pop the maximum value.
+        // Pop one more item, with Descending order, which means it will pop the maximum value.
         var resultWithDescendingOrder = db.BZMPop(0, sortedSetKey, Order.Descending.ToMinMax());
 
         Assert.NotNull(resultWithDescendingOrder);
@@ -405,6 +404,107 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(result);
         Assert.Equal("set-one", result!.Item1);
         Assert.Equal("b", result.Item2.Value.ToString());
+    }
+
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
+    public void TestBLMPop()
+    {
+        var redis = ConnectionMultiplexer.Connect("localhost");
+
+        var db = redis.GetDatabase(null);
+        db.Execute("FLUSHALL");
+
+        db.ListRightPush("my-list", "a");
+        db.ListRightPush("my-list", "b");
+        db.ListRightPush("my-list", "c");
+        db.ListRightPush("my-list", "d");
+        db.ListRightPush("my-list", "e");
+
+        // Pop two items from the left side.
+        var resultWithDefaultOrder = db.BLMPop(0, "my-list", ListSide.Left, 2);
+
+        Assert.NotNull(resultWithDefaultOrder);
+        Assert.Equal("my-list", resultWithDefaultOrder!.Item1);
+        Assert.Equal(2, resultWithDefaultOrder.Item2.Count);
+        Assert.Equal("a", resultWithDefaultOrder.Item2[0].ToString());
+        Assert.Equal("b", resultWithDefaultOrder.Item2[1].ToString());
+
+        // Pop one more item, from the right side.
+        var resultWithDescendingOrder = db.BLMPop(0, "my-list", ListSide.Right, 1);
+
+        Assert.NotNull(resultWithDescendingOrder);
+        Assert.Equal("my-list", resultWithDescendingOrder!.Item1);
+        Assert.Single(resultWithDescendingOrder.Item2);
+        Assert.Equal("e", resultWithDescendingOrder.Item2[0].ToString());
+    }
+
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
+    public void TestBLMPopNull()
+    {
+        var redis = ConnectionMultiplexer.Connect("localhost");
+
+        var db = redis.GetDatabase(null);
+        db.Execute("FLUSHALL");
+
+        // Nothing in the list, and a short server timeout, which yields null.
+        var result = db.BLMPop(0.5, "my-list", ListSide.Left);
+
+        Assert.Null(result);
+    }
+
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
+    public void TestBLMPopMultipleLists()
+    {
+        var redis = ConnectionMultiplexer.Connect("localhost");
+
+        var db = redis.GetDatabase(null);
+        db.Execute("FLUSHALL");
+
+        db.ListRightPush("list-one", "a");
+        db.ListRightPush("list-one", "b");
+        db.ListRightPush("list-one", "c");
+        db.ListRightPush("list-two", "d");
+        db.ListRightPush("list-two", "e");
+
+        var result = db.BLMPop(0, "list-two", ListSide.Right);
+
+        Assert.NotNull(result);
+        Assert.Equal("list-two", result!.Item1);
+        Assert.Single(result.Item2);
+        Assert.Equal("e", result.Item2[0].ToString());
+
+        result = db.BLMPop(0, new[] { new RedisKey("list-two"), new RedisKey("list-one") }, ListSide.Left);
+
+        Assert.NotNull(result);
+        Assert.Equal("list-two", result!.Item1);
+        Assert.Single(result.Item2);
+        Assert.Equal("d", result.Item2[0].ToString());
+
+        result = db.BLMPop(0, new[] { new RedisKey("list-two"), new RedisKey("list-one") }, ListSide.Right);
+
+        Assert.NotNull(result);
+        Assert.Equal("list-one", result!.Item1);
+        Assert.Single(result.Item2);
+        Assert.Equal("c", result.Item2[0].ToString());
+
+        result = db.BLMPop(0, "list-one", ListSide.Left, count: 2);
+
+        Assert.NotNull(result);
+        Assert.Equal("list-one", result!.Item1);
+        Assert.Equal(2, result.Item2.Count);
+        Assert.Equal("a", result.Item2[0].ToString());
+        Assert.Equal("b", result.Item2[1].ToString());
+    }
+
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
+    public void TestBLMPopNoKeysProvided()
+    {
+        var redis = ConnectionMultiplexer.Connect("localhost");
+
+        var db = redis.GetDatabase(null);
+        db.Execute("FLUSHALL");
+
+        Assert.Throws<ArgumentException>(() => db.BLMPop(0, Array.Empty<RedisKey>(), ListSide.Left));
     }
 
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "2.0.0")]
