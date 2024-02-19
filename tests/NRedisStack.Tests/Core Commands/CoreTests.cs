@@ -656,4 +656,342 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(3, db.ListLength("list-two"));
         Assert.Equal("b", db.ListLeftPop("list-two"));
     }
+
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    public void TestXRead()
+    {
+        var db = redisFixture.Redis.GetDatabase(null);
+        db.Execute("FLUSHALL");
+
+        db.StreamAdd("my-stream", "a", 1);
+        db.StreamAdd("my-stream", "b", 7);
+
+        var result = db.XRead("my-stream", StreamSpecialIds.AllMessagesId,
+            count: 1, timeoutMilliseconds: 1000);
+
+        Assert.NotNull(result);
+        Assert.Single(result);
+
+        StreamEntry streamEntry = result![0];
+        var lastKey = streamEntry.Id;
+        Assert.Single(streamEntry.Values);
+        Assert.Equal("a", streamEntry.Values[0].Name);
+        Assert.Equal(1, streamEntry.Values[0].Value);
+
+        result = db.XRead("my-stream", lastKey, count: 1, timeoutMilliseconds: 1000);
+
+        Assert.NotNull(result);
+        Assert.Single(result);
+
+        streamEntry = result![0];
+        Assert.Single(streamEntry.Values);
+        Assert.Equal("b", streamEntry.Values[0].Name);
+        Assert.Equal(7, streamEntry.Values[0].Value);
+    }
+
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    public void TestXReadMultipleStreams()
+    {
+        var db = redisFixture.Redis.GetDatabase(null);
+        db.Execute("FLUSHALL");
+
+        db.StreamAdd("stream-one", "a", 1);
+        db.StreamAdd("stream-one", "b", 7);
+        db.StreamAdd("stream-two", "c", "foo");
+        db.StreamAdd("stream-two", "d", "bar");
+
+        var result = db.XRead(new RedisKey[] { "stream-one", "stream-two" },
+            new RedisValue[] { StreamSpecialIds.AllMessagesId, StreamSpecialIds.AllMessagesId },
+            count: 1, timeoutMilliseconds: 1000);
+
+        Assert.NotNull(result);
+        Assert.Equal(2, result!.Length);
+
+        Assert.Single(result![0].Entries);
+        var lastKeyOne = result![0].Entries[0].Id;
+        Assert.Single(result![0].Entries[0].Values);
+        Assert.Equal("a", result![0].Entries[0].Values[0].Name);
+        Assert.Equal(1, result![0].Entries[0].Values[0].Value);
+
+        Assert.Single(result![1].Entries);
+        var lastKeyTwo = result![1].Entries[0].Id;
+        Assert.Single(result![1].Entries[0].Values);
+        Assert.Equal("c", result![1].Entries[0].Values[0].Name);
+        Assert.Equal("foo", result![1].Entries[0].Values[0].Value);
+
+        result = db.XRead(new RedisKey[] { "stream-one", "stream-two" },
+            new RedisValue[] { lastKeyOne, lastKeyTwo },
+            count: 1, timeoutMilliseconds: 1000);
+
+        Assert.NotNull(result);
+        Assert.Equal(2, result!.Length);
+
+        Assert.Single(result![0].Entries);
+        Assert.Single(result![0].Entries[0].Values);
+        Assert.Equal("b", result![0].Entries[0].Values[0].Name);
+        Assert.Equal(7, result![0].Entries[0].Values[0].Value);
+
+        Assert.Single(result![1].Entries);
+        Assert.Single(result![1].Entries[0].Values);
+        Assert.Equal("d", result![1].Entries[0].Values[0].Name);
+        Assert.Equal("bar", result![1].Entries[0].Values[0].Value);
+    }
+
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    public void TestXReadOnlyNewMessages()
+    {
+        var db = redisFixture.Redis.GetDatabase(null);
+        db.Execute("FLUSHALL");
+
+        db.StreamAdd("my-stream", "a", 1);
+
+        // Reading only new messages will yield null, because we don't add any and the read times out.
+        var result = db.XRead("my-stream", StreamSpecialIds.NewMessagesId,
+            count: 1, timeoutMilliseconds: 500);
+
+        Assert.Null(result);
+    }
+
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    public void TestXReadNoKeysProvided()
+    {
+        var db = redisFixture.Redis.GetDatabase(null);
+        db.Execute("FLUSHALL");
+
+        Assert.Throws<ArgumentException>(() => db.XRead(Array.Empty<RedisKey>(),
+            new RedisValue[] { StreamSpecialIds.NewMessagesId }));
+    }
+
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    public void TestXReadMismatchedKeysAndPositionsCountsProvided()
+    {
+        var db = redisFixture.Redis.GetDatabase(null);
+        db.Execute("FLUSHALL");
+
+        Assert.Throws<ArgumentException>(() => db.XRead(new RedisKey[] { "my-stream" },
+            new RedisValue[] { StreamSpecialIds.NewMessagesId, StreamSpecialIds.NewMessagesId }));
+    }
+
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    public void TestXReadGroup()
+    {
+        var db = redisFixture.Redis.GetDatabase(null);
+        db.Execute("FLUSHALL");
+
+        var groupCreationResult = db.StreamCreateConsumerGroup("my-stream", "my-group");
+        Assert.True(groupCreationResult);
+
+        db.StreamAdd("my-stream", "a", 1);
+        db.StreamAdd("my-stream", "b", 7);
+        db.StreamAdd("my-stream", "c", 11);
+        db.StreamAdd("my-stream", "d", 12);
+
+        // Read one message by each consumer.
+        var result = db.XReadGroup("my-group", "consumer-a",
+            "my-stream", StreamSpecialIds.UndeliveredMessagesId, count: 1, timeoutMilliseconds: 1000);
+
+        Assert.NotNull(result);
+        Assert.Single(result);
+
+        var consumerAIdOne = result![0].Id;
+        Assert.Single(result[0].Values);
+        Assert.Equal("a", result![0].Values[0].Name);
+        Assert.Equal(1, result![0].Values[0].Value);
+
+        result = db.XReadGroup("my-group", "consumer-b",
+            "my-stream", StreamSpecialIds.UndeliveredMessagesId, count: 1, timeoutMilliseconds: 1000);
+
+        Assert.NotNull(result);
+        Assert.Single(result);
+
+        var consumerBIdOne = result![0].Id;
+        Assert.Single(result[0].Values);
+        Assert.Equal("b", result![0].Values[0].Name);
+        Assert.Equal(7, result![0].Values[0].Value);
+
+        // Read another message from each consumer, don't ACK anything.
+        result = db.XReadGroup("my-group", "consumer-a",
+            "my-stream", StreamSpecialIds.UndeliveredMessagesId, count: 1, timeoutMilliseconds: 1000);
+
+        Assert.NotNull(result);
+        Assert.Single(result);
+
+        var consumerAIdTwo = result![0].Id;
+        Assert.Single(result![0].Values);
+        Assert.Equal("c", result![0].Values[0].Name);
+        Assert.Equal(11, result![0].Values[0].Value);
+
+        result = db.XReadGroup("my-group", "consumer-b",
+            "my-stream", StreamSpecialIds.UndeliveredMessagesId, count: 1, timeoutMilliseconds: 1000);
+
+        Assert.NotNull(result);
+        Assert.Single(result);
+
+        var consumerBIdTwo = result![0].Id;
+        Assert.Single(result![0].Values);
+        Assert.Equal("d", result![0].Values[0].Name);
+        Assert.Equal(12, result![0].Values[0].Value);
+
+        // Since we didn't ACK anything, the pending messages can be re-read with the right ID.
+        result = db.XReadGroup("my-group", "consumer-a",
+            "my-stream", StreamSpecialIds.AllMessagesId, count: 1, timeoutMilliseconds: 1000);
+
+        Assert.NotNull(result);
+        Assert.Single(result);
+
+        Assert.Single(result![0].Values);
+        Assert.Equal("a", result![0].Values[0].Name);
+        Assert.Equal(1, result![0].Values[0].Value);
+
+        result = db.XReadGroup("my-group", "consumer-b",
+            "my-stream", StreamSpecialIds.AllMessagesId, count: 1, timeoutMilliseconds: 1000);
+
+        Assert.NotNull(result);
+        Assert.Single(result);
+
+        Assert.Single(result![0].Values);
+        Assert.Equal("b", result![0].Values[0].Name);
+        Assert.Equal(7, result![0].Values[0].Value);
+
+        // ACK the messages.
+        var ackedMessagesCount = db.StreamAcknowledge("my-stream", "my-group",
+            new[] { consumerAIdOne, consumerAIdTwo, consumerBIdOne, consumerBIdTwo });
+        Assert.Equal(4, ackedMessagesCount);
+
+        // After ACK we don't see anything pending.
+        result = db.XReadGroup("my-group", "consumer-a",
+            "my-stream", StreamSpecialIds.AllMessagesId, count: 1, timeoutMilliseconds: 1000);
+
+        Assert.NotNull(result);
+        Assert.Empty(result);
+
+        result = db.XReadGroup("my-group", "consumer-b",
+            "my-stream", StreamSpecialIds.AllMessagesId, count: 1, timeoutMilliseconds: 1000);
+
+        Assert.NotNull(result);
+        Assert.Empty(result);
+    }
+
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    public void TestXReadGroupNoAck()
+    {
+        var db = redisFixture.Redis.GetDatabase(null);
+        db.Execute("FLUSHALL");
+
+        var groupCreationResult = db.StreamCreateConsumerGroup("my-stream", "my-group");
+        Assert.True(groupCreationResult);
+
+        db.StreamAdd("my-stream", "a", 1);
+        db.StreamAdd("my-stream", "b", 7);
+        db.StreamAdd("my-stream", "c", 11);
+        db.StreamAdd("my-stream", "d", 12);
+
+        var result = db.XReadGroup("my-group", "consumer-a",
+            "my-stream", StreamSpecialIds.UndeliveredMessagesId,
+            count: 1, timeoutMilliseconds: 1000, noAck: true);
+
+        Assert.NotNull(result);
+        Assert.Single(result);
+
+        Assert.Single(result![0].Values);
+        Assert.Equal("a", result![0].Values[0].Name);
+        Assert.Equal(1, result![0].Values[0].Value);
+
+        // We don't see anything pending because of the NOACK.
+        result = db.XReadGroup("my-group", "consumer-a",
+            "my-stream", StreamSpecialIds.AllMessagesId, count: 1, timeoutMilliseconds: 1000);
+
+        Assert.NotNull(result);
+        Assert.Empty(result);
+    }
+
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    public void TestXReadGroupMultipleStreams()
+    {
+        var db = redisFixture.Redis.GetDatabase(null);
+        db.Execute("FLUSHALL");
+
+        var groupCreationResult = db.StreamCreateConsumerGroup("stream-one", "my-group");
+        Assert.True(groupCreationResult);
+
+        groupCreationResult = db.StreamCreateConsumerGroup("stream-two", "my-group");
+        Assert.True(groupCreationResult);
+
+        db.StreamAdd("stream-one", "a", 1);
+        db.StreamAdd("stream-two", "b", 7);
+        db.StreamAdd("stream-one", "c", 11);
+        db.StreamAdd("stream-two", "d", 17);
+
+        var result = db.XReadGroup("my-group", "consumer-a",
+            new RedisKey[] { "stream-one", "stream-two" },
+            new RedisValue[] { StreamSpecialIds.UndeliveredMessagesId, StreamSpecialIds.UndeliveredMessagesId },
+            count: 1, timeoutMilliseconds: 1000);
+
+        Assert.NotNull(result);
+        Assert.Equal(2, result!.Length);
+
+        Assert.Single(result![0].Entries);
+        Assert.Single(result![0].Entries[0].Values);
+        Assert.Equal("a", result![0].Entries[0].Values[0].Name);
+        Assert.Equal(1, result![0].Entries[0].Values[0].Value);
+
+        Assert.Single(result![1].Entries);
+        Assert.Single(result![1].Entries[0].Values);
+        Assert.Equal("b", result![1].Entries[0].Values[0].Name);
+        Assert.Equal(7, result![1].Entries[0].Values[0].Value);
+
+        result = db.XReadGroup("my-group", "consumer-b",
+            new RedisKey[] { "stream-one", "stream-two" },
+            new RedisValue[] { StreamSpecialIds.UndeliveredMessagesId, StreamSpecialIds.UndeliveredMessagesId },
+            count: 1, timeoutMilliseconds: 1000);
+
+        Assert.NotNull(result);
+        Assert.Equal(2, result!.Length);
+
+        Assert.Single(result![0].Entries);
+        Assert.Single(result![0].Entries[0].Values);
+        Assert.Equal("c", result![0].Entries[0].Values[0].Name);
+        Assert.Equal(11, result![0].Entries[0].Values[0].Value);
+
+        Assert.Single(result![1].Entries);
+        Assert.Single(result![1].Entries[0].Values);
+        Assert.Equal("d", result![1].Entries[0].Values[0].Name);
+        Assert.Equal(17, result![1].Entries[0].Values[0].Value);
+    }
+
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    public void TestXReadGroupNull()
+    {
+        var db = redisFixture.Redis.GetDatabase(null);
+        db.Execute("FLUSHALL");
+
+        var groupCreationResult = db.StreamCreateConsumerGroup("my-stream", "my-group");
+        Assert.True(groupCreationResult);
+
+        var result = db.XReadGroup("my-group", "consumer-a",
+            "my-stream", StreamSpecialIds.UndeliveredMessagesId,
+            count: 1, timeoutMilliseconds: 500);
+
+        Assert.Null(result);
+    }
+
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    public void TestXReadGroupNoKeysProvided()
+    {
+        var db = redisFixture.Redis.GetDatabase(null);
+        db.Execute("FLUSHALL");
+
+        Assert.Throws<ArgumentException>(() => db.XReadGroup("my-group", "consumer",
+            Array.Empty<RedisKey>(), new RedisValue[] { StreamSpecialIds.NewMessagesId }));
+    }
+
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    public void TestXReadGroupMismatchedKeysAndPositionsCountsProvided()
+    {
+        var db = redisFixture.Redis.GetDatabase(null);
+        db.Execute("FLUSHALL");
+
+        Assert.Throws<ArgumentException>(() => db.XReadGroup("my-group", "consumer",
+            new RedisKey[] { "my-stream" }, new RedisValue[] { StreamSpecialIds.NewMessagesId, StreamSpecialIds.NewMessagesId }));
+    }
 }
