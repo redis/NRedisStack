@@ -140,9 +140,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
     public void TestBZMPop()
     {
-        var redis = ConnectionMultiplexer.Connect("localhost");
-
-        var db = redis.GetDatabase(null);
+        var db = redisFixture.Redis.GetDatabase(null);
         db.Execute("FLUSHALL");
 
         var sortedSetKey = "my-set";
@@ -174,9 +172,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
     public void TestBZMPopNull()
     {
-        var redis = ConnectionMultiplexer.Connect("localhost");
-
-        var db = redis.GetDatabase(null);
+        var db = redisFixture.Redis.GetDatabase(null);
         db.Execute("FLUSHALL");
 
         // Nothing in the set, and a short server timeout, which yields null.
@@ -190,8 +186,8 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     {
         var configurationOptions = new ConfigurationOptions();
         configurationOptions.SyncTimeout = 1000;
-        configurationOptions.EndPoints.Add("localhost");
-        var redis = ConnectionMultiplexer.Connect(configurationOptions);
+
+        using var redis = redisFixture.CustomRedis(configurationOptions, out _);
 
         var db = redis.GetDatabase(null);
         db.Execute("FLUSHALL");
@@ -203,9 +199,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
     public void TestBZMPopMultipleSets()
     {
-        var redis = ConnectionMultiplexer.Connect("localhost");
-
-        var db = redis.GetDatabase(null);
+        var db = redisFixture.Redis.GetDatabase(null);
         db.Execute("FLUSHALL");
 
         db.SortedSetAdd("set-one", "a", 1.5);
@@ -247,9 +241,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
     public void TestBZMPopNoKeysProvided()
     {
-        var redis = ConnectionMultiplexer.Connect("localhost");
-
-        var db = redis.GetDatabase(null);
+        var db = redisFixture.Redis.GetDatabase(null);
         db.Execute("FLUSHALL");
 
         Assert.Throws<ArgumentException>(() => db.BZMPop(0, Array.Empty<RedisKey>(), MinMaxModifier.Min));
@@ -258,9 +250,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
     public void TestBZMPopWithOrderEnum()
     {
-        var redis = ConnectionMultiplexer.Connect("localhost");
-
-        var db = redis.GetDatabase(null);
+        var db = redisFixture.Redis.GetDatabase(null);
         db.Execute("FLUSHALL");
 
         var sortedSetKey = "my-set-" + Guid.NewGuid();
@@ -289,9 +279,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "5.0.0")]
     public void TestBZPopMin()
     {
-        var redis = ConnectionMultiplexer.Connect("localhost");
-
-        var db = redis.GetDatabase(null);
+        var db = redisFixture.Redis.GetDatabase(null);
         db.Execute("FLUSHALL");
 
         var sortedSetKey = "my-set";
@@ -310,9 +298,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "5.0.0")]
     public void TestBZPopMinNull()
     {
-        var redis = ConnectionMultiplexer.Connect("localhost");
-
-        var db = redis.GetDatabase(null);
+        var db = redisFixture.Redis.GetDatabase(null);
         db.Execute("FLUSHALL");
 
         // Nothing in the set, and a short server timeout, which yields null.
@@ -324,9 +310,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "5.0.0")]
     public void TestBZPopMinMultipleSets()
     {
-        var redis = ConnectionMultiplexer.Connect("localhost");
-
-        var db = redis.GetDatabase(null);
+        var db = redisFixture.Redis.GetDatabase(null);
         db.Execute("FLUSHALL");
 
         db.SortedSetAdd("set-one", "a", 1.5);
@@ -349,9 +333,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "5.0.0")]
     public void TestBZPopMax()
     {
-        var redis = ConnectionMultiplexer.Connect("localhost");
-
-        var db = redis.GetDatabase(null);
+        var db = redisFixture.Redis.GetDatabase(null);
         db.Execute("FLUSHALL");
 
         var sortedSetKey = "my-set";
@@ -370,9 +352,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "5.0.0")]
     public void TestBZPopMaxNull()
     {
-        var redis = ConnectionMultiplexer.Connect("localhost");
-
-        var db = redis.GetDatabase(null);
+        var db = redisFixture.Redis.GetDatabase(null);
         db.Execute("FLUSHALL");
 
         // Nothing in the set, and a short server timeout, which yields null.
@@ -384,9 +364,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "5.0.0")]
     public void TestBZPopMaxMultipleSets()
     {
-        var redis = ConnectionMultiplexer.Connect("localhost");
-
-        var db = redis.GetDatabase(null);
+        var db = redisFixture.Redis.GetDatabase(null);
         db.Execute("FLUSHALL");
 
         db.SortedSetAdd("set-one", "a", 1.5);
@@ -409,9 +387,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
     public void TestBLMPop()
     {
-        var redis = ConnectionMultiplexer.Connect("localhost");
-
-        var db = redis.GetDatabase(null);
+        var db = redisFixture.Redis.GetDatabase(null);
         db.Execute("FLUSHALL");
 
         db.ListRightPush("my-list", "a");
@@ -441,9 +417,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
     public void TestBLMPopNull()
     {
-        var redis = ConnectionMultiplexer.Connect("localhost");
-
-        var db = redis.GetDatabase(null);
+        var db = redisFixture.Redis.GetDatabase(null);
         db.Execute("FLUSHALL");
 
         // Nothing in the list, and a short server timeout, which yields null.
@@ -455,9 +429,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
     public void TestBLMPopMultipleLists()
     {
-        var redis = ConnectionMultiplexer.Connect("localhost");
-
-        var db = redis.GetDatabase(null);
+        var db = redisFixture.Redis.GetDatabase(null);
         db.Execute("FLUSHALL");
 
         db.ListRightPush("list-one", "a");
@@ -499,9 +471,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
     public void TestBLMPopNoKeysProvided()
     {
-        var redis = ConnectionMultiplexer.Connect("localhost");
-
-        var db = redis.GetDatabase(null);
+        var db = redisFixture.Redis.GetDatabase(null);
         db.Execute("FLUSHALL");
 
         Assert.Throws<ArgumentException>(() => db.BLMPop(0, Array.Empty<RedisKey>(), ListSide.Left));
@@ -510,9 +480,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "2.0.0")]
     public void TestBLPop()
     {
-        var redis = ConnectionMultiplexer.Connect("localhost");
-
-        var db = redis.GetDatabase(null);
+        var db = redisFixture.Redis.GetDatabase(null);
         db.Execute("FLUSHALL");
 
         db.ListRightPush("my-list", "a");
@@ -528,9 +496,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "2.0.0")]
     public void TestBLPopNull()
     {
-        var redis = ConnectionMultiplexer.Connect("localhost");
-
-        var db = redis.GetDatabase(null);
+        var db = redisFixture.Redis.GetDatabase(null);
         db.Execute("FLUSHALL");
 
         // Nothing in the set, and a short server timeout, which yields null.
@@ -542,9 +508,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "2.0.0")]
     public void TestBLPopMultipleLists()
     {
-        var redis = ConnectionMultiplexer.Connect("localhost");
-
-        var db = redis.GetDatabase(null);
+        var db = redisFixture.Redis.GetDatabase(null);
         db.Execute("FLUSHALL");
 
         db.ListRightPush("list-one", "a");
@@ -567,9 +531,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "2.0.0")]
     public void TestBRPop()
     {
-        var redis = ConnectionMultiplexer.Connect("localhost");
-
-        var db = redis.GetDatabase(null);
+        var db = redisFixture.Redis.GetDatabase(null);
         db.Execute("FLUSHALL");
 
         db.ListRightPush("my-list", "a");
@@ -585,9 +547,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "2.0.0")]
     public void TestBRPopNull()
     {
-        var redis = ConnectionMultiplexer.Connect("localhost");
-
-        var db = redis.GetDatabase(null);
+        var db = redisFixture.Redis.GetDatabase(null);
         db.Execute("FLUSHALL");
 
         // Nothing in the set, and a short server timeout, which yields null.
@@ -599,9 +559,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "2.0.0")]
     public void TestBRPopMultipleLists()
     {
-        var redis = ConnectionMultiplexer.Connect("localhost");
-
-        var db = redis.GetDatabase(null);
+        var db = redisFixture.Redis.GetDatabase(null);
         db.Execute("FLUSHALL");
 
         db.ListRightPush("list-one", "a");
@@ -624,9 +582,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "6.2.0")]
     public void TestBLMove()
     {
-        var redis = ConnectionMultiplexer.Connect("localhost");
-
-        var db = redis.GetDatabase(null);
+        var db = redisFixture.Redis.GetDatabase(null);
         db.Execute("FLUSHALL");
 
         db.ListRightPush("list-one", "a");
@@ -683,9 +639,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "2.2.0")]
     public void TestBRPopLPush()
     {
-        var redis = ConnectionMultiplexer.Connect("localhost");
-
-        var db = redis.GetDatabase(null);
+        var db = redisFixture.Redis.GetDatabase(null);
         db.Execute("FLUSHALL");
 
         db.ListRightPush("list-one", "a");
