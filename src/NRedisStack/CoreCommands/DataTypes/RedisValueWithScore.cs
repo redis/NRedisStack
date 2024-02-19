@@ -28,12 +28,4 @@ public struct RedisValueWithScore
     /// <c>ZADD my-set 5.1 my-value</c>, the score is <c>5.1</c>.
     /// </summary>
     public double Score { get; }
-
-    /// <summary>
-    /// ToString override.
-    /// </summary>
-    public override string ToString()
-    {
-        return $"{Value}: {Score}";
-    }
 }
