@@ -149,8 +149,7 @@ namespace NRedisStack
 
             for (int i = 0; i < endpoints.Length; i++)
             {
-                var server = redis.GetServer(endpoints[i]);
-                results[i] = server.Multiplexer.GetDatabase().Execute(command);
+                results[i] = redis.GetServer(endpoints[i]).Execute(command.Command, command.Args);
             }
 
             return RedisResult.Create(results);
@@ -164,8 +163,7 @@ namespace NRedisStack
 
             for (int i = 0; i < endpoints.Length; i++)
             {
-                var server = redis.GetServer(endpoints[i]);
-                results[i] = await server.Multiplexer.GetDatabase().ExecuteAsync(command);
+                results[i] = await redis.GetServer(endpoints[i]).ExecuteAsync(command.Command, command.Args);
             }
 
             return RedisResult.Create(results);
@@ -185,7 +183,7 @@ namespace NRedisStack
                 var server = redis.GetServer(endpoints[i]);
                 if (!server.IsReplica)
                 {
-                    results[i] = server.Multiplexer.GetDatabase().Execute(command);
+                    results[i] = server.Execute(command.Command, command.Args);
                 }
             }
 
@@ -206,7 +204,7 @@ namespace NRedisStack
                 var server = redis.GetServer(endpoints[i]);
                 if (!server.IsReplica)
                 {
-                    results[i] = await server.Multiplexer.GetDatabase().ExecuteAsync(command);
+                    results[i] = await server.ExecuteAsync(command.Command, command.Args);
                 }
             }
 
@@ -215,21 +213,25 @@ namespace NRedisStack
 
         public static RedisResult ExecuteAnyShard(this IDatabase db, SerializedCommand command)
         {
-            //var redis = db.Multiplexer;
-            //var endpoints = redis.GetEndPoints();
-            //var results = new List<RedisResult>(endpoints.Length);
-
-            return db.Execute(command.Command, command.Args); // TODO: check if its enough
+            var server = GetAnyPrimary(db.Multiplexer);
+            return server.Execute(command.Command, command.Args);
         }
 
         public static async Task<RedisResult> ExecuteAnyShardAsync(this IDatabaseAsync db, SerializedCommand command)
         {
-            //var redis = db.Multiplexer;
-            //var endpoints = redis.GetEndPoints();
-            //var results = new List<RedisResult>(endpoints.Length);
-
-            return await db.ExecuteAsync(command.Command, command.Args); // TODO: check if its enough
+            var server = GetAnyPrimary(db.Multiplexer);
+            return await server.ExecuteAsync(command.Command, command.Args);
         }
+
+        public static IServer GetAnyPrimary(IConnectionMultiplexer muxer)
+        {
+        foreach (var endpoint in muxer.GetEndPoints())
+        {
+            var server = muxer.GetServer(endpoint);
+            if (!server.IsReplica) return server;
+        }
+        throw new InvalidOperationException("Requires a primary endpoint (found none)");
+    }
 
         // TODO: check if implementing MultiShard and Special policies is nessesary
 
