@@ -12,7 +12,7 @@ on:
     - cron: "0 1 * * *"
 
 concurrency:
-  group: ${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.event.pull_request.number || github.ref }}-integration
   cancel-in-progress: true
 
 jobs:
@@ -70,7 +70,8 @@ jobs:
     with:
       redis_stack_type: cluster
       clr_version: net6.0
-      mode: oss_cluster
+      dotnet_sdk_version: 6.0.0
+      dotenv_file: .github/cluster.env
     secrets: inherit
 
   dotnet_6:
@@ -84,7 +85,8 @@ jobs:
     with:
       redis_stack_type: ${{matrix.redis-stack-type}}
       clr_version: net6.0
-      mode: standalone
+      dotnet_sdk_version: 6.0.0
+      dotenv_file: .github/standalone.env
     secrets: inherit
 
   dotnet_7_cluster:
@@ -93,7 +95,8 @@ jobs:
     with:
       redis_stack_type: cluster
       clr_version: net7.0
-      mode: oss_cluster
+      dotnet_sdk_version: 7.0.0
+      dotenv_file: .github/cluster.env
     secrets: inherit
 
   dotnet_7:
@@ -107,7 +110,8 @@ jobs:
     with:
       redis_stack_type: ${{matrix.redis-stack-type}}
       clr_version: net7.0
-      mode: standalone
+      dotnet_sdk_version: 7.0.0
+      dotenv_file: .github/standalone.env
     secrets: inherit
 
   dotnet_8_cluster:
@@ -116,7 +120,8 @@ jobs:
     with:
       redis_stack_type: cluster
       clr_version: net8.0
-      mode: oss_cluster
+      dotnet_sdk_version: 8.0.0
+      dotenv_file: .github/cluster.env
     secrets: inherit
 
   dotnet_8:
@@ -130,7 +135,8 @@ jobs:
     with:
       redis_stack_type: ${{matrix.redis-stack-type}}
       clr_version: net8.0
-      mode: standalone
+      dotnet_sdk_version: 8.0.0
+      dotenv_file: .github/standalone.env
     secrets: inherit
 
   build_and_test_windows:

@@ -318,22 +318,22 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var compactedLabel = new TimeSeriesLabel("compact", "true");
             string primaryTsKey = _keys[0], compactedTsKey = _keys[1];
             var compactionRule = new TimeSeriesRule(
-                compactedTsKey, 
+                compactedTsKey,
                 (long)TimeSpan.FromHours(1).TotalMilliseconds, // 1h used to force partial bucket 
                 TsAggregation.Sum);
 
-            ts.Create(primaryTsKey, labels: [label]);
-            ts.Create(compactedTsKey, labels: [label, compactedLabel]);
+            ts.Create(primaryTsKey, labels: new[] { label });
+            ts.Create(compactedTsKey, labels: new[] { label, compactedLabel });
             ts.CreateRule(primaryTsKey, compactionRule);
-            var tuples = CreateData(ts, 50, [primaryTsKey]);
+            var tuples = CreateData(ts, 50, new[] { primaryTsKey });
 
-            var results = ts.MRange("-", "+", ["key=MRangeLatest", "compact=true"], latest: true);
+            var results = ts.MRange("-", "+", new[] { "key=MRangeLatest", "compact=true" }, latest: true);
             Assert.Single(results);
             Assert.Equal(compactedTsKey, results[0].key);
             Assert.NotEmpty(results[0].values);
             Assert.Equal(tuples.Sum(x => x.Val), results[0].values.Sum(x => x.Val));
 
-            results = ts.MRange("-", "+", ["key=MRangeLatest", "compact=true"], latest: false);
+            results = ts.MRange("-", "+", new[] { "key=MRangeLatest", "compact=true" }, latest: false);
             Assert.Single(results);
             Assert.Equal(compactedTsKey, results[0].key);
             Assert.Empty(results[0].values);

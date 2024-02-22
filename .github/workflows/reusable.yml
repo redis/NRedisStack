@@ -7,15 +7,22 @@ on:
             required: true
             type: string
 
+        # Target .NET framework, i.e. "net6.0".
         clr_version:
             required: true
             type: string
 
-        mode:
+        # SDK version, as obtained when running `dotnet --list-sdks`,
+        # i.e. "6.0.418", although it is safe to use '6.0.0' because
+        # in global.json we set the rollForward strategy to "latestMinor".
+        dotnet_sdk_version:
+          required: true
+          type: string
+
+        dotenv_file:
             required: true
             type: string
 jobs:
-
     build_and_test:
         name: Test
         runs-on: ubuntu-latest
@@ -27,21 +34,10 @@ jobs:
         steps:
           - uses: actions/checkout@v3
 
-          - name: .NET Core 6
-            uses: actions/setup-dotnet@v2
-            with:
-              dotnet-version: '6.0.x'
-
-          - name: .NET Core 7
-            uses: actions/setup-dotnet@v2
-            with:
-              dotnet-version: '7.0.x'
-
-          - name: .NET Core 8 preview
+          - name: .NET Core 8
             uses: actions/setup-dotnet@v3
             with:
               dotnet-version: 8
-              dotnet-quality: 'preview'
 
           - name: Run redis-stack-server docker
             working-directory: .github
@@ -53,17 +49,28 @@ jobs:
               path: .github/workflows/modes
               mode: ${{ inputs.mode }}
 
+          # Make sure only the desired dotnet version is set both as target and as active SDK.
+          - name: Tweak target frameworks
+            run: |
+              find . -name '*.csproj' | xargs -I {} sed -E -i 's|<TargetFrameworks(.*)>.*</TargetFrameworks>|<TargetFramework\1>${{inputs.clr_version}}</TargetFramework>|' {}
+              find . -name '*.csproj' | xargs cat
+              jq -n --arg version ${{inputs.dotnet_sdk_version}} '{"sdk":{"version":$version,"rollForward":"latestMinor"}}' > global.json
+          - name: Check .NET version
+            run: dotnet --version
+          - name: Check .NET SDKs
+            run: dotnet --list-sdks
+          - name: Check .NET runtimes
+            run: dotnet --list-runtimes
           - name: Restore dependencies
             run: dotnet restore
           - name: Build
             run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
           - name: Test
             run: |
-              echo "${{secrets.REDIS_CA_PEM}}" > tests/NRedisStack.Tests/bin/Debug/net6.0/redis_ca.pem
-              echo "${{secrets.REDIS_USER_CRT}}" > tests/NRedisStack.Tests/bin/Debug/net6.0/redis_user.crt
-              echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > tests/NRedisStack.Tests/bin/Debug/net6.0/redis_user_private.key
-              ls -R
-              dotnet test -f ${{inputs.clr_version}} --no-build --verbosity detailed /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+              echo "${{secrets.REDIS_CA_PEM}}" > tests/NRedisStack.Tests/bin/Debug/${{inputs.clr_version}}/redis_ca.pem
+              echo "${{secrets.REDIS_USER_CRT}}" > tests/NRedisStack.Tests/bin/Debug/${{inputs.clr_version}}/redis_user.crt
+              echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > tests/NRedisStack.Tests/bin/Debug/${{inputs.clr_version}}/redis_user_private.key
+              dotnet test -f ${{inputs.clr_version}} --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
           - name: Codecov
             uses: codecov/codecov-action@v3
             with:
@@ -71,4 +78,3 @@ jobs:
               verbose: true
           - name: Build
             run: dotnet pack -c Release
-

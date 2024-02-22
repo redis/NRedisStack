@@ -2745,8 +2745,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Is.OSSCluster)]
     public void Issue175()
     {
-        ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost:6379");
-        IDatabase db = redis.GetDatabase();
+        IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
 
         SearchCommands ft = db.FT();

@@ -4,7 +4,7 @@ on:
   pull_request:
 
 concurrency:
-  group: ${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.event.pull_request.number || github.ref }}-spellcheck
   cancel-in-progress: true
 
 jobs:
