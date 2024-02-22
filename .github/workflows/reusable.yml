@@ -19,7 +19,7 @@ on:
           required: true
           type: string
 
-        dotenv_file:
+        mode:
             required: true
             type: string
 jobs:
