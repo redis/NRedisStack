@@ -10,13 +10,6 @@ namespace Doc;
 //REMOVE_END
 public class HashExample
 {
-    private readonly ITestOutputHelper testOutputHelper;
-
-    public HashExample(ITestOutputHelper testOutputHelper)
-    {
-        this.testOutputHelper = testOutputHelper;
-    }
-
     [SkipIfRedis(Is.OSSCluster)]
     public void run()
     {
@@ -33,20 +26,20 @@ public class HashExample
             new HashEntry("price", 4972)
         });
 
-        testOutputHelper.WriteLine("Hash Created");
+        Console.WriteLine("Hash Created");
         // Hash Created
 
         var model = db.HashGet("bike:1", "model");
-        testOutputHelper.WriteLine($"Model: {model}");
+        Console.WriteLine($"Model: {model}");
         // Model: Deimos
 
         var price = db.HashGet("bike:1", "price");
-        testOutputHelper.WriteLine($"Price: {price}");
+        Console.WriteLine($"Price: {price}");
         // Price: 4972
 
         var bike = db.HashGetAll("bike:1");
-        testOutputHelper.WriteLine("bike:1");
-        testOutputHelper.WriteLine(string.Join("\n", bike.Select(b => $"{b.Name}: {b.Value}")));
+        Console.WriteLine("bike:1");
+        Console.WriteLine(string.Join("\n", bike.Select(b => $"{b.Name}: {b.Value}")));
         // Bike:1:
         // model: Deimos
         // brand: Ergonom
@@ -62,7 +55,7 @@ public class HashExample
 
         //STEP_START hmget
         var values = db.HashGet("bike:1", new RedisValue[] { "model", "price" });
-        testOutputHelper.WriteLine(string.Join(" ", values));
+        Console.WriteLine(string.Join(" ", values));
         // Deimos 4972
         //REMOVE_START
         Assert.Equal("Deimos", values[0]);
@@ -72,14 +65,14 @@ public class HashExample
 
         //STEP_START hincrby
         var newPrice = db.HashIncrement("bike:1", "price", 100);
-        testOutputHelper.WriteLine($"New price: {newPrice}");
+        Console.WriteLine($"New price: {newPrice}");
         //REMOVE_START
         Assert.Equal(5072, newPrice);
         //REMOVE_END
         // New price: 5072
 
         newPrice = db.HashIncrement("bike:1", "price", -100);
-        testOutputHelper.WriteLine($"New price: {newPrice}");
+        Console.WriteLine($"New price: {newPrice}");
         //REMOVE_START
         Assert.Equal(4972, newPrice);
         //REMOVE_END
@@ -88,42 +81,42 @@ public class HashExample
 
         //STEP_START incrby_get_mget
         var rides = db.HashIncrement("bike:1", "rides");
-        testOutputHelper.WriteLine($"Rides: {rides}");
+        Console.WriteLine($"Rides: {rides}");
         //REMOVE_START
         Assert.Equal(1, rides);
         //REMOVE_END
         // Rides: 1
 
         rides = db.HashIncrement("bike:1", "rides");
-        testOutputHelper.WriteLine($"Rides: {rides}");
+        Console.WriteLine($"Rides: {rides}");
         //REMOVE_START
         Assert.Equal(2, rides);
         //REMOVE_END
         // Rides: 2
 
         rides = db.HashIncrement("bike:1", "rides");
-        testOutputHelper.WriteLine($"Rides: {rides}");
+        Console.WriteLine($"Rides: {rides}");
         //REMOVE_START
         Assert.Equal(3, rides);
         //REMOVE_END
         // Rides: 3
 
         var crashes = db.HashIncrement("bike:1", "crashes");
-        testOutputHelper.WriteLine($"Crashes: {crashes}");
+        Console.WriteLine($"Crashes: {crashes}");
         //REMOVE_START
         Assert.Equal(1, crashes);
         //REMOVE_END
         // Crashes: 1
 
         var owners = db.HashIncrement("bike:1", "owners");
-        testOutputHelper.WriteLine($"Owners: {owners}");
+        Console.WriteLine($"Owners: {owners}");
         //REMOVE_START
         Assert.Equal(1, owners);
         //REMOVE_END
         // Owners: 1
 
         var stats = db.HashGet("bike:1", new RedisValue[] { "crashes", "owners" });
-        testOutputHelper.WriteLine($"Bike stats: crashes={stats[0]}, owners={stats[1]}");
+        Console.WriteLine($"Bike stats: crashes={stats[0]}, owners={stats[1]}");
         //REMOVE_START
         Assert.Equal(1, stats[0]);
         Assert.Equal(1, stats[1]);

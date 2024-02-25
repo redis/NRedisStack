@@ -10,12 +10,6 @@ namespace Doc;
 //REMOVE_END
 public class SetGetExample
 {
-    private readonly ITestOutputHelper testOutputHelper;
-
-    public SetGetExample(ITestOutputHelper testOutputHelper)
-    {
-        this.testOutputHelper = testOutputHelper;
-    }
 
     [SkipIfRedis(Is.OSSCluster)]
     public void run()
@@ -27,12 +21,12 @@ public class SetGetExample
         bool status = db.StringSet("bike:1", "Process 134");
 
         if (status)
-            testOutputHelper.WriteLine("Successfully added a bike.");
+            Console.WriteLine("Successfully added a bike.");
 
         var value = db.StringGet("bike:1");
 
         if (value.HasValue)
-            testOutputHelper.WriteLine("The name of the bike is: " + value + ".");
+            Console.WriteLine("The name of the bike is: " + value + ".");
 
         //REMOVE_START
         Assert.True(status);

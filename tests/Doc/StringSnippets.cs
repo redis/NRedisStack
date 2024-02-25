@@ -11,13 +11,6 @@ namespace Doc;
 //REMOVE_END
 public class StringSnippets
 {
-    private readonly ITestOutputHelper testOutputHelper;
-
-    public StringSnippets(ITestOutputHelper testOutputHelper)
-    {
-        this.testOutputHelper = testOutputHelper;
-    }
-
     //REMOVE_START
     [SkipIfRedis(Is.OSSCluster)]
     //REMOVE_END
@@ -34,9 +27,9 @@ public class StringSnippets
 
         // STEP_START set_get
         var res1 = db.StringSet("bike:1", "Deimos");
-        testOutputHelper.WriteLine(res1.ToString()); // true
+        Console.WriteLine(res1.ToString()); // true
         var res2 = db.StringGet("bike:1");
-        testOutputHelper.WriteLine(res2); // Deimos
+        Console.WriteLine(res2); // Deimos
         // STEP_END
 
         //REMOVE_START
@@ -46,10 +39,10 @@ public class StringSnippets
 
         //STEP_START setnx_xx
         var res3 = db.StringSet("bike:1", "bike", when: When.NotExists);
-        testOutputHelper.WriteLine(res3.ToString()); // false
-        testOutputHelper.WriteLine(db.StringGet("bike:1"));
+        Console.WriteLine(res3.ToString()); // false
+        Console.WriteLine(db.StringGet("bike:1"));
         var res4 = db.StringSet("bike:1", "bike", when: When.Exists);
-        testOutputHelper.WriteLine(res4.ToString()); // true
+        Console.WriteLine(res4.ToString()); // true
         //STEP_END
 
         //REMOVE_START
@@ -62,9 +55,9 @@ public class StringSnippets
         {
             new ("bike:1", "Deimos"), new("bike:2", "Ares"), new("bike:3", "Vanth")
         });
-        testOutputHelper.WriteLine(res5.ToString());
+        Console.WriteLine(res5.ToString());
         var res6 = db.StringGet(new RedisKey[] { "bike:1", "bike:2", "bike:3" });
-        testOutputHelper.WriteLine(res6.ToString());
+        Console.WriteLine(res6.ToString());
         //STEP_END
 
         //REMOVE_START
@@ -75,9 +68,9 @@ public class StringSnippets
         //STEP_START incr
         db.StringSet("total_crashes", 0);
         var res7 = db.StringIncrement("total_crashes");
-        testOutputHelper.WriteLine(res7.ToString()); // 1
+        Console.WriteLine(res7.ToString()); // 1
         var res8 = db.StringIncrement("total_crashes", 10);
-        testOutputHelper.WriteLine(res8.ToString());
+        Console.WriteLine(res8.ToString());
         //STEP_END
 
         //REMOVE_START
