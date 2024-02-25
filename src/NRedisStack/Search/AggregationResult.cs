@@ -37,7 +37,7 @@ public sealed class AggregationResult
         CursorId = cursorId;
     }
 
-    
+
     /// <summary>
     /// takes a Redis multi-bulk array represented by a RedisResult[] and recursively processes its elements.
     /// For each element in the array, it checks if it's another multi-bulk array, and if so, it recursively calls itself.
