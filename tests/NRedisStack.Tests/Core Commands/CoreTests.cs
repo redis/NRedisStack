@@ -384,7 +384,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("b", result.Item2.Value.ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.0.0")]
     public void TestBLMPop()
     {
         var db = redisFixture.Redis.GetDatabase(null);
