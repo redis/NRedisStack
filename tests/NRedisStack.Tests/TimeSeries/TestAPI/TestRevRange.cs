@@ -20,7 +20,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             return tuples;
         }
 
-        [Fact]
+        [SkipIfRedis(Is.Enterprise)]
         public void TestSimpleRevRange()
         {
             var key = CreateKeyName();
@@ -31,7 +31,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(ReverseData(tuples), ts.RevRange(key, "-", "+"));
         }
 
-        [Fact]
+        [SkipIfRedis(Is.Enterprise)]
         public void TestRevRangeCount()
         {
             var key = CreateKeyName();
@@ -42,7 +42,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(ReverseData(tuples).GetRange(0, 5), ts.RevRange(key, "-", "+", count: 5));
         }
 
-        [Fact]
+        [SkipIfRedis(Is.Enterprise)]
         public void TestRevRangeAggregation()
         {
             var key = CreateKeyName();
@@ -53,7 +53,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(ReverseData(tuples), ts.RevRange(key, "-", "+", aggregation: TsAggregation.Min, timeBucket: 50));
         }
 
-        [Fact]
+        [SkipIfRedis(Is.Enterprise)]
         public void TestRevRangeAlign()
         {
             var key = CreateKeyName();
@@ -95,7 +95,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(resStart, ts.RevRange(key, 1, 30, align: 1, aggregation: TsAggregation.Count, timeBucket: 10));
         }
 
-        [Fact]
+        [SkipIfRedis(Is.Enterprise)]
         public void TestMissingTimeBucket()
         {
             var key = CreateKeyName();
@@ -108,7 +108,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
         }
 
-        [Fact]
+        [SkipIfRedis(Is.Enterprise)]
         public void TestFilterBy()
         {
             var key = CreateKeyName();

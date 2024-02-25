@@ -19,7 +19,7 @@ on:
           required: true
           type: string
 
-        dotenv_file:
+        mode:
             required: true
             type: string
 jobs:
@@ -39,14 +39,15 @@ jobs:
             with:
               dotnet-version: 8
 
-          - name: run redis-stack-server docker
+          - name: Run redis-stack-server docker
             working-directory: .github
             run: docker-compose up -d redis-stack-${{inputs.redis_stack_type}}
 
-          - name: set variables in dotenv
-            uses: c-py/action-dotenv-to-setenv@v2
+          - name: Set .env variables
+            uses: xom9ikk/dotenv@v2
             with:
-              env-file: ${{inputs.dotenv_file}}
+              path: .github/workflows/modes
+              mode: ${{ inputs.mode }}
 
           # Make sure only the desired dotnet version is set both as target and as active SDK.
           - name: Tweak target frameworks
