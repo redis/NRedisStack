@@ -308,7 +308,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster)]
+        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
         public void TestMRangeLatest()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -319,7 +319,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             string primaryTsKey = _keys[0], compactedTsKey = _keys[1];
             var compactionRule = new TimeSeriesRule(
                 compactedTsKey,
-                (long)TimeSpan.FromHours(1).TotalMilliseconds, // 1h used to force partial bucket 
+                (long)TimeSpan.FromHours(1).TotalMilliseconds, // 1h used to force partial bucket
                 TsAggregation.Sum);
 
             ts.Create(primaryTsKey, labels: new[] { label });

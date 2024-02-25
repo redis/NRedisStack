@@ -196,7 +196,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Throws<RedisTimeoutException>(() => db.BZMPop(0, "my-set", MinMaxModifier.Min));
     }
 
-    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.0.0")]
     public void TestBZMPopMultipleSets()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -307,7 +307,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
     public void TestBZPopMinMultipleSets()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -426,7 +426,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.0.0")]
     public void TestBLMPopMultipleLists()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -505,7 +505,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "2.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "2.0.0")]
     public void TestBLPopMultipleLists()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -556,7 +556,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "2.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "2.0.0")]
     public void TestBRPopMultipleLists()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -579,7 +579,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("b", result.Item2.ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "6.2.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "6.2.0")]
     public void TestBLMove()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -636,7 +636,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("c", db.ListGetByIndex("list-two", 1));
     }
 
-    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "2.2.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "2.2.0")]
     public void TestBRPopLPush()
     {
         var db = redisFixture.Redis.GetDatabase(null);
