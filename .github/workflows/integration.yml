@@ -16,14 +16,62 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  enterprise-tests:
+    name: Redis Enterprise
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        enterprise_version: ['7.2.4-92']
+        env_file_mode: ['enterprise', 'enterprise_oss_cluster']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Load dotnenv for CI
+        uses: xom9ikk/dotenv@v2
+        with:
+          path: .github/workflows/modes
+          mode: ${{ matrix.env_file_mode }}
+
+      - name: Clone ee docker code
+        uses: actions/checkout@v4
+        with:
+          repository: redislabs/redis-ee-docker
+          path: redis-ee-docker
+
+
+      - name: Start docker
+        working-directory: redis-ee-docker
+        env:
+          IMAGE: redislabs/redis-internal:${{ matrix.enterprise_version }}
+          DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        run: ./build.sh
+
+      - name: .NET Core 8
+        uses: actions/setup-dotnet@v2
+
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
+
+      - name: Test
+        run: dotnet test -f net8.0 --no-build --verbosity detailed
+
   dotnet_6_cluster:
     name: .NET 6 on [redis-stack cluster]
     uses: ./.github/workflows/reusable.yml
     with:
       redis_stack_type: cluster
       clr_version: net6.0
+      mode: oss_cluster
       dotnet_sdk_version: 6.0.0
-      dotenv_file: .github/cluster.env
     secrets: inherit
 
   dotnet_6:
@@ -37,8 +85,8 @@ jobs:
     with:
       redis_stack_type: ${{matrix.redis-stack-type}}
       clr_version: net6.0
+      mode: standalone
       dotnet_sdk_version: 6.0.0
-      dotenv_file: .github/standalone.env
     secrets: inherit
 
   dotnet_7_cluster:
@@ -47,8 +95,8 @@ jobs:
     with:
       redis_stack_type: cluster
       clr_version: net7.0
+      mode: oss_cluster
       dotnet_sdk_version: 7.0.0
-      dotenv_file: .github/cluster.env
     secrets: inherit
 
   dotnet_7:
@@ -62,8 +110,8 @@ jobs:
     with:
       redis_stack_type: ${{matrix.redis-stack-type}}
       clr_version: net7.0
+      mode: standalone
       dotnet_sdk_version: 7.0.0
-      dotenv_file: .github/standalone.env
     secrets: inherit
 
   dotnet_8_cluster:
@@ -72,8 +120,8 @@ jobs:
     with:
       redis_stack_type: cluster
       clr_version: net8.0
+      mode: oss_cluster
       dotnet_sdk_version: 8.0.0
-      dotenv_file: .github/cluster.env
     secrets: inherit
 
   dotnet_8:
@@ -87,8 +135,8 @@ jobs:
     with:
       redis_stack_type: ${{matrix.redis-stack-type}}
       clr_version: net8.0
+      mode: standalone
       dotnet_sdk_version: 8.0.0
-      dotenv_file: .github/standalone.env
     secrets: inherit
 
   build_and_test_windows:
@@ -130,4 +178,4 @@ jobs:
         shell: cmd
         run: |
           START wsl ./redis-stack-server-${{env.redis_stack_version}}/bin/redis-stack-server &
-          dotnet test -f net481 --no-build --verbosity normal
+          dotnet test -f net481 --no-build --verbosity detailed

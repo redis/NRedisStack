@@ -13,7 +13,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
         public TestMADD(RedisFixture redisFixture) : base(redisFixture) { }
 
-        [SkipIfRedis(Is.OSSCluster)]
+        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
         [Obsolete]
         public void TestStarMADD()
         {
@@ -43,7 +43,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster)]
+        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
         public void TestSuccessfulMADD()
         {
 
@@ -73,7 +73,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster)]
+        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
         public void TestOverrideMADD()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();

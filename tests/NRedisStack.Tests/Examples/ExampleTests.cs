@@ -171,7 +171,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         // Assert.Equal("person:01", firstPerson?.Id);
     }
 
-    [SkipIfRedis(Is.OSSCluster)]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
     public async Task PipelineWithAsync()
     {
         // Connect to the Redis server
@@ -229,7 +229,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("temp:JLM", respons[0].key);
     }
 
-    [SkipIfRedis(Is.OSSCluster)]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
     public void TransactionExample()
     {
         // Connect to the Redis server
