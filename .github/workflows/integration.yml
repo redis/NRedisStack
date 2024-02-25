@@ -50,11 +50,11 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: ./build.sh
 
-      - name: .NET Core 7
+      - name: .NET Core 8
         uses: actions/setup-dotnet@v2
 
         with:
-          dotnet-version: '7.0.x'
+          dotnet-version: '8.0.x'
       - name: Restore dependencies
         run: dotnet restore
 
@@ -62,7 +62,7 @@ jobs:
         run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
 
       - name: Test
-        run: dotnet test -f net7.0 --no-build --verbosity detailed
+        run: dotnet test -f net8.0 --no-build --verbosity detailed
 
   dotnet_6_cluster:
     name: .NET 6 on [redis-stack cluster]
