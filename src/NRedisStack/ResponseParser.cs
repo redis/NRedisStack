@@ -766,5 +766,41 @@ namespace NRedisStack
 
             return new Tuple<RedisKey, List<RedisValueWithScore>>(resultKey, valuesWithScores);
         }
+
+        public static Tuple<RedisKey, RedisValue>? ToListPopResult(this RedisResult result)
+        {
+            if (result.IsNull)
+            {
+                return null;
+            }
+
+            var resultArray = (RedisResult[])result!;
+            var resultKey = resultArray[0].ToRedisKey();
+            var value = resultArray[1].ToRedisValue();
+
+            return new Tuple<RedisKey, RedisValue>(resultKey, value);
+        }
+
+        public static Tuple<RedisKey, List<RedisValue>>? ToListPopResults(this RedisResult result)
+        {
+            if (result.IsNull)
+            {
+                return null;
+            }
+
+            var resultArray = (RedisResult[])result!;
+            var resultKey = resultArray[0].ToRedisKey();
+            var resultSetItems = resultArray[1].ToArray();
+
+            List<RedisValue> values = new List<RedisValue>();
+
+            foreach (var resultSetItem in resultSetItems)
+            {
+                var value = (RedisValue)resultSetItem!;
+                values.Add(value);
+            }
+
+            return new Tuple<RedisKey, List<RedisValue>>(resultKey, values);
+        }
     }
 }
