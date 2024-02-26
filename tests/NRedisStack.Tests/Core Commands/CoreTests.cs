@@ -707,12 +707,14 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(result);
         Assert.Equal(2, result!.Length);
 
+        Assert.Equal("stream-one", result![0].Key);
         Assert.Single(result![0].Entries);
         var lastKeyOne = result![0].Entries[0].Id;
         Assert.Single(result![0].Entries[0].Values);
         Assert.Equal("a", result![0].Entries[0].Values[0].Name);
         Assert.Equal(1, result![0].Entries[0].Values[0].Value);
 
+        Assert.Equal("stream-two", result![1].Key);
         Assert.Single(result![1].Entries);
         var lastKeyTwo = result![1].Entries[0].Id;
         Assert.Single(result![1].Entries[0].Values);
