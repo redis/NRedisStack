@@ -408,3 +408,4 @@ tests/NRedisStack.Tests/redis_credentials/redis_user.crt
 
 # global.json
 global.json
+tests/NRedisStack.Tests/lcov.net8.0.info

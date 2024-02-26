@@ -8,22 +8,24 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
     // private readonly string key = "GEARS_TESTS";
     public GearsTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
     public void TestTFunctionLoadDelete()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.ExecuteBroadcast("REDISGEARS_2.REFRESHCLUSTER");
+        if (!redisFixture.isEnterprise)
+            db.ExecuteBroadcast("REDISGEARS_2.REFRESHCLUSTER");
         db.Execute("FLUSHALL");
         Assert.True(db.TFunctionLoad(GenerateLibCode("lib")));
         Assert.True(db.TFunctionDelete("lib"));
     }
 
 
-    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
     public async Task TestTFunctionLoadDeleteAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.ExecuteBroadcast("REDISGEARS_2.REFRESHCLUSTER");
+        if (!redisFixture.isEnterprise)
+            db.ExecuteBroadcast("REDISGEARS_2.REFRESHCLUSTER");
         db.Execute("FLUSHALL");
         TryDeleteLib(db, "lib", "lib1", "lib2", "lib3");
 
@@ -31,11 +33,12 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await db.TFunctionDeleteAsync("lib"));
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
     public void TestTFunctionList()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.ExecuteBroadcast("REDISGEARS_2.REFRESHCLUSTER");
+        if (!redisFixture.isEnterprise)
+            db.ExecuteBroadcast("REDISGEARS_2.REFRESHCLUSTER");
         db.Execute("FLUSHALL");
         TryDeleteLib(db, "lib", "lib1", "lib2", "lib3");
 
@@ -63,11 +66,12 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         Assert.True(db.TFunctionDelete("lib3"));
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
     public async Task TestTFunctionListAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.ExecuteBroadcast("REDISGEARS_2.REFRESHCLUSTER");
+        if (!redisFixture.isEnterprise)
+            db.ExecuteBroadcast("REDISGEARS_2.REFRESHCLUSTER");
         db.Execute("FLUSHALL");
         TryDeleteLib(db, "lib", "lib1", "lib2", "lib3");
 
@@ -93,11 +97,12 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await db.TFunctionDeleteAsync("lib3"));
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
     public void TestTFCall()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.ExecuteBroadcast("REDISGEARS_2.REFRESHCLUSTER");
+        if (!redisFixture.isEnterprise)
+            db.ExecuteBroadcast("REDISGEARS_2.REFRESHCLUSTER");
         db.Execute("FLUSHALL");
         TryDeleteLib(db, "lib", "lib1", "lib2", "lib3");
 
@@ -108,11 +113,12 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         Assert.True(db.TFunctionDelete("lib"));
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
     public async Task TestTFCallAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.ExecuteBroadcast("REDISGEARS_2.REFRESHCLUSTER");
+        if (!redisFixture.isEnterprise)
+            db.ExecuteBroadcast("REDISGEARS_2.REFRESHCLUSTER");
         db.Execute("FLUSHALL");
         TryDeleteLib(db, "lib", "lib1", "lib2", "lib3");
 
@@ -123,7 +129,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await db.TFunctionDeleteAsync("lib"));
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
     public void TestGearsCommandBuilder()
     {
         // TFunctionLoad:

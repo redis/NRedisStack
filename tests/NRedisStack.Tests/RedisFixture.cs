@@ -9,6 +9,7 @@ namespace NRedisStack.Tests
         readonly string? redisCluster = Environment.GetEnvironmentVariable("REDIS_CLUSTER");
         readonly string? numRedisClusterNodesEnv = Environment.GetEnvironmentVariable("NUM_REDIS_CLUSTER_NODES");
 
+        public bool isEnterprise = Environment.GetEnvironmentVariable("IS_ENTERPRISE") == "true";
         public bool isOSSCluster;
 
         public RedisFixture()
@@ -42,6 +43,8 @@ namespace NRedisStack.Tests
                 string[] parts = redisCluster!.Split(':');
                 string host = parts[0];
                 int startPort = int.Parse(parts[1]);
+
+                var endpoints = new EndPointCollection(); // TODO: checl if needed
 
                 configurationOptions.EndPoints.Clear();
                 int numRedisClusterNodes = int.Parse(numRedisClusterNodesEnv!);
