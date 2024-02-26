@@ -480,6 +480,5 @@ namespace NRedisStack
             }
             return result[0].Entries;
         }
-
     }
 }
