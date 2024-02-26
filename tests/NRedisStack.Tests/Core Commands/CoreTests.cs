@@ -657,7 +657,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("b", db.ListLeftPop("list-two"));
     }
 
-    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
     public void TestXRead()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -689,7 +689,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(7, streamEntry.Values[0].Value);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
     public void TestXReadMultipleStreams()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -737,7 +737,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("bar", result![1].Entries[0].Values[0].Value);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
     public void TestXReadOnlyNewMessages()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -752,7 +752,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
     public void TestXReadNoKeysProvided()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -762,7 +762,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
             new RedisValue[] { StreamSpecialIds.NewMessagesId }));
     }
 
-    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
     public void TestXReadMismatchedKeysAndPositionsCountsProvided()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -772,7 +772,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
             new RedisValue[] { StreamSpecialIds.NewMessagesId, StreamSpecialIds.NewMessagesId }));
     }
 
-    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
     public void TestXReadGroup()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -872,7 +872,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Empty(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
     public void TestXReadGroupNoAck()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -905,7 +905,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Empty(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
     public void TestXReadGroupMultipleStreams()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -959,7 +959,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(17, result![1].Entries[0].Values[0].Value);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
     public void TestXReadGroupNull()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -975,7 +975,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
     public void TestXReadGroupNoKeysProvided()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -985,7 +985,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
             Array.Empty<RedisKey>(), new RedisValue[] { StreamSpecialIds.NewMessagesId }));
     }
 
-    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
     public void TestXReadGroupMismatchedKeysAndPositionsCountsProvided()
     {
         var db = redisFixture.Redis.GetDatabase(null);
