@@ -313,7 +313,7 @@ namespace NRedisStack
         }
 
         /// <summary>
-        /// Syntactic sugar for <see cref="BLPop(StackExchange.Redis.IDatabase,StackExchange.Redis.RedisKey[],double)"/>,
+        /// Syntactic sugar for <see cref="BRPop(StackExchange.Redis.IDatabase,StackExchange.Redis.RedisKey[],double)"/>,
         /// where only one key is used.
         /// </summary>
         /// <param name="db">The <see cref="IDatabase"/> class where this extension method is applied.</param>
