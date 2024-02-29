@@ -2984,4 +2984,16 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, res.TotalResults);
         Assert.Equal(2, res.Documents.Count);
     }
+
+    [Fact]
+    public void Issue230()
+    {
+        var request = new AggregationRequest("*", 3).Filter("@StatusId==1")
+                .GroupBy("@CreatedDay", Reducers.CountDistinct("@UserId"), Reducers.Count().As("count"));
+
+        var buildCommand = SearchCommandBuilder.Aggregate("idx:users", request);
+        // expected: FT.AGGREGATE idx:users * FILTER @StatusId==1 GROUPBY 1 @CreatedDay REDUCE COUNT_DISTINCT 1 @UserId REDUCE COUNT 0 AS count DIALECT 3
+        Assert.Equal("FT.AGGREGATE", buildCommand.Command);
+        Assert.Equal(new object[] { "idx:users", "*", "FILTER", "@StatusId==1", "GROUPBY", 1, "@CreatedDay", "REDUCE", "COUNT_DISTINCT", 1, "@UserId", "REDUCE", "COUNT", 0, "AS", "count", "DIALECT", 3 }, buildCommand.Args);
+    }
 }
