@@ -88,20 +88,20 @@ namespace NRedisStack.Search
 
             internal override void AddFieldTypeArgs(List<object> args)
             {
-                if (NoStem) args.Add("NOSTEM");
-                if (NoIndex) args.Add("NOINDEX");
+                if (NoStem) args.Add(SearchArgs.NOSTEM);
+                if (NoIndex) args.Add(SearchArgs.NOINDEX);
                 AddPhonetic(args);
                 AddWeight(args);
-                if (WithSuffixTrie) args.Add("WITHSUFFIXTRIE");
+                if (WithSuffixTrie) args.Add(SearchArgs.WITHSUFFIXTRIE);
                 if (Sortable) args.Add(AttributeOptions.SORTABLE);
-                if (Unf) args.Add("UNF");
+                if (Unf) args.Add(SearchArgs.UNF);
             }
 
             private void AddWeight(List<object> args)
             {
                 if (Weight != 1.0)
                 {
-                    args.Add("WEIGHT");
+                    args.Add(SearchArgs.WEIGHT);
                     args.Add(Weight);
                 }
             }
@@ -110,7 +110,7 @@ namespace NRedisStack.Search
             {
                 if (Phonetic != null)
                 {
-                    args.Add("PHONETIC");
+                    args.Add(SearchArgs.PHONETIC);
                     args.Add(this.Phonetic);
                 }
             }
@@ -145,17 +145,17 @@ namespace NRedisStack.Search
 
             internal override void AddFieldTypeArgs(List<object> args)
             {
-                if (NoIndex) args.Add("NOINDEX");
-                if (WithSuffixTrie) args.Add("WITHSUFFIXTRIE");
+                if (NoIndex) args.Add(SearchArgs.NOINDEX);
+                if (WithSuffixTrie) args.Add(SearchArgs.WITHSUFFIXTRIE);
                 if (Separator != ",")
                 {
 
-                    args.Add("SEPARATOR");
+                    args.Add(SearchArgs.SEPARATOR);
                     args.Add(Separator);
                 }
-                if (CaseSensitive) args.Add("CASESENSITIVE");
+                if (CaseSensitive) args.Add(SearchArgs.CASESENSITIVE);
                 if (Sortable) args.Add(AttributeOptions.SORTABLE);
-                if (Unf) args.Add("UNF");
+                if (Unf) args.Add(SearchArgs.UNF);
             }
         }
 
@@ -175,7 +175,7 @@ namespace NRedisStack.Search
 
             internal override void AddFieldTypeArgs(List<object> args)
             {
-                if (NoIndex) args.Add("NOINDEX");
+                if (NoIndex) args.Add(SearchArgs.NOINDEX);
                 if (Sortable) args.Add(AttributeOptions.SORTABLE);
             }
 
@@ -228,7 +228,7 @@ namespace NRedisStack.Search
 
             internal override void AddFieldTypeArgs(List<object> args)
             {
-                if (NoIndex) args.Add("NOINDEX");
+                if (NoIndex) args.Add(SearchArgs.NOINDEX);
                 if (Sortable) args.Add(AttributeOptions.SORTABLE);
             }
 
@@ -274,8 +274,8 @@ namespace NRedisStack.Search
         /// <summary>
         /// Add a field to the schema.
         /// </summary>
-        /// <param name="field">The <see cref="Field"/> to add.</param>
-        /// <returns>The <see cref="Schema"/> object.</returns>
+        /// <param name=SearchArgs.field>The <see cref=SearchArgs.Field/> to add.</param>
+        /// <returns>The <see cref=SearchArgs.Schema/> object.</returns>
         public Schema AddField(Field field)
         {
             Fields.Add(field ?? throw new ArgumentNullException(nameof(field)));
@@ -285,16 +285,16 @@ namespace NRedisStack.Search
         /// <summary>
         /// Add a Text field to the schema.
         /// </summary>
-        /// <param name="name">The field's name.</param>
-        /// <param name="weight">Its weight, a positive floating point number.</param>
-        /// <param name="sortable">If true, the text field can be sorted.</param>
-        /// <param name="noStem"> Disable stemming when indexing its values.</param>
-        /// <param name="phonetic">Declaring a text attribute as PHONETIC will perform phonetic matching on it in searches by default.</param>
-        /// <param name="noIndex">Attributes can have the NOINDEX option, which means they will not be indexed.</param>
-        /// <param name="unf">Set this to true to prevent the indexer from sorting on the normalized form.
+        /// <param name=SearchArgs.name>The field's name.</param>
+        /// <param name=SearchArgs.weight>Its weight, a positive floating point number.</param>
+        /// <param name=SearchArgs.sortable>If true, the text field can be sorted.</param>
+        /// <param name=SearchArgs.noStem> Disable stemming when indexing its values.</param>
+        /// <param name=SearchArgs.phonetic>Declaring a text attribute as PHONETIC will perform phonetic matching on it in searches by default.</param>
+        /// <param name=SearchArgs.noIndex>Attributes can have the NOINDEX option, which means they will not be indexed.</param>
+        /// <param name=SearchArgs.unf>Set this to true to prevent the indexer from sorting on the normalized form.
         /// Normalied form is the field sent to lower case with all diaretics removed</param>
-        /// <param name="withSuffixTrie">Keeps a suffix trie with all terms which match the suffix.</param>
-        /// <returns>The <see cref="Schema"/> object.</returns>
+        /// <param name=SearchArgs.withSuffixTrie>Keeps a suffix trie with all terms which match the suffix.</param>
+        /// <returns>The <see cref=SearchArgs.Schema/> object.</returns>
         public Schema AddTextField(string name, double weight = 1.0, bool sortable = false, bool unf = false, bool noStem = false,
                                    string? phonetic = null, bool noIndex = false, bool withSuffixTrie = false)
         {
@@ -305,16 +305,16 @@ namespace NRedisStack.Search
         /// <summary>
         /// Add a Text field to the schema.
         /// </summary>
-        /// <param name="name">The field's name.</param>
-        /// <param name="weight">Its weight, a positive floating point number.</param>
-        /// <param name="sortable">If true, the text field can be sorted.</param>
-        /// <param name="noStem"> Disable stemming when indexing its values.</param>
-        /// <param name="phonetic">Declaring a text attribute as PHONETIC will perform phonetic matching on it in searches by default.</param>
-        /// <param name="noIndex">Attributes can have the NOINDEX option, which means they will not be indexed.</param>
-        /// <param name="unf">Set this to true to prevent the indexer from sorting on the normalized form.
+        /// <param name=SearchArgs.name>The field's name.</param>
+        /// <param name=SearchArgs.weight>Its weight, a positive floating point number.</param>
+        /// <param name=SearchArgs.sortable>If true, the text field can be sorted.</param>
+        /// <param name=SearchArgs.noStem> Disable stemming when indexing its values.</param>
+        /// <param name=SearchArgs.phonetic>Declaring a text attribute as PHONETIC will perform phonetic matching on it in searches by default.</param>
+        /// <param name=SearchArgs.noIndex>Attributes can have the NOINDEX option, which means they will not be indexed.</param>
+        /// <param name=SearchArgs.unf>Set this to true to prevent the indexer from sorting on the normalized form.
         /// Normalied form is the field sent to lower case with all diaretics removed</param>
-        /// <param name="withSuffixTrie">Keeps a suffix trie with all terms which match the suffix.</param>
-        /// <returns>The <see cref="Schema"/> object.</returns>
+        /// <param name=SearchArgs.withSuffixTrie>Keeps a suffix trie with all terms which match the suffix.</param>
+        /// <returns>The <see cref=SearchArgs.Schema/> object.</returns>
         public Schema AddTextField(FieldName name, double weight = 1.0, bool sortable = false, bool unf = false, bool noStem = false,
                                    string? phonetic = null, bool noIndex = false, bool withSuffixTrie = false)
         {
@@ -325,9 +325,9 @@ namespace NRedisStack.Search
         /// <summary>
         /// Add a GeoShape field to the schema.
         /// </summary>
-        /// <param name="name">The field's name.</param>
-        /// <param name="system">The coordinate system to use.</param>
-        /// <returns>The <see cref="Schema"/> object.</returns>
+        /// <param name=SearchArgs.name>The field's name.</param>
+        /// <param name=SearchArgs.system>The coordinate system to use.</param>
+        /// <returns>The <see cref=SearchArgs.Schema/> object.</returns>
         public Schema AddGeoShapeField(string name, CoordinateSystem system)
         {
             Fields.Add(new GeoShapeField(name, system));
@@ -337,9 +337,9 @@ namespace NRedisStack.Search
         /// <summary>
         /// Add a GeoShape field to the schema.
         /// </summary>
-        /// <param name="name">The field's name.</param>
-        /// <param name="system">The coordinate system to use.</param>
-        /// <returns>The <see cref="Schema"/> object.</returns>
+        /// <param name=SearchArgs.name>The field's name.</param>
+        /// <param name=SearchArgs.system>The coordinate system to use.</param>
+        /// <returns>The <see cref=SearchArgs.Schema/> object.</returns>
         public Schema AddGeoShapeField(FieldName name, CoordinateSystem system)
         {
             Fields.Add(new GeoShapeField(name, system));
@@ -349,10 +349,10 @@ namespace NRedisStack.Search
         /// <summary>
         /// Add a Geo field to the schema.
         /// </summary>
-        /// <param name="name">The field's name.</param>
-        /// <param name="sortable">If true, the text field can be sorted.</param>
-        /// <param name="noIndex">Attributes can have the NOINDEX option, which means they will not be indexed.</param>
-        /// <returns>The <see cref="Schema"/> object.</returns>
+        /// <param name=SearchArgs.name>The field's name.</param>
+        /// <param name=SearchArgs.sortable>If true, the text field can be sorted.</param>
+        /// <param name=SearchArgs.noIndex>Attributes can have the NOINDEX option, which means they will not be indexed.</param>
+        /// <returns>The <see cref=SearchArgs.Schema/> object.</returns>
         public Schema AddGeoField(FieldName name, bool sortable = false, bool noIndex = false)
         {
             Fields.Add(new GeoField(name, sortable, noIndex));
@@ -362,10 +362,10 @@ namespace NRedisStack.Search
         /// <summary>
         /// Add a Geo field to the schema.
         /// </summary>
-        /// <param name="name">The field's name.</param>
-        /// <param name="sortable">If true, the text field can be sorted.</param>
-        /// <param name="noIndex">Attributes can have the NOINDEX option, which means they will not be indexed.</param>
-        /// <returns>The <see cref="Schema"/> object.</returns>
+        /// <param name=SearchArgs.name>The field's name.</param>
+        /// <param name=SearchArgs.sortable>If true, the text field can be sorted.</param>
+        /// <param name=SearchArgs.noIndex>Attributes can have the NOINDEX option, which means they will not be indexed.</param>
+        /// <returns>The <see cref=SearchArgs.Schema/> object.</returns>
         public Schema AddGeoField(string name, bool sortable = false, bool noIndex = false)
         {
             Fields.Add(new GeoField(name, sortable, noIndex));
@@ -375,10 +375,10 @@ namespace NRedisStack.Search
         /// <summary>
         /// Add a Numeric field to the schema.
         /// </summary>
-        /// <param name="name">The field's name.</param>
-        /// <param name="sortable">If true, the text field can be sorted.</param>
-        /// <param name="noIndex">Attributes can have the NOINDEX option, which means they will not be indexed.</param>
-        /// <returns>The <see cref="Schema"/> object.</returns>
+        /// <param name=SearchArgs.name>The field's name.</param>
+        /// <param name=SearchArgs.sortable>If true, the text field can be sorted.</param>
+        /// <param name=SearchArgs.noIndex>Attributes can have the NOINDEX option, which means they will not be indexed.</param>
+        /// <returns>The <see cref=SearchArgs.Schema/> object.</returns>
         public Schema AddNumericField(FieldName name, bool sortable = false, bool noIndex = false)
         {
             Fields.Add(new NumericField(name, sortable, noIndex));
@@ -388,10 +388,10 @@ namespace NRedisStack.Search
         /// <summary>
         /// Add a Numeric field to the schema.
         /// </summary>
-        /// <param name="name">The field's name.</param>
-        /// <param name="sortable">If true, the text field can be sorted.</param>
-        /// <param name="noIndex">Attributes can have the NOINDEX option, which means they will not be indexed.</param>
-        /// <returns>The <see cref="Schema"/> object.</returns>
+        /// <param name=SearchArgs.name>The field's name.</param>
+        /// <param name=SearchArgs.sortable>If true, the text field can be sorted.</param>
+        /// <param name=SearchArgs.noIndex>Attributes can have the NOINDEX option, which means they will not be indexed.</param>
+        /// <returns>The <see cref=SearchArgs.Schema/> object.</returns>
         public Schema AddNumericField(string name, bool sortable = false, bool noIndex = false)
         {
             Fields.Add(new NumericField(name, sortable, noIndex));
@@ -401,15 +401,15 @@ namespace NRedisStack.Search
         /// <summary>
         /// Add a Tag field to the schema.
         /// </summary>
-        /// <param name="name">The field's name.</param>
-        /// <param name="sortable">If true, the field can be sorted.</param>
-        /// <param name="unf">Set this to true to prevent the indexer from sorting on the normalized form.
-        /// <param name="noIndex">Attributes can have the NOINDEX option, which means they will not be indexed.</param>
-        /// <param name="separator">The tag separator.</param>
-        /// <param name="caseSensitive">If true, Keeps the original letter cases of the tags.</param>
+        /// <param name=SearchArgs.name>The field's name.</param>
+        /// <param name=SearchArgs.sortable>If true, the field can be sorted.</param>
+        /// <param name=SearchArgs.unf>Set this to true to prevent the indexer from sorting on the normalized form.
+        /// <param name=SearchArgs.noIndex>Attributes can have the NOINDEX option, which means they will not be indexed.</param>
+        /// <param name=SearchArgs.separator>The tag separator.</param>
+        /// <param name=SearchArgs.caseSensitive>If true, Keeps the original letter cases of the tags.</param>
         /// Normalied form is the field sent to lower case with all diaretics removed</param>
-        /// <param name="withSuffixTrie">Keeps a suffix trie with all terms which match the suffix.</param>
-        /// <returns>The <see cref="Schema"/> object.</returns>
+        /// <param name=SearchArgs.withSuffixTrie>Keeps a suffix trie with all terms which match the suffix.</param>
+        /// <returns>The <see cref=SearchArgs.Schema/> object.</returns>
         public Schema AddTagField(FieldName name, bool sortable = false, bool unf = false,
                               bool noIndex = false, string separator = ",",
                               bool caseSensitive = false, bool withSuffixTrie = false)
@@ -421,15 +421,15 @@ namespace NRedisStack.Search
         /// <summary>
         /// Add a Tag field to the schema.
         /// </summary>
-        /// <param name="name">The field's name.</param>
-        /// <param name="sortable">If true, the field can be sorted.</param>
-        /// <param name="unf">Set this to true to prevent the indexer from sorting on the normalized form.
-        /// <param name="noIndex">Attributes can have the NOINDEX option, which means they will not be indexed.</param>
-        /// <param name="separator">The tag separator.</param>
-        /// <param name="caseSensitive">If true, Keeps the original letter cases of the tags.</param>
+        /// <param name=SearchArgs.name>The field's name.</param>
+        /// <param name=SearchArgs.sortable>If true, the field can be sorted.</param>
+        /// <param name=SearchArgs.unf>Set this to true to prevent the indexer from sorting on the normalized form.
+        /// <param name=SearchArgs.noIndex>Attributes can have the NOINDEX option, which means they will not be indexed.</param>
+        /// <param name=SearchArgs.separator>The tag separator.</param>
+        /// <param name=SearchArgs.caseSensitive>If true, Keeps the original letter cases of the tags.</param>
         /// Normalied form is the field sent to lower case with all diaretics removed</param>
-        /// <param name="withSuffixTrie">Keeps a suffix trie with all terms which match the suffix.</param>
-        /// <returns>The <see cref="Schema"/> object.</returns>
+        /// <param name=SearchArgs.withSuffixTrie>Keeps a suffix trie with all terms which match the suffix.</param>
+        /// <returns>The <see cref=SearchArgs.Schema/> object.</returns>
         public Schema AddTagField(string name, bool sortable = false, bool unf = false,
                               bool noIndex = false, string separator = ",",
                               bool caseSensitive = false, bool withSuffixTrie = false)
@@ -441,10 +441,10 @@ namespace NRedisStack.Search
         /// <summary>
         /// Add a Vector field to the schema.
         /// </summary>
-        /// <param name="name">The field's name.</param>
-        /// <param name="algorithm">The vector similarity algorithm to use.</param>
-        /// <param name="attribute">The algorithm attributes for the creation of the vector index.</param>
-        /// <returns>The <see cref="Schema"/> object.</returns>
+        /// <param name=SearchArgs.name>The field's name.</param>
+        /// <param name=SearchArgs.algorithm>The vector similarity algorithm to use.</param>
+        /// <param name=SearchArgs.attribute>The algorithm attributes for the creation of the vector index.</param>
+        /// <returns>The <see cref=SearchArgs.Schema/> object.</returns>
         public Schema AddVectorField(FieldName name, VectorAlgo algorithm, Dictionary<string, object>? attributes = null)
         {
             Fields.Add(new VectorField(name, algorithm, attributes));
@@ -454,10 +454,10 @@ namespace NRedisStack.Search
         /// <summary>
         /// Add a Vector field to the schema.
         /// </summary>
-        /// <param name="name">The field's name.</param>
-        /// <param name="algorithm">The vector similarity algorithm to use.</param>
-        /// <param name="attribute">The algorithm attributes for the creation of the vector index.</param>
-        /// <returns>The <see cref="Schema"/> object.</returns>
+        /// <param name=SearchArgs.name>The field's name.</param>
+        /// <param name=SearchArgs.algorithm>The vector similarity algorithm to use.</param>
+        /// <param name=SearchArgs.attribute>The algorithm attributes for the creation of the vector index.</param>
+        /// <returns>The <see cref=SearchArgs.Schema/> object.</returns>
         public Schema AddVectorField(string name, VectorAlgo algorithm, Dictionary<string, object>? attributes = null)
         {
             Fields.Add(new VectorField(name, algorithm, attributes));

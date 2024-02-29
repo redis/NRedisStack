@@ -6,6 +6,7 @@ namespace NRedisStack.Search.Literals
         public const string APPLY = "APPLY";
         public const string AS = "AS";
         public const string ASC = "ASC";
+        public const string CASESENSITIVE = "CASESENSITIVE";
         public const string COUNT = "COUNT";
         public const string DESC = "DESC";
         public const string DIALECT = "DIALECT";
@@ -37,12 +38,15 @@ namespace NRedisStack.Search.Literals
         public const string NOFIELDS = "NOFIELDS";
         public const string NOFREQS = "NOFREQS";
         public const string NOHL = "NOHL";
+        public const string NOINDEX = "NOINDEX";
         public const string NOOFFSETS = "NOOFFSETS";
+        public const string NOSTEM = "NOSTEM";
         public const string NOSTOPWORDS = "NOSTOPWORDS";
         public const string ON_HASH = "ON HASH";
         public const string PARAMS = "PARAMS";
         public const string PAYLOAD = "PAYLOAD";
         public const string PAYLOAD_FIELD = "PAYLOAD_FIELD";
+        public const string PHONETIC = "PHONETIC";
         public const string PREFIX = "PREFIX";
         public const string QUERY = "QUERY";
         public const string RETURN = "RETURN";
@@ -60,9 +64,12 @@ namespace NRedisStack.Search.Literals
         public const string TEMPORARY = "TEMPORARY";
         public const string TERMS = "TERMS";
         public const string TIMEOUT = "TIMEOUT";
+        public const string UNF = "UNF";
         public const string VERBATIM = "VERBATIM";
+        public const string WEIGHT = "WEIGHT";
         public const string WITHCURSOR = "WITHCURSOR";
         public const string WITHPAYLOADS = "WITHPAYLOADS";
         public const string WITHSCORES = "WITHSCORES";
+        public const string WITHSUFFIXTRIE = "WITHSUFFIXTRIE";
     }
 }
