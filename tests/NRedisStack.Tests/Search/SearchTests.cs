@@ -338,9 +338,12 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                 .Dialect(2); // From documentation - To use PARAMS, DIALECT must be set to 2
 
         // Add more parameters using params (more than 1 is also possible):
-        parameters.Clear();
+        // parameters.Clear();
         parameters.Add("count", "10");
-        r.Params(parameters);
+        r = new AggregationRequest("$name")
+                .GroupBy("@name", Reducers.Sum("@count").As("sum"))
+                .Params(parameters)
+                .Dialect(2);
 
         AggregationResult res = await ft.AggregateAsync(index, r);
         Assert.Equal(1, res.TotalResults);
