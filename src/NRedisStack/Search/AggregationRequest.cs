@@ -19,7 +19,7 @@ namespace NRedisStack.Search.Aggregation
 
         public AggregationRequest Verbatim()
         {
-            args.Add("VERBATIM");
+            args.Add(SearchArgs.VERBATIM);
             return this;
         }
 
@@ -27,7 +27,7 @@ namespace NRedisStack.Search.Aggregation
         {
             if (fields.Length > 0)
             {
-                args.Add("LOAD");
+                args.Add(SearchArgs.LOAD);
                 int loadCountIndex = args.Count;
                 //args.Add(null);
                 int loadCount = 0;
@@ -44,14 +44,14 @@ namespace NRedisStack.Search.Aggregation
 
         public AggregationRequest LoadAll()
         {
-            args.Add("LOAD");
+            args.Add(SearchArgs.LOAD);
             args.Add("*");
             return this;
         }
 
         public AggregationRequest Timeout(long timeout)
         {
-            args.Add("TIMEOUT");
+            args.Add(SearchArgs.TIMEOUT);
             args.Add(timeout);
             return this;
         }
@@ -76,7 +76,7 @@ namespace NRedisStack.Search.Aggregation
 
         public AggregationRequest GroupBy(Group group)
         {
-            args.Add("GROUPBY");
+            args.Add(SearchArgs.GROUPBY);
             group.SerializeRedisArgs(args);
             return this;
         }
@@ -90,7 +90,7 @@ namespace NRedisStack.Search.Aggregation
         {
             if (fields.Length > 0)
             {
-                args.Add("SORTBY");
+                args.Add(SearchArgs.SORTBY);
                 args.Add(fields.Length * 2);
                 foreach (SortedField field in fields)
                 {
@@ -100,7 +100,7 @@ namespace NRedisStack.Search.Aggregation
 
                 if (max > 0)
                 {
-                    args.Add("MAX");
+                    args.Add(SearchArgs.MAX);
                     args.Add(max);
                 }
             }
@@ -109,9 +109,9 @@ namespace NRedisStack.Search.Aggregation
 
         public AggregationRequest Apply(string projection, string alias)
         {
-            args.Add("APPLY");
+            args.Add(SearchArgs.APPLY);
             args.Add(projection);
-            args.Add("AS");
+            args.Add(SearchArgs.AS);
             args.Add(alias);
             return this;
         }
@@ -134,17 +134,17 @@ namespace NRedisStack.Search.Aggregation
         public AggregationRequest Cursor(int? count = null, long? maxIdle = null)
         {
             isWithCursor = true;
-            args.Add("WITHCURSOR");
+            args.Add(SearchArgs.WITHCURSOR);
 
             if (count != null)
             {
-                args.Add("COUNT");
+                args.Add(SearchArgs.COUNT);
                 args.Add(count);
             }
 
             if (maxIdle != null && maxIdle < long.MaxValue && maxIdle >= 0)
             {
-                args.Add("MAXIDLE");
+                args.Add(SearchArgs.MAXIDLE);
                 args.Add(maxIdle);
             }
             return this;
@@ -154,7 +154,7 @@ namespace NRedisStack.Search.Aggregation
         {
             if (nameValue.Count > 0)
             {
-                args.Add("PARAMS");
+                args.Add(SearchArgs.PARAMS);
                 args.Add(nameValue.Count * 2);
                 foreach (var entry in nameValue)
                 {
@@ -175,7 +175,7 @@ namespace NRedisStack.Search.Aggregation
         {
             if (dialect != null)
             {
-                args.Add("DIALECT");
+                args.Add(SearchArgs.DIALECT);
                 args.Add(dialect);
             }
         }
