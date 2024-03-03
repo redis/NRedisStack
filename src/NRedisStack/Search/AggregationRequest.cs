@@ -29,7 +29,6 @@ namespace NRedisStack.Search.Aggregation
             {
                 args.Add(SearchArgs.LOAD);
                 int loadCountIndex = args.Count;
-                //args.Add(null);
                 int loadCount = 0;
                 foreach (FieldName fn in fields)
                 {
@@ -37,7 +36,6 @@ namespace NRedisStack.Search.Aggregation
                 }
 
                 args.Insert(loadCountIndex, loadCount);
-                // args[loadCountIndex] = loadCount.ToString();
             }
             return this;
         }
@@ -84,7 +82,6 @@ namespace NRedisStack.Search.Aggregation
         public AggregationRequest SortBy(string property) => SortBy(SortedField.Asc(property));
 
         public AggregationRequest SortBy(params SortedField[] fields) => SortBy(-1, fields);
-
 
         public AggregationRequest SortBy(int max, params SortedField[] fields) // TODO: check if it should be params
         {
@@ -187,28 +184,8 @@ namespace NRedisStack.Search.Aggregation
 
         public void SerializeRedisArgs()
         {
-            // Verbatim();
-            // Load();
-            // Timeout();
-            // Apply();
-            // GroupBy();
-            // SortBy();
-            // Limit();
-            // Filter();
-            // Cursor();
-            // Params();
             Dialect();
         }
-
-        // public string getArgsstring()
-        // {
-        //     StringBuilder sj = new StringBuilder(" ");
-        //     foreach (var s in GetArgs())
-        //     {
-        //         sj.Add(s.ToString());
-        //     }
-        //     return sj.tostring();
-        // }
 
         public bool IsWithCursor()
         {
