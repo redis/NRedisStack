@@ -16,7 +16,7 @@ public static class CmsCommandBuilder
         if (itemIncrements.Length < 1)
             throw new ArgumentOutOfRangeException(nameof(itemIncrements));
 
-        List<object> args = [key];
+            List<object> args = new List<object> { key };
         foreach (var pair in itemIncrements)
         {
             args.Add(pair.Item1);
@@ -61,8 +61,8 @@ public static class CmsCommandBuilder
         if (items.Length < 1)
             throw new ArgumentOutOfRangeException(nameof(items));
 
-        List<object> args = [key];
-        args.AddRange(items.Cast<object>());
+        List<object> args = new List<object> { key };
+        foreach (var item in items) args.Add(item);
 
         return new SerializedCommand(CMS.QUERY, args);
     }

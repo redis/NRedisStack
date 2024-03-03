@@ -144,7 +144,7 @@ public static class JsonCommandBuilder
     public static SerializedCommand Get(RedisKey key, RedisValue? indent = null, RedisValue? newLine = null,
         RedisValue? space = null, RedisValue? path = null)
     {
-        List<object> args = [key];
+        List<object> args = new List<object> { key };
 
         if (indent != null)
         {
@@ -175,7 +175,7 @@ public static class JsonCommandBuilder
     public static SerializedCommand Get(RedisKey key, string[] paths, RedisValue? indent = null,
         RedisValue? newLine = null, RedisValue? space = null)
     {
-        List<object> args = [key];
+        List<object> args = new List<object>() { key };
 
         if (indent != null)
         {
