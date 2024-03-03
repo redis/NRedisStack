@@ -225,13 +225,13 @@ namespace NRedisStack
 
         public static IServer GetAnyPrimary(IConnectionMultiplexer muxer)
         {
-        foreach (var endpoint in muxer.GetEndPoints())
-        {
-            var server = muxer.GetServer(endpoint);
-            if (!server.IsReplica) return server;
+            foreach (var endpoint in muxer.GetEndPoints())
+            {
+                var server = muxer.GetServer(endpoint);
+                if (!server.IsReplica) return server;
+            }
+            throw new InvalidOperationException("Requires a primary endpoint (found none)");
         }
-        throw new InvalidOperationException("Requires a primary endpoint (found none)");
-    }
 
         // TODO: check if implementing MultiShard and Special policies is nessesary
 
