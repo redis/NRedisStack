@@ -83,24 +83,23 @@ namespace NRedisStack.Search.Aggregation
 
         public AggregationRequest SortBy(params SortedField[] fields) => SortBy(-1, fields);
 
-        public AggregationRequest SortBy(int max, params SortedField[] fields) // TODO: check if it should be params
+        public AggregationRequest SortBy(int max, params SortedField[] fields)
         {
-            if (fields.Length > 0)
-            {
-                args.Add(SearchArgs.SORTBY);
-                args.Add(fields.Length * 2);
-                foreach (SortedField field in fields)
-                {
-                    args.Add(field.FieldName);
-                    args.Add(field.Order.ToString());
-                }
+            args.Add(SearchArgs.SORTBY);
+            args.Add(fields.Length * 2);
 
-                if (max > 0)
-                {
-                    args.Add(SearchArgs.MAX);
-                    args.Add(max);
-                }
+            foreach (SortedField field in fields)
+            {
+                args.Add(field.FieldName);
+                args.Add(field.Order.ToString());
             }
+
+            if (max > 0)
+            {
+                args.Add(SearchArgs.MAX);
+                args.Add(max);
+            }
+
             return this;
         }
 
