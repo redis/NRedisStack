@@ -2150,7 +2150,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, res.TotalResults);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task TestVectorFieldJson_Issue102Async()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2701,7 +2701,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, aggregateRes.TotalResults);
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedis(Is.Enterprise, Is.OSSCluster)]
     public async Task TestProfileAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
