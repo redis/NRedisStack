@@ -373,8 +373,6 @@ namespace NRedisStack
 
         /// <summary>
         /// Removes all keys from all databases.
-        /// <summary>
-        /// Removes all keys from all databases.
         /// </summary>
         /// <param name="async">if set, flushes the databases asynchronously</param>
         /// <returns><see langword="true"/> if everything was done correctly, Error otherwise.</returns>
