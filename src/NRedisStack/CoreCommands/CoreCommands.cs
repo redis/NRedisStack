@@ -28,7 +28,7 @@ namespace NRedisStack
         /// Removes and returns up to <paramref name="count"/> entries from the first non-empty sorted set in
         /// <paramref name="keys"/>. If none of the sets contain elements, the call blocks on the server until elements
         /// become available, or the given <paramref name="timeout"/> expires. A <paramref name="timeout"/> of <c>0</c>
-        /// means to wait indefinitely server-side. Returns <c>null</c> if the server timeout expires. 
+        /// means to wait indefinitely server-side. Returns <c>null</c> if the server timeout expires.
         /// <p/>
         /// When using this, pay attention to the timeout configured in the client, on the
         /// <see cref="ConnectionMultiplexer"/>, which by default can be too small:
@@ -369,6 +369,20 @@ namespace NRedisStack
         {
             var command = CoreCommandBuilder.BRPopLPush(source, destination, timeout);
             return db.Execute(command).ToRedisValue();
+        }
+
+        /// <summary>
+        /// Removes all keys from all databases.
+        /// <summary>
+        /// Removes all keys from all databases.
+        /// </summary>
+        /// <param name="async">if set, flushes the databases asynchronously</param>
+        /// <returns><see langword="true"/> if everything was done correctly, Error otherwise.</returns>
+        /// <remarks><seealso href="https://redis.io/commands/flushall"/></remarks>
+        public static bool FlushAll(this IDatabase db, bool? async = null)
+        {
+            var command = CoreCommandBuilder.FlushAll(async);
+            return db.Execute(command).OKtoBoolean();
         }
     }
 }

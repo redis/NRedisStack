@@ -109,6 +109,17 @@ namespace NRedisStack
             return new SerializedCommand(RedisCoreCommands.BRPOPLPUSH, args);
         }
 
+        public static SerializedCommand FlushAll(bool? async)
+        {
+            List<object> args = new List<object>();
+            if (async != null)
+            {
+                args.Add(async.Value ? CoreArgs.ASYNC : CoreArgs.SYNC);
+            }
+
+            return new SerializedCommand(RedisCoreCommands.FLUSHALL, args);
+        }
+
         private static SerializedCommand BlockingCommandWithKeysAndTimeout(String command, RedisKey[] keys, double timeout)
         {
             if (keys.Length == 0)
@@ -122,5 +133,7 @@ namespace NRedisStack
 
             return new SerializedCommand(command, args);
         }
+
+
     }
 }
