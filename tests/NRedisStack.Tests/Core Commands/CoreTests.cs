@@ -17,7 +17,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestSimpleSetInfo()
     {
         var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         db.ClientSetInfo(SetInfoAttr.LibraryName, "TestLibraryName");
         db.ClientSetInfo(SetInfoAttr.LibraryVersion, "1.2.3");
@@ -30,7 +30,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestSimpleSetInfoAsync()
     {
         var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         await db.ClientSetInfoAsync(SetInfoAttr.LibraryName, "TestLibraryName");
         await db.ClientSetInfoAsync(SetInfoAttr.LibraryVersion, "1.2.3");
@@ -44,7 +44,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     {
         ResetInfoDefaults(); // demonstrate first connection
         var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         db.Execute(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
@@ -57,7 +57,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     {
         ResetInfoDefaults(); // demonstrate first connection
         var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         await db.ExecuteAsync(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
@@ -70,7 +70,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     {
         ResetInfoDefaults(); // demonstrate first connection
         var db = redisFixture.Redis.GetDatabase("MyLibraryName;v1.0.0");
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         db.Execute(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
@@ -83,7 +83,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     {
         ResetInfoDefaults(); // demonstrate first connection
         var db = redisFixture.Redis.GetDatabase("MyLibraryName;v1.0.0");
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         await db.ExecuteAsync(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
@@ -97,7 +97,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         ResetInfoDefaults(); // demonstrate first connection
         var db = redisFixture.Redis.GetDatabase(null);
 
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var infoBefore = db.Execute("CLIENT", "INFO").ToString();
         db.Execute(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
@@ -120,7 +120,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         ResetInfoDefaults(); // demonstrate first connection
         var db = redisFixture.Redis.GetDatabase(null);
 
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var infoBefore = (await db.ExecuteAsync("CLIENT", "INFO")).ToString();
         await db.ExecuteAsync(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
@@ -141,7 +141,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBZMPop()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         var sortedSetKey = "my-set";
 
@@ -173,7 +173,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBZMPopNull()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         // Nothing in the set, and a short server timeout, which yields null.
         var result = db.BZMPop(0.5, "my-set", MinMaxModifier.Min, null);
@@ -190,7 +190,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         using var redis = redisFixture.CustomRedis(configurationOptions, out _);
 
         var db = redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         // Server would wait forever, but the multiplexer times out in 1 second.
         Assert.Throws<RedisTimeoutException>(() => db.BZMPop(0, "my-set", MinMaxModifier.Min));
@@ -200,7 +200,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBZMPopMultipleSets()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         db.SortedSetAdd("set-one", "a", 1.5);
         db.SortedSetAdd("set-one", "b", 5.1);
@@ -242,7 +242,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBZMPopNoKeysProvided()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         Assert.Throws<ArgumentException>(() => db.BZMPop(0, Array.Empty<RedisKey>(), MinMaxModifier.Min));
     }
@@ -251,7 +251,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBZMPopWithOrderEnum()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         var sortedSetKey = "my-set-" + Guid.NewGuid();
 
@@ -280,7 +280,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBZPopMin()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         var sortedSetKey = "my-set";
 
@@ -299,7 +299,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBZPopMinNull()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         // Nothing in the set, and a short server timeout, which yields null.
         var result = db.BZPopMin("my-set", 0.5);
@@ -311,7 +311,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBZPopMinMultipleSets()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         db.SortedSetAdd("set-one", "a", 1.5);
         db.SortedSetAdd("set-one", "b", 5.1);
@@ -334,7 +334,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBZPopMax()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         var sortedSetKey = "my-set";
 
@@ -353,7 +353,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBZPopMaxNull()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         // Nothing in the set, and a short server timeout, which yields null.
         var result = db.BZPopMax("my-set", 0.5);
@@ -365,7 +365,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBZPopMaxMultipleSets()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         db.SortedSetAdd("set-one", "a", 1.5);
         db.SortedSetAdd("set-one", "b", 5.1);
@@ -388,7 +388,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBLMPop()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         db.ListRightPush("my-list", "a");
         db.ListRightPush("my-list", "b");
@@ -418,7 +418,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBLMPopNull()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         // Nothing in the list, and a short server timeout, which yields null.
         var result = db.BLMPop(0.5, "my-list", ListSide.Left);
@@ -430,7 +430,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBLMPopMultipleLists()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         db.ListRightPush("list-one", "a");
         db.ListRightPush("list-one", "b");
@@ -472,7 +472,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBLMPopNoKeysProvided()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         Assert.Throws<ArgumentException>(() => db.BLMPop(0, Array.Empty<RedisKey>(), ListSide.Left));
     }
@@ -481,7 +481,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBLPop()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         db.ListRightPush("my-list", "a");
         db.ListRightPush("my-list", "b");
@@ -497,7 +497,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBLPopNull()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         // Nothing in the set, and a short server timeout, which yields null.
         var result = db.BLPop("my-set", 0.5);
@@ -509,7 +509,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBLPopMultipleLists()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         db.ListRightPush("list-one", "a");
         db.ListRightPush("list-one", "b");
@@ -532,7 +532,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBRPop()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         db.ListRightPush("my-list", "a");
         db.ListRightPush("my-list", "b");
@@ -548,7 +548,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBRPopNull()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         // Nothing in the set, and a short server timeout, which yields null.
         var result = db.BRPop("my-set", 0.5);
@@ -560,7 +560,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBRPopMultipleLists()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         db.ListRightPush("list-one", "a");
         db.ListRightPush("list-one", "b");
@@ -583,7 +583,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBLMove()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         db.ListRightPush("list-one", "a");
         db.ListRightPush("list-one", "b");
@@ -640,7 +640,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBRPopLPush()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         db.ListRightPush("list-one", "a");
         db.ListRightPush("list-one", "b");

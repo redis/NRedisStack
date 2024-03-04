@@ -19,7 +19,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             long retentionTime = 5000;
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             ts.Create(key);
             Assert.True(ts.Alter(key, retentionTime: retentionTime));
@@ -34,7 +34,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             TimeSeriesLabel label = new TimeSeriesLabel("key", "value");
             var labels = new List<TimeSeriesLabel> { label };
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             ts.Create(key);
             Assert.True(ts.Alter(key, labels: labels));
@@ -51,7 +51,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestAlterPolicyAndChunk()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             ts.Create(key);
             Assert.True(ts.Alter(key, chunkSizeBytes: 128, duplicatePolicy: TsDuplicatePolicy.MIN));

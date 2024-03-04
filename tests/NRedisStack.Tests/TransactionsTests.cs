@@ -16,7 +16,7 @@ namespace NRedisStack.Tests
         public void TestJsonTransaction()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var transaction = new Transaction(db);
             string jsonPerson = JsonSerializer.Serialize(new Person { Name = "Shachar", Age = 23 });
             var setResponse = transaction.Json.SetAsync(key, "$", jsonPerson);
@@ -36,7 +36,7 @@ namespace NRedisStack.Tests
         public void TestModulsTransaction()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var tran = new Transaction(db);
 
             _ = tran.Bf.ReserveAsync("bf-key", 0.001, 100);
@@ -88,7 +88,7 @@ namespace NRedisStack.Tests
         public void TestModulsTransactionWithoutGraph()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var tran = new Transaction(db);
 
             _ = tran.Bf.ReserveAsync("bf-key", 0.001, 100);
