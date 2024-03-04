@@ -9,11 +9,26 @@ namespace NRedisStack
         private static string? _libraryName = $"NRedisStack(.NET_v{Environment.Version})";
         private static bool _setInfo = true;
         public static bool IsCluster(this IDatabase db) => db.Multiplexer.GetEndPoints().Length > 1;
+        public static bool IsEnterprise(this IDatabase db) // TODO: check if there is a better way to check if the server is Redis Enterprise without sending a command each time
+        {
+            // DPING command is available only in Redis Enterprise
+            try
+            {
+                db.Execute("DPING");
+                return true;
+            }
+            catch (RedisServerException)
+            {
+                return false;
+            }
+        }
+
         public static void ResetInfoDefaults()
         {
             _setInfo = true;
             _libraryName = $"NRedisStack(.NET_v{Environment.Version})";
         }
+
         public static List<object> MergeArgs(RedisKey key, params RedisValue[] items)
         {
             var args = new List<object>(items.Length + 1) { key };
@@ -88,7 +103,7 @@ namespace NRedisStack
                 db.SetInfoInPipeline();
             }
 
-            if (!db.IsCluster())
+            if (!db.IsEnterprise() || !db.IsCluster())
                 return db.Execute(command.Command, command.Args);
 
             switch (command.Policy)
