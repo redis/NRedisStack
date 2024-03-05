@@ -18,7 +18,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var keys = CreateKeyNames(2);
 
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
 
             foreach (string key in keys)
@@ -49,7 +49,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var keys = CreateKeyNames(2);
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
 
             foreach (var key in keys)
@@ -79,7 +79,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var keys = CreateKeyNames(2);
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
 
             foreach (var key in keys)

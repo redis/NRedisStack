@@ -15,5 +15,6 @@ namespace NRedisStack.Core.Literals
         public const string BZPOPMIN = "BZPOPMIN";
         public const string CLIENT = "CLIENT";
         public const string SETINFO = "SETINFO";
+        public const string FLUSHALL = "FLUSHALL";
     }
 }

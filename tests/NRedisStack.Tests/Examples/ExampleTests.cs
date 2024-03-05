@@ -35,7 +35,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         // Get a reference to the database and for search commands:
         // var db = redis.GetDatabase();
         var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var ft = db.FT();
 
         // Use HSET to add a field-value pair to a hash
@@ -85,7 +85,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         // var redis = await ConnectionMultiplexer.ConnectAsync("localhost");
         // var db = redis.GetDatabase();
         var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var json = db.JSON();
 
         // call async version of JSON.SET/GET
@@ -98,7 +98,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
     {
         // Pipeline can get IDatabase for pipeline
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var pipeline = new Pipeline(db);
 
         // Add JsonSet to pipeline
@@ -131,7 +131,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
     public async Task JsonWithSearchPipeline()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         //Setup pipeline connection
         var pipeline = new Pipeline(db);
 
@@ -180,7 +180,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         // Get a reference to the database
         // var db = redis.GetDatabase();
         var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         // Setup pipeline connection
 
         var pipeline = new Pipeline(db);
@@ -239,7 +239,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         // var db = redis.GetDatabase();
 
         var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         // Setup transaction with IDatabase
         var tran = new Transaction(db);
@@ -280,7 +280,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         // IDatabase db = redis.GetDatabase();
 
         var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         ISearchCommands ft = db.FT();
         IJsonCommands json = db.JSON();
 
@@ -572,7 +572,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         // ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
         // IDatabase db = redis.GetDatabase();
         var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         IJsonCommands json = db.JSON();
 
         // Insert a simple KVP as a JSON object:
@@ -827,7 +827,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         // ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
         // IDatabase db = redis.GetDatabase();
         var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         IJsonCommands json = db.JSON();
 
         json.Set("warehouse:1", "$", new
@@ -961,7 +961,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         // ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
         // IDatabase db = redis.GetDatabase();
         var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         IJsonCommands json = db.JSON();
         ISearchCommands ft = db.FT();
 
@@ -1121,7 +1121,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         // ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
         // IDatabase db = redis.GetDatabase();
         var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         IJsonCommands json = db.JSON();
         ISearchCommands ft = db.FT();
 

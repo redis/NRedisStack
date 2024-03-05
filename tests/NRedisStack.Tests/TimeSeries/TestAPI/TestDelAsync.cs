@@ -25,7 +25,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             var ex = await Assert.ThrowsAsync<RedisServerException>(async () => await ts.DelAsync(key, "-", "+"));
             Assert.Equal("ERR TSDB: the key does not exist", ex.Message);
@@ -35,7 +35,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async Task TestDelRange()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             var key = CreateKeyName();
             var tuples = await CreateData(ts, key, 50);

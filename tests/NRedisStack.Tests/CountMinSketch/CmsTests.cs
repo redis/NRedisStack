@@ -14,7 +14,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     public void TestInitByDim()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var cms = db.CMS();
 
         cms.InitByDim(key, 16, 4);
@@ -29,7 +29,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     public async Task TestInitByDimAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var cms = db.CMS();
 
         await cms.InitByDimAsync(key, 16, 4);
@@ -44,7 +44,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     public void TestInitByProb()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var cms = db.CMS();
 
         cms.InitByProb(key, 0.01, 0.01);
@@ -59,7 +59,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     public async Task TestInitByProbAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var cms = db.CMS();
 
         await cms.InitByProbAsync(key, 0.01, 0.01);
@@ -74,7 +74,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     public void TestKeyAlreadyExists()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var cms = db.CMS();
 
         cms.InitByDim("dup", 16, 4);
@@ -85,7 +85,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     public async Task TestKeyAlreadyExistsAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var cms = db.CMS();
 
         await cms.InitByDimAsync("dup", 16, 4);
@@ -96,7 +96,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     public void TestIncrBy()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var cms = db.CMS();
 
         cms.InitByDim(key, 1000, 5);
@@ -114,7 +114,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     public async Task TestIncrByAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var cms = db.CMS();
 
         await cms.InitByDimAsync(key, 1000, 5);
@@ -132,7 +132,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     public void TestIncrByMultipleArgs()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var cms = db.CMS();
 
         cms.InitByDim(key, 1000, 5);
@@ -155,7 +155,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     public async Task TestIncrByMultipleArgsAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var cms = db.CMS();
 
         await cms.InitByDimAsync(key, 1000, 5);
@@ -179,7 +179,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     public void TestQuery()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var cms = db.CMS();
         cms.InitByDim(key, 1000, 5);
 
@@ -197,7 +197,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     public async Task TestQueryAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var cms = db.CMS();
         await cms.InitByDimAsync(key, 1000, 5);
 
@@ -215,7 +215,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     public void TestMerge()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var cms = db.CMS();
 
         cms.InitByDim("A", 1000, 5);
@@ -264,7 +264,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     public async Task TestMergeAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var cms = db.CMS();
 
         await cms.InitByDimAsync("A", 1000, 5);
