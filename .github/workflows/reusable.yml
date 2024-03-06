@@ -78,3 +78,17 @@ jobs:
               verbose: true
           - name: Build
             run: dotnet pack -c Release
+
+          - name: Test against Nuget package from local source
+            if: inputs.redis_stack_type == 'edge'
+            working-directory: PackageVerification
+            run: |
+              mkdir -p test-source
+              dotnet nuget add source $(readlink -f test-source) -n test-source
+              find .. -name '*.nupkg' | xargs -I {} dotnet nuget push {} -s test-source
+              ls -R
+              dotnet nuget remove source nuget.org
+              dotnet nuget list source
+              find . -name '*.csproj' | xargs -I {} sed -E -i 's|<TargetFrameworks(.*)>.*</TargetFrameworks>|<TargetFramework\1>${{inputs.clr_version}}</TargetFramework>|' {}
+              dotnet restore -s test-source
+              dotnet run
