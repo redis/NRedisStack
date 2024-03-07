@@ -331,19 +331,13 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Dictionary<string, object> parameters = new Dictionary<string, object>();
         parameters.Add("name", "abc");
+        parameters.Add("count", "10");
+
 
         AggregationRequest r = new AggregationRequest("$name")
                 .GroupBy("@name", Reducers.Sum("@count").As("sum"))
                 .Params(parameters)
                 .Dialect(2); // From documentation - To use PARAMS, DIALECT must be set to 2
-
-        // Add more parameters using params (more than 1 is also possible):
-        // parameters.Clear();
-        parameters.Add("count", "10");
-        r = new AggregationRequest("$name")
-                .GroupBy("@name", Reducers.Sum("@count").As("sum"))
-                .Params(parameters)
-                .Dialect(2);
 
         AggregationResult res = await ft.AggregateAsync(index, r);
         Assert.Equal(1, res.TotalResults);
@@ -2995,5 +2989,17 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         // expected: FT.AGGREGATE idx:users * FILTER @StatusId==1 GROUPBY 1 @CreatedDay REDUCE COUNT_DISTINCT 1 @UserId REDUCE COUNT 0 AS count DIALECT 3
         Assert.Equal("FT.AGGREGATE", buildCommand.Command);
         Assert.Equal(new object[] { "idx:users", "*", "FILTER", "@StatusId==1", "GROUPBY", 1, "@CreatedDay", "REDUCE", "COUNT_DISTINCT", 1, "@UserId", "REDUCE", "COUNT", 0, "AS", "count", "DIALECT", 3 }, buildCommand.Args);
+    }
+
+    [Fact]
+    public void CheckLoad()
+    {
+        var req = new AggregationRequest("*").Load(new FieldName("t1"), new FieldName("t2"), new FieldName("t3"));
+        var buildCommand = SearchCommandBuilder.Aggregate("idx:users", req);
+        // expected: FT.AGGREGATE idx:users * LOAD 3 @t1 @t2 @t3 DIALECT 3
+        Assert.Equal("FT.AGGREGATE", buildCommand.Command);
+        Assert.Equal(new object[] { "idx:users", "*", "LOAD", 3, "@t1", "@t2", "@t3", "DIALECT", 3 }, buildCommand.Args);
+
+
     }
 }
