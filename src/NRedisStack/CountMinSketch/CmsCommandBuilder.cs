@@ -16,7 +16,7 @@ public static class CmsCommandBuilder
         if (itemIncrements.Length < 1)
             throw new ArgumentOutOfRangeException(nameof(itemIncrements));
 
-            List<object> args = new List<object> { key };
+        List<object> args = new List<object> { key };
         foreach (var pair in itemIncrements)
         {
             args.Add(pair.Item1);
