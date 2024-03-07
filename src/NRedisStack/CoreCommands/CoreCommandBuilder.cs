@@ -111,6 +111,81 @@ namespace NRedisStack
             return new SerializedCommand(RedisCoreCommands.BRPOPLPUSH, args);
         }
 
+        public static SerializedCommand XRead(RedisKey[] keys, RedisValue[] positions, int? count, int? timeoutMilliseconds)
+        {
+            if (keys.Length == 0)
+            {
+                throw new ArgumentException("At least one key must be provided.");
+            }
+
+            if (keys.Length != positions.Length)
+            {
+                throw new ArgumentException("The number of keys and positions must be the same.");
+            }
+
+            List<object> args = new List<object>();
+
+            if (count != null)
+            {
+                args.Add(CoreArgs.COUNT);
+                args.Add(count);
+            }
+
+            if (timeoutMilliseconds != null)
+            {
+                args.Add(CoreArgs.BLOCK);
+                args.Add(timeoutMilliseconds);
+            }
+
+            args.Add(CoreArgs.STREAMS);
+            args.AddRange(keys.Cast<object>());
+            args.AddRange(positions.Cast<object>());
+
+            return new SerializedCommand(RedisCoreCommands.XREAD, args);
+        }
+
+        public static SerializedCommand XReadGroup(RedisValue groupName, RedisValue consumerName, RedisKey[] keys, RedisValue[] positions, int? count, int? timeoutMilliseconds, bool? noAcknowledge)
+        {
+            if (keys.Length == 0)
+            {
+                throw new ArgumentException("At least one key must be provided.");
+            }
+
+            if (keys.Length != positions.Length)
+            {
+                throw new ArgumentException("The number of keys and positions must be the same.");
+            }
+
+            List<object> args = new List<object>();
+
+            args.Add(CoreArgs.GROUP);
+            args.Add(groupName);
+            args.Add(consumerName);
+
+            if (count != null)
+            {
+                args.Add(CoreArgs.COUNT);
+                args.Add(count);
+            }
+
+            if (timeoutMilliseconds != null)
+            {
+                args.Add(CoreArgs.BLOCK);
+                args.Add(timeoutMilliseconds);
+            }
+
+            if (noAcknowledge != null && noAcknowledge.Value)
+            {
+                args.Add(CoreArgs.NOACK);
+            }
+
+            args.Add(CoreArgs.STREAMS);
+            args.AddRange(keys.Cast<object>());
+            args.AddRange(positions.Cast<object>());
+
+            return new SerializedCommand(RedisCoreCommands.XREADGROUP, args);
+        }
+
         private static SerializedCommand BlockingCommandWithKeysAndTimeout(String command, RedisKey[] keys, double timeout)
         {
             if (keys.Length == 0)

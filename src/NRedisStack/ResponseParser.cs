@@ -802,5 +802,56 @@ namespace NRedisStack
 
             return new Tuple<RedisKey, List<RedisValue>>(resultKey, values);
         }
+
+        public static RedisStreamEntries[]? ToRedisStreamEntries(this RedisResult result)
+        {
+            if (result.IsNull)
+            {
+                return null;
+            }
+
+            var resultArray = (RedisResult[])result!;
+            RedisStreamEntries[] redisStreamEntries = new RedisStreamEntries[resultArray.Length];
+            for (int i = 0; i < resultArray.Length; i++)
+            {
+                RedisResult[] streamResultArray = (RedisResult[])resultArray[i]!;
+                RedisKey streamKey = streamResultArray[0].ToRedisKey();
+                StreamEntry[] streamEntries = ParseStreamEntries(streamResultArray[1].ToArray());
+                redisStreamEntries[i] = new RedisStreamEntries(streamKey, streamEntries);
+            }
+
+            return redisStreamEntries;
+        }
+
+        private static StreamEntry[] ParseStreamEntries(IReadOnlyList<RedisResult> results)
+        {
+            int count = results.Count;
+            StreamEntry[] streamEntries = new StreamEntry[count];
+
+            for (int i = 0; i < count; i++)
+            {
+                RedisResult[] streamEntryArray = (RedisResult[])results[i]!;
+                RedisValue key = streamEntryArray[0].ToRedisValue();
+                NameValueEntry[] nameValueEntries = ParseNameValueEntries(streamEntryArray[1].ToArray());
+                streamEntries[i] = new StreamEntry(key, nameValueEntries);
+            }
+
+            return streamEntries;
+        }
+
+        private static NameValueEntry[] ParseNameValueEntries(IReadOnlyList<RedisResult> redisResults)
+        {
+            int count = redisResults.Count / 2;
+            var nameValueEntries = new NameValueEntry[count];
+
+            for (int i = 0; i < count; i++)
+            {
+                nameValueEntries[i] = new NameValueEntry(
+                    redisResults[2 * i].ToRedisValue(),
+                    redisResults[2 * i + 1].ToRedisValue());
+            }
+
+            return nameValueEntries;
+        }
     }
 }
