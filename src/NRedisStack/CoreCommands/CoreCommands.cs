@@ -480,5 +480,4 @@ public static class CoreCommands
         return result[0].Entries;
     }
 }
-}
 
