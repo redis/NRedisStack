@@ -1734,4 +1734,23 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Throws<ArgumentException>(() => db.XReadGroup("my-group", "consumer",
             new RedisKey[] { "my-stream" }, new RedisValue[] { StreamSpecialIds.NewMessagesId, StreamSpecialIds.NewMessagesId }));
     }
+
+    [Fact]
+    public void AmIEnterpriseTest()
+    {
+        var db = redisFixture.Redis.GetDatabase(null);
+        try
+        {
+            db.Execute("DPING");
+        }
+        catch (RedisServerException ex)
+        {
+            if (ex.Message.Contains("unknown command"))
+            {
+                Console.WriteLine("This is not an Enterprise instance");
+                return;
+            }
+        }
+        Console.WriteLine("This is an Enterprise instance");
+    }
 }
