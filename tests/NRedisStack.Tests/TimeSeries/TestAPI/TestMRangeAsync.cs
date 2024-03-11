@@ -51,7 +51,8 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
                 Assert.Equal(tuples, results[i].values);
             }
         }
-        [Fact]
+
+        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
         public async Task TestMRangeWithLabels()
         {
             var keys = CreateKeyNames(2);
@@ -337,12 +338,10 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
             DateTime endTime = DateTime.UtcNow;
 
-
-
             var filter = new List<string> { "SamplingType=Numerator" };
 
             var results = await ts.MRangeAsync(fromTime, endTime, filter,
                 groupbyTuple: ("RollupAggregationBy", TsReduce.Sum), aggregation: TsAggregation.Sum, timeBucket: 3600000);
-    }
+        }
     }
 }
