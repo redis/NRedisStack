@@ -325,5 +325,24 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
                 Assert.Equal(tuples.GetRange(0, 1), results[i].values);
             }
         }
+
+        [Fact]
+        public async Task TsMRangeIssueAsync()
+        {
+            var db = redisFixture.Redis.GetDatabase();
+            db.Execute("FLUSHALL");
+            var ts = db.TS();
+
+            DateTime fromTime = DateTime.UtcNow.AddMinutes(-60);
+
+            DateTime endTime = DateTime.UtcNow;
+
+
+
+            var filter = new List<string> { "SamplingType=Numerator" };
+
+            var results = await ts.MRangeAsync(fromTime, endTime, filter,
+                groupbyTuple: ("RollupAggregationBy", TsReduce.Sum), aggregation: TsAggregation.Sum, timeBucket: 3600000);
+    }
     }
 }
