@@ -27,7 +27,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             return tuples;
         }
 
-        [Fact]
+        [SkipIfRedis(Is.OSSCluster)]
         public async Task TestSimpleMRange()
         {
             var keys = CreateKeyNames(2);
@@ -77,7 +77,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [Fact]
+        [SkipIfRedis(Is.OSSCluster)]
         public async Task TestMRangeSelectLabels()
         {
             var keys = CreateKeyNames(2);
@@ -111,7 +111,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [Fact]
+        [SkipIfRedis(Is.OSSCluster)]
         public async Task TestMRangeFilter()
         {
             var keys = CreateKeyNames(2);
@@ -155,7 +155,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [Fact]
+        [SkipIfRedis(Is.OSSCluster)]
         public async Task TestMRangeAggregation()
         {
             var keys = CreateKeyNames(2);
@@ -246,7 +246,8 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             });
             Assert.Equal("RANGE Aggregation should have timeBucket value", ex.Message);
         }
-        [Fact]
+
+        [SkipIfRedis(Is.OSSCluster)]
         public async Task TestMRangeGroupby()
         {
             var keys = CreateKeyNames(2);
@@ -273,7 +274,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [Fact]
+        [SkipIfRedis(Is.OSSCluster)]
         public async Task TestMRangeReduce()
         {
             var keys = CreateKeyNames(2);
