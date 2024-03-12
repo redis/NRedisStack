@@ -88,20 +88,20 @@ namespace NRedisStack.Search
 
             internal override void AddFieldTypeArgs(List<object> args)
             {
-                if (NoStem) args.Add("NOSTEM");
-                if (NoIndex) args.Add("NOINDEX");
+                if (NoStem) args.Add(SearchArgs.NOSTEM);
+                if (NoIndex) args.Add(SearchArgs.NOINDEX);
                 AddPhonetic(args);
                 AddWeight(args);
-                if (WithSuffixTrie) args.Add("WITHSUFFIXTRIE");
+                if (WithSuffixTrie) args.Add(SearchArgs.WITHSUFFIXTRIE);
                 if (Sortable) args.Add(AttributeOptions.SORTABLE);
-                if (Unf) args.Add("UNF");
+                if (Unf) args.Add(SearchArgs.UNF);
             }
 
             private void AddWeight(List<object> args)
             {
                 if (Weight != 1.0)
                 {
-                    args.Add("WEIGHT");
+                    args.Add(SearchArgs.WEIGHT);
                     args.Add(Weight);
                 }
             }
@@ -110,7 +110,7 @@ namespace NRedisStack.Search
             {
                 if (Phonetic != null)
                 {
-                    args.Add("PHONETIC");
+                    args.Add(SearchArgs.PHONETIC);
                     args.Add(this.Phonetic);
                 }
             }
@@ -145,17 +145,17 @@ namespace NRedisStack.Search
 
             internal override void AddFieldTypeArgs(List<object> args)
             {
-                if (NoIndex) args.Add("NOINDEX");
-                if (WithSuffixTrie) args.Add("WITHSUFFIXTRIE");
+                if (NoIndex) args.Add(SearchArgs.NOINDEX);
+                if (WithSuffixTrie) args.Add(SearchArgs.WITHSUFFIXTRIE);
                 if (Separator != ",")
                 {
 
-                    args.Add("SEPARATOR");
+                    args.Add(SearchArgs.SEPARATOR);
                     args.Add(Separator);
                 }
-                if (CaseSensitive) args.Add("CASESENSITIVE");
+                if (CaseSensitive) args.Add(SearchArgs.CASESENSITIVE);
                 if (Sortable) args.Add(AttributeOptions.SORTABLE);
-                if (Unf) args.Add("UNF");
+                if (Unf) args.Add(SearchArgs.UNF);
             }
         }
 
@@ -175,7 +175,7 @@ namespace NRedisStack.Search
 
             internal override void AddFieldTypeArgs(List<object> args)
             {
-                if (NoIndex) args.Add("NOINDEX");
+                if (NoIndex) args.Add(SearchArgs.NOINDEX);
                 if (Sortable) args.Add(AttributeOptions.SORTABLE);
             }
 
@@ -228,7 +228,7 @@ namespace NRedisStack.Search
 
             internal override void AddFieldTypeArgs(List<object> args)
             {
-                if (NoIndex) args.Add("NOINDEX");
+                if (NoIndex) args.Add(SearchArgs.NOINDEX);
                 if (Sortable) args.Add(AttributeOptions.SORTABLE);
             }
 
