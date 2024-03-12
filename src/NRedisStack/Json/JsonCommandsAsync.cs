@@ -5,31 +5,40 @@ using System.Text.Json.Nodes;
 
 namespace NRedisStack;
 
-public class JsonCommandsAsync(IDatabaseAsync db) : IJsonCommandsAsync
+public class JsonCommandsAsync : IJsonCommandsAsync
 {
-    public async Task<long?[]> ArrAppendAsync(RedisKey key, string? path = null, params object[] values)
+    private readonly IDatabaseAsync _db;
+
+    public JsonCommandsAsync(IDatabaseAsync db)
     {
-        return (await db.ExecuteAsync(JsonCommandBuilder.ArrAppend(key, path, values))).ToNullableLongArray();
+        _db = db;
     }
 
-    public async Task<long?[]> ArrIndexAsync(RedisKey key, string path, object value, long? start = null, long? stop = null)
+    public async Task<long?[]> ArrAppendAsync(RedisKey key, string? path = null, params object[] values)
     {
-        return (await db.ExecuteAsync(JsonCommandBuilder.ArrIndex(key, path, value, start, stop))).ToNullableLongArray();
+        return (await _db.ExecuteAsync(JsonCommandBuilder.ArrAppend(key, path, values))).ToNullableLongArray();
+    }
+
+    public async Task<long?[]> ArrIndexAsync(RedisKey key, string path, object value, long? start = null,
+        long? stop = null)
+    {
+        return (await _db.ExecuteAsync(JsonCommandBuilder.ArrIndex(key, path, value, start, stop)))
+            .ToNullableLongArray();
     }
 
     public async Task<long?[]> ArrInsertAsync(RedisKey key, string path, long index, params object[] values)
     {
-        return (await db.ExecuteAsync(JsonCommandBuilder.ArrInsert(key, path, index, values))).ToNullableLongArray();
+        return (await _db.ExecuteAsync(JsonCommandBuilder.ArrInsert(key, path, index, values))).ToNullableLongArray();
     }
 
     public async Task<long?[]> ArrLenAsync(RedisKey key, string? path = null)
     {
-        return (await db.ExecuteAsync(JsonCommandBuilder.ArrLen(key, path))).ToNullableLongArray();
+        return (await _db.ExecuteAsync(JsonCommandBuilder.ArrLen(key, path))).ToNullableLongArray();
     }
 
     public async Task<RedisResult[]> ArrPopAsync(RedisKey key, string? path = null, long? index = null)
     {
-        RedisResult result = await db.ExecuteAsync(JsonCommandBuilder.ArrPop(key, path, index));
+        RedisResult result = await _db.ExecuteAsync(JsonCommandBuilder.ArrPop(key, path, index));
 
         return result.Type switch
         {
@@ -40,71 +49,76 @@ public class JsonCommandsAsync(IDatabaseAsync db) : IJsonCommandsAsync
     }
 
     public async Task<long?[]> ArrTrimAsync(RedisKey key, string path, long start, long stop) =>
-        (await db.ExecuteAsync(JsonCommandBuilder.ArrTrim(key, path, start, stop))).ToNullableLongArray();
+        (await _db.ExecuteAsync(JsonCommandBuilder.ArrTrim(key, path, start, stop))).ToNullableLongArray();
 
     public async Task<long> ClearAsync(RedisKey key, string? path = null)
     {
-        return (await db.ExecuteAsync(JsonCommandBuilder.Clear(key, path))).ToLong();
+        return (await _db.ExecuteAsync(JsonCommandBuilder.Clear(key, path))).ToLong();
     }
 
     public async Task<long> DelAsync(RedisKey key, string? path = null)
     {
-        return (await db.ExecuteAsync(JsonCommandBuilder.Del(key, path))).ToLong();
+        return (await _db.ExecuteAsync(JsonCommandBuilder.Del(key, path))).ToLong();
     }
 
     public Task<long> ForgetAsync(RedisKey key, string? path = null) => DelAsync(key, path);
 
-    public async Task<RedisResult> GetAsync(RedisKey key, RedisValue? indent = null, RedisValue? newLine = null, RedisValue? space = null,
+    public async Task<RedisResult> GetAsync(RedisKey key, RedisValue? indent = null, RedisValue? newLine = null,
+        RedisValue? space = null,
         RedisValue? path = null)
     {
-        return await db.ExecuteAsync(JsonCommandBuilder.Get(key, indent, newLine, space, path));
+        return await _db.ExecuteAsync(JsonCommandBuilder.Get(key, indent, newLine, space, path));
     }
 
-    public async Task<RedisResult> GetAsync(RedisKey key, string[] paths, RedisValue? indent = null, RedisValue? newLine = null,
+    public async Task<RedisResult> GetAsync(RedisKey key, string[] paths, RedisValue? indent = null,
+        RedisValue? newLine = null,
         RedisValue? space = null)
     {
-        return await db.ExecuteAsync(JsonCommandBuilder.Get(key, paths, indent, newLine, space));
+        return await _db.ExecuteAsync(JsonCommandBuilder.Get(key, paths, indent, newLine, space));
     }
 
-    public async Task<T?> GetAsync<T>(RedisKey key, string path = "$", JsonSerializerOptions? serializerOptions = default)
+    public async Task<T?> GetAsync<T>(RedisKey key, string path = "$",
+        JsonSerializerOptions? serializerOptions = default)
     {
-        var res = await db.ExecuteAsync(JsonCommandBuilder.Get<T>(key, path));
+        var res = await _db.ExecuteAsync(JsonCommandBuilder.Get<T>(key, path));
         if (res.Type != ResultType.BulkString || res.IsNull) return default;
         var arr = JsonSerializer.Deserialize<JsonArray>(res.ToString()!);
-        return arr?.Count > 0 ? JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(arr[0]), serializerOptions) : default;
+        return arr?.Count > 0
+            ? JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(arr[0]), serializerOptions)
+            : default;
     }
 
     /// <inheritdoc/>
     public async Task<IEnumerable<T?>> GetEnumerableAsync<T>(RedisKey key, string path = "$")
     {
-        RedisResult res = await db.ExecuteAsync(JsonCommandBuilder.Get<T>(key, path));
+        RedisResult res = await _db.ExecuteAsync(JsonCommandBuilder.Get<T>(key, path));
         return JsonSerializer.Deserialize<IEnumerable<T>>(res.ToString()!)!;
     }
 
     public async Task<RedisResult[]> MGetAsync(RedisKey[] keys, string path)
     {
-        return (await db.ExecuteAsync(JsonCommandBuilder.MGet(keys, path))).ToArray();
+        return (await _db.ExecuteAsync(JsonCommandBuilder.MGet(keys, path))).ToArray();
     }
 
     public async Task<double?[]> NumIncrbyAsync(RedisKey key, string path, double value)
     {
-        var res = await db.ExecuteAsync(JsonCommandBuilder.NumIncrby(key, path, value));
+        var res = await _db.ExecuteAsync(JsonCommandBuilder.NumIncrby(key, path, value));
         return JsonSerializer.Deserialize<double?[]>(res.ToString()!)!;
     }
 
     public async Task<IEnumerable<HashSet<string>>> ObjKeysAsync(RedisKey key, string? path = null)
     {
-        return (await db.ExecuteAsync(JsonCommandBuilder.ObjKeys(key, path))).ToHashSets();
+        return (await _db.ExecuteAsync(JsonCommandBuilder.ObjKeys(key, path))).ToHashSets();
     }
 
     public async Task<long?[]> ObjLenAsync(RedisKey key, string? path = null)
     {
-        return (await db.ExecuteAsync(JsonCommandBuilder.ObjLen(key, path))).ToNullableLongArray();
+        return (await _db.ExecuteAsync(JsonCommandBuilder.ObjLen(key, path))).ToNullableLongArray();
     }
 
     public async Task<RedisResult[]> RespAsync(RedisKey key, string? path = null)
     {
-        RedisResult result = await db.ExecuteAsync(JsonCommandBuilder.Resp(key, path));
+        RedisResult result = await _db.ExecuteAsync(JsonCommandBuilder.Resp(key, path));
 
         if (result.IsNull)
         {
@@ -115,7 +129,8 @@ public class JsonCommandsAsync(IDatabaseAsync db) : IJsonCommandsAsync
     }
 
     /// <inheritdoc/>
-    public Task<bool> SetAsync(RedisKey key, RedisValue path, object obj, When when = When.Always, JsonSerializerOptions? serializerOptions = default)
+    public Task<bool> SetAsync(RedisKey key, RedisValue path, object obj, When when = When.Always,
+        JsonSerializerOptions? serializerOptions = default)
     {
         string json = JsonSerializer.Serialize(obj, options: serializerOptions);
         return SetAsync(key, path, json, when);
@@ -123,25 +138,26 @@ public class JsonCommandsAsync(IDatabaseAsync db) : IJsonCommandsAsync
 
     public async Task<bool> SetAsync(RedisKey key, RedisValue path, RedisValue json, When when = When.Always)
     {
-        return (await db.ExecuteAsync(JsonCommandBuilder.Set(key, path, json, when))).OKtoBoolean();
+        return (await _db.ExecuteAsync(JsonCommandBuilder.Set(key, path, json, when))).OKtoBoolean();
     }
 
     public async Task<bool> MSetAsync(KeyPathValue[] KeyPathValueList)
     {
-        return (await db.ExecuteAsync(JsonCommandBuilder.MSet(KeyPathValueList))).OKtoBoolean();
+        return (await _db.ExecuteAsync(JsonCommandBuilder.MSet(KeyPathValueList))).OKtoBoolean();
     }
 
     /// <inheritdoc/>
     public async Task<bool> MergeAsync(RedisKey key, RedisValue path, RedisValue json)
     {
-        return (await db.ExecuteAsync(JsonCommandBuilder.Merge(key, path, json))).OKtoBoolean();
+        return (await _db.ExecuteAsync(JsonCommandBuilder.Merge(key, path, json))).OKtoBoolean();
     }
 
     /// <inheritdoc/>
-    public async Task<bool> MergeAsync(RedisKey key, RedisValue path, object obj, JsonSerializerOptions? serializerOptions = default)
+    public async Task<bool> MergeAsync(RedisKey key, RedisValue path, object obj,
+        JsonSerializerOptions? serializerOptions = default)
     {
         string json = JsonSerializer.Serialize(obj, options: serializerOptions);
-        return (await db.ExecuteAsync(JsonCommandBuilder.Merge(key, path, json))).OKtoBoolean();
+        return (await _db.ExecuteAsync(JsonCommandBuilder.Merge(key, path, json))).OKtoBoolean();
     }
 
     public async Task<bool> SetFromFileAsync(RedisKey key, RedisValue path, string filePath, When when = When.Always)
@@ -179,17 +195,17 @@ public class JsonCommandsAsync(IDatabaseAsync db) : IJsonCommandsAsync
 
     public async Task<long?[]> StrAppendAsync(RedisKey key, string value, string? path = null)
     {
-        return (await db.ExecuteAsync(JsonCommandBuilder.StrAppend(key, value, path))).ToNullableLongArray();
+        return (await _db.ExecuteAsync(JsonCommandBuilder.StrAppend(key, value, path))).ToNullableLongArray();
     }
 
     public async Task<long?[]> StrLenAsync(RedisKey key, string? path = null)
     {
-        return (await db.ExecuteAsync(JsonCommandBuilder.StrLen(key, path))).ToNullableLongArray();
+        return (await _db.ExecuteAsync(JsonCommandBuilder.StrLen(key, path))).ToNullableLongArray();
     }
 
     public async Task<bool?[]> ToggleAsync(RedisKey key, string? path = null)
     {
-        RedisResult result = await db.ExecuteAsync(JsonCommandBuilder.Toggle(key, path));
+        RedisResult result = await _db.ExecuteAsync(JsonCommandBuilder.Toggle(key, path));
 
         if (result.IsNull)
         {
@@ -206,18 +222,21 @@ public class JsonCommandsAsync(IDatabaseAsync db) : IJsonCommandsAsync
 
     public async Task<JsonType[]> TypeAsync(RedisKey key, string? path = null)
     {
-        RedisResult result = await db.ExecuteAsync(JsonCommandBuilder.Type(key, path));
+        RedisResult result = await _db.ExecuteAsync(JsonCommandBuilder.Type(key, path));
 
         if (result.Type == ResultType.MultiBulk)
         {
-            return ((RedisResult[])result!).Select(x => (JsonType)Enum.Parse(typeof(JsonType), x.ToString()!.ToUpper())).ToArray();
+            return ((RedisResult[])result!).Select(x => (JsonType)Enum.Parse(typeof(JsonType), x.ToString()!.ToUpper()))
+                .ToArray();
         }
 
-        return result.Type == ResultType.BulkString ? [(JsonType)Enum.Parse(typeof(JsonType), result.ToString()!.ToUpper())] : Array.Empty<JsonType>();
+        return result.Type == ResultType.BulkString
+            ? [(JsonType)Enum.Parse(typeof(JsonType), result.ToString()!.ToUpper())]
+            : Array.Empty<JsonType>();
     }
 
     public async Task<long> DebugMemoryAsync(string key, string? path = null)
     {
-        return (await db.ExecuteAsync(JsonCommandBuilder.DebugMemory(key, path))).ToLong();
+        return (await _db.ExecuteAsync(JsonCommandBuilder.DebugMemory(key, path))).ToLong();
     }
 }
