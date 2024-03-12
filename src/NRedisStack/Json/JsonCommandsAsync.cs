@@ -40,12 +40,17 @@ public class JsonCommandsAsync : IJsonCommandsAsync
     {
         RedisResult result = await _db.ExecuteAsync(JsonCommandBuilder.ArrPop(key, path, index));
 
-        return result.Type switch
+        if (result.Type == ResultType.MultiBulk)
         {
-            ResultType.MultiBulk => (RedisResult[])result!,
-            ResultType.BulkString => [result],
-            _ => Array.Empty<RedisResult>()
-        };
+            return (RedisResult[])result!;
+        }
+
+        if (result.Type == ResultType.BulkString)
+        {
+            return new[] { result };
+        }
+
+        return Array.Empty<RedisResult>();
     }
 
     public async Task<long?[]> ArrTrimAsync(RedisKey key, string path, long start, long stop) =>
@@ -214,7 +219,7 @@ public class JsonCommandsAsync : IJsonCommandsAsync
 
         if (result.Type == ResultType.Integer)
         {
-            return [(long)result == 1];
+            return new bool?[] { (long)result == 1 };
         }
 
         return ((RedisResult[])result!).Select(x => (bool?)((long)x == 1)).ToArray();

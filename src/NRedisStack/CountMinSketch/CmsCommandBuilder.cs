@@ -22,6 +22,7 @@ public static class CmsCommandBuilder
             args.Add(pair.Item1);
             args.Add(pair.Item2);
         }
+
         return new SerializedCommand(CMS.INCRBY, args);
     }
 
@@ -41,17 +42,21 @@ public static class CmsCommandBuilder
         return new SerializedCommand(CMS.INITBYPROB, key, error, probability);
     }
 
-    public static SerializedCommand Merge(RedisValue destination, long numKeys, RedisValue[] source, long[]? weight = null)
+    public static SerializedCommand Merge(RedisValue destination, long numKeys, RedisValue[] source,
+        long[]? weight = null)
     {
         if (source.Length < 1)
             throw new ArgumentOutOfRangeException(nameof(source));
 
-        List<object> args = [destination, numKeys];
-        args.AddRange(source.Cast<object>());
+        List<object> args = new List<object> { destination, numKeys };
 
-        if (weight is not { Length: >= 1 }) return new SerializedCommand(CMS.MERGE, args);
-        args.Add(CmsArgs.WEIGHTS);
-        args.AddRange(weight.Cast<object>());
+        foreach (var s in source) args.Add(s);
+
+        if (weight != null && weight.Length >= 1)
+        {
+            args.Add(CmsArgs.WEIGHTS);
+            foreach (var w in weight) args.Add(w);
+        }
 
         return new SerializedCommand(CMS.MERGE, args);
     }

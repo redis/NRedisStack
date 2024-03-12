@@ -87,8 +87,10 @@ public class JsonCommands : JsonCommandsAsync, IJsonCommands
             }
         }
 
-        inserted += Directory.EnumerateDirectories(filesPath).Sum(dirPath => SetFromDirectory(path, dirPath, when));
-
+        foreach (var dirPath in Directory.EnumerateDirectories(filesPath))
+        {
+            inserted += SetFromDirectory(path, dirPath, when);
+        }
         return inserted;
     }
 
@@ -114,9 +116,12 @@ public class JsonCommands : JsonCommandsAsync, IJsonCommands
             return Array.Empty<bool?>();
         }
 
-        return result.Type == ResultType.Integer
-            ? [(long)result == 1]
-            : ((RedisResult[])result!).Select(x => (bool?)((long)x == 1)).ToArray();
+        if (result.Type == ResultType.Integer)
+        {
+            return new bool?[] { (long)result == 1 };
+        }
+
+        return ((RedisResult[])result!).Select(x => (bool?)((long)x == 1)).ToArray();
     }
 
     /// <inheritdoc/>
@@ -124,14 +129,18 @@ public class JsonCommands : JsonCommandsAsync, IJsonCommands
     {
         RedisResult result = _db.Execute(JsonCommandBuilder.Type(key, path));
 
-        return result.Type switch
+        if (result.Type == ResultType.MultiBulk)
         {
-            ResultType.MultiBulk => ((RedisResult[])result!)
-                .Select(x => (JsonType)Enum.Parse(typeof(JsonType), x.ToString()!.ToUpper()))
-                .ToArray(),
-            ResultType.BulkString => [(JsonType)Enum.Parse(typeof(JsonType), result.ToString()!.ToUpper())],
-            _ => Array.Empty<JsonType>()
-        };
+            return ((RedisResult[])result!).Select(x => (JsonType)Enum.Parse(typeof(JsonType), x.ToString()!.ToUpper())).ToArray();
+        }
+
+        if (result.Type == ResultType.BulkString)
+        {
+            return new[] { (JsonType)Enum.Parse(typeof(JsonType), result.ToString()!.ToUpper()) };
+        }
+
+        return Array.Empty<JsonType>();
+
     }
 
     public long DebugMemory(string key, string? path = null)
@@ -173,7 +182,12 @@ public class JsonCommands : JsonCommandsAsync, IJsonCommands
             return (RedisResult[])result!;
         }
 
-        return result.Type == ResultType.BulkString ? [result] : Array.Empty<RedisResult>();
+        if (result.Type == ResultType.BulkString)
+        {
+            return new[] { result };
+        }
+
+        return Array.Empty<RedisResult>();
     }
 
     /// <inheritdoc/>
