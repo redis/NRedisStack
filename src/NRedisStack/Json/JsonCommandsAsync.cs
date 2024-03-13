@@ -82,15 +82,19 @@ public class JsonCommandsAsync : IJsonCommandsAsync
         return await _db.ExecuteAsync(JsonCommandBuilder.Get(key, paths, indent, newLine, space));
     }
 
-    public async Task<T?> GetAsync<T>(RedisKey key, string path = "$",
-        JsonSerializerOptions? serializerOptions = default)
+    public async Task<T?> GetAsync<T>(RedisKey key, string path = "$", JsonSerializerOptions? serializerOptions = default)
     {
         var res = await _db.ExecuteAsync(JsonCommandBuilder.Get<T>(key, path));
-        if (res.Type != ResultType.BulkString || res.IsNull) return default;
-        var arr = JsonSerializer.Deserialize<JsonArray>(res.ToString()!);
-        return arr?.Count > 0
-            ? JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(arr[0]), serializerOptions)
-            : default;
+        if (res.Type == ResultType.BulkString && !res.IsNull)
+        {
+            var arr = JsonSerializer.Deserialize<JsonArray>(res.ToString()!);
+            if (arr?.Count > 0)
+            {
+                return JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(arr[0]), serializerOptions);
+            }
+        }
+
+        return default;
     }
 
     /// <inheritdoc/>
@@ -231,13 +235,15 @@ public class JsonCommandsAsync : IJsonCommandsAsync
 
         if (result.Type == ResultType.MultiBulk)
         {
-            return ((RedisResult[])result!).Select(x => (JsonType)Enum.Parse(typeof(JsonType), x.ToString()!.ToUpper()))
-                .ToArray();
+            return ((RedisResult[])result!).Select(x => (JsonType)Enum.Parse(typeof(JsonType), x.ToString()!.ToUpper())).ToArray();
         }
 
-        return result.Type == ResultType.BulkString
-            ? [(JsonType)Enum.Parse(typeof(JsonType), result.ToString()!.ToUpper())]
-            : Array.Empty<JsonType>();
+        if (result.Type == ResultType.BulkString)
+        {
+            return new[] { (JsonType)Enum.Parse(typeof(JsonType), result.ToString()!.ToUpper()) };
+        }
+
+        return Array.Empty<JsonType>();
     }
 
     public async Task<long> DebugMemoryAsync(string key, string? path = null)
