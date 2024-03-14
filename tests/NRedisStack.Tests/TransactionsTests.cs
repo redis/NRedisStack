@@ -9,8 +9,10 @@ namespace NRedisStack.Tests
     public class TransactionTests : AbstractNRedisStackTest, IDisposable
     {
         private readonly string key = "TRX_TESTS";
-        public TransactionTests(RedisFixture redisFixture) : base(redisFixture) { }
 
+        public TransactionTests(RedisFixture redisFixture) : base(redisFixture)
+        {
+        }
 
         [Fact]
         public void TestJsonTransaction()
@@ -33,7 +35,7 @@ namespace NRedisStack.Tests
 
         [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
         [Obsolete]
-        public void TestModulsTransaction()
+        public void TestModulesTransaction()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
@@ -85,7 +87,7 @@ namespace NRedisStack.Tests
 
         [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
         [Obsolete]
-        public void TestModulsTransactionWithoutGraph()
+        public void TestModulesTransactionWithoutGraph()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
