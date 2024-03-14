@@ -191,19 +191,21 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
 
         // Adding multiple sequence of time-series data.
         List<(string, TimeStamp, double)> sequence1 =
-        [
-            ("temp:TLV", 1000, 30),
-            ("temp:TLV", 1010, 35),
-            ("temp:TLV", 1020, 9999),
-            ("temp:TLV", 1030, 40)
-        ];
+            new()
+            {
+                ("temp:TLV", 1000, 30),
+                ("temp:TLV", 1010, 35),
+                ("temp:TLV", 1020, 9999),
+                ("temp:TLV", 1030, 40)
+            };
         List<(string, TimeStamp, double)> sequence2 =
-        [
-            ("temp:JLM", 1005, 30),
-            ("temp:JLM", 1015, 35),
-            ("temp:JLM", 1025, 9999),
-            ("temp:JLM", 1035, 40)
-        ];
+            new()
+            {
+                ("temp:JLM", 1005, 30),
+                ("temp:JLM", 1015, 35),
+                ("temp:JLM", 1025, 9999),
+                ("temp:JLM", 1035, 40)
+            };
 
         // Adding multiple samples to multiple series.
         _ = pipeline.Ts.MAddAsync(sequence1);
@@ -1060,10 +1062,11 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         res = ft.Search("idx1", new Query("@price:[40,130]")).ToJson();
 
         expectedList =
-        [
-            "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}",
-            "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
-        ];
+            new List<string>
+            {
+                "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}",
+                "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
+            };
 
         SortAndCompare(expectedList, res);
 
@@ -1083,10 +1086,11 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         // Find all documents that either match tag value or text value:
         res = ft.Search("idx1", new Query("(@gender:{Women})|(@city:Boston)")).ToJson();
         expectedList =
-        [
-            "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}",
-            "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}"
-        ];
+            new List<string>
+            {
+                "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}",
+                "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}"
+            };
 
         SortAndCompare(expectedList, res);
 
@@ -1094,20 +1098,22 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         res = ft.Search("idx1", new Query("-(@description:Shirt)")).ToJson();
 
         expectedList =
-        [
-            "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}",
-            "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
-        ];
+            new List<string>
+            {
+                "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}",
+                "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
+            };
         SortAndCompare(expectedList, res);
 
         // Find all documents that have a word that begins with a given prefix value:
         res = ft.Search("idx1", new Query("@description:Nav*")).ToJson();
 
         expectedList =
-        [
-            "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}",
-            "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
-        ];
+            new List<string>
+            {
+                "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}",
+                "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
+            };
         SortAndCompare(expectedList, res);
 
         // Find all documents that contain a word that ends with a given suffix value:
@@ -1122,10 +1128,11 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
 
 
         expectedList =
-        [
-            "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}",
-            "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
-        ];
+            new List<string>
+            {
+                "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}",
+                "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
+            };
         SortAndCompare(expectedList, res);
 
         // Find all documents that have geographic coordinates within a given range of a given coordinate.
@@ -1177,9 +1184,9 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         }
         catch
         {
+            //Todo: Check When Exception Catch 
         }
 
-        ;
         Assert.True(ft.Create("vss_idx", new FTCreateParams().On(IndexDataType.HASH).Prefix("vec:"),
             new Schema()
                 .AddTagField("tag")
@@ -1202,7 +1209,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
                 .AddParam("query_vec", vec.SelectMany(BitConverter.GetBytes).ToArray())
                 .SetSortBy("__vector_score")
                 .Dialect(2));
-        HashSet<string> resSet = [];
+        HashSet<string> resSet = new HashSet<string>();
         foreach (var doc in res.Documents)
         {
             foreach (var item in doc.GetProperties())
@@ -1214,11 +1221,11 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
             }
         }
 
-        HashSet<string> expectedResSet =
-        [
+        HashSet<string> expectedResSet = new HashSet<string>()
+        {
             "id: vec:3, score: 1",
-            "id: vec:2, score: 3"
-        ];
+            "id: vec:2, score: 3",
+        };
 
         Assert.Equal(expectedResSet, resSet);
 
@@ -1242,10 +1249,11 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         }
 
         expectedResSet =
-        [
-            "id: vec:2, score: 3",
-            "id: vec:4, score: 7"
-        ];
+            new HashSet<string>
+            {
+                "id: vec:2, score: 3",
+                "id: vec:4, score: 7"
+            };
 
         //Advanced Search Queries:
         // data load:
@@ -1321,10 +1329,9 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         }
         catch
         {
-            // ignored
+            //Todo: Check When Exception Catch 
         }
 
-        ;
         Assert.True(ft.Create("wh_idx", new FTCreateParams()
                 .On(IndexDataType.JSON)
                 .Prefix("warehouse:"),
