@@ -10,11 +10,14 @@ using static NRedisStack.Search.Schema;
 
 namespace NRedisStack.Tests;
 
-public class ExampleTests(RedisFixture redisFixture, ITestOutputHelper testOutputHelper)
-    : AbstractNRedisStackTest(redisFixture), IDisposable
+public class ExampleTests : AbstractNRedisStackTest, IDisposable
 {
-    private readonly ITestOutputHelper testOutputHelper = testOutputHelper;
+    private readonly ITestOutputHelper testOutputHelper;
     // private readonly string key = "EXAMPLES_TESTS";
+    public ExampleTests(RedisFixture redisFixture, ITestOutputHelper testOutputHelper) : base(redisFixture)
+    {
+        this.testOutputHelper = testOutputHelper;
+    }
 
     [SkipIfRedis(Is.OSSCluster)]
     public void HSETandSearch()
