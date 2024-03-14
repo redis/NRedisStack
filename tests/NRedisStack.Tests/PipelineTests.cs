@@ -8,12 +8,12 @@ namespace NRedisStack.Tests;
 
 public class PipelineTests : AbstractNRedisStackTest, IDisposable
 {
-    private readonly string key = "PIPELINE_TESTS";
+    private const string key = "PIPELINE_TESTS";
     public PipelineTests(RedisFixture redisFixture) : base(redisFixture) { }
 
     [SkipIfRedis(Is.OSSCluster, Comparison.GreaterThanOrEqual, "7.1.242")]
     [Obsolete]
-    public void TestModulsPipeline()
+    public void TestModulesPipeline()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
@@ -65,7 +65,7 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
 
     [SkipIfRedis(Is.OSSCluster)]
     [Obsolete]
-    public void TestModulsPipelineWithotGraph()
+    public void TestModulesPipelineWithoutGraph()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
