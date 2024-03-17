@@ -131,7 +131,7 @@ namespace NRedisStack.Tests
             Assert.NotNull(db.TOPK().Info("topk-key"));
         }
 
-        [Fact]
+        [SkipIfRedis(Is.Enterprise)]
         public async Task TestJsonTransactionExpireAsync()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -140,7 +140,6 @@ namespace NRedisStack.Tests
 
             string jsonPerson = JsonSerializer.Serialize(new Person { Name = "tutptbs", Age = 21 });
             _ = transaction.Json.SetAsync("key", "$", jsonPerson);
-            // var setResponse = transaction.Json.SetAsync("key", "$", jsonPerson);
             _ = transaction.Db.KeyExpireAsync("key", TimeSpan.FromSeconds(10));
 
             await transaction.ExecuteAsync();
@@ -154,7 +153,7 @@ namespace NRedisStack.Tests
             Assert.True(resultAfterExpire.IsNull);
         }
 
-        [Fact]
+        [SkipIfRedis(Is.Enterprise)]
         public void TestJsonTransactionExpire()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
