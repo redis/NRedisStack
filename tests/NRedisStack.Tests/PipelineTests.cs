@@ -157,4 +157,26 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
         Assert.True(setResponse.Result);
         Assert.Equal("{\"Name\":\"Shachar\",\"Age\":23}", getResponse.Result.ToString());
     }
+
+    [Fact]
+    public async Task TestJsonPipelineExpireAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        var pipeline = new Pipeline(db);
+        pipeline.Db.ExecuteAsync("FLUSHALL");
+
+        string jsonPerson = JsonSerializer.Serialize(new Person { Name = "tutptbs", Age = 21 });
+        _ = pipeline.Json.SetAsync("key", "$", jsonPerson);
+        _ = pipeline.Db.KeyExpireAsync("key", TimeSpan.FromSeconds(10));
+
+        pipeline.Execute();
+
+        var resultBesoreExpire = db.JSON().Get("key");
+        Assert.False(resultBesoreExpire.IsNull);
+
+        Thread.Sleep(TimeSpan.FromSeconds(11));
+
+        var resultAfterExpire = db.JSON().Get("key");
+        Assert.True(resultAfterExpire.IsNull);
+    }
 }
