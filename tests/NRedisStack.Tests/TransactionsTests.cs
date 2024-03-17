@@ -130,5 +130,50 @@ namespace NRedisStack.Tests
             Assert.NotNull(db.TS().Info("ts-key"));
             Assert.NotNull(db.TOPK().Info("topk-key"));
         }
+
+        [SkipIfRedis(Is.Enterprise)]
+        public async Task TestJsonTransactionExpireAsync()
+        {
+            IDatabase db = redisFixture.Redis.GetDatabase();
+            var transaction = new Transaction(db);
+            transaction.Db.ExecuteAsync("FLUSHALL");
+
+            string jsonPerson = JsonSerializer.Serialize(new Person { Name = "tutptbs", Age = 21 });
+            _ = transaction.Json.SetAsync("key", "$", jsonPerson);
+            _ = transaction.Db.KeyExpireAsync("key", TimeSpan.FromSeconds(10));
+
+            await transaction.ExecuteAsync();
+
+            var resultBesoreExpire = db.JSON().Get("key");
+            Assert.False(resultBesoreExpire.IsNull);
+
+            Thread.Sleep(TimeSpan.FromSeconds(11));
+
+            var resultAfterExpire = db.JSON().Get("key");
+            Assert.True(resultAfterExpire.IsNull);
+        }
+
+        [SkipIfRedis(Is.Enterprise)]
+        public void TestJsonTransactionExpire()
+        {
+            IDatabase db = redisFixture.Redis.GetDatabase();
+            var transaction = new Transaction(db);
+            transaction.Db.ExecuteAsync("FLUSHALL");
+
+            string jsonPerson = JsonSerializer.Serialize(new Person { Name = "tutptbs", Age = 21 });
+            _ = transaction.Json.SetAsync("key", "$", jsonPerson);
+            _ = transaction.Db.KeyExpireAsync("key", TimeSpan.FromSeconds(10));
+
+            transaction.Execute();
+
+            var resultBesoreExpire = db.JSON().Get("key");
+            Assert.False(resultBesoreExpire.IsNull);
+
+            Thread.Sleep(TimeSpan.FromSeconds(11));
+
+            var resultAfterExpire = db.JSON().Get("key");
+            Assert.True(resultAfterExpire.IsNull);
+        }
+
     }
 }
