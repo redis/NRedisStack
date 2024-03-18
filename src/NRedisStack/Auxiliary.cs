@@ -67,9 +67,11 @@ public static class Auxiliary
 
     public static async Task<RedisResult> ExecuteAsync(this IDatabaseAsync db, SerializedCommand command)
     {
-        if (!_setInfo) return await db.ExecuteAsync(command.Command, command.Args);
-        _setInfo = false;
-        ((IDatabase)db).SetInfoInPipeline();
+        if (_setInfo)
+        {
+            _setInfo = false;
+            ((IDatabase)db).SetInfoInPipeline();
+        }
         return await db.ExecuteAsync(command.Command, command.Args);
     }
 
