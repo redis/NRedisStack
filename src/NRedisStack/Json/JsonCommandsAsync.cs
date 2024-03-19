@@ -7,7 +7,7 @@ namespace NRedisStack;
 
 public class JsonCommandsAsync : IJsonCommandsAsync
 {
-    IDatabaseAsync _db;
+    private readonly IDatabaseAsync _db;
 
     public JsonCommandsAsync(IDatabaseAsync db)
     {
@@ -19,9 +19,11 @@ public class JsonCommandsAsync : IJsonCommandsAsync
         return (await _db.ExecuteAsync(JsonCommandBuilder.ArrAppend(key, path, values))).ToNullableLongArray();
     }
 
-    public async Task<long?[]> ArrIndexAsync(RedisKey key, string path, object value, long? start = null, long? stop = null)
+    public async Task<long?[]> ArrIndexAsync(RedisKey key, string path, object value, long? start = null,
+        long? stop = null)
     {
-        return (await _db.ExecuteAsync(JsonCommandBuilder.ArrIndex(key, path, value, start, stop))).ToNullableLongArray();
+        return (await _db.ExecuteAsync(JsonCommandBuilder.ArrIndex(key, path, value, start, stop)))
+            .ToNullableLongArray();
     }
 
     public async Task<long?[]> ArrInsertAsync(RedisKey key, string path, long index, params object[] values)
@@ -66,13 +68,15 @@ public class JsonCommandsAsync : IJsonCommandsAsync
 
     public Task<long> ForgetAsync(RedisKey key, string? path = null) => DelAsync(key, path);
 
-    public async Task<RedisResult> GetAsync(RedisKey key, RedisValue? indent = null, RedisValue? newLine = null, RedisValue? space = null,
+    public async Task<RedisResult> GetAsync(RedisKey key, RedisValue? indent = null, RedisValue? newLine = null,
+        RedisValue? space = null,
         RedisValue? path = null)
     {
         return await _db.ExecuteAsync(JsonCommandBuilder.Get(key, indent, newLine, space, path));
     }
 
-    public async Task<RedisResult> GetAsync(RedisKey key, string[] paths, RedisValue? indent = null, RedisValue? newLine = null,
+    public async Task<RedisResult> GetAsync(RedisKey key, string[] paths, RedisValue? indent = null,
+        RedisValue? newLine = null,
         RedisValue? space = null)
     {
         return await _db.ExecuteAsync(JsonCommandBuilder.Get(key, paths, indent, newLine, space));
@@ -134,7 +138,8 @@ public class JsonCommandsAsync : IJsonCommandsAsync
     }
 
     /// <inheritdoc/>
-    public Task<bool> SetAsync(RedisKey key, RedisValue path, object obj, When when = When.Always, JsonSerializerOptions? serializerOptions = default)
+    public Task<bool> SetAsync(RedisKey key, RedisValue path, object obj, When when = When.Always,
+        JsonSerializerOptions? serializerOptions = default)
     {
         string json = JsonSerializer.Serialize(obj, options: serializerOptions);
         return SetAsync(key, path, json, when);
@@ -157,7 +162,8 @@ public class JsonCommandsAsync : IJsonCommandsAsync
     }
 
     /// <inheritdoc/>
-    public async Task<bool> MergeAsync(RedisKey key, RedisValue path, object obj, JsonSerializerOptions? serializerOptions = default)
+    public async Task<bool> MergeAsync(RedisKey key, RedisValue path, object obj,
+        JsonSerializerOptions? serializerOptions = default)
     {
         string json = JsonSerializer.Serialize(obj, options: serializerOptions);
         return (await _db.ExecuteAsync(JsonCommandBuilder.Merge(key, path, json))).OKtoBoolean();
@@ -181,7 +187,7 @@ public class JsonCommandsAsync : IJsonCommandsAsync
         var files = Directory.EnumerateFiles(filesPath, "*.json");
         foreach (var filePath in files)
         {
-            key = filePath.Substring(0, filePath.IndexOf("."));
+            key = filePath.Substring(0, filePath.IndexOf(".", StringComparison.Ordinal));
             if (await SetFromFileAsync(key, path, filePath, when))
             {
                 inserted++;

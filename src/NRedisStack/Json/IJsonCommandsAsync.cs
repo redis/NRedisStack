@@ -136,7 +136,7 @@ public interface IJsonCommandsAsync
     /// <param name="key">The key to pull from.</param>
     /// <param name="path">The path to pull.</param>
     /// <typeparam name="T">The type.</typeparam>
-    /// <returns>An enumerable of the requested tyep</returns>
+    /// <returns>An enumerable of the requested type</returns>
     /// <remarks><seealso href="https://redis.io/commands/json.get"/></remarks>
     Task<IEnumerable<T?>> GetEnumerableAsync<T>(RedisKey key, string path = "$");
 

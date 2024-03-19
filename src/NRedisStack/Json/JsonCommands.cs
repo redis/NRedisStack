@@ -7,7 +7,7 @@ namespace NRedisStack;
 
 public class JsonCommands : JsonCommandsAsync, IJsonCommands
 {
-    IDatabase _db;
+    private readonly IDatabase _db;
 
     public JsonCommands(IDatabase db) : base(db)
     {
@@ -28,7 +28,8 @@ public class JsonCommands : JsonCommandsAsync, IJsonCommands
     }
 
     /// <inheritdoc/>
-    public bool Set(RedisKey key, RedisValue path, object obj, When when = When.Always, JsonSerializerOptions? serializerOptions = default)
+    public bool Set(RedisKey key, RedisValue path, object obj, When when = When.Always,
+        JsonSerializerOptions? serializerOptions = default)
     {
         string json = JsonSerializer.Serialize(obj, options: serializerOptions);
         return Set(key, path, json, when);
@@ -90,7 +91,6 @@ public class JsonCommands : JsonCommandsAsync, IJsonCommands
         {
             inserted += SetFromDirectory(path, dirPath, when);
         }
-
         return inserted;
     }
 
@@ -210,13 +210,15 @@ public class JsonCommands : JsonCommandsAsync, IJsonCommands
     public long Forget(RedisKey key, string? path = null) => Del(key, path);
 
     /// <inheritdoc/>
-    public RedisResult Get(RedisKey key, RedisValue? indent = null, RedisValue? newLine = null, RedisValue? space = null, RedisValue? path = null)
+    public RedisResult Get(RedisKey key, RedisValue? indent = null, RedisValue? newLine = null,
+        RedisValue? space = null, RedisValue? path = null)
     {
         return _db.Execute(JsonCommandBuilder.Get(key, indent, newLine, space, path));
     }
 
     /// <inheritdoc/>
-    public RedisResult Get(RedisKey key, string[] paths, RedisValue? indent = null, RedisValue? newLine = null, RedisValue? space = null)
+    public RedisResult Get(RedisKey key, string[] paths, RedisValue? indent = null, RedisValue? newLine = null,
+        RedisValue? space = null)
     {
         return _db.Execute(JsonCommandBuilder.Get(key, paths, indent, newLine, space));
     }

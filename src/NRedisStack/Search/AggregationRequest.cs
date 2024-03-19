@@ -1,194 +1,187 @@
-﻿using NRedisStack.Search.Literals;
+﻿using NRedisStack.Search.Aggregation;
+using NRedisStack.Search.Literals;
 
-namespace NRedisStack.Search.Aggregation
+namespace NRedisStack.Search;
+public class AggregationRequest
 {
-    public class AggregationRequest
+    private List<object> args = new List<object>(); // Check if Readonly
+    private bool isWithCursor = false;
+
+    public int? dialect { get; private set; } = null;
+
+    public AggregationRequest(string query, int? defaultDialect = null)
     {
-        private List<object> args = new List<object>(); // Check if Readonly
-        private bool isWithCursor = false;
+        this.dialect = defaultDialect;
+        args.Add(query);
+    }
 
-        public int? dialect { get; private set; } = null;
+    public AggregationRequest() : this("*") { }
 
-        public AggregationRequest(string query, int? defaultDialect = null)
-        {
-            this.dialect = defaultDialect;
-            args.Add(query);
-        }
+    public AggregationRequest Verbatim()
+    {
+        args.Add(SearchArgs.VERBATIM);
+        return this;
+    }
 
-        public AggregationRequest() : this("*") { }
-
-        public AggregationRequest Verbatim()
-        {
-            args.Add(SearchArgs.VERBATIM);
-            return this;
-        }
-
-        public AggregationRequest Load(params FieldName[] fields)
-        {
-            if (fields.Length > 0)
-            {
-                args.Add(SearchArgs.LOAD);
-                int loadCountIndex = args.Count;
-                int loadCount = 0;
-                foreach (FieldName fn in fields)
-                {
-                    loadCount += fn.AddCommandArguments(args);
-                }
-
-                args.Insert(loadCountIndex, loadCount);
-            }
-            return this;
-        }
-
-        public AggregationRequest LoadAll()
+    public AggregationRequest Load(params FieldName[] fields)
+    {
+        if (fields.Length > 0)
         {
             args.Add(SearchArgs.LOAD);
-            args.Add("*");
-            return this;
+            int loadCountIndex = args.Count;
+            int loadCount = fields.Sum(fn => fn.AddCommandArguments(args));
+
+            args.Insert(loadCountIndex, loadCount);
+        }
+        return this;
+    }
+
+    public AggregationRequest LoadAll()
+    {
+        args.Add(SearchArgs.LOAD);
+        args.Add("*");
+        return this;
+    }
+
+    public AggregationRequest Timeout(long timeout)
+    {
+        args.Add(SearchArgs.TIMEOUT);
+        args.Add(timeout);
+        return this;
+    }
+
+    public AggregationRequest GroupBy(string field, params Reducer[] reducers)
+    {
+        return GroupBy(new[] { field }, reducers);
+    }
+
+    public AggregationRequest GroupBy(IList<string> fields, IList<Reducer> reducers)
+    {
+        Group g = new Group(fields);
+        foreach (Reducer r in reducers)
+        {
+            g.Reduce(r);
+        }
+        GroupBy(g);
+        return this;
+    }
+
+    public AggregationRequest GroupBy(Group group)
+    {
+        args.Add(SearchArgs.GROUPBY);
+        group.SerializeRedisArgs(args);
+        return this;
+    }
+
+    public AggregationRequest SortBy(string property) => SortBy(SortedField.Asc(property));
+
+    public AggregationRequest SortBy(params SortedField[] fields) => SortBy(-1, fields);
+
+    public AggregationRequest SortBy(int max, params SortedField[] fields)
+    {
+        args.Add(SearchArgs.SORTBY);
+        args.Add(fields.Length * 2);
+
+        foreach (SortedField field in fields)
+        {
+            args.Add(field.FieldName);
+            args.Add(field.Order.ToString());
         }
 
-        public AggregationRequest Timeout(long timeout)
+        if (max > 0)
         {
-            args.Add(SearchArgs.TIMEOUT);
-            args.Add(timeout);
-            return this;
+            args.Add(SearchArgs.MAX);
+            args.Add(max);
         }
 
+        return this;
+    }
 
+    public AggregationRequest Apply(string projection, string alias)
+    {
+        args.Add(SearchArgs.APPLY);
+        args.Add(projection);
+        args.Add(SearchArgs.AS);
+        args.Add(alias);
+        return this;
+    }
 
-        public AggregationRequest GroupBy(string field, params Reducer[] reducers)
+    public AggregationRequest Limit(int count) => Limit(0, count);
+
+    public AggregationRequest Limit(int offset, int count)
+    {
+        new Limit(offset, count).SerializeRedisArgs(args);
+        return this;
+    }
+
+    public AggregationRequest Filter(string filter)
+    {
+        args.Add(SearchArgs.FILTER);
+        args.Add(filter!);
+        return this;
+    }
+
+    public AggregationRequest Cursor(int? count = null, long? maxIdle = null)
+    {
+        isWithCursor = true;
+        args.Add(SearchArgs.WITHCURSOR);
+
+        if (count != null)
         {
-            return GroupBy(new string[] { field }, reducers);
+            args.Add(SearchArgs.COUNT);
+            args.Add(count);
         }
 
-        public AggregationRequest GroupBy(IList<string> fields, IList<Reducer> reducers)
+        if (maxIdle != null && maxIdle < long.MaxValue && maxIdle >= 0)
         {
-            Group g = new Group(fields);
-            foreach (Reducer r in reducers)
+            args.Add(SearchArgs.MAXIDLE);
+            args.Add(maxIdle);
+        }
+        return this;
+    }
+
+    public AggregationRequest Params(Dictionary<string, object> nameValue)
+    {
+        if (nameValue.Count > 0)
+        {
+            args.Add(SearchArgs.PARAMS);
+            args.Add(nameValue.Count * 2);
+            foreach (var entry in nameValue)
             {
-                g.Reduce(r);
-            }
-            GroupBy(g);
-            return this;
-        }
-
-        public AggregationRequest GroupBy(Group group)
-        {
-            args.Add(SearchArgs.GROUPBY);
-            group.SerializeRedisArgs(args);
-            return this;
-        }
-
-        public AggregationRequest SortBy(string property) => SortBy(SortedField.Asc(property));
-
-        public AggregationRequest SortBy(params SortedField[] fields) => SortBy(-1, fields);
-
-        public AggregationRequest SortBy(int max, params SortedField[] fields)
-        {
-            args.Add(SearchArgs.SORTBY);
-            args.Add(fields.Length * 2);
-
-            foreach (SortedField field in fields)
-            {
-                args.Add(field.FieldName);
-                args.Add(field.Order.ToString());
-            }
-
-            if (max > 0)
-            {
-                args.Add(SearchArgs.MAX);
-                args.Add(max);
-            }
-
-            return this;
-        }
-
-        public AggregationRequest Apply(string projection, string alias)
-        {
-            args.Add(SearchArgs.APPLY);
-            args.Add(projection);
-            args.Add(SearchArgs.AS);
-            args.Add(alias);
-            return this;
-        }
-
-        public AggregationRequest Limit(int count) => Limit(0, count);
-
-        public AggregationRequest Limit(int offset, int count)
-        {
-            new Limit(offset, count).SerializeRedisArgs(args);
-            return this;
-        }
-
-        public AggregationRequest Filter(string filter)
-        {
-            args.Add(SearchArgs.FILTER);
-            args.Add(filter!);
-            return this;
-        }
-
-        public AggregationRequest Cursor(int? count = null, long? maxIdle = null)
-        {
-            isWithCursor = true;
-            args.Add(SearchArgs.WITHCURSOR);
-
-            if (count != null)
-            {
-                args.Add(SearchArgs.COUNT);
-                args.Add(count);
-            }
-
-            if (maxIdle != null && maxIdle < long.MaxValue && maxIdle >= 0)
-            {
-                args.Add(SearchArgs.MAXIDLE);
-                args.Add(maxIdle);
-            }
-            return this;
-        }
-
-        public AggregationRequest Params(Dictionary<string, object> nameValue)
-        {
-            if (nameValue.Count > 0)
-            {
-                args.Add(SearchArgs.PARAMS);
-                args.Add(nameValue.Count * 2);
-                foreach (var entry in nameValue)
-                {
-                    args.Add(entry.Key);
-                    args.Add(entry.Value);
-                }
-            }
-            return this;
-        }
-
-        public AggregationRequest Dialect(int dialect)
-        {
-            this.dialect = dialect;
-            return this;
-        }
-
-        private void Dialect()
-        {
-            if (dialect != null)
-            {
-                args.Add(SearchArgs.DIALECT);
-                args.Add(dialect);
+                args.Add(entry.Key);
+                args.Add(entry.Value);
             }
         }
+        return this;
+    }
 
-        public List<object> GetArgs()
-        {
-            return args;
-        }
+    public AggregationRequest Dialect(int dialect)
+    {
+        this.dialect = dialect;
+        return this;
+    }
 
-        public void SerializeRedisArgs()
+    private void Dialect()
+    {
+        if (dialect != null)
         {
-            Dialect();
+            args.Add(SearchArgs.DIALECT);
+            args.Add(dialect);
         }
+    }
 
-        public bool IsWithCursor()
-        {
-            return isWithCursor;
-        }
+    public List<object> GetArgs()
+    {
+        return args;
+    }
+
+    public void SerializeRedisArgs()
+    {
+        Dialect();
+    }
+
+    public bool IsWithCursor()
+    {
+        return isWithCursor;
     }
 }

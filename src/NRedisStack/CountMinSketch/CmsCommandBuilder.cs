@@ -2,73 +2,73 @@ using NRedisStack.CountMinSketch.Literals;
 using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
 
-namespace NRedisStack
+namespace NRedisStack;
+
+public static class CmsCommandBuilder
 {
-
-    public static class CmsCommandBuilder
+    public static SerializedCommand IncrBy(RedisKey key, RedisValue item, long increment)
     {
-        public static SerializedCommand IncrBy(RedisKey key, RedisValue item, long increment)
+        return new SerializedCommand(CMS.INCRBY, key, item, increment);
+    }
+
+    public static SerializedCommand IncrBy(RedisKey key, Tuple<RedisValue, long>[] itemIncrements)
+    {
+        if (itemIncrements.Length < 1)
+            throw new ArgumentOutOfRangeException(nameof(itemIncrements));
+
+        List<object> args = new List<object> { key };
+        foreach (var pair in itemIncrements)
         {
-            return new SerializedCommand(CMS.INCRBY, key, item, increment);
+            args.Add(pair.Item1);
+            args.Add(pair.Item2);
         }
 
-        public static SerializedCommand IncrBy(RedisKey key, Tuple<RedisValue, long>[] itemIncrements)
-        {
-            if (itemIncrements.Length < 1)
-                throw new ArgumentOutOfRangeException(nameof(itemIncrements));
+        return new SerializedCommand(CMS.INCRBY, args);
+    }
 
-            List<object> args = new List<object> { key };
-            foreach (var pair in itemIncrements)
-            {
-                args.Add(pair.Item1);
-                args.Add(pair.Item2);
-            }
-            return new SerializedCommand(CMS.INCRBY, args);
+    public static SerializedCommand Info(RedisKey key)
+    {
+        var info = new SerializedCommand(CMS.INFO, key);
+        return info;
+    }
+
+    public static SerializedCommand InitByDim(RedisKey key, long width, long depth)
+    {
+        return new SerializedCommand(CMS.INITBYDIM, key, width, depth);
+    }
+
+    public static SerializedCommand InitByProb(RedisKey key, double error, double probability)
+    {
+        return new SerializedCommand(CMS.INITBYPROB, key, error, probability);
+    }
+
+    public static SerializedCommand Merge(RedisValue destination, long numKeys, RedisValue[] source,
+        long[]? weight = null)
+    {
+        if (source.Length < 1)
+            throw new ArgumentOutOfRangeException(nameof(source));
+
+        List<object> args = new List<object> { destination, numKeys };
+
+        foreach (var s in source) args.Add(s);
+
+        if (weight != null && weight.Length >= 1)
+        {
+            args.Add(CmsArgs.WEIGHTS);
+            foreach (var w in weight) args.Add(w);
         }
 
-        public static SerializedCommand Info(RedisKey key)
-        {
-            var info = new SerializedCommand(CMS.INFO, key);
-            return info;
-        }
+        return new SerializedCommand(CMS.MERGE, args);
+    }
 
-        public static SerializedCommand InitByDim(RedisKey key, long width, long depth)
-        {
-            return new SerializedCommand(CMS.INITBYDIM, key, width, depth);
-        }
+    public static SerializedCommand Query(RedisKey key, params RedisValue[] items)
+    {
+        if (items.Length < 1)
+            throw new ArgumentOutOfRangeException(nameof(items));
 
-        public static SerializedCommand InitByProb(RedisKey key, double error, double probability)
-        {
-            return new SerializedCommand(CMS.INITBYPROB, key, error, probability);
-        }
+        List<object> args = new List<object> { key };
+        foreach (var item in items) args.Add(item);
 
-        public static SerializedCommand Merge(RedisValue destination, long numKeys, RedisValue[] source, long[]? weight = null)
-        {
-            if (source.Length < 1)
-                throw new ArgumentOutOfRangeException(nameof(source));
-
-            List<object> args = new List<object> { destination, numKeys };
-
-            foreach (var s in source) args.Add(s);
-
-            if (weight != null && weight.Length >= 1)
-            {
-                args.Add(CmsArgs.WEIGHTS);
-                foreach (var w in weight) args.Add(w);
-            }
-
-            return new SerializedCommand(CMS.MERGE, args);
-        }
-
-        public static SerializedCommand Query(RedisKey key, params RedisValue[] items)
-        {
-            if (items.Length < 1)
-                throw new ArgumentOutOfRangeException(nameof(items));
-
-            List<object> args = new List<object> { key };
-            foreach (var item in items) args.Add(item);
-
-            return new SerializedCommand(CMS.QUERY, args);
-        }
+        return new SerializedCommand(CMS.QUERY, args);
     }
 }
