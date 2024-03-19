@@ -18,7 +18,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestCreateOK()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(ts.Create(key));
             TimeSeriesInformation info = ts.Info(key);
@@ -30,7 +30,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             long retentionTime = 5000;
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(ts.Create(key, retentionTime: retentionTime));
             TimeSeriesInformation info = ts.Info(key);
@@ -44,7 +44,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             TimeSeriesLabel label = new TimeSeriesLabel("key", "value");
             var labels = new List<TimeSeriesLabel> { label };
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(ts.Create(key, labels: labels));
             TimeSeriesInformation info = ts.Info(key);
@@ -57,7 +57,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var labels = new List<TimeSeriesLabel>();
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(ts.Create(key, labels: labels));
             TimeSeriesInformation info = ts.Info(key);
@@ -68,7 +68,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestCreateUncompressed()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(ts.Create(key, uncompressed: true));
         }
@@ -77,7 +77,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestCreatehDuplicatePolicyFirst()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(ts.Create(key, duplicatePolicy: TsDuplicatePolicy.FIRST));
         }
@@ -86,7 +86,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestCreatehDuplicatePolicyLast()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(ts.Create(key, duplicatePolicy: TsDuplicatePolicy.LAST));
         }
@@ -95,7 +95,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestCreatehDuplicatePolicyMin()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(ts.Create(key, duplicatePolicy: TsDuplicatePolicy.MIN));
         }
@@ -104,7 +104,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestCreatehDuplicatePolicyMax()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(ts.Create(key, duplicatePolicy: TsDuplicatePolicy.MAX));
         }
@@ -113,7 +113,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestCreatehDuplicatePolicySum()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(ts.Create(key, duplicatePolicy: TsDuplicatePolicy.SUM));
         }

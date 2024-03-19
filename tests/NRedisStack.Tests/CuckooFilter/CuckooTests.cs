@@ -13,7 +13,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public void TestReserveBasic()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
         var cf = db.CF();
         Assert.True(cf.Reserve(key, 100L, maxIterations: 20, expansion: 1));
         Assert.Throws<RedisServerException>(() => cf.Reserve(key, 100L));
@@ -27,7 +27,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public async Task TestReserveBasicAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
         var cf = db.CF();
         Assert.True(await cf.ReserveAsync(key, 100L, maxIterations: 20, expansion: 1));
         _ = Assert.ThrowsAsync<RedisServerException>(async () => await cf.ReserveAsync(key, 100L));
@@ -41,7 +41,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public void TestAddExists()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
         var cf = db.CF();
 
         Assert.True(cf.Add(key, "item1"));
@@ -52,7 +52,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public async Task TestAddExistsAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
         var cf = db.CF();
 
         Assert.True(await cf.AddAsync(key, "item1"));
@@ -63,7 +63,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public void TestAddNX()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
         var cf = db.CF();
 
         Assert.True(cf.AddNX(key, "item1"));
@@ -75,7 +75,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public async Task TestAddNXAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
         var cf = db.CF();
 
         Assert.True(await cf.AddNXAsync(key, "item1"));
@@ -87,7 +87,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public void TestCountFilterDoesNotExist()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
         var cf = db.CF();
 
         Assert.Equal(0, cf.Count("notExistFilter", "notExistItem"));
@@ -97,7 +97,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public async Task TestCountFilterDoesNotExistAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
         var cf = db.CF();
 
         Assert.Equal(0, await cf.CountAsync("notExistFilter", "notExistItem"));
@@ -107,7 +107,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public void TestCountFilterExist()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
         var cf = db.CF();
 
         cf.Insert(key, new RedisValue[] { "foo" });
@@ -118,7 +118,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public async Task TestCountFilterExistAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
         var cf = db.CF();
 
         await cf.InsertAsync(key, new RedisValue[] { "foo" });
@@ -129,7 +129,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public void TestCountItemExist()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
         var cf = db.CF();
 
         cf.Insert(key, new RedisValue[] { "foo" });
@@ -140,7 +140,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public async Task TestCountItemExistAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
         var cf = db.CF();
 
         await cf.InsertAsync(key, new RedisValue[] { "foo" });
@@ -151,7 +151,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public void TestDelete()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
         var cf = db.CF();
 
         cf.Add(key, "item");
@@ -165,7 +165,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public async Task TestDeleteAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
         var cf = db.CF();
 
         await cf.AddAsync(key, "item");
@@ -179,7 +179,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public void TestInfo()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
         var cf = db.CF();
 
         cf.Add(key, "item");
@@ -202,7 +202,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public async Task TestInfoAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
         var cf = db.CF();
 
         await cf.AddAsync(key, "item");
@@ -227,7 +227,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public void TestInsert()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
         var cf = db.CF();
 
         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
@@ -243,7 +243,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public async Task TestInsertAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
         var cf = db.CF();
 
         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
@@ -259,7 +259,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public void TestInsertNX()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
         var cf = db.CF();
 
         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
@@ -287,7 +287,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public async Task TestInsertNXAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
         var cf = db.CF();
 
         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
@@ -315,7 +315,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public void TestExistsNonExist()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
         var cf = db.CF();
 
         RedisValue item = new RedisValue("item");
@@ -326,7 +326,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public async Task TestExistsNonExistAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
         var cf = db.CF();
 
         RedisValue item = new RedisValue("item");
@@ -337,7 +337,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public void TestScanDumpAndLoadChunk()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
         var cf = db.CF();
 
         cf.Reserve("cuckoo", 100, 50);
@@ -362,7 +362,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public async Task TestScanDumpAndLoadChunkAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
         var cf = db.CF();
 
         await cf.ReserveAsync("cuckoo", 100, 50);

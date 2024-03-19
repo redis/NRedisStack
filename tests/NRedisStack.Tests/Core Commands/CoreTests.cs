@@ -17,7 +17,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestSimpleSetInfo()
     {
         var db = redisFixture.Redis.GetDatabase();
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.ClientSetInfo(SetInfoAttr.LibraryName, "TestLibraryName");
         db.ClientSetInfo(SetInfoAttr.LibraryVersion, "1.2.3");
@@ -30,7 +30,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestSimpleSetInfoAsync()
     {
         var db = redisFixture.Redis.GetDatabase();
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         await db.ClientSetInfoAsync(SetInfoAttr.LibraryName, "TestLibraryName");
         await db.ClientSetInfoAsync(SetInfoAttr.LibraryVersion, "1.2.3");
@@ -44,7 +44,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     {
         ResetInfoDefaults(); // demonstrate first connection
         var db = redisFixture.Redis.GetDatabase();
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.Execute(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
@@ -57,7 +57,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     {
         ResetInfoDefaults(); // demonstrate first connection
         var db = redisFixture.Redis.GetDatabase();
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         await db.ExecuteAsync(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
@@ -70,7 +70,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     {
         ResetInfoDefaults(); // demonstrate first connection
         var db = redisFixture.Redis.GetDatabase("MyLibraryName;v1.0.0");
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.Execute(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
@@ -83,7 +83,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     {
         ResetInfoDefaults(); // demonstrate first connection
         var db = redisFixture.Redis.GetDatabase("MyLibraryName;v1.0.0");
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         await db.ExecuteAsync(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
@@ -97,7 +97,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         ResetInfoDefaults(); // demonstrate first connection
         var db = redisFixture.Redis.GetDatabase(null);
 
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
         var infoBefore = db.Execute("CLIENT", "INFO").ToString();
         db.Execute(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
@@ -120,7 +120,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         ResetInfoDefaults(); // demonstrate first connection
         var db = redisFixture.Redis.GetDatabase(null);
 
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
         var infoBefore = (await db.ExecuteAsync("CLIENT", "INFO")).ToString();
         await db.ExecuteAsync(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
@@ -141,7 +141,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBZMPop()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         var sortedSetKey = "my-set";
 
@@ -173,7 +173,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestBZMPopAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         var sortedSetKey = "my-set";
 
@@ -205,7 +205,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBZMPopNull()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         // Nothing in the set, and a short server timeout, which yields null.
         var result = db.BZMPop(0.5, "my-set", MinMaxModifier.Min, null);
@@ -217,7 +217,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestBZMPopNullAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         // Nothing in the set, and a short server timeout, which yields null.
         var result = await db.BZMPopAsync(0.5, "my-set", MinMaxModifier.Min, null);
@@ -234,7 +234,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         using var redis = redisFixture.CustomRedis(configurationOptions, out _);
 
         var db = redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         // Server would wait forever, but the multiplexer times out in 1 second.
         Assert.Throws<RedisTimeoutException>(() => db.BZMPop(0, "my-set", MinMaxModifier.Min));
@@ -249,7 +249,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         await using var redis = redisFixture.CustomRedis(configurationOptions, out _);
 
         var db = redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         // Server would wait forever, but the multiplexer times out in 1 second.
         await Assert.ThrowsAsync<RedisTimeoutException>(async () => await db.BZMPopAsync(0, "my-set", MinMaxModifier.Min));
@@ -259,7 +259,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBZMPopMultipleSets()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.SortedSetAdd("set-one", "a", 1.5);
         db.SortedSetAdd("set-one", "b", 5.1);
@@ -301,7 +301,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestBZMPopMultipleSetsAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.SortedSetAdd("set-one", "a", 1.5);
         db.SortedSetAdd("set-one", "b", 5.1);
@@ -343,7 +343,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBZMPopNoKeysProvided()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         Assert.Throws<ArgumentException>(() => db.BZMPop(0, Array.Empty<RedisKey>(), MinMaxModifier.Min));
     }
@@ -352,7 +352,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBZMPopWithOrderEnum()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         var sortedSetKey = "my-set-" + Guid.NewGuid();
 
@@ -381,7 +381,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBZPopMin()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         var sortedSetKey = "my-set";
 
@@ -400,7 +400,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestBZPopMinAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         var sortedSetKey = "my-set";
 
@@ -419,7 +419,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBZPopMinNull()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         // Nothing in the set, and a short server timeout, which yields null.
         var result = db.BZPopMin("my-set", 0.5);
@@ -431,7 +431,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestBZPopMinNullAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         // Nothing in the set, and a short server timeout, which yields null.
         var result = await db.BZPopMinAsync("my-set", 0.5);
@@ -443,7 +443,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBZPopMinMultipleSets()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.SortedSetAdd("set-one", "a", 1.5);
         db.SortedSetAdd("set-one", "b", 5.1);
@@ -466,7 +466,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestBZPopMinMultipleSetsAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.SortedSetAdd("set-one", "a", 1.5);
         db.SortedSetAdd("set-one", "b", 5.1);
@@ -489,7 +489,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBZPopMax()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         var sortedSetKey = "my-set";
 
@@ -508,7 +508,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestBZPopMaxAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         var sortedSetKey = "my-set";
 
@@ -527,7 +527,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBZPopMaxNull()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         // Nothing in the set, and a short server timeout, which yields null.
         var result = db.BZPopMax("my-set", 0.5);
@@ -539,7 +539,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestBZPopMaxNullAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         // Nothing in the set, and a short server timeout, which yields null.
         var result = await db.BZPopMaxAsync("my-set", 0.5);
@@ -551,7 +551,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBZPopMaxMultipleSets()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.SortedSetAdd("set-one", "a", 1.5);
         db.SortedSetAdd("set-one", "b", 5.1);
@@ -574,7 +574,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestBZPopMaxMultipleSetsAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.SortedSetAdd("set-one", "a", 1.5);
         db.SortedSetAdd("set-one", "b", 5.1);
@@ -597,7 +597,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBLMPop()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.ListRightPush("my-list", "a");
         db.ListRightPush("my-list", "b");
@@ -627,7 +627,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestBLMPopAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.ListRightPush("my-list", "a");
         db.ListRightPush("my-list", "b");
@@ -657,7 +657,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBLMPopNull()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         // Nothing in the list, and a short server timeout, which yields null.
         var result = db.BLMPop(0.5, "my-list", ListSide.Left);
@@ -669,7 +669,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestBLMPopNullAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         // Nothing in the list, and a short server timeout, which yields null.
         var result = await db.BLMPopAsync(0.5, "my-list", ListSide.Left);
@@ -681,7 +681,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBLMPopMultipleLists()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.ListRightPush("list-one", "a");
         db.ListRightPush("list-one", "b");
@@ -723,7 +723,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestBLMPopMultipleListsAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.ListRightPush("list-one", "a");
         db.ListRightPush("list-one", "b");
@@ -765,7 +765,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBLMPopNoKeysProvided()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         Assert.Throws<ArgumentException>(() => db.BLMPop(0, Array.Empty<RedisKey>(), ListSide.Left));
     }
@@ -774,7 +774,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBLPop()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.ListRightPush("my-list", "a");
         db.ListRightPush("my-list", "b");
@@ -790,7 +790,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestBLPopAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.ListRightPush("my-list", "a");
         db.ListRightPush("my-list", "b");
@@ -806,7 +806,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBLPopNull()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         // Nothing in the set, and a short server timeout, which yields null.
         var result = db.BLPop("my-set", 0.5);
@@ -818,7 +818,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestBLPopNullAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         // Nothing in the set, and a short server timeout, which yields null.
         var result = await db.BLPopAsync("my-set", 0.5);
@@ -830,7 +830,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBLPopMultipleLists()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.ListRightPush("list-one", "a");
         db.ListRightPush("list-one", "b");
@@ -853,7 +853,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestBLPopMultipleListsAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.ListRightPush("list-one", "a");
         db.ListRightPush("list-one", "b");
@@ -876,7 +876,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBRPop()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.ListRightPush("my-list", "a");
         db.ListRightPush("my-list", "b");
@@ -892,7 +892,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestBRPopAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.ListRightPush("my-list", "a");
         db.ListRightPush("my-list", "b");
@@ -908,7 +908,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBRPopNull()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         // Nothing in the set, and a short server timeout, which yields null.
         var result = db.BRPop("my-set", 0.5);
@@ -920,7 +920,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestBRPopNullAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         // Nothing in the set, and a short server timeout, which yields null.
         var result = await db.BRPopAsync("my-set", 0.5);
@@ -932,7 +932,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBRPopMultipleLists()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.ListRightPush("list-one", "a");
         db.ListRightPush("list-one", "b");
@@ -955,7 +955,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestBRPopMultipleListsAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.ListRightPush("list-one", "a");
         db.ListRightPush("list-one", "b");
@@ -978,7 +978,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBLMove()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.ListRightPush("list-one", "a");
         db.ListRightPush("list-one", "b");
@@ -1035,7 +1035,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestBLMoveAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.ListRightPush("list-one", "a");
         db.ListRightPush("list-one", "b");
@@ -1092,7 +1092,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestBRPopLPush()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.ListRightPush("list-one", "a");
         db.ListRightPush("list-one", "b");
@@ -1113,7 +1113,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestBRPopLPushAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.ListRightPush("list-one", "a");
         db.ListRightPush("list-one", "b");
@@ -1134,7 +1134,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestXRead()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.StreamAdd("my-stream", "a", 1);
         db.StreamAdd("my-stream", "b", 7);
@@ -1166,7 +1166,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestXReadAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.StreamAdd("my-stream", "a", 1);
         db.StreamAdd("my-stream", "b", 7);
@@ -1198,7 +1198,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestXReadMultipleStreams()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.StreamAdd("stream-one", "a", 1);
         db.StreamAdd("stream-one", "b", 7);
@@ -1248,7 +1248,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestXReadMultipleStreamsAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.StreamAdd("stream-one", "a", 1);
         db.StreamAdd("stream-one", "b", 7);
@@ -1296,7 +1296,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestXReadOnlyNewMessages()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.StreamAdd("my-stream", "a", 1);
 
@@ -1311,7 +1311,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestXReadOnlyNewMessagesAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         db.StreamAdd("my-stream", "a", 1);
 
@@ -1326,7 +1326,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestXReadNoKeysProvided()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         Assert.Throws<ArgumentException>(() => db.XRead(Array.Empty<RedisKey>(),
             new RedisValue[] { StreamSpecialIds.NewMessagesId }));
@@ -1336,7 +1336,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestXReadMismatchedKeysAndPositionsCountsProvided()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         Assert.Throws<ArgumentException>(() => db.XRead(new RedisKey[] { "my-stream" },
             new RedisValue[] { StreamSpecialIds.NewMessagesId, StreamSpecialIds.NewMessagesId }));
@@ -1346,7 +1346,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestXReadGroup()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         var groupCreationResult = db.StreamCreateConsumerGroup("my-stream", "my-group");
         Assert.True(groupCreationResult);
@@ -1446,7 +1446,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestXReadGroupAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         var groupCreationResult = db.StreamCreateConsumerGroup("my-stream", "my-group");
         Assert.True(groupCreationResult);
@@ -1546,7 +1546,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestXReadGroupNoAck()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         var groupCreationResult = db.StreamCreateConsumerGroup("my-stream", "my-group");
         Assert.True(groupCreationResult);
@@ -1579,7 +1579,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestXReadGroupMultipleStreams()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         var groupCreationResult = db.StreamCreateConsumerGroup("stream-one", "my-group");
         Assert.True(groupCreationResult);
@@ -1633,7 +1633,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestXReadGroupMultipleStreamsAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         var groupCreationResult = db.StreamCreateConsumerGroup("stream-one", "my-group");
         Assert.True(groupCreationResult);
@@ -1687,7 +1687,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestXReadGroupNull()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         var groupCreationResult = db.StreamCreateConsumerGroup("my-stream", "my-group");
         Assert.True(groupCreationResult);
@@ -1703,7 +1703,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public async Task TestXReadGroupNullAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         var groupCreationResult = db.StreamCreateConsumerGroup("my-stream", "my-group");
         Assert.True(groupCreationResult);
@@ -1719,7 +1719,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestXReadGroupNoKeysProvided()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         Assert.Throws<ArgumentException>(() => db.XReadGroup("my-group", "consumer",
             Array.Empty<RedisKey>(), new RedisValue[] { StreamSpecialIds.NewMessagesId }));
@@ -1729,7 +1729,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public void TestXReadGroupMismatchedKeysAndPositionsCountsProvided()
     {
         var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+        db.Execute("FLUSHALL");
 
         Assert.Throws<ArgumentException>(() => db.XReadGroup("my-group", "consumer",
             new RedisKey[] { "my-stream" }, new RedisValue[] { StreamSpecialIds.NewMessagesId, StreamSpecialIds.NewMessagesId }));

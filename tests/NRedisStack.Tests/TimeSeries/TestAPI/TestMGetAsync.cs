@@ -13,7 +13,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var keys = CreateKeyNames(2);
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
 
             var label1 = new TimeSeriesLabel(keys[0], "value");
@@ -41,7 +41,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var keys = CreateKeyNames(2);
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
 
             var label1 = new TimeSeriesLabel(keys[0], "value");
@@ -69,7 +69,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var keys = CreateKeyNames(2);
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
 
             var label1 = new TimeSeriesLabel("MGET_TESTS_1", "value");

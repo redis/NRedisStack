@@ -14,7 +14,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(await ts.CreateAsync(key));
         }
@@ -26,7 +26,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var key = CreateKeyName();
             long retentionTime = 5000;
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(await ts.CreateAsync(key, retentionTime: retentionTime));
 
@@ -42,7 +42,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var label = new TimeSeriesLabel("key", "value");
             var labels = new List<TimeSeriesLabel> { label };
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(await ts.CreateAsync(key, labels: labels));
 
@@ -57,7 +57,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var key = CreateKeyName();
             var labels = new List<TimeSeriesLabel>();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(await ts.CreateAsync(key, labels: labels));
 
@@ -70,7 +70,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(await ts.CreateAsync(key, uncompressed: true));
         }
@@ -80,7 +80,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(await ts.CreateAsync(key, duplicatePolicy: TsDuplicatePolicy.FIRST));
         }
@@ -90,7 +90,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(await ts.CreateAsync(key, duplicatePolicy: TsDuplicatePolicy.LAST));
         }
@@ -100,7 +100,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(await ts.CreateAsync(key, duplicatePolicy: TsDuplicatePolicy.MIN));
         }
@@ -110,7 +110,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(await ts.CreateAsync(key, duplicatePolicy: TsDuplicatePolicy.MAX));
         }
@@ -120,7 +120,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(await ts.CreateAsync(key, duplicatePolicy: TsDuplicatePolicy.SUM));
         }

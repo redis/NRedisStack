@@ -4,6 +4,7 @@ using NRedisStack.Literals.Enums;
 using Xunit;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Tests;
+using NRedisStack;
 
 
 namespace NRedisTimeSeries.Test.TestDataTypes
@@ -18,7 +19,7 @@ namespace NRedisTimeSeries.Test.TestDataTypes
         {
             string key = CreateKeyName();
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
             ts.Add(key, "*", 1.1);
             ts.Add(key, "*", 1.3, duplicatePolicy: TsDuplicatePolicy.LAST);
@@ -47,7 +48,7 @@ namespace NRedisTimeSeries.Test.TestDataTypes
         {
             string key = CreateKeyName();
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
             await ts.AddAsync(key, "*", 1.1);
             await ts.AddAsync(key, "*", 1.3, duplicatePolicy: TsDuplicatePolicy.LAST);

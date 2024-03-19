@@ -16,7 +16,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
             await ts.CreateAsync(key);
             var aggregations = (TsAggregation[])Enum.GetValues(typeof(TsAggregation));
@@ -59,7 +59,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var key = CreateKeyName();
             var aggKey = $"{key}:{TsAggregation.Avg}";
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
             await ts.CreateAsync(aggKey);
             var rule = new TimeSeriesRule(aggKey, 50, TsAggregation.Avg);
@@ -78,7 +78,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var key = CreateKeyName();
             var aggKey = $"{key}:{TsAggregation.Avg}";
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
             await ts.CreateAsync(key);
             var rule = new TimeSeriesRule(aggKey, 50, TsAggregation.Avg);
@@ -93,7 +93,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async Task TestAlignTimestampAsync()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
+            db.Execute("FLUSHALL");
             var ts = db.TS();
             await ts.CreateAsync("ts1");
             await ts.CreateAsync("ts2");
