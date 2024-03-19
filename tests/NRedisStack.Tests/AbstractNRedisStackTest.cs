@@ -40,18 +40,17 @@ public abstract class AbstractNRedisStackTest : IClassFixture<RedisFixture>, IAs
         return tuples;
     }
 
-        public Task InitializeAsync() => Task.CompletedTask;
+    public Task InitializeAsync() => Task.CompletedTask;
 
-        public void Dispose()
-        {
-            redisFixture.Redis.GetDatabase().ExecuteAllShards("FLUSHALL");
-        }
+    public void Dispose()
+    {
+        redisFixture.Redis.GetDatabase().ExecuteAllShards("FLUSHALL");
+    }
 
-        public async Task DisposeAsync()
-        {
-            var redis = redisFixture.Redis.GetDatabase();
-            // await redis.KeyDeleteAsync(keyNames.Select(i => (RedisKey)i).ToArray());
-            await redis.ExecuteAllShardsAsync("FLUSHALL");
-        }
+    public async Task DisposeAsync()
+    {
+        var redis = redisFixture.Redis.GetDatabase();
+        // await redis.KeyDeleteAsync(keyNames.Select(i => (RedisKey)i).ToArray());
+        await redis.ExecuteAllShardsAsync("FLUSHALL");
     }
 }
