@@ -1,10 +1,11 @@
 // EXAMPLE: hash_tutorial
 // HIDE_START
+
 using NRedisStack.Tests;
 using StackExchange.Redis;
 
 //REMOVE_START
-namespace NRedisStack.Doc;
+namespace Doc;
 [Collection("DocsTests")]
 //REMOVE_END
 public class HashExample

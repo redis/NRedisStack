@@ -28,11 +28,13 @@ namespace NRedisStack
                 throw new ArgumentException("At least one key must be provided.");
             }
 
-            List<object> args = new List<object>();
+            List<object> args = new List<object> {
+                timeout,
+                keys.Length
+            };
 
-            args.Add(timeout);
-            args.Add(keys.Length);
             args.AddRange(keys.Cast<object>());
+
             args.Add(minMaxModifier == MinMaxModifier.Min ? CoreArgs.MIN : CoreArgs.MAX);
 
             if (count != null)

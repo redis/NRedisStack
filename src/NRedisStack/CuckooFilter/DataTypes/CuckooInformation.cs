@@ -16,8 +16,8 @@ namespace NRedisStack.CuckooFilter.DataTypes
         public long MaxIterations { get; private set; }
 
         internal CuckooInformation(long size, long numberOfBuckets, long numberOfFilter,
-                                   long numberOfItemsInserted, long numberOfItemsDeleted,
-                                   long bucketSize, long expansionRate, long maxIteration)
+            long numberOfItemsInserted, long numberOfItemsDeleted,
+            long bucketSize, long expansionRate, long maxIteration)
         {
             Size = size;
             NumberOfBuckets = numberOfBuckets;
