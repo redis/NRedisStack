@@ -1,15 +1,16 @@
 ﻿// EXAMPLE: set_and_get
 // HIDE_START
-using System;
+
 using NRedisStack.Tests;
 using StackExchange.Redis;
 
 //REMOVE_START
-namespace NRedisStack.Doc;
+namespace Doc;
 [Collection("DocsTests")]
 //REMOVE_END
 public class SetGetExample
 {
+
     [SkipIfRedis(Is.OSSCluster)]
     public void run()
     {

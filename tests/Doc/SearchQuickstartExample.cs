@@ -1,4 +1,5 @@
 // EXAMPLE: search_quickstart
+
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
 using NRedisStack.Search.Aggregation;
@@ -7,7 +8,7 @@ using NRedisStack.Tests;
 using StackExchange.Redis;
 
 // REMOVE_START
-namespace NRedisStack.Doc;
+namespace Doc;
 [Collection("DocsTests")]
 // REMOVE_END
 public class SearchQuickstartExample
@@ -29,6 +30,7 @@ public class SearchQuickstartExample
         }
         catch
         {
+            // ignored
         }
         // REMOVE_END
 
