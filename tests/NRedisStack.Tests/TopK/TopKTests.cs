@@ -14,7 +14,7 @@ public class TopKTests : AbstractNRedisStackTest, IDisposable
     public void CreateTopKFilter()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var topk = db.TOPK();
 
         //db.KeyDelete(key, CommandFlags.FireAndForget);
@@ -51,7 +51,7 @@ public class TopKTests : AbstractNRedisStackTest, IDisposable
     public async Task CreateTopKFilterAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var topk = db.TOPK();
 
         await topk.ReserveAsync(key, 30, 2000, 7, 0.925);

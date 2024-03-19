@@ -14,7 +14,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestTSQueryIndex()
         {
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             var label1 = new TimeSeriesLabel("QUERYINDEX_TESTS_1", "value");
             var label2 = new TimeSeriesLabel("QUERYINDEX_TESTS_2", "value2");

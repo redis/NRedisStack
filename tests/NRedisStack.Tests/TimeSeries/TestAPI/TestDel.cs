@@ -28,7 +28,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestDelNotExists()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             var ex = Assert.Throws<RedisServerException>(() => ts.Del(key, "-", "+"));
             Assert.Equal("ERR TSDB: the key does not exist", ex.Message);
@@ -38,7 +38,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestDelRange()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             var tuples = CreateData(ts, 50);
             TimeStamp from = tuples[0].Time;

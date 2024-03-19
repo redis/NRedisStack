@@ -17,7 +17,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestAddNotExistingTimeSeries()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
 
             TimeStamp now = DateTime.UtcNow;
@@ -32,7 +32,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestAddExistingTimeSeries()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
 
             ts.Create(key);
@@ -48,7 +48,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestAddStar()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
 
             ts.Add(key, "*", 1.1);
@@ -62,7 +62,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestAddWithRetentionTime()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             TimeStamp now = DateTime.UtcNow;
             long retentionTime = 5000;
@@ -78,7 +78,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestAddWithLabels()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             TimeStamp now = DateTime.UtcNow;
             TimeSeriesLabel label = new TimeSeriesLabel("key", "value");
@@ -95,7 +95,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestAddWithUncompressed()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             ts.Create(key);
             TimeStamp now = DateTime.UtcNow;
@@ -110,7 +110,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestAddWithChunkSize()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             TimeStamp now = DateTime.UtcNow;
             Assert.Equal(now, ts.Add(key, now, 1.1, chunkSizeBytes: 128));
@@ -124,7 +124,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestAddWithDuplicatePolicyBlock()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             TimeStamp now = DateTime.UtcNow;
             Assert.Equal(now, ts.Add(key, now, 1.1));
@@ -135,7 +135,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestAddWithDuplicatePolicyMin()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             TimeStamp now = DateTime.UtcNow;
             Assert.Equal(now, ts.Add(key, now, 1.1));
@@ -152,7 +152,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestAddWithDuplicatePolicyMax()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             TimeStamp now = DateTime.UtcNow;
             Assert.Equal(now, ts.Add(key, now, 1.1));
@@ -169,7 +169,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestAddWithDuplicatePolicySum()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             TimeStamp now = DateTime.UtcNow;
             Assert.Equal(now, ts.Add(key, now, 1.1));
@@ -181,7 +181,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestAddWithDuplicatePolicyFirst()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             TimeStamp now = DateTime.UtcNow;
             Assert.Equal(now, ts.Add(key, now, 1.1));
@@ -193,7 +193,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestAddWithDuplicatePolicyLast()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             TimeStamp now = DateTime.UtcNow;
             Assert.Equal(now, ts.Add(key, now, 1.1));
@@ -208,7 +208,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Thread.Sleep(1000);
             TimeStamp new_dt = DateTime.UtcNow;
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             ts.Create(key);
             ts.Add(key, new_dt, 1.1);
@@ -222,7 +222,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             double value = 1.1;
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             var ex = Assert.Throws<RedisServerException>(() => ts.Add(key, "+", value));
             Assert.Equal("ERR TSDB: invalid timestamp", ex.Message);

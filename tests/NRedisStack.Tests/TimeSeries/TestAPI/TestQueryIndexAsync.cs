@@ -13,7 +13,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var keys = CreateKeyNames(2);
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             var label1 = new TimeSeriesLabel(keys[0], "value");
             var label2 = new TimeSeriesLabel(keys[1], "value2");

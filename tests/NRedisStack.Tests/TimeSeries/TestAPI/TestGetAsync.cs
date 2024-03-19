@@ -14,7 +14,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             var ex = await Assert.ThrowsAsync<RedisServerException>(async () => await ts.GetAsync(key));
             Assert.Equal("ERR TSDB: the key does not exist", ex.Message);
@@ -25,7 +25,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             await ts.CreateAsync(key);
             Assert.Null(await ts.GetAsync(key));
@@ -38,7 +38,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var now = DateTime.UtcNow;
             var expected = new TimeSeriesTuple(now, 1.1);
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             await ts.CreateAsync(key);
             await ts.AddAsync(key, now, 1.1);

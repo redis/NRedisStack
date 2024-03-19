@@ -18,7 +18,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void TestCreateNode()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         // Create a node
         ResultSet resultSet = graph.Query("social", "CREATE ({name:'roi',age:32})");
@@ -42,7 +42,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void TestCreateLabeledNode()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         // Create a node with a label
         ResultSet resultSet = graph.Query("social", "CREATE (:human{name:'danny',age:12})");
@@ -64,7 +64,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void TestConnectNodes()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         // Create both source and destination nodes
         Assert.NotNull(graph.Query("social", "CREATE (:person{name:'roi',age:32})"));
@@ -92,7 +92,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void TestDeleteNodes()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         Assert.NotNull(graph.Query("social", "CREATE (:person{name:'roi',age:32})"));
         Assert.NotNull(graph.Query("social", "CREATE (:person{name:'amit',age:30})"));
@@ -140,7 +140,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void TestDeleteRelationship()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         Assert.NotNull(graph.Query("social", "CREATE (:person{name:'roi',age:32})"));
         Assert.NotNull(graph.Query("social", "CREATE (:person{name:'amit',age:30})"));
@@ -171,7 +171,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void TestIndex()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         // Create both source and destination nodes
         Assert.NotNull(graph.Query("social", "CREATE (:person{name:'roi',age:32})"));
@@ -199,7 +199,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void TestHeader()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
 
         Assert.NotNull(graph.Query("social", "CREATE (:person{name:'roi',age:32})"));
@@ -231,7 +231,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void TestRecord()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         string name = "roi";
         int age = 32;
@@ -357,7 +357,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void TestAdditionToProcedures()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
 
         Assert.NotNull(graph.Query("social", "CREATE (:person{name:'roi',age:32})"));
@@ -438,7 +438,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void TestEscapedQuery()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         Dictionary<string, object> params1 = new Dictionary<string, object>();
         params1.Add("s1", "S\"'");
@@ -458,7 +458,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void TestArraySupport()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
 
         Node expectedANode = new Node();
@@ -559,7 +559,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void TestPath()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         List<Node> nodes = new List<Node>(3);
         for (int i = 0; i < 3; i++)
@@ -612,7 +612,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void TestNullGraphEntities()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         // Create two nodes connected by a single outgoing edge.
         Assert.NotNull(graph.Query("social", "CREATE (:L)-[:E]->(:L2)"));
@@ -669,7 +669,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void Test64BitNumber()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         long value = 1L << 40;
         Dictionary<string, object> parameters = new Dictionary<string, object>();
@@ -688,7 +688,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void TestCachedExecution()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         graph.Query("social", "CREATE (:N {val:1}), (:N {val:2})");
 
@@ -720,7 +720,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void TestMapDataType()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         Dictionary<string, object?> expected = new Dictionary<string, object?>
         {
@@ -752,7 +752,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void TestGeoPointLatLon()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         ResultSet rs = graph.Query("social", "CREATE (:restaurant"
                 + " {location: point({latitude:30.27822306, longitude:-97.75134723})})");
@@ -767,7 +767,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void TestGeoPointLonLat()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         ResultSet rs = graph.Query("social", "CREATE (:restaurant"
                 + " {location: point({longitude:-97.75134723, latitude:30.27822306})})");
@@ -811,7 +811,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void timeoutArgument()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         ResultSet rs = graph.Query("social", "UNWIND range(0,100) AS x WITH x AS x WHERE x = 100 RETURN x", 1L);
         Assert.Single(rs);
@@ -826,7 +826,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void TestCachedExecutionReadOnly()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         graph.Query("social", "CREATE (:N {val:1}), (:N {val:2})");
 
@@ -860,7 +860,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void TestSimpleReadOnly()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         graph.Query("social", "CREATE (:person{name:'filipe',age:30})");
         ResultSet rsRo = graph.RO_Query("social", "MATCH (a:person) WHERE (a.name = 'filipe') RETURN a.age");
@@ -876,7 +876,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void TestProfile()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         Assert.NotNull(graph.Query("social", "CREATE (:person{name:'roi',age:32})"));
         Assert.NotNull(graph.Query("social", "CREATE (:person{name:'amit',age:30})"));
@@ -895,7 +895,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void TestExplain()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         Assert.NotNull(graph.Profile("social", "CREATE (:person{name:'roi',age:32})"));
         Assert.NotNull(graph.Profile("social", "CREATE (:person{name:'amit',age:30})"));
@@ -914,7 +914,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void TestSlowlog()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         Assert.NotNull(graph.Profile("social", "CREATE (:person{name:'roi',age:32})"));
         Assert.NotNull(graph.Profile("social", "CREATE (:person{name:'amit',age:30})"));
@@ -930,7 +930,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void TestList()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         Assert.Empty(graph.List());
 
@@ -944,7 +944,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void TestConfig()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         graph.Query("social", "CREATE (:person{name:'filipe',age:30})");
 
@@ -978,7 +978,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void TestCallProcedureDbLabels()
     {
         var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
 
         const string graphName = "social";
 
@@ -1000,7 +1000,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void TestCallProcedureReadOnly()
     {
         var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
 
         const string graphName = "social";
 
@@ -1027,7 +1027,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public async Task TestCreateNodeAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         // Create a node
         ResultSet resultSet = await graph.QueryAsync("social", "CREATE ({name:'roi',age:32})");
@@ -1051,7 +1051,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public async Task TestCreateLabeledNodeAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         // Create a node with a label
         ResultSet resultSet = await graph.QueryAsync("social", "CREATE (:human{name:'danny',age:12})");
@@ -1073,7 +1073,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public async Task TestConnectNodesAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         // Create both source and destination nodes
         Assert.NotNull(await graph.QueryAsync("social", "CREATE (:person{name:'roi',age:32})"));
@@ -1102,7 +1102,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public async Task TestDeleteNodesAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         Assert.NotNull(await graph.QueryAsync("social", "CREATE (:person{name:'roi',age:32})"));
         Assert.NotNull(await graph.QueryAsync("social", "CREATE (:person{name:'amit',age:30})"));
@@ -1150,7 +1150,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public async Task TestDeleteRelationshipAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         Assert.NotNull(await graph.QueryAsync("social", "CREATE (:person{name:'roi',age:32})"));
         Assert.NotNull(await graph.QueryAsync("social", "CREATE (:person{name:'amit',age:30})"));
@@ -1181,7 +1181,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public async Task TestIndexAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         // Create both source and destination nodes
         Assert.NotNull(await graph.QueryAsync("social", "CREATE (:person{name:'roi',age:32})"));
@@ -1209,7 +1209,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public async Task TestHeaderAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
 
         Assert.NotNull(await graph.QueryAsync("social", "CREATE (:person{name:'roi',age:32})"));
@@ -1241,7 +1241,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public async Task TestRecordAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         string name = "roi";
         int age = 32;
@@ -1369,7 +1369,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public async Task TestAdditionToProceduresAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
 
         Assert.NotNull(await graph.QueryAsync("social", "CREATE (:person{name:'roi',age:32})"));
@@ -1450,7 +1450,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public async Task TestEscapedQueryAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         Dictionary<string, object> params1 = new Dictionary<string, object>();
         params1.Add("s1", "S\"'");
@@ -1470,7 +1470,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public async Task TestArraySupportAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
 
         Node expectedANode = new Node();
@@ -1571,7 +1571,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public async Task TestPathAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         List<Node> nodes = new List<Node>(3);
         for (int i = 0; i < 3; i++)
@@ -1624,7 +1624,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public async Task TestNullGraphEntitiesAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         // Create two nodes connected by a single outgoing edge.
         Assert.NotNull(await graph.QueryAsync("social", "CREATE (:L)-[:E]->(:L2)"));
@@ -1679,7 +1679,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public async Task Test64bitnumberAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         long value = 1L << 40;
         Dictionary<string, object> parameters = new Dictionary<string, object>();
@@ -1698,7 +1698,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public async Task TestCachedExecutionAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         await graph.QueryAsync("social", "CREATE (:N {val:1}), (:N {val:2})");
 
@@ -1730,7 +1730,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public async Task TestMapDataTypeAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         Dictionary<string, object> expected = new Dictionary<string, object>
         {
@@ -1763,7 +1763,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public async Task TestGeoPointLatLonAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         ResultSet rs = await graph.QueryAsync("social", "CREATE (:restaurant"
                 + " {location: point({latitude:30.27822306, longitude:-97.75134723})})");
@@ -1778,7 +1778,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public async Task TestGeoPointLonLatAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         ResultSet rs = await graph.QueryAsync("social", "CREATE (:restaurant"
                 + " {location: point({longitude:-97.75134723, latitude:30.27822306})})");
@@ -1808,7 +1808,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public async Task timeoutArgumentAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         ResultSet rs = await graph.QueryAsync("social", "UNWIND range(0,100) AS x WITH x AS x WHERE x = 100 RETURN x", 1L);
         Assert.Single(rs);
@@ -1823,7 +1823,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public async Task TestCachedExecutionReadOnlyAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         await graph.QueryAsync("social", "CREATE (:N {val:1}), (:N {val:2})");
 
@@ -1857,7 +1857,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public async Task TestSimpleReadOnlyAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         await graph.QueryAsync("social", "CREATE (:person{name:'filipe',age:30})");
         ResultSet rsRo = await graph.RO_QueryAsync("social", "MATCH (a:person) WHERE (a.name = 'filipe') RETURN a.age");
@@ -1873,7 +1873,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public async Task TestProfileAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         Assert.NotNull(await graph.QueryAsync("social", "CREATE (:person{name:'roi',age:32})"));
         Assert.NotNull(await graph.QueryAsync("social", "CREATE (:person{name:'amit',age:30})"));
@@ -1892,7 +1892,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public async Task TestExplainAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         Assert.NotNull(await graph.ProfileAsync("social", "CREATE (:person{name:'roi',age:32})"));
         Assert.NotNull(await graph.ProfileAsync("social", "CREATE (:person{name:'amit',age:30})"));
@@ -1911,7 +1911,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public async Task TestSlowlogAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         Assert.NotNull(await graph.ProfileAsync("social", "CREATE (:person{name:'roi',age:32})"));
         Assert.NotNull(await graph.ProfileAsync("social", "CREATE (:person{name:'amit',age:30})"));
@@ -1927,7 +1927,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public async Task TestListAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         Assert.Empty(await graph.ListAsync());
 
@@ -1941,7 +1941,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public async Task TestConfigAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         await graph.QueryAsync("social", "CREATE (:person{name:'filipe',age:30})");
 
@@ -1962,7 +1962,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public async Task TestCallProcedureDbLabelsAsync()
     {
         var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
 
         const string graphName = "social";
 
@@ -1984,7 +1984,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public async Task TestCallProcedureReadOnlyAsync()
     {
         var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
 
         const string graphName = "social";
 
@@ -2007,7 +2007,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void TestParseInfinity()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         ResultSet rs = graph.Query("db", "RETURN 10^100000");
         Assert.Single(rs);
@@ -2022,7 +2022,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     public void TestEqualsAndToString()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var graph = db.GRAPH();
         ResultSet resultSet1 = graph.Query("db", "RETURN 10^100000");
         ResultSet resultSet2 = graph.Query("db", "RETURN 10^1000");

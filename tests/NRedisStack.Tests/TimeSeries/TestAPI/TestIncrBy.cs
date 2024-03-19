@@ -17,7 +17,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             double value = 5.5;
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             Assert.True(ts.IncrBy(key, value) > 0);
             Assert.Equal(value, ts.Get(key)!.Val);
@@ -28,7 +28,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             double value = 5.5;
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             Assert.True(ts.IncrBy(key, value, timestamp: "*") > 0);
             Assert.Equal(value, ts.Get(key)!.Val);
@@ -39,7 +39,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             double value = 5.5;
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             TimeStamp timeStamp = DateTime.UtcNow;
             Assert.Equal(timeStamp, ts.IncrBy(key, value, timestamp: timeStamp));
@@ -53,7 +53,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             double value = 5.5;
             long retentionTime = 5000;
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             Assert.True(ts.IncrBy(key, value, retentionTime: retentionTime) > 0);
             Assert.Equal(value, ts.Get(key)!.Val);
@@ -68,7 +68,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             double value = 5.5;
             TimeSeriesLabel label = new TimeSeriesLabel("key", "value");
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             var labels = new List<TimeSeriesLabel> { label };
             Assert.True(ts.IncrBy(key, value, labels: labels) > 0);
@@ -82,7 +82,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             double value = 5.5;
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             Assert.True(ts.IncrBy(key, value, uncompressed: true) > 0);
             Assert.Equal(value, ts.Get(key)!.Val);
@@ -93,7 +93,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             double value = 5.5;
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             var ex = Assert.Throws<RedisServerException>(() => ts.IncrBy(key, value, timestamp: "+"));
             Assert.Equal("ERR TSDB: invalid timestamp", ex.Message);

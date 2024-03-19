@@ -19,7 +19,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
 
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
 
             foreach (string key in keys)
@@ -48,7 +48,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
 
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
 
             foreach (string key in keys)
@@ -77,7 +77,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestOverrideMADD()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
 
             foreach (string key in keys)

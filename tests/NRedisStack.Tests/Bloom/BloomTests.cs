@@ -13,7 +13,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     public void TestReserveBasic()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var bf = db.BF();
 
 
@@ -28,7 +28,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     public async Task TestReserveBasicAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var bf = db.BF();
 
         await bf.ReserveAsync(key, 0.001, 100L);
@@ -42,7 +42,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     public void TestAddWhenExist()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var bf = db.BF();
 
         Assert.True((bf.Add(key, "item1"))); // first time
@@ -53,7 +53,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     public async Task TestAddWhenExistAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var bf = db.BF();
 
 
@@ -65,7 +65,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     public void TestAddExists()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var bf = db.BF();
 
 
@@ -77,7 +77,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     public async Task TestAddExistsAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var bf = db.BF();
 
 
@@ -89,7 +89,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     public void TestAddExistsMulti()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var bf = db.BF();
         var items = new RedisValue[] { "foo", "bar", "baz" };
         var items2 = new RedisValue[] { "newElement", "bar", "baz" };
@@ -105,7 +105,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     public async Task TestAddExistsMultiAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var bf = db.BF();
         var items = new RedisValue[] { "foo", "bar", "baz" };
         var items2 = new RedisValue[] { "newElement", "bar", "baz" };
@@ -121,7 +121,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     public void TestExample()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var bf = db.BF();
 
         // Simple bloom filter using default module settings
@@ -150,7 +150,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     public async Task TestExampleAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var bf = db.BF();
 
         // Simple bloom filter using default module settings
@@ -179,7 +179,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     public void TestInsert()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var bf = db.BF();
 
         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
@@ -195,7 +195,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     public async Task TestInsertAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var bf = db.BF();
 
         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
@@ -211,7 +211,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     public void TestExistsNonExist()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var bf = db.BF();
 
         RedisValue item = new RedisValue("item");
@@ -222,7 +222,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     public async Task TestExistsNonExistAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var bf = db.BF();
 
         RedisValue item = new RedisValue("item");
@@ -233,7 +233,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     public void TestInfo()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var bf = db.BF();
 
         bf.Add(key, "item");
@@ -249,7 +249,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     public async Task TestInfoAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var bf = db.BF();
 
         await bf.AddAsync(key, "item");
@@ -265,7 +265,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     public void TestScanDumpAndLoadChunk()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var bf = db.BF();
 
         bf.Reserve("bloom-dump", 0.1, 10);
@@ -290,7 +290,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     public async Task TestScanDumpAndLoadChunkAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var bf = db.BF();
 
         await bf.ReserveAsync("bloom-dump", 0.1, 10);
@@ -328,7 +328,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     public void TestCard()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var bf = db.BF();
 
         // return 0 if the key does not exist:
@@ -347,7 +347,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     public async Task TestCardAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var bf = db.BF();
 
         // return 0 if the key does not exist:
@@ -366,7 +366,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     public void TestInsertArgsError()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var bf = db.BF();
 
         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };

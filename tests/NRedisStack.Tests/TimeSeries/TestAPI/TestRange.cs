@@ -28,7 +28,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestSimpleRange()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             var tuples = CreateData(ts, 50);
             Assert.Equal(tuples, ts.Range(key, "-", "+"));
@@ -38,7 +38,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestRangeCount()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             var tuples = CreateData(ts, 50);
             Assert.Equal(tuples.GetRange(0, 5), ts.Range(key, "-", "+", count: 5));
@@ -48,7 +48,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestRangeAggregation()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             var tuples = CreateData(ts, 50);
             Assert.Equal(tuples, ts.Range(key, "-", "+", aggregation: TsAggregation.Min, timeBucket: 50));
@@ -58,7 +58,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestRangeAlign()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             var tuples = new List<TimeSeriesTuple>()
             {
@@ -99,7 +99,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestMissingTimeBucket()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             var tuples = CreateData(ts, 50);
             var ex = Assert.Throws<ArgumentException>(() => ts.Range(key, "-", "+", aggregation: TsAggregation.Avg));
@@ -110,7 +110,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestFilterBy()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             var tuples = CreateData(ts, 50);
 
@@ -130,7 +130,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void latest()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             ts.Create("ts1");
             ts.Create("ts2");
@@ -165,7 +165,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestAlignTimestamp()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
             ts.Create("ts1");
             ts.Create("ts2");
@@ -183,7 +183,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestBucketTimestamp()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
 
             ts.Create("t1");
@@ -243,7 +243,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestEmpty()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
             var ts = db.TS();
 
             ts.Create("t1");

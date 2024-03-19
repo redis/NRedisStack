@@ -18,7 +18,7 @@ public class TransactionTests : AbstractNRedisStackTest, IDisposable
     public void TestJsonTransaction()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var transaction = new Transaction(db);
         string jsonPerson = JsonSerializer.Serialize(new Person { Name = "Shachar", Age = 23 });
         var setResponse = transaction.Json.SetAsync(key, "$", jsonPerson);
@@ -38,7 +38,7 @@ public class TransactionTests : AbstractNRedisStackTest, IDisposable
     public void TestModulesTransaction()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var tran = new Transaction(db);
 
         _ = tran.Bf.ReserveAsync("bf-key", 0.001, 100);
@@ -90,7 +90,7 @@ public class TransactionTests : AbstractNRedisStackTest, IDisposable
     public void TestModulesTransactionWithoutGraph()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.Execute(new SerializedCommand("FLUSHALL", RequestPolicy.AllShards));
         var tran = new Transaction(db);
 
         _ = tran.Bf.ReserveAsync("bf-key", 0.001, 100);
