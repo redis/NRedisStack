@@ -17,22 +17,22 @@ namespace NRedisStack
             List<object> args = new List<object> { index };
             query.SerializeRedisArgs();
             args.AddRange(query.GetArgs());
-            return new SerializedCommand(FT.AGGREGATE, args);
+            return new SerializedCommand(FT.AGGREGATE, RequestPolicy.AnyShard, args);
         }
 
         public static SerializedCommand AliasAdd(string alias, string index)
         {
-            return new SerializedCommand(FT.ALIASADD, alias, index);
+            return new SerializedCommand(FT.ALIASADD, RequestPolicy.AllShards, alias, index);
         }
 
         public static SerializedCommand AliasDel(string alias)
         {
-            return new SerializedCommand(FT.ALIASDEL, alias);
+            return new SerializedCommand(FT.ALIASDEL, RequestPolicy.AllShards, alias);
         }
 
         public static SerializedCommand AliasUpdate(string alias, string index)
         {
-            return new SerializedCommand(FT.ALIASUPDATE, alias, index);
+            return new SerializedCommand(FT.ALIASUPDATE, RequestPolicy.AllShards, alias, index);
         }
         public static SerializedCommand Alter(string index, Schema schema, bool skipInitialScan = false)
         {
@@ -44,7 +44,7 @@ namespace NRedisStack
             {
                 f.AddSchemaArgs(args);
             }
-            return new SerializedCommand(FT.ALTER, args);
+            return new SerializedCommand(FT.ALTER, RequestPolicy.AllShards, args);
         }
 
         public static SerializedCommand ConfigGet(string option)
@@ -122,8 +122,8 @@ namespace NRedisStack
 
         public static SerializedCommand DropIndex(string indexName, bool dd = false)
         {
-            return ((dd) ? new SerializedCommand(FT.DROPINDEX, indexName, "DD")
-                         : new SerializedCommand(FT.DROPINDEX, indexName));
+            return dd ? new SerializedCommand(FT.DROPINDEX, RequestPolicy.AllShards, indexName, "DD")
+                      : new SerializedCommand(FT.DROPINDEX, RequestPolicy.AllShards, indexName);
         }
 
         public static SerializedCommand Explain(string indexName, string query, int? dialect)
@@ -156,7 +156,7 @@ namespace NRedisStack
             var args = new List<object> { indexName };
             q.SerializeRedisArgs(args);
 
-            return new SerializedCommand(FT.SEARCH, args);
+            return new SerializedCommand(FT.SEARCH, RequestPolicy.AnyShard, args);
         }
 
         public static SerializedCommand ProfileSearch(string IndexName, Query q, bool limited = false)
