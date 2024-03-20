@@ -64,7 +64,7 @@ public class SkipIfRedisAttribute : FactAttribute
             bool skipped = false;
             using (RedisFixture redisFixture = new RedisFixture())
             {
-                if (!redisFixture.allowskipping) return null;
+                if (true) return null;
 
                 foreach (var environment in _environments)
                 {
