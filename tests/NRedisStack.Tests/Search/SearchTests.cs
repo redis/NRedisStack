@@ -2323,7 +2323,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                                              .ExcludeTerm("slang")));
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void TestDistanceBound()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2335,7 +2335,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Throws<RedisServerException>(() => ft.SpellCheck(index, "name", new FTSpellCheckParams().Distance(0)));
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task TestDistanceBoundAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2347,7 +2347,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         await Assert.ThrowsAsync<RedisServerException>(async () => await ft.SpellCheckAsync(index, "name", new FTSpellCheckParams().Distance(0)));
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void TestDialectBound()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2359,7 +2359,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Throws<RedisServerException>(() => ft.SpellCheck(index, "name", new FTSpellCheckParams().Dialect(0)));
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task TestDialectBoundAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
