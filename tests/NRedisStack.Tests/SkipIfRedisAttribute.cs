@@ -60,6 +60,7 @@ public class SkipIfRedisAttribute : FactAttribute
     {
         get
         {
+            return null; // TODO: delete this, this change make that any test woudn't be skipped
             string skipReason = "";
             bool skipped = false;
             using (RedisFixture redisFixture = new RedisFixture())
