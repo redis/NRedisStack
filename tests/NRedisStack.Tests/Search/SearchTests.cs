@@ -16,7 +16,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 {
     // private readonly string key = "SEARCH_TESTS";
     private readonly string index = "TEST_INDEX";
-    public SearchTests(RedisFixture redisFixture) : base(redisFixture) { }
+    public SearchTests(RedisFixture redisFixture) : base(redisFixture) { redisFixture.allowskipping = false; } // TODO: remove allowskipping = false
 
     private void AddDocument(IDatabase db, Document doc)
     {

@@ -10,6 +10,7 @@ public class RedisFixture : IDisposable
     private readonly string? numRedisClusterNodesEnv = Environment.GetEnvironmentVariable("NUM_REDIS_CLUSTER_NODES");
     public bool isEnterprise = Environment.GetEnvironmentVariable("IS_ENTERPRISE") == "true";
     public bool isOSSCluster;
+    public bool allowskipping = true;
 
     public RedisFixture()
     {
