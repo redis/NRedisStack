@@ -2342,7 +2342,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var ft = db.FT();
 
-        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+        await ft.CreateAsync(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
         // distance suppose to be between 1 and 4
         await Assert.ThrowsAsync<RedisServerException>(async () => await ft.SpellCheckAsync(index, "name", new FTSpellCheckParams().Distance(0)));
     }
@@ -2366,7 +2366,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var ft = db.FT();
 
-        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("t"));
+         await ft.CreateAsync(index, new FTCreateParams(), new Schema().AddTextField("t"));
         // dialect 0 is not valid
         await Assert.ThrowsAsync<RedisServerException>(async () => await ft.SpellCheckAsync(index, "name", new FTSpellCheckParams().Dialect(0)));
     }
