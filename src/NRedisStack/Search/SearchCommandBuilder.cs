@@ -69,7 +69,7 @@ namespace NRedisStack
                 f.AddSchemaArgs(args);
             }
 
-            return new SerializedCommand(FT.CREATE, RequestPolicy.AllShards, args);
+            return new SerializedCommand(FT.CREATE, RequestPolicy.AnyShard, args);
         }
 
         public static SerializedCommand CursorDel(string indexName, long cursorId)
