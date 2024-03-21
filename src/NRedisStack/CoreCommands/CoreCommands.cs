@@ -479,5 +479,18 @@ public static class CoreCommands
         }
         return result[0].Entries;
     }
+
+    /// <summary>
+    /// Removes all keys from all databases.
+    /// </summary>
+    /// <param name="db">The <see cref="IDatabase"/> class where this extension method is applied.</param>
+    /// <param name="async">if set, flushes the databases asynchronously</param>
+    /// <returns><see langword="true"/> if everything was done correctly, Error otherwise.</returns>
+    /// <remarks><seealso href="https://redis.io/commands/flushall"/></remarks>
+    public static bool FlushAll(this IDatabase db, bool? async = null)
+    {
+        var command = CoreCommandBuilder.FlushAll(async);
+        return db.Execute(command).OKtoBoolean();
+    }
 }
 

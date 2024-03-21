@@ -2147,7 +2147,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, res.TotalResults);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task TestVectorFieldJson_Issue102Async()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2323,7 +2323,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                                              .ExcludeTerm("slang")));
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void TestDistanceBound()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2335,19 +2335,19 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Throws<RedisServerException>(() => ft.SpellCheck(index, "name", new FTSpellCheckParams().Distance(0)));
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task TestDistanceBoundAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var ft = db.FT();
 
-        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+        await ft.CreateAsync(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
         // distance suppose to be between 1 and 4
         await Assert.ThrowsAsync<RedisServerException>(async () => await ft.SpellCheckAsync(index, "name", new FTSpellCheckParams().Distance(0)));
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void TestDialectBound()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2359,14 +2359,14 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Throws<RedisServerException>(() => ft.SpellCheck(index, "name", new FTSpellCheckParams().Dialect(0)));
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public async Task TestDialectBoundAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var ft = db.FT();
 
-        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("t"));
+        await ft.CreateAsync(index, new FTCreateParams(), new Schema().AddTextField("t"));
         // dialect 0 is not valid
         await Assert.ThrowsAsync<RedisServerException>(async () => await ft.SpellCheckAsync(index, "name", new FTSpellCheckParams().Dialect(0)));
     }
@@ -2698,7 +2698,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, aggregateRes.TotalResults);
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedis(Is.Enterprise, Is.OSSCluster)]
     public async Task TestProfileAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();

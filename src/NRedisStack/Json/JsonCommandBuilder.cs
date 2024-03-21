@@ -210,7 +210,7 @@ public static class JsonCommandBuilder
         var args = keys.Cast<object>().ToList();
 
         args.Add(path);
-        return new SerializedCommand(JSON.MGET, args);
+        return new SerializedCommand(JSON.MGET, RequestPolicy.AllShards, args);
     }
 
     public static SerializedCommand NumIncrby(RedisKey key, string path, double value)

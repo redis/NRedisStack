@@ -4,6 +4,7 @@ using NRedisStack.Literals.Enums;
 using Xunit;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Tests;
+using NRedisStack;
 
 
 namespace NRedisTimeSeries.Test.TestDataTypes

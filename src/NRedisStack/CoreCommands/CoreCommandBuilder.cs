@@ -199,5 +199,16 @@ namespace NRedisStack
 
             return new SerializedCommand(command, args);
         }
+
+        public static SerializedCommand FlushAll(bool? async)
+        {
+            List<object> args = new List<object>();
+            if (async != null)
+            {
+                args.Add(async.Value ? CoreArgs.ASYNC : CoreArgs.SYNC);
+            }
+
+            return new SerializedCommand(RedisCoreCommands.FLUSHALL, RequestPolicy.AllShards, args);
+        }
     }
 }

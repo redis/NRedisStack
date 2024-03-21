@@ -86,7 +86,7 @@ namespace NRedisStack
         /// <inheritdoc/>
         public async Task<bool> CreateAsync(string indexName, Schema schema)
         {
-            return (await CreateAsync(indexName, new FTCreateParams(), schema));
+            return await CreateAsync(indexName, new FTCreateParams(), schema);
         }
 
         /// <inheritdoc/>
