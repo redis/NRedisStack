@@ -11,7 +11,8 @@ public enum Is
 {
     Standalone,
     OSSCluster,
-    Enterprise
+    Enterprise,
+    EnterpriseOssCluster
 }
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
@@ -64,14 +65,13 @@ public class SkipIfRedisAttribute : FactAttribute
             bool skipped = false;
             using (RedisFixture redisFixture = new RedisFixture())
             {
-                if (true) return null;
 
                 foreach (var environment in _environments)
                 {
                     switch (environment)
                     {
                         case Is.OSSCluster:
-                            if (redisFixture.isOSSCluster)
+                            if (redisFixture.isOSSCluster && !redisFixture.isEnterprise)
                             {
                                 skipReason = skipReason + " Redis server is OSS cluster.";
                                 skipped = true;
@@ -79,7 +79,7 @@ public class SkipIfRedisAttribute : FactAttribute
                             break;
 
                         case Is.Standalone:
-                            if (!redisFixture.isOSSCluster)
+                            if (!redisFixture.isOSSCluster && !redisFixture.isEnterprise)
                             {
                                 skipReason = skipReason + " Redis server is not OSS cluster.";
                                 skipped = true;
@@ -87,9 +87,17 @@ public class SkipIfRedisAttribute : FactAttribute
                             break;
 
                         case Is.Enterprise:
-                            if (redisFixture.isEnterprise)
+                            if (redisFixture.isEnterprise && !redisFixture.isOSSCluster)
                             {
                                 skipReason = skipReason + " Redis Enterprise environment.";
+                                skipped = true;
+                            }
+                            break;
+
+                        case Is.EnterpriseOssCluster:
+                            if (redisFixture.isEnterprise && redisFixture.isOSSCluster)
+                            {
+                                skipReason = skipReason + " Redis Enterprise OSS cluster environment.";
                                 skipped = true;
                             }
                             break;
