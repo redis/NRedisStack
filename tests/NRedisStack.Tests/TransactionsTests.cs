@@ -15,22 +15,22 @@ public class TransactionTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    public void TestJsonTransaction()
+    public async void TestJsonTransaction()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var transaction = new Transaction(db);
         string jsonPerson = JsonSerializer.Serialize(new Person { Name = "Shachar", Age = 23 });
-        var setResponse = transaction.Json.SetAsync(key, "$", jsonPerson);
-        var getResponse = transaction.Json.GetAsync(key);
+        var setResponse = await transaction.Json.SetAsync(key, "$", jsonPerson);
+        var getResponse = await transaction.Json.GetAsync(key);
 
         transaction.Execute();
 
-        setResponse.Wait();
-        getResponse.Wait();
+        // setResponse.Wait();
+        // getResponse.Wait();
 
-        Assert.True(setResponse.Result);
-        Assert.Equal("{\"Name\":\"Shachar\",\"Age\":23}", getResponse.Result.ToString());
+        Assert.True(setResponse);
+        Assert.Equal("{\"Name\":\"Shachar\",\"Age\":23}", getResponse.ToString());
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
