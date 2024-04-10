@@ -6,11 +6,6 @@
 version: 2
 updates:
   - package-ecosystem: "nuget" # See documentation for possible values
-    directory: "src/NRedisStack/" # Location of package manifests
-    schedule:
-      interval: "weekly"
-
-  - package-ecosystem: "nuget" # See documentation for possible values
-    directory: "tests/" # Location of package manifests
+    directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
