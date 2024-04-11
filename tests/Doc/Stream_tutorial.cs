@@ -33,34 +33,34 @@ public class Stream_tutorial
         // STEP_START xadd
         RedisValue res1 = db.StreamAdd(
             "race:france",
-            [
+            new NameValueEntry[] {
                 new NameValueEntry("rider", "Castilla"),
                 new NameValueEntry("speed", 30.2),
                 new NameValueEntry("position", 1),
                 new NameValueEntry("location_id", 1)
-            ]
+            }
         );
         Console.WriteLine(res1);    // >>> 1712668482289-0
 
         RedisValue res2 = db.StreamAdd(
             "race:france",
-            [
+            new NameValueEntry[] {
                 new NameValueEntry("rider", "Norem"),
                 new NameValueEntry("speed", 28.8),
                 new NameValueEntry("position", 3),
                 new NameValueEntry("location_id", 1)
-            ]
+            }
         );
         Console.WriteLine(res2);    // >>> 1712668766534-1
 
         RedisValue res3 = db.StreamAdd(
             "race:france",
-            [
+            new NameValueEntry[]{
                 new NameValueEntry("rider", "Prickett"),
                 new NameValueEntry("speed", 29.7),
                 new NameValueEntry("position", 2),
                 new NameValueEntry("location_id", 1)
-            ]
+            }
         );
         Console.WriteLine(res3);    // >>> 1712669055705-0
 
@@ -120,12 +120,12 @@ public class Stream_tutorial
         // STEP_START xadd_2
         RedisValue res6 = db.StreamAdd(
             "race:france",
-            [
+            new NameValueEntry[]{
                 new NameValueEntry("rider", "Castilla"),
                 new NameValueEntry("speed", 29.9),
                 new NameValueEntry("position", 1),
                 new NameValueEntry("location_id", 2)
-            ]
+            }
         );
 
         Console.WriteLine(res6);    // >>> 1712675674750-0
@@ -151,18 +151,18 @@ public class Stream_tutorial
         // STEP_START xadd_id
         RedisValue res8 = db.StreamAdd(
             "race:usa",
-            [
+            new NameValueEntry[] {
                 new NameValueEntry("racer", "Castilla")
-            ],
+            },
             "0-1"
         );
         Console.WriteLine(res8);    // >>> 0-1
 
         RedisValue res9 = db.StreamAdd(
             "race:usa",
-            [
+            new NameValueEntry[]{
                 new NameValueEntry("racer", "Norem")
-            ],
+            },
             "0-2"
         );
         Console.WriteLine(res9);    // >>> 0-2
@@ -178,9 +178,9 @@ public class Stream_tutorial
         try {
             RedisValue res10 = db.StreamAdd(
                 "race:usa",
-                [
+                new NameValueEntry[]{
                     new NameValueEntry("racer", "Prickett")
-                ],
+                },
                 "0-1"
             );
         } catch(RedisServerException ex) {
@@ -197,9 +197,9 @@ public class Stream_tutorial
         // STEP_START xadd_7
         RedisValue res11 = db.StreamAdd(
             "race:usa",
-            [
+            new NameValueEntry[]{
                 new NameValueEntry("rider", "Norem")
-            ],
+            },
             "0-*"
         );
 
@@ -348,27 +348,27 @@ public class Stream_tutorial
         // STEP_START xgroup_read
         RedisValue groupRes = db.StreamAdd(
             "race:italy",
-            [new NameValueEntry("rider", "Castilla")]
+            new NameValueEntry[]{new NameValueEntry("rider", "Castilla")}
         ); // 1712744323758-0
 
         groupRes = db.StreamAdd(
             "race:italy",
-            [new NameValueEntry("rider", "Royce")]
+            new NameValueEntry[]{new NameValueEntry("rider", "Royce")}
         ); // 1712744358384-0
 
         groupRes = db.StreamAdd(
             "race:italy",
-            [new NameValueEntry("rider", "Sam-Bodden")]
+            new NameValueEntry[]{new NameValueEntry("rider", "Sam-Bodden")}
         ); // 1712744379676-0
 
         groupRes = db.StreamAdd(
             "race:italy",
-            [new NameValueEntry("rider", "Prickett")]
+            new NameValueEntry[]{new NameValueEntry("rider", "Prickett")}
         ); // 1712744399401-0
 
         groupRes = db.StreamAdd(
             "race:italy",
-            [new NameValueEntry("rider", "Norem")]
+            new NameValueEntry[]{new NameValueEntry("rider", "Norem")}
         ); // 1712744413117-0
 
         StreamEntry[] res21 = db.StreamReadGroup("race:italy", "italy_riders", "Alice", ">", 1);
@@ -496,7 +496,7 @@ public class Stream_tutorial
 
         // STEP_START xclaim
         StreamEntry[] res29 = db.StreamClaim(
-            "race:italy", "italy_riders", "Alice", 60000, [1712744358384-0]
+            "race:italy", "italy_riders", "Alice", 60000, new RedisValue[]{1712744358384-0}
         );
 
         foreach(StreamEntry entry in res29) {
@@ -608,15 +608,15 @@ public class Stream_tutorial
 
         // STEP_START maxlen
         db.StreamAdd(
-            "race:italy", [new NameValueEntry("rider", "Jones")], null, 2, true
+            "race:italy", new NameValueEntry[]{new NameValueEntry("rider", "Jones")}, null, 2, true
         );
 
         db.StreamAdd(
-            "race:italy", [new NameValueEntry("rider", "Wood")], null, 2, true
+            "race:italy", new NameValueEntry[]{new NameValueEntry("rider", "Wood")}, null, 2, true
         );
 
         db.StreamAdd(
-            "race:italy", [new NameValueEntry("rider", "Henshaw")], null, 2, true
+            "race:italy", new NameValueEntry[]{new NameValueEntry("rider", "Henshaw")}, null, 2, true
         );
 
         long res35 = db.StreamLength("race:italy");
@@ -637,7 +637,7 @@ public class Stream_tutorial
         // >>> 1712758342134-0: [rider: Henshaw]
 
         db.StreamAdd(
-            "race:italy", [new NameValueEntry("rider", "Smith")], null, 2, false
+            "race:italy", new NameValueEntry[]{new NameValueEntry("rider", "Smith")}, null, 2, false
         );
 
         StreamEntry[] res37 = db.StreamRange("race:italy", "-", "+");
@@ -666,7 +666,7 @@ public class Stream_tutorial
         // REMOVE_END
 
 
-        // STEP_START xtrim2
+        // STEP_START xtrim2 
         long res39 = db.StreamTrim("race:italy", 10, true);
         Console.WriteLine(res39);   // >>> 0
         // STEP_END
@@ -686,7 +686,7 @@ public class Stream_tutorial
         // >>> 1712759694003-0: [rider: Henshaw]
         // >>> 1712759694003-1: [rider: Smith]
 
-        long res41 = db.StreamDelete("race:italy", ["1712759694003-1"]);
+        long res41 = db.StreamDelete("race:italy", new RedisValue[]{"1712759694003-1"});
         Console.WriteLine(res41);   // >>> 1
 
         StreamEntry[] res42 = db.StreamRange("race:italy", "-", "+");
