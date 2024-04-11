@@ -29,17 +29,7 @@ public class Stream_tutorial
         db.KeyDelete("race:usa");
         //REMOVE_END
 // HIDE_END
-
-        string StreamEntryToString(StreamEntry entry) {
-            string[] values = new string[entry.Values.Length];
-
-            for (int i = 0; i < entry.Values.Length; i++) {
-                values[i] = $"{entry.Values[i].Name}: {entry.Values[i].Value}";
-            }
-
-            return $"{entry.Id}: [{string.Join(", ", values)}]";
-        }
-
+        
         // STEP_START xadd
         RedisValue res1 = db.StreamAdd(
             "race:france",
@@ -50,7 +40,7 @@ public class Stream_tutorial
                 new NameValueEntry("location_id", 1)
             ]
         );
-        Console.WriteLine(res1);    // >>> 1692629576966-0
+        Console.WriteLine(res1);    // >>> 1712668482289-0
 
         RedisValue res2 = db.StreamAdd(
             "race:france",
@@ -61,7 +51,7 @@ public class Stream_tutorial
                 new NameValueEntry("location_id", 1)
             ]
         );
-        Console.WriteLine(res2);    // >>> 1692629594113-0
+        Console.WriteLine(res2);    // >>> 1712668766534-1
 
         RedisValue res3 = db.StreamAdd(
             "race:france",
@@ -72,7 +62,7 @@ public class Stream_tutorial
                 new NameValueEntry("location_id", 1)
             ]
         );
-        Console.WriteLine(res3);    // >>> 1692629613374-0
+        Console.WriteLine(res3);    // >>> 1712669055705-0
 
         // STEP_END
 
@@ -83,7 +73,17 @@ public class Stream_tutorial
 
 
         // STEP_START xrange
-        StreamEntry[] res4 = db.StreamRange("race:france", "1691765278160-0", "+", 2);
+        string StreamEntryToString(StreamEntry entry) {
+            string[] values = new string[entry.Values.Length];
+
+            for (int i = 0; i < entry.Values.Length; i++) {
+                values[i] = $"{entry.Values[i].Name}: {entry.Values[i].Value}";
+            }
+
+            return $"{entry.Id}: [{string.Join(", ", values)}]";
+        }
+
+        StreamEntry[] res4 = db.StreamRange("race:france", "1712668482289-0", "+", 2);
 
         foreach(StreamEntry entry in res4) {
             Console.WriteLine(StreamEntryToString(entry));
@@ -128,7 +128,7 @@ public class Stream_tutorial
             ]
         );
 
-        Console.WriteLine(res6);    // >>> 1692629676124-0
+        Console.WriteLine(res6);    // >>> 1712675674750-0
         // STEP_END
 
         // Tests for 'xadd_2' step.
@@ -667,7 +667,7 @@ public class Stream_tutorial
 
 
         // STEP_START xtrim2
-        long res39 = db.StreamTrim("race:italy", 10, false);
+        long res39 = db.StreamTrim("race:italy", 10, true);
         Console.WriteLine(res39);   // >>> 0
         // STEP_END
 
@@ -681,7 +681,6 @@ public class Stream_tutorial
         StreamEntry[] res40 = db.StreamRange("race:italy", "-", "+");
 
         foreach (StreamEntry entry in res40) {
-            string tmp = StreamEntryToString(entry);
             Console.WriteLine(StreamEntryToString(entry));
         }
         // >>> 1712759694003-0: [rider: Henshaw]
@@ -693,7 +692,6 @@ public class Stream_tutorial
         StreamEntry[] res42 = db.StreamRange("race:italy", "-", "+");
 
         foreach (StreamEntry entry in res42) {
-            string tmp = StreamEntryToString(entry);
             Console.WriteLine(StreamEntryToString(entry));
         }
         // >>> 1712759694003-0: [rider: Henshaw]
