@@ -221,7 +221,10 @@ public class Stream_tutorial
 
         // Tests for 'xadd_7' step.
         // REMOVE_START
-        Assert.Equal("0-3", res11);
+        if (version.Major >= 7)
+        {
+            Assert.Equal("0-3", res11);
+        }
         // REMOVE_END
 
 
