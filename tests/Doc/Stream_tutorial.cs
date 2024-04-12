@@ -76,7 +76,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res4)
         {
-            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b => $"{b.Name}: {b.Value}"))}]");
         }
 
         // >>> 1712668482289-0: [rider: Castilla, speed: 30.199999999999999, position: 1, location_id: 1]
@@ -94,7 +94,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res4)
         {
-            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b => $"{b.Name}: {b.Value}"))}]");
         }
 
         // >>> 1712668482289-0: [rider: Castilla, speed: 30.199999999999999, position: 1, location_id: 1]
@@ -219,7 +219,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res12)
         {
-            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b => $"{b.Name}: {b.Value}"))}]");
         }
         // >>> 1712668482289-0: [rider: Castilla, speed: 30.199999999999999, position: 1, location_id: 1]
         // >>> 1712668766534-1: [rider: Norem, speed: 28.800000000000001, position: 3, location_id: 1]
@@ -238,7 +238,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res13)
         {
-            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b => $"{b.Name}: {b.Value}"))}]");
         }
         // >>> 1712668482289-0: [rider: Castilla, speed: 30.199999999999999, position: 1, location_id: 1]
         // STEP_END
@@ -254,7 +254,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res14)
         {
-            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b => $"{b.Name}: {b.Value}"))}]");
         }
         // >>> 1712668482289-0: [rider: Castilla, speed: 30.199999999999999, position: 1, location_id: 1]
         // >>> 1712668766534-1: [rider: Norem, speed: 28.800000000000001, position: 3, location_id: 1]
@@ -271,7 +271,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res15)
         {
-            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b => $"{b.Name}: {b.Value}"))}]");
         }
         // >>> 1712669055705-0: [rider: Prickett, speed: 29.699999999999999, position: 2, location_id: 1]
         // >>> 1712675674750-0: [rider: Castilla, speed: 29.899999999999999, position: 1, location_id: 2]
@@ -288,7 +288,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res16)
         {
-            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b => $"{b.Name}: {b.Value}"))}]");
         }
         // >>> <empty array>
         // STEP_END
@@ -304,7 +304,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res17)
         {
-            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b => $"{b.Name}: {b.Value}"))}]");
         }
         // >>> 1712675674750-0: [rider: Castilla, speed: 29.899999999999999, position: 1, location_id: 2]
         // STEP_END
@@ -320,7 +320,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res18)
         {
-            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b => $"{b.Name}: {b.Value}"))}]");
         }
         // >>> 1712668482289-0: [rider: Castilla, speed: 30.199999999999999, position: 1, location_id: 1]
         // >>> 1712668766534-1: [rider: Norem, speed: 28.800000000000001, position: 3, location_id: 1]
@@ -384,7 +384,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res21)
         {
-            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b => $"{b.Name}: {b.Value}"))}]");
         }
         // >>> 1712744323758-0: [rider: Castilla]
         // STEP_END
@@ -400,7 +400,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res22)
         {
-            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b => $"{b.Name}: {b.Value}"))}]");
             // >>> 1712744323758-0: [rider: Castilla]
         }
         // STEP_END
@@ -419,7 +419,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res24)
         {
-            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b => $"{b.Name}: {b.Value}"))}]");
         }
         // >>> <empty array>
         // STEP_END
@@ -435,7 +435,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res25)
         {
-            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b => $"{b.Name}: {b.Value}"))}]");
         }
         // >>> 1712744358384-0: [rider: Royce]
         // >>> 1712744379676-0: [rider: Sam-Bodden]
@@ -449,7 +449,7 @@ public class Stream_tutorial
 
         // STEP_START xpending
         StreamPendingInfo res26 = db.StreamPending("race:italy", "italy_riders");
-        Console.WriteLine($"pending: {res26.PendingMessageCount}, min: {res26.LowestPendingMessageId}, max: {res26.HighestPendingMessageId}, consumers:[{string.Join(", ", res26.Consumers.Select(c=>$"{c.Name}: {c.PendingMessageCount}"))}]");
+        Console.WriteLine($"pending: {res26.PendingMessageCount}, min: {res26.LowestPendingMessageId}, max: {res26.HighestPendingMessageId}, consumers:[{string.Join(", ", res26.Consumers.Select(c => $"{c.Name}: {c.PendingMessageCount}"))}]");
         // >>> pending: 2, min: 1712747506906-0, max: 1712747506907-0, consumers:[name: Bob, pending:2]
         // STEP_END
 
@@ -483,7 +483,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res28)
         {
-            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b => $"{b.Name}: {b.Value}"))}]");
         }
         // >>> 1712744358384-0: [rider: Royce]
         // STEP_END
@@ -501,7 +501,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res29)
         {
-            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b => $"{b.Name}: {b.Value}"))}]");
         }
         // >>> 1712744358384-0: [rider: Royce]
         // STEP_END
@@ -516,7 +516,7 @@ public class Stream_tutorial
             "race:italy", "italy_riders", "Alice", 1, "0-0", 1
         );
 
-        Console.WriteLine($"{res30.NextStartId}, ({string.Join(", ", res30.ClaimedEntries.Select(entry=>$"{entry.Id}: [{string.Join(", ", entry.Values.Select( b=>$"{b.Name}: {b.Value}"))}]" ))})");
+        Console.WriteLine($"{res30.NextStartId}, ({string.Join(", ", res30.ClaimedEntries.Select(entry => $"{entry.Id}: [{string.Join(", ", entry.Values.Select(b => $"{b.Name}: {b.Value}"))}]"))})");
         // >>> 1712744379676-0, (1712744358384-0: [rider: Royce])
         // STEP_END
 
@@ -531,7 +531,7 @@ public class Stream_tutorial
             "race:italy", "italy_riders", "Alice", 1, "(1712744358384-0", 1
         );
 
-        Console.WriteLine($"{res31.NextStartId}, ({string.Join(", ", res31.ClaimedEntries.Select(entry=>$"{entry.Id}: [{string.Join(", ", entry.Values.Select( b=>$"{b.Name}: {b.Value}"))}]" ))})");
+        Console.WriteLine($"{res31.NextStartId}, ({string.Join(", ", res31.ClaimedEntries.Select(entry => $"{entry.Id}: [{string.Join(", ", entry.Values.Select(b => $"{b.Name}: {b.Value}"))}]"))})");
         // >>> 0-0, (1712744379676-0: [rider: Sam-Bodden])
         // STEP_END
 
@@ -543,7 +543,7 @@ public class Stream_tutorial
 
         // STEP_START xinfo
         StreamInfo res32 = db.StreamInfo("race:italy");
-        Console.WriteLine($"length: {res32.Length}, radix-tree-keys: {res32.RadixTreeKeys}, radix-tree-nodes: {res32.RadixTreeNodes}, last-generated-id: {res32.LastGeneratedId}, first-entry: {$"{res32.FirstEntry.Id}: [{string.Join(", ", res32.FirstEntry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]"}, last-entry: {$"{res32.LastEntry.Id}: [{string.Join(", ", res32.LastEntry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]"}");
+        Console.WriteLine($"length: {res32.Length}, radix-tree-keys: {res32.RadixTreeKeys}, radix-tree-nodes: {res32.RadixTreeNodes}, last-generated-id: {res32.LastGeneratedId}, first-entry: {$"{res32.FirstEntry.Id}: [{string.Join(", ", res32.FirstEntry.Values.Select(b => $"{b.Name}: {b.Value}"))}]"}, last-entry: {$"{res32.LastEntry.Id}: [{string.Join(", ", res32.LastEntry.Values.Select(b => $"{b.Name}: {b.Value}"))}]"}");
         // >>> length: 5, radix-tree-keys: 1, radix-tree-nodes: 2, last-generated-id: 1712756762686-1, first-entry: 1712756762685-0: [rider: Castilla], last-entry: 1712756762686-1: [rider: Norem]
         // STEP_END
 
@@ -606,7 +606,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res36)
         {
-            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b => $"{b.Name}: {b.Value}"))}]");
         }
         // >>> 1712758336128-0: [rider: Castilla]
         // >>> 1712758336128-1: [rider: Royce]
@@ -625,7 +625,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res37)
         {
-            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b => $"{b.Name}: {b.Value}"))}]");
         }
         // 1712758746476-1: [rider: Henshaw]
         // 1712758746477-0: [rider: Smith]
@@ -664,7 +664,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res40)
         {
-            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b => $"{b.Name}: {b.Value}"))}]");
         }
         // >>> 1712759694003-0: [rider: Henshaw]
         // >>> 1712759694003-1: [rider: Smith]
@@ -676,7 +676,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res42)
         {
-            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b => $"{b.Name}: {b.Value}"))}]");
 
         }
         // >>> 1712759694003-0: [rider: Henshaw]
