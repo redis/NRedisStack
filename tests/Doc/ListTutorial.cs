@@ -63,7 +63,7 @@ public class ListExample
         Assert.Equal("bike:2", res7);
         Assert.Equal("bike:1", res8);
         //REMOVE_END
-        
+
 
         //STEP_START llen
         long res9 = db.ListLength("bikes:repairs");
@@ -73,7 +73,7 @@ public class ListExample
         //REMOVE_START
         Assert.Equal(0, res9);
         //REMOVE_END
-        
+
 
         //STEP_START lmove_lrange
         long res10 = db.ListLeftPush("bikes:repairs", "bike:1");
@@ -131,7 +131,7 @@ public class ListExample
 
         RedisValue[] res21 = db.ListRange("bikes:repairs", 0, -1);
         Console.WriteLine(string.Join(", ", res21));    // >>> "bike:very_important_bike, bike:important_bike, bike:1, bike:2, bike:3"
-        
+
         //REMOVE_START
         Assert.Equal(3, res19);
         Assert.Equal(5, res20);
@@ -198,9 +198,9 @@ public class ListExample
         //STEP_START brpop
         long res31 = db.ListRightPush("bikes:repairs", ["bike:1", "bike:2"]);
         Console.WriteLine(res31);   // >>> 2
-        
+
         Tuple<RedisKey, RedisValue>? res32 = db.BRPop(["bikes:repairs"], 1);
-        
+
         if (res32 != null)
             Console.WriteLine($"{res32.Item1} -> {res32.Item2}"); // >>> "bikes:repairs -> bike:2"
 
@@ -218,7 +218,7 @@ public class ListExample
             Assert.Equal("bikes:repairs -> bike:2", $"{res32.Item1} -> {res32.Item2}");
         if (res33 != null)
             Assert.Equal("bikes:repairs -> bike:1", $"{res33.Item1} -> {res33.Item2}");
-    
+
         Assert.Null(res34);
         //REMOVE_END
         //STEP_END
@@ -242,9 +242,12 @@ public class ListExample
         RedisType res38 = db.KeyType("new_bikes");
         Console.WriteLine(res38);   // >>> RedisType.String
 
-        try {
+        try
+        {
             long res39 = db.ListRightPush("new_bikes", ["bike:2", "bike:3"]);
-        } catch(Exception e){
+        }
+        catch (Exception e)
+        {
             Console.WriteLine(e);
         }
         //REMOVE_START
@@ -303,7 +306,7 @@ public class ListExample
         long res49 = db.ListLeftPush("bikes:repairs", ["bike:1", "bike:2", "bike:3", "bike:4", "bike:5"]);
         Console.WriteLine(res49);   // >>> 5
 
-        db.ListTrim("bikes:repairs", 0 , 2);
+        db.ListTrim("bikes:repairs", 0, 2);
         RedisValue[] res50 = db.ListRange("bikes:repairs", 0, -1);
         Console.WriteLine(string.Join(", ", res50));    // >>> "bike:5, bike:4, bike:3"
         //STEP_END
