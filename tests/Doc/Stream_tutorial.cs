@@ -2,6 +2,7 @@
 // HIDE_START
 
 using System.Diagnostics;
+using System.Net;
 using System.Runtime.Serialization;
 using NRedisStack.Tests;
 using StackExchange.Redis;
@@ -202,15 +203,19 @@ public class Stream_tutorial
 
 
         // STEP_START xadd_7
-        RedisValue res11 = db.StreamAdd(
-            "race:usa",
-            new NameValueEntry[]{
-                new NameValueEntry("rider", "Norem")
-            },
-            "0-*"
-        );
+        RedisValue res11 = "";
+        Version version = muxer.GetServer("localhost:6379").Version;
+        if (version.Major >= 7) {
+            res11 = db.StreamAdd(
+                "race:usa",
+                new NameValueEntry[]{
+                    new NameValueEntry("rider", "Norem")
+                },
+                "0-*"
+            );
 
-        Console.WriteLine(res11);   // >>> "0-3"
+            Console.WriteLine(res11);   // >>> "0-3"
+        }
         // STEP_END
 
         // Tests for 'xadd_7' step.
