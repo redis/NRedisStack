@@ -205,7 +205,8 @@ public class Stream_tutorial
         // STEP_START xadd_7
         RedisValue res11 = "";
         Version version = muxer.GetServer("localhost:6379").Version;
-        if (version.Major >= 7) {
+        if (version.Major >= 7)
+        {
             res11 = db.StreamAdd(
                 "race:usa",
                 new NameValueEntry[]{
