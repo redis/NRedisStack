@@ -1,9 +1,6 @@
 // EXAMPLE: stream_tutorial
 // HIDE_START
 
-using System.Diagnostics;
-using System.Net;
-using System.Runtime.Serialization;
 using NRedisStack.Tests;
 using StackExchange.Redis;
 
