@@ -72,23 +72,11 @@ public class Stream_tutorial
 
 
         // STEP_START xrange
-        string StreamEntryToString(StreamEntry entry)
-        {
-            string[] values = new string[entry.Values.Length];
-
-            for (int i = 0; i < entry.Values.Length; i++)
-            {
-                values[i] = $"{entry.Values[i].Name}: {entry.Values[i].Value}";
-            }
-
-            return $"{entry.Id}: [{string.Join(", ", values)}]";
-        }
-
         StreamEntry[] res4 = db.StreamRange("race:france", "1712668482289-0", "+", 2);
 
         foreach (StreamEntry entry in res4)
         {
-            Console.WriteLine(StreamEntryToString(entry));
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
         }
 
         // >>> 1712668482289-0: [rider: Castilla, speed: 30.199999999999999, position: 1, location_id: 1]
@@ -106,7 +94,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res4)
         {
-            Console.WriteLine(StreamEntryToString(entry));
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
         }
 
         // >>> 1712668482289-0: [rider: Castilla, speed: 30.199999999999999, position: 1, location_id: 1]
@@ -231,7 +219,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res12)
         {
-            Console.WriteLine(StreamEntryToString(entry));
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
         }
         // >>> 1712668482289-0: [rider: Castilla, speed: 30.199999999999999, position: 1, location_id: 1]
         // >>> 1712668766534-1: [rider: Norem, speed: 28.800000000000001, position: 3, location_id: 1]
@@ -250,7 +238,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res13)
         {
-            Console.WriteLine(StreamEntryToString(entry));
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
         }
         // >>> 1712668482289-0: [rider: Castilla, speed: 30.199999999999999, position: 1, location_id: 1]
         // STEP_END
@@ -266,7 +254,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res14)
         {
-            Console.WriteLine(StreamEntryToString(entry));
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
         }
         // >>> 1712668482289-0: [rider: Castilla, speed: 30.199999999999999, position: 1, location_id: 1]
         // >>> 1712668766534-1: [rider: Norem, speed: 28.800000000000001, position: 3, location_id: 1]
@@ -283,7 +271,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res15)
         {
-            Console.WriteLine(StreamEntryToString(entry));
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
         }
         // >>> 1712669055705-0: [rider: Prickett, speed: 29.699999999999999, position: 2, location_id: 1]
         // >>> 1712675674750-0: [rider: Castilla, speed: 29.899999999999999, position: 1, location_id: 2]
@@ -300,7 +288,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res16)
         {
-            Console.WriteLine(StreamEntryToString(entry));
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
         }
         // >>> <empty array>
         // STEP_END
@@ -316,7 +304,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res17)
         {
-            Console.WriteLine(StreamEntryToString(entry));
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
         }
         // >>> 1712675674750-0: [rider: Castilla, speed: 29.899999999999999, position: 1, location_id: 2]
         // STEP_END
@@ -332,7 +320,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res18)
         {
-            Console.WriteLine(StreamEntryToString(entry));
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
         }
         // >>> 1712668482289-0: [rider: Castilla, speed: 30.199999999999999, position: 1, location_id: 1]
         // >>> 1712668766534-1: [rider: Norem, speed: 28.800000000000001, position: 3, location_id: 1]
@@ -396,7 +384,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res21)
         {
-            Console.WriteLine(StreamEntryToString(entry));
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
         }
         // >>> 1712744323758-0: [rider: Castilla]
         // STEP_END
@@ -412,7 +400,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res22)
         {
-            Console.WriteLine(StreamEntryToString(entry));
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
             // >>> 1712744323758-0: [rider: Castilla]
         }
         // STEP_END
@@ -431,7 +419,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res24)
         {
-            Console.WriteLine(StreamEntryToString(entry));
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
         }
         // >>> <empty array>
         // STEP_END
@@ -447,7 +435,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res25)
         {
-            Console.WriteLine(StreamEntryToString(entry));
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
         }
         // >>> 1712744358384-0: [rider: Royce]
         // >>> 1712744379676-0: [rider: Sam-Bodden]
@@ -460,21 +448,8 @@ public class Stream_tutorial
 
 
         // STEP_START xpending
-
-        string StreamPendingInfoToString(StreamPendingInfo info)
-        {
-            string[] consumerStrs = new string[info.Consumers.Length];
-
-            for (int i = 0; i < info.Consumers.Length; i++)
-            {
-                consumerStrs[i] = $"name: {info.Consumers[i].Name}, pending:{info.Consumers[i].PendingMessageCount}";
-            }
-
-            return $"pending: {info.PendingMessageCount}, min: {info.LowestPendingMessageId}, max: {info.HighestPendingMessageId}, consumers:[{string.Join(", ", consumerStrs)}]";
-        }
-
         StreamPendingInfo res26 = db.StreamPending("race:italy", "italy_riders");
-        Console.WriteLine(StreamPendingInfoToString(res26));
+        Console.WriteLine($"pending: {res26.PendingMessageCount}, min: {res26.LowestPendingMessageId}, max: {res26.HighestPendingMessageId}, consumers:[{string.Join(", ", res26.Consumers.Select(c=>$"{c.Name}: {c.PendingMessageCount}"))}]");
         // >>> pending: 2, min: 1712747506906-0, max: 1712747506907-0, consumers:[name: Bob, pending:2]
         // STEP_END
 
@@ -485,18 +460,13 @@ public class Stream_tutorial
 
 
         // STEP_START xpending_plus_minus
-        string StreamPendingMessageInfoToString(StreamPendingMessageInfo info)
-        {
-            return $"message_id: {info.MessageId}, consumer: {info.ConsumerName}, time_since_delivered: {info.IdleTimeInMilliseconds}, times_delivered: {info.DeliveryCount}";
-        }
-
         StreamPendingMessageInfo[] res27 = db.StreamPendingMessages(
             "race:italy", "italy_riders", 10, "", "-", "+"
         );
 
         foreach (StreamPendingMessageInfo info in res27)
         {
-            Console.WriteLine(StreamPendingMessageInfoToString(info));
+            Console.WriteLine($"message_id: {info.MessageId}, consumer: {info.ConsumerName}, time_since_delivered: {info.IdleTimeInMilliseconds}, times_delivered: {info.DeliveryCount}");
         }
         // >>> message_id: min: 1712747506906-0, consumer: Bob, time_since_delivered: 31084, times_delivered: 1
         // >>> message_id: min: 1712747506907-0, consumer: Bob, time_since_delivered: 31084, times_delivered: 1
@@ -513,7 +483,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res28)
         {
-            Console.WriteLine(StreamEntryToString(entry));
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
         }
         // >>> 1712744358384-0: [rider: Royce]
         // STEP_END
@@ -531,7 +501,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res29)
         {
-            Console.WriteLine(StreamEntryToString(entry));
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
         }
         // >>> 1712744358384-0: [rider: Royce]
         // STEP_END
@@ -541,25 +511,12 @@ public class Stream_tutorial
 
         // REMOVE_END
 
-
         // STEP_START xautoclaim
-        string StreamAutoClaimResultToString(StreamAutoClaimResult result)
-        {
-            string[] claimedEntryStrings = new string[result.ClaimedEntries.Length];
-
-            for (int i = 0; i < claimedEntryStrings.Length; i++)
-            {
-                claimedEntryStrings[i] = StreamEntryToString(result.ClaimedEntries[i]);
-            }
-
-            return $"{result.NextStartId}, ({string.Join(", ", claimedEntryStrings)})";
-        }
-
         StreamAutoClaimResult res30 = db.StreamAutoClaim(
             "race:italy", "italy_riders", "Alice", 1, "0-0", 1
         );
 
-        Console.WriteLine(StreamAutoClaimResultToString(res30));
+        Console.WriteLine($"{res30.NextStartId}, ({string.Join(", ", res30.ClaimedEntries.Select(entry=>$"{entry.Id}: [{string.Join(", ", entry.Values.Select( b=>$"{b.Name}: {b.Value}"))}]" ))})");
         // >>> 1712744379676-0, (1712744358384-0: [rider: Royce])
         // STEP_END
 
@@ -574,7 +531,7 @@ public class Stream_tutorial
             "race:italy", "italy_riders", "Alice", 1, "(1712744358384-0", 1
         );
 
-        Console.WriteLine(StreamAutoClaimResultToString(res31));
+        Console.WriteLine($"{res31.NextStartId}, ({string.Join(", ", res31.ClaimedEntries.Select(entry=>$"{entry.Id}: [{string.Join(", ", entry.Values.Select( b=>$"{b.Name}: {b.Value}"))}]" ))})");
         // >>> 0-0, (1712744379676-0: [rider: Sam-Bodden])
         // STEP_END
 
@@ -585,13 +542,8 @@ public class Stream_tutorial
 
 
         // STEP_START xinfo
-        string StreamInfoToString(StreamInfo info)
-        {
-            return $"length: {info.Length}, radix-tree-keys: {info.RadixTreeKeys}, radix-tree-nodes: {info.RadixTreeNodes}, last-generated-id: {info.LastGeneratedId}, first-entry: {StreamEntryToString(info.FirstEntry)}, last-entry: {StreamEntryToString(info.LastEntry)}";
-        }
-
         StreamInfo res32 = db.StreamInfo("race:italy");
-        Console.WriteLine(StreamInfoToString(res32));
+        Console.WriteLine($"length: {res32.Length}, radix-tree-keys: {res32.RadixTreeKeys}, radix-tree-nodes: {res32.RadixTreeNodes}, last-generated-id: {res32.LastGeneratedId}, first-entry: {$"{res32.FirstEntry.Id}: [{string.Join(", ", res32.FirstEntry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]"}, last-entry: {$"{res32.LastEntry.Id}: [{string.Join(", ", res32.LastEntry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]"}");
         // >>> length: 5, radix-tree-keys: 1, radix-tree-nodes: 2, last-generated-id: 1712756762686-1, first-entry: 1712756762685-0: [rider: Castilla], last-entry: 1712756762686-1: [rider: Norem]
         // STEP_END
 
@@ -602,16 +554,11 @@ public class Stream_tutorial
 
 
         // STEP_START xinfo_groups
-        string StreamGroupInfoToString(StreamGroupInfo info)
-        {
-            return $"name: {info.Name}, consumers: {info.ConsumerCount}, pending: {info.PendingMessageCount}, last-delivered-id: {info.LastDeliveredId}";
-        }
-
         StreamGroupInfo[] res33 = db.StreamGroupInfo("race:italy");
 
         foreach (StreamGroupInfo info in res33)
         {
-            Console.WriteLine(StreamGroupInfoToString(info));
+            Console.WriteLine($"name: {info.Name}, consumers: {info.ConsumerCount}, pending: {info.PendingMessageCount}, last-delivered-id: {info.LastDeliveredId}");
         }
         // >>> name: italy_riders, consumers: 2, pending: 2, last-delivered-id: 1712757192730-2
         // STEP_END
@@ -623,16 +570,11 @@ public class Stream_tutorial
 
 
         // STEP_START xinfo_consumers
-        string StreamConsumerInfoToString(StreamConsumerInfo info)
-        {
-            return $"name: {info.Name}, pending: {info.PendingMessageCount}, idle: {info.IdleTimeInMilliseconds}";
-        }
-
         StreamConsumerInfo[] res34 = db.StreamConsumerInfo("race:italy", "italy_riders");
 
         foreach (StreamConsumerInfo info in res34)
         {
-            Console.WriteLine(StreamConsumerInfoToString(info));
+            Console.WriteLine($"name: {info.Name}, pending: {info.PendingMessageCount}, idle: {info.IdleTimeInMilliseconds}");
         }
         // >>> name: Alice, pending: 1, idle: 7717
         // >>> name: Bob, pending: 0, idle: 7722
@@ -664,7 +606,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res36)
         {
-            Console.WriteLine(StreamEntryToString(entry));
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
         }
         // >>> 1712758336128-0: [rider: Castilla]
         // >>> 1712758336128-1: [rider: Royce]
@@ -683,7 +625,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res37)
         {
-            Console.WriteLine(StreamEntryToString(entry));
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
         }
         // 1712758746476-1: [rider: Henshaw]
         // 1712758746477-0: [rider: Smith]
@@ -722,7 +664,7 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res40)
         {
-            Console.WriteLine(StreamEntryToString(entry));
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
         }
         // >>> 1712759694003-0: [rider: Henshaw]
         // >>> 1712759694003-1: [rider: Smith]
@@ -734,7 +676,8 @@ public class Stream_tutorial
 
         foreach (StreamEntry entry in res42)
         {
-            Console.WriteLine(StreamEntryToString(entry));
+            Console.WriteLine($"{entry.Id}: [{string.Join(", ", entry.Values.Select(b=>$"{b.Name}: {b.Value}"))}]");
+
         }
         // >>> 1712759694003-0: [rider: Henshaw]
         // STEP_END
