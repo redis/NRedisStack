@@ -14,6 +14,17 @@ namespace Doc;
 // HIDE_START
 public class Stream_tutorial
 {
+    static string StreamEntryToString(StreamEntry entry)
+    {
+        string[] values = new string[entry.Values.Length];
+
+        for (int i = 0; i < entry.Values.Length; i++)
+        {
+            values[i] = $"{entry.Values[i].Name}: {entry.Values[i].Value}";
+        }
+
+        return $"{entry.Id}: [{string.Join(", ", values)}]";
+    }
 
     [SkipIfRedis(Is.OSSCluster)]
     public void run()
@@ -71,18 +82,6 @@ public class Stream_tutorial
 
 
         // STEP_START xrange
-        string StreamEntryToString(StreamEntry entry)
-        {
-            string[] values = new string[entry.Values.Length];
-
-            for (int i = 0; i < entry.Values.Length; i++)
-            {
-                values[i] = $"{entry.Values[i].Name}: {entry.Values[i].Value}";
-            }
-
-            return $"{entry.Id}: [{string.Join(", ", values)}]";
-        }
-
         StreamEntry[] res4 = db.StreamRange("race:france", "1712668482289-0", "+", 2);
 
         foreach (StreamEntry entry in res4)
