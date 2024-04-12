@@ -21,6 +21,8 @@ public class ListExample
         //REMOVE_START
         db.KeyDelete("bikes:repairs");
         db.KeyDelete("bikes:finished");
+        db.KeyDelete("{bikes}:repairs");
+        db.KeyDelete("{bikes}:finished");
         //REMOVE_END
         //HIDE_END
 
@@ -76,19 +78,19 @@ public class ListExample
 
 
         //STEP_START lmove_lrange
-        long res10 = db.ListLeftPush("bikes:repairs", "bike:1");
+        long res10 = db.ListLeftPush("{bikes}:repairs", "bike:1");
         Console.WriteLine(res10);   // >>> 1
 
-        long res11 = db.ListLeftPush("bikes:repairs", "bike:2");
+        long res11 = db.ListLeftPush("{bikes}:repairs", "bike:2");
         Console.WriteLine(res11);   // >>> 2
 
-        RedisValue res12 = db.ListMove("bikes:repairs", "bikes:finished", ListSide.Left, ListSide.Left);
+        RedisValue res12 = db.ListMove("{bikes}:repairs", "{bikes}:finished", ListSide.Left, ListSide.Left);
         Console.Write(res12);   // >>> "bike:2"
 
-        RedisValue[] res13 = db.ListRange("bikes:repairs", 0, -1);
+        RedisValue[] res13 = db.ListRange("{bikes}:repairs", 0, -1);
         Console.WriteLine(string.Join(", ", res13));    // >>> "bike:1"
 
-        RedisValue[] res14 = db.ListRange("bikes:finished", 0, -1);
+        RedisValue[] res14 = db.ListRange("{bikes}:finished", 0, -1);
         Console.WriteLine(string.Join(", ", res14));    // >>> "bike:2"
         //REMOVE_START
         Assert.Equal(1, res10);
@@ -96,7 +98,8 @@ public class ListExample
         Assert.Equal("bike:2", res12);
         Assert.Equal("bike:1", string.Join(", ", res13));
         Assert.Equal("bike:2", string.Join(", ", res14));
-        bool delRes = db.KeyDelete("bikes:repairs");
+        bool delRes = db.KeyDelete("{bikes}:repairs");
+        delRes = db.KeyDelete("{bikes}:finished");
         //REMOVE_END
         //STEP_END
 
