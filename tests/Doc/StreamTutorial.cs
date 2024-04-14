@@ -13,7 +13,7 @@ namespace NRedisStack.Doc;
 // REMOVE_END
 
 // HIDE_START
-public class Stream_tutorial
+public class StreamTutorial
 {
 
     [SkipIfRedis(Is.OSSCluster)]
@@ -98,7 +98,7 @@ public class Stream_tutorial
         }
 
         // >>> 1712668482289-0: [rider: Castilla, speed: 30.199999999999999, position: 1, location_id: 1]
-        // >>> 1712668766534-1: [rider: Norem, speed: 28.800000000000001, position: 3, location_id: 1]       
+        // >>> 1712668766534-1: [rider: Norem, speed: 28.800000000000001, position: 3, location_id: 1]
         // >>> 1712669055705-0: [rider: Prickett, speed: 29.699999999999999, position: 2, location_id: 1]
         // STEP_END
 
@@ -648,7 +648,7 @@ public class Stream_tutorial
         // REMOVE_END
 
 
-        // STEP_START xtrim2 
+        // STEP_START xtrim2
         long res39 = db.StreamTrim("race:italy", 10, true);
         Console.WriteLine(res39);   // >>> 0
         // STEP_END
