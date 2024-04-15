@@ -114,13 +114,13 @@ public class SetsExample
         Console.WriteLine(res14);   // >>> true
 
         bool[] res15 = db.SetContains("bikes:racing:france", new RedisValue[] { "bike:2", "bike:3", "bike:4" });
-        Console.WriteLine(string.Join(", ", res15));    // >>> true, true, false
+        Console.WriteLine(string.Join(", ", res15));    // >>> True, True, False
         // STEP_END
 
         // Tests for 'smismember' step.
         // REMOVE_START
         Assert.True(res14);
-        Assert.Equal("true, true, false", string.Join(", ", res15));
+        Assert.Equal("True, True, False", string.Join(", ", res15));
         // REMOVE_END
 
 
@@ -177,7 +177,7 @@ public class SetsExample
         long res27 = db.SetAdd("bikes:racing:france", new RedisValue[] { "bike:1", "bike:2", "bike:3", "bike:4", "bike:5" });
 
         bool res28 = db.SetRemove("bikes:racing:france", "bike:1");
-        Console.WriteLine(res28);   // >>> true
+        Console.WriteLine(res28);   // >>> True
 
         RedisValue res29 = db.SetPop("bikes:racing:france");
         Console.WriteLine(res29);   // >>> bike:3
