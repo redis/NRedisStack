@@ -92,6 +92,8 @@ public class ListExample
 
         RedisValue[] res14 = db.ListRange("{bikes}:finished", 0, -1);
         Console.WriteLine(string.Join(", ", res14));    // >>> "bike:2"
+        //STEP_END
+        
         //REMOVE_START
         Assert.Equal(1, res10);
         Assert.Equal(2, res11);
@@ -101,7 +103,6 @@ public class ListExample
         bool delRes = db.KeyDelete("{bikes}:repairs");
         delRes = db.KeyDelete("{bikes}:finished");
         //REMOVE_END
-        //STEP_END
 
         //STEP_START lpush_rpush
         long res15 = db.ListRightPush("bikes:repairs", "bike:1");
@@ -115,7 +116,8 @@ public class ListExample
 
         RedisValue[] res18 = db.ListRange("bikes:repairs", 0, -1);
         Console.WriteLine(string.Join(", ", res18));    // >>> "bike:important_bike, bike:1, bike:2"
-
+        //STEP_END
+        
         //REMOVE_START
         Assert.Equal(1, res15);
         Assert.Equal(2, res16);
@@ -123,7 +125,6 @@ public class ListExample
         Assert.Equal("bike:important_bike, bike:1, bike:2", string.Join(", ", res18));
         delRes = db.KeyDelete("bikes:repairs");
         //REMOVE_END
-        //STEP_END
 
         //STEP_START variadic
         long res19 = db.ListRightPush("bikes:repairs", new RedisValue[] { "bike:1", "bike:2", "bike:3" });
@@ -134,14 +135,14 @@ public class ListExample
 
         RedisValue[] res21 = db.ListRange("bikes:repairs", 0, -1);
         Console.WriteLine(string.Join(", ", res21));    // >>> "bike:very_important_bike, bike:important_bike, bike:1, bike:2, bike:3"
-
+        //STEP_END
+        
         //REMOVE_START
         Assert.Equal(3, res19);
         Assert.Equal(5, res20);
         Assert.Equal("bike:very_important_bike, bike:important_bike, bike:1, bike:2, bike:3", string.Join(", ", res21));
         delRes = db.KeyDelete("bikes:repairs");
         //REMOVE_END
-        //STEP_END
 
         //STEP_START lpop_rpop
         long res22 = db.ListRightPush("bikes:repairs", new RedisValue[] { "bike:1", "bike:2", "bike:3" });
@@ -158,7 +159,8 @@ public class ListExample
 
         RedisValue res26 = db.ListRightPop("bikes:repairs");
         Console.WriteLine(res26);   // >>> <Empty string>
-
+        //STEP_END
+        
         //REMOVE_START
         Assert.Equal(3, res22);
         Assert.Equal("bike:3", res23);
@@ -166,7 +168,6 @@ public class ListExample
         Assert.Equal("bike:2", res25);
         Assert.Equal("", string.Join(", ", res26));
         //REMOVE_END
-        //STEP_END
 
         //STEP_START ltrim
         long res27 = db.ListLeftPush("bikes:repairs", new RedisValue[] { "bike:1", "bike:2", "bike:3", "bike:4", "bike:5" });
@@ -175,13 +176,13 @@ public class ListExample
         db.ListTrim("bikes:repairs", 0, 2);
         RedisValue[] res28 = db.ListRange("bikes:repairs", 0, -1);
         Console.WriteLine(string.Join(", ", res28));    // "bike:5, bike:4, bike:3"
-
+        //STEP_END
+        
         //REMOVE_START
         Assert.Equal(5, res27);
         Assert.Equal("bike:5, bike:4, bike:3", string.Join(", ", res28));
         delRes = db.KeyDelete("bikes:repairs");
         //REMOVE_END
-        //STEP_END
 
         //STEP_START ltrim_end_of_list
         long res29 = db.ListRightPush("bikes:repairs", new RedisValue[] { "bike:1", "bike:2", "bike:3", "bike:4", "bike:5" });
@@ -190,13 +191,13 @@ public class ListExample
         db.ListTrim("bikes:repairs", -3, -1);
         RedisValue[] res30 = db.ListRange("bikes:repairs", 0, -1);
         Console.WriteLine(string.Join(", ", res30));    // >>> "bike:3, bike:4, bike:5"
-
+        //STEP_END
+        
         //REMOVE_START
         Assert.Equal(5, res29);
         Assert.Equal("bike:3, bike:4, bike:5", string.Join(", ", res30));
         delRes = db.KeyDelete("bikes:repairs");
         //REMOVE_END
-        //STEP_END
 
         //STEP_START brpop
         long res31 = db.ListRightPush("bikes:repairs", new RedisValue[] { "bike:1", "bike:2" });
@@ -214,6 +215,8 @@ public class ListExample
 
         Tuple<RedisKey, RedisValue>? res34 = db.BRPop(new RedisKey[] { "bikes:repairs" }, 1);
         Console.WriteLine(res34);   // "Null"
+        //STEP_END
+        
         //REMOVE_START
         Assert.Equal(2, res31);
 
@@ -224,7 +227,6 @@ public class ListExample
 
         Assert.Null(res34);
         //REMOVE_END
-        //STEP_END
 
         //STEP_START rule_1
         bool res35 = db.KeyDelete("new_bikes");
@@ -232,11 +234,12 @@ public class ListExample
 
         long res36 = db.ListRightPush("new_bikes", new RedisValue[] { "bike:1", "bike:2", "bike:3" });
         Console.WriteLine(res36);   // >>> 3
+        //STEP_END
+        
         //REMOVE_START
         Assert.False(res35);
         Assert.Equal(3, res36);
         //REMOVE_END
-        //STEP_END
 
         //STEP_START rule_1.1
         bool res37 = db.StringSet("new_bikes", "bike:1");
@@ -253,12 +256,13 @@ public class ListExample
         {
             Console.WriteLine(e);
         }
+        //STEP_END
+        
         //REMOVE_START
         Assert.True(res37);
         Assert.Equal(RedisType.String, res38);
         delRes = db.KeyDelete("new_bikes");
         //REMOVE_END
-        //STEP_END
 
         //STEP_START rule_2
         long res40 = db.ListLeftPush("bikes:repairs", new RedisValue[] { "bike:1", "bike:2", "bike:3" });
@@ -278,7 +282,8 @@ public class ListExample
 
         bool res45 = db.KeyExists("bikes:repairs");
         Console.WriteLine(res45);   // >>> False
-
+        //STEP_END
+        
         //REMOVE_START
         Assert.Equal(3, res40);
         Assert.True(res41);
@@ -287,7 +292,6 @@ public class ListExample
         Assert.Equal("bike:1", res44);
         Assert.False(res45);
         //REMOVE_END
-        //STEP_END
 
         //STEP_START rule_3
         bool res46 = db.KeyDelete("bikes:repairs");
@@ -298,12 +302,13 @@ public class ListExample
 
         RedisValue res48 = db.ListLeftPop("bikes:repairs");
         Console.WriteLine(res48);   // >>> Null
+        //STEP_END
+        
         //REMOVE_START
         Assert.False(res46);
         Assert.Equal(0, res47);
         Assert.Equal(RedisValue.Null, res48);
         //REMOVE_END
-        //STEP_END
 
         //STEP_START ltrim.1
         long res49 = db.ListLeftPush("bikes:repairs", new RedisValue[] { "bike:1", "bike:2", "bike:3", "bike:4", "bike:5" });
