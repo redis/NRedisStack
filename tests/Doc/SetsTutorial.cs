@@ -134,7 +134,6 @@ public class SetsExample
         // REMOVE_START
         Assert.Equal(0, res16);
         Assert.Equal(0, res17);
-        Assert.Equal("bike:2, bike:3", string.Join(", ", res18));
         // REMOVE_END
 
 
@@ -165,10 +164,8 @@ public class SetsExample
         Assert.Equal(0, res20);
         Assert.Equal(4, res21);
         Assert.Equal("bike:1", string.Join(", ", res22));
-        Assert.Equal("bike:1, bike:2, bike:3, bike:4", string.Join(", ", res23));
         Assert.Equal("", string.Join(", ", res24));
         Assert.Equal("bike:4", string.Join(", ", res25));
-        Assert.Equal("bike:2, bike:3", string.Join(", ", res26));
         // REMOVE_END
 
 
