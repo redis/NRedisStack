@@ -37,8 +37,8 @@ public class Bitfield_tutorial
 
         long res3 = db.StringIncrement("bike:1:stats", 500);
         Console.WriteLine(res3);    // >>> 1450
-        // STEP_END
-        
+                                    // STEP_END
+
         // Tests for 'bf' step.
         // REMOVE_START
         Assert.Equal(1000, res1);
