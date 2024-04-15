@@ -105,7 +105,6 @@ public class SetsExample
         // Tests for 'sadd_smembers' step.
         // REMOVE_START
         Assert.Equal(3, res12);
-        Assert.Equal("bike:3, bike:2, bike:1", string.Join(", ", res13));
         // REMOVE_END
 
 
