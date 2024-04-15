@@ -77,8 +77,8 @@ public class SetsExample
 
         // Tests for 'sinter' step.
         // REMOVE_START
-        Assert.Equal(0, res7);
-        Assert.Equal(0, res8);
+        Assert.Equal(3, res7);
+        Assert.Equal(2, res8);
         Assert.Equal("bike:1", string.Join(", ", res9));
         // REMOVE_END
 
