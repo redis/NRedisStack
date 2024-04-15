@@ -99,13 +99,13 @@ public class SetsExample
         // STEP_START sadd_smembers
         long res12 = db.SetAdd("bikes:racing:france", new RedisValue[] { "bike:1", "bike:2", "bike:3" });
         RedisValue[] res13 = db.SetMembers("bikes:racing:france");
-        Console.WriteLine(string.Join(", ", res13));    // >>> bike:1, bike:2, bike:3
+        Console.WriteLine(string.Join(", ", res13));    // >>> bike:3, bike:2, bike:1
         // STEP_END
 
         // Tests for 'sadd_smembers' step.
         // REMOVE_START
         Assert.Equal(3, res12);
-        Assert.Equal("bike:1, bike:2, bike:3", string.Join(", ", res13));
+        Assert.Equal("bike:3, bike:2, bike:1", string.Join(", ", res13));
         // REMOVE_END
 
 
@@ -154,7 +154,7 @@ public class SetsExample
         Console.WriteLine(string.Join(", ", res24));    // >>> <empty set>
 
         RedisValue[] res25 = db.SetCombine(SetOperation.Difference, new RedisKey[] { "bikes:racing:usa", "bikes:racing:france" });
-        Console.WriteLine(string.Join(", ", res25));    // >>> bike:1
+        Console.WriteLine(string.Join(", ", res25));    // >>> bike:4
 
         RedisValue[] res26 = db.SetCombine(SetOperation.Difference, new RedisKey[] { "bikes:racing:france", "bikes:racing:usa" });
         Console.WriteLine(string.Join(", ", res26));    // >>> bike:2, bike:3
@@ -168,7 +168,7 @@ public class SetsExample
         Assert.Equal("bike:1", string.Join(", ", res22));
         Assert.Equal("bike:1, bike:2, bike:3, bike:4", string.Join(", ", res23));
         Assert.Equal("", string.Join(", ", res24));
-        Assert.Equal("bike:1", string.Join(", ", res25));
+        Assert.Equal("bike:4", string.Join(", ", res25));
         Assert.Equal("bike:2, bike:3", string.Join(", ", res26));
         // REMOVE_END
 
