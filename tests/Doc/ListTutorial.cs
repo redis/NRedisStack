@@ -212,7 +212,7 @@ public class ListExample
         if (res33 != null)
             Console.WriteLine($"{res33.Item1} -> {res33.Item2}"); // >>> "bikes:repairs -> bike:1"
 
-        Tuple<RedisKey, RedisValue>? res34 = db.BRPop(new RedisKey[] {"bikes:repairs"}, 1);
+        Tuple<RedisKey, RedisValue>? res34 = db.BRPop(new RedisKey[] { "bikes:repairs" }, 1);
         Console.WriteLine(res34);   // "Null"
         //REMOVE_START
         Assert.Equal(2, res31);
