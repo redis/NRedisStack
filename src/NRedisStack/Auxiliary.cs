@@ -113,7 +113,7 @@ public static class Auxiliary
             case RequestPolicy.AllNodes:
                 return db.ExecuteAllNodes(command);
             case RequestPolicy.AllShards:
-                return db.ExecuteAllShards(command);
+                return db.Execute(command); // TODO: change to ExecuteAllShards
             case RequestPolicy.AnyShard:
                 return db.ExecuteAnyShard(command);
             case RequestPolicy.MultiShard:
@@ -143,7 +143,7 @@ public static class Auxiliary
             case RequestPolicy.AllNodes:
                 return await db.ExecuteAllNodesAsync(command);
             case RequestPolicy.AllShards:
-                return await db.ExecuteAllShardsAsync(command);
+                return await db.ExecuteAsync(command); // TODO: change to ExecuteAllShardsAsync
             case RequestPolicy.AnyShard:
                 return await db.ExecuteAnyShardAsync(command);
             case RequestPolicy.MultiShard:
