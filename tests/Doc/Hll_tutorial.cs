@@ -22,23 +22,23 @@ public class Hll_tutorial
         var db = muxer.GetDatabase();
         //REMOVE_START
         // Clear any keys here before using them in tests.
-        db.KeyDelete(new RedisKey[] { "bikes", "commuter_bikes", "all_bikes" });
+        db.KeyDelete(new RedisKey[] { "{bikes}", "commuter_{bikes}", "all_{bikes}" });
         //REMOVE_END
         // HIDE_END
 
 
         // STEP_START pfadd
-        bool res1 = db.HyperLogLogAdd("bikes", new RedisValue[] { "Hyperion", "Deimos", "Phoebe", "Quaoar" });
+        bool res1 = db.HyperLogLogAdd("{bikes}", new RedisValue[] { "Hyperion", "Deimos", "Phoebe", "Quaoar" });
         Console.WriteLine(res1);    // >>> True
 
-        long res2 = db.HyperLogLogLength("bikes");
+        long res2 = db.HyperLogLogLength("{bikes}");
         Console.WriteLine(res2);    // >>> 4
 
-        bool res3 = db.HyperLogLogAdd("commuter_bikes", new RedisValue[] { "Salacia", "Mimas", "Quaoar" });
+        bool res3 = db.HyperLogLogAdd("commuter_{bikes}", new RedisValue[] { "Salacia", "Mimas", "Quaoar" });
         Console.WriteLine(res3);    // >>> True
 
-        db.HyperLogLogMerge("all_bikes", "bikes", "commuter_bikes");
-        long res4 = db.HyperLogLogLength("all_bikes");
+        db.HyperLogLogMerge("all_{bikes}", "{bikes}", "commuter_{bikes}");
+        long res4 = db.HyperLogLogLength("all_{bikes}");
         Console.WriteLine(res4);    // >>> 6
         // STEP_END
 
