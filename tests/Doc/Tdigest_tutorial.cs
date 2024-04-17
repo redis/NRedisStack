@@ -3,7 +3,6 @@
 
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Tests;
-using NuGet.Frameworks;
 using StackExchange.Redis;
 
 // HIDE_END
