@@ -12,7 +12,7 @@ namespace Doc;
 public class StringSnippets
 {
     //REMOVE_START
-    [SkipIfRedis(Is.OSSCluster)]
+    [SkipIfRedis(Is.OSSCluster, Is.EnterpriseOssCluster)]
     //REMOVE_END
     public void run()
     {

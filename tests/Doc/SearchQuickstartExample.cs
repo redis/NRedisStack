@@ -13,7 +13,7 @@ namespace Doc;
 // REMOVE_END
 public class SearchQuickstartExample
 {
-    [SkipIfRedis(Is.OSSCluster)]
+    [SkipIfRedis(Is.OSSCluster, Is.EnterpriseOssCluster)]
     public void run()
     {
         // STEP_START connect

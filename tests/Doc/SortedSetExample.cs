@@ -12,7 +12,7 @@ namespace NRedisStack.Doc;
 public class SortedSetExample
 {
     //REMOVE_START
-    [SkipIfRedis(Is.OSSCluster)]
+    [SkipIfRedis(Is.OSSCluster, Is.EnterpriseOssCluster)]
     //REMOVE_END
     public void run()
     {
