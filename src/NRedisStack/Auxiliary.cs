@@ -64,13 +64,17 @@ public static class Auxiliary
         return _db;
     }
 
-    private static void SetInfoInPipeline(this IDatabase db)
+    internal static void SetInfoInPipeline(this IDatabase db)
     {
-        if (_libraryName == null) return;
-        Pipeline pipeline = new Pipeline(db);
-        _ = pipeline.Db.ClientSetInfoAsync(SetInfoAttr.LibraryName, _libraryName!);
-        _ = pipeline.Db.ClientSetInfoAsync(SetInfoAttr.LibraryVersion, GetNRedisStackVersion());
-        pipeline.Execute();
+        if (_setInfo)
+        {
+            _setInfo = false;
+            if (_libraryName == null) return;
+            Pipeline pipeline = new Pipeline(db);
+            _ = pipeline.Db.ClientSetInfoAsync(SetInfoAttr.LibraryName, _libraryName!);
+            _ = pipeline.Db.ClientSetInfoAsync(SetInfoAttr.LibraryVersion, GetNRedisStackVersion());
+            pipeline.Execute();
+        }
     }
 
     // public static RedisResult Execute(this IDatabase db, SerializedCommand command)
@@ -97,11 +101,7 @@ public static class Auxiliary
 
     public static RedisResult Execute(this IDatabase db, SerializedCommand command)
     {
-        if (_setInfo)
-        {
-            _setInfo = false;
-            db.SetInfoInPipeline();
-        }
+        db.SetInfoInPipeline();
 
         if (!db.IsEnterprise() || !db.IsCluster())
             return db.Execute(command.Command, command.Args);
@@ -127,11 +127,7 @@ public static class Auxiliary
 
     public static async Task<RedisResult> ExecuteAsync(this IDatabaseAsync db, SerializedCommand command)
     {
-        if (_setInfo)
-        {
-            _setInfo = false;
-            ((IDatabase)db).SetInfoInPipeline();
-        }
+        ((IDatabase)db).SetInfoInPipeline();
 
         if (!((IDatabase)db).IsCluster())
             return await db.ExecuteAsync(command.Command, command.Args);
