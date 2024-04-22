@@ -148,6 +148,7 @@ jobs:
       USER_NAME: ${{ secrets.USER_NAME }}
       PASSWORD: ${{ secrets.PASSWORD }}
       ENDPOINT: ${{ secrets.ENDPOINT }}
+      
     steps:
       - uses: actions/checkout@v3
       - uses: Vampire/setup-wsl@v2
