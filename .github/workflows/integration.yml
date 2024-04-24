@@ -6,12 +6,7 @@ on:
       - 'docs/**'
       - '**/*.md'
     branches:
-      - master
       - ali/ClusterSupport2-p1
-      - ali/ClusterSupport2-p2
-      - ali/ClusterSupport2-p3
-      - ali/ClusterSupport2-p4
-      - ali/ClusterSupport2-p5
   pull_request:
   schedule:
     - cron: "0 1 * * *"
