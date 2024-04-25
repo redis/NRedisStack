@@ -181,9 +181,9 @@ public static class Auxiliary
     }
 
     public static RedisResult ExecuteAllShards(this IDatabase db, string command)
-            => db.ExecuteAllShardsOKres(new SerializedCommand(command));
+            => db.ExecuteAllShards(new SerializedCommand(command));
 
-    public static RedisResult ExecuteAllShardsOKres(this IDatabase db, SerializedCommand command)
+    public static RedisResult ExecuteAllShards(this IDatabase db, SerializedCommand command)
     {
         var redis = db.Multiplexer;
         var endpoints = redis.GetEndPoints();
@@ -198,14 +198,7 @@ public static class Auxiliary
             }
         }
 
-        for(int i = 0; i < results.Length; i++)
-        {
-            if (!results[i].OKtoBoolean())
-            {
-                return results[i]; // if any of the shards failed, return the first failed result
-            }
-        }
-        return results[0]; // if all shards succeeded, return the first result (OK)
+        return RedisResult.Create(results);
     }
 
     public async static Task<RedisResult> ExecuteAllShardsAsync(this IDatabaseAsync db, string command)

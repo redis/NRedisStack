@@ -197,7 +197,7 @@ public class GearsTests : AbstractNRedisStackTest, IDisposable
         {
             try
             {
-                db.ExecuteAllShardsOKres(GearsCommandBuilder.TFunctionDelete(libName));
+                db.ExecuteAllShards(GearsCommandBuilder.TFunctionDelete(libName));
             }
             catch (RedisServerException) { } // ignore
         }
