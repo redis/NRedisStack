@@ -187,18 +187,18 @@ public static class Auxiliary
     {
         var redis = db.Multiplexer;
         var endpoints = redis.GetEndPoints();
-        var results = new RedisResult[endpoints.Length];
+        var results = new List<RedisResult>();
 
-        for (int i = 0; i < endpoints.Length; i++)
+        foreach(var endpoint in endpoints)
         {
-            var server = redis.GetServer(endpoints[i]);
+            var server = redis.GetServer(endpoint);
             if (!server.IsReplica)
             {
-                results[i] = server.Execute(command.Command, command.Args);
+                results.Add(server.Execute(command.Command, command.Args));
             }
         }
 
-        return RedisResult.Create(results);
+        return RedisResult.Create(results.ToArray());
     }
 
     public async static Task<RedisResult> ExecuteAllShardsAsync(this IDatabaseAsync db, string command)
@@ -208,18 +208,18 @@ public static class Auxiliary
     {
         var redis = db.Multiplexer;
         var endpoints = redis.GetEndPoints();
-        var results = new RedisResult[endpoints.Length];
+        var results = new List<RedisResult>();
 
-        for (int i = 0; i < endpoints.Length; i++)
+        foreach(var endpoint in endpoints)
         {
-            var server = redis.GetServer(endpoints[i]);
+            var server = redis.GetServer(endpoint);
             if (!server.IsReplica)
             {
-                results[i] = await server.ExecuteAsync(command.Command, command.Args);
+                results.Add(await server.ExecuteAsync(command.Command, command.Args));
             }
         }
 
-        return RedisResult.Create(results);
+        return RedisResult.Create(results.ToArray());
     }
 
     public static RedisResult ExecuteAnyShard(this IDatabase db, SerializedCommand command)
