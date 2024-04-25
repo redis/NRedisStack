@@ -189,7 +189,7 @@ public static class Auxiliary
         var endpoints = redis.GetEndPoints();
         var results = new List<RedisResult>();
 
-        foreach(var endpoint in endpoints)
+        foreach (var endpoint in endpoints)
         {
             var server = redis.GetServer(endpoint);
             if (!server.IsReplica)
@@ -210,7 +210,7 @@ public static class Auxiliary
         var endpoints = redis.GetEndPoints();
         var results = new List<RedisResult>();
 
-        foreach(var endpoint in endpoints)
+        foreach (var endpoint in endpoints)
         {
             var server = redis.GetServer(endpoint);
             if (!server.IsReplica)
