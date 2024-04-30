@@ -9,6 +9,7 @@ namespace NRedisStack
 
         public Transaction(IDatabase db)
         {
+            db.SetInfoInPipeline();
             _transaction = db.CreateTransaction();
         }
 
