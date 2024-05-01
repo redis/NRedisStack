@@ -255,7 +255,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         await Assert.ThrowsAsync<RedisTimeoutException>(async () => await db.BZMPopAsync(0, "my-set", MinMaxModifier.Min));
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Is.EnterpriseOssCluster, Comparison.LessThan, "7.0.0")]
     public void TestBZMPopMultipleSets()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -297,7 +297,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("c", result.Item2[1].Value.ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Is.EnterpriseOssCluster, Comparison.LessThan, "7.0.0")]
     public async Task TestBZMPopMultipleSetsAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -439,7 +439,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Is.EnterpriseOssCluster, Comparison.LessThan, "5.0.0")]
     public void TestBZPopMinMultipleSets()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -462,7 +462,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("a", result.Item2.Value.ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Is.EnterpriseOssCluster, Comparison.LessThan, "5.0.0")]
     public async Task TestBZPopMinMultipleSetsAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -547,7 +547,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Is.EnterpriseOssCluster, Comparison.LessThan, "5.0.0")]
     public void TestBZPopMaxMultipleSets()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -570,7 +570,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("b", result.Item2.Value.ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Is.EnterpriseOssCluster, Comparison.LessThan, "5.0.0")]
     public async Task TestBZPopMaxMultipleSetsAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -826,7 +826,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "2.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Is.EnterpriseOssCluster, Comparison.LessThan, "2.0.0")]
     public void TestBLPopMultipleLists()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -849,7 +849,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("a", result.Item2.ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "2.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Is.EnterpriseOssCluster, Comparison.LessThan, "2.0.0")]
     public async Task TestBLPopMultipleListsAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -928,7 +928,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "2.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Is.EnterpriseOssCluster, Comparison.LessThan, "2.0.0")]
     public void TestBRPopMultipleLists()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -951,7 +951,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("b", result.Item2.ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "2.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Is.EnterpriseOssCluster, Comparison.LessThan, "2.0.0")]
     public async Task TestBRPopMultipleListsAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -974,7 +974,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("b", result.Item2.ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "6.2.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Is.EnterpriseOssCluster, Comparison.LessThan, "6.2.0")]
     public void TestBLMove()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -1031,7 +1031,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("c", db.ListGetByIndex("list-two", 1));
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "6.2.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Is.EnterpriseOssCluster, Comparison.LessThan, "6.2.0")]
     public async Task TestBLMoveAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -1088,7 +1088,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("c", db.ListGetByIndex("list-two", 1));
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "2.2.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Is.EnterpriseOssCluster, Comparison.LessThan, "2.2.0")]
     public void TestBRPopLPush()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -1109,7 +1109,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("b", db.ListLeftPop("list-two"));
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "2.2.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Is.EnterpriseOssCluster, Comparison.LessThan, "2.2.0")]
     public async Task TestBRPopLPushAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -1194,7 +1194,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(7, streamEntry.Values[0].Value);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Is.EnterpriseOssCluster, Comparison.LessThan, "5.0.0")]
     public void TestXReadMultipleStreams()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -1244,7 +1244,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("bar", result![1].Entries[0].Values[0].Value);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Is.EnterpriseOssCluster, Comparison.LessThan, "5.0.0")]
     public async Task TestXReadMultipleStreamsAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -1575,7 +1575,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Empty(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Is.EnterpriseOssCluster, Comparison.LessThan, "5.0.0")]
     public void TestXReadGroupMultipleStreams()
     {
         var db = redisFixture.Redis.GetDatabase(null);
@@ -1629,7 +1629,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(17, result![1].Entries[0].Values[0].Value);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Is.EnterpriseOssCluster, Comparison.LessThan, "5.0.0")]
     public async Task TestXReadGroupMultipleStreamsAsync()
     {
         var db = redisFixture.Redis.GetDatabase(null);
