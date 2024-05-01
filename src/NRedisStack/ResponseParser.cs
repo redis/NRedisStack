@@ -41,6 +41,12 @@ namespace NRedisStack
             throw new ArgumentNullException(nameof(redisResults));
         }
 
+        public static RedisResult[][] ToArrayArray(this RedisResult result)
+        {
+            var redisResults = (RedisResult[])result!;
+            return redisResults.Select(x => (RedisResult[])x!).ToArray();
+        }
+
         public static long ToLong(this RedisResult result)
         {
             if ((long?)result == null)

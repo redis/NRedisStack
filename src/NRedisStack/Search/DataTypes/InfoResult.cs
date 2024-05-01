@@ -7,7 +7,7 @@ public class InfoResult
     private readonly Dictionary<string, RedisResult> _all = new();
     public string IndexName => GetString("index_name")!;
     public Dictionary<string, RedisResult> IndexOption => GetRedisResultDictionary("index_options")!;
-    public Dictionary<string, RedisResult>[] Attributes => GetRedisResultDictionaryArray("attributes")!;
+    public RedisResult[][] Attributes => GetRedisResultArrayArray("attributes")!;
     public long NumDocs => GetLong("num_docs");
     public string MaxDocId => GetString("max_doc_id")!;
     public long NumTerms => GetLong("num_terms");
@@ -91,26 +91,29 @@ public class InfoResult
         }
 
         return result;
-
     }
 
-    private Dictionary<string, RedisResult>[]? GetRedisResultDictionaryArray(string key)
+    private RedisResult[][]? GetRedisResultArrayArray(string key)
     {
         if (!_all.TryGetValue(key, out var value)) return default;
-        var values = (RedisResult[])value!;
-        var result = new Dictionary<string, RedisResult>[values.Length];
-        for (int i = 0; i < values.Length; i++)
-        {
-            var fv = (RedisResult[])values[i]!;
-            var dict = new Dictionary<string, RedisResult>();
-            for (int j = 0; j < fv.Length; j += 2)
-            {
-                dict.Add((string)fv[j]!, fv[j + 1]);
-            }
-
-            result[i] = dict;
-        }
-
-        return result;
+        return value.ToArrayArray();
     }
+
+    // private Dictionary<string, RedisResult>[]? GetRedisResultDictionaryArray(string key)
+    // {
+    //     if (!_all.TryGetValue(key, out var value)) return default;
+    //     var values = (RedisResult[])value!;
+    //     var result = new Dictionary<string, RedisResult>[values.Length];
+    //     for (int i = 0; i < values.Length; i++)
+    //     {
+    //         var fv = (RedisResult[])values[i]!;
+    //         var dict = new Dictionary<string, RedisResult>();
+    //         for (int j = 0; j < fv.Length; j += 2)
+    //         {
+    //             dict.Add((string)fv[j]!, fv[j + 1]);
+    //         }
+    //         result[i] = dict;
+    //     }
+    //     return result;
+    // }
 }

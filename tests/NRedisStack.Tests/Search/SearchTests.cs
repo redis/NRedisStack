@@ -702,7 +702,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var ft = db.FT();
-        Schema sc = new Schema().AddTextField("title", 1.0);
+        Schema sc = new Schema().AddTextField("title", 1.0, sortable: true);
 
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
@@ -733,9 +733,9 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(index, info.IndexName);
         Assert.Empty(info.IndexOption);
         // Assert.Equal(,info.IndexDefinition);
-        Assert.Equal("title", (info.Attributes[0]["identifier"]).ToString());
-        Assert.Equal("TAG", (info.Attributes[1]["type"]).ToString());
-        Assert.Equal("name", (info.Attributes[2]["attribute"]).ToString());
+        Assert.Equal("title", info.Attributes[0][1].ToString());
+        Assert.Equal("TAG", info.Attributes[1][5].ToString());
+        Assert.Equal("name", info.Attributes[2][3].ToString());
         Assert.Equal(100, info.NumDocs);
         Assert.NotNull(info.MaxDocId);
         Assert.Equal(102, info.NumTerms);
@@ -766,7 +766,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var ft = db.FT();
-        Schema sc = new Schema().AddTextField("title", 1.0);
+        Schema sc = new Schema().AddTextField("title", 1.0, sortable: true);
 
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
@@ -795,9 +795,9 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         var info = await ft.InfoAsync(index);
         Assert.Equal(index, info.IndexName);
-        Assert.Equal("title", (info.Attributes[0]["identifier"]).ToString());
-        Assert.Equal("TAG", (info.Attributes[1]["type"]).ToString());
-        Assert.Equal("name", (info.Attributes[2]["attribute"]).ToString());
+        Assert.Equal("title", info.Attributes[0][1].ToString());
+        Assert.Equal("TAG", info.Attributes[1][5].ToString());
+        Assert.Equal("name", info.Attributes[2][3].ToString());
         Assert.Equal(100, info.NumDocs);
         Assert.Equal("300", info.MaxDocId);
         Assert.Equal(102, info.NumTerms);
