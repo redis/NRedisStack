@@ -18,7 +18,7 @@ namespace NRedisStack
                 _ => throw new System.NotImplementedException(),
             };
 
-            return new SerializedCommand(RedisCoreCommands.CLIENT, RequestPolicy.AllShards, RedisCoreCommands.SETINFO, attrValue, value);
+            return new SerializedCommand(RedisCoreCommands.CLIENT, RedisCoreCommands.SETINFO, attrValue, value);
         }
 
         public static SerializedCommand BZMPop(double timeout, RedisKey[] keys, MinMaxModifier minMaxModifier, long? count)

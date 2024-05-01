@@ -13,7 +13,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     public CoreTests(RedisFixture redisFixture) : base(redisFixture) { }
 
     // TODO: understand why this test fails on enterprise
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Is.EnterpriseOssCluster, Comparison.LessThan, "7.1.242")]
     public void TestSimpleSetInfo()
     {
         var db = redisFixture.Redis.GetDatabase();
@@ -26,7 +26,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.EndsWith($"lib-name=TestLibraryName lib-ver=1.2.3\n", info);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Is.EnterpriseOssCluster, Comparison.LessThan, "7.1.242")]
     public async Task TestSimpleSetInfoAsync()
     {
         var db = redisFixture.Redis.GetDatabase();
@@ -39,7 +39,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.EndsWith($"lib-name=TestLibraryName lib-ver=1.2.3\n", info);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Is.EnterpriseOssCluster, Comparison.LessThan, "7.1.242")]
     public void TestSetInfoDefaultValue()
     {
         ResetInfoDefaults(); // demonstrate first connection
@@ -52,7 +52,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.EndsWith($"lib-name=NRedisStack(.NET_v{Environment.Version}) lib-ver={GetNRedisStackVersion()}\n", info);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Is.EnterpriseOssCluster, Comparison.LessThan, "7.1.242")]
     public async Task TestSetInfoDefaultValueAsync()
     {
         ResetInfoDefaults(); // demonstrate first connection
@@ -65,7 +65,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.EndsWith($"lib-name=NRedisStack(.NET_v{Environment.Version}) lib-ver={GetNRedisStackVersion()}\n", info);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Is.EnterpriseOssCluster, Comparison.LessThan, "7.1.242")]
     public void TestSetInfoWithValue()
     {
         ResetInfoDefaults(); // demonstrate first connection
@@ -78,7 +78,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.EndsWith($"NRedisStack(MyLibraryName;v1.0.0;.NET_v{Environment.Version}) lib-ver={GetNRedisStackVersion()}\n", info);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Is.EnterpriseOssCluster, Comparison.LessThan, "7.1.242")]
     public async Task TestSetInfoWithValueAsync()
     {
         ResetInfoDefaults(); // demonstrate first connection
@@ -91,7 +91,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.EndsWith($"NRedisStack(MyLibraryName;v1.0.0;.NET_v{Environment.Version}) lib-ver={GetNRedisStackVersion()}\n", info);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Is.EnterpriseOssCluster, Comparison.LessThan, "7.1.242")]
     public void TestSetInfoNull()
     {
         ResetInfoDefaults(); // demonstrate first connection
@@ -114,7 +114,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(infoAfterLibNameToEnd, infoBeforeLibNameToEnd);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Is.EnterpriseOssCluster, Comparison.LessThan, "7.1.242")]
     public async Task TestSetInfoNullAsync()
     {
         ResetInfoDefaults(); // demonstrate first connection
