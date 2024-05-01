@@ -10,7 +10,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
         public TestQueryIndex(RedisFixture redisFixture) : base(redisFixture) { }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Is.EnterpriseOssCluster)]
         public void TestTSQueryIndex()
         {
             var db = redisFixture.Redis.GetDatabase();

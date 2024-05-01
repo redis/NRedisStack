@@ -43,8 +43,6 @@ public class RedisFixture : IDisposable
             string host = parts[0];
             int startPort = int.Parse(parts[1]);
 
-            var endpoints = new EndPointCollection(); // TODO: check if needed
-
             configurationOptions.EndPoints.Clear();
             int numRedisClusterNodes = int.Parse(numRedisClusterNodesEnv!);
             for (int i = 0; i < numRedisClusterNodes; i++)

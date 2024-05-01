@@ -8,7 +8,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
     {
         public TestQueryIndexAsync(RedisFixture redisFixture) : base(redisFixture) { }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Is.EnterpriseOssCluster)]
         public async Task TestTSQueryIndex()
         {
             var keys = CreateKeyNames(2);
