@@ -11,7 +11,7 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
     private const string key = "PIPELINE_TESTS";
     public PipelineTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-    [SkipIfRedis(Is.OSSCluster, Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedis(Is.StandaloneOSSCluster, Comparison.GreaterThanOrEqual, "7.1.242")]
     [Obsolete]
     public void TestModulesPipeline()
     {
@@ -63,7 +63,7 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(db.TOPK().Info("topk-key"));
     }
 
-    [SkipIfRedis(Is.OSSCluster)]
+    [SkipIfRedis(Is.StandaloneOSSCluster)]
     [Obsolete]
     public void TestModulesPipelineWithoutGraph()
     {
@@ -111,7 +111,7 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(db.TOPK().Info("topk-key"));
     }
 
-    [SkipIfRedis(Is.OSSCluster)]
+    [SkipIfRedis(Is.StandaloneOSSCluster)]
     public void TestBloomPipeline()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();

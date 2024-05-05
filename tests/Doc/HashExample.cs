@@ -10,7 +10,7 @@ namespace Doc;
 //REMOVE_END
 public class HashExample
 {
-    [SkipIfRedis(Is.OSSCluster, Is.EnterpriseOssCluster)]
+    [SkipIfRedis(Is.StandaloneOSSCluster, Is.EnterpriseOssCluster)]
     public void run()
     {
         var muxer = ConnectionMultiplexer.Connect("localhost:6379");

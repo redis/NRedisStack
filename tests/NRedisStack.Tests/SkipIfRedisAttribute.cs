@@ -10,7 +10,7 @@ public enum Comparison
 public enum Is
 {
     Standalone,
-    OSSCluster,
+    StandaloneOSSCluster,
     Enterprise,
     EnterpriseOssCluster
 }
@@ -84,7 +84,7 @@ public class SkipIfRedisAttribute : FactAttribute
                 {
                     switch (environment)
                     {
-                        case Is.OSSCluster:
+                        case Is.StandaloneOSSCluster:
                             if (redisFixture.isOSSCluster && !redisFixture.isEnterprise)
                             {
                                 skipReason += " Redis server is OSS cluster.";
@@ -101,7 +101,7 @@ public class SkipIfRedisAttribute : FactAttribute
                             break;
 
                         case Is.Enterprise:
-                            if (redisFixture.isEnterprise && !redisFixture.isOSSCluster)
+                            if (redisFixture.isEnterprise /*&& !redisFixture.isOSSCluster*/)
                             {
                                 skipReason += " Redis Enterprise environment.";
                                 skipped = true;

@@ -27,7 +27,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             return tuples;
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public async Task TestSimpleMRange()
         {
             var keys = CreateKeyNames(2);
@@ -51,7 +51,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
                 Assert.Equal(tuples, results[i].values);
             }
         }
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public async Task TestMRangeWithLabels()
         {
             var keys = CreateKeyNames(2);
@@ -76,7 +76,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public async Task TestMRangeSelectLabels()
         {
             var keys = CreateKeyNames(2);
@@ -110,7 +110,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public async Task TestMRangeFilter()
         {
             var keys = CreateKeyNames(2);
@@ -128,7 +128,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(tuples, results[0].values);
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public async Task TestMRangeCount()
         {
             var keys = CreateKeyNames(2);
@@ -154,7 +154,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public async Task TestMRangeAggregation()
         {
             var keys = CreateKeyNames(2);
@@ -179,7 +179,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public async Task TestMRangeAlign()
         {
             var keys = CreateKeyNames(2);
@@ -203,7 +203,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(expected[0], results[0].values[0]);
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public async Task TestMissingFilter()
         {
             var keys = CreateKeyNames(2);
@@ -222,7 +222,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal("There should be at least one filter on MRANGE/MREVRANGE", ex.Message);
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public async Task TestMissingTimeBucket()
         {
             var keys = CreateKeyNames(2);
@@ -245,7 +245,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             });
             Assert.Equal("RANGE Aggregation should have timeBucket value", ex.Message);
         }
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public async Task TestMRangeGroupby()
         {
             var keys = CreateKeyNames(2);
@@ -272,7 +272,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public async Task TestMRangeReduce()
         {
             var keys = CreateKeyNames(2);
@@ -298,7 +298,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public async Task TestMRangeFilterBy()
         {
             var keys = CreateKeyNames(2);

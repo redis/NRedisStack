@@ -32,7 +32,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             };
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         [Obsolete]
         public void TestRulesAdditionDeletion()
         {
@@ -96,7 +96,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal("ERR TSDB: compaction rule does not exist", ex.Message);
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public void TestAlignTimestamp()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();

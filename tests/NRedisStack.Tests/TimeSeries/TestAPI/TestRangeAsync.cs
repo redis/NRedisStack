@@ -129,7 +129,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(tuples.GetRange(2, 1), res);
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public async Task TestLatestAsync()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
@@ -164,7 +164,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(new List<TimeSeriesTuple>() { latest, compact }, await ts.RevRangeAsync("ts2", 0, 10, true));
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public async Task TestAlignTimestampAsync()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();

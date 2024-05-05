@@ -85,7 +85,7 @@ public class TransactionTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(db.TOPK().Info("topk-key"));
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+    [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
     [Obsolete]
     public void TestModulesTransactionWithoutGraph()
     {
