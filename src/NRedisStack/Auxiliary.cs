@@ -1,5 +1,7 @@
 using NRedisStack.Core;
+using NRedisStack.Json.Literals;
 using NRedisStack.RedisStackCommands;
+using NRedisStack.Search.Literals;
 using StackExchange.Redis;
 
 namespace NRedisStack;
@@ -101,7 +103,7 @@ public static class Auxiliary
 
     public static RedisResult Execute(this IDatabase db, SerializedCommand command)
     {
-        // db.SetInfoInPipeline();
+        // db.SetInfoInPipeline(); // TODO: uncomment this line
 
         if (!db.IsEnterprise() || !db.IsCluster())
             return db.Execute(command.Command, command.Args);
@@ -113,7 +115,7 @@ public static class Auxiliary
             case RequestPolicy.AllNodes:
                 return db.ExecuteAllNodes(command);
             case RequestPolicy.AllShards:
-                return db.Execute(command); // TODO: change to ExecuteAllShards
+                return db.ExecuteAllShards(command);
             case RequestPolicy.AnyShard:
                 return db.ExecuteAnyShard(command);
             case RequestPolicy.MultiShard:
@@ -127,7 +129,7 @@ public static class Auxiliary
 
     public static async Task<RedisResult> ExecuteAsync(this IDatabaseAsync db, SerializedCommand command)
     {
-        // ((IDatabase)db).SetInfoInPipeline();
+        // ((IDatabase)db).SetInfoInPipeline(); // TODO: uncomment this line
 
         if (!((IDatabase)db).IsCluster())
             return await db.ExecuteAsync(command.Command, command.Args);
@@ -139,7 +141,7 @@ public static class Auxiliary
             case RequestPolicy.AllNodes:
                 return await db.ExecuteAllNodesAsync(command);
             case RequestPolicy.AllShards:
-                return await db.ExecuteAsync(command); // TODO: change to ExecuteAllShardsAsync
+                return await db.ExecuteAllShardsAsync(command);
             case RequestPolicy.AnyShard:
                 return await db.ExecuteAnyShardAsync(command);
             case RequestPolicy.MultiShard:
@@ -177,7 +179,7 @@ public static class Auxiliary
             results[i] = await redis.GetServer(endpoints[i]).ExecuteAsync(command.Command, command.Args);
         }
 
-        return RedisResult.Create(results);
+        return results.ToRedisResult(command.Command);
     }
 
     public static RedisResult ExecuteAllShards(this IDatabase db, string command)
@@ -198,7 +200,9 @@ public static class Auxiliary
             }
         }
 
-        return RedisResult.Create(results.ToArray());
+        return results.ToArray().ToRedisResult(command.Command);
+
+
     }
 
     public async static Task<RedisResult> ExecuteAllShardsAsync(this IDatabaseAsync db, string command)
@@ -218,7 +222,9 @@ public static class Auxiliary
                 results.Add(await server.ExecuteAsync(command.Command, command.Args));
             }
         }
+        var toRedisResult = results.ToArray().ToRedisResult(command.Command);
 
+        return toRedisResult;
         return RedisResult.Create(results.ToArray());
     }
 
@@ -242,6 +248,36 @@ public static class Auxiliary
             if (!server.IsReplica) return server;
         }
         throw new InvalidOperationException("Requires a primary endpoint (found none)");
+    }
+
+    public static RedisResult ToRedisResult(this RedisResult[] results, string command)
+    {
+        switch (command)
+        {
+            case FT.ALIASADD:
+            case FT.ALIASDEL:
+            case FT.ALIASUPDATE:
+            case FT.ALTER:
+            case FT.CREATE:
+            case FT.DROPINDEX:
+                return results.OKArraytoResult();
+            case JSON.MGET:
+                // TODO: implement
+                break;
+        }
+        return results[0]; // TODO: check if this is the correct behavior
+    }
+
+    public static RedisResult OKArraytoResult(this RedisResult[] results)
+    {
+        foreach (var result in results)
+        {
+            if (result.ToString() != "OK")
+            {
+                return result; // return the problematic result
+            }
+        }
+        return results[0]; // return the first result (which is OK, like the others)
     }
 
     // TODO: check if implementing MultiShard and Special policies is nessesary
