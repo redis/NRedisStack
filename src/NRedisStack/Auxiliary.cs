@@ -1,4 +1,5 @@
 using NRedisStack.Core;
+using NRedisStack.Core.Literals;
 using NRedisStack.Json.Literals;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search.Literals;
@@ -262,6 +263,7 @@ public static class Auxiliary
             case FT.DROPINDEX:
             case FT.DICTADD:
             case FT.DICTDEL:
+            case RedisCoreCommands.FLUSHALL:
                 return results.OKArraytoResult();
             case JSON.MGET:
                 // TODO: implement
