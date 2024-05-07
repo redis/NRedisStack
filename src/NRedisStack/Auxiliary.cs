@@ -104,7 +104,7 @@ public static class Auxiliary
 
     public static RedisResult Execute(this IDatabase db, SerializedCommand command)
     {
-        // db.SetInfoInPipeline(); // TODO: uncomment this line
+        db.SetInfoInPipeline();
 
         if (!db.IsEnterprise() || !db.IsCluster())
             return db.Execute(command.Command, command.Args);
@@ -130,7 +130,7 @@ public static class Auxiliary
 
     public static async Task<RedisResult> ExecuteAsync(this IDatabaseAsync db, SerializedCommand command)
     {
-        // ((IDatabase)db).SetInfoInPipeline(); // TODO: uncomment this line
+        ((IDatabase)db).SetInfoInPipeline();
 
         if (!((IDatabase)db).IsCluster())
             return await db.ExecuteAsync(command.Command, command.Args);
