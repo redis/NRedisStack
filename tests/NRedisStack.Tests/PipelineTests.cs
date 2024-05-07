@@ -16,7 +16,7 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
     public void TestModulesPipeline()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var pipeline = new Pipeline(db);
 
         _ = pipeline.Bf.ReserveAsync("bf-key", 0.001, 100);
@@ -68,7 +68,7 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
     public void TestModulesPipelineWithoutGraph()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var pipeline = new Pipeline(db);
 
         _ = pipeline.Bf.ReserveAsync("bf-key", 0.001, 100);
@@ -115,7 +115,7 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
     public void TestBloomPipeline()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var pipeline = new Pipeline(db);
 
         _ = pipeline.Bf.ReserveAsync(key, 0.001, 100);

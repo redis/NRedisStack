@@ -100,7 +100,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var conn = redisFixture.Redis;
         var db = conn.GetDatabase();
         var commands = new JsonCommands(db);
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         var obj = new Person { Name = "Shachar", Age = 23 };
         Assert.True(commands.Set("Person:Shachar", "$", obj, When.NotExists));
@@ -115,7 +115,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var conn = redisFixture.Redis;
         var db = conn.GetDatabase();
         var commands = new JsonCommands(db);
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         var obj = new Person { Name = "Shachar", Age = 23 };
         Assert.True(await commands.SetAsync("Person:Shachar", "$", obj, When.NotExists));

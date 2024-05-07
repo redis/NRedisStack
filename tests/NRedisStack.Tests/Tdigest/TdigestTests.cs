@@ -27,7 +27,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     public void TestCreateSimple()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var tdigest = db.TDIGEST();
 
         Assert.True(tdigest.Create(key));
@@ -48,7 +48,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     public async Task TestCreateSimpleAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var tdigest = db.TDIGEST();
 
         Assert.True(await tdigest.CreateAsync(key));
@@ -69,7 +69,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     public void TestCreateAndInfo()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var tdigest = db.TDIGEST();
 
         for (int i = 100; i < 1000; i += 100)
@@ -86,7 +86,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     public async Task TestCreateAndInfoAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var tdigest = db.TDIGEST();
 
         for (int i = 100; i < 1000; i += 100)
@@ -103,7 +103,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     // public void TestRank()
     // {
     //     IDatabase db = redisFixture.Redis.GetDatabase();
-    //     db.Execute("FLUSHALL");
+    //     db.FlushAll();
     //     var tdigest = db.TDIGEST();
 
     //     Assert.True(tdigest.Create("t-digest", 500));
@@ -124,7 +124,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     {
         //final String key = "ranks";
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var tdigest = db.TDIGEST();
         tdigest.Create(key);
         tdigest.Add(key, 2d, 3d, 5d);
@@ -139,7 +139,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     {
         //final String key = "ranks";
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var tdigest = db.TDIGEST();
         tdigest.Create(key);
         tdigest.Add(key, 2d, 3d, 5d);
@@ -153,7 +153,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     // public async Task TestRankAsync()
     // {
     //     IDatabase db = redisFixture.Redis.GetDatabase();
-    //     db.Execute("FLUSHALL");
+    //     db.FlushAll();
     //     var tdigest = db.TDIGEST();
 
     //     Assert.True(tdigest.Create("t-digest", 500));
@@ -173,7 +173,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     // public void TestRevRank()
     // {
     //     IDatabase db = redisFixture.Redis.GetDatabase();
-    //     db.Execute("FLUSHALL");
+    //     db.FlushAll();
     //     var tdigest = db.TDIGEST();
 
     //     Assert.True(tdigest.Create("t-digest", 500));
@@ -193,7 +193,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     // public async Task TestRevRankAsync()
     // {
     //     IDatabase db = redisFixture.Redis.GetDatabase();
-    //     db.Execute("FLUSHALL");
+    //     db.FlushAll();
     //     var tdigest = db.TDIGEST();
 
     //     Assert.True(tdigest.Create("t-digest", 500));
@@ -213,7 +213,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     // public void TestByRank()
     // {
     //     IDatabase db = redisFixture.Redis.GetDatabase();
-    //     db.Execute("FLUSHALL");
+    //     db.FlushAll();
     //     var tdigest = db.TDIGEST();
 
     //     Assert.True(tdigest.Create("t-digest", 500));
@@ -233,7 +233,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     // public async Task TestByRankAsync()
     // {
     //     IDatabase db = redisFixture.Redis.GetDatabase();
-    //     db.Execute("FLUSHALL");
+    //     db.FlushAll();
     //     var tdigest = db.TDIGEST();
 
     //     Assert.True(tdigest.Create("t-digest", 500));
@@ -252,7 +252,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     // public void TestByRevRank()
     // {
     //     IDatabase db = redisFixture.Redis.GetDatabase();
-    //     db.Execute("FLUSHALL");
+    //     db.FlushAll();
     //     var tdigest = db.TDIGEST();
 
     //     Assert.True(tdigest.Create("t-digest", 500));
@@ -272,7 +272,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     // public async Task TestByRevRankAsync()
     // {
     //     IDatabase db = redisFixture.Redis.GetDatabase();
-    //     db.Execute("FLUSHALL");
+    //     db.FlushAll();
     //     var tdigest = db.TDIGEST();
 
     //     Assert.True(tdigest.Create("t-digest", 500));
@@ -292,7 +292,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     public void TestReset()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var tdigest = db.TDIGEST();
 
         tdigest.Create("reset", 100);
@@ -314,7 +314,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     public async Task TestResetAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var tdigest = db.TDIGEST();
 
         await tdigest.CreateAsync("reset", 100);
@@ -337,7 +337,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     public void TestAdd()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var tdigest = db.TDIGEST();
 
         tdigest.Create("tdadd", 100);
@@ -353,7 +353,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     public async Task TestAddAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var tdigest = db.TDIGEST();
 
         await tdigest.CreateAsync("tdadd", 100);
@@ -369,7 +369,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     public void TestMerge()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var tdigest = db.TDIGEST();
 
         tdigest.Create("td2", 100);
@@ -392,7 +392,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     public async Task TestMergeAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var tdigest = db.TDIGEST();
 
         await tdigest.CreateAsync("td2", 100);
@@ -415,7 +415,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     public void MergeMultiAndParams()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var tdigest = db.TDIGEST();
         tdigest.Create("from1", 100);
         tdigest.Create("from2", 200);
@@ -436,7 +436,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     public async Task MergeMultiAndParamsAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var tdigest = db.TDIGEST();
         tdigest.Create("from1", 100);
         tdigest.Create("from2", 200);
@@ -457,7 +457,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     public void TestCDF()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var tdigest = db.TDIGEST();
 
         tdigest.Create("tdcdf", 100);
@@ -479,7 +479,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     public async Task TestCDFAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var tdigest = db.TDIGEST();
 
         await tdigest.CreateAsync("tdcdf", 100);
@@ -502,7 +502,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     public void TestQuantile()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var tdigest = db.TDIGEST();
 
         tdigest.Create("tdqnt", 100);
@@ -520,7 +520,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     public async Task TestQuantileAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var tdigest = db.TDIGEST();
 
         tdigest.Create("tdqnt", 100);
@@ -538,7 +538,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     public void TestMinAndMax()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var tdigest = db.TDIGEST();
 
         tdigest.Create(key, 100);
@@ -557,7 +557,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     public async Task TestMinAndMaxAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var tdigest = db.TDIGEST();
 
         await tdigest.CreateAsync(key, 100);
@@ -576,7 +576,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     public void TestTrimmedMean()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var tdigest = db.TDIGEST();
 
         tdigest.Create(key, 500);
@@ -597,7 +597,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     public async Task TestTrimmedMeanAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
         var tdigest = db.TDIGEST();
 
         await tdigest.CreateAsync(key, 500);
