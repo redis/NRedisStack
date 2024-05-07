@@ -1161,7 +1161,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Empty(ft.DictDump("dict"));
     }
 
-    [SkipIfRedis(Is.StandaloneOSSCluster)]
+    [SkipIfRedis(Is.StandaloneOSSCluster, Is.EnterpriseOssCluster)]
     public void TestDropIndex()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1191,10 +1191,10 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         {
             Assert.Contains("no such index", ex.Message);
         }
-        Assert.Equal("100", db.ExecuteAllShards("DBSIZE").ToString());
+        Assert.Equal("100", db.Execute("DBSIZE").ToString());
     }
 
-    [SkipIfRedis(Is.StandaloneOSSCluster)]
+    [SkipIfRedis(Is.StandaloneOSSCluster, Is.EnterpriseOssCluster)]
     public async Task TestDropIndexAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1224,7 +1224,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         {
             Assert.Contains("no such index", ex.Message);
         }
-        Assert.Equal("100", db.ExecuteAllShards("DBSIZE").ToString());
+        Assert.Equal("100", db.Execute("DBSIZE").ToString());
     }
 
     [SkipIfRedis(Is.StandaloneOSSCluster, Is.EnterpriseOssCluster)]
@@ -1250,7 +1250,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         RedisResult[] keys = (RedisResult[])db.Execute("KEYS", "*")!;
         Assert.Empty(keys);
-        Assert.Equal("0", db.ExecuteAllShards("DBSIZE").ToString());
+        Assert.Equal("0", db.Execute("DBSIZE").ToString());
     }
 
     [SkipIfRedis(Is.StandaloneOSSCluster, Is.EnterpriseOssCluster)]
@@ -1276,7 +1276,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         RedisResult[] keys = (RedisResult[])db.Execute("KEYS", "*")!;
         Assert.Empty(keys);
-        Assert.Equal("0", db.ExecuteAllShards("DBSIZE").ToString());
+        Assert.Equal("0", db.Execute("DBSIZE").ToString());
     }
 
     [SkipIfRedis(Is.StandaloneOSSCluster)]
