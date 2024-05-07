@@ -63,7 +63,7 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(db.TOPK().Info("topk-key"));
     }
 
-    [SkipIfRedis(Is.StandaloneOSSCluster)]
+    [SkipIfRedis(Is.StandaloneOSSCluster, Is.EnterpriseOssCluster)]
     [Obsolete]
     public void TestModulesPipelineWithoutGraph()
     {
