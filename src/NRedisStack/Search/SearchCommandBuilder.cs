@@ -96,7 +96,7 @@ namespace NRedisStack
                 args.Add(t);
             }
 
-            return new SerializedCommand(FT.DICTADD, args);
+            return new SerializedCommand(FT.DICTADD, RequestPolicy.AllShards, args);
         }
 
         public static SerializedCommand DictDel(string dict, params string[] terms)
@@ -112,7 +112,7 @@ namespace NRedisStack
                 args.Add(t);
             }
 
-            return new SerializedCommand(FT.DICTDEL, args);
+            return new SerializedCommand(FT.DICTDEL, RequestPolicy.AllShards, args);
         }
 
         public static SerializedCommand DictDump(string dict)
