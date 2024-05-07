@@ -165,7 +165,7 @@ public static class Auxiliary
             results[i] = redis.GetServer(endpoints[i]).Execute(command.Command, command.Args);
         }
 
-        return RedisResult.Create(results);
+        return results.ToRedisResult(command.Command);
     }
 
     public static async Task<RedisResult> ExecuteAllNodesAsync(this IDatabaseAsync db, SerializedCommand command)
@@ -260,6 +260,8 @@ public static class Auxiliary
             case FT.ALTER:
             case FT.CREATE:
             case FT.DROPINDEX:
+            case FT.DICTADD:
+            case FT.DICTDEL:
                 return results.OKArraytoResult();
             case JSON.MGET:
                 // TODO: implement

@@ -1163,7 +1163,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Empty(ft.DictDump("dict"));
     }
 
-    [SkipIfRedis(Is.StandaloneOSSCluster)]
+    [SkipIfRedis(Is.StandaloneOSSCluster, Is.EnterpriseOssCluster)]
     public void TestDropIndex()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1196,7 +1196,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("100", db.Execute("DBSIZE").ToString());
     }
 
-    [SkipIfRedis(Is.StandaloneOSSCluster)]
+    [SkipIfRedis(Is.StandaloneOSSCluster, Is.EnterpriseOssCluster)]
     public async Task TestDropIndexAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1428,7 +1428,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.False(res.Length == 0);
     }
 
-    [SkipIfRedis(Is.StandaloneOSSCluster)]
+    [SkipIfRedis(Is.StandaloneOSSCluster, Is.EnterpriseOssCluster)]
     public void TestSynonym()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1454,7 +1454,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expected, dump);
     }
 
-    [SkipIfRedis(Is.StandaloneOSSCluster)]
+    [SkipIfRedis(Is.StandaloneOSSCluster, Is.EnterpriseOssCluster)]
     public async Task TestSynonymAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1911,7 +1911,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Empty(res.Documents);
     }
 
-    [SkipIfRedis(Is.StandaloneOSSCluster)]
+    [SkipIfRedis(Is.StandaloneOSSCluster, Is.EnterpriseOssCluster)]
     public void TestQueryCommandBuilderScore()
     {
         // TODO: write better test for scores and payloads
