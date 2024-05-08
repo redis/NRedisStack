@@ -98,22 +98,4 @@ public class InfoResult
         if (!_all.TryGetValue(key, out var value)) return default;
         return value.ToArrayArray();
     }
-
-    // private Dictionary<string, RedisResult>[]? GetRedisResultDictionaryArray(string key)
-    // {
-    //     if (!_all.TryGetValue(key, out var value)) return default;
-    //     var values = (RedisResult[])value!;
-    //     var result = new Dictionary<string, RedisResult>[values.Length];
-    //     for (int i = 0; i < values.Length; i++)
-    //     {
-    //         var fv = (RedisResult[])values[i]!;
-    //         var dict = new Dictionary<string, RedisResult>();
-    //         for (int j = 0; j < fv.Length; j += 2)
-    //         {
-    //             dict.Add((string)fv[j]!, fv[j + 1]);
-    //         }
-    //         result[i] = dict;
-    //     }
-    //     return result;
-    // }
 }
