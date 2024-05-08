@@ -48,6 +48,10 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
 
         }
 
+
+        Console.WriteLine($"RedisFixture.isOSSCluster: {redisFixture.isOSSCluster}");
+        Console.WriteLine($"RedisFixture.isEnterprise: {redisFixture.isEnterprise}");
+
         Console.WriteLine($"************ End of Redis Connection Data ************");
 
     }
