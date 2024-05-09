@@ -45,6 +45,7 @@ public class RedisFixture : IDisposable
 
             configurationOptions.EndPoints.Clear();
             int numRedisClusterNodes = int.Parse(numRedisClusterNodesEnv!);
+            Console.WriteLine($"Connecting to Redis Cluster at {host}:{startPort} with {numRedisClusterNodes} nodes");
             for (int i = 0; i < numRedisClusterNodes; i++)
             {
                 configurationOptions.EndPoints.Add(host, startPort + i);
