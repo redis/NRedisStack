@@ -19,6 +19,43 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         this.testOutputHelper = testOutputHelper;
     }
 
+    [Fact]
+    public void PrintConnectionData()
+    {
+
+        var db = redisFixture.Redis.GetDatabase();
+        Console.WriteLine($"************ Redis Connection Data ************");
+        Console.WriteLine($"redisFixture.Redis.Configuration: {redisFixture.Redis.Configuration}");
+        Console.WriteLine($"redisFixture.Redis.GetEndPoints():");
+        foreach (var endpoint in redisFixture.Redis.GetEndPoints())
+        {
+            Console.WriteLine($"endpoint: {endpoint}");
+        }
+        Console.WriteLine($"redisFixture.Redis.GetStatus(): {redisFixture.Redis.GetStatus()}");
+        Console.WriteLine($"redisFixture.Redis.GetDatabase(): {db}");
+        Console.WriteLine($"redisFixture.Redis.GetDatabase().Database: {db.Database}");
+
+        Console.WriteLine($"PintEndPoints:");
+
+        var redis = db.Multiplexer;
+        var endpoints = db.Multiplexer.GetEndPoints();
+
+        foreach (var endPoint in endpoints)
+        {
+            Console.WriteLine($"EndPoint: {endPoint}");
+            var server = redis.GetServer(endPoint);
+            Console.WriteLine($"server.IsReplica: {server.IsReplica}\n");
+
+        }
+
+
+        Console.WriteLine($"RedisFixture.isOSSCluster: {redisFixture.isOSSCluster}");
+        Console.WriteLine($"RedisFixture.isEnterprise: {redisFixture.isEnterprise}");
+
+        Console.WriteLine($"************ End of Redis Connection Data ************");
+
+    }
+
     [SkipIfRedis(Is.StandaloneOSSCluster)]
     public void HSETandSearch()
     {
