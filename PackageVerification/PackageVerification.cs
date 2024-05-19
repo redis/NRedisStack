@@ -24,7 +24,7 @@ public class PackageVerification
         ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(configurationOptions);
 
         IDatabase db = redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         IJsonCommands json = db.JSON();
 

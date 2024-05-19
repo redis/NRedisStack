@@ -29,11 +29,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             return tuples;
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public void TestSimpleMRange()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             TimeSeriesLabel label = new TimeSeriesLabel("MRANGEkey", "MRANGEvalue");
             var labels = new List<TimeSeriesLabel> { label };
@@ -52,11 +52,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
                 Assert.Equal(tuples, results[i].values);
             }
         }
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public void TestMRangeWithLabels()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             TimeSeriesLabel label = new TimeSeriesLabel("key", "MRangeWithLabels");
             var labels = new List<TimeSeriesLabel> { label };
@@ -76,11 +76,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public void TestMRangeSelectLabels()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             TimeSeriesLabel label1 = new TimeSeriesLabel("key", "MRangeSelectLabels");
             TimeSeriesLabel[] labels = new TimeSeriesLabel[] { new TimeSeriesLabel("team", "CTO"), new TimeSeriesLabel("team", "AUT") };
@@ -105,11 +105,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public void TestMRangeFilter()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             TimeSeriesLabel label = new TimeSeriesLabel("key", "MRangeFilter");
             var labels = new List<TimeSeriesLabel> { label };
@@ -122,11 +122,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(tuples, results[0].values);
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public void TestMRangeCount()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             TimeSeriesLabel label = new TimeSeriesLabel("key", "MRangeCount");
             var labels = new List<TimeSeriesLabel> { label };
@@ -147,11 +147,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public void TestMRangeAggregation()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             TimeSeriesLabel label = new TimeSeriesLabel("key", "MRangeAggregation");
             var labels = new List<TimeSeriesLabel> { label };
@@ -171,11 +171,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public void TestMRangeAlign()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             TimeSeriesLabel label = new TimeSeriesLabel("key", "MRangeAlign");
             var labels = new List<TimeSeriesLabel> { label };
@@ -198,7 +198,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestMissingFilter()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             TimeSeriesLabel label = new TimeSeriesLabel("key", "MissingFilter");
             var labels = new List<TimeSeriesLabel> { label };
@@ -216,7 +216,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestMissingTimeBucket()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             TimeSeriesLabel label = new TimeSeriesLabel("key", "MissingTimeBucket");
             var labels = new List<TimeSeriesLabel> { label };
@@ -230,11 +230,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal("RANGE Aggregation should have timeBucket value", ex.Message);
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public void TestMRangeGroupby()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             for (int i = 0; i < _keys.Length; i++)
             {
@@ -256,11 +256,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public void TestMRangeReduce()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             foreach (var key in _keys)
             {
@@ -281,11 +281,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public void TestMRangeFilterBy()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             TimeSeriesLabel label = new TimeSeriesLabel("key", "MRangeFilterBy");
             var labels = new List<TimeSeriesLabel> { label };
@@ -308,11 +308,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public void TestMRangeLatest()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             var label = new TimeSeriesLabel("key", "MRangeLatest");
             var compactedLabel = new TimeSeriesLabel("compact", "true");

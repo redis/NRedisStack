@@ -11,7 +11,7 @@ namespace Doc;
 public class SetGetExample
 {
 
-    [SkipIfRedis(Is.OSSCluster)]
+    [SkipIfRedis(Is.StandaloneOSSCluster, Is.EnterpriseOssCluster)]
     public void run()
     {
         var redis = ConnectionMultiplexer.Connect("localhost:6379");

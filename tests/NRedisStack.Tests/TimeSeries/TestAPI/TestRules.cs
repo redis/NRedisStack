@@ -32,12 +32,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             };
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         [Obsolete]
         public void TestRulesAdditionDeletion()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             ts.Create(srcKey);
             foreach (var destKey in destKeys.Values)
@@ -70,7 +70,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestNonExistingSrc()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             string destKey = "RULES_DEST_" + TsAggregation.Avg;
             ts.Create(destKey);
@@ -85,7 +85,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestNonExisitingDestinaion()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             string destKey = "RULES_DEST_" + TsAggregation.Avg;
             ts.Create(srcKey);
@@ -96,11 +96,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal("ERR TSDB: compaction rule does not exist", ex.Message);
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public void TestAlignTimestamp()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             ts.Create("ts1");
             ts.Create("ts2");

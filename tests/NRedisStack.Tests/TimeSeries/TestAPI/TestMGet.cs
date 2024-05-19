@@ -12,11 +12,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
         public TestMGet(RedisFixture redisFixture) : base(redisFixture) { }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise, Is.EnterpriseOssCluster)]
         public void TestMGetQuery()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
 
             var label1 = new TimeSeriesLabel("MGET_TESTS_1", "value");
@@ -39,11 +39,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise, Is.EnterpriseOssCluster)]
         public void TestMGetQueryWithLabels()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
 
             var label1 = new TimeSeriesLabel("MGET_TESTS_1", "value");
@@ -66,11 +66,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(labels2, results[1].labels);
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise, Is.EnterpriseOssCluster)]
         public void TestMGetQuerySelectedLabels()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
 
             var label1 = new TimeSeriesLabel("MGET_TESTS_1", "value");

@@ -26,7 +26,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             var tuples = await CreateData(ts, key, 50);
             Assert.Equal(tuples, await ts.RangeAsync(key, "-", "+"));
@@ -37,7 +37,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             var tuples = await CreateData(ts, key, 50);
             Assert.Equal(tuples.GetRange(0, 5), await ts.RangeAsync(key, "-", "+", count: 5));
@@ -48,7 +48,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             var tuples = await CreateData(ts, key, 50);
             Assert.Equal(tuples, await ts.RangeAsync(key, "-", "+", aggregation: TsAggregation.Min, timeBucket: 50));
@@ -59,7 +59,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             var tuples = new List<TimeSeriesTuple>()
             {
@@ -101,7 +101,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             var tuples = await CreateData(ts, key, 50);
             var ex = await Assert.ThrowsAsync<ArgumentException>(async () => await ts.RangeAsync(key, "-", "+", aggregation: TsAggregation.Avg));
@@ -113,7 +113,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             var tuples = await CreateData(ts, key, 50);
 
@@ -129,11 +129,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(tuples.GetRange(2, 1), res);
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public async Task TestLatestAsync()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             await ts.CreateAsync("ts1");
             await ts.CreateAsync("ts2");
@@ -164,11 +164,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(new List<TimeSeriesTuple>() { latest, compact }, await ts.RevRangeAsync("ts2", 0, 10, true));
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
         public async Task TestAlignTimestampAsync()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             ts.Create("ts1");
             ts.Create("ts2");
@@ -186,7 +186,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async Task TestBucketTimestampAsync()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
 
             ts.Create("t1");
@@ -248,7 +248,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async Task TestEmptyAsync()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
 
             ts.Create("t1");

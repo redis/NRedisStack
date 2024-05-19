@@ -11,14 +11,14 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public TestMAddAsync(RedisFixture redisFixture) : base(redisFixture) { }
 
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise, Is.EnterpriseOssCluster)]
         [Obsolete]
         public async Task TestStarMADD()
         {
             var keys = CreateKeyNames(2);
 
             IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
 
             foreach (string key in keys)
@@ -44,12 +44,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise, Is.EnterpriseOssCluster)]
         public async Task TestSuccessfulMAdd()
         {
             var keys = CreateKeyNames(2);
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
 
             foreach (var key in keys)
@@ -74,12 +74,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise, Is.EnterpriseOssCluster)]
         public async Task TestOverrideMAdd()
         {
             var keys = CreateKeyNames(2);
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
 
             foreach (var key in keys)

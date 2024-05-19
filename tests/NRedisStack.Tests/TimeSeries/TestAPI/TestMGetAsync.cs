@@ -8,12 +8,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
     {
         public TestMGetAsync(RedisFixture redisFixture) : base(redisFixture) { }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise, Is.EnterpriseOssCluster)]
         public async Task TestMGetQuery()
         {
             var keys = CreateKeyNames(2);
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
 
             var label1 = new TimeSeriesLabel(keys[0], "value");
@@ -36,12 +36,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(new List<TimeSeriesLabel>(), results[1].labels);
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise, Is.EnterpriseOssCluster)]
         public async Task TestMGetQueryWithLabels()
         {
             var keys = CreateKeyNames(2);
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
 
             var label1 = new TimeSeriesLabel(keys[0], "value");
@@ -64,12 +64,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(labels2, results[1].labels);
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise, Is.EnterpriseOssCluster)]
         public async Task TestMGetQuerySelectedLabelsAsync()
         {
             var keys = CreateKeyNames(2);
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
 
             var label1 = new TimeSeriesLabel("MGET_TESTS_1", "value");

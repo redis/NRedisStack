@@ -16,7 +16,7 @@ namespace NRedisStack.Doc;
 public class StreamTutorial
 {
 
-    [SkipIfRedis(Is.OSSCluster)]
+    [SkipIfRedis(Is.StandaloneOSSCluster, Is.EnterpriseOssCluster)]
     public void run()
     {
         var muxer = ConnectionMultiplexer.Connect("localhost:6379");

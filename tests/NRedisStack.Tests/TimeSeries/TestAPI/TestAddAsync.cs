@@ -16,7 +16,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             TimeStamp timeStamp = DateTime.UtcNow;
             Assert.Equal(timeStamp, await ts.AddAsync(key, timeStamp, 1.1));
@@ -32,7 +32,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             await ts.CreateAsync(key);
             TimeStamp timeStamp = DateTime.UtcNow;
@@ -49,7 +49,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             await ts.AddAsync(key, "*", 1.1);
             var info = await ts.InfoAsync(key);
@@ -63,7 +63,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             TimeStamp timeStamp = DateTime.UtcNow;
             long retentionTime = 5000;
@@ -81,7 +81,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             TimeStamp timeStamp = DateTime.UtcNow;
             var label = new TimeSeriesLabel("key", "value");
@@ -100,7 +100,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             TimeStamp timeStamp = DateTime.UtcNow;
             Assert.Equal(timeStamp, await ts.AddAsync(key, timeStamp, 1.1, chunkSizeBytes: 128));
@@ -116,7 +116,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             await ts.CreateAsync(key);
             TimeStamp timeStamp = DateTime.UtcNow;
@@ -132,7 +132,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             TimeStamp timeStamp = DateTime.UtcNow;
             Assert.Equal(timeStamp, await ts.AddAsync(key, timeStamp, 1.1));
@@ -144,7 +144,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             TimeStamp timeStamp = DateTime.UtcNow;
             Assert.Equal(timeStamp, await ts.AddAsync(key, timeStamp, 1.1));
@@ -165,7 +165,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             TimeStamp timeStamp = DateTime.UtcNow;
             Assert.Equal(timeStamp, await ts.AddAsync(key, timeStamp, 1.1));
@@ -185,7 +185,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             TimeStamp timeStamp = DateTime.UtcNow;
             Assert.Equal(timeStamp, await ts.AddAsync(key, timeStamp, 1.1));
@@ -199,7 +199,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             TimeStamp timeStamp = DateTime.UtcNow;
             Assert.Equal(timeStamp, await ts.AddAsync(key, timeStamp, 1.1));
@@ -213,7 +213,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             TimeStamp timeStamp = DateTime.UtcNow;
             Assert.Equal(timeStamp, await ts.AddAsync(key, timeStamp, 1.1));
@@ -227,7 +227,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             var dateTime = DateTime.UtcNow;
             TimeStamp oldTimeStamp = dateTime.AddSeconds(-1);
@@ -245,7 +245,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var key = CreateKeyName();
             var value = 1.1;
             var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            db.FlushAll();
             var ts = db.TS();
             var ex = await Assert.ThrowsAsync<RedisServerException>(async () => await ts.AddAsync(key, "+", value));
             Assert.Equal("ERR TSDB: invalid timestamp", ex.Message);

@@ -15,6 +15,7 @@ public class RedisFixture : IDisposable
     {
         ConfigurationOptions clusterConfig = new ConfigurationOptions
         {
+            CommandMap = CommandMap.Create(new HashSet<string> { "CLUSTER" }, available: false),
             AsyncTimeout = 10000,
             SyncTimeout = 10000
         };
@@ -42,8 +43,6 @@ public class RedisFixture : IDisposable
             string[] parts = redisCluster!.Split(':');
             string host = parts[0];
             int startPort = int.Parse(parts[1]);
-
-            var endpoints = new EndPointCollection(); // TODO: check if needed
 
             configurationOptions.EndPoints.Clear();
             int numRedisClusterNodes = int.Parse(numRedisClusterNodesEnv!);

@@ -100,7 +100,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var conn = redisFixture.Redis;
         var db = conn.GetDatabase();
         var commands = new JsonCommands(db);
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         var obj = new Person { Name = "Shachar", Age = 23 };
         Assert.True(commands.Set("Person:Shachar", "$", obj, When.NotExists));
@@ -115,7 +115,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var conn = redisFixture.Redis;
         var db = conn.GetDatabase();
         var commands = new JsonCommands(db);
-        db.Execute("FLUSHALL");
+        db.FlushAll();
 
         var obj = new Person { Name = "Shachar", Age = 23 };
         Assert.True(await commands.SetAsync("Person:Shachar", "$", obj, When.NotExists));
@@ -731,7 +731,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(35, people[1]!.Age);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise, Comparison.LessThan, "7.1.242")]
     public void MSet()
     {
         var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
@@ -755,7 +755,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Throws<ArgumentOutOfRangeException>(() => commands.MSet(new KeyPathValue[0]));
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise, Comparison.LessThan, "7.1.242")]
     public async Task MSetAsync()
     {
         var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
@@ -816,7 +816,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("{\"person\":{\"name\":\"John Doe\",\"phone\":\"123-456-7890\",\"address\":{\"home\":\"123 Main Street\",\"work\":\"Redis office\"}}}", (await commands.GetAsync("test_merge")).ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+    [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
     public void MGet()
     {
         var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
@@ -831,7 +831,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("[\"world\"]", result[1].ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+    [SkipIfRedis(Is.StandaloneOSSCluster, Is.Enterprise)]
     public async Task MGetAsync()
     {
         var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
