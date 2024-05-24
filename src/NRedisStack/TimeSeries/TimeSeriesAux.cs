@@ -50,6 +50,15 @@ namespace NRedisStack
                 args.Add(TimeSeriesArgs.UNCOMPRESSED);
             }
         }
+        public static void AddIgnoreValues(this IList<object> args, long? ignoreMaxTimeDiff, long? ignoreMaxValDiff)
+        {
+            if (ignoreMaxTimeDiff != null || ignoreMaxValDiff != null)
+            {
+                args.Add(TimeSeriesArgs.VALUES);
+                args.Add(ignoreMaxTimeDiff ?? 0);
+                args.Add(ignoreMaxValDiff ?? 0);
+            }
+        }
 
         public static void AddCount(this IList<object> args, long? count)
         {
