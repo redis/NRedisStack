@@ -2,7 +2,6 @@ using NRedisStack.Literals;
 using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
-using NetTopologySuite.Index.Bintree;
 
 namespace NRedisStack
 {

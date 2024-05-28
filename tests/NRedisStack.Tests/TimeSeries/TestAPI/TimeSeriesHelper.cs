@@ -1,8 +1,6 @@
 using StackExchange.Redis;
-using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
-using NRedisStack.Literals.Enums;
-using Xunit;
+
 namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
     public class TimeSeriesHelper
