@@ -10,7 +10,6 @@ on:
   pull_request:
   schedule:
     - cron: "0 1 * * *"
-  workflow_dispatch:
 
 concurrency:
   group: ${{ github.event.pull_request.number || github.ref }}-integration
@@ -149,7 +148,6 @@ jobs:
       USER_NAME: ${{ secrets.USER_NAME }}
       PASSWORD: ${{ secrets.PASSWORD }}
       ENDPOINT: ${{ secrets.ENDPOINT }}
-      
     steps:
       - uses: actions/checkout@v3
       - uses: Vampire/setup-wsl@v2
