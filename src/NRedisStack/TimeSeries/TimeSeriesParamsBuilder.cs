@@ -3,150 +3,245 @@ using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
 using System.Collections.ObjectModel;
+using NRedisStack.Extensions;
 
 namespace NRedisStack
 {
 
     public abstract class TsBaseParamsBuilder<T> where T : TsBaseParamsBuilder<T>
     {
-        internal string key;
-        internal long? retentionTime;
-        internal IReadOnlyCollection<TimeSeriesLabel>? labels;
-        internal long? chunkSizeBytes;
-        internal long? ignoreMaxTimeDiff;
-        internal long? ignoreMaxValDiff;
-        internal TsBaseParamsBuilder() { }
+        internal protected long? retentionTime;
+        internal protected IReadOnlyCollection<TimeSeriesLabel>? labels;
+        internal protected long? chunkSizeBytes;
+        internal protected long? ignoreMaxTimeDiff;
+        internal protected long? ignoreMaxValDiff;
 
-        public T addKey(string key)
-        {
-            this.key = key;
-            return (T)this;
-        }
-        public T addRetentionTime(long? retentionTime)
+
+        internal protected double? value;
+        internal protected TimeStamp? timestamp;
+        internal protected bool? uncompressed;
+        internal protected TsDuplicatePolicy? duplicatePolicy;
+
+        internal TsBaseParamsBuilder()
+        { }
+
+        public T AddRetentionTime(long retentionTime)
         {
             this.retentionTime = retentionTime;
             return (T)this;
         }
-        public T addLabels(ReadOnlyCollection<TimeSeriesLabel>? labels)
+        public T AddLabels(ReadOnlyCollection<TimeSeriesLabel> labels)
         {
             this.labels = labels;
             return (T)this;
         }
-        public T addChunkSizeBytes(long? chunkSizeBytes)
+        public T AddChunkSizeBytes(long chunkSizeBytes)
         {
             this.chunkSizeBytes = chunkSizeBytes;
             return (T)this;
         }
 
-        public T addIgnoreMaxTimeDiff(long? ignoreMaxTimeDiff)
+        public T AddIgnoreValues(long ignoreMaxTimeDiff, long ignoreMaxValDiff)
         {
             this.ignoreMaxTimeDiff = ignoreMaxTimeDiff;
-            return (T)this;
-        }
-        public T addIgnoreMaxValDiff(long? ignoreMaxValDiff)
-        {
             this.ignoreMaxValDiff = ignoreMaxValDiff;
             return (T)this;
+        }
+
+        protected T AddValue(double value)
+        {
+            this.value = value;
+            return (T)this;
+        }
+
+        protected T AddTimestamp(TimeStamp timestamp)
+        {
+            this.timestamp = timestamp;
+            return (T)this;
+        }
+
+        protected T AddUncompressed(bool uncompressed)
+        {
+            this.uncompressed = uncompressed;
+            return (T)this;
+        }
+
+        protected T AddDuplicatePolicy(TsDuplicatePolicy duplicatePolicy)
+        {
+            this.duplicatePolicy = duplicatePolicy;
+            return (T)this;
+        }
+
+    }
+
+    public static class TsParamsHelper
+    {
+        public static void AddRetentionTime(this IList<object> args, long? retentionTime)
+        {
+            if (retentionTime.HasValue)
+            {
+                args.Add(TimeSeriesArgs.RETENTION);
+                args.Add(retentionTime);
+            }
+        }
+
+        public static void AddChunkSize(this IList<object> args, long? chunkSize)
+        {
+            if (chunkSize.HasValue)
+            {
+                args.Add(TimeSeriesArgs.CHUNK_SIZE);
+                args.Add(chunkSize);
+            }
+        }
+
+        public static void AddLabels(this IList<object> args, IReadOnlyCollection<TimeSeriesLabel>? labels)
+        {
+            if (labels != null)
+            {
+                args.Add(TimeSeriesArgs.LABELS);
+                foreach (var label in labels)
+                {
+                    args.Add(label.Key);
+                    args.Add(label.Value);
+                }
+            }
+        }
+
+        public static void AddUncompressed(this IList<object> args, bool? uncompressed)
+        {
+            if (uncompressed.HasValue)
+            {
+                args.Add(TimeSeriesArgs.UNCOMPRESSED);
+            }
+        }
+
+        public static void AddIgnoreValues(this IList<object> args, long? ignoreMaxTimeDiff, long? ignoreMaxValDiff)
+        {
+            if (ignoreMaxTimeDiff != null || ignoreMaxValDiff != null)
+            {
+                args.Add(TimeSeriesArgs.IGNORE);
+                args.Add(ignoreMaxTimeDiff ?? 0);
+                args.Add(ignoreMaxValDiff ?? 0);
+            }
+        }
+
+        public static void AddDuplicatePolicy(this IList<object> args, TsDuplicatePolicy? policy)
+        {
+            if (policy.HasValue)
+            {
+                args.Add(TimeSeriesArgs.DUPLICATE_POLICY);
+                args.Add(policy.Value.AsArg());
+            }
+        }
+
+        public static void AddOnDuplicate(this IList<object> args, TsDuplicatePolicy? policy)
+        {
+            if (policy.HasValue)
+            {
+                args.Add(TimeSeriesArgs.ON_DUPLICATE);
+                args.Add(policy.Value.AsArg());
+            }
         }
     }
 
     public class TsCreateParamsBuilder : TsBaseParamsBuilder<TsCreateParamsBuilder>
     {
-        private bool? uncompressed;
-        private TsDuplicatePolicy? duplicatePolicy;
         public TsCreateParams build()
         {
-            if (String.IsNullOrWhiteSpace(key)) throw new NotSupportedException("Operation without a key is not supported!");
-
-            var args = new List<object> { key };
+            var args = new List<object>();
             args.AddRetentionTime(retentionTime);
             args.AddChunkSize(chunkSizeBytes);
             args.AddLabels(labels);
             args.AddUncompressed(uncompressed);
             args.AddDuplicatePolicy(duplicatePolicy);
             args.AddIgnoreValues(ignoreMaxTimeDiff, ignoreMaxValDiff);
-            return new TsCreateParams(args.ToArray());
+            return new TsCreateParams(args);
         }
+
+        public TsCreateParamsBuilder AddUncompressed(bool uncompressed) => base.AddUncompressed(uncompressed);
+        public TsCreateParamsBuilder AddDuplicatePolicy(TsDuplicatePolicy duplicatePolicy) => base.AddDuplicatePolicy(duplicatePolicy);
+
     }
 
     public class TsAlterParamsBuilder : TsBaseParamsBuilder<TsAlterParamsBuilder>
     {
-        private TsDuplicatePolicy? duplicatePolicy;
         public TsAlterParams build()
         {
-            if (String.IsNullOrWhiteSpace(key)) throw new NotSupportedException("Operation without a key is not supported!");
-
-            var args = new List<object> { key };
+            var args = new List<object>();
             args.AddRetentionTime(retentionTime);
             args.AddChunkSize(chunkSizeBytes);
             args.AddDuplicatePolicy(duplicatePolicy);
             args.AddLabels(labels);
             args.AddIgnoreValues(ignoreMaxTimeDiff, ignoreMaxValDiff);
-            return new TsAlterParams(args.ToArray());
+            return new TsAlterParams(args);
         }
+
+        public TsAlterParamsBuilder AddDuplicatePolicy(TsDuplicatePolicy duplicatePolicy) => base.AddDuplicatePolicy(duplicatePolicy);
     }
 
     public class TsAddParamsBuilder : TsBaseParamsBuilder<TsAddParamsBuilder>
     {
-        private double value;
-        private TimeStamp timestamp;
-        private bool? uncompressed;
-        private TsDuplicatePolicy? duplicatePolicy;
         public TsAddParams build()
         {
-            if (String.IsNullOrWhiteSpace(key)) throw new NotSupportedException("Operation without a key is not supported!");
+            if (timestamp == null) throw new NotSupportedException("Operation without 'timestamp' is not supported!");
+            if (value == null) throw new NotSupportedException("Operation without 'value' is not supported!");
 
-            var args = new List<object> { key, timestamp.Value, value };
+            var args = new List<object> { timestamp.Value.Value, value };
             args.AddRetentionTime(retentionTime);
             args.AddChunkSize(chunkSizeBytes);
             args.AddLabels(labels);
             args.AddUncompressed(uncompressed);
             args.AddOnDuplicate(duplicatePolicy);
             args.AddIgnoreValues(ignoreMaxTimeDiff, ignoreMaxValDiff);
-            return new TsAddParams(args.ToArray());
+            return new TsAddParams(args);
         }
+
+        public TsAddParamsBuilder AddValue(double value) => base.AddValue(value);
+        public TsAddParamsBuilder AddTimestamp(TimeStamp timestamp) => base.AddTimestamp(timestamp);
+        public TsAddParamsBuilder AddUncompressed(bool uncompressed) => base.AddUncompressed(uncompressed);
+        public TsAddParamsBuilder AddOnDuplicate(TsDuplicatePolicy duplicatePolicy) => base.AddDuplicatePolicy(duplicatePolicy);
     }
 
     public class TsIncrByParamsBuilder : TsBaseParamsBuilder<TsIncrByParamsBuilder>
     {
-        private double value;
-        private TimeStamp? timestamp;
-        private bool? uncompressed;
-        private TsDuplicatePolicy? duplicatePolicy;
-
         public TsIncrByParams build()
         {
-            if (String.IsNullOrWhiteSpace(key)) throw new NotSupportedException("Operation without a key is not supported!");
+            if (value == null) throw new NotSupportedException("Operation without 'value' is not supported!");
 
-            var args = new List<object> { key, value };
+            var args = new List<object> { value };
             if (timestamp != null) args.AddTimeStamp(timestamp.Value);
             args.AddRetentionTime(retentionTime);
             args.AddChunkSize(chunkSizeBytes);
             if (labels != null) args.AddLabels(labels);
             args.AddUncompressed(uncompressed);
             args.AddIgnoreValues(ignoreMaxTimeDiff, ignoreMaxValDiff);
-            return new TsIncrByParams(args.ToArray());
+            return new TsIncrByParams(args);
         }
+
+        public TsIncrByParamsBuilder AddValue(double value) => base.AddValue(value);
+        public TsIncrByParamsBuilder AddTimestamp(TimeStamp timestamp) => base.AddTimestamp(timestamp);
+        public TsIncrByParamsBuilder AddUncompressed(bool uncompressed) => base.AddUncompressed(uncompressed);
+        public TsIncrByParamsBuilder AddDuplicatePolicy(TsDuplicatePolicy duplicatePolicy) => base.AddDuplicatePolicy(duplicatePolicy);
     }
 
     public class TsDecrByParamsBuilder : TsBaseParamsBuilder<TsDecrByParamsBuilder>
     {
-        private double value;
-        private TimeStamp? timestamp;
-        private bool? uncompressed;
         public TsDecrByParams build()
         {
-            if (String.IsNullOrWhiteSpace(key)) throw new NotSupportedException("Operation without a key is not supported!");
+            if (value == null) throw new NotSupportedException("Operation without 'value' is not supported!");
 
-            var args = new List<object> { key, value };
+            var args = new List<object> { value };
             if (timestamp != null) args.AddTimeStamp(timestamp.Value);
             args.AddRetentionTime(retentionTime);
             args.AddChunkSize(chunkSizeBytes);
             if (labels != null) args.AddLabels(labels);
             args.AddUncompressed(uncompressed);
             args.AddIgnoreValues(ignoreMaxTimeDiff, ignoreMaxValDiff);
-            return new TsDecrByParams(args.ToArray());
+            return new TsDecrByParams(args);
         }
+        public TsDecrByParamsBuilder AddValue(double value) => base.AddValue(value);
+        public TsDecrByParamsBuilder AddTimestamp(TimeStamp timestamp) => base.AddTimestamp(timestamp);
+        public TsDecrByParamsBuilder AddUncompressed(bool uncompressed) => base.AddUncompressed(uncompressed);
+        public TsDecrByParamsBuilder AddDuplicatePolicy(TsDuplicatePolicy duplicatePolicy) => base.AddDuplicatePolicy(duplicatePolicy);
     }
-
 }

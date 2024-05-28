@@ -3,6 +3,7 @@ using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Literals.Enums;
 using Xunit;
+using System.Runtime.CompilerServices;
 
 namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
@@ -116,6 +117,24 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             db.Execute("FLUSHALL");
             var ts = db.TS();
             Assert.True(ts.Create(key, duplicatePolicy: TsDuplicatePolicy.SUM));
+        }
+
+        [Fact]
+        public void TestCreateAndIgnoreValues()
+        {
+            IDatabase db = redisFixture.Redis.GetDatabase();
+            db.Execute("FLUSHALL");
+            var ts = db.TS();
+            var parameters = new TsCreateParamsBuilder().AddIgnoreValues(11, 12).build();
+            Assert.True(ts.Create(key, parameters));
+
+            int j = -1, k = -1;
+            RedisResult info = TimeSeriesHelper.getInfo(db, key, out j, out k);
+
+            Assert.NotEqual(j, -1);
+            Assert.NotEqual(k, -1);
+            Assert.Equal(11, (long)info[j + 1]);
+            Assert.Equal(12, (long)info[k + 1]);
         }
     }
 }

@@ -14,6 +14,7 @@ namespace NRedisStack
         #region Create
 
         /// <inheritdoc/>
+        [Obsolete]
         public bool Create(string key, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
         {
             return _db.Execute(TimeSeriesCommandsBuilder.Create(key, retentionTime, labels,
@@ -21,18 +22,25 @@ namespace NRedisStack
                                                                 duplicatePolicy)).OKtoBoolean();
         }
 
+        /// <inheritdoc/>
+        public bool Create(string key, TsCreateParams parameters) => _db.Execute(TimeSeriesCommandsBuilder.Create(key, parameters)).OKtoBoolean();
+
         #endregion
 
         #region Update
 
         /// <inheritdoc/>
+        [Obsolete]
         public bool Alter(string key, long? retentionTime = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null)
         {
             return _db.Execute(TimeSeriesCommandsBuilder.Alter(key, retentionTime, chunkSizeBytes, duplicatePolicy, labels)).OKtoBoolean();
         }
 
+        /// <inheritdoc/>
+        public bool Alter(string key, TsAlterParams parameters) => _db.Execute(TimeSeriesCommandsBuilder.Alter(key, parameters)).OKtoBoolean();
 
         /// <inheritdoc/>
+        [Obsolete]
         public TimeStamp Add(string key, TimeStamp timestamp, double value, long? retentionTime = null,
         IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null,
         long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
@@ -42,12 +50,16 @@ namespace NRedisStack
         }
 
         /// <inheritdoc/>
+        public TimeStamp Add(string key, TsAddParams parameters) => _db.Execute(TimeSeriesCommandsBuilder.Add(key, parameters)).ToTimeStamp();
+
+        /// <inheritdoc/>
         public IReadOnlyList<TimeStamp> MAdd(IReadOnlyCollection<(string key, TimeStamp timestamp, double value)> sequence)
         {
             return _db.Execute(TimeSeriesCommandsBuilder.MAdd(sequence)).ToTimeStampArray()!;
         }
 
         /// <inheritdoc/>
+        [Obsolete]
         public TimeStamp IncrBy(string key, double value, TimeStamp? timestamp = null, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null)
         {
             return _db.Execute(TimeSeriesCommandsBuilder.IncrBy(key, value, timestamp, retentionTime,
@@ -55,11 +67,18 @@ namespace NRedisStack
         }
 
         /// <inheritdoc/>
+        public TimeStamp IncrBy(string key, TsIncrByParams parameters) => _db.Execute(TimeSeriesCommandsBuilder.IncrBy(key, parameters)).ToTimeStamp();
+
+        /// <inheritdoc/>
+        [Obsolete]
         public TimeStamp DecrBy(string key, double value, TimeStamp? timestamp = null, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null)
         {
             return _db.Execute(TimeSeriesCommandsBuilder.DecrBy(key, value, timestamp, retentionTime,
                                                                  labels, uncompressed, chunkSizeBytes)).ToTimeStamp();
         }
+
+        /// <inheritdoc/>
+        public TimeStamp DecrBy(string key, TsDecrByParams parameters) => _db.Execute(TimeSeriesCommandsBuilder.DecrBy(key, parameters)).ToTimeStamp();
 
         /// <inheritdoc/>
         public long Del(string key, TimeStamp fromTimeStamp, TimeStamp toTimeStamp)

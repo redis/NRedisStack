@@ -21,6 +21,9 @@ namespace NRedisStack
                                                                            duplicatePolicy))).OKtoBoolean();
         }
 
+        /// <inheritdoc/>
+        public async Task<bool> CreateAsync(string key, TsCreateParams parameters) => (await _db.ExecuteAsync(TimeSeriesCommandsBuilder.Create(key, parameters))).OKtoBoolean();
+
         #endregion
 
         #region Update
@@ -32,11 +35,17 @@ namespace NRedisStack
         }
 
         /// <inheritdoc/>
+        public async Task<bool> AlterAsync(string key, TsAlterParams parameters) => (await _db.ExecuteAsync(TimeSeriesCommandsBuilder.Alter(key, parameters))).OKtoBoolean();
+
+        /// <inheritdoc/>
         public async Task<TimeStamp> AddAsync(string key, TimeStamp timestamp, double value, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
         {
             return (await _db.ExecuteAsync(TimeSeriesCommandsBuilder.Add(key, timestamp, value, retentionTime, labels,
                                                                         uncompressed, chunkSizeBytes, duplicatePolicy))).ToTimeStamp();
         }
+
+        /// <inheritdoc/>
+        public async Task<TimeStamp> AddAsync(string key, TsAddParams parameters) => (await _db.ExecuteAsync(TimeSeriesCommandsBuilder.Add(key, parameters))).ToTimeStamp();
 
         /// <inheritdoc/>
         public async Task<IReadOnlyList<TimeStamp>> MAddAsync(IReadOnlyCollection<(string key, TimeStamp timestamp, double value)> sequence)
@@ -51,12 +60,20 @@ namespace NRedisStack
                                                                             labels, uncompressed, chunkSizeBytes))).ToTimeStamp();
         }
 
+
+        /// <inheritdoc/>
+        public async Task<TimeStamp> IncrByAsync(string key, TsIncrByParams parameters) => (await _db.ExecuteAsync(TimeSeriesCommandsBuilder.IncrBy(key, parameters))).ToTimeStamp();
+
+
         /// <inheritdoc/>
         public async Task<TimeStamp> DecrByAsync(string key, double value, TimeStamp? timestamp = null, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null)
         {
             return (await _db.ExecuteAsync(TimeSeriesCommandsBuilder.DecrBy(key, value, timestamp, retentionTime,
                                                                             labels, uncompressed, chunkSizeBytes))).ToTimeStamp();
         }
+
+        /// <inheritdoc/>
+        public async Task<TimeStamp> DecrByAsync(string key, TsDecrByParams parameters) => (await _db.ExecuteAsync(TimeSeriesCommandsBuilder.DecrBy(key, parameters))).ToTimeStamp();
 
         /// <inheritdoc/>
         public async Task<long> DelAsync(string key, TimeStamp fromTimeStamp, TimeStamp toTimeStamp)

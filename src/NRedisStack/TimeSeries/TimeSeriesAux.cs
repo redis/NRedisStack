@@ -12,79 +12,12 @@ namespace NRedisStack
             if (latest) args.Add(TimeSeriesArgs.LATEST);
         }
 
-        public static void AddRetentionTime(this IList<object> args, long? retentionTime)
-        {
-            if (retentionTime.HasValue)
-            {
-                args.Add(TimeSeriesArgs.RETENTION);
-                args.Add(retentionTime);
-            }
-        }
-
-        public static void AddChunkSize(this IList<object> args, long? chunkSize)
-        {
-            if (chunkSize.HasValue)
-            {
-                args.Add(TimeSeriesArgs.CHUNK_SIZE);
-                args.Add(chunkSize);
-            }
-        }
-
-        public static void AddLabels(this IList<object> args, IReadOnlyCollection<TimeSeriesLabel>? labels)
-        {
-            if (labels != null)
-            {
-                args.Add(TimeSeriesArgs.LABELS);
-                foreach (var label in labels)
-                {
-                    args.Add(label.Key);
-                    args.Add(label.Value);
-                }
-            }
-        }
-
-        public static void AddUncompressed(this IList<object> args, bool? uncompressed)
-        {
-            if (uncompressed.HasValue)
-            {
-                args.Add(TimeSeriesArgs.UNCOMPRESSED);
-            }
-        }
-        public static void AddIgnoreValues(this IList<object> args, long? ignoreMaxTimeDiff, long? ignoreMaxValDiff)
-        {
-            if (ignoreMaxTimeDiff != null || ignoreMaxValDiff != null)
-            {
-                args.Add(TimeSeriesArgs.VALUES);
-                args.Add(ignoreMaxTimeDiff ?? 0);
-                args.Add(ignoreMaxValDiff ?? 0);
-            }
-        }
-
         public static void AddCount(this IList<object> args, long? count)
         {
             if (count.HasValue)
             {
                 args.Add(TimeSeriesArgs.COUNT);
                 args.Add(count.Value);
-            }
-        }
-
-        public static void AddDuplicatePolicy(this IList<object> args, TsDuplicatePolicy? policy)
-        {
-            if (policy.HasValue)
-            {
-                args.Add(TimeSeriesArgs.DUPLICATE_POLICY);
-                args.Add(policy.Value.AsArg());
-            }
-        }
-
-
-        public static void AddOnDuplicate(this IList<object> args, TsDuplicatePolicy? policy)
-        {
-            if (policy.HasValue)
-            {
-                args.Add(TimeSeriesArgs.ON_DUPLICATE);
-                args.Add(policy.Value.AsArg());
             }
         }
 
@@ -219,53 +152,6 @@ namespace NRedisStack
             args.Add(TimeSeriesArgs.AGGREGATION);
             args.Add(rule.Aggregation.AsArg());
             args.Add(rule.TimeBucket);
-        }
-
-        public static List<object> BuildTsCreateArgs(string key, long? retentionTime, IReadOnlyCollection<TimeSeriesLabel>? labels, bool? uncompressed,
-            long? chunkSizeBytes, TsDuplicatePolicy? policy)
-        {
-            var args = new List<object> { key };
-            args.AddRetentionTime(retentionTime);
-            args.AddChunkSize(chunkSizeBytes);
-            args.AddLabels(labels);
-            args.AddUncompressed(uncompressed);
-            args.AddDuplicatePolicy(policy);
-            return args;
-        }
-
-        public static List<object> BuildTsAlterArgs(string key, long? retentionTime, long? chunkSizeBytes,
-                                         TsDuplicatePolicy? policy, IReadOnlyCollection<TimeSeriesLabel>? labels)
-        {
-            var args = new List<object> { key };
-            args.AddRetentionTime(retentionTime);
-            args.AddChunkSize(chunkSizeBytes);
-            args.AddDuplicatePolicy(policy);
-            args.AddLabels(labels);
-            return args;
-        }
-
-        public static List<object> BuildTsAddArgs(string key, TimeStamp timestamp, double value, long? retentionTime,
-            IReadOnlyCollection<TimeSeriesLabel>? labels, bool? uncompressed, long? chunkSizeBytes, TsDuplicatePolicy? policy)
-        {
-            var args = new List<object> { key, timestamp.Value, value };
-            args.AddRetentionTime(retentionTime);
-            args.AddChunkSize(chunkSizeBytes);
-            args.AddLabels(labels);
-            args.AddUncompressed(uncompressed);
-            args.AddOnDuplicate(policy);
-            return args;
-        }
-
-        public static List<object> BuildTsIncrDecrByArgs(string key, double value, TimeStamp? timestampMaybe, long? retentionTime,
-            IReadOnlyCollection<TimeSeriesLabel>? labels, bool? uncompressed, long? chunkSizeBytes)
-        {
-            var args = new List<object> { key, value };
-            if (timestampMaybe is { } timestamp) args.AddTimeStamp(timestamp);
-            args.AddRetentionTime(retentionTime);
-            args.AddChunkSize(chunkSizeBytes);
-            if (labels != null) args.AddLabels(labels);
-            args.AddUncompressed(uncompressed);
-            return args;
         }
 
         public static List<object> BuildTsDelArgs(string key, TimeStamp fromTimeStamp, TimeStamp toTimeStamp)
