@@ -5,7 +5,7 @@ using NRedisStack.RedisStackCommands;
 
 namespace NRedisStack
 {
-    internal static class TimeSeriesCommandsBuilder
+    public static class TimeSeriesCommandsBuilder
     {
         #region Create
 

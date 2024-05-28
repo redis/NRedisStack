@@ -1,7 +1,6 @@
 using NRedisStack.Literals;
 using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;
-using NRedisStack.RedisStackCommands;
 using System.Collections.ObjectModel;
 using NRedisStack.Extensions;
 
