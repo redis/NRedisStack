@@ -14,7 +14,7 @@ namespace NRedisStack
         #region Create
 
         /// <inheritdoc/>
-        [Obsolete]
+        [Obsolete("Please use the other method with TsCreateParams and check related builder TsCreateParamsBuilder to build parameters.")]
         public bool Create(string key, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
         {
             return _db.Execute(TimeSeriesCommandsBuilder.Create(key, retentionTime, labels,
@@ -30,7 +30,7 @@ namespace NRedisStack
         #region Update
 
         /// <inheritdoc/>
-        [Obsolete]
+        [Obsolete("Please use the other method with TsAlterParams and check related builder TsAlterParamsBuilder to build parameters.")]
         public bool Alter(string key, long? retentionTime = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null)
         {
             return _db.Execute(TimeSeriesCommandsBuilder.Alter(key, retentionTime, chunkSizeBytes, duplicatePolicy, labels)).OKtoBoolean();
@@ -40,7 +40,7 @@ namespace NRedisStack
         public bool Alter(string key, TsAlterParams parameters) => _db.Execute(TimeSeriesCommandsBuilder.Alter(key, parameters)).OKtoBoolean();
 
         /// <inheritdoc/>
-        [Obsolete]
+        [Obsolete("Please use the other method with TsAddParams and check related builder TsAddParamsBuilder to build parameters.")]
         public TimeStamp Add(string key, TimeStamp timestamp, double value, long? retentionTime = null,
         IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null,
         long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
@@ -59,7 +59,7 @@ namespace NRedisStack
         }
 
         /// <inheritdoc/>
-        [Obsolete]
+        [Obsolete("Please use the other method with TsIncrByParams and check related builder TsIncryByParamsBuilder to build parameters.")]
         public TimeStamp IncrBy(string key, double value, TimeStamp? timestamp = null, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null)
         {
             return _db.Execute(TimeSeriesCommandsBuilder.IncrBy(key, value, timestamp, retentionTime,
@@ -70,7 +70,7 @@ namespace NRedisStack
         public TimeStamp IncrBy(string key, TsIncrByParams parameters) => _db.Execute(TimeSeriesCommandsBuilder.IncrBy(key, parameters)).ToTimeStamp();
 
         /// <inheritdoc/>
-        [Obsolete]
+        [Obsolete("Please use the other method with TsDecrByParams and check related builder TsDecryByParamsBuilder to build parameters.")]
         public TimeStamp DecrBy(string key, double value, TimeStamp? timestamp = null, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null)
         {
             return _db.Execute(TimeSeriesCommandsBuilder.DecrBy(key, value, timestamp, retentionTime,
