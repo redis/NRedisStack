@@ -119,7 +119,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.True(ts.Create(key, duplicatePolicy: TsDuplicatePolicy.SUM));
         }
 
-        [Fact]
+        [SkipIfRedis(Comparison.LessThan, "7.4.0")]
         public void TestCreateAndIgnoreValues()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();

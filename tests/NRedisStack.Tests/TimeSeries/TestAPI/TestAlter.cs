@@ -60,7 +60,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(TsDuplicatePolicy.MIN, info.DuplicatePolicy);
         }
 
-        [Fact]
+        [SkipIfRedis(Comparison.LessThan, "7.4.0")]
         public void TestAlterAndIgnoreValues()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();

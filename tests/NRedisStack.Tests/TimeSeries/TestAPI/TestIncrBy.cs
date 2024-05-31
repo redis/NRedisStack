@@ -101,7 +101,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal("ERR TSDB: invalid timestamp", ex.Message);
         }
 
-        [Fact]
+        [SkipIfRedis(Comparison.LessThan, "7.4.0")]
         public async void TestIncrByAndIgnoreValues()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
