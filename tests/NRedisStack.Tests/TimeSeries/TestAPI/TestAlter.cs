@@ -59,5 +59,25 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(128, info.ChunkSize);
             Assert.Equal(TsDuplicatePolicy.MIN, info.DuplicatePolicy);
         }
+
+        [SkipIfRedis(Comparison.LessThan, "7.4.0")]
+        public void TestAlterAndIgnoreValues()
+        {
+            IDatabase db = redisFixture.Redis.GetDatabase();
+            db.Execute("FLUSHALL");
+            var ts = db.TS();
+            ts.Create(key, new TsCreateParamsBuilder().build());
+            var parameters = new TsAlterParamsBuilder().AddIgnoreValues(13, 14).build();
+            Assert.True(ts.Alter(key, parameters));
+
+            int j = -1, k = -1;
+            RedisResult info = TimeSeriesHelper.getInfo(db, key, out j, out k);
+            Assert.NotNull(info);
+            Assert.True(info.Length > 0);
+            Assert.NotEqual(j, -1);
+            Assert.NotEqual(k, -1);
+            Assert.Equal(13, (long)info[j + 1]);
+            Assert.Equal(14, (long)info[k + 1]);
+        }
     }
 }
