@@ -29,7 +29,7 @@ public class Bitfield_tutorial
 
 
         // STEP_START bf
-        long res1 = db.StringIncrement("bike:1:stats", 1000);
+        bool res1 = db.StringSet("bike:1:stats", 1000);
         Console.WriteLine(res1);    // >>> 1000
 
         long res2 = db.StringDecrement("bike:1:stats", 50);
@@ -37,11 +37,11 @@ public class Bitfield_tutorial
 
         long res3 = db.StringIncrement("bike:1:stats", 500);
         Console.WriteLine(res3);    // >>> 1450
-                                    // STEP_END
+        // STEP_END
 
         // Tests for 'bf' step.
         // REMOVE_START
-        Assert.Equal(1000, res1);
+        Assert.True(res1);
         Assert.Equal(950, res2);
         Assert.Equal(1450, res3);
         // REMOVE_END
