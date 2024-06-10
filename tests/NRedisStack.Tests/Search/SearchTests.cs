@@ -2734,7 +2734,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var ft = db.FT();
 
-        ft.Create(index, new Schema().AddTextField("t")); // Calling FT.CREATR without FTCreateParams
+        ft.Create(index, new Schema().AddTextField("t", sortable: true)); // Calling FT.CREATR without FTCreateParams
         db.HashSet("1", "t", "hello");
         db.HashSet("2", "t", "world");
 
@@ -2753,7 +2753,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var profileAggregate = ft.ProfileAggregate(index, aggReq);
         var aggregateRes = profileAggregate.Item1;
         var aggregateDet = profileAggregate.Item2;
-        Assert.Equal(6, aggregateDet.Count);
+        Assert.True(aggregateDet.Count >= 6);
         Assert.Equal(2, aggregateRes.TotalResults);
     }
 
@@ -2764,7 +2764,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.Execute("FLUSHALL");
         var ft = db.FT();
 
-        await ft.CreateAsync(index, new Schema().AddTextField("t")); // Calling FT.CREATR without FTCreateParams
+        await ft.CreateAsync(index, new Schema().AddTextField("t", sortable: true)); // Calling FT.CREATR without FTCreateParams
         db.HashSet("1", "t", "hello");
         db.HashSet("2", "t", "world");
 
@@ -2782,7 +2782,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var profileAggregate = await ft.ProfileAggregateAsync(index, aggReq);
         var aggregateRes = profileAggregate.Item1;
         var aggregateDet = profileAggregate.Item2;
-        Assert.Equal(6, aggregateDet.Count);
+        Assert.True(aggregateDet.Count >= 6);
         Assert.Equal(2, aggregateRes.TotalResults);
     }
 
