@@ -3050,7 +3050,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(new object[] { "idx:users", "*", "FILTER", "@StatusId==1", "GROUPBY", 1, "@CreatedDay", "REDUCE", "COUNT_DISTINCT", 1, "@UserId", "REDUCE", "COUNT", 0, "AS", "count", "DIALECT", 3 }, buildCommand.Args);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.4.0")]
+    [SkipIfRedis(Comparison.LessThan, "7.3.240")]
     public void TestTagInDialect5()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -3073,7 +3073,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, ft.Search(index, new Query("@category:{orange;purple-}").Dialect(5)).TotalResults);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.4.0")]
+    [SkipIfRedis(Comparison.LessThan, "7.3.240")]
     public void TestLogicalOperatorsInDialect5()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -3101,7 +3101,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, ft.Search(index, new Query("@category:{orange;purple-} @author:{Newman~}").Dialect(5)).TotalResults);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.4.0")]
+    [SkipIfRedis(Comparison.LessThan, "7.3.240")]
     public void TestNumericInDialect5()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -3124,7 +3124,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, ft.Search(index, new Query("@version:[123]").Dialect(5)).TotalResults);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.4.0")]
+    [SkipIfRedis(Comparison.LessThan, "7.3.240")]
     public void TestNumericOperatorsInDialect5()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -3154,7 +3154,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.4.0")]
+    [SkipIfRedis(Comparison.LessThan, "7.3.240")]
     public void TestNumericLogicalOperatorsInDialect5()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
