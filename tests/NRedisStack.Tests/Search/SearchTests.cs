@@ -3051,7 +3051,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [SkipIfRedis(Is.OSSCluster)]
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.3.240")]
     public void TestGeospatial()
     {
         // FLUSHALL
@@ -3107,17 +3107,21 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
     }
 
-
-    [SkipIfRedis(Is.OSSCluster)]
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.3.240")]
     public void TestMultiGeospatial()
     {
         // FLUSHALL
-        // FT.CREATE idx SCHEMA geofield GEOSHAPE FLAT
-        // HSET point1 geofield "POINT (10 10)"
-        // HSET point2 geofield "POINT (50 50)"
-        // HSET polygon1 geofield "POLYGON ((20 20, 25 35, 35 25, 20 20))"
-        // HSET polygon2 geofield "POLYGON ((60 60, 65 75, 70 70, 65 55, 60 60))"
+        // FT.CREATE idx SCHEMA geofield GEOSHAPE FLAT geofield2 GEOSHAPE FLAT
+        // HSET doc1 geofield "POINT (10 10)" geofield "POLYGON ((20 20, 25 35, 35 25, 20 20))"
+        // HSET doc2 geofield "POINT (50 50)" geofield "POLYGON ((60 60, 65 75, 70 70, 65 55, 60 60))"
         // FT.SEARCH idx "@geofield:[disjoint $shape0] | @geofield2:[intersects $shape1]" NOCONTENT DIALECT 3 PARAMS 4 shape0 "POLYGON ((15 15, 75 15, 50 70, 20 40, 15 15))" shape1 "POLYGON ((15 15, 75 15, 50 70, 20 40, 15 15))"
+
+        // there are 5 geoshapes above
+        // point1 = Point(10, 10);
+        // point2 = Point(50, 50);
+        // polygon1 = Polygon((20, 20), (25, 35), (35, 25), (20, 20));
+        // polygon2 = Polygon((60, 60), (65, 75), (70, 70), (65, 55), (60, 60));
+        // queryPolygon = Polygon((15, 15), (75, 15), (50, 70), (20, 40), (15, 15));
 
         // query contains point2 and polygon1
         // query disjoints point1 and polygon2 
