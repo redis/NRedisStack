@@ -55,21 +55,20 @@ public class Json_tutorial
 
         // STEP_START str
         long?[] res4 = db.JSON().StrLen("bike", "$");
-        string r4 = string.Join(", ", res4);
         Console.Write(string.Join(", ", res4)); // >>> 8
 
         long?[] res5 = db.JSON().StrAppend("bike", " (Enduro bikes)");
         Console.WriteLine(string.Join(", ", res5)); // >>> 23
 
-        RedisResult res6 = db.JSON().Get("bike", "$");
-        Console.WriteLine(res6);    // >>> "Hyperion (Enduro bikes)"
+        RedisResult res6 = db.JSON().Get("bike", path: "$");
+        Console.WriteLine(res6);    // >>> ["Hyperion (Enduro bikes)"]
         // STEP_END
 
         // Tests for 'str' step.
         // REMOVE_START
         Assert.Equal("8", string.Join(", ", res4));
         Assert.Equal("23", string.Join(", ", res5));
-        Assert.Equal("\"Hyperion (Enduro bikes)\"", (string?)res6);
+        Assert.Equal("[\"Hyperion (Enduro bikes)\"]", (string?)res6);
         // REMOVE_END
 
 
@@ -105,6 +104,12 @@ public class Json_tutorial
 
         RedisResult res13 = db.JSON().Get("newbike", path: "$[1].crashes");
         Console.WriteLine(res13);   // >>> [0]
+
+        long res14 = db.JSON().Del("newbike", "$.[-1]");
+        Console.WriteLine(res14);   // >>> 1
+
+        RedisResult res15 = db.JSON().Get("newbike", path: "$");
+        Console.WriteLine(res15);   // >>> [["Deimos",{"crashes":0}]]
         // STEP_END
 
         // Tests for 'arr' step.
@@ -112,7 +117,9 @@ public class Json_tutorial
         Assert.True(res11);
         Assert.Equal("[[\"Deimos\",{\"crashes\":0},null]]", (string?)res12);
         Assert.Equal("[0]", (string?)res13);
-        ;       // REMOVE_END
+        Assert.Equal(1, res14);
+        Assert.Equal("[[\"Deimos\",{\"crashes\":0}]]", (string?)res15);
+        // REMOVE_END
 
 
         // STEP_START arr2
@@ -165,7 +172,6 @@ public class Json_tutorial
         Console.WriteLine(res25);   // >>> True
 
         long?[] res26 = db.JSON().ObjLen("bike:1", "$");
-        string r26 = string.Join(", ", res26);
         Console.WriteLine(string.Join(", ", res26));    // >>> 3
 
         IEnumerable<HashSet<string>> res27 = db.JSON().ObjKeys("bike:1", "$");
