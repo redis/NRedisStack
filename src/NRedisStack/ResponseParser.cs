@@ -673,7 +673,14 @@ namespace NRedisStack
             foreach (var pair in res)
             {
                 var arr = (RedisResult[])pair!;
-                dict.Add(arr[0].ToString()!, arr[1]);
+                if (arr.Length > 1)
+                {
+                    dict.Add(arr[0].ToString()!, arr[1]);
+                }
+                else
+                {
+                    dict.Add(arr[0].ToString()!, null);
+                }
             }
             return dict;
         }
