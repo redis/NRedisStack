@@ -3155,7 +3155,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var q1 = new Query().AddGeospatial("geofield", NRedisStack.Search.DataTypes.Geospatial.Functions.DISJOINT, queryPolygon)
             .OrGeospatial("geofield2", NRedisStack.Search.DataTypes.Geospatial.Functions.INTERSECTS, queryPolygon);
         var res1 = ft.Search("idx", q1);
-        Assert.Equal(1, res1.Documents.Count);
+        Assert.Single(res1.Documents);
         Assert.True(res1.Documents.All(d => d.Id.Equals("doc1")));
     }
 
