@@ -1,6 +1,11 @@
 ﻿using System.Globalization;
+using System.Text;
+using NetTopologySuite.Geometries;
+using NRedisStack.Search.DataTypes;
+using NRedisStack.Search.DataTypes.Geo;
 using NRedisStack.Search.Literals;
 using StackExchange.Redis;
+using static NRedisStack.Search.DataTypes.Geospatial;
 
 namespace NRedisStack.Search
 {
@@ -91,7 +96,7 @@ namespace NRedisStack.Search
             }
         }
 
-        internal readonly struct Paging
+        private readonly struct Paging
         {
             public int Offset { get; }
             public int Count { get; }
@@ -117,17 +122,19 @@ namespace NRedisStack.Search
         /// <summary>
         /// The query's filter list. We only support AND operation on all those filters
         /// </summary>
-        internal readonly List<Filter> _filters = new List<Filter>();
+        private readonly List<Filter> _filters = new List<Filter>();
+
+        private List<Geospatial> geospatials = new List<Geospatial>();
 
         /// <summary>
         /// The textual part of the query
         /// </summary>
-        public string QueryString { get; }
+        public string QueryString { get; private set; }
 
         /// <summary>
         /// The sorting parameters
         /// </summary>
-        internal Paging _paging = new Paging(0, 10);
+        private Paging _paging = new Paging(0, 10);
 
         /// <summary>
         /// Set the query to verbatim mode, disabling stemming and query expansion
@@ -211,7 +218,21 @@ namespace NRedisStack.Search
 
         internal void SerializeRedisArgs(List<object> args)
         {
+
+            bool defaultQueryText = String.IsNullOrWhiteSpace(QueryString) || QueryString.Equals("*");
+
+            if (geospatials.Count > 0 && !defaultQueryText)
+            {
+                throw new NotSupportedException("Geospatials with default query text is not supported");
+            }
+
+            if (geospatials.Count > 0 && dialect != 3)
+            {
+                throw new NotSupportedException("Use of Geospatial is limited to DIALECT 3");
+            }
+
             args.Add(QueryString);
+            int queryStringIndex = args.Count - 1;
 
             if (Verbatim)
             {
@@ -363,14 +384,31 @@ namespace NRedisStack.Search
 
                 args.Insert(returnCountIndex, returnCount);
             }
-            if (_params != null && _params.Count > 0)
+            if (_params.Count > 0 || geospatials.Count > 0)
             {
                 args.Add(SearchArgs.PARAMS);
-                args.Add(_params.Count * 2);
+                args.Add((_params.Count + geospatials.Count) * 2);
                 foreach (var entry in _params)
                 {
                     args.Add(entry.Key);
                     args.Add(entry.Value);
+                }
+                if (geospatials.Count > 0)
+                {
+                    List<string> queryList = new List<string>();
+                    for (int i = 0; i < geospatials.Count; i++)
+                    {
+                        string name = nameof(geospatials) + i;
+                        if (_params.ContainsKey(name))
+                        {
+                            throw new ArgumentException("argument name '{name}' should'nt be used in this context.Please consider another parameter name.");
+                        }
+                        string value = geospatials[i].SerializeShape();
+                        args.Add(name);
+                        args.Add(value);
+                        queryList.Add(geospatials[i].SerializeQuery(name));
+                    }
+                    args[queryStringIndex] = string.Join(" ", queryList);
                 }
             }
 
@@ -453,7 +491,7 @@ namespace NRedisStack.Search
         /// <summary>
         /// Set the query not to return the contents of documents, and rather just return the ids
         /// </summary>
-        /// <returns>the query itself</returns>
+        /// <returns>the query itself</returns>".*\{.*\}
         public Query SetNoContent(bool value = true)
         {
             NoContent = value;
@@ -690,6 +728,33 @@ namespace NRedisStack.Search
         {
             _expander = field;
             return this;
+        }
+
+        public Query AddGeospatial(Geospatial geospatial)
+        {
+            if (dialect != null && dialect != 3) throw new NotSupportedException("Use of Geospatial is limited to DIALECT 3");
+            geospatials.Add(geospatial);
+            dialect = 3;
+            return this;
+        }
+
+        public Query AddGeospatial(string property, Functions function, Shape shape)
+        {
+            return AddGeospatial(new Geospatial(property, function, shape));
+        }
+
+        public Query OrGeospatial(Geospatial geospatial)
+        {
+            if (this.geospatials.Count > 0)
+            {
+                geospatial.SetSerializer(ORQuerySerializer.DEFAULT);
+            }
+            return AddGeospatial(geospatial);
+        }
+
+        public Query OrGeospatial(string property, Functions function, Shape shape)
+        {
+            return OrGeospatial(new Geospatial(property, function, shape));
         }
     }
 }

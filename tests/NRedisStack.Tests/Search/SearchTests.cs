@@ -8,7 +8,7 @@ using NRedisStack.Search.Literals.Enums;
 using System.Runtime.InteropServices;
 using NetTopologySuite.IO;
 using NetTopologySuite.Geometries;
-
+using Geo = NRedisStack.Search.DataTypes.Geo;
 
 namespace NRedisStack.Tests.Search;
 
@@ -3049,4 +3049,110 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("FT.AGGREGATE", buildCommand.Command);
         Assert.Equal(new object[] { "idx:users", "*", "FILTER", "@StatusId==1", "GROUPBY", 1, "@CreatedDay", "REDUCE", "COUNT_DISTINCT", 1, "@UserId", "REDUCE", "COUNT", 0, "AS", "count", "DIALECT", 3 }, buildCommand.Args);
     }
+
+
+    [SkipIfRedis(Is.OSSCluster)]
+    public void TestGeospatial()
+    {
+        // FLUSHALL
+        // FT.CREATE idx SCHEMA geofield GEOSHAPE FLAT
+        // HSET point1 geofield "POINT (10 10)"
+        // HSET point2 geofield "POINT (50 50)"
+        // HSET polygon1 geofield "POLYGON ((20 20, 25 35, 35 25, 20 20))"
+        // HSET polygon2 geofield "POLYGON ((60 60, 65 75, 70 70, 65 55, 60 60))"
+        // FT.SEARCH idx "@geofield:[intersects $shape]" NOCONTENT DIALECT 3 PARAMS 2 shape "POLYGON ((15 15, 75 15, 50 70, 20 40, 15 15))"
+        // FT.SEARCH idx "@geofield:[disjoint $shape]" NOCONTENT DIALECT 3 PARAMS 2 shape "POLYGON ((15 15, 75 15, 50 70, 20 40, 15 15))"
+
+        // query contains point2 and polygon1
+        // query disjoints point1 and polygon2 
+
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        var sc = new Schema()
+            .AddGeoShapeField("geofield", GeoShapeField.CoordinateSystem.FLAT);
+        ft.Create("idx", new FTCreateParams(), sc);
+
+        var point1 = new Geo.Point(10, 10);
+        var point2 = new Geo.Point(50, 50);
+        var polygon1 = new Geo.Polygon((20, 20), (25, 35), (35, 25), (20, 20));
+        var polygon2 = new Geo.Polygon((60, 60), (65, 75), (70, 70), (65, 55), (60, 60));
+        var queryPolygon = new Geo.Polygon((15, 15), (75, 15), (50, 70), (20, 40), (15, 15));
+
+        // Add documents to the index
+        AddDocument(db, "point1", new Dictionary<string, object> {
+                { "geofield", point1.SerializeToWKT() }
+            });
+        AddDocument(db, "point2", new Dictionary<string, object> {
+                { "geofield", point2.SerializeToWKT() }
+            });
+        AddDocument(db, "polygon1", new Dictionary<string, object> {
+                { "geofield", polygon1.SerializeToWKT() }
+            });
+        AddDocument(db, "polygon2", new Dictionary<string, object> {
+                { "geofield", polygon2.SerializeToWKT() }
+            });
+
+        var q1 = new Query().AddGeospatial("geofield", NRedisStack.Search.DataTypes.Geospatial.Functions.DISJOINT, queryPolygon);
+        var res1 = ft.Search("idx", q1);
+        Assert.Equal(2, res1.Documents.Count);
+        Assert.True(res1.Documents.All(d => d.Id.Equals("point1") || d.Id.Equals("polygon2")));
+
+        var q2 = new Query().AddGeospatial("geofield", NRedisStack.Search.DataTypes.Geospatial.Functions.INTERSECTS, queryPolygon);
+        var res2 = ft.Search("idx", q2);
+        Assert.Equal(2, res2.Documents.Count);
+        Assert.True(res2.Documents.All(d => d.Id.Equals("point2") || d.Id.Equals("polygon1")));
+
+
+    }
+
+
+    [SkipIfRedis(Is.OSSCluster)]
+    public void TestMultiGeospatial()
+    {
+        // FLUSHALL
+        // FT.CREATE idx SCHEMA geofield GEOSHAPE FLAT
+        // HSET point1 geofield "POINT (10 10)"
+        // HSET point2 geofield "POINT (50 50)"
+        // HSET polygon1 geofield "POLYGON ((20 20, 25 35, 35 25, 20 20))"
+        // HSET polygon2 geofield "POLYGON ((60 60, 65 75, 70 70, 65 55, 60 60))"
+        // FT.SEARCH idx "@geofield:[disjoint $shape0] | @geofield2:[intersects $shape1]" NOCONTENT DIALECT 3 PARAMS 4 shape0 "POLYGON ((15 15, 75 15, 50 70, 20 40, 15 15))" shape1 "POLYGON ((15 15, 75 15, 50 70, 20 40, 15 15))"
+
+        // query contains point2 and polygon1
+        // query disjoints point1 and polygon2 
+
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        var sc = new Schema()
+            .AddGeoShapeField("geofield", GeoShapeField.CoordinateSystem.FLAT)
+            .AddGeoShapeField("geofield2", GeoShapeField.CoordinateSystem.FLAT);
+
+        ft.Create("idx", new FTCreateParams(), sc);
+
+        var point1 = new Geo.Point(10, 10);
+        var point2 = new Geo.Point(50, 50);
+        var polygon1 = new Geo.Polygon((20, 20), (25, 35), (35, 25), (20, 20));
+        var polygon2 = new Geo.Polygon((60, 60), (65, 75), (70, 70), (65, 55), (60, 60));
+        var queryPolygon = new Geo.Polygon((15, 15), (75, 15), (50, 70), (20, 40), (15, 15));
+
+        // Add the two documents to the index
+        AddDocument(db, "doc1", new Dictionary<string, object> {
+                { "geofield", point1.SerializeToWKT() },
+                { "geofield2", polygon1.SerializeToWKT() }
+            });
+        AddDocument(db, "doc2", new Dictionary<string, object> {
+                { "geofield", point2.SerializeToWKT() },
+                 { "geofield2", polygon2.SerializeToWKT() }
+            });
+
+        var q1 = new Query().AddGeospatial("geofield", NRedisStack.Search.DataTypes.Geospatial.Functions.DISJOINT, queryPolygon)
+            .OrGeospatial("geofield2", NRedisStack.Search.DataTypes.Geospatial.Functions.INTERSECTS, queryPolygon);
+        var res1 = ft.Search("idx", q1);
+        Assert.Equal(1, res1.Documents.Count);
+        Assert.True(res1.Documents.All(d => d.Id.Equals("doc1")));
+    }
+
 }
