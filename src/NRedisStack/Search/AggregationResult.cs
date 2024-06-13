@@ -14,8 +14,9 @@ public sealed class AggregationResult
     {
         var arr = (RedisResult[])result!;
 
-        // the first element is always the number of results
-        TotalResults = (long)arr[0];
+        //  this statement below is not true as explained in the document https://redis.io/docs/latest/commands/ft.aggregate/#return
+        // // the first element is always the number of results
+        // TotalResults = (long)arr[0];
 
         _results = new Dictionary<string, RedisValue>[arr.Length - 1];
         for (int i = 1; i < arr.Length; i++)
@@ -33,7 +34,7 @@ public sealed class AggregationResult
 
             _results[i - 1] = cur;
         }
-
+        TotalResults = _results.Length;
         CursorId = cursorId;
     }
 
