@@ -229,5 +229,24 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             ex = Assert.Throws<RedisServerException>(() => ts.Add(key, "-", value));
             Assert.Equal("ERR TSDB: invalid timestamp", ex.Message);
         }
+
+        [SkipIfRedis(Comparison.LessThan, "7.4.0")]
+        public void TestAddAndIgnoreValues()
+        {
+            IDatabase db = redisFixture.Redis.GetDatabase();
+            db.Execute("FLUSHALL");
+            var ts = db.TS();
+            var parameters = new TsAddParamsBuilder().AddTimestamp(101).AddValue(102).AddIgnoreValues(15, 16).build();
+            ts.Add(key, parameters);
+
+            int j = -1, k = -1;
+            RedisResult info = TimeSeriesHelper.getInfo(db, key, out j, out k);
+            Assert.NotNull(info);
+            Assert.True(info.Length > 0);
+            Assert.NotEqual(j, -1);
+            Assert.NotEqual(k, -1);
+            Assert.Equal(15, (long)info[j + 1]);
+            Assert.Equal(16, (long)info[k + 1]);
+        }
     }
 }

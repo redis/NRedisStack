@@ -23,5 +23,6 @@ namespace NRedisStack.Literals
         public const string DEBUG = "DEBUG";
         public const string BUCKETTIMESTAMP = "BUCKETTIMESTAMP";
         public const string EMPTY = "EMPTY";
+        public const String IGNORE = "IGNORE";
     }
 }
