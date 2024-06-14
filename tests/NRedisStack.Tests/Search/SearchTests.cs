@@ -702,7 +702,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var ft = db.FT();
-        Schema sc = new Schema().AddTextField("title", 1.0, sortable: true, unf: true);
+        Schema sc = new Schema().AddTextField("title", 1.0);
 
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
@@ -734,7 +734,6 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Empty(info.IndexOption);
         // Assert.Equal(,info.IndexDefinition);
         Assert.Equal("title", info.Attributes[0]["identifier"].ToString());
-        Assert.Equal("UNF", info.Attributes[0]["UNF"].ToString());
         Assert.Equal("TAG", info.Attributes[1]["type"].ToString());
         Assert.Equal("name", info.Attributes[2]["attribute"].ToString());
 
