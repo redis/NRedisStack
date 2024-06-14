@@ -27,6 +27,7 @@
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.assert" Version="2.4.1" />
     <PackageReference Include="BouncyCastle.Cryptography" Version="2.2.0" />
+    <PackageVersion Include="GitHubActionsTestLogger" Version="2.0.0-alpha" />
   </ItemGroup>
 
   <ItemGroup>

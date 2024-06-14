@@ -70,14 +70,7 @@ jobs:
               echo "${{secrets.REDIS_CA_PEM}}" > tests/NRedisStack.Tests/bin/Debug/${{inputs.clr_version}}/redis_ca.pem
               echo "${{secrets.REDIS_USER_CRT}}" > tests/NRedisStack.Tests/bin/Debug/${{inputs.clr_version}}/redis_user.crt
               echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > tests/NRedisStack.Tests/bin/Debug/${{inputs.clr_version}}/redis_user_private.key
-              dotnet test -f ${{inputs.clr_version}} --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --results-directory ./test-results/  --logger trx --logger GitHubActions  
-          - uses: dorny/test-reporter@v1
-            continue-on-error: true
-            if: success() || failure()
-            with:
-              name: Test Results - Ubuntu
-              path: 'test-results/*.trx'
-              reporter: dotnet-trx
+              dotnet test -f ${{inputs.clr_version}} --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --logger trx 
           - name: Codecov
             uses: codecov/codecov-action@v3
             with:
