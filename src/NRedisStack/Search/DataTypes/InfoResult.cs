@@ -5,6 +5,7 @@ namespace NRedisStack.Search.DataTypes;
 public class InfoResult
 {
     private readonly Dictionary<string, RedisResult> _all = new();
+    private static readonly string[] booleanAttributes = { "SORTABLE", "UNF", "NOSTEM", "NOINDEX", "CASESENSITIVE", "WITHSUFFIXTRIE" };
     public string IndexName => GetString("index_name")!;
     public Dictionary<string, RedisResult> IndexOption => GetRedisResultDictionary("index_options")!;
     public Dictionary<string, RedisResult>[] Attributes => GetRedisResultDictionaryArray("attributes")!;
@@ -91,7 +92,6 @@ public class InfoResult
         }
 
         return result;
-
     }
 
     private Dictionary<string, RedisResult>[]? GetRedisResultDictionaryArray(string key)
@@ -105,12 +105,17 @@ public class InfoResult
             var dict = new Dictionary<string, RedisResult>();
             for (int j = 0; j < fv.Length; j += 2)
             {
-                dict.Add((string)fv[j]!, fv[j + 1]);
+                if (booleanAttributes.Contains((string)fv[j]!))
+                {
+                    dict.Add((string)fv[j]!, fv[j--]);
+                }
+                else
+                {
+                    dict.Add((string)fv[j]!, fv[j + 1]);
+                }
             }
-
             result[i] = dict;
         }
-
         return result;
     }
 }
