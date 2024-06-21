@@ -3159,4 +3159,75 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.True(res1.Documents.All(d => d.Id.Equals("doc1")));
     }
 
+
+    public class RawWKTShape : Geo.Shape
+    {
+        private string rawWKT;
+        public RawWKTShape(string wkt)
+        {
+            rawWKT = wkt;
+
+        }
+        public override string SerializeToWKT()
+        {
+            return rawWKT;
+        }
+    }
+
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.3.240")]
+    public void TestWithCustomShape()
+    {
+        // FLUSHALL
+        // FT.CREATE idx SCHEMA geofield GEOSHAPE FLAT
+        // HSET point1 geofield "POINT (10 10)"
+        // HSET point2 geofield "POINT (50 50)"
+        // HSET polygon1 geofield "POLYGON ((20 20, 25 35, 35 25, 20 20))"
+        // HSET polygon2 geofield "POLYGON ((60 60, 65 75, 70 70, 65 55, 60 60))"
+        // FT.SEARCH idx "@geofield:[intersects $shape]" NOCONTENT DIALECT 3 PARAMS 2 shape "POLYGON ((15 15, 75 15, 50 70, 20 40, 15 15))"
+        // FT.SEARCH idx "@geofield:[disjoint $shape]" NOCONTENT DIALECT 3 PARAMS 2 shape "POLYGON ((15 15, 75 15, 50 70, 20 40, 15 15))"
+
+        // query contains point2 and polygon1
+        // query disjoints point1 and polygon2 
+
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        var sc = new Schema()
+            .AddGeoShapeField("geofield", GeoShapeField.CoordinateSystem.FLAT);
+        ft.Create("idx", new FTCreateParams(), sc);
+
+        var point1 = new RawWKTShape("POINT (10  10)");//new Geo.Point(10, 10);
+        var point2 = new RawWKTShape("POINT (50 50)");//new Geo.Point(50, 50);
+        var polygon1 = new RawWKTShape("POLYGON (( 20 20, 25 35, 35 25, 20 20 ))");//new Geo.Polygon((20, 20), (25, 35), (35, 25), (20, 20));
+        var polygon2 = new RawWKTShape("POLYGON (( 60 60, 65 75, 70 70, 65 55, 60 60 ))");//new Geo.Polygon((60, 60), (65, 75), (70, 70), (65, 55), (60, 60));
+        var queryPolygon = new RawWKTShape("POLYGON (( 15 15, 75 15, 50 70, 20 40, 15 15 ))");//new Geo.Polygon((15, 15), (75, 15), (50, 70), (20, 40), (15, 15));
+
+        // Add documents to the index
+        AddDocument(db, "point1", new Dictionary<string, object> {
+                { "geofield", point1.SerializeToWKT() }
+            });
+        AddDocument(db, "point2", new Dictionary<string, object> {
+                { "geofield", point2.SerializeToWKT() }
+            });
+        AddDocument(db, "polygon1", new Dictionary<string, object> {
+                { "geofield", polygon1.SerializeToWKT() }
+            });
+        AddDocument(db, "polygon2", new Dictionary<string, object> {
+                { "geofield", polygon2.SerializeToWKT() }
+            });
+
+        var q1 = new Query().AddGeospatial("geofield", NRedisStack.Search.DataTypes.Geospatial.Functions.DISJOINT, queryPolygon);
+        var res1 = ft.Search("idx", q1);
+        Assert.Equal(2, res1.Documents.Count);
+        Assert.True(res1.Documents.All(d => d.Id.Equals("point1") || d.Id.Equals("polygon2")));
+
+        var q2 = new Query().AddGeospatial("geofield", NRedisStack.Search.DataTypes.Geospatial.Functions.INTERSECTS, queryPolygon);
+        var res2 = ft.Search("idx", q2);
+        Assert.Equal(2, res2.Documents.Count);
+        Assert.True(res2.Documents.All(d => d.Id.Equals("point2") || d.Id.Equals("polygon1")));
+
+
+    }
+
 }

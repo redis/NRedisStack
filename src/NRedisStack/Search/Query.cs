@@ -738,6 +738,14 @@ namespace NRedisStack.Search
             return this;
         }
 
+        /// <summary>
+        /// This method takes any shape, which can be a custom type provided by user, and adds the query data in a builder fashion.
+        /// Shape could be any type inherits from it and can provide WKT text for POINT or POLYGON
+        /// </summary>
+        /// <param name="property">field to query</param>
+        /// <param name="function">oen of function from INTERSECTS, DISJOINT, WITHIN, CONTAINS  </param>
+        /// <param name="shape">any type that is built-in or user provided</param>
+        /// <returns></returns>
         public Query AddGeospatial(string property, Functions function, Shape shape)
         {
             return AddGeospatial(new Geospatial(property, function, shape));
