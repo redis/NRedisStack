@@ -12,31 +12,6 @@ public class MissingEmptyValuesSearchTests : AbstractNRedisStackTest, IDisposabl
     private readonly string index = "MISSING_EMPTY_INDEX";
     public MissingEmptyValuesSearchTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-    private void AddDocument(IDatabase db, Document doc)
-    {
-        string key = doc.Id;
-        var properties = doc.GetProperties();
-        var nameValue = new List<object>() { key };
-        foreach (var item in properties)
-        {
-            nameValue.Add(item.Key);
-            nameValue.Add(item.Value);
-        }
-        db.Execute("HSET", nameValue);
-    }
-
-    private void AddDocument(IDatabase db, string key, Dictionary<string, object> objDictionary)
-    {
-        Dictionary<string, string> strDictionary = new Dictionary<string, string>();
-        var nameValue = new List<object>() { key };
-        foreach (var item in objDictionary)
-        {
-            nameValue.Add(item.Key);
-            nameValue.Add(item.Value);
-        }
-        db.Execute("HSET", nameValue);
-    }
-
     [SkipIfRedis(Comparison.LessThan, "7.3.240")]
     public void TestMissingEmptyFieldCommandArgs()
     {
@@ -61,7 +36,7 @@ public class MissingEmptyValuesSearchTests : AbstractNRedisStackTest, IDisposabl
         Assert.Equal(expectedArgs, cmd.Args);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.3.240")]
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.3.240")]
     public void TestMissingFields()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -117,7 +92,7 @@ public class MissingEmptyValuesSearchTests : AbstractNRedisStackTest, IDisposabl
         Assert.Equal("hashWithMissingFields", result.Documents[0].Id);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.3.240")]
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.3.240")]
     public void TestEmptyFields()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
