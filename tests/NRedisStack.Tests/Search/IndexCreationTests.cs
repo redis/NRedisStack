@@ -7,17 +7,20 @@ using NetTopologySuite.Geometries;
 
 namespace NRedisStack.Tests.Search;
 
-public class MissingEmptyValuesSearchTests : AbstractNRedisStackTest, IDisposable
+public class IndexCreationTests : AbstractNRedisStackTest, IDisposable
 {
     private readonly string index = "MISSING_EMPTY_INDEX";
-    public MissingEmptyValuesSearchTests(RedisFixture redisFixture) : base(redisFixture) { }
+    private static readonly string INDEXMISSING = "INDEXMISSING";
+    private static readonly string INDEXEMPTY = "INDEXEMPTY";
+
+    public IndexCreationTests(RedisFixture redisFixture) : base(redisFixture) { }
 
     [SkipIfRedis(Comparison.LessThan, "7.3.240")]
     public void TestMissingEmptyFieldCommandArgs()
     {
         Schema sc = new Schema()
-                .AddTextField("text1", 1.0, missingIndex: true)
-                .AddTagField("tag1", missingIndex: true)
+                .AddTextField("text1", 1.0, missingIndex: true, emptyIndex: true)
+                .AddTagField("tag1", missingIndex: true, emptyIndex: true)
                 .AddNumericField("numeric1", missingIndex: true)
                 .AddGeoField("geo1", missingIndex: true)
                 .AddGeoShapeField("geoshape1", Schema.GeoShapeField.CoordinateSystem.FLAT, missingIndex: true)
@@ -27,12 +30,12 @@ public class MissingEmptyValuesSearchTests : AbstractNRedisStackTest, IDisposabl
 
         var cmd = SearchCommandBuilder.Create(index, ftCreateParams, sc);
         var expectedArgs = new object[] { "MISSING_EMPTY_INDEX", "SCHEMA",
-                                            "text1","TEXT",FieldOptions.INDEXMISSING,
-                                            "tag1","TAG", FieldOptions.INDEXMISSING,
-                                            "numeric1","NUMERIC", FieldOptions.INDEXMISSING,
-                                            "geo1","GEO", FieldOptions.INDEXMISSING,
-                                            "geoshape1","GEOSHAPE", "FLAT", FieldOptions.INDEXMISSING,
-                                            "vector1","VECTOR","FLAT", FieldOptions.INDEXMISSING};
+                                            "text1","TEXT",INDEXMISSING,INDEXEMPTY,
+                                            "tag1","TAG", INDEXMISSING,INDEXEMPTY,
+                                            "numeric1","NUMERIC", INDEXMISSING,
+                                            "geo1","GEO", INDEXMISSING,
+                                            "geoshape1","GEOSHAPE", "FLAT", INDEXMISSING,
+                                            "vector1","VECTOR","FLAT", INDEXMISSING};
         Assert.Equal(expectedArgs, cmd.Args);
     }
 

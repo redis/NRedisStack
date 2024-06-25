@@ -1,6 +1,6 @@
 ﻿namespace NRedisStack.Search.Literals;
 
-public class FieldOptions
+internal class FieldOptions
 {
     public const string SORTABLE = "SORTABLE";
     public const string UNF = "UNF";
