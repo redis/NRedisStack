@@ -15,7 +15,7 @@ public class IndexCreationTests : AbstractNRedisStackTest, IDisposable
 
     public IndexCreationTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-    [SkipIfRedis(Comparison.LessThan, "7.3.240")]
+    [Fact]
     public void TestMissingEmptyFieldCommandArgs()
     {
         Schema sc = new Schema()
