@@ -62,10 +62,12 @@ namespace NRedisStack.Search
             public bool Unf { get; }
             public bool NoIndex { get; }
             public bool WithSuffixTrie { get; }
+            public bool MissingIndex { get; }
+            public bool EmptyIndex { get; }
 
             public TextField(FieldName name, double weight = 1.0, bool noStem = false,
                             string? phonetic = null, bool sortable = false, bool unf = false,
-                             bool noIndex = false, bool withSuffixTrie = false)
+                             bool noIndex = false, bool withSuffixTrie = false, bool missingIndex = false, bool emptyIndex = false)
             : base(name, FieldType.Text)
             {
                 Weight = weight;
@@ -79,12 +81,14 @@ namespace NRedisStack.Search
                 Unf = unf;
                 NoIndex = noIndex;
                 WithSuffixTrie = withSuffixTrie;
+                MissingIndex = missingIndex;
+                EmptyIndex = emptyIndex;
             }
 
             public TextField(string name, double weight = 1.0, bool noStem = false,
                             string? phonetic = null, bool sortable = false, bool unf = false,
-                             bool noIndex = false, bool withSuffixTrie = false)
-            : this(FieldName.Of(name), weight, noStem, phonetic, sortable, unf, noIndex, withSuffixTrie) { }
+                             bool noIndex = false, bool withSuffixTrie = false, bool missingIndex = false, bool emptyIndex = false)
+            : this(FieldName.Of(name), weight, noStem, phonetic, sortable, unf, noIndex, withSuffixTrie, missingIndex, emptyIndex) { }
 
             internal override void AddFieldTypeArgs(List<object> args)
             {
@@ -93,8 +97,11 @@ namespace NRedisStack.Search
                 AddPhonetic(args);
                 AddWeight(args);
                 if (WithSuffixTrie) args.Add(SearchArgs.WITHSUFFIXTRIE);
-                if (Sortable) args.Add(AttributeOptions.SORTABLE);
+                if (Sortable) args.Add(FieldOptions.SORTABLE);
                 if (Unf) args.Add(SearchArgs.UNF);
+                if (MissingIndex) args.Add(FieldOptions.INDEXMISSING);
+                if (EmptyIndex) args.Add(FieldOptions.INDEXEMPTY);
+
             }
 
             private void AddWeight(List<object> args)
@@ -124,10 +131,12 @@ namespace NRedisStack.Search
             public string Separator { get; }
             public bool CaseSensitive { get; }
             public bool WithSuffixTrie { get; }
+            public bool MissingIndex { get; }
+            public bool EmptyIndex { get; }
 
             internal TagField(FieldName name, bool sortable = false, bool unf = false,
                               bool noIndex = false, string separator = ",",
-                              bool caseSensitive = false, bool withSuffixTrie = false)
+                              bool caseSensitive = false, bool withSuffixTrie = false, bool missingIndex = false, bool emptyIndex = false)
             : base(name, FieldType.Tag)
             {
                 Sortable = sortable;
@@ -136,12 +145,14 @@ namespace NRedisStack.Search
                 Separator = separator;
                 CaseSensitive = caseSensitive;
                 WithSuffixTrie = withSuffixTrie;
+                EmptyIndex = emptyIndex;
+                MissingIndex = missingIndex;
             }
 
             internal TagField(string name, bool sortable = false, bool unf = false,
                               bool noIndex = false, string separator = ",",
-                              bool caseSensitive = false, bool withSuffixTrie = false)
-            : this(FieldName.Of(name), sortable, unf, noIndex, separator, caseSensitive, withSuffixTrie) { }
+                              bool caseSensitive = false, bool withSuffixTrie = false, bool missingIndex = false, bool emptyIndex = false)
+            : this(FieldName.Of(name), sortable, unf, noIndex, separator, caseSensitive, withSuffixTrie, missingIndex, emptyIndex) { }
 
             internal override void AddFieldTypeArgs(List<object> args)
             {
@@ -154,8 +165,10 @@ namespace NRedisStack.Search
                     args.Add(Separator);
                 }
                 if (CaseSensitive) args.Add(SearchArgs.CASESENSITIVE);
-                if (Sortable) args.Add(AttributeOptions.SORTABLE);
+                if (Sortable) args.Add(FieldOptions.SORTABLE);
                 if (Unf) args.Add(SearchArgs.UNF);
+                if (MissingIndex) args.Add(FieldOptions.INDEXMISSING);
+                if (EmptyIndex) args.Add(FieldOptions.INDEXEMPTY);
             }
         }
 
@@ -163,20 +176,24 @@ namespace NRedisStack.Search
         {
             public bool Sortable { get; }
             public bool NoIndex { get; }
-            internal GeoField(FieldName name, bool sortable = false, bool noIndex = false)
+            public bool MissingIndex { get; }
+
+            internal GeoField(FieldName name, bool sortable = false, bool noIndex = false, bool missingIndex = false)
             : base(name, FieldType.Geo)
             {
                 Sortable = sortable;
                 NoIndex = noIndex;
+                MissingIndex = missingIndex;
             }
 
-            internal GeoField(string name, bool sortable = false, bool noIndex = false)
-            : this(FieldName.Of(name), sortable, noIndex) { }
+            internal GeoField(string name, bool sortable = false, bool noIndex = false, bool missingIndex = false)
+            : this(FieldName.Of(name), sortable, noIndex, missingIndex) { }
 
             internal override void AddFieldTypeArgs(List<object> args)
             {
                 if (NoIndex) args.Add(SearchArgs.NOINDEX);
-                if (Sortable) args.Add(AttributeOptions.SORTABLE);
+                if (Sortable) args.Add(FieldOptions.SORTABLE);
+                if (MissingIndex) args.Add(FieldOptions.INDEXMISSING);
             }
 
         }
@@ -196,19 +213,22 @@ namespace NRedisStack.Search
                 SPHERICAL
             }
             private CoordinateSystem system { get; }
+            public bool MissingIndex { get; }
 
-            internal GeoShapeField(FieldName name, CoordinateSystem system)
+            internal GeoShapeField(FieldName name, CoordinateSystem system, bool missingIndex = false)
             : base(name, FieldType.GeoShape)
             {
                 this.system = system;
+                MissingIndex = missingIndex;
             }
 
-            internal GeoShapeField(string name, CoordinateSystem system)
-            : this(FieldName.Of(name), system) { }
+            internal GeoShapeField(string name, CoordinateSystem system, bool missingIndex = false)
+            : this(FieldName.Of(name), system, missingIndex) { }
 
             internal override void AddFieldTypeArgs(List<object> args)
             {
                 args.Add(system.ToString());
+                if (MissingIndex) args.Add(FieldOptions.INDEXMISSING);
             }
         }
 
@@ -216,20 +236,24 @@ namespace NRedisStack.Search
         {
             public bool Sortable { get; }
             public bool NoIndex { get; }
-            internal NumericField(FieldName name, bool sortable = false, bool noIndex = false)
+            public bool MissingIndex { get; }
+
+            internal NumericField(FieldName name, bool sortable = false, bool noIndex = false, bool missingIndex = false)
             : base(name, FieldType.Numeric)
             {
                 Sortable = sortable;
                 NoIndex = noIndex;
+                MissingIndex = missingIndex;
             }
 
-            internal NumericField(string name, bool sortable = false, bool noIndex = false)
-            : this(FieldName.Of(name), sortable, noIndex) { }
+            internal NumericField(string name, bool sortable = false, bool noIndex = false, bool missingIndex = false)
+            : this(FieldName.Of(name), sortable, noIndex, missingIndex) { }
 
             internal override void AddFieldTypeArgs(List<object> args)
             {
                 if (NoIndex) args.Add(SearchArgs.NOINDEX);
-                if (Sortable) args.Add(AttributeOptions.SORTABLE);
+                if (Sortable) args.Add(FieldOptions.SORTABLE);
+                if (MissingIndex) args.Add(FieldOptions.INDEXMISSING);
             }
 
         }
@@ -244,15 +268,18 @@ namespace NRedisStack.Search
 
             public VectorAlgo Algorithm { get; }
             public Dictionary<string, object>? Attributes { get; }
-            public VectorField(FieldName name, VectorAlgo algorithm, Dictionary<string, object>? attributes = null)
+            public bool MissingIndex { get; }
+
+            public VectorField(FieldName name, VectorAlgo algorithm, Dictionary<string, object>? attributes = null, bool missingIndex = false)
                                : base(name, FieldType.Vector)
             {
                 Algorithm = algorithm;
                 Attributes = attributes;
+                MissingIndex = missingIndex;
             }
 
-            public VectorField(string name, VectorAlgo algorithm, Dictionary<string, object>? attributes = null)
-                               : this(FieldName.Of(name), algorithm, attributes) { }
+            public VectorField(string name, VectorAlgo algorithm, Dictionary<string, object>? attributes = null, bool missingIndex = false)
+                               : this(FieldName.Of(name), algorithm, attributes, missingIndex) { }
 
             internal override void AddFieldTypeArgs(List<object> args)
             {
@@ -267,6 +294,7 @@ namespace NRedisStack.Search
                         args.Add(attribute.Value);
                     }
                 }
+                if (MissingIndex) args.Add(FieldOptions.INDEXMISSING);
             }
         }
         public List<Field> Fields { get; } = new List<Field>();
@@ -296,9 +324,9 @@ namespace NRedisStack.Search
         /// <param name="withSuffixTrie">Keeps a suffix trie with all terms which match the suffix.</param>
         /// <returns>The <see cref="Schema"/> object.</returns>
         public Schema AddTextField(string name, double weight = 1.0, bool sortable = false, bool unf = false, bool noStem = false,
-                                   string? phonetic = null, bool noIndex = false, bool withSuffixTrie = false)
+                                   string? phonetic = null, bool noIndex = false, bool withSuffixTrie = false, bool missingIndex = false, bool emptyIndex = false)
         {
-            Fields.Add(new TextField(name, weight, noStem, phonetic, sortable, unf, noIndex, withSuffixTrie));
+            Fields.Add(new TextField(name, weight, noStem, phonetic, sortable, unf, noIndex, withSuffixTrie, missingIndex, emptyIndex));
             return this;
         }
 
@@ -316,9 +344,9 @@ namespace NRedisStack.Search
         /// <param name="withSuffixTrie">Keeps a suffix trie with all terms which match the suffix.</param>
         /// <returns>The <see cref="Schema"/> object.</returns>
         public Schema AddTextField(FieldName name, double weight = 1.0, bool sortable = false, bool unf = false, bool noStem = false,
-                                   string? phonetic = null, bool noIndex = false, bool withSuffixTrie = false)
+                                   string? phonetic = null, bool noIndex = false, bool withSuffixTrie = false, bool missingIndex = false, bool emptyIndex = false)
         {
-            Fields.Add(new TextField(name, weight, noStem, phonetic, sortable, unf, noIndex, withSuffixTrie));
+            Fields.Add(new TextField(name, weight, noStem, phonetic, sortable, unf, noIndex, withSuffixTrie, missingIndex, emptyIndex));
             return this;
         }
 
@@ -328,9 +356,9 @@ namespace NRedisStack.Search
         /// <param name="name">The field's name.</param>
         /// <param name="system">The coordinate system to use.</param>
         /// <returns>The <see cref="Schema"/> object.</returns>
-        public Schema AddGeoShapeField(string name, CoordinateSystem system)
+        public Schema AddGeoShapeField(string name, CoordinateSystem system, bool missingIndex = false)
         {
-            Fields.Add(new GeoShapeField(name, system));
+            Fields.Add(new GeoShapeField(name, system, missingIndex));
             return this;
         }
 
@@ -340,9 +368,9 @@ namespace NRedisStack.Search
         /// <param name="name">The field's name.</param>
         /// <param name="system">The coordinate system to use.</param>
         /// <returns>The <see cref="Schema"/> object.</returns>
-        public Schema AddGeoShapeField(FieldName name, CoordinateSystem system)
+        public Schema AddGeoShapeField(FieldName name, CoordinateSystem system, bool missingIndex = false)
         {
-            Fields.Add(new GeoShapeField(name, system));
+            Fields.Add(new GeoShapeField(name, system, missingIndex));
             return this;
         }
 
@@ -353,9 +381,9 @@ namespace NRedisStack.Search
         /// <param name="sortable">If true, the text field can be sorted.</param>
         /// <param name="noIndex">Attributes can have the NOINDEX option, which means they will not be indexed.</param>
         /// <returns>The <see cref="Schema"/> object.</returns>
-        public Schema AddGeoField(FieldName name, bool sortable = false, bool noIndex = false)
+        public Schema AddGeoField(FieldName name, bool sortable = false, bool noIndex = false, bool missingIndex = false)
         {
-            Fields.Add(new GeoField(name, sortable, noIndex));
+            Fields.Add(new GeoField(name, sortable, noIndex, missingIndex));
             return this;
         }
 
@@ -366,9 +394,9 @@ namespace NRedisStack.Search
         /// <param name="sortable">If true, the text field can be sorted.</param>
         /// <param name="noIndex">Attributes can have the NOINDEX option, which means they will not be indexed.</param>
         /// <returns>The <see cref="Schema"/> object.</returns>
-        public Schema AddGeoField(string name, bool sortable = false, bool noIndex = false)
+        public Schema AddGeoField(string name, bool sortable = false, bool noIndex = false, bool missingIndex = false)
         {
-            Fields.Add(new GeoField(name, sortable, noIndex));
+            Fields.Add(new GeoField(name, sortable, noIndex, missingIndex));
             return this;
         }
 
@@ -379,9 +407,9 @@ namespace NRedisStack.Search
         /// <param name="sortable">If true, the text field can be sorted.</param>
         /// <param name="noIndex">Attributes can have the NOINDEX option, which means they will not be indexed.</param>
         /// <returns>The <see cref="Schema"/> object.</returns>
-        public Schema AddNumericField(FieldName name, bool sortable = false, bool noIndex = false)
+        public Schema AddNumericField(FieldName name, bool sortable = false, bool noIndex = false, bool missingIndex = false)
         {
-            Fields.Add(new NumericField(name, sortable, noIndex));
+            Fields.Add(new NumericField(name, sortable, noIndex, missingIndex));
             return this;
         }
 
@@ -392,9 +420,9 @@ namespace NRedisStack.Search
         /// <param name="sortable">If true, the text field can be sorted.</param>
         /// <param name="noIndex">Attributes can have the NOINDEX option, which means they will not be indexed.</param>
         /// <returns>The <see cref="Schema"/> object.</returns>
-        public Schema AddNumericField(string name, bool sortable = false, bool noIndex = false)
+        public Schema AddNumericField(string name, bool sortable = false, bool noIndex = false, bool missingIndex = false)
         {
-            Fields.Add(new NumericField(name, sortable, noIndex));
+            Fields.Add(new NumericField(name, sortable, noIndex, missingIndex));
             return this;
         }
 
@@ -412,9 +440,9 @@ namespace NRedisStack.Search
         /// <returns>The <see cref="Schema"/> object.</returns>
         public Schema AddTagField(FieldName name, bool sortable = false, bool unf = false,
                               bool noIndex = false, string separator = ",",
-                              bool caseSensitive = false, bool withSuffixTrie = false)
+                              bool caseSensitive = false, bool withSuffixTrie = false, bool missingIndex = false, bool emptyIndex = false)
         {
-            Fields.Add(new TagField(name, sortable, unf, noIndex, separator, caseSensitive, withSuffixTrie));
+            Fields.Add(new TagField(name, sortable, unf, noIndex, separator, caseSensitive, withSuffixTrie, missingIndex, emptyIndex));
             return this;
         }
 
@@ -432,9 +460,9 @@ namespace NRedisStack.Search
         /// <returns>The <see cref="Schema"/> object.</returns>
         public Schema AddTagField(string name, bool sortable = false, bool unf = false,
                               bool noIndex = false, string separator = ",",
-                              bool caseSensitive = false, bool withSuffixTrie = false)
+                              bool caseSensitive = false, bool withSuffixTrie = false, bool missingIndex = false, bool emptyIndex = false)
         {
-            Fields.Add(new TagField(name, sortable, unf, noIndex, separator, caseSensitive, withSuffixTrie));
+            Fields.Add(new TagField(name, sortable, unf, noIndex, separator, caseSensitive, withSuffixTrie, missingIndex, emptyIndex));
             return this;
         }
 
@@ -445,9 +473,9 @@ namespace NRedisStack.Search
         /// <param name="algorithm">The vector similarity algorithm to use.</param>
         /// <param name="attribute">The algorithm attributes for the creation of the vector index.</param>
         /// <returns>The <see cref="Schema"/> object.</returns>
-        public Schema AddVectorField(FieldName name, VectorAlgo algorithm, Dictionary<string, object>? attributes = null)
+        public Schema AddVectorField(FieldName name, VectorAlgo algorithm, Dictionary<string, object>? attributes = null, bool missingIndex = false)
         {
-            Fields.Add(new VectorField(name, algorithm, attributes));
+            Fields.Add(new VectorField(name, algorithm, attributes, missingIndex));
             return this;
         }
 
@@ -458,9 +486,9 @@ namespace NRedisStack.Search
         /// <param name="algorithm">The vector similarity algorithm to use.</param>
         /// <param name="attribute">The algorithm attributes for the creation of the vector index.</param>
         /// <returns>The <see cref="Schema"/> object.</returns>
-        public Schema AddVectorField(string name, VectorAlgo algorithm, Dictionary<string, object>? attributes = null)
+        public Schema AddVectorField(string name, VectorAlgo algorithm, Dictionary<string, object>? attributes = null, bool missingIndex = false)
         {
-            Fields.Add(new VectorField(name, algorithm, attributes));
+            Fields.Add(new VectorField(name, algorithm, attributes, missingIndex));
             return this;
         }
     }
