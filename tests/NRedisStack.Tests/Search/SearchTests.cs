@@ -2619,7 +2619,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2L, await ft.SugLenAsync(key));
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     public void TestProfileSearch()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2643,7 +2643,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("1", iteratorsProfile["Size"].ToString());
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     public async Task TestProfileSearchAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2727,7 +2727,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, aggregateRes.TotalResults);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.3.240")]
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.3.242")]
     public void TestProfileIssue306()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2757,7 +2757,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, aggregateRes.TotalResults);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.3.240")]
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.3.242")]
     public async Task TestProfileAsyncIssue306()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
