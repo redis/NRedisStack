@@ -2,7 +2,6 @@ using StackExchange.Redis;
 using NRedisStack.Search;
 using NRedisStack.RedisStackCommands;
 using Xunit;
-using System.Runtime.InteropServices;
 using NetTopologySuite.Geometries;
 
 namespace NRedisStack.Tests.Search;
@@ -144,10 +143,12 @@ public class IndexCreationTests : AbstractNRedisStackTest, IDisposable
         Assert.True(ft.Create("idx", new FTCreateParams(), schema));
 
         short[] vec1 = new short[] { 2, 1, 2, 2, 2 };
-        byte[] vec1ToBytes = MemoryMarshal.Cast<short, byte>(vec1).ToArray();
+        byte[] vec1ToBytes = new byte[vec1.Length * sizeof(short)];
+        Buffer.BlockCopy(vec1, 0, vec1ToBytes, 0, vec1ToBytes.Length);
 
         short[] vec2 = new short[] { 1, 2, 2, 2 };
-        byte[] vec2ToBytes = MemoryMarshal.Cast<short, byte>(vec2).ToArray();
+        byte[] vec2ToBytes = new byte[vec2.Length * sizeof(short)];
+        Buffer.BlockCopy(vec2, 0, vec2ToBytes, 0, vec2ToBytes.Length);
 
         var entries = new HashEntry[] { new HashEntry("v", vec1ToBytes), new HashEntry("v2", vec2ToBytes) };
         db.HashSet("a", entries);
