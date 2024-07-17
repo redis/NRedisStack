@@ -27,7 +27,7 @@ public class ListExample
         db.KeyDelete("{bikes}:repairs");
         db.KeyDelete("{bikes}:finished");
         //REMOVE_END
-        
+
 
         //STEP_START queue
         long res1 = db.ListLeftPush("bikes:repairs", "bike:1");
