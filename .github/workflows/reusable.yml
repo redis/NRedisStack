@@ -65,12 +65,16 @@ jobs:
             run: dotnet restore
           - name: Build
             run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
+          # Test.proj to avoid assembly parallelization in dotnet test
+          # Please see the links
+          # - https://github.com/nunit/nunit3-vs-adapter/issues/657#issuecomment-596943419
+          # - https://github.com/dotnet/sdk/issues/10178#issuecomment-564311592
           - name: Test
             run: |
               echo "${{secrets.REDIS_CA_PEM}}" > tests/NRedisStack.Tests/bin/Debug/${{inputs.clr_version}}/redis_ca.pem
               echo "${{secrets.REDIS_USER_CRT}}" > tests/NRedisStack.Tests/bin/Debug/${{inputs.clr_version}}/redis_user.crt
               echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > tests/NRedisStack.Tests/bin/Debug/${{inputs.clr_version}}/redis_user_private.key
-              dotnet test -f ${{inputs.clr_version}} --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+              dotnet test -f ${{inputs.clr_version}} --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover -p:BuildInParallel=false Test.proj
           - name: Codecov
             uses: codecov/codecov-action@v3
             with:
