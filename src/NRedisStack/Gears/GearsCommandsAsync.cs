@@ -53,7 +53,7 @@ namespace NRedisStack
         /// <param name="functionName">The function name to run.</param>
         /// <param name="keys">keys that will be touched by the function.</param>
         /// <param name="args">Additional argument to pass to the function.</param>
-        /// <returns>The return value from the sync & async function on error in case of failure.</returns>
+        /// <returns>The return value from the sync &amp; async function on error in case of failure.</returns>
         /// <remarks><seealso href="https://redis.io/commands/tfcall"/></remarks>
         public async static Task<RedisResult> TFCall_Async(this IDatabase db, string libraryName, string functionName, string[]? keys = null, string[]? args = null)
         {
@@ -67,7 +67,7 @@ namespace NRedisStack
         /// <param name="functionName">The function name to run.</param>
         /// <param name="keys">keys that will be touched by the function.</param>
         /// <param name="args">Additional argument to pass to the function.</param>
-        /// <returns>The return value from the sync & async function on error in case of failure.</returns>
+        /// <returns>The return value from the sync &amp; async function on error in case of failure.</returns>
         /// <remarks><seealso href="https://redis.io/commands/tfcallasync"/></remarks>
         public async static Task<RedisResult> TFCallAsync_Async(this IDatabase db, string libraryName, string functionName, string[]? keys = null, string[]? args = null)
         {
