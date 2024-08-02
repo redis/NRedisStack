@@ -128,7 +128,7 @@ namespace NRedisStack
         /// Set the value of a RedisGraph configuration parameter.
         /// </summary>
         /// <param name="configName">The config name.</param>
-        /// <returns>Dictionary of <string, object>.</returns>
+        /// <returns>Dictionary of  &lt;string, object&gt;.</returns>
         /// <remarks><seealso href="https://redis.io/commands/graph.config-get"/></remarks>
         Dictionary<string, RedisResult> ConfigGet(string configName);
 
@@ -136,7 +136,7 @@ namespace NRedisStack
         /// Returns a list containing up to 10 of the slowest queries issued against the given graph Name.
         /// </summary>
         /// <param name="graphName">The graph name.</param>
-        /// <returns>Dictionary of <string, object>.</returns>
+        /// <returns>Dictionary of &lt;string, object&gt;.</returns>
         /// <remarks><seealso href="https://redis.io/commands/graph.slowlog"/></remarks>
         List<List<string>> Slowlog(string graphName);
     }
