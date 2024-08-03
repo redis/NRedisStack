@@ -64,7 +64,7 @@ namespace NRedisStack
         /// <param name="key">The name of the filter.</param>
         /// <param name="items">One or more items to add.</param>
         /// <param name="capacity">(Optional) Specifies the desired capacity for the filter to be created.</param>
-        /// <param name="nocreate">(Optional) <see langword="true"/> to indicates that the
+        /// <param name="nocreate">(Optional) <see langword="true"/> to indicates that the filter should not be created if it does not already exist.</param>
         /// <returns>An array of booleans.</returns>
         /// <remarks><seealso href="https://redis.io/commands/cf.insert"/></remarks>
         bool[] Insert(RedisKey key, RedisValue[] items, int? capacity = null, bool nocreate = false);
@@ -76,7 +76,7 @@ namespace NRedisStack
         /// <param name="key">The name of the filter.</param>
         /// <param name="items">One or more items to add.</param>
         /// <param name="capacity">(Optional) Specifies the desired capacity for the filter to be created.</param>
-        /// <param name="nocreate">(Optional) <see langword="true"/> to indicates that the
+        /// <param name="nocreate">(Optional) <see langword="true"/> to indicates that the filter should not be created if it does not already exist.</param>
         /// <returns>An array of booleans.where <see langword="true"/> means the item has been added to the filter,
         /// and <see langword="false"/> mean, the item already existed</returns>
         /// <remarks><seealso href="https://redis.io/commands/cf.insertnx"/></remarks>
