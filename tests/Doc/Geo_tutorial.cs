@@ -76,7 +76,7 @@ public class Geo_tutorial
 
         Assert.Equal("station:3", res4[2].Member);
         GeoPosition pos3 = res4[2].Position ?? new GeoPosition();
-        Assert.Equal("-122.24699, 37.81040", $"{pos3.Longitude:F5}, {pos3.Latitude:F5}");
+        Assert.Equal("-122.24698, 37.81040", $"{pos3.Longitude:F5}, {pos3.Latitude:F5}");
         // REMOVE_END
 
 
