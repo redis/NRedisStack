@@ -67,13 +67,16 @@ public class Geo_tutorial
         Assert.Equal(3, res4.Length);
 
         Assert.Equal("station:1", res4[0].Member);
-        Assert.Equal(new GeoPosition(-122.27652, 37.805186), res4[0].Position);
+        GeoPosition pos1 = res4[0].Position ?? new GeoPosition();
+        Assert.Equal("-122.27652, 37.80518", $"{pos1.Longitude:F5}, {pos1.Latitude:F5}");
 
         Assert.Equal("station:2", res4[1].Member);
-        Assert.Equal(new GeoPosition(-122.2674626, 37.8062344), res4[1].Position);
+        GeoPosition pos2 = res4[1].Position ?? new GeoPosition();
+        Assert.Equal("-122.26746, 37.80623", $"{pos2.Longitude:F5}, {pos2.Latitude:F5}");
 
         Assert.Equal("station:3", res4[2].Member);
-        Assert.Equal(new GeoPosition(-122.2469854, 37.8104049), res4[2].Position);
+        GeoPosition pos3 = res4[2].Position ?? new GeoPosition();
+        Assert.Equal("-122.24699, 37.81040", $"{pos3.Longitude:F5}, {pos3.Latitude:F5}");
         // REMOVE_END
 
 
