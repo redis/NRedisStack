@@ -65,18 +65,15 @@ public class Geo_tutorial
         // Tests for 'geosearch' step.
         // REMOVE_START
         Assert.Equal(3, res4.Length);
-        Assert.Equal(
-            "Member: 'station:1', distance: 0.0001, position: -122.27652043104172 37.80518485897756",
-            $"Member: '{res4[0].Member}', distance: {res4[0].Distance}, position: {res4[0].Position}"
-        );
-        Assert.Equal(
-            "Member: 'station:2', distance: 0.8047, position: -122.26745992898941 37.80623423353753",
-            $"Member: '{res4[1].Member}', distance: {res4[1].Distance}, position: {res4[1].Position}"
-        );
-        Assert.Equal(
-            "Member: 'station:3', distance: 2.6596, position: -122.24698394536972 37.81040384984464",
-            $"Member: '{res4[2].Member}', distance: {res4[2].Distance}, position: {res4[2].Position}"
-        );
+
+        Assert.Equal("station:1", res4[0].Member);
+        Assert.Equal(new GeoPosition(-122.27652, 37.805186), res4[0].Position);
+
+        Assert.Equal("station:2", res4[1].Member);
+        Assert.Equal(new GeoPosition(-122.2674626, 37.8062344), res4[1].Position);
+
+        Assert.Equal("station:3", res4[2].Member);
+        Assert.Equal(new GeoPosition(-122.2469854, 37.8104049), res4[2].Position);
         // REMOVE_END
 
 
