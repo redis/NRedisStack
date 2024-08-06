@@ -50,10 +50,8 @@ public interface IBloomCommandsAsync
     /// <param name="error">(Optional) Specifies the error ratio of the newly created filter if it does not yet exist.</param>
     /// <param name="expansion">(Optional) When capacity is reached, an additional sub-filter is
     /// created in size of the last sub-filter multiplied by expansion.</param>
-    /// <param name="nocreate">(Optional) <see langword="true"/> to indicates that the
-    /// filter should not be created if it does not already exist.</param>
-    /// <param name="nonscaling">(Optional) <see langword="true"/> toprevent the filter
-    /// from creating additional sub-filters if initial capacity is reached.</param>
+    /// <param name="nocreate">(Optional) <see langword="true"/> to indicates that the filter should not be created if it does not already exist.</param>
+    /// <param name="nonscaling">(Optional) <see langword="true"/> toprevent the filter from creating additional sub-filters if initial capacity is reached.</param>
     /// <returns>An array of booleans. Each element is either true or false depending on whether the
     /// corresponding input element was newly added to the filter or may have previously existed.</returns>
     /// <remarks><seealso href="https://redis.io/commands/bf.insert"/></remarks>
