@@ -109,7 +109,7 @@ namespace NRedisStack
         {
             if (uncompressed.HasValue)
             {
-                args.Add(uncompressed.Value ? TimeSeriesArgs.UNCOMPRESSED: TimeSeriesArgs.COMPRESSED);
+                args.Add(uncompressed.Value ? TimeSeriesArgs.UNCOMPRESSED : TimeSeriesArgs.COMPRESSED);
             }
         }
 
