@@ -3182,4 +3182,90 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("FT.AGGREGATE", buildCommand.Command);
         Assert.Equal(new object[] { "idx:users", "*", "FILTER", "@StatusId==1", "GROUPBY", 1, "@CreatedDay", "REDUCE", "COUNT_DISTINCT", 1, "@UserId", "REDUCE", "COUNT", 0, "AS", "count", "DIALECT", 3 }, buildCommand.Args);
     }
+
+    [SkipIfRedis(Comparison.LessThan, "7.3.240")]
+    public void TestNumericInDialect4()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        Schema sc = new Schema()
+            .AddTextField("title", 1.0)
+            .AddNumericField("version");
+
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
+        Dictionary<string, object> fields4 = new Dictionary<string, object>
+        {
+            { "title", "hello world" },
+            { "version", 123 }
+        };
+        AddDocument(db, "qux", fields4);
+
+        Assert.Equal(1, ft.Search(index, new Query("@version:[123 123]")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new Query("@version:[123]").Dialect(4)).TotalResults);
+    }
+
+    [SkipIfRedis(Comparison.LessThan, "7.3.240")]
+    public void TestNumericOperatorsInDialect4()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        Schema sc = new Schema()
+            .AddTextField("title", 1.0)
+            .AddNumericField("version");
+
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
+        Dictionary<string, object> fields4 = new Dictionary<string, object>
+        {
+            { "title", "hello world" },
+            { "version", 123 }
+        };
+        AddDocument(db, "qux", fields4);
+
+        Assert.Equal(1, ft.Search(index, new Query("@version:[123 123]")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new Query("@version==123").Dialect(4)).TotalResults);
+
+        Assert.Equal(1, ft.Search(index, new Query("@version:[122 +inf]")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new Query("@version>=122").Dialect(4)).TotalResults);
+
+        Assert.Equal(1, ft.Search(index, new Query("@version:[-inf 124]")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new Query("@version<=124").Dialect(4)).TotalResults);
+
+    }
+
+    [SkipIfRedis(Comparison.LessThan, "7.3.240")]
+    public void TestNumericLogicalOperatorsInDialect4()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        Schema sc = new Schema()
+            .AddTextField("title", 1.0)
+            .AddNumericField("version")
+            .AddNumericField("id");
+
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
+        Dictionary<string, object> fields4 = new Dictionary<string, object>
+        {
+            { "title", "hello world" },
+            { "version", 123 },
+            { "id", 456 }
+        };
+        AddDocument(db, "qux", fields4);
+
+        Assert.Equal(1, ft.Search(index, new Query("@version<=124").Dialect(4)).TotalResults);
+
+        Assert.Equal(1, ft.Search(index, new Query("@version:[123 123]")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new Query("@version:[123] | @version:[124]").Dialect(4)).TotalResults);
+
+        Assert.Equal(1, ft.Search(index, new Query("@version:[123 123] | @version:[7890 7890]")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new Query("@version==123 | @version==7890").Dialect(4)).TotalResults);
+
+        Assert.Equal(1, ft.Search(index, new Query("@version:[123 123] | @id:[456 7890]")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new Query("@version==123 @id==456").Dialect(4)).TotalResults);
+    }
 }
