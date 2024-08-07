@@ -702,7 +702,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = redisFixture.Redis.GetDatabase();
         db.Execute("FLUSHALL");
         var ft = db.FT();
-        Schema sc = new Schema().AddTextField("title", 1.0, sortable: true, unf: true);
+        Schema sc = new Schema().AddTextField("title", 1.0);
 
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
@@ -733,9 +733,10 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(index, info.IndexName);
         Assert.Empty(info.IndexOption);
         // Assert.Equal(,info.IndexDefinition);
-        Assert.Equal("title", (info.Attributes[0]["identifier"]).ToString());
-        Assert.Equal("TAG", (info.Attributes[1]["type"]).ToString());
-        Assert.Equal("name", (info.Attributes[2]["attribute"]).ToString());
+        Assert.Equal("title", info.Attributes[0]["identifier"].ToString());
+        Assert.Equal("TAG", info.Attributes[1]["type"].ToString());
+        Assert.Equal("name", info.Attributes[2]["attribute"].ToString());
+
         Assert.Equal(100, info.NumDocs);
         Assert.NotNull(info.MaxDocId);
         Assert.Equal(102, info.NumTerms);
@@ -795,9 +796,135 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         var info = await ft.InfoAsync(index);
         Assert.Equal(index, info.IndexName);
-        Assert.Equal("title", (info.Attributes[0]["identifier"]).ToString());
-        Assert.Equal("TAG", (info.Attributes[1]["type"]).ToString());
-        Assert.Equal("name", (info.Attributes[2]["attribute"]).ToString());
+        Assert.Equal("title", info.Attributes[0]["identifier"].ToString());
+        Assert.Equal("TAG", info.Attributes[1]["type"].ToString());
+        Assert.Equal("name", info.Attributes[2]["attribute"].ToString());
+        Assert.Equal(100, info.NumDocs);
+        Assert.Equal("300", info.MaxDocId);
+        Assert.Equal(102, info.NumTerms);
+        Assert.True(info.NumRecords >= 200);
+        Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
+        Assert.Equal(0, info.VectorIndexSzMebibytes);
+        Assert.Equal(208, info.TotalInvertedIndexBlocks);
+        Assert.True(info.OffsetVectorsSzMebibytes < 1);
+        Assert.True(info.DocTableSizeMebibytes < 1);
+        Assert.Equal(0, info.SortableValueSizeMebibytes);
+        Assert.True(info.KeyTableSizeMebibytes < 1);
+        Assert.Equal(8, (int)info.RecordsPerDocAvg);
+        Assert.True(info.BytesPerRecordAvg > 5);
+        Assert.True(info.OffsetsPerTermAvg > 0.8);
+        Assert.Equal(8, info.OffsetBitsPerRecordAvg);
+        Assert.Equal(0, info.HashIndexingFailures);
+        Assert.True(info.TotalIndexingTime > 0);
+        Assert.Equal(0, info.Indexing);
+        Assert.Equal(1, info.PercentIndexed);
+        Assert.Equal(4, info.NumberOfUses);
+        Assert.Equal(7, info.GcStats.Count);
+        Assert.Equal(4, info.CursorStats.Count);
+    }
+
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+    public void AlterAddSortable()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Schema sc = new Schema().AddTextField("title", 1.0, sortable: true);
+
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
+
+        //sleep:
+        System.Threading.Thread.Sleep(2000);
+
+        var fields = new HashEntry("title", "hello world");
+        //fields.("title", "hello world");
+        for (int i = 0; i < 100; i++)
+        {
+            db.HashSet($"doc{i}", fields.Name, fields.Value);
+        }
+        SearchResult res = ft.Search(index, new Query("hello world"));
+        Assert.Equal(100, res.TotalResults);
+
+        Assert.True(ft.Alter(index, new Schema().AddTagField("tags").AddTextField("name", weight: 0.5)));
+        for (int i = 0; i < 100; i++)
+        {
+            var fields2 = new HashEntry[] { new("name", "name" + i),
+                                      new("tags", $"tagA,tagB,tag{i}") };
+            //      assertTrue(client.updateDocument(string.format("doc%d", i), 1.0, fields2));
+            db.HashSet($"doc{i}", fields2);
+        }
+        SearchResult res2 = ft.Search(index, new Query("@tags:{tagA}"));
+        Assert.Equal(100, res2.TotalResults);
+
+        var info = ft.Info(index);
+        Assert.Equal(index, info.IndexName);
+        Assert.Empty(info.IndexOption);
+        // Assert.Equal(,info.IndexDefinition);
+        Assert.Equal("title", info.Attributes[0]["identifier"].ToString());
+        Assert.Equal("TAG", info.Attributes[1]["type"].ToString());
+        Assert.Equal("name", info.Attributes[2]["attribute"].ToString());
+        Assert.Equal(100, info.NumDocs);
+        Assert.NotNull(info.MaxDocId);
+        Assert.Equal(102, info.NumTerms);
+        Assert.True(info.NumRecords >= 200);
+        Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
+        Assert.Equal(0, info.VectorIndexSzMebibytes);
+        Assert.Equal(208, info.TotalInvertedIndexBlocks);
+        Assert.True(info.OffsetVectorsSzMebibytes < 1);
+        Assert.True(info.DocTableSizeMebibytes < 1);
+        Assert.Equal(0, info.SortableValueSizeMebibytes);
+        Assert.True(info.KeyTableSizeMebibytes < 1);
+        Assert.Equal(8, (int)info.RecordsPerDocAvg);
+        Assert.True(info.BytesPerRecordAvg > 5);
+        Assert.True(info.OffsetsPerTermAvg > 0.8);
+        Assert.Equal(8, info.OffsetBitsPerRecordAvg);
+        Assert.Equal(0, info.HashIndexingFailures);
+        Assert.True(info.TotalIndexingTime > 0);
+        Assert.Equal(0, info.Indexing);
+        Assert.Equal(1, info.PercentIndexed);
+        Assert.Equal(4, info.NumberOfUses);
+        Assert.Equal(7, info.GcStats.Count);
+        Assert.Equal(4, info.CursorStats.Count);
+    }
+
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+    public async Task AlterAddSortableAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Schema sc = new Schema().AddTextField("title", 1.0, sortable: true);
+
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
+
+        //sleep:
+        System.Threading.Thread.Sleep(2000);
+
+        var fields = new HashEntry("title", "hello world");
+        //fields.("title", "hello world");
+        for (int i = 0; i < 100; i++)
+        {
+            db.HashSet($"doc{i}", fields.Name, fields.Value);
+        }
+        SearchResult res = ft.Search(index, new Query("hello world"));
+        Assert.Equal(100, res.TotalResults);
+
+        Assert.True(await ft.AlterAsync(index, new Schema().AddTagField("tags").AddTextField("name", weight: 0.5)));
+        for (int i = 0; i < 100; i++)
+        {
+            var fields2 = new HashEntry[] { new("name", "name" + i),
+                                      new("tags", $"tagA,tagB,tag{i}") };
+            //      assertTrue(client.updateDocument(string.format("doc%d", i), 1.0, fields2));
+            db.HashSet($"doc{i}", fields2);
+        }
+        SearchResult res2 = ft.Search(index, new Query("@tags:{tagA}"));
+        Assert.Equal(100, res2.TotalResults);
+
+        var info = await ft.InfoAsync(index);
+        Assert.Equal(index, info.IndexName);
+        Assert.Equal("title", info.Attributes[0]["identifier"].ToString());
+        Assert.Equal("TAG", info.Attributes[1]["type"].ToString());
+        Assert.Equal("name", info.Attributes[2]["attribute"].ToString());
         Assert.Equal(100, info.NumDocs);
         Assert.Equal("300", info.MaxDocId);
         Assert.Equal(102, info.NumTerms);
