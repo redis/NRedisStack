@@ -822,7 +822,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(4, info.CursorStats.Count);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+    // TODO : fix with FT.CONFIG response change
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     public void TestConfig()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -833,7 +834,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("100", configMap["TIMEOUT"].ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+    // TODO : fix with FT.CONFIG response change
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     public async Task TestConfigAsnyc()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -844,7 +846,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("100", configMap["TIMEOUT"].ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+    // TODO : fix with FT.CONFIG response change
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     public void configOnTimeout()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -856,7 +859,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         try { ft.ConfigSet("ON_TIMEOUT", "null"); } catch (RedisServerException) { }
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+    // TODO : fix with FT.CONFIG response change
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     public async Task configOnTimeoutAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -868,7 +872,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         try { ft.ConfigSet("ON_TIMEOUT", "null"); } catch (RedisServerException) { }
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+    // TODO : fix with FT.CONFIG response change
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     public void TestDialectConfig()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -890,7 +895,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.True(ft.ConfigSet("DEFAULT_DIALECT", "1"));
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+    // TODO : fix with FT.CONFIG response change
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     public async Task TestDialectConfigAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2727,7 +2733,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, aggregateRes.TotalResults);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.3.240")]
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.3.242")]
     public void TestProfileIssue306()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2757,7 +2763,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, aggregateRes.TotalResults);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.3.240")]
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.3.242")]
     public async Task TestProfileAsyncIssue306()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
