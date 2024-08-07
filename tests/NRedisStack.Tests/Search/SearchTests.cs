@@ -2877,7 +2877,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var searchRes = profileSearch.Item1;
         var searchDet = profileSearch.Item2;
 
-        Assert.Equal(6, searchDet.Count);
+        Assert.True(searchDet["Shards"][0].Length >= 12);
         Assert.Equal(2, searchRes.Documents.Count);
 
 
@@ -2886,7 +2886,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var profileAggregate = ft.ProfileAggregate(index, aggReq);
         var aggregateRes = profileAggregate.Item1;
         var aggregateDet = profileAggregate.Item2;
-        Assert.True(aggregateDet.Count >= 6);
+        Assert.True(aggregateDet["Shards"][0].Length >= 12);
         Assert.Equal(2, aggregateRes.TotalResults);
     }
 
@@ -2907,7 +2907,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var searchRes = profileSearch.Item1;
         var searchDet = profileSearch.Item2;
 
-        Assert.Equal(6, searchDet.Count);
+        Assert.True(searchDet["Shards"][0].Length >= 12);
         Assert.Equal(2, searchRes.Documents.Count);
 
         // check using AggregationRequest
@@ -2915,7 +2915,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var profileAggregate = await ft.ProfileAggregateAsync(index, aggReq);
         var aggregateRes = profileAggregate.Item1;
         var aggregateDet = profileAggregate.Item2;
-        Assert.True(aggregateDet.Count >= 6);
+        Assert.True(aggregateDet["Shards"][0].Length >= 12);
         Assert.Equal(2, aggregateRes.TotalResults);
     }
 

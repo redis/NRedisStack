@@ -670,16 +670,24 @@ namespace NRedisStack
         {
             var res = (RedisResult[])value!;
             var dict = new Dictionary<string, RedisResult>();
-            foreach (var pair in res)
+            if (res[0].Resp2Type == ResultType.SimpleString || res[0].Resp3Type == ResultType.SimpleString)
             {
-                var arr = (RedisResult[])pair!;
-                if (arr.Length > 1)
+                dict.Add(res[0].ToString(), res[1]);
+                dict.Add(res[2].ToString(), res[3]);
+            }
+            else
+            {
+                foreach (var pair in res)
                 {
-                    dict.Add(arr[0].ToString()!, arr[1]);
-                }
-                else
-                {
-                    dict.Add(arr[0].ToString()!, null);
+                    var arr = (RedisResult[])pair!;
+                    if (arr.Length > 1)
+                    {
+                        dict.Add(arr[0].ToString()!, arr[1]);
+                    }
+                    else
+                    {
+                        dict.Add(arr[0].ToString()!, null);
+                    }
                 }
             }
             return dict;
