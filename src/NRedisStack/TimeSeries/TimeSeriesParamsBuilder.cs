@@ -1,7 +1,6 @@
 using NRedisStack.Literals;
 using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;
-using System.Collections.ObjectModel;
 using NRedisStack.Extensions;
 
 namespace NRedisStack
@@ -29,7 +28,7 @@ namespace NRedisStack
             this.retentionTime = retentionTime;
             return (T)this;
         }
-        public T AddLabels(ReadOnlyCollection<TimeSeriesLabel> labels)
+        public T AddLabels(IReadOnlyCollection<TimeSeriesLabel> labels)
         {
             this.labels = labels;
             return (T)this;
@@ -110,7 +109,7 @@ namespace NRedisStack
         {
             if (uncompressed.HasValue)
             {
-                args.Add(TimeSeriesArgs.UNCOMPRESSED);
+                args.Add(uncompressed.Value ? TimeSeriesArgs.UNCOMPRESSED: TimeSeriesArgs.COMPRESSED);
             }
         }
 
