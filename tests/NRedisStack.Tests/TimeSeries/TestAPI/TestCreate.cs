@@ -3,7 +3,6 @@ using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Literals.Enums;
 using Xunit;
-using System.Runtime.CompilerServices;
 
 namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
@@ -135,6 +134,34 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.NotEqual(k, -1);
             Assert.Equal(11, (long)info[j + 1]);
             Assert.Equal(12, (long)info[k + 1]);
+        }
+
+        [Fact]
+        public void TestParamsBuilder()
+        {
+            TsCreateParams parameters = new TsCreateParamsBuilder()
+                        .AddChunkSizeBytes(1000)
+                        .AddDuplicatePolicy(TsDuplicatePolicy.FIRST)
+                        .AddIgnoreValues(11, 12)
+                        .AddLabels(new List<TimeSeriesLabel>() { new TimeSeriesLabel("key", "value") })
+                        .AddRetentionTime(5000)
+                        .AddUncompressed(true).build();
+
+            var command = TimeSeriesCommandsBuilder.Create(key, parameters);
+            var expectedArgs = new object[] { key, "RETENTION", 5000L, "CHUNK_SIZE", 1000L, "LABELS", "key", "value", "UNCOMPRESSED", "DUPLICATE_POLICY", "FIRST", "IGNORE", 11L, 12L };
+            Assert.Equal(expectedArgs, command.Args);
+
+            parameters = new TsCreateParamsBuilder()
+                        .AddChunkSizeBytes(1000)
+                        .AddDuplicatePolicy(TsDuplicatePolicy.FIRST)
+                        .AddIgnoreValues(11, 12)
+                        .AddLabels(new List<TimeSeriesLabel>() { new TimeSeriesLabel("key", "value") })
+                        .AddRetentionTime(5000)
+                        .AddUncompressed(false).build();
+
+            command = TimeSeriesCommandsBuilder.Create(key, parameters);
+            expectedArgs = new object[] { key, "RETENTION", 5000L, "CHUNK_SIZE", 1000L, "LABELS", "key", "value", "COMPRESSED", "DUPLICATE_POLICY", "FIRST", "IGNORE", 11L, 12L };
+            Assert.Equal(expectedArgs, command.Args);
         }
     }
 }
