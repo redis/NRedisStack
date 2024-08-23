@@ -24,7 +24,7 @@ public class CmdsHashExample
         // Clear any keys here before using them in tests.
         db.KeyDelete("myhash");
         //REMOVE_END
-// HIDE_END
+        // HIDE_END
 
 
         // STEP_START hget
@@ -68,7 +68,7 @@ public class CmdsHashExample
         Console.WriteLine($"{string.Join(", ", res8.Select(h => $"{h.Name}: {h.Value}"))}");
         // >>> field1: Hello, field2: Hi, field3: World
         // STEP_END
-        
+
         // Tests for 'hset' step.
         // REMOVE_START
         Assert.True(res4);
@@ -80,7 +80,7 @@ public class CmdsHashExample
             string.Join(", ", res8.Select(h => $"{h.Name}: {h.Value}"))
         );
         // REMOVE_END
-// HIDE_START
+        // HIDE_START
     }
 }
 // HIDE_END
