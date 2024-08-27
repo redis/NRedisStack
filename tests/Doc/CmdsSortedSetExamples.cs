@@ -24,7 +24,7 @@ public class CmdsSortedSet
         // Clear any keys here before using them in tests.
 
         //REMOVE_END
-// HIDE_END
+        // HIDE_END
 
 
         // STEP_START bzmpop
@@ -477,7 +477,7 @@ public class CmdsSortedSet
         // REMOVE_END
 
 
-// HIDE_START
+        // HIDE_START
     }
 }
 // HIDE_END
