@@ -58,13 +58,13 @@ public class CmdsSortedSet
 
 
         // STEP_START zadd
-        RedisValue zAddResult1 = db.SortedSetAdd("myzset", "one", 1);
-        Console.WriteLine(zAddResult1); // >>> 1
+        bool zAddResult1 = db.SortedSetAdd("myzset", "one", 1);
+        Console.WriteLine(zAddResult1); // >>> True
 
-        RedisValue zAddResult2 = db.SortedSetAdd("myzset", "uno", 1);
-        Console.WriteLine(zAddResult2);
+        bool zAddResult2 = db.SortedSetAdd("myzset", "uno", 1);
+        Console.WriteLine(zAddResult2); // >>> True
 
-        RedisValue zAddResult3 = db.SortedSetAdd(
+        long zAddResult3 = db.SortedSetAdd(
             "myzset",
             new SortedSetEntry[] {
                 new SortedSetEntry("two", 2),
@@ -80,8 +80,8 @@ public class CmdsSortedSet
 
         // Tests for 'zadd' step.
         // REMOVE_START
-        Assert.Equal(1, zAddResult1);
-        Assert.Equal(1, zAddResult2);
+        Assert.True(zAddResult1);
+        Assert.True(zAddResult2);
         Assert.Equal(2, zAddResult3);
         Assert.Equal(
             "one: 1, uno: 1, two: 2, three: 3",
@@ -232,32 +232,88 @@ public class CmdsSortedSet
 
 
         // STEP_START zrange1
+        long zRangeResult1 = db.SortedSetAdd(
+            "myzset",
+            new SortedSetEntry[] {
+                new SortedSetEntry("one", 1),
+                new SortedSetEntry("two", 2),
+                new SortedSetEntry("three", 3)
+            }
+        );
+        Console.WriteLine(zRangeResult1);   // >>> 3
 
+        RedisValue[] zRangeResult2 = db.SortedSetRangeByRank("myzset", 0, -1);
+        Console.WriteLine(string.Join(", ", zRangeResult2));
+        // >>> one, two, three
+
+        RedisValue[] zRangeResult3 = db.SortedSetRangeByRank("myzset", 2, 3);
+        Console.WriteLine(string.Join(", ", zRangeResult3));
+        // >>> three
+
+        RedisValue[] zRangeResult4 = db.SortedSetRangeByRank("myzset", -2, -1);
+        Console.WriteLine(string.Join(", ", zRangeResult4));
+        // >>> two, three
         // STEP_END
 
         // Tests for 'zrange1' step.
         // REMOVE_START
-
+        Assert.Equal(3, zRangeResult1);
+        Assert.Equal("one, two, three", string.Join(", ", zRangeResult2));
+        Assert.Equal("three", string.Join(", ", zRangeResult3));
+        Assert.Equal("two, three", string.Join(", ", zRangeResult4));
+        db.KeyDelete("myzset");
         // REMOVE_END
 
 
         // STEP_START zrange2
+        long zRangeResult5 = db.SortedSetAdd(
+            "myzset",
+            new SortedSetEntry[] {
+                new SortedSetEntry("one", 1),
+                new SortedSetEntry("two", 2),
+                new SortedSetEntry("three", 3)
+            }
+        );
 
+        SortedSetEntry[] zRangeResult6 = db.SortedSetRangeByRankWithScores("myzset", 0, 1);
+        Console.WriteLine($"{string.Join(", ", zRangeResult6.Select(b => $"{b.Element}: {b.Score}"))}");
+        // >>> one: 1, two: 2
         // STEP_END
 
         // Tests for 'zrange2' step.
         // REMOVE_START
-
+        Assert.Equal(3, zRangeResult5);
+        Assert.Equal("one: 1, two: 2", string.Join(", ", zRangeResult6.Select(b => $"{b.Element}: {b.Score}")));
+        db.KeyDelete("myzset");
         // REMOVE_END
 
 
         // STEP_START zrange3
+        long zRangeResult7 = db.SortedSetAdd(
+            "myzset",
+            new SortedSetEntry[] {
+                new SortedSetEntry("one", 1),
+                new SortedSetEntry("two", 2),
+                new SortedSetEntry("three", 3)
+            }
+        );
 
+        RedisValue[] zRangeResult8 = db.SortedSetRangeByScore(
+            "myzset",
+            1,
+            double.PositiveInfinity,
+            Exclude.Start,
+            skip: 1, take: 1
+        );
+        Console.WriteLine(string.Join(", ", zRangeResult8));
+        // >>> three
         // STEP_END
 
         // Tests for 'zrange3' step.
         // REMOVE_START
-
+        Assert.Equal(3, zRangeResult7);
+        Assert.Equal("three", string.Join(", ", zRangeResult8));
+        db.KeyDelete("myzset");
         // REMOVE_END
 
 
