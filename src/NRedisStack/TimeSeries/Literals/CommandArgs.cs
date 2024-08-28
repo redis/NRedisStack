@@ -5,6 +5,7 @@ namespace NRedisStack.Literals
         public const string RETENTION = "RETENTION";
         public const string LABELS = "LABELS";
         public const string UNCOMPRESSED = "UNCOMPRESSED";
+        public const string COMPRESSED = "COMPRESSED";
         public const string COUNT = "COUNT";
         public const string AGGREGATION = "AGGREGATION";
         public const string ALIGN = "ALIGN";

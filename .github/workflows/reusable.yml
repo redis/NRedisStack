@@ -41,7 +41,7 @@ jobs:
 
           - name: Run redis-stack-server docker
             working-directory: .github
-            run: docker-compose up -d redis-stack-${{inputs.redis_stack_type}}
+            run: docker compose up -d redis-stack-${{inputs.redis_stack_type}}
 
           - name: Set .env variables
             uses: xom9ikk/dotenv@v2
@@ -70,7 +70,7 @@ jobs:
               echo "${{secrets.REDIS_CA_PEM}}" > tests/NRedisStack.Tests/bin/Debug/${{inputs.clr_version}}/redis_ca.pem
               echo "${{secrets.REDIS_USER_CRT}}" > tests/NRedisStack.Tests/bin/Debug/${{inputs.clr_version}}/redis_user.crt
               echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > tests/NRedisStack.Tests/bin/Debug/${{inputs.clr_version}}/redis_user_private.key
-              dotnet test -f ${{inputs.clr_version}} --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+              dotnet test -f ${{inputs.clr_version}} --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover -p:BuildInParallel=false tests/Test.proj --logger GitHubActions
           - name: Codecov
             uses: codecov/codecov-action@v3
             with:
@@ -90,5 +90,5 @@ jobs:
               dotnet nuget remove source nuget.org
               dotnet nuget list source
               find . -name '*.csproj' | xargs -I {} sed -E -i 's|<TargetFrameworks(.*)>.*</TargetFrameworks>|<TargetFramework\1>${{inputs.clr_version}}</TargetFramework>|' {}
-              dotnet restore -s test-source
+              dotnet restore -s test-source -v detailed
               dotnet run
