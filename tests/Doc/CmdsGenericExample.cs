@@ -24,7 +24,7 @@ public class CmdsGenericExample
         // Clear any keys here before using them in tests.
 
         //REMOVE_END
-// HIDE_END
+        // HIDE_END
 
 
         // STEP_START copy
@@ -44,7 +44,7 @@ public class CmdsGenericExample
         bool delResult2 = db.StringSet("key2", "World");
         Console.WriteLine(delResult2);  // >>> true
 
-        long delResult3 = db.KeyDelete(new RedisKey[] {"key1", "key2", "key3"});
+        long delResult3 = db.KeyDelete(new RedisKey[] { "key1", "key2", "key3" });
         Console.WriteLine(delResult3);  // >>> 2
         // STEP_END
 
@@ -95,7 +95,7 @@ public class CmdsGenericExample
         bool expireResult6 = db.KeyExpire("mykey", new TimeSpan(0, 0, 10), ExpireWhen.HasExpiry);
         Console.WriteLine(expireResult6);   // >>> false
 
-        TimeSpan expireResult7 = db.KeyTimeToLive("mykey") ??  TimeSpan.Zero;
+        TimeSpan expireResult7 = db.KeyTimeToLive("mykey") ?? TimeSpan.Zero;
         Console.WriteLine(Math.Round(expireResult7.TotalSeconds));   // >>> 0
 
         bool expireResult8 = db.KeyExpire("mykey", new TimeSpan(0, 0, 10), ExpireWhen.HasNoExpiry);
@@ -311,7 +311,7 @@ public class CmdsGenericExample
 
 
         // STEP_START scan2
-        
+
         // STEP_END
 
         // Tests for 'scan2' step.
@@ -321,17 +321,17 @@ public class CmdsGenericExample
 
 
         // STEP_START scan3
-        
+
         // STEP_END
 
         // Tests for 'scan3' step.
         // REMOVE_START
-        
+
         // REMOVE_END
 
 
         // STEP_START scan4
-        
+
         // STEP_END
 
         // Tests for 'scan4' step.
@@ -380,7 +380,7 @@ public class CmdsGenericExample
         TimeSpan ttlResult3 = db.KeyTimeToLive("mykey") ?? TimeSpan.Zero;
         string ttlRes = Math.Round(ttlResult3.TotalSeconds).ToString();
         Console.WriteLine(Math.Round(ttlResult3.TotalSeconds)); // >>> 10
-        // STEP_END
+                                                                // STEP_END
 
         // Tests for 'ttl' step.
         // REMOVE_START
@@ -428,7 +428,7 @@ public class CmdsGenericExample
         // REMOVE_END
 
 
-// HIDE_START
+        // HIDE_START
     }
 }
 // HIDE_END
