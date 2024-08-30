@@ -133,6 +133,7 @@ public class CmdsStringExample
         Assert.True(incrResult1);
         Assert.Equal(11, incrResult2);
         Assert.Equal("11", incrResult3);
+        db.KeyDelete("mykey");
         // REMOVE_END
 
 
