@@ -1,7 +1,6 @@
 // EXAMPLE: cmds_generic
 // HIDE_START
 
-using System.ComponentModel.DataAnnotations;
 using NRedisStack.Tests;
 using StackExchange.Redis;
 
@@ -117,6 +116,7 @@ public class CmdsGenericExample
         Assert.Equal(0, Math.Round(expireResult7.TotalSeconds));
         Assert.True(expireResult8);
         Assert.Equal(10, Math.Round(expireResult9.TotalSeconds));
+        db.KeyDelete("mykey");
         // REMOVE_END
 
 
@@ -170,41 +170,41 @@ public class CmdsGenericExample
         // REMOVE_END
 
 
-        // STEP_START object encoding
+        // STEP_START object_encoding
 
         // STEP_END
 
-        // Tests for 'object encoding' step.
+        // Tests for 'object_encoding' step.
         // REMOVE_START
 
         // REMOVE_END
 
 
-        // STEP_START object freq
+        // STEP_START object_freq
 
         // STEP_END
 
-        // Tests for 'object freq' step.
+        // Tests for 'object_freq' step.
         // REMOVE_START
 
         // REMOVE_END
 
 
-        // STEP_START object idletime
+        // STEP_START object_idletime
 
         // STEP_END
 
-        // Tests for 'object idletime' step.
+        // Tests for 'object_idletime' step.
         // REMOVE_START
 
         // REMOVE_END
 
 
-        // STEP_START object refcount
+        // STEP_START object_refcount
 
         // STEP_END
 
-        // Tests for 'object refcount' step.
+        // Tests for 'object_refcount' step.
         // REMOVE_START
 
         // REMOVE_END
@@ -300,11 +300,41 @@ public class CmdsGenericExample
         // REMOVE_END
 
 
-        // STEP_START scan
+        // STEP_START scan1
 
         // STEP_END
 
-        // Tests for 'scan' step.
+        // Tests for 'scan1' step.
+        // REMOVE_START
+
+        // REMOVE_END
+
+
+        // STEP_START scan2
+        
+        // STEP_END
+
+        // Tests for 'scan2' step.
+        // REMOVE_START
+
+        // REMOVE_END
+
+
+        // STEP_START scan3
+        
+        // STEP_END
+
+        // Tests for 'scan3' step.
+        // REMOVE_START
+        
+        // REMOVE_END
+
+
+        // STEP_START scan4
+        
+        // STEP_END
+
+        // Tests for 'scan4' step.
         // REMOVE_START
 
         // REMOVE_END
@@ -341,7 +371,15 @@ public class CmdsGenericExample
 
 
         // STEP_START ttl
+        bool ttlResult1 = db.StringSet("mykey", "Hello");
+        Console.WriteLine(ttlResult1);  // >>> true
 
+        bool ttlResult2 = db.KeyExpire("mykey", new TimeSpan(0, 0, 10));
+        Console.WriteLine(ttlResult2);
+
+        TimeSpan ttlResult3 = db.KeyTimeToLive("mykey") ?? TimeSpan.Zero;
+        string ttlRes = Math.Round(ttlResult3.TotalSeconds).ToString();
+        Console.WriteLine(Math.Round(ttlResult3.TotalSeconds)); // >>> 10
         // STEP_END
 
         // Tests for 'ttl' step.
