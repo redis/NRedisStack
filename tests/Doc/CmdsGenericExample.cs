@@ -15,7 +15,7 @@ namespace Doc;
 public class CmdsGenericExample
 {
 
-    [SkipIfRedis(Is.OSSCluster)]
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
     public void run()
     {
         var muxer = ConnectionMultiplexer.Connect("localhost:6379");
@@ -76,51 +76,50 @@ public class CmdsGenericExample
         // REMOVE_END
 
         // REMOVE_START
-        if (muxer.GetServer("localhost:6379").Version.Major > 6)
-        {
-            // REMOVE_END
-            // STEP_START expire
-            bool expireResult1 = db.StringSet("mykey", "Hello");
-            Console.WriteLine(expireResult1);   // >>> true
+       
+        // REMOVE_END
+        // STEP_START expire
+        bool expireResult1 = db.StringSet("mykey", "Hello");
+        Console.WriteLine(expireResult1);   // >>> true
 
-            bool expireResult2 = db.KeyExpire("mykey", new TimeSpan(0, 0, 10));
-            Console.WriteLine(expireResult2);   // >>> true
+        bool expireResult2 = db.KeyExpire("mykey", new TimeSpan(0, 0, 10));
+        Console.WriteLine(expireResult2);   // >>> true
 
-            TimeSpan expireResult3 = db.KeyTimeToLive("mykey") ?? TimeSpan.Zero;
-            Console.WriteLine(Math.Round(expireResult3.TotalSeconds));   // >>> 10
+        TimeSpan expireResult3 = db.KeyTimeToLive("mykey") ?? TimeSpan.Zero;
+        Console.WriteLine(Math.Round(expireResult3.TotalSeconds));   // >>> 10
 
-            bool expireResult4 = db.StringSet("mykey", "Hello World");
-            Console.WriteLine(expireResult4);   // >>> true
+        bool expireResult4 = db.StringSet("mykey", "Hello World");
+        Console.WriteLine(expireResult4);   // >>> true
 
-            TimeSpan expireResult5 = db.KeyTimeToLive("mykey") ?? TimeSpan.Zero;
-            Console.WriteLine(Math.Round(expireResult5.TotalSeconds).ToString());   // >>> 0
+        TimeSpan expireResult5 = db.KeyTimeToLive("mykey") ?? TimeSpan.Zero;
+        Console.WriteLine(Math.Round(expireResult5.TotalSeconds).ToString());   // >>> 0
 
-            bool expireResult6 = db.KeyExpire("mykey", new TimeSpan(0, 0, 10), ExpireWhen.HasExpiry);
-            Console.WriteLine(expireResult6);   // >>> false
+        bool expireResult6 = db.KeyExpire("mykey", new TimeSpan(0, 0, 10), ExpireWhen.HasExpiry);
+        Console.WriteLine(expireResult6);   // >>> false
 
-            TimeSpan expireResult7 = db.KeyTimeToLive("mykey") ?? TimeSpan.Zero;
-            Console.WriteLine(Math.Round(expireResult7.TotalSeconds));   // >>> 0
+        TimeSpan expireResult7 = db.KeyTimeToLive("mykey") ?? TimeSpan.Zero;
+        Console.WriteLine(Math.Round(expireResult7.TotalSeconds));   // >>> 0
 
-            bool expireResult8 = db.KeyExpire("mykey", new TimeSpan(0, 0, 10), ExpireWhen.HasNoExpiry);
-            Console.WriteLine(expireResult8);   // >>> true
+        bool expireResult8 = db.KeyExpire("mykey", new TimeSpan(0, 0, 10), ExpireWhen.HasNoExpiry);
+        Console.WriteLine(expireResult8);   // >>> true
 
-            TimeSpan expireResult9 = db.KeyTimeToLive("mykey") ?? TimeSpan.Zero;
-            Console.WriteLine(Math.Round(expireResult9.TotalSeconds));   // >>> 10
-            // STEP_END
+        TimeSpan expireResult9 = db.KeyTimeToLive("mykey") ?? TimeSpan.Zero;
+        Console.WriteLine(Math.Round(expireResult9.TotalSeconds));   // >>> 10
+        // STEP_END
 
-            // Tests for 'expire' step.
-            // REMOVE_START
-            Assert.True(expireResult1);
-            Assert.True(expireResult2);
-            Assert.Equal(10, Math.Round(expireResult3.TotalSeconds));
-            Assert.True(expireResult4);
-            Assert.Equal(0, Math.Round(expireResult5.TotalSeconds));
-            Assert.False(expireResult6);
-            Assert.Equal(0, Math.Round(expireResult7.TotalSeconds));
-            Assert.True(expireResult8);
-            Assert.Equal(10, Math.Round(expireResult9.TotalSeconds));
-            db.KeyDelete("mykey");
-        }
+        // Tests for 'expire' step.
+        // REMOVE_START
+        Assert.True(expireResult1);
+        Assert.True(expireResult2);
+        Assert.Equal(10, Math.Round(expireResult3.TotalSeconds));
+        Assert.True(expireResult4);
+        Assert.Equal(0, Math.Round(expireResult5.TotalSeconds));
+        Assert.False(expireResult6);
+        Assert.Equal(0, Math.Round(expireResult7.TotalSeconds));
+        Assert.True(expireResult8);
+        Assert.Equal(10, Math.Round(expireResult9.TotalSeconds));
+        db.KeyDelete("mykey");
+    
         // REMOVE_END
 
 
