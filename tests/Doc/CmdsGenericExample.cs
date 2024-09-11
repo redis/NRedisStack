@@ -76,7 +76,7 @@ public class CmdsGenericExample
         // REMOVE_END
 
         // REMOVE_START
-       
+
         // REMOVE_END
         // STEP_START expire
         bool expireResult1 = db.StringSet("mykey", "Hello");
@@ -119,7 +119,7 @@ public class CmdsGenericExample
         Assert.True(expireResult8);
         Assert.Equal(10, Math.Round(expireResult9.TotalSeconds));
         db.KeyDelete("mykey");
-    
+
         // REMOVE_END
 
 
