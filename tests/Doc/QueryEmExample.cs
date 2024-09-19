@@ -1,12 +1,10 @@
 // EXAMPLE: query_em
 // HIDE_START
 
-using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Serialization;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
 using NRedisStack.Search.Literals.Enums;
 using NRedisStack.Tests;
-using Org.BouncyCastle.Tls.Crypto.Impl.BC;
 using StackExchange.Redis;
 
 // HIDE_END
