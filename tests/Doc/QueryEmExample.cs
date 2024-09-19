@@ -27,19 +27,19 @@ public class QueryEmExample
         var db = muxer.GetDatabase();
         //REMOVE_START
         // Clear any keys here before using them in tests.
-        try {db.FT().DropIndex("idx:bicycle");} catch {}
-        try {db.FT().DropIndex("idx:email");} catch {}
+        try { db.FT().DropIndex("idx:bicycle"); } catch { }
+        try { db.FT().DropIndex("idx:email"); } catch { }
         //REMOVE_END
 
         FTCreateParams idxParams = new FTCreateParams()
             .AddPrefix("bicycle:")
             .On(IndexDataType.JSON);
-        
+
         Schema bikeSchema = new Schema()
             .AddTextField(new FieldName("$.description", "description"))
             .AddNumericField(new FieldName("$.price", "price"))
             .AddTagField(new FieldName("$.condition", "condition"));
-        
+
         db.FT().Create("idx:bicycle", idxParams, bikeSchema);
 
 
@@ -194,10 +194,11 @@ public class QueryEmExample
                 },
             };
 
-            for(var i = 0; i < bicycles.Length; i++) {
-                db.JSON().Set($"bicycle:{i}", "$", bicycles[i]);
-            }
-// HIDE_END
+        for (var i = 0; i < bicycles.Length; i++)
+        {
+            db.JSON().Set($"bicycle:{i}", "$", bicycles[i]);
+        }
+        // HIDE_END
 
 
         // STEP_START em1
@@ -240,7 +241,7 @@ public class QueryEmExample
         // STEP_START em3
         Schema emailSchema = new Schema()
             .AddTagField(new FieldName("$.email", "email"));
-        
+
         FTCreateParams emailParams = new FTCreateParams()
             .AddPrefix("key:")
             .On(IndexDataType.JSON);
@@ -249,13 +250,16 @@ public class QueryEmExample
 
         db.JSON().Set("key:1", "$", "{\"email\": \"test@redis.com\"}");
 
-        try {
+        try
+        {
             SearchResult res4 = db.FT().Search(
                 "idx:email",
                 new Query("test@redis.com").Dialect(2)
             );
             Console.WriteLine(res4.TotalResults);   // >>> 1
-        } catch {
+        }
+        catch
+        {
             Console.WriteLine("'test@redis.com' syntax not supported.");
         }
         // STEP_END
@@ -280,7 +284,7 @@ public class QueryEmExample
         // REMOVE_END
 
 
-// HIDE_START
+        // HIDE_START
     }
 }
 // HIDE_END
