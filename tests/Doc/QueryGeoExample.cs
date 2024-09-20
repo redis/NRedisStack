@@ -18,7 +18,7 @@ namespace Doc;
 public class QueryGeoExample
 {
 
-    [SkipIfRedis(Is.OSSCluster)]
+    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
     public void run()
     {
         var muxer = ConnectionMultiplexer.Connect("localhost:6379");
