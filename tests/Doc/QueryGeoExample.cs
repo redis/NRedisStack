@@ -32,7 +32,7 @@ public class QueryGeoExample
             .AddGeoField(new FieldName("$.store_location", "store_location"))
             .AddGeoShapeField(
                 new FieldName("$.pickup_zone", "pickup_zone"),
-                Schema.GeoShapeField.CoordinateSystem.FLAT
+                system: Schema.GeoShapeField.CoordinateSystem.FLAT
             );
 
         FTCreateParams bikeParams = new FTCreateParams()
