@@ -26,7 +26,7 @@ public class QueryAggExample
         var db = muxer.GetDatabase();
         //REMOVE_START
         // Clear any keys here before using them in tests.
-        db.FT().DropIndex("idx:bicycle");
+        try { db.FT().DropIndex("idx:bicycle"); } catch { }
         //REMOVE_END
 
         Schema bikeSchema = new Schema()
