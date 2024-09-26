@@ -177,10 +177,12 @@ public class QueryAggExample
         // REMOVE_START
         Assert.Equal(5, res1.TotalResults);
 
-        for (int i = 0; i < 5; i++) {
-           Row test1Row = res1.GetRow(i);
+        for (int i = 0; i < 5; i++)
+        {
+            Row test1Row = res1.GetRow(i);
 
-            switch (test1Row["__key"]) {
+            switch (test1Row["__key"])
+            {
                 case "bicycle:0":
                     Assert.Equal(
                         "Key: bicycle:0, Price: 270, Discounted: 243",
@@ -194,21 +196,21 @@ public class QueryAggExample
                         $"Key: {test1Row["__key"]}, Price: {test1Row["price"]}, Discounted: {test1Row["discounted"]}"
                     );
                     break;
-                
+
                 case "bicycle:6":
                     Assert.Equal(
                         "Key: bicycle:6, Price: 2300, Discounted: 2070",
                         $"Key: {test1Row["__key"]}, Price: {test1Row["price"]}, Discounted: {test1Row["discounted"]}"
                     );
                     break;
-                
+
                 case "bicycle:7":
                     Assert.Equal(
                         "Key: bicycle:7, Price: 430, Discounted: 387",
                         $"Key: {test1Row["__key"]}, Price: {test1Row["price"]}, Discounted: {test1Row["discounted"]}"
                     );
                     break;
-                
+
                 case "bicycle:8":
                     Assert.Equal(
                         "Key: bicycle:8, Price: 1200, Discounted: 1080",
@@ -251,16 +253,18 @@ public class QueryAggExample
         // REMOVE_START
         Assert.Equal(3, res2.TotalResults);
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; i++)
+        {
             Row test2Row = res2.GetRow(i);
-            switch(test2Row["condition"]) {
+            switch (test2Row["condition"])
+            {
                 case "refurbished":
                     Assert.Equal(
                         "Condition: refurbished, Num affordable: 1",
                         $"Condition: {test2Row["condition"]}, Num affordable: {test2Row["num_affordable"]}"
                     );
                     break;
-                
+
                 case "used":
                     Assert.Equal(
                         "Condition: used, Num affordable: 1",
@@ -289,7 +293,6 @@ public class QueryAggExample
         Console.WriteLine(res3.TotalResults);   // >>> 1
 
         Row res3Row = res3.GetRow(0);
-        var res = $"Type: {res3Row["type"]}, Num total: {res3Row["num_total"]}";
         Console.WriteLine($"Type: {res3Row["type"]}, Num total: {res3Row["num_total"]}");
         // >>> Type: bicycle, Num total: 10
         // STEP_END
@@ -306,9 +309,28 @@ public class QueryAggExample
 
 
         // STEP_START agg4
+        AggregationResult res4 = db.FT().Aggregate(
+            "idx:bicycle",
+            new AggregationRequest("*")
+                .Load(new FieldName("__key"))
+                .GroupBy(
+                    "@condition",
+                    Reducers.ToList("__key").As("bicycles")
+                )
+        );
+        Console.WriteLine(res4.TotalResults);   // >>> 3
 
-        // Not supported in NRedisStack.
+        for (int i = 0; i < res4.TotalResults; i++)
+        {
+            Row res4Row = res4.GetRow(i);
+            var res = $"Condition: {res4Row["condition"]}, Bicycles: {res4Row["bicycles"]}";
+            Console.WriteLine(res);
+        }
+        // Should be an array of bicycle:x at the end of each line.
 
+        // >>> Condition: refurbished, Bicycles: 
+        // >>> Condition: used, Bicycles: 
+        // >>> Condition: new, Bicycles: 
         // STEP_END
 
         // Tests for 'agg4' step.
