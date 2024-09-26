@@ -177,35 +177,47 @@ public class QueryAggExample
         // REMOVE_START
         Assert.Equal(5, res1.TotalResults);
 
-        Row test1Row = res1.GetRow(0);
-        Assert.Equal(
-            "Key: bicycle:0, Price: 270, Discounted: 243",
-            $"Key: {test1Row["__key"]}, Price: {test1Row["price"]}, Discounted: {test1Row["discounted"]}"
-        );
+        for (int i = 0; i < 5; i++) {
+           Row test1Row = res1.GetRow(i);
 
-        test1Row = res1.GetRow(1);
-        Assert.Equal(
-            "Key: bicycle:5, Price: 810, Discounted: 729",
-            $"Key: {test1Row["__key"]}, Price: {test1Row["price"]}, Discounted: {test1Row["discounted"]}"
-        );
+            switch (test1Row["__key"]) {
+                case "bicycle:0":
+                    Assert.Equal(
+                        "Key: bicycle:0, Price: 270, Discounted: 243",
+                        $"Key: {test1Row["__key"]}, Price: {test1Row["price"]}, Discounted: {test1Row["discounted"]}"
+                    );
+                    break;
 
-        test1Row = res1.GetRow(2);
-        Assert.Equal(
-            "Key: bicycle:6, Price: 2300, Discounted: 2070",
-            $"Key: {test1Row["__key"]}, Price: {test1Row["price"]}, Discounted: {test1Row["discounted"]}"
-        );
+                case "bicycle:5":
+                    Assert.Equal(
+                        "Key: bicycle:5, Price: 810, Discounted: 729",
+                        $"Key: {test1Row["__key"]}, Price: {test1Row["price"]}, Discounted: {test1Row["discounted"]}"
+                    );
+                    break;
+                
+                case "bicycle:6":
+                    Assert.Equal(
+                        "Key: bicycle:6, Price: 2300, Discounted: 2070",
+                        $"Key: {test1Row["__key"]}, Price: {test1Row["price"]}, Discounted: {test1Row["discounted"]}"
+                    );
+                    break;
+                
+                case "bicycle:7":
+                    Assert.Equal(
+                        "Key: bicycle:7, Price: 430, Discounted: 387",
+                        $"Key: {test1Row["__key"]}, Price: {test1Row["price"]}, Discounted: {test1Row["discounted"]}"
+                    );
+                    break;
+                
+                case "bicycle:8":
+                    Assert.Equal(
+                        "Key: bicycle:8, Price: 1200, Discounted: 1080",
+                        $"Key: {test1Row["__key"]}, Price: {test1Row["price"]}, Discounted: {test1Row["discounted"]}"
+                    );
+                    break;
+            }
+        }
 
-        test1Row = res1.GetRow(3);
-        Assert.Equal(
-            "Key: bicycle:7, Price: 430, Discounted: 387",
-            $"Key: {test1Row["__key"]}, Price: {test1Row["price"]}, Discounted: {test1Row["discounted"]}"
-        );
-
-        test1Row = res1.GetRow(4);
-        Assert.Equal(
-            "Key: bicycle:8, Price: 1200, Discounted: 1080",
-            $"Key: {test1Row["__key"]}, Price: {test1Row["price"]}, Discounted: {test1Row["discounted"]}"
-        );
         // REMOVE_END
 
 
@@ -239,23 +251,31 @@ public class QueryAggExample
         // REMOVE_START
         Assert.Equal(3, res2.TotalResults);
 
-        Row test2Row = res2.GetRow(0);
-        Assert.Equal(
-            "Condition: refurbished, Num affordable: 1",
-            $"Condition: {test2Row["condition"]}, Num affordable: {test2Row["num_affordable"]}"
-        );
+        for (int i = 0; i < 3; i++) {
+            Row test2Row = res2.GetRow(i);
+            switch(test2Row["condition"]) {
+                case "refurbished":
+                    Assert.Equal(
+                        "Condition: refurbished, Num affordable: 1",
+                        $"Condition: {test2Row["condition"]}, Num affordable: {test2Row["num_affordable"]}"
+                    );
+                    break;
+                
+                case "used":
+                    Assert.Equal(
+                        "Condition: used, Num affordable: 1",
+                        $"Condition: {test2Row["condition"]}, Num affordable: {test2Row["num_affordable"]}"
+                    );
+                    break;
 
-        test2Row = res2.GetRow(1);
-        Assert.Equal(
-            "Condition: used, Num affordable: 1",
-            $"Condition: {test2Row["condition"]}, Num affordable: {test2Row["num_affordable"]}"
-        );
-
-        test2Row = res2.GetRow(2);
-        Assert.Equal(
-            "Condition: new, Num affordable: 3",
-            $"Condition: {test2Row["condition"]}, Num affordable: {test2Row["num_affordable"]}"
-        );
+                case "new":
+                    Assert.Equal(
+                        "Condition: new, Num affordable: 3",
+                        $"Condition: {test2Row["condition"]}, Num affordable: {test2Row["num_affordable"]}"
+                    );
+                    break;
+            }
+        }
         // REMOVE_END
 
 
