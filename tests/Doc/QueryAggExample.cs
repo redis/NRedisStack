@@ -309,28 +309,9 @@ public class QueryAggExample
 
 
         // STEP_START agg4
-        AggregationResult res4 = db.FT().Aggregate(
-            "idx:bicycle",
-            new AggregationRequest("*")
-                .Load(new FieldName("__key"))
-                .GroupBy(
-                    "@condition",
-                    Reducers.ToList("__key").As("bicycles")
-                )
-        );
-        Console.WriteLine(res4.TotalResults);   // >>> 3
 
-        for (int i = 0; i < res4.TotalResults; i++)
-        {
-            Row res4Row = res4.GetRow(i);
-            var res = $"Condition: {res4Row["condition"]}, Bicycles: {res4Row["bicycles"]}";
-            Console.WriteLine(res);
-        }
-        // Should be an array of bicycle:x at the end of each line.
+        // Not supported in NRedisStack.
 
-        // >>> Condition: refurbished, Bicycles: 
-        // >>> Condition: used, Bicycles: 
-        // >>> Condition: new, Bicycles: 
         // STEP_END
 
         // Tests for 'agg4' step.
