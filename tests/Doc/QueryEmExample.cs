@@ -248,23 +248,18 @@ public class QueryEmExample
 
         db.JSON().Set("key:1", "$", "{\"email\": \"test@redis.com\"}");
 
-        try
-        {
-            SearchResult res4 = db.FT().Search(
-                "idx:email",
-                new Query("test@redis.com").Dialect(2)
-            );
-            Console.WriteLine(res4.TotalResults);   // >>> 1
-        }
-        catch
-        {
-            Console.WriteLine("'test@redis.com' syntax not supported.");
-        }
+
+        SearchResult res4 = db.FT().Search(
+            "idx:email",
+            new Query("@email:{test\\@redis\\.com}").Dialect(2)
+        );
+        Console.WriteLine(res4.TotalResults);   // >>> 1
         // STEP_END
 
         // Tests for 'em3' step.
         // REMOVE_START
-
+        db.FT().DropIndex("idx:email");
+        Assert.Equal(1, res4.TotalResults);
         // REMOVE_END
 
 
