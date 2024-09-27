@@ -230,7 +230,10 @@ public class QueryRangeExample
         // STEP_START range3
         SearchResult res3 = db.FT().Search(
             "idx:bicycle",
-            new Query("@price:[(1000 +inf]")
+            new Query("*").AddFilter(new Query.NumericFilter(
+                    "price", 1000, true, Double.PositiveInfinity, false
+                )
+            )
         );
         Console.WriteLine(res3.TotalResults);   // >>> 5
         // STEP_END
