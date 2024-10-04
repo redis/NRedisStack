@@ -14,8 +14,9 @@ public sealed class AggregationResult
     {
         var arr = (RedisResult[])result!;
 
-        // the first element is always the number of results
-        TotalResults = (long)arr[0];
+        //  this statement below is not true as explained in the document https://redis.io/docs/latest/commands/ft.aggregate/#return
+        // // the first element is always the number of results
+        // TotalResults = (long)arr[0];
 
         _results = new Dictionary<string, RedisValue>[arr.Length - 1];
         for (int i = 1; i < arr.Length; i++)
@@ -33,7 +34,7 @@ public sealed class AggregationResult
 
             _results[i - 1] = cur;
         }
-
+        TotalResults = _results.Length;
         CursorId = cursorId;
     }
 
@@ -41,7 +42,7 @@ public sealed class AggregationResult
     /// <summary>
     /// takes a Redis multi-bulk array represented by a RedisResult[] and recursively processes its elements.
     /// For each element in the array, it checks if it's another multi-bulk array, and if so, it recursively calls itself.
-    /// If the element is not a multi-bulk array, it's added directly to a List<object>.
+    /// If the element is not a multi-bulk array, it's added directly to a List&lt;object&gt;.
     /// The method returns a nested list structure, reflecting the hierarchy of the original multi-bulk array,
     /// with each element either being a direct value or a nested list.
     /// </summary>

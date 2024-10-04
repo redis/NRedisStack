@@ -14,11 +14,11 @@ namespace NRedisStack
         Task<bool> AddAsync(RedisKey key, params double[] values);
 
         /// <summary>
-        /// Estimate the fraction of all observations added which are <= value.
+        /// Estimate the fraction of all observations added which are &lt;= value.
         /// </summary>
         /// <param name="key">The name of the sketch.</param>
         /// <param name="values">upper limit of observation value.</param>
-        /// <returns>double-reply - estimation of the fraction of all observations added which are <= value</returns>
+        /// <returns>double-reply - estimation of the fraction of all observations added which are &lt;= value</returns>
         /// <remarks><seealso href="https://redis.io/commands/tdigest.cdf"/></remarks>
         Task<double[]> CDFAsync(RedisKey key, params double[] values);
 

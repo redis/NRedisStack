@@ -10,15 +10,15 @@
 	<Owners>Redis OSS</Owners>
 	<Description>.Net Client for Redis Stack</Description>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
-	<Version>0.12.0</Version>
-	<ReleaseVersion>0.12.0</ReleaseVersion>
-	<PackageVersion>0.12.0</PackageVersion>
+	<Version>0.13.0</Version>
+	<ReleaseVersion>0.13.0</ReleaseVersion>
+	<PackageVersion>0.13.0</PackageVersion>
   </PropertyGroup>
 
   <ItemGroup>
 	<PackageReference Include="NetTopologySuite" Version="2.5.0" />
 	<PackageReference Include="System.Text.Json" Version="7.0.2" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
-	<PackageReference Include="StackExchange.Redis" Version="2.7.33" />
+	<PackageReference Include="StackExchange.Redis" Version="2.8.16" />
 	<None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 

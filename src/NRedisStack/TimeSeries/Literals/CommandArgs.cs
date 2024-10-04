@@ -5,6 +5,7 @@ namespace NRedisStack.Literals
         public const string RETENTION = "RETENTION";
         public const string LABELS = "LABELS";
         public const string UNCOMPRESSED = "UNCOMPRESSED";
+        public const string COMPRESSED = "COMPRESSED";
         public const string COUNT = "COUNT";
         public const string AGGREGATION = "AGGREGATION";
         public const string ALIGN = "ALIGN";
@@ -23,5 +24,6 @@ namespace NRedisStack.Literals
         public const string DEBUG = "DEBUG";
         public const string BUCKETTIMESTAMP = "BUCKETTIMESTAMP";
         public const string EMPTY = "EMPTY";
+        public const String IGNORE = "IGNORE";
     }
 }
