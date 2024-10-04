@@ -113,4 +113,9 @@ public class RedisFixture : IDisposable
 
         return redisEndpoints[id].CreateConnection(configurationOptions);
     }
+
+    public bool IsTargetConnectionExist(string id)
+    {
+        return redisEndpoints.ContainsKey(id);
+    }
 }
