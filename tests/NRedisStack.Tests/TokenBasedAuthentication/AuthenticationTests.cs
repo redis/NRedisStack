@@ -16,6 +16,7 @@ namespace NRedisStack.Tests.TokenBasedAuthentication
         public AuthenticationTests(RedisFixture redisFixture) : base(redisFixture) { }
 
         [TargetEnvironment("standalone-entraid-acl")]
+
         public void TestTokenBasedAuthentication()
         {
             Assert.True(new FaultInjectorClient().TriggerActionAsync("enable_entraid", new Dictionary<string, object>()).Wait(5000), "Entraid could not be enabled this time!!!");
@@ -52,6 +53,12 @@ namespace NRedisStack.Tests.TokenBasedAuthentication
             SearchResult res1 = ft.Search(alias, new Query("*").ReturnFields(field));
             Assert.Equal(1, res1.TotalResults);
             Assert.Equal(value, res1.Documents[0][field]);
+        }
+
+        [Fact]
+        public void DummyTest()
+        {
+            Assert.True(true);
         }
     }
 }
