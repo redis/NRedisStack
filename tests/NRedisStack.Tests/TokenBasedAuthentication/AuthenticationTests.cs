@@ -16,7 +16,6 @@ namespace NRedisStack.Tests.TokenBasedAuthentication
         public AuthenticationTests(RedisFixture redisFixture) : base(redisFixture) { }
 
         [TargetEnvironment("standalone-entraid-acl")]
-
         public void TestTokenBasedAuthentication()
         {
             Assert.True(new FaultInjectorClient().TriggerActionAsync("enable_entraid", new Dictionary<string, object>()).Wait(5000), "Entraid could not be enabled this time!!!");

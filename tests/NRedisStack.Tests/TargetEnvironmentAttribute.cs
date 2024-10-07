@@ -1,6 +1,7 @@
 using Xunit;
 
 namespace NRedisStack.Tests;
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 public class TargetEnvironmentAttribute : SkipIfRedisAttribute
 {
     private string targetEnv;
