@@ -29,7 +29,7 @@ public class HomeJsonExample
         //REMOVE_START
         // Clear any keys here before using them in tests.
         db.KeyDelete(new RedisKey[] { "user:1", "user:2", "user:3" });
-        db.FT().DropIndex("idx:users");
+        try { db.FT().DropIndex("idx:users"); } catch { }
         //REMOVE_END
         // HIDE_END
 
