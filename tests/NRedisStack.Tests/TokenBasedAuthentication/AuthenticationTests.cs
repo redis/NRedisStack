@@ -6,29 +6,28 @@ using NRedisStack.Search;
 
 namespace NRedisStack.Tests.TokenBasedAuthentication
 {
-    public class AuthenticationTests 
+    public class AuthenticationTests : AbstractNRedisStackTest
     {
         static readonly string key = "myKey";
         static readonly string value = "myValue";
         static readonly string index = "myIndex";
         static readonly string field = "myField";
         static readonly string alias = "myAlias";
+        public AuthenticationTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-        string env0Host = "localhost:6379";
-
-        [Fact]
+        [TargetEnvironment("standalone-entraid-acl")]
         public void TestTokenBasedAuthentication()
         {
-
+            Assert.True(new FaultInjectorClient().TriggerActionAsync("enable_entraid", new Dictionary<string, object>()).Wait(5000),"Entraid could not be enabled this time!!!");
             // NOTE: ConnectionMultiplexer instances should be as long-lived as possible. Ideally a single ConnectionMultiplexer per cache is reused over the lifetime of the client application process.
             ConnectionMultiplexer? connectionMultiplexer = null;
-            StringWriter connectionLog = new();
+            // StringWriter connectionLog = new();
 
-            var configurationOptions = ConfigurationOptions.Parse($"{env0Host}").ConfigureForAzureWithTokenCredentialAsync(new DefaultAzureCredential()).Result!;
+            var configurationOptions = new ConfigurationOptions().ConfigureForAzureWithTokenCredentialAsync(new DefaultAzureCredential()).Result!;
             configurationOptions.Ssl = false;
             configurationOptions.AbortOnConnectFail = true; // Fail fast for the purposes of this sample. In production code, this should remain false to retry connections on startup
 
-            connectionMultiplexer = ConnectionMultiplexer.ConnectAsync(configurationOptions, connectionLog).Result;
+            connectionMultiplexer = redisFixture.GetConnectionById(configurationOptions, "standalone-entraid-acl");
 
             IDatabase db = connectionMultiplexer.GetDatabase();
 
@@ -53,7 +52,6 @@ namespace NRedisStack.Tests.TokenBasedAuthentication
             SearchResult res1 = ft.Search(alias, new Query("*").ReturnFields(field));
             Assert.Equal(1, res1.TotalResults);
             Assert.Equal(value, res1.Documents[0][field]);
-
         }
     }
 }
