@@ -158,11 +158,12 @@ public class HomeJsonExample
         // REMOVE_START
         Assert.Equal(2, resultsList.Count);
 
-        Dictionary<string, RedisValue> testItem = resultsList.ElementAt(0);
+        var sortedResults = resultsList.OrderBy(x => x["city"]);
+        Dictionary<string, RedisValue> testItem = sortedResults.ElementAt(0);
         Assert.Equal("London", testItem["city"]);
         Assert.Equal(1, testItem["count"]);
 
-        testItem = resultsList.ElementAt(1);
+        testItem = sortedResults.ElementAt(1);
         Assert.Equal("Tel Aviv", testItem["city"]);
         Assert.Equal(2, testItem["count"]);
         // REMOVE_END
