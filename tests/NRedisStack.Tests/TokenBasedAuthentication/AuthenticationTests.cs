@@ -18,7 +18,7 @@ namespace NRedisStack.Tests.TokenBasedAuthentication
         [TargetEnvironment("standalone-entraid-acl")]
         public void TestTokenBasedAuthentication()
         {
-            Assert.True(new FaultInjectorClient().TriggerActionAsync("enable_entraid", new Dictionary<string, object>()).Wait(5000),"Entraid could not be enabled this time!!!");
+            Assert.True(new FaultInjectorClient().TriggerActionAsync("enable_entraid", new Dictionary<string, object>()).Wait(5000), "Entraid could not be enabled this time!!!");
             // NOTE: ConnectionMultiplexer instances should be as long-lived as possible. Ideally a single ConnectionMultiplexer per cache is reused over the lifetime of the client application process.
             ConnectionMultiplexer? connectionMultiplexer = null;
             // StringWriter connectionLog = new();
