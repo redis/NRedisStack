@@ -5,11 +5,12 @@ using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
 using NRedisStack.Search.Aggregation;
 using NRedisStack.Search.Literals.Enums;
-using NRedisStack.Tests;
 using StackExchange.Redis;
 // STEP_END
 
 // REMOVE_START
+using NRedisStack.Tests;
+
 namespace Doc;
 [Collection("DocsTests")]
 // REMOVE_END
