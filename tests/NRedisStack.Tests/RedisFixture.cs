@@ -52,9 +52,12 @@ public class RedisFixture : IDisposable
     public bool isEnterprise = Environment.GetEnvironmentVariable("IS_ENTERPRISE") == "true";
     public bool isOSSCluster;
 
+    private ConnectionMultiplexer redis;
+    private ConfigurationOptions defaultConfig;
+
     public RedisFixture()
     {
-        ConfigurationOptions clusterConfig = new ConfigurationOptions
+        defaultConfig = new ConfigurationOptions
         {
             AsyncTimeout = 10000,
             SyncTimeout = 10000
@@ -93,8 +96,6 @@ public class RedisFixture : IDisposable
                 isOSSCluster = true;
             }
         }
-
-        Redis = GetConnectionById(clusterConfig, defaultEndpointId);
     }
 
     public void Dispose()
@@ -102,7 +103,14 @@ public class RedisFixture : IDisposable
         Redis.Close();
     }
 
-    public ConnectionMultiplexer Redis { get; }
+    public ConnectionMultiplexer Redis
+    {
+        get
+        {
+            redis = redis ?? GetConnectionById(defaultConfig, defaultEndpointId);
+            return redis;
+        }
+    }
 
     public ConnectionMultiplexer GetConnectionById(ConfigurationOptions configurationOptions, string id)
     {
