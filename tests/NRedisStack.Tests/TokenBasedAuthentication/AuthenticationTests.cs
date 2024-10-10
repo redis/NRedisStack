@@ -23,7 +23,7 @@ namespace NRedisStack.Tests.TokenBasedAuthentication
             configurationOptions.Ssl = false;
             configurationOptions.AbortOnConnectFail = true; // Fail fast for the purposes of this sample. In production code, this should remain false to retry connections on startup
 
-            ConnectionMultiplexer?connectionMultiplexer = redisFixture.GetConnectionById(configurationOptions, "standalone-entraid-acl");
+            ConnectionMultiplexer? connectionMultiplexer = redisFixture.GetConnectionById(configurationOptions, "standalone-entraid-acl");
 
             IDatabase db = connectionMultiplexer.GetDatabase();
 
