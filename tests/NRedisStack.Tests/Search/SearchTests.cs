@@ -1273,7 +1273,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         // TODO: complete this assert after handling multi bulk reply
         actual = (List<object>)res.Get("random");
         Assert.Equal(2, actual.Count);
-        List<string> possibleValues = ["RediSearch", "RedisAI", "RedisJson"];
+        List<string> possibleValues = new List<string>() { "RediSearch", "RedisAI", "RedisJson" };
         Assert.Contains(actual[0].ToString(), possibleValues);
         Assert.Contains(actual[1].ToString(), possibleValues);
 
