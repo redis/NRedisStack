@@ -16,6 +16,7 @@ namespace NRedisStack
         /// <param name="replace">an optional argument, instructs RedisGears to replace the function if its already exists.</param>
         /// <returns><see langword="true"/> if everything was done correctly, Error otherwise.</returns>
         /// <remarks><seealso href="https://redis.io/commands/"/></remarks> //TODO: add link to the command when it's available
+        [Obsolete]
         public static async Task<bool> TFunctionLoadAsync(this IDatabase db, string libraryCode, string? config = null, bool replace = false)
         {
             return (await db.ExecuteAsync(GearsCommandBuilder.TFunctionLoad(libraryCode, replace, config))).OKtoBoolean();
@@ -27,6 +28,7 @@ namespace NRedisStack
         /// <param name="libraryName">the name of the library to delete.</param>
         /// <returns><see langword="true"/> if the library was deleted successfully, Error otherwise.</returns>
         /// <remarks><seealso href="https://redis.io/commands/"/></remarks> //TODO: add link to the command when it's available
+        [Obsolete]
         public static async Task<bool> TFunctionDeleteAsync(this IDatabase db, string libraryName)
         {
             return (await db.ExecuteAsync(GearsCommandBuilder.TFunctionDelete(libraryName))).OKtoBoolean();
@@ -41,6 +43,7 @@ namespace NRedisStack
         /// multiple times to show multiple libraries in a single command)</param>
         /// <returns>Information about the requested libraries.</returns>
         /// <remarks><seealso href="https://redis.io/commands/"/></remarks> //TODO: add link to the command when it's available
+        [Obsolete]
         public static async Task<Dictionary<string, RedisResult>[]> TFunctionListAsync(this IDatabase db, bool withCode = false, int verbose = 0, string? libraryName = null)
         {
             return (await db.ExecuteAsync(GearsCommandBuilder.TFunctionList(withCode, verbose, libraryName))).ToDictionarys();
@@ -55,6 +58,7 @@ namespace NRedisStack
         /// <param name="args">Additional argument to pass to the function.</param>
         /// <returns>The return value from the sync &amp; async function on error in case of failure.</returns>
         /// <remarks><seealso href="https://redis.io/commands/tfcall"/></remarks>
+        [Obsolete]
         public async static Task<RedisResult> TFCall_Async(this IDatabase db, string libraryName, string functionName, string[]? keys = null, string[]? args = null)
         {
             return await db.ExecuteAsync(GearsCommandBuilder.TFCall(libraryName, functionName, keys, args, async: false));
@@ -69,6 +73,7 @@ namespace NRedisStack
         /// <param name="args">Additional argument to pass to the function.</param>
         /// <returns>The return value from the sync &amp; async function on error in case of failure.</returns>
         /// <remarks><seealso href="https://redis.io/commands/tfcallasync"/></remarks>
+        [Obsolete]
         public async static Task<RedisResult> TFCallAsync_Async(this IDatabase db, string libraryName, string functionName, string[]? keys = null, string[]? args = null)
         {
             return await db.ExecuteAsync(GearsCommandBuilder.TFCall(libraryName, functionName, keys, args, async: true));
