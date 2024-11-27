@@ -1256,7 +1256,9 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         res = rawRes.GetRow(0);
         Assert.Equal("redis", res["parent"]);
         // TODO: complete this assert after handling multi bulk reply
-        //Assert.Equal((RedisValue[])res["__generated_aliastolisttitle"], { "RediSearch", "RedisAI", "RedisJson"});
+        var expected = new List<object> { "RediSearch", "RedisAI", "RedisJson" };
+        var actual = (List<object>)res.Get("__generated_aliastolisttitle");
+        Assert.True(!expected.Except(actual).Any() && expected.Count == actual.Count);
 
         req = new AggregationRequest("redis").GroupBy(
             "@parent", Reducers.FirstValue("@title").As("first"));
@@ -1269,11 +1271,20 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         res = ft.Aggregate("idx", req).GetRow(0);
         Assert.Equal("redis", res["parent"]);
         // TODO: complete this assert after handling multi bulk reply
-        // Assert.Equal(res[2], "random");
-        // Assert.Equal(len(res[3]), 2);
-        // Assert.Equal(res[3][0] in ["RediSearch", "RedisAI", "RedisJson"]);
-        // req = new AggregationRequest("redis").GroupBy("@parent", redu
+        actual = (List<object>)res.Get("random");
+        Assert.Equal(2, actual.Count);
+        List<string> possibleValues = new List<string>() { "RediSearch", "RedisAI", "RedisJson" };
+        Assert.Contains(actual[0].ToString(), possibleValues);
+        Assert.Contains(actual[1].ToString(), possibleValues);
 
+        req = new AggregationRequest("redis")
+                .Load(new FieldName("__key"))
+                .GroupBy("@parent", Reducers.ToList("__key").As("docs"));
+
+        res = db.FT().Aggregate("idx", req).GetRow(0);
+        actual = (List<object>)res.Get("docs");
+        expected = new List<object> { "ai", "search", "json" };
+        Assert.True(!expected.Except(actual).Any() && expected.Count == actual.Count);
     }
 
 
