@@ -55,43 +55,43 @@ jobs:
               REDIS_USER_CRT: ${{ secrets.REDIS_USER_CRT }}
               REDIS_USER_PRIVATE_KEY: ${{ secrets.REDIS_USER_PRIVATE_KEY }}
 
-  build_and_test_windows:
-    name: Windows Test ${{matrix.redis-stack-version}}
-    runs-on: windows-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        redis-stack-version: ['6.2.6-v9', '7.2.0-RC3']
-    env:
-      redis_stack_version: ${{matrix.redis-stack-version}}
-      USER_NAME: ${{ secrets.USER_NAME }}
-      PASSWORD: ${{ secrets.PASSWORD }}
-      ENDPOINT: ${{ secrets.ENDPOINT }}
-    steps:
-      - uses: actions/checkout@v3
-      - uses: Vampire/setup-wsl@v2
-        with:
-          distribution: Ubuntu-22.04
-      - name: Install Redis
-        shell: wsl-bash {0}
-        run: |
-          sudo apt-get update
-          sudo apt-get install curl -y && sudo apt-get install gpg -y && apt-get install lsb-release -y && apt-get install libgomp1 -y
-          curl https://packages.redis.io/redis-stack/redis-stack-server-${{env.redis_stack_version}}.jammy.x86_64.tar.gz -o redis-stack.tar.gz
-          tar xf redis-stack.tar.gz
-      - name: Restore dependencies
-        run: dotnet restore
-      - name: Build
-        run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
-      - name: Save test certificates
-        shell: wsl-bash {0}
-        run: |
-          echo "${{secrets.REDIS_CA_PEM}}" > tests/NRedisStack.Tests/bin/Debug/net481/redis_ca.pem
-          echo "${{secrets.REDIS_USER_CRT}}" > tests/NRedisStack.Tests/bin/Debug/net481/redis_user.crt
-          echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > tests/NRedisStack.Tests/bin/Debug/net481/redis_user_private.key
-          ls -R
-      - name: Test
-        shell: cmd
-        run: |
-          START wsl ./redis-stack-server-${{env.redis_stack_version}}/bin/redis-stack-server &
-          dotnet test -f net481 --no-build --verbosity detailed -p:BuildInParallel=false tests/Test.proj --logger GitHubActions
+    build_and_test_windows:
+      name: Windows Test ${{matrix.redis-stack-version}}
+      runs-on: windows-latest
+      strategy:
+        fail-fast: false
+        matrix:
+          redis-stack-version: ['6.2.6-v9', '7.2.0-RC3']
+      env:
+        redis_stack_version: ${{matrix.redis-stack-version}}
+        USER_NAME: ${{ secrets.USER_NAME }}
+        PASSWORD: ${{ secrets.PASSWORD }}
+        ENDPOINT: ${{ secrets.ENDPOINT }}
+      steps:
+        - uses: actions/checkout@v3
+        - uses: Vampire/setup-wsl@v2
+          with:
+            distribution: Ubuntu-22.04
+        - name: Install Redis
+          shell: wsl-bash {0}
+          run: |
+            sudo apt-get update
+            sudo apt-get install curl -y && sudo apt-get install gpg -y && apt-get install lsb-release -y && apt-get install libgomp1 -y
+            curl https://packages.redis.io/redis-stack/redis-stack-server-${{env.redis_stack_version}}.jammy.x86_64.tar.gz -o redis-stack.tar.gz
+            tar xf redis-stack.tar.gz
+        - name: Restore dependencies
+          run: dotnet restore
+        - name: Build
+          run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
+        - name: Save test certificates
+          shell: wsl-bash {0}
+          run: |
+            echo "${{secrets.REDIS_CA_PEM}}" > tests/NRedisStack.Tests/bin/Debug/net481/redis_ca.pem
+            echo "${{secrets.REDIS_USER_CRT}}" > tests/NRedisStack.Tests/bin/Debug/net481/redis_user.crt
+            echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > tests/NRedisStack.Tests/bin/Debug/net481/redis_user_private.key
+            ls -R
+        - name: Test
+          shell: cmd
+          run: |
+            START wsl ./redis-stack-server-${{env.redis_stack_version}}/bin/redis-stack-server &
+            dotnet test -f net481 --no-build --verbosity detailed -p:BuildInParallel=false tests/Test.proj --logger GitHubActions
