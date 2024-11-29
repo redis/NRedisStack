@@ -75,23 +75,30 @@ runs:
 
     # Make sure only the desired dotnet version is set both as target and as active SDK.
     - name: Tweak target frameworks
+      shell: bash
       run: |
         find . -name '*.csproj' | xargs -I {} sed -E -i 's|<TargetFrameworks(.*)>.*</TargetFrameworks>|<TargetFramework\1>${CLR_VERSION}</TargetFramework>|' {}
         find . -name '*.csproj' | xargs cat
         jq -n --arg version ${{inputs.dotnet-version}} '{"sdk":{"version":$version,"rollForward":"latestMinor"}}' > global.json
     - name: Check .NET version
+      shell: bash
       run: dotnet --version
     - name: Check .NET SDKs
+      shell: bash
       run: dotnet --list-sdks
     - name: Check .NET runtimes
+      shell: bash
       run: dotnet --list-runtimes
     - name: Restore dependencies
+      shell: bash
       run: dotnet restore
 
     - name: Build
+      shell: bash
       run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
 
     - name: Test
+      shell: bash
       run: |
         echo "${{inputs.REDIS_CA_PEM}}" > tests/NRedisStack.Tests/bin/Debug/${CLR_VERSION}/redis_ca.pem
         echo "${{inputs.REDIS_USER_CRT}}" > tests/NRedisStack.Tests/bin/Debug/${CLR_VERSION}/redis_user.crt
@@ -102,11 +109,13 @@ runs:
       with:
         verbose: true
     - name: Build
+      shell: bash
       run: dotnet pack -c Release
 
-    - name: Test against Nuget package from local source
+    - name: Test against Nuget package from local source      
       if: inputs.verify-nuget-package == 'true'
       working-directory: PackageVerification
+      shell: bash
       run: |
         mkdir -p test-source
         dotnet nuget add source $(readlink -f test-source) -n test-source
