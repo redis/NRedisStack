@@ -65,12 +65,13 @@ runs:
           if (( redis_major_version < 7 )); then
             export REDIS_STACK_EXTRA_ARGS="--tls-auth-clients optional --save ''"
             export REDIS_EXTRA_ARGS="--tls-auth-clients optional --save ''"            
-          fi                  
-        else
-          echo "Using redis CE for module tests"                  
-        fi  
+          fi           
 
-        docker compose -f tests/dockers/docker-compose.yml up -d                   
+          docker compose --profile all-stack -f tests/dockers/docker-compose.yml up -d --build
+        else
+          echo "Using redis CE for module tests"         
+          docker compose --profile all -f tests/dockers/docker-compose.yml up -d --build         
+        fi        
       shell: bash
 
     # Make sure only the desired dotnet version is set both as target and as active SDK.
