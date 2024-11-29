@@ -78,7 +78,7 @@ runs:
     - name: Tweak target frameworks
       shell: bash
       run: |
-        find . -name '*.csproj' | xargs -I {} sed -E -i 's|<TargetFrameworks(.*)>.*</TargetFrameworks>|<TargetFramework\1>${CLR_VERSION}</TargetFramework>|' {}
+        find . -name '*.csproj' | xargs -I {} sed -E -i "s|<TargetFrameworks(.*)>.*</TargetFrameworks>|<TargetFramework\1>${CLR_VERSION}</TargetFramework>|" {}
         find . -name '*.csproj' | xargs cat
         jq -n --arg version ${{inputs.dotnet-version}} '{"sdk":{"version":$version,"rollForward":"latestMinor"}}' > global.json
     - name: Check .NET version
