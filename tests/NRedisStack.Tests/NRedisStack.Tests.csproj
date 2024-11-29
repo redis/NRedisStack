@@ -44,4 +44,10 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="..\dockers\endpoints.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

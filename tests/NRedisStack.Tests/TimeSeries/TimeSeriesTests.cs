@@ -5,26 +5,14 @@ using NRedisStack.RedisStackCommands;
 
 namespace NRedisStack.Tests.TimeSeries;
 
-public class TimeSeriesTests : AbstractNRedisStackTest, IDisposable
+public class TimeSeriesTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
 {
-    // private readonly string key = "TIME_SERIES_TESTS";
-    public TimeSeriesTests(RedisFixture redisFixture) : base(redisFixture) { }
-
-    // [Fact]
-    // public void TestCreateOK()
-    // {
-    //     IDatabase db = redisFixture.Redis.GetDatabase();
-    //     var result =  ts.Create(key);
-    //     Assert.True(result);
-    //     //TimeSeriesInformation info =  ts.Info(key);
-    // }
-
-
     [Fact]
     public void TestModulePrefixs()
     {
-        IDatabase db1 = redisFixture.Redis.GetDatabase();
-        IDatabase db2 = redisFixture.Redis.GetDatabase();
+        var redis = GetConnection();
+        IDatabase db1 = redis.GetDatabase();
+        IDatabase db2 = redis.GetDatabase();
 
         var ts1 = db1.TS();
         var ts2 = db2.TS();

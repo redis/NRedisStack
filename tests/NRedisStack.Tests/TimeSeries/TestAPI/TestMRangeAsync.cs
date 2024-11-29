@@ -6,10 +6,8 @@ using NRedisStack.RedisStackCommands;
 
 namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
-    public class TestMRangeAsync : AbstractNRedisStackTest
+    public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture)
     {
-        public TestMRangeAsync(RedisFixture redisFixture) : base(redisFixture) { }
-
         private async Task<List<TimeSeriesTuple>> CreateData(TimeSeriesCommands ts, string[] keys, int timeBucket)
         {
             var tuples = new List<TimeSeriesTuple>();
@@ -27,12 +25,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             return tuples;
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public async Task TestSimpleMRange()
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public async Task TestSimpleMRange(string endpointId)
         {
             var keys = CreateKeyNames(2);
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             var label = new TimeSeriesLabel(keys[0], "value");
             var labels = new List<TimeSeriesLabel> { label };
@@ -51,12 +49,13 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
                 Assert.Equal(tuples, results[i].values);
             }
         }
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public async Task TestMRangeWithLabels()
+
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public async Task TestMRangeWithLabels(string endpointId)
         {
             var keys = CreateKeyNames(2);
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             var label = new TimeSeriesLabel(keys[0], "value");
             var labels = new List<TimeSeriesLabel> { label };
@@ -76,12 +75,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public async Task TestMRangeSelectLabels()
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public async Task TestMRangeSelectLabels(string endpointId)
         {
             var keys = CreateKeyNames(2);
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             TimeSeriesLabel label1 = new TimeSeriesLabel(keys[0], "value");
             TimeSeriesLabel[] labels = new TimeSeriesLabel[] { new TimeSeriesLabel("team", "CTO"), new TimeSeriesLabel("team", "AUT") };
@@ -110,12 +109,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public async Task TestMRangeFilter()
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public async Task TestMRangeFilter(string endpointId)
         {
             var keys = CreateKeyNames(2);
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             var label = new TimeSeriesLabel(keys[0], "value");
             var labels = new List<TimeSeriesLabel> { label };
@@ -128,12 +127,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(tuples, results[0].values);
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public async Task TestMRangeCount()
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public async Task TestMRangeCount(string endpointId)
         {
             var keys = CreateKeyNames(2);
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             var label = new TimeSeriesLabel(keys[0], "value");
             var labels = new List<TimeSeriesLabel> { label };
@@ -154,12 +153,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public async Task TestMRangeAggregation()
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public async Task TestMRangeAggregation(string endpointId)
         {
             var keys = CreateKeyNames(2);
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             var label = new TimeSeriesLabel(keys[0], "value");
             var labels = new List<TimeSeriesLabel> { label };
@@ -179,12 +178,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public async Task TestMRangeAlign()
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public async Task TestMRangeAlign(string endpointId)
         {
             var keys = CreateKeyNames(2);
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             var label = new TimeSeriesLabel(keys[0], "value");
             var labels = new List<TimeSeriesLabel> { label };
@@ -203,12 +202,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(expected[0], results[0].values[0]);
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public async Task TestMissingFilter()
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public async Task TestMissingFilter(string endpointId)
         {
             var keys = CreateKeyNames(2);
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             var label = new TimeSeriesLabel(keys[0], "value");
             var labels = new List<TimeSeriesLabel> { label };
@@ -222,12 +221,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal("There should be at least one filter on MRANGE/MREVRANGE", ex.Message);
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public async Task TestMissingTimeBucket()
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public async Task TestMissingTimeBucket(string endpointId)
         {
             var keys = CreateKeyNames(2);
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             var label = new TimeSeriesLabel(keys[0], "value");
             var labels = new List<TimeSeriesLabel> { label };
@@ -245,12 +244,13 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             });
             Assert.Equal("RANGE Aggregation should have timeBucket value", ex.Message);
         }
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public async Task TestMRangeGroupby()
+
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public async Task TestMRangeGroupby(string endpointId)
         {
             var keys = CreateKeyNames(2);
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             for (int i = 0; i < keys.Length; i++)
             {
@@ -272,12 +272,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public async Task TestMRangeReduce()
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public async Task TestMRangeReduce(string endpointId)
         {
             var keys = CreateKeyNames(2);
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             foreach (var key in keys)
             {
@@ -298,12 +298,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public async Task TestMRangeFilterBy()
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public async Task TestMRangeFilterBy(string endpointId)
         {
             var keys = CreateKeyNames(2);
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             TimeSeriesLabel label = new TimeSeriesLabel(keys[0], "value");
             var labels = new List<TimeSeriesLabel> { label };

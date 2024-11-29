@@ -6,19 +6,16 @@ using NRedisStack.Graph.DataTypes;
 
 namespace NRedisStack.Tests.Graph;
 
-public class GraphTests : AbstractNRedisStackTest, IDisposable
+public class GraphTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
 {
-    // private readonly string key = "GRAPH_TESTS";
-    public GraphTests(RedisFixture redisFixture) : base(redisFixture) { }
-
     #region SyncTests
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestCreateNode()
+    public void TestCreateNode(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         // Create a node
         ResultSet resultSet = graph.Query("social", "CREATE ({name:'roi',age:32})");
@@ -38,11 +35,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestCreateLabeledNode()
+    public void TestCreateLabeledNode(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         // Create a node with a label
         ResultSet resultSet = graph.Query("social", "CREATE (:human{name:'danny',age:12})");
@@ -60,11 +57,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestConnectNodes()
+    public void TestConnectNodes(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         // Create both source and destination nodes
         Assert.NotNull(graph.Query("social", "CREATE (:person{name:'roi',age:32})"));
@@ -88,11 +85,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestDeleteNodes()
+    public void TestDeleteNodes(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         Assert.NotNull(graph.Query("social", "CREATE (:person{name:'roi',age:32})"));
         Assert.NotNull(graph.Query("social", "CREATE (:person{name:'amit',age:30})"));
@@ -136,11 +133,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestDeleteRelationship()
+    public void TestDeleteRelationship(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         Assert.NotNull(graph.Query("social", "CREATE (:person{name:'roi',age:32})"));
         Assert.NotNull(graph.Query("social", "CREATE (:person{name:'amit',age:30})"));
@@ -167,11 +164,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestIndex()
+    public void TestIndex(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         // Create both source and destination nodes
         Assert.NotNull(graph.Query("social", "CREATE (:person{name:'roi',age:32})"));
@@ -195,11 +192,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestHeader()
+    public void TestHeader(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
 
         Assert.NotNull(graph.Query("social", "CREATE (:person{name:'roi',age:32})"));
@@ -227,11 +224,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestRecord()
+    public void TestRecord(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         string name = "roi";
         int age = 32;
@@ -353,11 +350,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestAdditionToProcedures()
+    public void TestAdditionToProcedures(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
 
         Assert.NotNull(graph.Query("social", "CREATE (:person{name:'roi',age:32})"));
@@ -434,11 +431,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestEscapedQuery()
+    public void TestEscapedQuery(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         Dictionary<string, object> params1 = new Dictionary<string, object>();
         params1.Add("s1", "S\"'");
@@ -454,11 +451,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestArraySupport()
+    public void TestArraySupport(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
 
         Node expectedANode = new Node();
@@ -555,11 +552,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestPath()
+    public void TestPath(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         List<Node> nodes = new List<Node>(3);
         for (int i = 0; i < 3; i++)
@@ -608,11 +605,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestNullGraphEntities()
+    public void TestNullGraphEntities(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         // Create two nodes connected by a single outgoing edge.
         Assert.NotNull(graph.Query("social", "CREATE (:L)-[:E]->(:L2)"));
@@ -665,11 +662,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void Test64BitNumber()
+    public void Test64BitNumber(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         long value = 1L << 40;
         Dictionary<string, object> parameters = new Dictionary<string, object>();
@@ -684,11 +681,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestCachedExecution()
+    public void TestCachedExecution(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         graph.Query("social", "CREATE (:N {val:1}), (:N {val:2})");
 
@@ -716,11 +713,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestMapDataType()
+    public void TestMapDataType(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         Dictionary<string, object?> expected = new Dictionary<string, object?>
         {
@@ -748,11 +745,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestGeoPointLatLon()
+    public void TestGeoPointLatLon(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         ResultSet rs = graph.Query("social", "CREATE (:restaurant"
                 + " {location: point({latitude:30.27822306, longitude:-97.75134723})})");
@@ -763,11 +760,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestGeoPointLonLat()
+    public void TestGeoPointLonLat(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         ResultSet rs = graph.Query("social", "CREATE (:restaurant"
                 + " {location: point({longitude:-97.75134723, latitude:30.27822306})})");
@@ -794,8 +791,9 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestPoint()
+    public void TestPoint(string endpointId)
     {
         var point = new Point(30.27822306, -97.75134723);
 
@@ -807,11 +805,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void timeoutArgument()
+    public void timeoutArgument(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         ResultSet rs = graph.Query("social", "UNWIND range(0,100) AS x WITH x AS x WHERE x = 100 RETURN x", 1L);
         Assert.Single(rs);
@@ -822,11 +820,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestCachedExecutionReadOnly()
+    public void TestCachedExecutionReadOnly(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         graph.Query("social", "CREATE (:N {val:1}), (:N {val:2})");
 
@@ -856,11 +854,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestSimpleReadOnly()
+    public void TestSimpleReadOnly(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         graph.Query("social", "CREATE (:person{name:'filipe',age:30})");
         ResultSet rsRo = graph.RO_Query("social", "MATCH (a:person) WHERE (a.name = 'filipe') RETURN a.age");
@@ -872,11 +870,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestProfile()
+    public void TestProfile(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         Assert.NotNull(graph.Query("social", "CREATE (:person{name:'roi',age:32})"));
         Assert.NotNull(graph.Query("social", "CREATE (:person{name:'amit',age:30})"));
@@ -891,11 +889,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestExplain()
+    public void TestExplain(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         Assert.NotNull(graph.Profile("social", "CREATE (:person{name:'roi',age:32})"));
         Assert.NotNull(graph.Profile("social", "CREATE (:person{name:'amit',age:30})"));
@@ -910,11 +908,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestSlowlog()
+    public void TestSlowlog(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         Assert.NotNull(graph.Profile("social", "CREATE (:person{name:'roi',age:32})"));
         Assert.NotNull(graph.Profile("social", "CREATE (:person{name:'amit',age:30})"));
@@ -926,11 +924,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestList()
+    public void TestList(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         Assert.Empty(graph.List());
 
@@ -940,11 +938,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestConfig()
+    public void TestConfig(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         graph.Query("social", "CREATE (:person{name:'filipe',age:30})");
 
@@ -961,11 +959,12 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestModulePrefixs()
+    public void TestModulePrefixs(string endpointId)
     {
-        IDatabase db1 = redisFixture.Redis.GetDatabase();
-        IDatabase db2 = redisFixture.Redis.GetDatabase();
+        IDatabase db1 = GetDatabase(endpointId);
+        IDatabase db2 = GetDatabase(endpointId);
 
         var graph1 = db1.GRAPH();
         var graph2 = db2.GRAPH();
@@ -974,11 +973,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestCallProcedureDbLabels()
+    public void TestCallProcedureDbLabels(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         const string graphName = "social";
 
@@ -996,11 +995,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestCallProcedureReadOnly()
+    public void TestCallProcedureReadOnly(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         const string graphName = "social";
 
@@ -1023,11 +1022,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     #region AsyncTests
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async Task TestCreateNodeAsync()
+    public async Task TestCreateNodeAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         // Create a node
         ResultSet resultSet = await graph.QueryAsync("social", "CREATE ({name:'roi',age:32})");
@@ -1047,11 +1046,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async Task TestCreateLabeledNodeAsync()
+    public async Task TestCreateLabeledNodeAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         // Create a node with a label
         ResultSet resultSet = await graph.QueryAsync("social", "CREATE (:human{name:'danny',age:12})");
@@ -1069,11 +1068,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async Task TestConnectNodesAsync()
+    public async Task TestConnectNodesAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         // Create both source and destination nodes
         Assert.NotNull(await graph.QueryAsync("social", "CREATE (:person{name:'roi',age:32})"));
@@ -1098,11 +1097,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async Task TestDeleteNodesAsync()
+    public async Task TestDeleteNodesAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         Assert.NotNull(await graph.QueryAsync("social", "CREATE (:person{name:'roi',age:32})"));
         Assert.NotNull(await graph.QueryAsync("social", "CREATE (:person{name:'amit',age:30})"));
@@ -1146,11 +1145,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async Task TestDeleteRelationshipAsync()
+    public async Task TestDeleteRelationshipAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         Assert.NotNull(await graph.QueryAsync("social", "CREATE (:person{name:'roi',age:32})"));
         Assert.NotNull(await graph.QueryAsync("social", "CREATE (:person{name:'amit',age:30})"));
@@ -1177,11 +1176,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async Task TestIndexAsync()
+    public async Task TestIndexAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         // Create both source and destination nodes
         Assert.NotNull(await graph.QueryAsync("social", "CREATE (:person{name:'roi',age:32})"));
@@ -1205,11 +1204,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async Task TestHeaderAsync()
+    public async Task TestHeaderAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
 
         Assert.NotNull(await graph.QueryAsync("social", "CREATE (:person{name:'roi',age:32})"));
@@ -1237,11 +1236,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async Task TestRecordAsync()
+    public async Task TestRecordAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         string name = "roi";
         int age = 32;
@@ -1365,11 +1364,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async Task TestAdditionToProceduresAsync()
+    public async Task TestAdditionToProceduresAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
 
         Assert.NotNull(await graph.QueryAsync("social", "CREATE (:person{name:'roi',age:32})"));
@@ -1446,11 +1445,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async Task TestEscapedQueryAsync()
+    public async Task TestEscapedQueryAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         Dictionary<string, object> params1 = new Dictionary<string, object>();
         params1.Add("s1", "S\"'");
@@ -1466,11 +1465,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async Task TestArraySupportAsync()
+    public async Task TestArraySupportAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
 
         Node expectedANode = new Node();
@@ -1567,11 +1566,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async Task TestPathAsync()
+    public async Task TestPathAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         List<Node> nodes = new List<Node>(3);
         for (int i = 0; i < 3; i++)
@@ -1620,11 +1619,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async Task TestNullGraphEntitiesAsync()
+    public async Task TestNullGraphEntitiesAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         // Create two nodes connected by a single outgoing edge.
         Assert.NotNull(await graph.QueryAsync("social", "CREATE (:L)-[:E]->(:L2)"));
@@ -1675,11 +1674,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async Task Test64bitnumberAsync()
+    public async Task Test64bitnumberAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         long value = 1L << 40;
         Dictionary<string, object> parameters = new Dictionary<string, object>();
@@ -1694,11 +1693,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async Task TestCachedExecutionAsync()
+    public async Task TestCachedExecutionAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         await graph.QueryAsync("social", "CREATE (:N {val:1}), (:N {val:2})");
 
@@ -1726,11 +1725,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async Task TestMapDataTypeAsync()
+    public async Task TestMapDataTypeAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         Dictionary<string, object> expected = new Dictionary<string, object>
         {
@@ -1759,11 +1758,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async Task TestGeoPointLatLonAsync()
+    public async Task TestGeoPointLatLonAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         ResultSet rs = await graph.QueryAsync("social", "CREATE (:restaurant"
                 + " {location: point({latitude:30.27822306, longitude:-97.75134723})})");
@@ -1774,11 +1773,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async Task TestGeoPointLonLatAsync()
+    public async Task TestGeoPointLonLatAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         ResultSet rs = await graph.QueryAsync("social", "CREATE (:restaurant"
                 + " {location: point({longitude:-97.75134723, latitude:30.27822306})})");
@@ -1804,11 +1803,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async Task timeoutArgumentAsync()
+    public async Task timeoutArgumentAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         ResultSet rs = await graph.QueryAsync("social", "UNWIND range(0,100) AS x WITH x AS x WHERE x = 100 RETURN x", 1L);
         Assert.Single(rs);
@@ -1819,11 +1818,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async Task TestCachedExecutionReadOnlyAsync()
+    public async Task TestCachedExecutionReadOnlyAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         await graph.QueryAsync("social", "CREATE (:N {val:1}), (:N {val:2})");
 
@@ -1853,11 +1852,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async Task TestSimpleReadOnlyAsync()
+    public async Task TestSimpleReadOnlyAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         await graph.QueryAsync("social", "CREATE (:person{name:'filipe',age:30})");
         ResultSet rsRo = await graph.RO_QueryAsync("social", "MATCH (a:person) WHERE (a.name = 'filipe') RETURN a.age");
@@ -1869,11 +1868,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async Task TestProfileAsync()
+    public async Task TestProfileAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         Assert.NotNull(await graph.QueryAsync("social", "CREATE (:person{name:'roi',age:32})"));
         Assert.NotNull(await graph.QueryAsync("social", "CREATE (:person{name:'amit',age:30})"));
@@ -1888,11 +1887,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async Task TestExplainAsync()
+    public async Task TestExplainAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         Assert.NotNull(await graph.ProfileAsync("social", "CREATE (:person{name:'roi',age:32})"));
         Assert.NotNull(await graph.ProfileAsync("social", "CREATE (:person{name:'amit',age:30})"));
@@ -1907,11 +1906,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async Task TestSlowlogAsync()
+    public async Task TestSlowlogAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         Assert.NotNull(await graph.ProfileAsync("social", "CREATE (:person{name:'roi',age:32})"));
         Assert.NotNull(await graph.ProfileAsync("social", "CREATE (:person{name:'amit',age:30})"));
@@ -1923,11 +1922,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async Task TestListAsync()
+    public async Task TestListAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         Assert.Empty(await graph.ListAsync());
 
@@ -1937,11 +1936,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async Task TestConfigAsync()
+    public async Task TestConfigAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         await graph.QueryAsync("social", "CREATE (:person{name:'filipe',age:30})");
 
@@ -1958,11 +1957,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async Task TestCallProcedureDbLabelsAsync()
+    public async Task TestCallProcedureDbLabelsAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         const string graphName = "social";
 
@@ -1980,11 +1979,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async Task TestCallProcedureReadOnlyAsync()
+    public async Task TestCallProcedureReadOnlyAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         const string graphName = "social";
 
@@ -2003,11 +2002,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestParseInfinity()
+    public void TestParseInfinity(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         ResultSet rs = graph.Query("db", "RETURN 10^100000");
         Assert.Single(rs);
@@ -2018,11 +2017,11 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestEqualsAndToString()
+    public void TestEqualsAndToString(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var graph = db.GRAPH();
         ResultSet resultSet1 = graph.Query("db", "RETURN 10^100000");
         ResultSet resultSet2 = graph.Query("db", "RETURN 10^1000");
@@ -2096,13 +2095,14 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestPrepareQuery()
+    public void TestPrepareQuery(string endpointId)
     {
         const string return1Query = "RETURN 1";
         const string return1QueryRecordString = "Record{values=1}";
 
-        var graph = redisFixture.Redis.GetDatabase().GRAPH();
+        var graph = GetDatabase(endpointId).GRAPH();
 
         // handle chars
         var buildCommand = GraphCommandBuilder.Query("graph", return1Query, new Dictionary<string, object> { { "a", (char)'c' } });

@@ -8,15 +8,14 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
     public class TestAddAsync : AbstractNRedisStackTest
     {
-        public TestAddAsync(RedisFixture redisFixture) : base(redisFixture) { }
+        public TestAddAsync(EndpointsFixture endpointsFixture) : base(endpointsFixture) { }
 
         [Fact]
         [Obsolete]
         public async Task TestAddNotExistingTimeSeries()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             TimeStamp timeStamp = DateTime.UtcNow;
             Assert.Equal(timeStamp, await ts.AddAsync(key, timeStamp, 1.1));
@@ -31,8 +30,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async Task TestAddExistingTimeSeries()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             await ts.CreateAsync(key);
             TimeStamp timeStamp = DateTime.UtcNow;
@@ -48,8 +46,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async Task TestAddStar()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             await ts.AddAsync(key, "*", 1.1);
             var info = await ts.InfoAsync(key);
@@ -62,8 +59,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async Task TestAddWithRetentionTime()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             TimeStamp timeStamp = DateTime.UtcNow;
             long retentionTime = 5000;
@@ -80,8 +76,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async Task TestAddWithLabels()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             TimeStamp timeStamp = DateTime.UtcNow;
             var label = new TimeSeriesLabel("key", "value");
@@ -99,8 +94,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async Task TestAddWithChunkSize()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             TimeStamp timeStamp = DateTime.UtcNow;
             Assert.Equal(timeStamp, await ts.AddAsync(key, timeStamp, 1.1, chunkSizeBytes: 128));
@@ -115,8 +109,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async Task TestAddWithUncompressed()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             await ts.CreateAsync(key);
             TimeStamp timeStamp = DateTime.UtcNow;
@@ -131,8 +124,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async Task TestAddWithDuplicatePolicyBlock()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             TimeStamp timeStamp = DateTime.UtcNow;
             Assert.Equal(timeStamp, await ts.AddAsync(key, timeStamp, 1.1));
@@ -143,8 +135,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async Task TestAddWithDuplicatePolicyMin()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             TimeStamp timeStamp = DateTime.UtcNow;
             Assert.Equal(timeStamp, await ts.AddAsync(key, timeStamp, 1.1));
@@ -164,8 +155,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async Task TestAddWithDuplicatePolicyMax()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             TimeStamp timeStamp = DateTime.UtcNow;
             Assert.Equal(timeStamp, await ts.AddAsync(key, timeStamp, 1.1));
@@ -184,8 +174,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async Task TestAddWithDuplicatePolicySum()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             TimeStamp timeStamp = DateTime.UtcNow;
             Assert.Equal(timeStamp, await ts.AddAsync(key, timeStamp, 1.1));
@@ -198,8 +187,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async Task TestAddWithDuplicatePolicyFirst()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             TimeStamp timeStamp = DateTime.UtcNow;
             Assert.Equal(timeStamp, await ts.AddAsync(key, timeStamp, 1.1));
@@ -212,8 +200,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async Task TestAddWithDuplicatePolicyLast()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             TimeStamp timeStamp = DateTime.UtcNow;
             Assert.Equal(timeStamp, await ts.AddAsync(key, timeStamp, 1.1));
@@ -226,8 +213,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async Task TestOldAdd()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             var dateTime = DateTime.UtcNow;
             TimeStamp oldTimeStamp = dateTime.AddSeconds(-1);
@@ -244,8 +230,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var value = 1.1;
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             var ex = await Assert.ThrowsAsync<RedisServerException>(async () => await ts.AddAsync(key, "+", value));
             Assert.Equal("ERR TSDB: invalid timestamp", ex.Message);

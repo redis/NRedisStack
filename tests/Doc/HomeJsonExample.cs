@@ -18,8 +18,7 @@ namespace Doc;
 // HIDE_START
 public class HomeJsonExample
 {
-
-    [SkipIfRedis(Is.OSSCluster)]
+    
     public void run()
     {
         // STEP_START connect
