@@ -21,6 +21,8 @@ public class SkipIfRedisAttribute : FactAttribute
     private readonly Comparison _comparison;
     private readonly List<Is> _environments = new List<Is>();
 
+    private static Version serverVersion = null;
+
     public SkipIfRedisAttribute(
             Is environment,
             Comparison comparison = Comparison.LessThan,
@@ -95,7 +97,7 @@ public class SkipIfRedisAttribute : FactAttribute
                 }
                 // Version check (if Is.Standalone/Is.OSSCluster is set then )
 
-                var serverVersion = redisFixture.Redis.GetServer(redisFixture.Redis.GetEndPoints()[0]).Version;
+                serverVersion = serverVersion ?? redisFixture.Redis.GetServer(redisFixture.Redis.GetEndPoints()[0]).Version;
                 var targetVersion = new Version(_targetVersion);
                 int comparisonResult = serverVersion.CompareTo(targetVersion);
 
