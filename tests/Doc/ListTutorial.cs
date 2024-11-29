@@ -13,9 +13,6 @@ namespace Doc;
 //REMOVE_END
 public class ListExample
 {
-    //REMOVE_START
-    [SkipIfRedis(Is.OSSCluster)]
-    //REMOVE_END
     public void run()
     {
         var muxer = ConnectionMultiplexer.Connect("localhost:6379");

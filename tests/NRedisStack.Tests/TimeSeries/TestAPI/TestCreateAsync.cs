@@ -7,14 +7,13 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
     public class TestCreateAsync : AbstractNRedisStackTest
     {
-        public TestCreateAsync(RedisFixture redisFixture) : base(redisFixture) { }
+        public TestCreateAsync(EndpointsFixture endpointsFixture) : base(endpointsFixture) { }
 
         [Fact]
         public async Task TestCreateOK()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             Assert.True(await ts.CreateAsync(key));
         }
@@ -25,8 +24,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             long retentionTime = 5000;
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             Assert.True(await ts.CreateAsync(key, retentionTime: retentionTime));
 
@@ -41,8 +39,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var key = CreateKeyName();
             var label = new TimeSeriesLabel("key", "value");
             var labels = new List<TimeSeriesLabel> { label };
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             Assert.True(await ts.CreateAsync(key, labels: labels));
 
@@ -56,8 +53,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             var labels = new List<TimeSeriesLabel>();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             Assert.True(await ts.CreateAsync(key, labels: labels));
 
@@ -69,8 +65,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async Task TestCreateUncompressed()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             Assert.True(await ts.CreateAsync(key, uncompressed: true));
         }
@@ -79,8 +74,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async void TestCreatehDuplicatePolicyFirst()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             Assert.True(await ts.CreateAsync(key, duplicatePolicy: TsDuplicatePolicy.FIRST));
         }
@@ -89,8 +83,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async void TestCreatehDuplicatePolicyLast()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             Assert.True(await ts.CreateAsync(key, duplicatePolicy: TsDuplicatePolicy.LAST));
         }
@@ -99,8 +92,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async void TestCreatehDuplicatePolicyMin()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             Assert.True(await ts.CreateAsync(key, duplicatePolicy: TsDuplicatePolicy.MIN));
         }
@@ -109,8 +101,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async void TestCreatehDuplicatePolicyMax()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             Assert.True(await ts.CreateAsync(key, duplicatePolicy: TsDuplicatePolicy.MAX));
         }
@@ -119,8 +110,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async void TestCreatehDuplicatePolicySum()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             Assert.True(await ts.CreateAsync(key, duplicatePolicy: TsDuplicatePolicy.SUM));
         }

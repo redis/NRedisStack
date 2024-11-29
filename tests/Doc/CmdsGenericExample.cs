@@ -15,7 +15,6 @@ namespace Doc;
 public class CmdsGenericExample
 {
 
-    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.0.0")]
     public void run()
     {
         var muxer = ConnectionMultiplexer.Connect("localhost:6379");

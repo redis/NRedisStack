@@ -8,16 +8,14 @@ using NRedisStack.RedisStackCommands;
 
 namespace NRedisStack.Tests.Core;
 
-public class CoreTests : AbstractNRedisStackTest, IDisposable
+public class CoreTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
 {
-    public CoreTests(RedisFixture redisFixture) : base(redisFixture) { }
-
     // TODO: understand why this test fails on enterprise
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.1.242")]
-    public void TestSimpleSetInfo()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestSimpleSetInfo(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
 
         db.ClientSetInfo(SetInfoAttr.LibraryName, "TestLibraryName");
         db.ClientSetInfo(SetInfoAttr.LibraryVersion, "1.2.3");
@@ -26,11 +24,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.EndsWith($"lib-name=TestLibraryName lib-ver=1.2.3\n", info);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.1.242")]
-    public async Task TestSimpleSetInfoAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestSimpleSetInfoAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
 
         await db.ClientSetInfoAsync(SetInfoAttr.LibraryName, "TestLibraryName");
         await db.ClientSetInfoAsync(SetInfoAttr.LibraryVersion, "1.2.3");
@@ -39,12 +37,12 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.EndsWith($"lib-name=TestLibraryName lib-ver=1.2.3\n", info);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.1.242")]
-    public void TestSetInfoDefaultValue()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestSetInfoDefaultValue(string endpointId)
     {
         ResetInfoDefaults(); // demonstrate first connection
-        var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
 
         db.Execute(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
@@ -52,12 +50,12 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.EndsWith($"lib-name=NRedisStack(.NET_v{Environment.Version}) lib-ver={GetNRedisStackVersion()}\n", info);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.1.242")]
-    public async Task TestSetInfoDefaultValueAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestSetInfoDefaultValueAsync(string endpointId)
     {
         ResetInfoDefaults(); // demonstrate first connection
-        var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
 
         await db.ExecuteAsync(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
@@ -65,12 +63,12 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.EndsWith($"lib-name=NRedisStack(.NET_v{Environment.Version}) lib-ver={GetNRedisStackVersion()}\n", info);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.1.242")]
-    public void TestSetInfoWithValue()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestSetInfoWithValue(string endpointId)
     {
         ResetInfoDefaults(); // demonstrate first connection
-        var db = redisFixture.Redis.GetDatabase("MyLibraryName;v1.0.0");
-        db.Execute("FLUSHALL");
+        var db = GetConnection(endpointId).GetDatabase("MyLibraryName;v1.0.0");
 
         db.Execute(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
@@ -78,12 +76,12 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.EndsWith($"NRedisStack(MyLibraryName;v1.0.0;.NET_v{Environment.Version}) lib-ver={GetNRedisStackVersion()}\n", info);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.1.242")]
-    public async Task TestSetInfoWithValueAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestSetInfoWithValueAsync(string endpointId)
     {
         ResetInfoDefaults(); // demonstrate first connection
-        var db = redisFixture.Redis.GetDatabase("MyLibraryName;v1.0.0");
-        db.Execute("FLUSHALL");
+        var db = GetConnection(endpointId).GetDatabase("MyLibraryName;v1.0.0");
 
         await db.ExecuteAsync(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
@@ -91,13 +89,13 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.EndsWith($"NRedisStack(MyLibraryName;v1.0.0;.NET_v{Environment.Version}) lib-ver={GetNRedisStackVersion()}\n", info);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.1.242")]
-    public void TestSetInfoNull()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestSetInfoNull(string endpointId)
     {
         ResetInfoDefaults(); // demonstrate first connection
-        var db = redisFixture.Redis.GetDatabase(null);
-
-        db.Execute("FLUSHALL");
+        var db = GetConnection(endpointId).GetDatabase(null);
+        
         var infoBefore = db.Execute("CLIENT", "INFO").ToString();
         db.Execute(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
@@ -114,13 +112,13 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(infoAfterLibNameToEnd, infoBeforeLibNameToEnd);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.1.242")]
-    public async Task TestSetInfoNullAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestSetInfoNullAsync(string endpointId)
     {
         ResetInfoDefaults(); // demonstrate first connection
-        var db = redisFixture.Redis.GetDatabase(null);
-
-        db.Execute("FLUSHALL");
+        var db = GetConnection(endpointId).GetDatabase(null);
+        
         var infoBefore = (await db.ExecuteAsync("CLIENT", "INFO")).ToString();
         await db.ExecuteAsync(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
@@ -137,11 +135,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(infoAfterLibNameToEnd, infoBeforeLibNameToEnd);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.0.0")]
-    public void TestBZMPop()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestBZMPop(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         var sortedSetKey = "my-set";
 
@@ -169,11 +167,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("d", resultWithDescendingOrder.Item2[0].Value.ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.0.0")]
-    public async Task TestBZMPopAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestBZMPopAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         var sortedSetKey = "my-set";
 
@@ -201,11 +199,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("d", resultWithDescendingOrder.Item2[0].Value.ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.0.0")]
-    public void TestBZMPopNull()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestBZMPopNull(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         // Nothing in the set, and a short server timeout, which yields null.
         var result = db.BZMPop(0.5, "my-set", MinMaxModifier.Min, null);
@@ -213,11 +211,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.0.0")]
-    public async Task TestBZMPopNullAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestBZMPopNullAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         // Nothing in the set, and a short server timeout, which yields null.
         var result = await db.BZMPopAsync(0.5, "my-set", MinMaxModifier.Min, null);
@@ -225,13 +223,14 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.0.0")]
-    public void TestBZMPopMultiplexerTimeout()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestBZMPopMultiplexerTimeout(string endpointId)
     {
         var configurationOptions = new ConfigurationOptions();
         configurationOptions.SyncTimeout = 1000;
 
-        using var redis = redisFixture.GetConnectionById(configurationOptions, "standalone");
+        using var redis = GetConnection(configurationOptions, endpointId);
 
         var db = redis.GetDatabase(null);
         db.Execute("FLUSHALL");
@@ -240,13 +239,14 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Throws<RedisTimeoutException>(() => db.BZMPop(0, "my-set", MinMaxModifier.Min));
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.0.0")]
-    public async Task TestBZMPopMultiplexerTimeoutAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestBZMPopMultiplexerTimeoutAsync(string endpointId)
     {
         var configurationOptions = new ConfigurationOptions();
         configurationOptions.SyncTimeout = 1000;
 
-        await using var redis = redisFixture.GetConnectionById(configurationOptions, "standalone");
+        await using var redis = GetConnection(configurationOptions, endpointId);
 
         var db = redis.GetDatabase(null);
         db.Execute("FLUSHALL");
@@ -255,11 +255,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         await Assert.ThrowsAsync<RedisTimeoutException>(async () => await db.BZMPopAsync(0, "my-set", MinMaxModifier.Min));
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.0.0")]
-    public void TestBZMPopMultipleSets()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestBZMPopMultipleSets(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         db.SortedSetAdd("set-one", "a", 1.5);
         db.SortedSetAdd("set-one", "b", 5.1);
@@ -297,11 +297,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("c", result.Item2[1].Value.ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.0.0")]
-    public async Task TestBZMPopMultipleSetsAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestBZMPopMultipleSetsAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         db.SortedSetAdd("set-one", "a", 1.5);
         db.SortedSetAdd("set-one", "b", 5.1);
@@ -339,20 +339,20 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("c", result.Item2[1].Value.ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.0.0")]
-    public void TestBZMPopNoKeysProvided()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestBZMPopNoKeysProvided(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         Assert.Throws<ArgumentException>(() => db.BZMPop(0, Array.Empty<RedisKey>(), MinMaxModifier.Min));
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.0.0")]
-    public void TestBZMPopWithOrderEnum()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestBZMPopWithOrderEnum(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         var sortedSetKey = "my-set-" + Guid.NewGuid();
 
@@ -377,11 +377,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("b", resultWithDescendingOrder.Item2[0].Value.ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public void TestBZPopMin()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestBZPopMin(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         var sortedSetKey = "my-set";
 
@@ -396,11 +396,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1.5, result.Item2.Score);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public async Task TestBZPopMinAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestBZPopMinAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         var sortedSetKey = "my-set";
 
@@ -415,11 +415,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1.5, result.Item2.Score);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public void TestBZPopMinNull()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestBZPopMinNull(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         // Nothing in the set, and a short server timeout, which yields null.
         var result = db.BZPopMin("my-set", 0.5);
@@ -427,11 +427,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public async Task TestBZPopMinNullAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestBZPopMinNullAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         // Nothing in the set, and a short server timeout, which yields null.
         var result = await db.BZPopMinAsync("my-set", 0.5);
@@ -439,11 +439,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public void TestBZPopMinMultipleSets()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestBZPopMinMultipleSets(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         db.SortedSetAdd("set-one", "a", 1.5);
         db.SortedSetAdd("set-one", "b", 5.1);
@@ -462,11 +462,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("a", result.Item2.Value.ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public async Task TestBZPopMinMultipleSetsAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestBZPopMinMultipleSetsAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         db.SortedSetAdd("set-one", "a", 1.5);
         db.SortedSetAdd("set-one", "b", 5.1);
@@ -485,11 +485,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("a", result.Item2.Value.ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public void TestBZPopMax()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestBZPopMax(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         var sortedSetKey = "my-set";
 
@@ -504,11 +504,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(5.1, result.Item2.Score);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public async Task TestBZPopMaxAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestBZPopMaxAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         var sortedSetKey = "my-set";
 
@@ -523,11 +523,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(5.1, result.Item2.Score);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public void TestBZPopMaxNull()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestBZPopMaxNull(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         // Nothing in the set, and a short server timeout, which yields null.
         var result = db.BZPopMax("my-set", 0.5);
@@ -535,11 +535,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public async Task TestBZPopMaxNullAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestBZPopMaxNullAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         // Nothing in the set, and a short server timeout, which yields null.
         var result = await db.BZPopMaxAsync("my-set", 0.5);
@@ -547,11 +547,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public void TestBZPopMaxMultipleSets()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestBZPopMaxMultipleSets(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         db.SortedSetAdd("set-one", "a", 1.5);
         db.SortedSetAdd("set-one", "b", 5.1);
@@ -570,11 +570,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("b", result.Item2.Value.ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public async Task TestBZPopMaxMultipleSetsAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestBZPopMaxMultipleSetsAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         db.SortedSetAdd("set-one", "a", 1.5);
         db.SortedSetAdd("set-one", "b", 5.1);
@@ -593,11 +593,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("b", result.Item2.Value.ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.0.0")]
-    public void TestBLMPop()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestBLMPop(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         db.ListRightPush("my-list", "a");
         db.ListRightPush("my-list", "b");
@@ -623,11 +623,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("e", resultWithDescendingOrder.Item2[0].ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.0.0")]
-    public async Task TestBLMPopAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestBLMPopAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         db.ListRightPush("my-list", "a");
         db.ListRightPush("my-list", "b");
@@ -653,11 +653,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("e", resultWithDescendingOrder.Item2[0].ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.0.0")]
-    public void TestBLMPopNull()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestBLMPopNull(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         // Nothing in the list, and a short server timeout, which yields null.
         var result = db.BLMPop(0.5, "my-list", ListSide.Left);
@@ -665,11 +665,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.0.0")]
-    public async Task TestBLMPopNullAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestBLMPopNullAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         // Nothing in the list, and a short server timeout, which yields null.
         var result = await db.BLMPopAsync(0.5, "my-list", ListSide.Left);
@@ -677,11 +677,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.0.0")]
-    public void TestBLMPopMultipleLists()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestBLMPopMultipleLists(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         db.ListRightPush("list-one", "a");
         db.ListRightPush("list-one", "b");
@@ -719,11 +719,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("b", result.Item2[1].ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.0.0")]
-    public async Task TestBLMPopMultipleListsAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestBLMPopMultipleListsAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         db.ListRightPush("list-one", "a");
         db.ListRightPush("list-one", "b");
@@ -761,20 +761,20 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("b", result.Item2[1].ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.0.0")]
-    public void TestBLMPopNoKeysProvided()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestBLMPopNoKeysProvided(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         Assert.Throws<ArgumentException>(() => db.BLMPop(0, Array.Empty<RedisKey>(), ListSide.Left));
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "2.0.0")]
-    public void TestBLPop()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "2.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestBLPop(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         db.ListRightPush("my-list", "a");
         db.ListRightPush("my-list", "b");
@@ -786,11 +786,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("a", result.Item2.ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "2.0.0")]
-    public async Task TestBLPopAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "2.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestBLPopAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         db.ListRightPush("my-list", "a");
         db.ListRightPush("my-list", "b");
@@ -802,11 +802,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("a", result.Item2.ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "2.0.0")]
-    public void TestBLPopNull()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "2.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestBLPopNull(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         // Nothing in the set, and a short server timeout, which yields null.
         var result = db.BLPop("my-set", 0.5);
@@ -814,11 +814,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "2.0.0")]
-    public async Task TestBLPopNullAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "2.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestBLPopNullAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         // Nothing in the set, and a short server timeout, which yields null.
         var result = await db.BLPopAsync("my-set", 0.5);
@@ -826,11 +826,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "2.0.0")]
-    public void TestBLPopMultipleLists()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "2.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestBLPopMultipleLists(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         db.ListRightPush("list-one", "a");
         db.ListRightPush("list-one", "b");
@@ -849,11 +849,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("a", result.Item2.ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "2.0.0")]
-    public async Task TestBLPopMultipleListsAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "2.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestBLPopMultipleListsAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         db.ListRightPush("list-one", "a");
         db.ListRightPush("list-one", "b");
@@ -872,11 +872,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("a", result.Item2.ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "2.0.0")]
-    public void TestBRPop()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "2.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestBRPop(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         db.ListRightPush("my-list", "a");
         db.ListRightPush("my-list", "b");
@@ -888,11 +888,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("b", result.Item2.ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "2.0.0")]
-    public async Task TestBRPopAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "2.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestBRPopAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         db.ListRightPush("my-list", "a");
         db.ListRightPush("my-list", "b");
@@ -904,11 +904,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("b", result.Item2.ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "2.0.0")]
-    public void TestBRPopNull()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "2.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestBRPopNull(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         // Nothing in the set, and a short server timeout, which yields null.
         var result = db.BRPop("my-set", 0.5);
@@ -916,11 +916,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "2.0.0")]
-    public async Task TestBRPopNullAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "2.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestBRPopNullAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         // Nothing in the set, and a short server timeout, which yields null.
         var result = await db.BRPopAsync("my-set", 0.5);
@@ -928,11 +928,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "2.0.0")]
-    public void TestBRPopMultipleLists()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "2.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestBRPopMultipleLists(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         db.ListRightPush("list-one", "a");
         db.ListRightPush("list-one", "b");
@@ -951,11 +951,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("b", result.Item2.ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "2.0.0")]
-    public async Task TestBRPopMultipleListsAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "2.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestBRPopMultipleListsAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         db.ListRightPush("list-one", "a");
         db.ListRightPush("list-one", "b");
@@ -974,11 +974,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("b", result.Item2.ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "6.2.0")]
-    public void TestBLMove()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "6.2.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestBLMove(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         db.ListRightPush("list-one", "a");
         db.ListRightPush("list-one", "b");
@@ -1031,11 +1031,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("c", db.ListGetByIndex("list-two", 1));
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "6.2.0")]
-    public async Task TestBLMoveAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "6.2.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestBLMoveAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         db.ListRightPush("list-one", "a");
         db.ListRightPush("list-one", "b");
@@ -1088,11 +1088,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("c", db.ListGetByIndex("list-two", 1));
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "2.2.0")]
-    public void TestBRPopLPush()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "2.2.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestBRPopLPush(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         db.ListRightPush("list-one", "a");
         db.ListRightPush("list-one", "b");
@@ -1109,11 +1109,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("b", db.ListLeftPop("list-two"));
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "2.2.0")]
-    public async Task TestBRPopLPushAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "2.2.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestBRPopLPushAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         db.ListRightPush("list-one", "a");
         db.ListRightPush("list-one", "b");
@@ -1130,11 +1130,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("b", db.ListLeftPop("list-two"));
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public void TestXRead()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestXRead(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         db.StreamAdd("my-stream", "a", 1);
         db.StreamAdd("my-stream", "b", 7);
@@ -1162,11 +1162,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(7, streamEntry.Values[0].Value);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public async Task TestXReadAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestXReadAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         db.StreamAdd("my-stream", "a", 1);
         db.StreamAdd("my-stream", "b", 7);
@@ -1194,11 +1194,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(7, streamEntry.Values[0].Value);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public void TestXReadMultipleStreams()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestXReadMultipleStreams(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         db.StreamAdd("stream-one", "a", 1);
         db.StreamAdd("stream-one", "b", 7);
@@ -1244,11 +1244,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("bar", result![1].Entries[0].Values[0].Value);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public async Task TestXReadMultipleStreamsAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestXReadMultipleStreamsAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         db.StreamAdd("stream-one", "a", 1);
         db.StreamAdd("stream-one", "b", 7);
@@ -1292,11 +1292,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("bar", result![1].Entries[0].Values[0].Value);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public void TestXReadOnlyNewMessages()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestXReadOnlyNewMessages(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         db.StreamAdd("my-stream", "a", 1);
 
@@ -1307,11 +1307,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public async Task TestXReadOnlyNewMessagesAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestXReadOnlyNewMessagesAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         db.StreamAdd("my-stream", "a", 1);
 
@@ -1322,31 +1322,31 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public void TestXReadNoKeysProvided()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestXReadNoKeysProvided(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         Assert.Throws<ArgumentException>(() => db.XRead(Array.Empty<RedisKey>(),
             new RedisValue[] { StreamSpecialIds.NewMessagesId }));
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public void TestXReadMismatchedKeysAndPositionsCountsProvided()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestXReadMismatchedKeysAndPositionsCountsProvided(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         Assert.Throws<ArgumentException>(() => db.XRead(new RedisKey[] { "my-stream" },
             new RedisValue[] { StreamSpecialIds.NewMessagesId, StreamSpecialIds.NewMessagesId }));
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public void TestXReadGroup()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestXReadGroup(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         var groupCreationResult = db.StreamCreateConsumerGroup("my-stream", "my-group");
         Assert.True(groupCreationResult);
@@ -1442,11 +1442,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Empty(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public async Task TestXReadGroupAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestXReadGroupAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         var groupCreationResult = db.StreamCreateConsumerGroup("my-stream", "my-group");
         Assert.True(groupCreationResult);
@@ -1542,11 +1542,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Empty(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public void TestXReadGroupNoAck()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestXReadGroupNoAck(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         var groupCreationResult = db.StreamCreateConsumerGroup("my-stream", "my-group");
         Assert.True(groupCreationResult);
@@ -1575,11 +1575,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Empty(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public void TestXReadGroupMultipleStreams()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestXReadGroupMultipleStreams(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         var groupCreationResult = db.StreamCreateConsumerGroup("stream-one", "my-group");
         Assert.True(groupCreationResult);
@@ -1629,11 +1629,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(17, result![1].Entries[0].Values[0].Value);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public async Task TestXReadGroupMultipleStreamsAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestXReadGroupMultipleStreamsAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         var groupCreationResult = db.StreamCreateConsumerGroup("stream-one", "my-group");
         Assert.True(groupCreationResult);
@@ -1683,11 +1683,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(17, result![1].Entries[0].Values[0].Value);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public void TestXReadGroupNull()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestXReadGroupNull(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         var groupCreationResult = db.StreamCreateConsumerGroup("my-stream", "my-group");
         Assert.True(groupCreationResult);
@@ -1699,11 +1699,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public async Task TestXReadGroupNullAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestXReadGroupNullAsync(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         var groupCreationResult = db.StreamCreateConsumerGroup("my-stream", "my-group");
         Assert.True(groupCreationResult);
@@ -1715,21 +1715,21 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public void TestXReadGroupNoKeysProvided()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestXReadGroupNoKeysProvided(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         Assert.Throws<ArgumentException>(() => db.XReadGroup("my-group", "consumer",
             Array.Empty<RedisKey>(), new RedisValue[] { StreamSpecialIds.NewMessagesId }));
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "5.0.0")]
-    public void TestXReadGroupMismatchedKeysAndPositionsCountsProvided()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestXReadGroupMismatchedKeysAndPositionsCountsProvided(string endpointId)
     {
-        var db = redisFixture.Redis.GetDatabase(null);
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         Assert.Throws<ArgumentException>(() => db.XReadGroup("my-group", "consumer",
             new RedisKey[] { "my-stream" }, new RedisValue[] { StreamSpecialIds.NewMessagesId, StreamSpecialIds.NewMessagesId }));

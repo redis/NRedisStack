@@ -5,19 +5,15 @@ using Xunit;
 
 namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
-    public class TestIncrBy : AbstractNRedisStackTest, IDisposable
+    public class TestIncrBy(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
     {
         private readonly string key = "INCRBY_TESTS";
-
-        public TestIncrBy(RedisFixture redisFixture) : base(redisFixture) { }
-
 
         [Fact]
         public void TestDefaultIncrBy()
         {
             double value = 5.5;
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase();
             var ts = db.TS();
             Assert.True(ts.IncrBy(key, value) > 0);
             Assert.Equal(value, ts.Get(key)!.Val);
@@ -27,8 +23,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestStarIncrBy()
         {
             double value = 5.5;
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase();
             var ts = db.TS();
             Assert.True(ts.IncrBy(key, value, timestamp: "*") > 0);
             Assert.Equal(value, ts.Get(key)!.Val);
@@ -38,8 +33,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestIncrByTimeStamp()
         {
             double value = 5.5;
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase();
             var ts = db.TS();
             TimeStamp timeStamp = DateTime.UtcNow;
             Assert.Equal(timeStamp, ts.IncrBy(key, value, timestamp: timeStamp));
@@ -52,8 +46,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             double value = 5.5;
             long retentionTime = 5000;
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase();
             var ts = db.TS();
             Assert.True(ts.IncrBy(key, value, retentionTime: retentionTime) > 0);
             Assert.Equal(value, ts.Get(key)!.Val);
@@ -67,8 +60,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             double value = 5.5;
             TimeSeriesLabel label = new TimeSeriesLabel("key", "value");
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase();
             var ts = db.TS();
             var labels = new List<TimeSeriesLabel> { label };
             Assert.True(ts.IncrBy(key, value, labels: labels) > 0);
@@ -81,8 +73,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestDefaultIncrByWithUncompressed()
         {
             double value = 5.5;
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase();
             var ts = db.TS();
             Assert.True(ts.IncrBy(key, value, uncompressed: true) > 0);
             Assert.Equal(value, ts.Get(key)!.Val);
@@ -92,8 +83,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestWrongParameters()
         {
             double value = 5.5;
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase();
             var ts = db.TS();
             var ex = Assert.Throws<RedisServerException>(() => ts.IncrBy(key, value, timestamp: "+"));
             Assert.Equal("ERR TSDB: invalid timestamp", ex.Message);
@@ -102,10 +92,10 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [SkipIfRedis(Comparison.LessThan, "7.4.0")]
-        public async void TestIncrByAndIgnoreValues()
+        [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+        public async void TestIncrByAndIgnoreValues(string endpointId)
         {
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             var incrParameters = new TsIncrByParamsBuilder().AddValue(1).AddIgnoreValues(15, 16).build();
             ts.IncrBy(key, incrParameters);

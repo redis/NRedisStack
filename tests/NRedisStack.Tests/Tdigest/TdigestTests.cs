@@ -4,10 +4,9 @@ using NRedisStack.RedisStackCommands;
 
 namespace NRedisStack.Tests.Tdigest;
 
-public class TdigestTests : AbstractNRedisStackTest, IDisposable
+public class TdigestTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
 {
     private readonly string key = "TDIGEST_TESTS";
-    public TdigestTests(RedisFixture redisFixture) : base(redisFixture) { }
 
     private void AssertMergedUnmergedNodes(ITdigestCommands tdigest, string key, int mergedNodes, int unmergedNodes)
     {
@@ -23,11 +22,11 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         //Assert.Equal(totalWeight, 0.01);
     }
 
-    [Fact]
-    public void TestCreateSimple()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestCreateSimple(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var tdigest = db.TDIGEST();
 
         Assert.True(tdigest.Create(key));
@@ -44,11 +43,11 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, info.UnmergedNodes);
     }
 
-    [Fact]
-    public async Task TestCreateSimpleAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestCreateSimpleAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var tdigest = db.TDIGEST();
 
         Assert.True(await tdigest.CreateAsync(key));
@@ -65,11 +64,11 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, info.UnmergedNodes);
     }
 
-    [Fact]
-    public void TestCreateAndInfo()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestCreateAndInfo(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var tdigest = db.TDIGEST();
 
         for (int i = 100; i < 1000; i += 100)
@@ -82,11 +81,11 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         }
     }
 
-    [Fact]
-    public async Task TestCreateAndInfoAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestCreateAndInfoAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var tdigest = db.TDIGEST();
 
         for (int i = 100; i < 1000; i += 100)
@@ -99,32 +98,13 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         }
     }
 
-    // [Fact]
-    // public void TestRank()
-    // {
-    //     IDatabase db = redisFixture.Redis.GetDatabase();
-    //     db.Execute("FLUSHALL");
-    //     var tdigest = db.TDIGEST();
-
-    //     Assert.True(tdigest.Create("t-digest", 500));
-    //     var tuples = new Tuple<double, long>[20];
-    //     for (int i = 0; i < 20; i++)
-    //     {
-    //         tuples[i] = new(i, 1);
-    //     }
-    //     Assert.True(tdigest.Add("t-digest", tuples));
-    //     Assert.Equal(-1, tdigest.Rank("t-digest", -1)[0]);
-    //     Assert.Equal(1, tdigest.Rank("t-digest", 0)[0]);
-    //     Assert.Equal(11, tdigest.Rank("t-digest", 10)[0]);
-    //     Assert.Equal(new long[3] { -1, 20, 10 }, tdigest.Rank("t-digest", -20, 20, 9));
-    // }
-
-    [Fact]
-    public void TestRankCommands()
+    
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestRankCommands(string endpointId)
     {
         //final String key = "ranks";
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var tdigest = db.TDIGEST();
         tdigest.Create(key);
         tdigest.Add(key, 2d, 3d, 5d);
@@ -134,12 +114,12 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(new double[] { 5, 3 }, tdigest.ByRevRank(key, 0, 1));
     }
 
-    [Fact]
-    public async Task TestRankCommandsAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestRankCommandsAsync(string endpointId)
     {
         //final String key = "ranks";
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var tdigest = db.TDIGEST();
         tdigest.Create(key);
         tdigest.Add(key, 2d, 3d, 5d);
@@ -149,150 +129,12 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(new double[] { 5, 3 }, await tdigest.ByRevRankAsync(key, 0, 1));
     }
 
-    // [Fact]
-    // public async Task TestRankAsync()
-    // {
-    //     IDatabase db = redisFixture.Redis.GetDatabase();
-    //     db.Execute("FLUSHALL");
-    //     var tdigest = db.TDIGEST();
 
-    //     Assert.True(tdigest.Create("t-digest", 500));
-    //     var tuples = new Tuple<double, long>[20];
-    //     for (int i = 0; i < 20; i++)
-    //     {
-    //         tuples[i] = new(i, 1);
-    //     }
-    //     Assert.True(tdigest.Add("t-digest", tuples));
-    //     Assert.Equal(-1, (await tdigest.RankAsync("t-digest", -1))[0]);
-    //     Assert.Equal(1, (await tdigest.RankAsync("t-digest", 0))[0]);
-    //     Assert.Equal(11, (await tdigest.RankAsync("t-digest", 10))[0]);
-    //     Assert.Equal(new long[3] { -1, 20, 10 }, await tdigest.RankAsync("t-digest", -20, 20, 9));
-    // }
-
-    // [Fact]
-    // public void TestRevRank()
-    // {
-    //     IDatabase db = redisFixture.Redis.GetDatabase();
-    //     db.Execute("FLUSHALL");
-    //     var tdigest = db.TDIGEST();
-
-    //     Assert.True(tdigest.Create("t-digest", 500));
-    //     var tuples = new Tuple<double, long>[20];
-    //     for (int i = 0; i < 20; i++)
-    //     {
-    //         tuples[i] = new(i, 1);
-    //     }
-
-    //     Assert.True(tdigest.Add("t-digest", tuples));
-    //     Assert.Equal(-1, tdigest.RevRank("t-digest", 20)[0]);
-    //     Assert.Equal(20, tdigest.RevRank("t-digest", 0)[0]);
-    //     Assert.Equal(new long[3] { -1, 20, 10 }, tdigest.RevRank("t-digest", 21, 0, 10));
-    // }
-
-    // [Fact]
-    // public async Task TestRevRankAsync()
-    // {
-    //     IDatabase db = redisFixture.Redis.GetDatabase();
-    //     db.Execute("FLUSHALL");
-    //     var tdigest = db.TDIGEST();
-
-    //     Assert.True(tdigest.Create("t-digest", 500));
-    //     var tuples = new Tuple<double, long>[20];
-    //     for (int i = 0; i < 20; i++)
-    //     {
-    //         tuples[i] = new(i, 1);
-    //     }
-
-    //     Assert.True(tdigest.Add("t-digest", tuples));
-    //     Assert.Equal(-1, (await tdigest.RevRankAsync("t-digest", 20))[0]);
-    //     Assert.Equal(20, (await tdigest.RevRankAsync("t-digest", 0))[0]);
-    //     Assert.Equal(new long[3] { -1, 20, 10 }, await tdigest.RevRankAsync("t-digest", 21, 0, 10));
-    // }
-
-    // [Fact]
-    // public void TestByRank()
-    // {
-    //     IDatabase db = redisFixture.Redis.GetDatabase();
-    //     db.Execute("FLUSHALL");
-    //     var tdigest = db.TDIGEST();
-
-    //     Assert.True(tdigest.Create("t-digest", 500));
-    //     var tuples = new Tuple<double, long>[10];
-    //     for (int i = 1; i <= 10; i++)
-    //     {
-    //         tuples[i - 1] = new(i, 1);
-    //     }
-    //     Assert.True(tdigest.Add("t-digest", tuples));
-    //     Assert.Equal(1, tdigest.ByRank("t-digest", 0)[0]);
-    //     Assert.Equal(10, tdigest.ByRank("t-digest", 9)[0]);
-    //     Assert.True(double.IsInfinity(tdigest.ByRank("t-digest", 100)[0]));
-    //     //Assert.Throws<RedisServerException>(() => tdigest.ByRank("t-digest", -1)[0]);
-    // }
-
-    // [Fact]
-    // public async Task TestByRankAsync()
-    // {
-    //     IDatabase db = redisFixture.Redis.GetDatabase();
-    //     db.Execute("FLUSHALL");
-    //     var tdigest = db.TDIGEST();
-
-    //     Assert.True(tdigest.Create("t-digest", 500));
-    //     var tuples = new Tuple<double, long>[10];
-    //     for (int i = 1; i <= 10; i++)
-    //     {
-    //         tuples[i - 1] = new(i, 1);
-    //     }
-    //     Assert.True(tdigest.Add("t-digest", tuples));
-    //     Assert.Equal(1, (await tdigest.ByRankAsync("t-digest", 0))[0]);
-    //     Assert.Equal(10, (await tdigest.ByRankAsync("t-digest", 9))[0]);
-    //     Assert.True(double.IsInfinity((await tdigest.ByRankAsync("t-digest", 100))[0]));
-    // }
-
-    // [Fact]
-    // public void TestByRevRank()
-    // {
-    //     IDatabase db = redisFixture.Redis.GetDatabase();
-    //     db.Execute("FLUSHALL");
-    //     var tdigest = db.TDIGEST();
-
-    //     Assert.True(tdigest.Create("t-digest", 500));
-    //     var tuples = new Tuple<double, long>[10];
-    //     for (int i = 1; i <= 10; i++)
-    //     {
-    //         tuples[i - 1] = new(i, 1);
-    //     }
-    //     Assert.True(tdigest.Add("t-digest", tuples));
-    //     Assert.Equal(10, tdigest.ByRevRank("t-digest", 0)[0]);
-    //     Assert.Equal(2, tdigest.ByRevRank("t-digest", 9)[0]);
-    //     Assert.True(double.IsInfinity(-tdigest.ByRevRank("t-digest", 100)[0]));
-    //     //Assert.Throws<RedisServerException>(() => tdigest.ByRank("t-digest", -1)[0]);
-    // }
-
-    // [Fact]
-    // public async Task TestByRevRankAsync()
-    // {
-    //     IDatabase db = redisFixture.Redis.GetDatabase();
-    //     db.Execute("FLUSHALL");
-    //     var tdigest = db.TDIGEST();
-
-    //     Assert.True(tdigest.Create("t-digest", 500));
-    //     var tuples = new Tuple<double, long>[10];
-    //     for (int i = 1; i <= 10; i++)
-    //     {
-    //         tuples[i - 1] = new(i, 1);
-    //     }
-    //     Assert.True(tdigest.Add("t-digest", tuples));
-    //     Assert.Equal(10, (await tdigest.ByRevRankAsync("t-digest", 0))[0]);
-    //     Assert.Equal(2, (await tdigest.ByRevRankAsync("t-digest", 9))[0]);
-    //     Assert.True(double.IsInfinity(-(await tdigest.ByRevRankAsync("t-digest", 100))[0]));
-    // }
-
-
-    [Fact]
-    public void TestReset()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestReset(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var tdigest = db.TDIGEST();
 
         tdigest.Create("reset", 100);
@@ -310,11 +152,11 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         AssertMergedUnmergedNodes(tdigest, "reset", 0, 0);
     }
 
-    [Fact]
-    public async Task TestResetAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestResetAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var tdigest = db.TDIGEST();
 
         await tdigest.CreateAsync("reset", 100);
@@ -333,11 +175,11 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         AssertMergedUnmergedNodes(tdigest, "reset", 0, 0);
     }
 
-    [Fact]
-    public void TestAdd()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestAdd(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var tdigest = db.TDIGEST();
 
         tdigest.Create("tdadd", 100);
@@ -349,11 +191,11 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         AssertMergedUnmergedNodes(tdigest, "tdadd", 0, 5);
     }
 
-    [Fact]
-    public async Task TestAddAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestAddAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var tdigest = db.TDIGEST();
 
         await tdigest.CreateAsync("tdadd", 100);
@@ -365,11 +207,11 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         AssertMergedUnmergedNodes(tdigest, "tdadd", 0, 5);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-    public void TestMerge()
+    [SkipIfRedis(Is.Enterprise)]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestMerge(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var tdigest = db.TDIGEST();
 
         tdigest.Create("td2", 100);
@@ -388,11 +230,11 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-    public async Task TestMergeAsync()
+    [SkipIfRedis(Is.Enterprise)]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestMergeAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var tdigest = db.TDIGEST();
 
         await tdigest.CreateAsync("td2", 100);
@@ -411,11 +253,11 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         AssertMergedUnmergedNodes(tdigest, "td2", 3, 2);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-    public void MergeMultiAndParams()
+    [SkipIfRedis(Is.Enterprise)]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void MergeMultiAndParams(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var tdigest = db.TDIGEST();
         tdigest.Create("from1", 100);
         tdigest.Create("from2", 200);
@@ -432,11 +274,11 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(50, tdigest.Info("to").Compression);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-    public async Task MergeMultiAndParamsAsync()
+    [SkipIfRedis(Is.Enterprise)]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task MergeMultiAndParamsAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var tdigest = db.TDIGEST();
         tdigest.Create("from1", 100);
         tdigest.Create("from2", 200);
@@ -453,11 +295,11 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(50, tdigest.Info("to").Compression);
     }
 
-    [Fact]
-    public void TestCDF()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestCDF(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var tdigest = db.TDIGEST();
 
         tdigest.Create("tdcdf", 100);
@@ -475,11 +317,11 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         tdigest.CDF("tdcdf", 25, 50, 75); // TODO: Why needed?
     }
 
-    [Fact]
-    public async Task TestCDFAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestCDFAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var tdigest = db.TDIGEST();
 
         await tdigest.CreateAsync("tdcdf", 100);
@@ -498,11 +340,11 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
 
     }
 
-    [Fact]
-    public void TestQuantile()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestQuantile(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var tdigest = db.TDIGEST();
 
         tdigest.Create("tdqnt", 100);
@@ -516,11 +358,11 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(new double[] { 1 }, tdigest.Quantile("tdqnt", 0.5));
     }
 
-    [Fact]
-    public async Task TestQuantileAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestQuantileAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var tdigest = db.TDIGEST();
 
         tdigest.Create("tdqnt", 100);
@@ -534,11 +376,11 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(new double[] { 1 }, await tdigest.QuantileAsync("tdqnt", 0.5));
     }
 
-    [Fact]
-    public void TestMinAndMax()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestMinAndMax(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var tdigest = db.TDIGEST();
 
         tdigest.Create(key, 100);
@@ -553,11 +395,11 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(5d, tdigest.Max(key));
     }
 
-    [Fact]
-    public async Task TestMinAndMaxAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestMinAndMaxAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var tdigest = db.TDIGEST();
 
         await tdigest.CreateAsync(key, 100);
@@ -572,11 +414,11 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(5d, await tdigest.MaxAsync(key));
     }
 
-    [Fact]
-    public void TestTrimmedMean()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestTrimmedMean(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var tdigest = db.TDIGEST();
 
         tdigest.Create(key, 500);
@@ -593,11 +435,11 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(14.5, tdigest.TrimmedMean(key, 0.5, 1.0));
     }
 
-    [Fact]
-    public async Task TestTrimmedMeanAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestTrimmedMeanAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var tdigest = db.TDIGEST();
 
         await tdigest.CreateAsync(key, 500);
@@ -615,11 +457,13 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [Fact]
-    public void TestModulePrefixs()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestModulePrefixs(string endpointId)
     {
-        IDatabase db1 = redisFixture.Redis.GetDatabase();
-        IDatabase db2 = redisFixture.Redis.GetDatabase();
+        var redis = GetConnection(endpointId);
+        IDatabase db1 = redis.GetDatabase();
+        IDatabase db2 = redis.GetDatabase();
 
         var tdigest1 = db1.TDIGEST();
         var tdigest2 = db2.TDIGEST();
