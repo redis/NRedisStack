@@ -6,16 +6,15 @@ using NRedisStack.Search;
 
 namespace NRedisStack.Tests.TokenBasedAuthentication
 {
-    public class AuthenticationTests : AbstractNRedisStackTest
+    public class AuthenticationTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture)
     {
         static readonly string key = "myKey";
         static readonly string value = "myValue";
         static readonly string index = "myIndex";
         static readonly string field = "myField";
         static readonly string alias = "myAlias";
-        public AuthenticationTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-        [TargetEnvironment("standalone-entraid-acl")]
+        [SkippableFact]
         public void TestTokenBasedAuthentication()
         {
 
@@ -23,7 +22,7 @@ namespace NRedisStack.Tests.TokenBasedAuthentication
             configurationOptions.Ssl = false;
             configurationOptions.AbortOnConnectFail = true; // Fail fast for the purposes of this sample. In production code, this should remain false to retry connections on startup
 
-            ConnectionMultiplexer? connectionMultiplexer = redisFixture.GetConnectionById(configurationOptions, "standalone-entraid-acl");
+            ConnectionMultiplexer? connectionMultiplexer = GetConnection(configurationOptions, "standalone-entraid-acl");
 
             IDatabase db = connectionMultiplexer.GetDatabase();
 

@@ -14,7 +14,7 @@ public enum Is
 }
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-public class SkipIfRedisAttribute : TheoryAttribute
+public class SkipIfRedisAttribute : SkippableTheoryAttribute
 {
     private readonly string _targetVersion;
     private readonly Comparison _comparison;

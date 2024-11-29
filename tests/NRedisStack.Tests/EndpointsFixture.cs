@@ -1,5 +1,6 @@
 using StackExchange.Redis;
 using System.Text.Json;
+using Xunit;
 
 namespace NRedisStack.Tests;
 
@@ -85,10 +86,7 @@ public class EndpointsFixture : IDisposable
 
     public ConnectionMultiplexer GetConnectionById(ConfigurationOptions configurationOptions, string id)
     {
-        if (!redisEndpoints.ContainsKey(id))
-        {
-            throw new Exception($"The connection with id '{id}' is not configured.");
-        }
+        Skip.IfNot(redisEndpoints.ContainsKey(id), $"The connection with id '{id}' is not configured.");
 
         return redisEndpoints[id].CreateConnection(configurationOptions);
     }
