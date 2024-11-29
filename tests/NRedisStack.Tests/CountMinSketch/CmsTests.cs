@@ -4,17 +4,16 @@ using NRedisStack.RedisStackCommands;
 
 namespace NRedisStack.Tests.CuckooFilter;
 
-public class CmsTests : AbstractNRedisStackTest, IDisposable
+public class CmsTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
 {
     private readonly string key = "CMS_TESTS";
-    public CmsTests(RedisFixture redisFixture) : base(redisFixture) { }
 
 
-    [Fact]
-    public void TestInitByDim()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestInitByDim(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cms = db.CMS();
 
         cms.InitByDim(key, 16, 4);
@@ -25,11 +24,11 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, info.Count);
     }
 
-    [Fact]
-    public async Task TestInitByDimAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestInitByDimAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cms = db.CMS();
 
         await cms.InitByDimAsync(key, 16, 4);
@@ -40,11 +39,11 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, info.Count);
     }
 
-    [Fact]
-    public void TestInitByProb()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestInitByProb(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cms = db.CMS();
 
         cms.InitByProb(key, 0.01, 0.01);
@@ -55,11 +54,11 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, info.Count);
     }
 
-    [Fact]
-    public async Task TestInitByProbAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestInitByProbAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cms = db.CMS();
 
         await cms.InitByProbAsync(key, 0.01, 0.01);
@@ -70,33 +69,33 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, info.Count);
     }
 
-    [Fact]
-    public void TestKeyAlreadyExists()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestKeyAlreadyExists(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cms = db.CMS();
 
         cms.InitByDim("dup", 16, 4);
         Assert.Throws<RedisServerException>(() => cms.InitByDim("dup", 8, 6));
     }
 
-    [Fact]
-    public async Task TestKeyAlreadyExistsAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestKeyAlreadyExistsAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cms = db.CMS();
 
         await cms.InitByDimAsync("dup", 16, 4);
         await Assert.ThrowsAsync<RedisServerException>(() => cms.InitByDimAsync("dup", 8, 6));
     }
 
-    [Fact]
-    public void TestIncrBy()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestIncrBy(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cms = db.CMS();
 
         cms.InitByDim(key, 1000, 5);
@@ -110,11 +109,11 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
 
     }
 
-    [Fact]
-    public async Task TestIncrByAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestIncrByAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cms = db.CMS();
 
         await cms.InitByDimAsync(key, 1000, 5);
@@ -128,11 +127,11 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
 
     }
 
-    [Fact]
-    public void TestIncrByMultipleArgs()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestIncrByMultipleArgs(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cms = db.CMS();
 
         cms.InitByDim(key, 1000, 5);
@@ -151,11 +150,11 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(25, info.Count);
     }
 
-    [Fact]
-    public async Task TestIncrByMultipleArgsAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestIncrByMultipleArgsAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cms = db.CMS();
 
         await cms.InitByDimAsync(key, 1000, 5);
@@ -175,11 +174,11 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [Fact]
-    public void TestQuery()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestQuery(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cms = db.CMS();
         cms.InitByDim(key, 1000, 5);
 
@@ -193,11 +192,11 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(new long[] { 10, 15 }, resp);
     }
 
-    [Fact]
-    public async Task TestQueryAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestQueryAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cms = db.CMS();
         await cms.InitByDimAsync(key, 1000, 5);
 
@@ -211,11 +210,11 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(new long[] { 10, 15 }, resp);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-    public void TestMerge()
+    [SkipIfRedis(Is.Enterprise)]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestMerge(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cms = db.CMS();
 
         cms.InitByDim("A", 1000, 5);
@@ -260,11 +259,11 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-    public async Task TestMergeAsync()
+    [SkipIfRedis(Is.Enterprise)]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestMergeAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cms = db.CMS();
 
         await cms.InitByDimAsync("A", 1000, 5);
@@ -309,11 +308,13 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [Fact]
-    public void TestModulePrefixs()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestModulePrefixs(string endpointId)
     {
-        IDatabase db1 = redisFixture.Redis.GetDatabase();
-        IDatabase db2 = redisFixture.Redis.GetDatabase();
+        var redis = GetConnection(endpointId);
+        IDatabase db1 = redis.GetDatabase();
+        IDatabase db2 = redis.GetDatabase();
 
         var cms1 = db1.CMS();
         var cms2 = db2.CMS();

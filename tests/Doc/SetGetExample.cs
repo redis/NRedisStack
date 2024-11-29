@@ -10,8 +10,7 @@ namespace Doc;
 //REMOVE_END
 public class SetGetExample
 {
-
-    [SkipIfRedis(Is.OSSCluster)]
+    
     public void run()
     {
         var redis = ConnectionMultiplexer.Connect("localhost:6379");

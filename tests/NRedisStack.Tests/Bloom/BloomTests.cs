@@ -4,18 +4,17 @@ using NRedisStack.RedisStackCommands;
 
 namespace NRedisStack.Tests.Bloom;
 
-public class BloomTests : AbstractNRedisStackTest, IDisposable
+public class BloomTests(EndpointsFixture endpointsFixture)
+    : AbstractNRedisStackTest(endpointsFixture), IDisposable
 {
     private readonly string key = "BLOOM_TESTS";
-    public BloomTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-    [Fact]
-    public void TestReserveBasic()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestReserveBasic(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var bf = db.BF();
-
 
         bf.Reserve(key, 0.001, 100L);
 
@@ -24,11 +23,11 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.False(bf.Exists(key, "item2"));
     }
 
-    [Fact]
-    public async Task TestReserveBasicAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestReserveBasicAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var bf = db.BF();
 
         await bf.ReserveAsync(key, 0.001, 100L);
@@ -38,58 +37,55 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.False(await bf.ExistsAsync(key, "item2"));
     }
 
-    [Fact]
-    public void TestAddWhenExist()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestAddWhenExist(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var bf = db.BF();
 
         Assert.True((bf.Add(key, "item1"))); // first time
         Assert.False(bf.Add(key, "item1")); // second time
     }
 
-    [Fact]
-    public async Task TestAddWhenExistAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestAddWhenExistAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var bf = db.BF();
-
 
         Assert.True(await bf.AddAsync(key, "item1")); // first time
         Assert.False(await bf.AddAsync(key, "item1")); // second time
     }
 
-    [Fact]
-    public void TestAddExists()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestAddExists(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var bf = db.BF();
-
 
         bf.Add(key, "item1");
         Assert.True(bf.Exists(key, "item1"));
     }
 
-    [Fact]
-    public async Task TestAddExistsAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestAddExistsAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var bf = db.BF();
-
 
         await bf.AddAsync(key, "item1");
         Assert.True(await bf.ExistsAsync(key, "item1"));
     }
 
-    [Fact]
-    public void TestAddExistsMulti()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestAddExistsMulti(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var bf = db.BF();
         var items = new RedisValue[] { "foo", "bar", "baz" };
         var items2 = new RedisValue[] { "newElement", "bar", "baz" };
@@ -101,11 +97,11 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(new bool[] { true, false, false }, result);
     }
 
-    [Fact]
-    public async Task TestAddExistsMultiAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestAddExistsMultiAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var bf = db.BF();
         var items = new RedisValue[] { "foo", "bar", "baz" };
         var items2 = new RedisValue[] { "newElement", "bar", "baz" };
@@ -117,11 +113,11 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(new bool[] { true, false, false }, result);
     }
 
-    [Fact]
-    public void TestExample()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestExample(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var bf = db.BF();
 
         // Simple bloom filter using default module settings
@@ -146,11 +142,11 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         bf.Add("specialBloom", "foo");
     }
 
-    [Fact]
-    public async Task TestExampleAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestExampleAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var bf = db.BF();
 
         // Simple bloom filter using default module settings
@@ -175,11 +171,11 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         await bf.AddAsync("specialBloom", "foo");
     }
 
-    [Fact]
-    public void TestInsert()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestInsert(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var bf = db.BF();
 
         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
@@ -191,11 +187,11 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.True(bf.Exists("key", "item3"));
     }
 
-    [Fact]
-    public async Task TestInsertAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestInsertAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var bf = db.BF();
 
         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
@@ -207,33 +203,33 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await bf.ExistsAsync("key", "item3"));
     }
 
-    [Fact]
-    public void TestExistsNonExist()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestExistsNonExist(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var bf = db.BF();
 
         RedisValue item = new RedisValue("item");
         Assert.False(bf.Exists("NonExistKey", item));
     }
 
-    [Fact]
-    public async Task TestExistsNonExistAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestExistsNonExistAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var bf = db.BF();
 
         RedisValue item = new RedisValue("item");
         Assert.False(await bf.ExistsAsync("NonExistKey", item));
     }
 
-    [Fact]
-    public void TestInfo()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestInfo(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var bf = db.BF();
 
         bf.Add(key, "item");
@@ -245,11 +241,11 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.Throws<RedisServerException>(() => bf.Info("notExistKey"));
     }
 
-    [Fact]
-    public async Task TestInfoAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestInfoAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var bf = db.BF();
 
         await bf.AddAsync(key, "item");
@@ -261,11 +257,11 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         await Assert.ThrowsAsync<RedisServerException>(() => bf.InfoAsync("notExistKey"));
     }
 
-    [Fact]
-    public void TestScanDumpAndLoadChunk()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestScanDumpAndLoadChunk(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var bf = db.BF();
 
         bf.Reserve("bloom-dump", 0.1, 10);
@@ -286,11 +282,11 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.True(bf.Exists("bloom-load", "a"));
     }
 
-    [Fact]
-    public async Task TestScanDumpAndLoadChunkAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestScanDumpAndLoadChunkAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var bf = db.BF();
 
         await bf.ReserveAsync("bloom-dump", 0.1, 10);
@@ -311,12 +307,13 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await bf.ExistsAsync("bloom-load", "a"));
     }
 
-
-    [Fact]
-    public void TestModulePrefixs()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestModulePrefixs(string endpointId)
     {
-        IDatabase db1 = redisFixture.Redis.GetDatabase();
-        IDatabase db2 = redisFixture.Redis.GetDatabase();
+        var redis = GetConnection(endpointId);
+        IDatabase db1 = redis.GetDatabase();
+        IDatabase db2 = redis.GetDatabase();
 
         var bf1 = db1.FT();
         var bf2 = db2.FT();
@@ -324,11 +321,11 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.NotEqual(bf1.GetHashCode(), bf2.GetHashCode());
     }
 
-    [Fact]
-    public void TestCard()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestCard(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var bf = db.BF();
 
         // return 0 if the key does not exist:
@@ -343,11 +340,11 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.Throws<RedisServerException>(() => bf.Card("setKey"));
     }
 
-    [Fact]
-    public async Task TestCardAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestCardAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var bf = db.BF();
 
         // return 0 if the key does not exist:
@@ -362,11 +359,11 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         await Assert.ThrowsAsync<RedisServerException>(() => bf.CardAsync("setKey"));
     }
 
-    [Fact]
-    public void TestInsertArgsError()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestInsertArgsError(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var bf = db.BF();
 
         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };

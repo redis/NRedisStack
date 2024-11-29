@@ -5,18 +5,16 @@ using Xunit;
 
 namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
-    public class TestMGet : AbstractNRedisStackTest, IDisposable
+    public class TestMGet(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
     {
 
         private readonly string[] keys = { "MGET_TESTS_1", "MGET_TESTS_2" };
 
-        public TestMGet(RedisFixture redisFixture) : base(redisFixture) { }
-
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public void TestMGetQuery()
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public void TestMGetQuery(string endpointId)
         {
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase(endpointId);
             var ts = db.TS();
 
             var label1 = new TimeSeriesLabel("MGET_TESTS_1", "value");
@@ -39,11 +37,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public void TestMGetQueryWithLabels()
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public void TestMGetQueryWithLabels(string endpointId)
         {
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase(endpointId);
             var ts = db.TS();
 
             var label1 = new TimeSeriesLabel("MGET_TESTS_1", "value");
@@ -66,11 +64,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(labels2, results[1].labels);
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public void TestMGetQuerySelectedLabels()
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public void TestMGetQuerySelectedLabels(string endpointId)
         {
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase(endpointId);
             var ts = db.TS();
 
             var label1 = new TimeSeriesLabel("MGET_TESTS_1", "value");

@@ -6,19 +6,16 @@ using Xunit;
 
 namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
-    public class TestCreate : AbstractNRedisStackTest, IDisposable
+    public class TestCreate(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
     {
         private readonly string key = "CREATE_TESTS";
-
-        public TestCreate(RedisFixture redisFixture) : base(redisFixture) { }
 
 
         [Fact]
         [Obsolete]
         public void TestCreateOK()
         {
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase();
             var ts = db.TS();
             Assert.True(ts.Create(key));
             TimeSeriesInformation info = ts.Info(key);
@@ -29,8 +26,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestCreateRetentionTime()
         {
             long retentionTime = 5000;
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase();
             var ts = db.TS();
             Assert.True(ts.Create(key, retentionTime: retentionTime));
             TimeSeriesInformation info = ts.Info(key);
@@ -43,8 +39,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             TimeSeriesLabel label = new TimeSeriesLabel("key", "value");
             var labels = new List<TimeSeriesLabel> { label };
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase();
             var ts = db.TS();
             Assert.True(ts.Create(key, labels: labels));
             TimeSeriesInformation info = ts.Info(key);
@@ -56,8 +51,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public void TestCreateEmptyLabels()
         {
             var labels = new List<TimeSeriesLabel>();
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase();
             var ts = db.TS();
             Assert.True(ts.Create(key, labels: labels));
             TimeSeriesInformation info = ts.Info(key);
@@ -67,8 +61,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         [Fact]
         public void TestCreateUncompressed()
         {
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase();
             var ts = db.TS();
             Assert.True(ts.Create(key, uncompressed: true));
         }
@@ -76,8 +69,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         [Fact]
         public void TestCreatehDuplicatePolicyFirst()
         {
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase();
             var ts = db.TS();
             Assert.True(ts.Create(key, duplicatePolicy: TsDuplicatePolicy.FIRST));
         }
@@ -85,8 +77,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         [Fact]
         public void TestCreatehDuplicatePolicyLast()
         {
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase();
             var ts = db.TS();
             Assert.True(ts.Create(key, duplicatePolicy: TsDuplicatePolicy.LAST));
         }
@@ -94,8 +85,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         [Fact]
         public void TestCreatehDuplicatePolicyMin()
         {
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase();
             var ts = db.TS();
             Assert.True(ts.Create(key, duplicatePolicy: TsDuplicatePolicy.MIN));
         }
@@ -103,8 +93,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         [Fact]
         public void TestCreatehDuplicatePolicyMax()
         {
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase();
             var ts = db.TS();
             Assert.True(ts.Create(key, duplicatePolicy: TsDuplicatePolicy.MAX));
         }
@@ -112,17 +101,16 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         [Fact]
         public void TestCreatehDuplicatePolicySum()
         {
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase();
             var ts = db.TS();
             Assert.True(ts.Create(key, duplicatePolicy: TsDuplicatePolicy.SUM));
         }
 
         [SkipIfRedis(Comparison.LessThan, "7.4.0")]
-        public void TestCreateAndIgnoreValues()
+        [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+        public void TestCreateAndIgnoreValues(string endpointId)
         {
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             var parameters = new TsCreateParamsBuilder().AddIgnoreValues(11, 12).build();
             Assert.True(ts.Create(key, parameters));

@@ -1,14 +1,42 @@
 
 using NRedisStack.DataTypes;
 using System.Runtime.CompilerServices;
+using StackExchange.Redis;
 using Xunit;
 namespace NRedisStack.Tests;
 
-public abstract class AbstractNRedisStackTest : IClassFixture<RedisFixture>, IAsyncLifetime
+public abstract class AbstractNRedisStackTest : IClassFixture<EndpointsFixture>, IAsyncLifetime
 {
-    protected internal RedisFixture redisFixture;
+    protected internal EndpointsFixture EndpointsFixture;
 
-    protected internal AbstractNRedisStackTest(RedisFixture redisFixture) => this.redisFixture = redisFixture;
+    protected readonly ConfigurationOptions DefaultConnectionConfig = new()
+    {
+        AsyncTimeout = 10000,
+        SyncTimeout = 10000
+    };
+    
+    protected internal AbstractNRedisStackTest(EndpointsFixture endpointsFixture)
+    {
+        this.EndpointsFixture = endpointsFixture;
+    }
+    
+    protected ConnectionMultiplexer GetConnection(string endpointId = EndpointsFixture.Env.Standalone) => EndpointsFixture.GetConnectionById(this.DefaultConnectionConfig, endpointId);
+    
+    protected ConnectionMultiplexer GetConnection(ConfigurationOptions configurationOptions, string endpointId = EndpointsFixture.Env.Standalone) => EndpointsFixture.GetConnectionById(configurationOptions, endpointId);
+    
+    protected IDatabase GetDatabase(string endpointId = EndpointsFixture.Env.Standalone)
+    {
+        var redis = GetConnection(endpointId);
+        IDatabase db = redis.GetDatabase();
+        return db;
+    }
+    
+    protected IDatabase GetCleanDatabase(string endpointId = EndpointsFixture.Env.Standalone)
+    {
+        IDatabase db = GetDatabase(endpointId);
+        db.Execute("FLUSHALL");
+        return db;
+    }
 
     private List<string> keyNames = new List<string>();
 
@@ -44,13 +72,13 @@ public abstract class AbstractNRedisStackTest : IClassFixture<RedisFixture>, IAs
 
     public void Dispose()
     {
-        redisFixture.Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
+        //Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
     }
 
     public async Task DisposeAsync()
     {
-        var redis = redisFixture.Redis.GetDatabase();
+        //var redis = Redis.GetDatabase();
         // await redis.KeyDeleteAsync(keyNames.Select(i => (RedisKey)i).ToArray());
-        await redis.ExecuteBroadcastAsync("FLUSHALL");
+        //await redis.ExecuteBroadcastAsync("FLUSHALL");
     }
 }

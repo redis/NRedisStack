@@ -7,17 +7,14 @@ using NRedisStack.Json.DataTypes;
 
 namespace NRedisStack.Tests;
 
-public class JsonTests : AbstractNRedisStackTest, IDisposable
+public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
 {
-    // private readonly string _testName = "JSON_TESTS";
-    public JsonTests(RedisFixture redisFixture) : base(redisFixture) { }
-
-    [Fact]
-    public void TestSetFromFile()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestSetFromFile(string endpointId)
     {
         //arrange
-        var conn = redisFixture.Redis;
-        var db = conn.GetDatabase();
+        var db = GetCleanDatabase(endpointId);
         var commands = new JsonCommands(db);
         var keys = CreateKeyNames(1);
 
@@ -40,12 +37,12 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Throws<FileNotFoundException>(() => commands.SetFromFile(keys[0], "$", "notExistingFile.json"));
     }
 
-    [Fact]
-    public void TestSetFromDirectory()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestSetFromDirectory(string endpointId)
     {
         //arrange
-        var conn = redisFixture.Redis;
-        var db = conn.GetDatabase();
+        var db = GetCleanDatabase(endpointId);
         var commands = new JsonCommands(db);
 
         //creating json string:
@@ -93,14 +90,13 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Directory.Delete("BaseDir", true);
     }
 
-    [Fact]
-    public void TestJsonSetNotExist()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestJsonSetNotExist(string endpointId)
     {
         //arrange
-        var conn = redisFixture.Redis;
-        var db = conn.GetDatabase();
+        var db = GetCleanDatabase(endpointId);
         var commands = new JsonCommands(db);
-        db.Execute("FLUSHALL");
 
         var obj = new Person { Name = "Shachar", Age = 23 };
         Assert.True(commands.Set("Person:Shachar", "$", obj, When.NotExists));
@@ -108,12 +104,12 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.True(commands.Set("Person:Shachar", "$", obj, When.Exists));
     }
 
-    [Fact]
-    public async Task TestJsonSetNotExistAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestJsonSetNotExistAsync(string endpointId)
     {
         //arrange
-        var conn = redisFixture.Redis;
-        var db = conn.GetDatabase();
+        var db = GetDatabase(endpointId);
         var commands = new JsonCommands(db);
         db.Execute("FLUSHALL");
 
@@ -126,8 +122,9 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void TestModulePrefixs()
     {
-        IDatabase db1 = redisFixture.Redis.GetDatabase();
-        IDatabase db2 = redisFixture.Redis.GetDatabase();
+        var redis = GetConnection();
+        IDatabase db1 = redis.GetDatabase();
+        IDatabase db2 = redis.GetDatabase();
 
         var json1 = db1.JSON();
         var json2 = db2.JSON();
@@ -135,11 +132,12 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.NotEqual(json1.GetHashCode(), json2.GetHashCode());
     }
 
-    [Fact]
-    public void TestResp()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestResp(string endpointId)
     {
         //arrange
-        var conn = redisFixture.Redis;
+        var conn = GetConnection(endpointId);
         var db = conn.GetDatabase();
         var commands = new JsonCommands(db);
         var keys = CreateKeyNames(1);
@@ -160,11 +158,12 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         conn.GetDatabase().KeyDelete(key);
     }
 
-    [Fact]
-    public async Task TestRespAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestRespAsync(string endpointId)
     {
         //arrange
-        var conn = redisFixture.Redis;
+        var conn = GetConnection(endpointId);
         var db = conn.GetDatabase();
         var commands = new JsonCommandsAsync(db);
         var keys = CreateKeyNames(1);
@@ -185,12 +184,12 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         conn.GetDatabase().KeyDelete(key);
     }
 
-    [Fact]
-    public void TestStringAppend()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestStringAppend(string endpointId)
     {
         //arrange
-        var conn = redisFixture.Redis;
-        var db = conn.GetDatabase();
+        var db = GetDatabase(endpointId);
         var commands = new JsonCommands(db);
         var keys = CreateKeyNames(2);
 
@@ -213,12 +212,12 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(6, simpleKeyResult[0]);
     }
 
-    [Fact]
-    public async Task TestStringAppendAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestStringAppendAsync(string endpointId)
     {
         //arrange
-        var conn = redisFixture.Redis;
-        var db = conn.GetDatabase();
+        var db = GetDatabase(endpointId);
         var commands = new JsonCommandsAsync(db);
         var keys = CreateKeyNames(2);
 
@@ -241,12 +240,12 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(6, simpleKeyResult[0]);
     }
 
-    [Fact]
-    public void StringLength()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void StringLength(string endpointId)
     {
         //arrange
-        var conn = redisFixture.Redis;
-        var db = conn.GetDatabase();
+        var db = GetDatabase(endpointId);
         var commands = new JsonCommands(db);
         var keys = CreateKeyNames(2);
         var key = keys[0];
@@ -266,12 +265,12 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(3, simpleResult[0]);
     }
 
-    [Fact]
-    public async Task StringLengthAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task StringLengthAsync(string endpointId)
     {
         //arrange
-        var conn = redisFixture.Redis;
-        var db = conn.GetDatabase();
+        var db = GetDatabase(endpointId);
         var commands = new JsonCommandsAsync(db);
         var keys = CreateKeyNames(2);
         var key = keys[0];
@@ -291,12 +290,12 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(3, simpleResult[0]);
     }
 
-    [Fact]
-    public void Toggle()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void Toggle(string endpointId)
     {
         //arrange
-        var conn = redisFixture.Redis;
-        var db = conn.GetDatabase();
+        var db = GetDatabase(endpointId);
         var commands = new JsonCommands(db);
         var keys = CreateKeyNames(2);
         var key = keys[0];
@@ -313,12 +312,12 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.False(simpleResult[0]);
     }
 
-    [Fact]
-    public async Task ToggleAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task ToggleAsync(string endpointId)
     {
         //arrange
-        var conn = redisFixture.Redis;
-        var db = conn.GetDatabase();
+        var db = GetDatabase(endpointId);
         var commands = new JsonCommandsAsync(db);
         var keys = CreateKeyNames(2);
         var key = keys[0];
@@ -335,12 +334,12 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.False(simpleResult[0]);
     }
 
-    [Fact]
-    public void Type()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void Type(string endpointId)
     {
         //arrange
-        var conn = redisFixture.Redis;
-        var db = conn.GetDatabase();
+        var db = GetDatabase(endpointId);
         var commands = new JsonCommands(db);
         var keys = CreateKeyNames(2);
         var key = keys[0];
@@ -359,12 +358,12 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(JsonType.BOOLEAN, result[0]);
     }
 
-    [Fact]
-    public async Task TypeAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TypeAsync(string endpointId)
     {
         //arrange
-        var conn = redisFixture.Redis;
-        var db = conn.GetDatabase();
+        var db = GetDatabase(endpointId);
         var commands = new JsonCommandsAsync(db);
         var keys = CreateKeyNames(2);
         var key = keys[0];
@@ -383,11 +382,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(JsonType.BOOLEAN, result[0]);
     }
 
-    [Fact]
-    public void ArrayAppend()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void ArrayAppend(string endpointId)
     {
-        var conn = redisFixture.Redis;
-        var db = conn.GetDatabase();
+        var db = GetDatabase(endpointId);
         var commands = new JsonCommands(db);
         var keys = CreateKeyNames(2);
         var key = keys[0];
@@ -401,11 +400,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, result[0]);
     }
 
-    [Fact]
-    public async Task ArrayAppendAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task ArrayAppendAsync(string endpointId)
     {
-        var conn = redisFixture.Redis;
-        var db = conn.GetDatabase();
+        var db = GetDatabase(endpointId);
         var commands = new JsonCommandsAsync(db);
         var keys = CreateKeyNames(2);
         var key = keys[0];
@@ -419,11 +418,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, result[0]);
     }
 
-    [Fact]
-    public void ArrayIndex()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void ArrayIndex(string endpointId)
     {
-        var conn = redisFixture.Redis;
-        var db = conn.GetDatabase();
+        var db = GetDatabase(endpointId);
         var commands = new JsonCommands(db);
         var keys = CreateKeyNames(1);
         var key = keys[0];
@@ -433,11 +432,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(-1, res[1]);
     }
 
-    [Fact]
-    public async Task ArrayIndexAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task ArrayIndexAsync(string endpointId)
     {
-        var conn = redisFixture.Redis;
-        var db = conn.GetDatabase();
+        var db = GetDatabase(endpointId);
         var commands = new JsonCommandsAsync(db);
         var keys = CreateKeyNames(1);
         var key = keys[0];
@@ -447,10 +446,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(-1, res[1]);
     }
 
-    [Fact]
-    public void ArrayInsert()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void ArrayInsert(string endpointId)
     {
-        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(GetDatabase(endpointId));
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -464,10 +464,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(4, result[0]);
     }
 
-    [Fact]
-    public async Task ArrayInsertAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task ArrayInsertAsync(string endpointId)
     {
-        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(GetDatabase(endpointId));
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -481,10 +482,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(4, result[0]);
     }
 
-    [Fact]
-    public void ArrayLength()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void ArrayLength(string endpointId)
     {
-        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(GetDatabase(endpointId));
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -497,10 +499,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(3, result[0]);
     }
 
-    [Fact]
-    public async Task ArrayLengthAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task ArrayLengthAsync(string endpointId)
     {
-        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(GetDatabase(endpointId));
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -513,10 +516,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(3, result[0]);
     }
 
-    [Fact]
-    public void ArrayPop()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void ArrayPop(string endpointId)
     {
-        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(GetDatabase(endpointId));
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -531,10 +535,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("\"Ally\"", result[0].ToString());
     }
 
-    [Fact]
-    public async Task ArrayPopAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task ArrayPopAsync(string endpointId)
     {
-        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(GetDatabase(endpointId));
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -549,10 +554,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("\"Ally\"", result[0].ToString());
     }
 
-    [Fact]
-    public void ArrayTrim()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void ArrayTrim(string endpointId)
     {
-        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(GetDatabase(endpointId));
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -565,10 +571,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, result[0]);
     }
 
-    [Fact]
-    public async Task ArrayTrimAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task ArrayTrimAsync(string endpointId)
     {
-        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(GetDatabase(endpointId));
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -581,10 +588,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, result[0]);
     }
 
-    [Fact]
-    public void Clear()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void Clear(string endpointId)
     {
-        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(GetDatabase(endpointId));
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -597,10 +605,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, result);
     }
 
-    [Fact]
-    public async Task ClearAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task ClearAsync(string endpointId)
     {
-        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(GetDatabase(endpointId));
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -613,10 +622,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, result);
     }
 
-    [Fact]
-    public void Del()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void Del(string endpointId)
     {
-        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(GetDatabase(endpointId));
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -629,10 +639,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, result);
     }
 
-    [Fact]
-    public async Task DelAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task DelAsync(string endpointId)
     {
-        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(GetDatabase(endpointId));
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -645,10 +656,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, result);
     }
 
-    [Fact]
-    public void Forget()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void Forget(string endpointId)
     {
-        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(GetDatabase(endpointId));
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -661,10 +673,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, result);
     }
 
-    [Fact]
-    public async Task ForgetAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task ForgetAsync(string endpointId)
     {
-        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(GetDatabase(endpointId));
         var keys = CreateKeyNames(2);
         var key = keys[0];
         var simpleKey = keys[1];
@@ -677,10 +690,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, result);
     }
 
-    [Fact]
-    public void Get()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void Get(string endpointId)
     {
-        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(GetDatabase(endpointId));
         var keys = CreateKeyNames(3);
         var key = keys[0];
         var complexKey = keys[1];
@@ -704,10 +718,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(35, people[1]!.Age);
     }
 
-    [Fact]
-    public async Task GetAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task GetAsync(string endpointId)
     {
-        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(GetDatabase(endpointId));
         var keys = CreateKeyNames(3);
         var key = keys[0];
         var complexKey = keys[1];
@@ -731,10 +746,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(35, people[1]!.Age);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.1.242")]
-    public void MSet()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void MSet(string endpointId)
     {
-        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(GetDatabase(endpointId));
         var keys = CreateKeyNames(2);
         var key1 = keys[0];
         var key2 = keys[1];
@@ -755,10 +771,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Throws<ArgumentOutOfRangeException>(() => commands.MSet(new KeyPathValue[0]));
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.LessThan, "7.1.242")]
-    public async Task MSetAsync()
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task MSetAsync(string endpointId)
     {
-        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(GetDatabase(endpointId));
         var keys = CreateKeyNames(2);
         var key1 = keys[0];
         var key2 = keys[1];
@@ -779,10 +796,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis("7.1.242")]
-    public void Merge()
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void Merge(string endpointId)
     {
         // Create a connection to Redis
-        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(GetDatabase(endpointId));
 
         Assert.True(commands.Set("test_merge", "$", new { person = new { name = "John Doe", age = 25, address = new { home = "123 Main Street" }, phone = "123-456-7890" } }));
         Assert.True(commands.Merge("test_merge", "$", new { person = new { age = 30 } }));
@@ -798,10 +816,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis("7.1.242")]
-    public async Task MergeAsync()
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task MergeAsync(string endpointId)
     {
         // Create a connection to Redis
-        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(GetDatabase(endpointId));
 
         Assert.True(await commands.SetAsync("test_merge", "$", new { person = new { name = "John Doe", age = 25, address = new { home = "123 Main Street" }, phone = "123-456-7890" } }));
         Assert.True(await commands.MergeAsync("test_merge", "$", new { person = new { age = 30 } }));
@@ -816,10 +835,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("{\"person\":{\"name\":\"John Doe\",\"phone\":\"123-456-7890\",\"address\":{\"home\":\"123 Main Street\",\"work\":\"Redis office\"}}}", (await commands.GetAsync("test_merge")).ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-    public void MGet()
+    [SkipIfRedis(Is.Enterprise)]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void MGet(string endpointId)
     {
-        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(GetDatabase(endpointId));
         var keys = CreateKeyNames(2);
         var key1 = keys[0];
         var key2 = keys[1];
@@ -831,10 +851,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("[\"world\"]", result[1].ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-    public async Task MGetAsync()
+    [SkipIfRedis(Is.Enterprise)]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task MGetAsync(string endpointId)
     {
-        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(GetDatabase(endpointId));
         var keys = CreateKeyNames(2);
         var key1 = keys[0];
         var key2 = keys[1];
@@ -846,10 +867,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("[\"world\"]", result[1].ToString());
     }
 
-    [Fact]
-    public void NumIncrby()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void NumIncrby(string endpointId)
     {
-        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(GetDatabase(endpointId));
         var keys = CreateKeyNames(1);
         var key = keys[0];
         commands.Set(key, "$", new { age = 33, a = new { age = 34 }, b = new { age = "cat" } });
@@ -859,10 +881,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result[2]);
     }
 
-    [Fact]
-    public async Task NumIncrbyAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task NumIncrbyAsync(string endpointId)
     {
-        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(GetDatabase(endpointId));
         var keys = CreateKeyNames(1);
         var key = keys[0];
         await commands.SetAsync(key, "$", new { age = 33, a = new { age = 34 }, b = new { age = "cat" } });
@@ -872,10 +895,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result[2]);
     }
 
-    [Fact]
-    public void ObjectKeys()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void ObjectKeys(string endpointId)
     {
-        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(GetDatabase(endpointId));
         var keys = CreateKeyNames(3);
         var key = keys[0];
         commands.Set(key, "$", new { a = 5, b = 10, c = "hello", d = new { a = new { a = 6, b = "hello" }, b = 7 } });
@@ -890,10 +914,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Contains("b", result[1]);
     }
 
-    [Fact]
-    public async Task ObjectKeysAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task ObjectKeysAsync(string endpointId)
     {
-        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(GetDatabase(endpointId));
         var keys = CreateKeyNames(3);
         var key = keys[0];
         await commands.SetAsync(key, "$", new { a = 5, b = 10, c = "hello", d = new { a = new { a = 6, b = "hello" }, b = 7 } });
@@ -908,10 +933,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Contains("b", result[1]);
     }
 
-    [Fact]
-    public void ObjectLength()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void ObjectLength(string endpointId)
     {
-        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(GetDatabase(endpointId));
         var keys = CreateKeyNames(3);
         var key = keys[0];
         commands.Set(key, "$", new { a = 5, b = 10, c = "hello", d = new { a = new { a = 6, b = "hello" }, b = 7 } });
@@ -924,10 +950,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
 
     }
 
-    [Fact]
-    public async Task ObjectLengthAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task ObjectLengthAsync(string endpointId)
     {
-        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(GetDatabase(endpointId));
         var keys = CreateKeyNames(3);
         var key = keys[0];
         await commands.SetAsync(key, "$", new { a = 5, b = 10, c = "hello", d = new { a = new { a = 6, b = "hello" }, b = 7 } });
@@ -940,10 +967,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
 
     }
 
-    [Fact]
-    public void TestMultiPathGet()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestMultiPathGet(string endpointId)
     {
-        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(GetDatabase(endpointId));
         var keys = CreateKeyNames(1);
         var key = keys[0];
         commands.Set(key, "$", new { a = "hello", b = new { a = "world" } });
@@ -964,10 +992,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.True(obj["$.b"]![0]!["a"]!.ToString() == "world");
     }
 
-    [Fact]
-    public async Task TestMultiPathGetAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestMultiPathGetAsync(string endpointId)
     {
-        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(GetDatabase(endpointId));
         var keys = CreateKeyNames(1);
         var key = keys[0];
         await commands.SetAsync(key, "$", new { a = "hello", b = new { a = "world" } });
@@ -988,10 +1017,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.True(obj["$.b"]![0]!["a"]!.ToString() == "world");
     }
 
-    [Fact]
-    public void Memory()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void Memory(string endpointId)
     {
-        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(GetDatabase(endpointId));
         var keys = CreateKeyNames(1);
         var key = keys[0];
 
@@ -1002,10 +1032,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, res);
     }
 
-    [Fact]
-    public async Task MemoryAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task MemoryAsync(string endpointId)
     {
-        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(GetDatabase(endpointId));
         var keys = CreateKeyNames(1);
         var key = keys[0];
 
@@ -1016,12 +1047,12 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, res);
     }
 
-    [Fact]
-    public async Task TestSetFromFileAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestSetFromFileAsync(string endpointId)
     {
         //arrange
-        var conn = redisFixture.Redis;
-        var db = conn.GetDatabase();
+        var db = GetDatabase(endpointId);
         var commands = new JsonCommandsAsync(db);
         var keys = CreateKeyNames(1);
 
@@ -1044,12 +1075,12 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         await Assert.ThrowsAsync<FileNotFoundException>(async () => await commands.SetFromFileAsync(keys[0], "$", "notExistingFile.json"));
     }
 
-    [Fact]
-    public async Task TestSetFromDirectoryAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestSetFromDirectoryAsync(string endpointId)
     {
         //arrange
-        var conn = redisFixture.Redis;
-        var db = conn.GetDatabase();
+        var db = GetDatabase(endpointId);
         var commands = new JsonCommandsAsync(db);
 
         //creating json string:
@@ -1119,10 +1150,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("JSON.GET", getBuild2.Command);
     }
 
-    [Fact]
-    public void TestGetIssue198()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestGetIssue198(string endpointId)
     {
-        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(GetDatabase(endpointId));
         var keys = CreateKeyNames(1);
         var key = keys[0];
         commands.Set(key, "$", new Person() { Age = 35, Name = "Alice" });
@@ -1136,10 +1168,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result2);
     }
 
-    [Fact]
-    public async Task TestGetIssue198_Async()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestGetIssue198_Async(string endpointId)
     {
-        var commands = new JsonCommandsAsync(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommandsAsync(GetDatabase(endpointId));
         var keys = CreateKeyNames(1);
         var key = keys[0];
         await commands.SetAsync(key, "$", new Person() { Age = 35, Name = "Alice" });
@@ -1153,10 +1186,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result2);
     }
 
-    [Fact]
-    public void TestSetWithSerializationOptions()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestSetWithSerializationOptions(string endpointId)
     {
-        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(GetDatabase(endpointId));
         var keys = CreateKeyNames(1);
         var key = keys[0];
         var jsonOptions = new JsonSerializerOptions { IncludeFields = true };
@@ -1172,10 +1206,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(person.Birthday, result!.Birthday);
     }
 
-    [Fact]
-    public async Task TestSetWithSerializationOptionsAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestSetWithSerializationOptionsAsync(string endpointId)
     {
-        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(GetDatabase(endpointId));
         var keys = CreateKeyNames(1);
         var key = keys[0];
         var jsonOptions = new JsonSerializerOptions { IncludeFields = true };
@@ -1192,11 +1227,12 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis("7.1.242")]
-    public void MergeWithSerializationOptions()
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void MergeWithSerializationOptions(string endpointId)
     {
         string expected = "{\"age\":23,\"birthday\":\"2023-12-31T00:00:00\",\"name\":\"Developer\"}";
 
-        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(GetDatabase(endpointId));
         var keys = CreateKeyNames(1);
         var key = keys[0];
         commands.Set(key, "$", new { age = 5, birthday = new DateTime(2000, 1, 1) });
@@ -1212,11 +1248,12 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis("7.1.242")]
-    public async Task MergeWithSerializationOptionsAsync()
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task MergeWithSerializationOptionsAsync(string endpointId)
     {
         string expected = "{\"age\":23,\"birthday\":\"2023-12-31T00:00:00\",\"name\":\"Developer\"}";
 
-        var commands = new JsonCommands(redisFixture.Redis.GetDatabase());
+        var commands = new JsonCommands(GetDatabase(endpointId));
         var keys = CreateKeyNames(1);
         var key = keys[0];
         await commands.SetAsync(key, "$", new { age = 5, birthday = new DateTime(2000, 1, 1) });

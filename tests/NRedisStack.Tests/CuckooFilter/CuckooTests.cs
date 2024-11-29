@@ -4,16 +4,18 @@ using NRedisStack.RedisStackCommands;
 
 namespace NRedisStack.Tests.CuckooFilter;
 
-public class CuckooTests : AbstractNRedisStackTest, IDisposable
+// 
+
+public class CuckooTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
 {
     private readonly string key = "CUCKOO_TESTS";
-    public CuckooTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-    [Fact]
-    public void TestReserveBasic()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestReserveBasic(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
+        
         var cf = db.CF();
         Assert.True(cf.Reserve(key, 100L, maxIterations: 20, expansion: 1));
         Assert.Throws<RedisServerException>(() => cf.Reserve(key, 100L));
@@ -23,11 +25,11 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.False(cf.Exists(key, "item2"));
     }
 
-    [Fact]
-    public async Task TestReserveBasicAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestReserveBasicAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cf = db.CF();
         Assert.True(await cf.ReserveAsync(key, 100L, maxIterations: 20, expansion: 1));
         _ = Assert.ThrowsAsync<RedisServerException>(async () => await cf.ReserveAsync(key, 100L));
@@ -37,33 +39,33 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.False(await cf.ExistsAsync(key, "item2"));
     }
 
-    [Fact]
-    public void TestAddExists()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestAddExists(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cf = db.CF();
 
         Assert.True(cf.Add(key, "item1"));
         Assert.True(cf.Exists(key, "item1"));
     }
 
-    [Fact]
-    public async Task TestAddExistsAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestAddExistsAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cf = db.CF();
 
         Assert.True(await cf.AddAsync(key, "item1"));
         Assert.True(await cf.ExistsAsync(key, "item1"));
     }
 
-    [Fact]
-    public void TestAddNX()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestAddNX(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cf = db.CF();
 
         Assert.True(cf.AddNX(key, "item1"));
@@ -71,11 +73,11 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.True(cf.Exists(key, "item1"));
     }
 
-    [Fact]
-    public async Task TestAddNXAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestAddNXAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cf = db.CF();
 
         Assert.True(await cf.AddNXAsync(key, "item1"));
@@ -83,75 +85,75 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await cf.ExistsAsync(key, "item1"));
     }
 
-    [Fact]
-    public void TestCountFilterDoesNotExist()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestCountFilterDoesNotExist(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cf = db.CF();
 
         Assert.Equal(0, cf.Count("notExistFilter", "notExistItem"));
     }
 
-    [Fact]
-    public async Task TestCountFilterDoesNotExistAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestCountFilterDoesNotExistAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cf = db.CF();
 
         Assert.Equal(0, await cf.CountAsync("notExistFilter", "notExistItem"));
     }
 
-    [Fact]
-    public void TestCountFilterExist()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestCountFilterExist(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cf = db.CF();
 
         cf.Insert(key, new RedisValue[] { "foo" });
         Assert.Equal(0, cf.Count(key, "notExistItem"));
     }
 
-    [Fact]
-    public async Task TestCountFilterExistAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestCountFilterExistAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cf = db.CF();
 
         await cf.InsertAsync(key, new RedisValue[] { "foo" });
         Assert.Equal(0, await cf.CountAsync(key, "notExistItem"));
     }
 
-    [Fact]
-    public void TestCountItemExist()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestCountItemExist(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cf = db.CF();
 
         cf.Insert(key, new RedisValue[] { "foo" });
         Assert.Equal(1, cf.Count(key, "foo"));
     }
 
-    [Fact]
-    public async Task TestCountItemExistAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestCountItemExistAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cf = db.CF();
 
         await cf.InsertAsync(key, new RedisValue[] { "foo" });
         Assert.Equal(1, await cf.CountAsync(key, "foo"));
     }
 
-    [Fact]
-    public void TestDelete()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestDelete(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cf = db.CF();
 
         cf.Add(key, "item");
@@ -161,11 +163,11 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.Throws<RedisServerException>(() => cf.Del("notExistKey", "item"));
     }
 
-    [Fact]
-    public async Task TestDeleteAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestDeleteAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cf = db.CF();
 
         await cf.AddAsync(key, "item");
@@ -175,11 +177,11 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         await Assert.ThrowsAsync<RedisServerException>(() => cf.DelAsync("notExistKey", "item"));
     }
 
-    [Fact]
-    public void TestInfo()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestInfo(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cf = db.CF();
 
         cf.Add(key, "item");
@@ -198,11 +200,11 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.Throws<RedisServerException>(() => cf.Info("notExistKey"));
     }
 
-    [Fact]
-    public async Task TestInfoAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestInfoAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cf = db.CF();
 
         await cf.AddAsync(key, "item");
@@ -223,11 +225,11 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         await Assert.ThrowsAsync<RedisServerException>(() => cf.InfoAsync("notExistKey"));
     }
 
-    [Fact]
-    public void TestInsert()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestInsert(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cf = db.CF();
 
         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
@@ -239,11 +241,11 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.True(cf.Exists("key", "item3"));
     }
 
-    [Fact]
-    public async Task TestInsertAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestInsertAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cf = db.CF();
 
         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
@@ -255,11 +257,11 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await cf.ExistsAsync("key", "item3"));
     }
 
-    [Fact]
-    public void TestInsertNX()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestInsertNX(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cf = db.CF();
 
         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
@@ -283,11 +285,11 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.Throws<ArgumentOutOfRangeException>(() => cf.InsertNX(key, new RedisValue[] { }));
     }
 
-    [Fact]
-    public async Task TestInsertNXAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestInsertNXAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cf = db.CF();
 
         RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
@@ -311,33 +313,33 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         _ = Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await cf.InsertNXAsync(key, new RedisValue[] { }));
     }
 
-    [Fact]
-    public void TestExistsNonExist()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestExistsNonExist(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cf = db.CF();
 
         RedisValue item = new RedisValue("item");
         Assert.False(cf.Exists("NonExistKey", item));
     }
 
-    [Fact]
-    public async Task TestExistsNonExistAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestExistsNonExistAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cf = db.CF();
 
         RedisValue item = new RedisValue("item");
         Assert.False(await cf.ExistsAsync("NonExistKey", item));
     }
 
-    [Fact]
-    public void TestScanDumpAndLoadChunk()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestScanDumpAndLoadChunk(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cf = db.CF();
 
         cf.Reserve("cuckoo", 100, 50);
@@ -358,11 +360,11 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.True(cf.Exists("cuckoo-load", "a"));
     }
 
-    [Fact]
-    public async Task TestScanDumpAndLoadChunkAsync()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestScanDumpAndLoadChunkAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var cf = db.CF();
 
         await cf.ReserveAsync("cuckoo", 100, 50);
@@ -384,11 +386,14 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [Fact]
-    public void TestModulePrefixs()
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestModulePrefixs(string endpointId)
     {
-        IDatabase db1 = redisFixture.Redis.GetDatabase();
-        IDatabase db2 = redisFixture.Redis.GetDatabase();
+        var redis = GetConnection(endpointId);
+        
+        IDatabase db1 = redis.GetDatabase();
+        IDatabase db2 = redis.GetDatabase();
 
         var cf1 = db1.CF();
         var cf2 = db2.CF();
