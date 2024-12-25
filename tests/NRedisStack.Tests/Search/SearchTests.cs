@@ -887,7 +887,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(4, info.CursorStats.Count);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.4.0")]
+    [SkipIfRedis(Comparison.LessThan, "7.3.0")]
     public void InfoWithIndexEmptyAndIndexMissing()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
