@@ -2,27 +2,27 @@ namespace NRedisStack.Search
 {
     public class FieldName
     {
-        private readonly string fieldName;
-        private string? alias;
+        public string Name { get; }
+        public string? Alias { get; private set; }
 
         public FieldName(string name) : this(name, null) { }
 
         public FieldName(string name, string? attribute)
         {
-            this.fieldName = name;
-            this.alias = attribute;
+            this.Name = name;
+            this.Alias = attribute;
         }
 
         public int AddCommandArguments(List<object> args)
         {
-            args.Add(fieldName);
-            if (alias == null)
+            args.Add(Name);
+            if (Alias is null)
             {
                 return 1;
             }
 
             args.Add("AS");
-            args.Add(alias);
+            args.Add(Alias);
             return 3;
         }
 
@@ -33,7 +33,7 @@ namespace NRedisStack.Search
 
         public FieldName As(string attribute)
         {
-            this.alias = attribute;
+            this.Alias = attribute;
             return this;
         }
     }
