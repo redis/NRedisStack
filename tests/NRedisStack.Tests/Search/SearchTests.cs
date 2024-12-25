@@ -888,6 +888,40 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+    public void InfoWithIndexEmptyAndIndexMissing()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT(2);
+        var vectorAttrs = new Dictionary<string, object>()
+        {
+            ["TYPE"] = "FLOAT32",
+            ["DIM"] = "2",
+            ["DISTANCE_METRIC"] = "L2",
+        };
+
+        Schema sc = new Schema()
+           .AddTextField("text1", 1.0, emptyIndex: true, missingIndex: true)
+           .AddTagField("tag1", emptyIndex: true, missingIndex: true)
+           .AddNumericField("numeric1", missingIndex: true)
+           .AddGeoField("geo1", missingIndex: true)
+           .AddGeoShapeField("geoshape1", Schema.GeoShapeField.CoordinateSystem.FLAT, missingIndex: true)
+           .AddVectorField("vector1", Schema.VectorField.VectorAlgo.FLAT, vectorAttrs, missingIndex: true);
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
+
+        var info = ft.Info(index);
+        var attributes = info.Attributes;
+        foreach (var attribute in attributes)
+        {
+            Assert.True(attribute.ContainsKey("INDEXMISSING"));
+            if (attribute["attribute"].ToString() == "text1" || attribute["attribute"].ToString() == "tag1")
+            {
+                Assert.True(attribute.ContainsKey("INDEXEMPTY"));
+            }
+        }
+    }
+
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
     public async Task AlterAddSortableAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
