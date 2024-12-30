@@ -11,8 +11,6 @@ using NetTopologySuite.Geometries;
 
 
 namespace NRedisStack.Tests.Search;
-
-[Collection("NoParallelization")]
 public class SearchTests : AbstractNRedisStackTest, IDisposable
 {
     // private readonly string key = "SEARCH_TESTS";
@@ -3322,7 +3320,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Empty(d.GetProperties().ToList());
     }
 
-    [Fact]
+    [SkipIfRedis(Is.OSSCluster)]
     public void TestDocumentLoadWithDB_Issue352()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
