@@ -3357,7 +3357,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                 }
             });
             Task.WhenAny(searchTask, Task.Delay(1000)).GetAwaiter().GetResult();
-            Assert.True(searchTask.IsCompletedSuccessfully);
+            Assert.True(searchTask.IsCompleted);
             Assert.Null(searchTask.Exception);
             cancelled = true;
         } while (droppedDocument == null && numberOfAttempts++ < 3);
