@@ -12,6 +12,7 @@ using NetTopologySuite.Geometries;
 
 namespace NRedisStack.Tests.Search;
 
+[Collection("NoParallelization")]
 public class SearchTests : AbstractNRedisStackTest, IDisposable
 {
     // private readonly string key = "SEARCH_TESTS";
