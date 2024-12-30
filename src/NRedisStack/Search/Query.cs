@@ -7,7 +7,7 @@ namespace NRedisStack.Search
     /// <summary>
     ///  Query represents query parameters and filters to load results from the engine
     /// </summary>
-    public sealed class Query
+    public sealed class Query : IDialectAwareParam
     {
         /// <summary>
         /// Filter represents a filtering rules in a query
@@ -691,5 +691,12 @@ namespace NRedisStack.Search
             _expander = field;
             return this;
         }
+
+        int? IDialectAwareParam.Dialect
+        {
+            get { return dialect; }
+            set { dialect = value; }
+        }
+
     }
 }
