@@ -3313,4 +3313,53 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, ft.Search(index, new Query("@version:[123 123] | @id:[456 7890]")).TotalResults);
         Assert.Equal(1, ft.Search(index, new Query("@version==123 @id==456").Dialect(4)).TotalResults);
     }
+
+    [Fact]
+    public void TestDocumentLoad_Issue352()
+    {
+        Document d = Document.Load("1", 0.5, null, new RedisValue[] { RedisValue.Null });
+        Assert.Empty(d.GetProperties().ToList());
+    }
+
+    [Fact]
+    public void TestDocumentLoadWithDB_Issue352()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        Schema sc = new Schema().AddTextField("first", 1.0).AddTextField("last", 1.0).AddNumericField("age");
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
+
+        Document droppedDocument = null;
+        int numberOfAttempts = 0;
+        do
+        {
+            db.HashSet("student:1111", new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", 18) });
+
+            Assert.True(db.KeyExpire("student:1111", TimeSpan.FromMilliseconds(500)));
+
+            Boolean cancelled = false;
+            Task searchTask = Task.Run(() =>
+            {
+                for (int i = 0; i < 100000; i++)
+                {
+                    SearchResult result = ft.Search(index, new Query());
+                    List<Document> docs = result.Documents;
+                    if (docs.Count == 0 || cancelled)
+                    {
+                        break;
+                    }
+                    else if (docs[0].GetProperties().ToList().Count == 0)
+                    {
+                        droppedDocument = docs[0];
+                    }
+                }
+            });
+            Task.WhenAny(searchTask, Task.Delay(1000)).GetAwaiter().GetResult();
+            Assert.True(searchTask.IsCompletedSuccessfully);
+            Assert.Null(searchTask.Exception);
+            cancelled = true;
+        } while (droppedDocument == null && numberOfAttempts++ < 3);
+    }
 }
