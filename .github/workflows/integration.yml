@@ -59,7 +59,7 @@ jobs:
         run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
 
       - name: Test
-        run: dotnet test -f net8.0 --no-build --verbosity detailed
+        run: dotnet test -f net8.0 --no-build --verbosity detailed -p:BuildInParallel=false tests/Test.proj --logger GitHubActions
 
   dotnet_6_cluster:
     name: .NET 6 on [redis-stack cluster]
@@ -175,4 +175,4 @@ jobs:
         shell: cmd
         run: |
           START wsl ./redis-stack-server-${{env.redis_stack_version}}/bin/redis-stack-server &
-          dotnet test -f net481 --no-build --verbosity detailed
+          dotnet test -f net481 --no-build --verbosity detailed -p:BuildInParallel=false tests/Test.proj --logger GitHubActions

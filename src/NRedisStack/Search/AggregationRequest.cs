@@ -2,7 +2,7 @@
 using NRedisStack.Search.Literals;
 
 namespace NRedisStack.Search;
-public class AggregationRequest
+public class AggregationRequest : IDialectAwareParam
 {
     private List<object> args = new List<object>(); // Check if Readonly
     private bool isWithCursor = false;
@@ -183,5 +183,11 @@ public class AggregationRequest
     public bool IsWithCursor()
     {
         return isWithCursor;
+    }
+
+    int? IDialectAwareParam.Dialect
+    {
+        get { return dialect; }
+        set { dialect = value; }
     }
 }
