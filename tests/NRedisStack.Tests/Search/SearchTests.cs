@@ -11,7 +11,6 @@ using NetTopologySuite.Geometries;
 
 
 namespace NRedisStack.Tests.Search;
-
 public class SearchTests : AbstractNRedisStackTest, IDisposable
 {
     // private readonly string key = "SEARCH_TESTS";
@@ -887,6 +886,40 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(4, info.CursorStats.Count);
     }
 
+    [SkipIfRedis(Comparison.LessThan, "7.3.0")]
+    public void InfoWithIndexEmptyAndIndexMissing()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT(2);
+        var vectorAttrs = new Dictionary<string, object>()
+        {
+            ["TYPE"] = "FLOAT32",
+            ["DIM"] = "2",
+            ["DISTANCE_METRIC"] = "L2",
+        };
+
+        Schema sc = new Schema()
+           .AddTextField("text1", 1.0, emptyIndex: true, missingIndex: true)
+           .AddTagField("tag1", emptyIndex: true, missingIndex: true)
+           .AddNumericField("numeric1", missingIndex: true)
+           .AddGeoField("geo1", missingIndex: true)
+           .AddGeoShapeField("geoshape1", Schema.GeoShapeField.CoordinateSystem.FLAT, missingIndex: true)
+           .AddVectorField("vector1", Schema.VectorField.VectorAlgo.FLAT, vectorAttrs, missingIndex: true);
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
+
+        var info = ft.Info(index);
+        var attributes = info.Attributes;
+        foreach (var attribute in attributes)
+        {
+            Assert.True(attribute.ContainsKey("INDEXMISSING"));
+            if (attribute["attribute"].ToString() == "text1" || attribute["attribute"].ToString() == "tag1")
+            {
+                Assert.True(attribute.ContainsKey("INDEXEMPTY"));
+            }
+        }
+    }
+
     [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
     public async Task AlterAddSortableAsync()
     {
@@ -1256,7 +1289,9 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         res = rawRes.GetRow(0);
         Assert.Equal("redis", res["parent"]);
         // TODO: complete this assert after handling multi bulk reply
-        //Assert.Equal((RedisValue[])res["__generated_aliastolisttitle"], { "RediSearch", "RedisAI", "RedisJson"});
+        var expected = new List<object> { "RediSearch", "RedisAI", "RedisJson" };
+        var actual = (List<object>)res.Get("__generated_aliastolisttitle");
+        Assert.True(!expected.Except(actual).Any() && expected.Count == actual.Count);
 
         req = new AggregationRequest("redis").GroupBy(
             "@parent", Reducers.FirstValue("@title").As("first"));
@@ -1269,11 +1304,20 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         res = ft.Aggregate("idx", req).GetRow(0);
         Assert.Equal("redis", res["parent"]);
         // TODO: complete this assert after handling multi bulk reply
-        // Assert.Equal(res[2], "random");
-        // Assert.Equal(len(res[3]), 2);
-        // Assert.Equal(res[3][0] in ["RediSearch", "RedisAI", "RedisJson"]);
-        // req = new AggregationRequest("redis").GroupBy("@parent", redu
+        actual = (List<object>)res.Get("random");
+        Assert.Equal(2, actual.Count);
+        List<string> possibleValues = new List<string>() { "RediSearch", "RedisAI", "RedisJson" };
+        Assert.Contains(actual[0].ToString(), possibleValues);
+        Assert.Contains(actual[1].ToString(), possibleValues);
 
+        req = new AggregationRequest("redis")
+                .Load(new FieldName("__key"))
+                .GroupBy("@parent", Reducers.ToList("__key").As("docs"));
+
+        res = db.FT().Aggregate("idx", req).GetRow(0);
+        actual = (List<object>)res.Get("docs");
+        expected = new List<object> { "ai", "search", "json" };
+        Assert.True(!expected.Except(actual).Any() && expected.Count == actual.Count);
     }
 
 
@@ -3267,5 +3311,54 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Assert.Equal(1, ft.Search(index, new Query("@version:[123 123] | @id:[456 7890]")).TotalResults);
         Assert.Equal(1, ft.Search(index, new Query("@version==123 @id==456").Dialect(4)).TotalResults);
+    }
+
+    [Fact]
+    public void TestDocumentLoad_Issue352()
+    {
+        Document d = Document.Load("1", 0.5, null, new RedisValue[] { RedisValue.Null });
+        Assert.Empty(d.GetProperties().ToList());
+    }
+
+    [SkipIfRedis(Is.OSSCluster)]
+    public void TestDocumentLoadWithDB_Issue352()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        Schema sc = new Schema().AddTextField("first", 1.0).AddTextField("last", 1.0).AddNumericField("age");
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
+
+        Document droppedDocument = null;
+        int numberOfAttempts = 0;
+        do
+        {
+            db.HashSet("student:1111", new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", 18) });
+
+            Assert.True(db.KeyExpire("student:1111", TimeSpan.FromMilliseconds(500)));
+
+            Boolean cancelled = false;
+            Task searchTask = Task.Run(() =>
+            {
+                for (int i = 0; i < 100000; i++)
+                {
+                    SearchResult result = ft.Search(index, new Query());
+                    List<Document> docs = result.Documents;
+                    if (docs.Count == 0 || cancelled)
+                    {
+                        break;
+                    }
+                    else if (docs[0].GetProperties().ToList().Count == 0)
+                    {
+                        droppedDocument = docs[0];
+                    }
+                }
+            });
+            Task.WhenAny(searchTask, Task.Delay(1000)).GetAwaiter().GetResult();
+            Assert.True(searchTask.IsCompleted);
+            Assert.Null(searchTask.Exception);
+            cancelled = true;
+        } while (droppedDocument == null && numberOfAttempts++ < 3);
     }
 }
