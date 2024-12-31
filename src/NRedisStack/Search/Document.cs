@@ -31,6 +31,10 @@ public class Document
     {
         Document ret = new Document(id, score, payload);
         if (fields == null) return ret;
+        if (fields.Length == 1 && fields[0].IsNull)
+        {
+            return ret;
+        }
         for (int i = 0; i < fields.Length; i += 2)
         {
             string fieldName = fields[i]!;
