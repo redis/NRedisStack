@@ -17,7 +17,7 @@ namespace NRedisStack.RedisStackCommands
 
         public static TdigestCommands TDIGEST(this IDatabase db) => new TdigestCommands(db);
 
-        public static SearchCommands FT(this IDatabase db, int? searchDialect = null) => new SearchCommands(db, searchDialect);
+        public static SearchCommands FT(this IDatabase db, int? searchDialect = 2) => new SearchCommands(db, searchDialect);
 
         public static JsonCommands JSON(this IDatabase db) => new JsonCommands(db);
 

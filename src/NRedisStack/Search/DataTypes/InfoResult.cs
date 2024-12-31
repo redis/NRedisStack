@@ -1,13 +1,20 @@
-﻿using StackExchange.Redis;
+﻿using System.Reflection.Emit;
+using StackExchange.Redis;
 
 namespace NRedisStack.Search.DataTypes;
 
 public class InfoResult
 {
     private readonly Dictionary<string, RedisResult> _all = new();
+    private Dictionary<string, RedisResult>[] _attributes;
+    private Dictionary<string, RedisResult> _indexOption;
+    private Dictionary<string, RedisResult> _gcStats;
+    private Dictionary<string, RedisResult> _cursorStats;
+
+    private static readonly string[] booleanAttributes = { "SORTABLE", "UNF", "NOSTEM", "NOINDEX", "CASESENSITIVE", "WITHSUFFIXTRIE", "INDEXEMPTY", "INDEXMISSING" };
     public string IndexName => GetString("index_name")!;
-    public Dictionary<string, RedisResult> IndexOption => GetRedisResultDictionary("index_options")!;
-    public Dictionary<string, RedisResult>[] Attributes => GetRedisResultDictionaryArray("attributes")!;
+    public Dictionary<string, RedisResult> IndexOption => _indexOption = _indexOption ?? GetRedisResultDictionary("index_options")!;
+    public Dictionary<string, RedisResult>[] Attributes => _attributes = _attributes ?? GetAttributesAsDictionaryArray()!;
     public long NumDocs => GetLong("num_docs");
     public string MaxDocId => GetString("max_doc_id")!;
     public long NumTerms => GetLong("num_terms");
@@ -47,9 +54,9 @@ public class InfoResult
     public long NumberOfUses => GetLong("number_of_uses");
 
 
-    public Dictionary<string, RedisResult> GcStats => GetRedisResultDictionary("gc_stats")!;
+    public Dictionary<string, RedisResult> GcStats => _gcStats = _gcStats ?? GetRedisResultDictionary("gc_stats")!;
 
-    public Dictionary<string, RedisResult> CursorStats => GetRedisResultDictionary("cursor_stats")!;
+    public Dictionary<string, RedisResult> CursorStats => _cursorStats = _cursorStats ?? GetRedisResultDictionary("cursor_stats")!;
 
     public InfoResult(RedisResult result)
     {
@@ -91,26 +98,35 @@ public class InfoResult
         }
 
         return result;
-
     }
 
-    private Dictionary<string, RedisResult>[]? GetRedisResultDictionaryArray(string key)
+    private Dictionary<string, RedisResult>[]? GetAttributesAsDictionaryArray()
     {
-        if (!_all.TryGetValue(key, out var value)) return default;
+        if (!_all.TryGetValue("attributes", out var value)) return default;
         var values = (RedisResult[])value!;
         var result = new Dictionary<string, RedisResult>[values.Length];
         for (int i = 0; i < values.Length; i++)
         {
-            var fv = (RedisResult[])values[i]!;
             var dict = new Dictionary<string, RedisResult>();
-            for (int j = 0; j < fv.Length; j += 2)
-            {
-                dict.Add((string)fv[j]!, fv[j + 1]);
-            }
 
+            IEnumerable<RedisResult> enumerable = (RedisResult[])values[i]!;
+            IEnumerator<RedisResult> results = enumerable.GetEnumerator();
+            while (results.MoveNext())
+            {
+                string attribute = (string)results.Current;
+                // if its boolean attributes add itself to the dictionary and continue
+                if (booleanAttributes.Contains(attribute))
+                {
+                    dict.Add(attribute, results.Current);
+                }
+                else
+                {//if its not a boolean attribute, add the next item as value to the dictionary
+                    results.MoveNext(); ;
+                    dict.Add(attribute, results.Current);
+                }
+            }
             result[i] = dict;
         }
-
         return result;
     }
 }

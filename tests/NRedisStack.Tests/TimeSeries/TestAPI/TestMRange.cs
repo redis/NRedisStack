@@ -257,7 +257,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public void TestMRangeReduce()
+        public void TestMRangeReduceSum()
         {
             IDatabase db = redisFixture.Redis.GetDatabase();
             db.Execute("FLUSHALL");
@@ -278,6 +278,181 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             for (int i = 0; i < results[0].values.Count; i++)
             {
                 Assert.Equal(tuples[i].Val * 2, results[0].values[i].Val);
+            }
+        }
+
+        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        public void TestMRangeReduceAvg()
+        {
+            IDatabase db = redisFixture.Redis.GetDatabase();
+            db.Execute("FLUSHALL");
+            var ts = db.TS();
+            foreach (var key in _keys)
+            {
+                var label = new TimeSeriesLabel("key", "MRangeReduce");
+                ts.Create(key, labels: new List<TimeSeriesLabel> { label });
+            }
+
+            var tuples = CreateData(ts, 50);
+            var results = ts.MRange("-", "+", new List<string> { "key=MRangeReduce" }, withLabels: true, groupbyTuple: ("key", TsReduce.Avg));
+            Assert.Equal(1, results.Count);
+            Assert.Equal("key=MRangeReduce", results[0].key);
+            Assert.Equal(new TimeSeriesLabel("key", "MRangeReduce"), results[0].labels[0]);
+            Assert.Equal(new TimeSeriesLabel("__reducer__", "avg"), results[0].labels[1]);
+            Assert.Equal(new TimeSeriesLabel("__source__", string.Join(",", _keys)), results[0].labels[2]);
+            for (int i = 0; i < results[0].values.Count; i++)
+            {
+                Assert.Equal(tuples[i].Val, results[0].values[i].Val);
+            }
+        }
+
+        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        public void TestMRangeReduceRange()
+        {
+            IDatabase db = redisFixture.Redis.GetDatabase();
+            db.Execute("FLUSHALL");
+            var ts = db.TS();
+            foreach (var key in _keys)
+            {
+                var label = new TimeSeriesLabel("key", "MRangeReduce");
+                ts.Create(key, labels: new List<TimeSeriesLabel> { label });
+            }
+
+            var tuples = CreateData(ts, 50);
+            var results = ts.MRange("-", "+", new List<string> { "key=MRangeReduce" }, withLabels: true, groupbyTuple: ("key", TsReduce.Range));
+            Assert.Equal(1, results.Count);
+            Assert.Equal("key=MRangeReduce", results[0].key);
+            Assert.Equal(new TimeSeriesLabel("key", "MRangeReduce"), results[0].labels[0]);
+            Assert.Equal(new TimeSeriesLabel("__reducer__", "range"), results[0].labels[1]);
+            Assert.Equal(new TimeSeriesLabel("__source__", string.Join(",", _keys)), results[0].labels[2]);
+            for (int i = 0; i < results[0].values.Count; i++)
+            {
+                Assert.Equal(0, results[0].values[i].Val);
+            }
+        }
+
+        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        public void TestMRangeReduceCount()
+        {
+            IDatabase db = redisFixture.Redis.GetDatabase();
+            db.Execute("FLUSHALL");
+            var ts = db.TS();
+            foreach (var key in _keys)
+            {
+                var label = new TimeSeriesLabel("key", "MRangeReduce");
+                ts.Create(key, labels: new List<TimeSeriesLabel> { label });
+            }
+
+            var tuples = CreateData(ts, 50);
+            var results = ts.MRange("-", "+", new List<string> { "key=MRangeReduce" }, withLabels: true, groupbyTuple: ("key", TsReduce.Count));
+            Assert.Equal(1, results.Count);
+            Assert.Equal("key=MRangeReduce", results[0].key);
+            Assert.Equal(new TimeSeriesLabel("key", "MRangeReduce"), results[0].labels[0]);
+            Assert.Equal(new TimeSeriesLabel("__reducer__", "count"), results[0].labels[1]);
+            Assert.Equal(new TimeSeriesLabel("__source__", string.Join(",", _keys)), results[0].labels[2]);
+            for (int i = 0; i < results[0].values.Count; i++)
+            {
+                Assert.Equal(2, results[0].values[i].Val);
+            }
+        }
+
+        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        public void TestMRangeReduceStdP()
+        {
+            IDatabase db = redisFixture.Redis.GetDatabase();
+            db.Execute("FLUSHALL");
+            var ts = db.TS();
+            foreach (var key in _keys)
+            {
+                var label = new TimeSeriesLabel("key", "MRangeReduce");
+                ts.Create(key, labels: new List<TimeSeriesLabel> { label });
+            }
+
+            var tuples = CreateData(ts, 50);
+            var results = ts.MRange("-", "+", new List<string> { "key=MRangeReduce" }, withLabels: true, groupbyTuple: ("key", TsReduce.StdP));
+            Assert.Equal(1, results.Count);
+            Assert.Equal("key=MRangeReduce", results[0].key);
+            Assert.Equal(new TimeSeriesLabel("key", "MRangeReduce"), results[0].labels[0]);
+            Assert.Equal(new TimeSeriesLabel("__reducer__", "std.p"), results[0].labels[1]);
+            Assert.Equal(new TimeSeriesLabel("__source__", string.Join(",", _keys)), results[0].labels[2]);
+            for (int i = 0; i < results[0].values.Count; i++)
+            {
+                Assert.Equal(0, results[0].values[i].Val);
+            }
+        }
+
+        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        public void TestMRangeReduceStdS()
+        {
+            IDatabase db = redisFixture.Redis.GetDatabase();
+            db.Execute("FLUSHALL");
+            var ts = db.TS();
+            foreach (var key in _keys)
+            {
+                var label = new TimeSeriesLabel("key", "MRangeReduce");
+                ts.Create(key, labels: new List<TimeSeriesLabel> { label });
+            }
+
+            var tuples = CreateData(ts, 50);
+            var results = ts.MRange("-", "+", new List<string> { "key=MRangeReduce" }, withLabels: true, groupbyTuple: ("key", TsReduce.StdS));
+            Assert.Equal(1, results.Count);
+            Assert.Equal("key=MRangeReduce", results[0].key);
+            Assert.Equal(new TimeSeriesLabel("key", "MRangeReduce"), results[0].labels[0]);
+            Assert.Equal(new TimeSeriesLabel("__reducer__", "std.s"), results[0].labels[1]);
+            Assert.Equal(new TimeSeriesLabel("__source__", string.Join(",", _keys)), results[0].labels[2]);
+            for (int i = 0; i < results[0].values.Count; i++)
+            {
+                Assert.Equal(0, results[0].values[i].Val);
+            }
+        }
+
+        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        public void TestMRangeReduceVarP()
+        {
+            IDatabase db = redisFixture.Redis.GetDatabase();
+            db.Execute("FLUSHALL");
+            var ts = db.TS();
+            foreach (var key in _keys)
+            {
+                var label = new TimeSeriesLabel("key", "MRangeReduce");
+                ts.Create(key, labels: new List<TimeSeriesLabel> { label });
+            }
+
+            var tuples = CreateData(ts, 50);
+            var results = ts.MRange("-", "+", new List<string> { "key=MRangeReduce" }, withLabels: true, groupbyTuple: ("key", TsReduce.VarP));
+            Assert.Equal(1, results.Count);
+            Assert.Equal("key=MRangeReduce", results[0].key);
+            Assert.Equal(new TimeSeriesLabel("key", "MRangeReduce"), results[0].labels[0]);
+            Assert.Equal(new TimeSeriesLabel("__reducer__", "var.p"), results[0].labels[1]);
+            Assert.Equal(new TimeSeriesLabel("__source__", string.Join(",", _keys)), results[0].labels[2]);
+            for (int i = 0; i < results[0].values.Count; i++)
+            {
+                Assert.Equal(0, results[0].values[i].Val);
+            }
+        }
+
+        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        public void TestMRangeReduceVarS()
+        {
+            IDatabase db = redisFixture.Redis.GetDatabase();
+            db.Execute("FLUSHALL");
+            var ts = db.TS();
+            foreach (var key in _keys)
+            {
+                var label = new TimeSeriesLabel("key", "MRangeReduce");
+                ts.Create(key, labels: new List<TimeSeriesLabel> { label });
+            }
+
+            var tuples = CreateData(ts, 50);
+            var results = ts.MRange("-", "+", new List<string> { "key=MRangeReduce" }, withLabels: true, groupbyTuple: ("key", TsReduce.VarS));
+            Assert.Equal(1, results.Count);
+            Assert.Equal("key=MRangeReduce", results[0].key);
+            Assert.Equal(new TimeSeriesLabel("key", "MRangeReduce"), results[0].labels[0]);
+            Assert.Equal(new TimeSeriesLabel("__reducer__", "var.s"), results[0].labels[1]);
+            Assert.Equal(new TimeSeriesLabel("__source__", string.Join(",", _keys)), results[0].labels[2]);
+            for (int i = 0; i < results[0].values.Count; i++)
+            {
+                Assert.Equal(0, results[0].values[i].Val);
             }
         }
 

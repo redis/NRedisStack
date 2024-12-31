@@ -6,12 +6,33 @@ namespace NRedisStack
 {
     public class SearchCommandsAsync : ISearchCommandsAsync
     {
-        IDatabaseAsync _db;
+        private IDatabaseAsync _db;
         protected int? defaultDialect;
 
-        public SearchCommandsAsync(IDatabaseAsync db)
+        public SearchCommandsAsync(IDatabaseAsync db, int? defaultDialect = 2)
         {
             _db = db;
+            SetDefaultDialect(defaultDialect);
+        }
+
+        internal void setDefaultDialectIfUnset(IDialectAwareParam param)
+        {
+            if (param != null && param.Dialect == null && defaultDialect != null)
+            {
+                param.Dialect = defaultDialect;
+            }
+        }
+
+        internal int? checkAndGetDefaultDialect(int? dialect) =>
+             (dialect == null && defaultDialect != null) ? defaultDialect : dialect;
+
+        public void SetDefaultDialect(int? defaultDialect)
+        {
+            if (defaultDialect == 0)
+            {
+                throw new System.ArgumentOutOfRangeException("DIALECT=0 cannot be set.");
+            }
+            this.defaultDialect = defaultDialect;
         }
 
         /// <inheritdoc/>
@@ -23,11 +44,7 @@ namespace NRedisStack
         /// <inheritdoc/>
         public async Task<AggregationResult> AggregateAsync(string index, AggregationRequest query)
         {
-            if (query.dialect == null && defaultDialect != null)
-            {
-                query.Dialect((int)defaultDialect);
-            }
-
+            setDefaultDialectIfUnset(query);
             var result = await _db.ExecuteAsync(SearchCommandBuilder.Aggregate(index, query));
             if (query.IsWithCursor())
             {
@@ -129,22 +146,14 @@ namespace NRedisStack
         /// <inheritdoc/>
         public async Task<string> ExplainAsync(string indexName, string query, int? dialect = null)
         {
-            if (dialect == null && defaultDialect != null)
-            {
-                dialect = defaultDialect;
-            }
-
+            dialect = checkAndGetDefaultDialect(dialect);
             return (await _db.ExecuteAsync(SearchCommandBuilder.Explain(indexName, query, dialect))).ToString()!;
         }
 
         /// <inheritdoc/>
         public async Task<RedisResult[]> ExplainCliAsync(string indexName, string query, int? dialect = null)
         {
-            if (dialect == null && defaultDialect != null)
-            {
-                dialect = defaultDialect;
-            }
-
+            dialect = checkAndGetDefaultDialect(dialect);
             return (await _db.ExecuteAsync(SearchCommandBuilder.ExplainCli(indexName, query, dialect))).ToArray();
         }
 
@@ -168,17 +177,14 @@ namespace NRedisStack
         /// <inheritdoc/>
         public async Task<SearchResult> SearchAsync(string indexName, Query q)
         {
-            if (q.dialect == null && defaultDialect != null)
-            {
-                q.Dialect((int)defaultDialect);
-            }
-
+            setDefaultDialectIfUnset(q);
             return (await _db.ExecuteAsync(SearchCommandBuilder.Search(indexName, q))).ToSearchResult(q);
         }
 
         /// <inheritdoc/>
         public async Task<Dictionary<string, Dictionary<string, double>>> SpellCheckAsync(string indexName, string query, FTSpellCheckParams? spellCheckParams = null)
         {
+            setDefaultDialectIfUnset(spellCheckParams);
             return (await _db.ExecuteAsync(SearchCommandBuilder.SpellCheck(indexName, query, spellCheckParams))).ToFtSpellCheckResult();
         }
 

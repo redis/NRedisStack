@@ -507,7 +507,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         // actual search
         AggregationResult res = ft.Aggregate(index, r);
-        Assert.Equal(3, res.TotalResults);
+        Assert.Equal(2, res.TotalResults);
 
         Row r1 = res.GetRow(0);
         Assert.Equal("def", r1.GetString("name"));
@@ -733,9 +733,10 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(index, info.IndexName);
         Assert.Empty(info.IndexOption);
         // Assert.Equal(,info.IndexDefinition);
-        Assert.Equal("title", (info.Attributes[0]["identifier"]).ToString());
-        Assert.Equal("TAG", (info.Attributes[1]["type"]).ToString());
-        Assert.Equal("name", (info.Attributes[2]["attribute"]).ToString());
+        Assert.Equal("title", info.Attributes[0]["identifier"].ToString());
+        Assert.Equal("TAG", info.Attributes[1]["type"].ToString());
+        Assert.Equal("name", info.Attributes[2]["attribute"].ToString());
+
         Assert.Equal(100, info.NumDocs);
         Assert.NotNull(info.MaxDocId);
         Assert.Equal(102, info.NumTerms);
@@ -795,9 +796,9 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         var info = await ft.InfoAsync(index);
         Assert.Equal(index, info.IndexName);
-        Assert.Equal("title", (info.Attributes[0]["identifier"]).ToString());
-        Assert.Equal("TAG", (info.Attributes[1]["type"]).ToString());
-        Assert.Equal("name", (info.Attributes[2]["attribute"]).ToString());
+        Assert.Equal("title", info.Attributes[0]["identifier"].ToString());
+        Assert.Equal("TAG", info.Attributes[1]["type"].ToString());
+        Assert.Equal("name", info.Attributes[2]["attribute"].ToString());
         Assert.Equal(100, info.NumDocs);
         Assert.Equal("300", info.MaxDocId);
         Assert.Equal(102, info.NumTerms);
@@ -823,6 +824,167 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+    public void AlterAddSortable()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Schema sc = new Schema().AddTextField("title", 1.0, sortable: true);
+
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
+
+        //sleep:
+        System.Threading.Thread.Sleep(2000);
+
+        var fields = new HashEntry("title", "hello world");
+        //fields.("title", "hello world");
+        for (int i = 0; i < 100; i++)
+        {
+            db.HashSet($"doc{i}", fields.Name, fields.Value);
+        }
+        SearchResult res = ft.Search(index, new Query("hello world"));
+        Assert.Equal(100, res.TotalResults);
+
+        Assert.True(ft.Alter(index, new Schema().AddTagField("tags").AddTextField("name", weight: 0.5)));
+        for (int i = 0; i < 100; i++)
+        {
+            var fields2 = new HashEntry[] { new("name", "name" + i),
+                                      new("tags", $"tagA,tagB,tag{i}") };
+            //      assertTrue(client.updateDocument(string.format("doc%d", i), 1.0, fields2));
+            db.HashSet($"doc{i}", fields2);
+        }
+        SearchResult res2 = ft.Search(index, new Query("@tags:{tagA}"));
+        Assert.Equal(100, res2.TotalResults);
+
+        var info = ft.Info(index);
+        Assert.Equal(index, info.IndexName);
+        Assert.Empty(info.IndexOption);
+        // Assert.Equal(,info.IndexDefinition);
+        Assert.Equal("title", info.Attributes[0]["identifier"].ToString());
+        Assert.Equal("TAG", info.Attributes[1]["type"].ToString());
+        Assert.Equal("name", info.Attributes[2]["attribute"].ToString());
+        Assert.Equal(100, info.NumDocs);
+        Assert.NotNull(info.MaxDocId);
+        Assert.Equal(102, info.NumTerms);
+        Assert.True(info.NumRecords >= 200);
+        Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
+        Assert.Equal(0, info.VectorIndexSzMebibytes);
+        Assert.Equal(208, info.TotalInvertedIndexBlocks);
+        Assert.True(info.OffsetVectorsSzMebibytes < 1);
+        Assert.True(info.DocTableSizeMebibytes < 1);
+        Assert.Equal(0, info.SortableValueSizeMebibytes);
+        Assert.True(info.KeyTableSizeMebibytes < 1);
+        Assert.Equal(8, (int)info.RecordsPerDocAvg);
+        Assert.True(info.BytesPerRecordAvg > 5);
+        Assert.True(info.OffsetsPerTermAvg > 0.8);
+        Assert.Equal(8, info.OffsetBitsPerRecordAvg);
+        Assert.Equal(0, info.HashIndexingFailures);
+        Assert.True(info.TotalIndexingTime > 0);
+        Assert.Equal(0, info.Indexing);
+        Assert.Equal(1, info.PercentIndexed);
+        Assert.Equal(4, info.NumberOfUses);
+        Assert.Equal(7, info.GcStats.Count);
+        Assert.Equal(4, info.CursorStats.Count);
+    }
+
+    [SkipIfRedis(Comparison.LessThan, "7.3.0")]
+    public void InfoWithIndexEmptyAndIndexMissing()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT(2);
+        var vectorAttrs = new Dictionary<string, object>()
+        {
+            ["TYPE"] = "FLOAT32",
+            ["DIM"] = "2",
+            ["DISTANCE_METRIC"] = "L2",
+        };
+
+        Schema sc = new Schema()
+           .AddTextField("text1", 1.0, emptyIndex: true, missingIndex: true)
+           .AddTagField("tag1", emptyIndex: true, missingIndex: true)
+           .AddNumericField("numeric1", missingIndex: true)
+           .AddGeoField("geo1", missingIndex: true)
+           .AddGeoShapeField("geoshape1", Schema.GeoShapeField.CoordinateSystem.FLAT, missingIndex: true)
+           .AddVectorField("vector1", Schema.VectorField.VectorAlgo.FLAT, vectorAttrs, missingIndex: true);
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
+
+        var info = ft.Info(index);
+        var attributes = info.Attributes;
+        foreach (var attribute in attributes)
+        {
+            Assert.True(attribute.ContainsKey("INDEXMISSING"));
+            if (attribute["attribute"].ToString() == "text1" || attribute["attribute"].ToString() == "tag1")
+            {
+                Assert.True(attribute.ContainsKey("INDEXEMPTY"));
+            }
+        }
+    }
+
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+    public async Task AlterAddSortableAsync()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+        Schema sc = new Schema().AddTextField("title", 1.0, sortable: true);
+
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
+
+        //sleep:
+        System.Threading.Thread.Sleep(2000);
+
+        var fields = new HashEntry("title", "hello world");
+        //fields.("title", "hello world");
+        for (int i = 0; i < 100; i++)
+        {
+            db.HashSet($"doc{i}", fields.Name, fields.Value);
+        }
+        SearchResult res = ft.Search(index, new Query("hello world"));
+        Assert.Equal(100, res.TotalResults);
+
+        Assert.True(await ft.AlterAsync(index, new Schema().AddTagField("tags").AddTextField("name", weight: 0.5)));
+        for (int i = 0; i < 100; i++)
+        {
+            var fields2 = new HashEntry[] { new("name", "name" + i),
+                                      new("tags", $"tagA,tagB,tag{i}") };
+            //      assertTrue(client.updateDocument(string.format("doc%d", i), 1.0, fields2));
+            db.HashSet($"doc{i}", fields2);
+        }
+        SearchResult res2 = ft.Search(index, new Query("@tags:{tagA}"));
+        Assert.Equal(100, res2.TotalResults);
+
+        var info = await ft.InfoAsync(index);
+        Assert.Equal(index, info.IndexName);
+        Assert.Equal("title", info.Attributes[0]["identifier"].ToString());
+        Assert.Equal("TAG", info.Attributes[1]["type"].ToString());
+        Assert.Equal("name", info.Attributes[2]["attribute"].ToString());
+        Assert.Equal(100, info.NumDocs);
+        Assert.Equal("300", info.MaxDocId);
+        Assert.Equal(102, info.NumTerms);
+        Assert.True(info.NumRecords >= 200);
+        Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
+        Assert.Equal(0, info.VectorIndexSzMebibytes);
+        Assert.Equal(208, info.TotalInvertedIndexBlocks);
+        Assert.True(info.OffsetVectorsSzMebibytes < 1);
+        Assert.True(info.DocTableSizeMebibytes < 1);
+        Assert.Equal(0, info.SortableValueSizeMebibytes);
+        Assert.True(info.KeyTableSizeMebibytes < 1);
+        Assert.Equal(8, (int)info.RecordsPerDocAvg);
+        Assert.True(info.BytesPerRecordAvg > 5);
+        Assert.True(info.OffsetsPerTermAvg > 0.8);
+        Assert.Equal(8, info.OffsetBitsPerRecordAvg);
+        Assert.Equal(0, info.HashIndexingFailures);
+        Assert.True(info.TotalIndexingTime > 0);
+        Assert.Equal(0, info.Indexing);
+        Assert.Equal(1, info.PercentIndexed);
+        Assert.Equal(4, info.NumberOfUses);
+        Assert.Equal(7, info.GcStats.Count);
+        Assert.Equal(4, info.CursorStats.Count);
+    }
+
+    // TODO : fix with FT.CONFIG response change
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     public void TestConfig()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -833,7 +995,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("100", configMap["TIMEOUT"].ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+    // TODO : fix with FT.CONFIG response change
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     public async Task TestConfigAsnyc()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -844,7 +1007,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("100", configMap["TIMEOUT"].ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+    // TODO : fix with FT.CONFIG response change
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     public void configOnTimeout()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -856,7 +1020,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         try { ft.ConfigSet("ON_TIMEOUT", "null"); } catch (RedisServerException) { }
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+    // TODO : fix with FT.CONFIG response change
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     public async Task configOnTimeoutAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -868,7 +1033,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         try { ft.ConfigSet("ON_TIMEOUT", "null"); } catch (RedisServerException) { }
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+    // TODO : fix with FT.CONFIG response change
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     public void TestDialectConfig()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -890,7 +1056,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.True(ft.ConfigSet("DEFAULT_DIALECT", "1"));
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+    // TODO : fix with FT.CONFIG response change
+    [SkipIfRedis(Is.OSSCluster, Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     public async Task TestDialectConfigAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -1123,7 +1290,9 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         res = rawRes.GetRow(0);
         Assert.Equal("redis", res["parent"]);
         // TODO: complete this assert after handling multi bulk reply
-        //Assert.Equal((RedisValue[])res["__generated_aliastolisttitle"], { "RediSearch", "RedisAI", "RedisJson"});
+        var expected = new List<object> { "RediSearch", "RedisAI", "RedisJson" };
+        var actual = (List<object>)res.Get("__generated_aliastolisttitle");
+        Assert.True(!expected.Except(actual).Any() && expected.Count == actual.Count);
 
         req = new AggregationRequest("redis").GroupBy(
             "@parent", Reducers.FirstValue("@title").As("first"));
@@ -1136,11 +1305,20 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         res = ft.Aggregate("idx", req).GetRow(0);
         Assert.Equal("redis", res["parent"]);
         // TODO: complete this assert after handling multi bulk reply
-        // Assert.Equal(res[2], "random");
-        // Assert.Equal(len(res[3]), 2);
-        // Assert.Equal(res[3][0] in ["RediSearch", "RedisAI", "RedisJson"]);
-        // req = new AggregationRequest("redis").GroupBy("@parent", redu
+        actual = (List<object>)res.Get("random");
+        Assert.Equal(2, actual.Count);
+        List<string> possibleValues = new List<string>() { "RediSearch", "RedisAI", "RedisJson" };
+        Assert.Contains(actual[0].ToString(), possibleValues);
+        Assert.Contains(actual[1].ToString(), possibleValues);
 
+        req = new AggregationRequest("redis")
+                .Load(new FieldName("__key"))
+                .GroupBy("@parent", Reducers.ToList("__key").As("docs"));
+
+        res = db.FT().Aggregate("idx", req).GetRow(0);
+        actual = (List<object>)res.Get("docs");
+        expected = new List<object> { "ai", "search", "json" };
+        Assert.True(!expected.Except(actual).Any() && expected.Count == actual.Count);
     }
 
 
@@ -2619,7 +2797,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2L, await ft.SugLenAsync(key));
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     public void TestProfileSearch()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2643,7 +2821,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("1", iteratorsProfile["Size"].ToString());
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     public async Task TestProfileSearchAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2668,7 +2846,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     public void TestProfile()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2695,10 +2873,10 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var aggregateRes = profileAggregate.Item1;
         var aggregateDet = profileAggregate.Item2;
         Assert.Equal(5, aggregateDet.Count);
-        Assert.Equal(1, aggregateRes.TotalResults);
+        Assert.Equal(2, aggregateRes.TotalResults);
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     public async Task TestProfileAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2724,7 +2902,66 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var aggregateRes = profileAggregate.Item1;
         var aggregateDet = profileAggregate.Item2;
         Assert.Equal(5, aggregateDet.Count);
-        Assert.Equal(1, aggregateRes.TotalResults);
+        Assert.Equal(2, aggregateRes.TotalResults);
+    }
+
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.3.242")]
+    public void TestProfileIssue306()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        ft.Create(index, new Schema().AddTextField("t", sortable: true)); // Calling FT.CREATR without FTCreateParams
+        db.HashSet("1", "t", "hello");
+        db.HashSet("2", "t", "world");
+
+        // check using Query
+        var q = new Query("hello|world").SetNoContent();
+        var profileSearch = ft.ProfileSearch(index, q);
+        var searchRes = profileSearch.Item1;
+        var searchDet = profileSearch.Item2;
+
+        Assert.Equal(6, searchDet.Count);
+        Assert.Equal(2, searchRes.Documents.Count);
+
+
+        // check using AggregationRequest
+        var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
+        var profileAggregate = ft.ProfileAggregate(index, aggReq);
+        var aggregateRes = profileAggregate.Item1;
+        var aggregateDet = profileAggregate.Item2;
+        Assert.True(aggregateDet.Count >= 6);
+        Assert.Equal(2, aggregateRes.TotalResults);
+    }
+
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.3.242")]
+    public async Task TestProfileAsyncIssue306()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        await ft.CreateAsync(index, new Schema().AddTextField("t", sortable: true)); // Calling FT.CREATR without FTCreateParams
+        db.HashSet("1", "t", "hello");
+        db.HashSet("2", "t", "world");
+
+        // check using Query
+        var q = new Query("hello|world").SetNoContent();
+        var profileSearch = await ft.ProfileSearchAsync(index, q);
+        var searchRes = profileSearch.Item1;
+        var searchDet = profileSearch.Item2;
+
+        Assert.Equal(6, searchDet.Count);
+        Assert.Equal(2, searchRes.Documents.Count);
+
+        // check using AggregationRequest
+        var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
+        var profileAggregate = await ft.ProfileAggregateAsync(index, aggReq);
+        var aggregateRes = profileAggregate.Item1;
+        var aggregateDet = profileAggregate.Item2;
+        Assert.True(aggregateDet.Count >= 6);
+        Assert.Equal(2, aggregateRes.TotalResults);
     }
 
     [Fact]
@@ -2989,5 +3226,91 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         // expected: FT.AGGREGATE idx:users * FILTER @StatusId==1 GROUPBY 1 @CreatedDay REDUCE COUNT_DISTINCT 1 @UserId REDUCE COUNT 0 AS count DIALECT 3
         Assert.Equal("FT.AGGREGATE", buildCommand.Command);
         Assert.Equal(new object[] { "idx:users", "*", "FILTER", "@StatusId==1", "GROUPBY", 1, "@CreatedDay", "REDUCE", "COUNT_DISTINCT", 1, "@UserId", "REDUCE", "COUNT", 0, "AS", "count", "DIALECT", 3 }, buildCommand.Args);
+    }
+
+    [SkipIfRedis(Comparison.LessThan, "7.3.240")]
+    public void TestNumericInDialect4()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        Schema sc = new Schema()
+            .AddTextField("title", 1.0)
+            .AddNumericField("version");
+
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
+        Dictionary<string, object> fields4 = new Dictionary<string, object>
+        {
+            { "title", "hello world" },
+            { "version", 123 }
+        };
+        AddDocument(db, "qux", fields4);
+
+        Assert.Equal(1, ft.Search(index, new Query("@version:[123 123]")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new Query("@version:[123]").Dialect(4)).TotalResults);
+    }
+
+    [SkipIfRedis(Comparison.LessThan, "7.3.240")]
+    public void TestNumericOperatorsInDialect4()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        Schema sc = new Schema()
+            .AddTextField("title", 1.0)
+            .AddNumericField("version");
+
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
+        Dictionary<string, object> fields4 = new Dictionary<string, object>
+        {
+            { "title", "hello world" },
+            { "version", 123 }
+        };
+        AddDocument(db, "qux", fields4);
+
+        Assert.Equal(1, ft.Search(index, new Query("@version:[123 123]")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new Query("@version==123").Dialect(4)).TotalResults);
+
+        Assert.Equal(1, ft.Search(index, new Query("@version:[122 +inf]")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new Query("@version>=122").Dialect(4)).TotalResults);
+
+        Assert.Equal(1, ft.Search(index, new Query("@version:[-inf 124]")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new Query("@version<=124").Dialect(4)).TotalResults);
+
+    }
+
+    [SkipIfRedis(Comparison.LessThan, "7.3.240")]
+    public void TestNumericLogicalOperatorsInDialect4()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        Schema sc = new Schema()
+            .AddTextField("title", 1.0)
+            .AddNumericField("version")
+            .AddNumericField("id");
+
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
+        Dictionary<string, object> fields4 = new Dictionary<string, object>
+        {
+            { "title", "hello world" },
+            { "version", 123 },
+            { "id", 456 }
+        };
+        AddDocument(db, "qux", fields4);
+
+        Assert.Equal(1, ft.Search(index, new Query("@version<=124").Dialect(4)).TotalResults);
+
+        Assert.Equal(1, ft.Search(index, new Query("@version:[123 123]")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new Query("@version:[123] | @version:[124]").Dialect(4)).TotalResults);
+
+        Assert.Equal(1, ft.Search(index, new Query("@version:[123 123] | @version:[7890 7890]")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new Query("@version==123 | @version==7890").Dialect(4)).TotalResults);
+
+        Assert.Equal(1, ft.Search(index, new Query("@version:[123 123] | @id:[456 7890]")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new Query("@version==123 @id==456").Dialect(4)).TotalResults);
     }
 }

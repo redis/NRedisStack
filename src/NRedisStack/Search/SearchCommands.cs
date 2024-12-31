@@ -6,21 +6,10 @@ namespace NRedisStack
 {
     public class SearchCommands : SearchCommandsAsync, ISearchCommands
     {
-        IDatabase _db;
-        public SearchCommands(IDatabase db, int? defaultDialect) : base(db)
+        private IDatabase _db;
+        public SearchCommands(IDatabase db, int? defaultDialect = 2) : base(db, defaultDialect)
         {
             _db = db;
-            SetDefaultDialect(defaultDialect);
-            this.defaultDialect = defaultDialect;
-        }
-
-        public void SetDefaultDialect(int? defaultDialect)
-        {
-            if (defaultDialect == 0)
-            {
-                throw new System.ArgumentOutOfRangeException("DIALECT=0 cannot be set.");
-            }
-            this.defaultDialect = defaultDialect;
         }
 
         /// <inheritdoc/>
@@ -32,11 +21,7 @@ namespace NRedisStack
         /// <inheritdoc/>
         public AggregationResult Aggregate(string index, AggregationRequest query)
         {
-            if (query.dialect == null && defaultDialect != null)
-            {
-                query.Dialect((int)defaultDialect);
-            }
-
+            setDefaultDialectIfUnset(query);
             var result = _db.Execute(SearchCommandBuilder.Aggregate(index, query));
             return result.ToAggregationResult(query);
         }
@@ -130,20 +115,14 @@ namespace NRedisStack
         /// <inheritdoc/>
         public string Explain(string indexName, string query, int? dialect = null)
         {
-            if (dialect == null && defaultDialect != null)
-            {
-                dialect = defaultDialect;
-            }
+            dialect = checkAndGetDefaultDialect(dialect);
             return _db.Execute(SearchCommandBuilder.Explain(indexName, query, dialect)).ToString()!;
         }
 
         /// <inheritdoc/>
         public RedisResult[] ExplainCli(string indexName, string query, int? dialect = null)
         {
-            if (dialect == null && defaultDialect != null)
-            {
-                dialect = defaultDialect;
-            }
+            dialect = checkAndGetDefaultDialect(dialect);
             return _db.Execute(SearchCommandBuilder.ExplainCli(indexName, query, dialect)).ToArray();
         }
 
@@ -160,22 +139,21 @@ namespace NRedisStack
         /// <inheritdoc/>
         public Tuple<AggregationResult, Dictionary<string, RedisResult>> ProfileAggregate(string indexName, AggregationRequest query, bool limited = false)
         {
+            setDefaultDialectIfUnset(query);
             return _db.Execute(SearchCommandBuilder.ProfileAggregate(indexName, query, limited))
                             .ToProfileAggregateResult(query);
         }
         /// <inheritdoc/>
         public SearchResult Search(string indexName, Query q)
         {
-            if (q.dialect == null && defaultDialect != null)
-            {
-                q.Dialect((int)defaultDialect);
-            }
+            setDefaultDialectIfUnset(q);
             return _db.Execute(SearchCommandBuilder.Search(indexName, q)).ToSearchResult(q);
         }
 
         /// <inheritdoc/>
         public Dictionary<string, Dictionary<string, double>> SpellCheck(string indexName, string query, FTSpellCheckParams? spellCheckParams = null)
         {
+            setDefaultDialectIfUnset(spellCheckParams);
             return _db.Execute(SearchCommandBuilder.SpellCheck(indexName, query, spellCheckParams)).ToFtSpellCheckResult();
         }
 

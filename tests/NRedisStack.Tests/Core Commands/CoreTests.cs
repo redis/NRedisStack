@@ -231,7 +231,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         var configurationOptions = new ConfigurationOptions();
         configurationOptions.SyncTimeout = 1000;
 
-        using var redis = redisFixture.CustomRedis(configurationOptions, out _);
+        using var redis = redisFixture.GetConnectionById(configurationOptions, "standalone");
 
         var db = redis.GetDatabase(null);
         db.Execute("FLUSHALL");
@@ -246,7 +246,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         var configurationOptions = new ConfigurationOptions();
         configurationOptions.SyncTimeout = 1000;
 
-        await using var redis = redisFixture.CustomRedis(configurationOptions, out _);
+        await using var redis = redisFixture.GetConnectionById(configurationOptions, "standalone");
 
         var db = redis.GetDatabase(null);
         db.Execute("FLUSHALL");

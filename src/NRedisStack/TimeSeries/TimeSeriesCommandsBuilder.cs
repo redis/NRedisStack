@@ -9,28 +9,45 @@ namespace NRedisStack
     {
         #region Create
 
+        [Obsolete()]
         public static SerializedCommand Create(string key, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
         {
-            var args = TimeSeriesAux.BuildTsCreateArgs(key, retentionTime, labels, uncompressed, chunkSizeBytes, duplicatePolicy);
-            return new SerializedCommand(TS.CREATE, args);
+            var parameters = new TsCreateParams(retentionTime, labels, uncompressed, chunkSizeBytes, duplicatePolicy);
+            return new SerializedCommand(TS.CREATE, parameters.ToArray(key));
+        }
+
+        public static SerializedCommand Create(string key, TsCreateParams parameters)
+        {
+            return new SerializedCommand(TS.CREATE, parameters.ToArray(key));
         }
 
         #endregion
 
         #region Update
-
+        [Obsolete()]
         public static SerializedCommand Alter(string key, long? retentionTime = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null)
         {
-            var args = TimeSeriesAux.BuildTsAlterArgs(key, retentionTime, chunkSizeBytes, duplicatePolicy, labels);
-            return new SerializedCommand(TS.ALTER, args);
+            var parameters = new TsAlterParams(retentionTime, chunkSizeBytes, duplicatePolicy, labels);
+            return new SerializedCommand(TS.ALTER, parameters.ToArray(key));
         }
 
+        public static SerializedCommand Alter(string key, TsAlterParams parameters)
+        {
+            return new SerializedCommand(TS.ALTER, parameters.ToArray(key));
+        }
+
+        [Obsolete()]
         public static SerializedCommand Add(string key, TimeStamp timestamp, double value, long? retentionTime = null,
         IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null,
         long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
         {
-            var args = TimeSeriesAux.BuildTsAddArgs(key, timestamp, value, retentionTime, labels, uncompressed, chunkSizeBytes, duplicatePolicy);
-            return new SerializedCommand(TS.ADD, args);
+            var parameters = new TsAddParams(timestamp, value, retentionTime, labels, uncompressed, chunkSizeBytes, duplicatePolicy);
+            return new SerializedCommand(TS.ADD, parameters.ToArray(key));
+        }
+
+        public static SerializedCommand Add(string key, TsAddParams parameters)
+        {
+            return new SerializedCommand(TS.ADD, parameters.ToArray(key));
         }
 
         public static SerializedCommand MAdd(IReadOnlyCollection<(string key, TimeStamp timestamp, double value)> sequence)
@@ -39,16 +56,28 @@ namespace NRedisStack
             return new SerializedCommand(TS.MADD, args);
         }
 
+        [Obsolete()]
         public static SerializedCommand IncrBy(string key, double value, TimeStamp? timestamp = null, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null)
         {
-            var args = TimeSeriesAux.BuildTsIncrDecrByArgs(key, value, timestamp, retentionTime, labels, uncompressed, chunkSizeBytes);
-            return new SerializedCommand(TS.INCRBY, args);
+            var parameters = new TsIncrByParams(value, timestamp, retentionTime, labels, uncompressed, chunkSizeBytes);
+            return new SerializedCommand(TS.INCRBY, parameters.ToArray(key));
         }
 
+        public static SerializedCommand IncrBy(string key, TsIncrByParams parameters)
+        {
+            return new SerializedCommand(TS.INCRBY, parameters.ToArray(key));
+        }
+
+        [Obsolete()]
         public static SerializedCommand DecrBy(string key, double value, TimeStamp? timestamp = null, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null)
         {
-            var args = TimeSeriesAux.BuildTsIncrDecrByArgs(key, value, timestamp, retentionTime, labels, uncompressed, chunkSizeBytes);
-            return (new SerializedCommand(TS.DECRBY, args));
+            var parameters = new TsDecrByParams(value, timestamp, retentionTime, labels, uncompressed, chunkSizeBytes);
+            return new SerializedCommand(TS.DECRBY, parameters.ToArray(key));
+        }
+
+        public static SerializedCommand DecrBy(string key, TsDecrByParams parameters)
+        {
+            return new SerializedCommand(TS.DECRBY, parameters.ToArray(key));
         }
 
         public static SerializedCommand Del(string key, TimeStamp fromTimeStamp, TimeStamp toTimeStamp)

@@ -1184,7 +1184,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         }
         catch
         {
-            //Todo: Check When Exception Catch 
+            //Todo: Check When Exception Catch
         }
 
         Assert.True(ft.Create("vss_idx", new FTCreateParams().On(IndexDataType.HASH).Prefix("vec:"),
@@ -1329,7 +1329,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         }
         catch
         {
-            //Todo: Check When Exception Catch 
+            //Todo: Check When Exception Catch
         }
 
         Assert.True(ft.Create("wh_idx", new FTCreateParams()
