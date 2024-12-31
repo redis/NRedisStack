@@ -8,7 +8,7 @@ using StackExchange.Redis;
 // HIDE_END
 
 // REMOVE_START
-namespace NRedisStack.Doc;
+namespace Doc;
 [Collection("DocsTests")]
 // REMOVE_END
 

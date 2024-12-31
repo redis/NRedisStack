@@ -3,8 +3,10 @@ using NRedisStack.Gears.Literals;
 namespace NRedisStack
 {
 
+    [Obsolete]
     public static class GearsCommandBuilder
     {
+        [Obsolete]
         public static SerializedCommand TFunctionLoad(string libraryCode, bool replace = false, string? config = null)
         {
             var args = new List<object>() { GearsArgs.LOAD };
@@ -23,11 +25,13 @@ namespace NRedisStack
             return new SerializedCommand(RG.TFUNCTION, args);
         }
 
+        [Obsolete]
         public static SerializedCommand TFunctionDelete(string libraryName)
         {
             return new SerializedCommand(RG.TFUNCTION, GearsArgs.DELETE, libraryName);
         }
 
+        [Obsolete]
         public static SerializedCommand TFunctionList(bool withCode = false, int verbose = 0, string? libraryName = null)
         {
             var args = new List<object>() { GearsArgs.LIST };
@@ -55,6 +59,7 @@ namespace NRedisStack
             return new SerializedCommand(RG.TFUNCTION, args);
         }
 
+        [Obsolete]
         public static SerializedCommand TFCall(string libraryName, string functionName, string[]? keys = null, string[]? args = null, bool async = false)
         {
             string command = async ? RG.TFCALLASYNC : RG.TFCALL;

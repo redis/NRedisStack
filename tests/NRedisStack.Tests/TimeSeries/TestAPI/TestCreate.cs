@@ -117,5 +117,51 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var ts = db.TS();
             Assert.True(ts.Create(key, duplicatePolicy: TsDuplicatePolicy.SUM));
         }
+
+        [SkipIfRedis(Comparison.LessThan, "7.4.0")]
+        public void TestCreateAndIgnoreValues()
+        {
+            IDatabase db = redisFixture.Redis.GetDatabase();
+            db.Execute("FLUSHALL");
+            var ts = db.TS();
+            var parameters = new TsCreateParamsBuilder().AddIgnoreValues(11, 12).build();
+            Assert.True(ts.Create(key, parameters));
+
+            int j = -1, k = -1;
+            RedisResult info = TimeSeriesHelper.getInfo(db, key, out j, out k);
+
+            Assert.NotEqual(j, -1);
+            Assert.NotEqual(k, -1);
+            Assert.Equal(11, (long)info[j + 1]);
+            Assert.Equal(12, (long)info[k + 1]);
+        }
+
+        [Fact]
+        public void TestParamsBuilder()
+        {
+            TsCreateParams parameters = new TsCreateParamsBuilder()
+                        .AddChunkSizeBytes(1000)
+                        .AddDuplicatePolicy(TsDuplicatePolicy.FIRST)
+                        .AddIgnoreValues(11, 12)
+                        .AddLabels(new List<TimeSeriesLabel>() { new TimeSeriesLabel("key", "value") })
+                        .AddRetentionTime(5000)
+                        .AddUncompressed(true).build();
+
+            var command = TimeSeriesCommandsBuilder.Create(key, parameters);
+            var expectedArgs = new object[] { key, "RETENTION", 5000L, "CHUNK_SIZE", 1000L, "LABELS", "key", "value", "UNCOMPRESSED", "DUPLICATE_POLICY", "FIRST", "IGNORE", 11L, 12L };
+            Assert.Equal(expectedArgs, command.Args);
+
+            parameters = new TsCreateParamsBuilder()
+                        .AddChunkSizeBytes(1000)
+                        .AddDuplicatePolicy(TsDuplicatePolicy.FIRST)
+                        .AddIgnoreValues(11, 12)
+                        .AddLabels(new List<TimeSeriesLabel>() { new TimeSeriesLabel("key", "value") })
+                        .AddRetentionTime(5000)
+                        .AddUncompressed(false).build();
+
+            command = TimeSeriesCommandsBuilder.Create(key, parameters);
+            expectedArgs = new object[] { key, "RETENTION", 5000L, "CHUNK_SIZE", 1000L, "LABELS", "key", "value", "COMPRESSED", "DUPLICATE_POLICY", "FIRST", "IGNORE", 11L, 12L };
+            Assert.Equal(expectedArgs, command.Args);
+        }
     }
 }

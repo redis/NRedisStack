@@ -1,7 +1,7 @@
 using NRedisStack.Search.Literals;
 namespace NRedisStack.Search
 {
-    public class FTSpellCheckParams
+    public class FTSpellCheckParams : IDialectAwareParam
     {
         List<object> args = new List<object>();
         private List<KeyValuePair<string, string>> terms = new List<KeyValuePair<string, string>>();
@@ -60,37 +60,28 @@ namespace NRedisStack.Search
 
         public void SerializeRedisArgs()
         {
-            Distance();
-            Terms();
-            Dialect();
-        }
-
-        private void Dialect()
-        {
             if (dialect != null)
             {
                 args.Add(SearchArgs.DIALECT);
                 args.Add(dialect);
             }
-        }
-
-        private void Terms()
-        {
             foreach (var term in terms)
             {
                 args.Add(SearchArgs.TERMS);
                 args.Add(term.Value);
                 args.Add(term.Key);
             }
-        }
-
-        private void Distance()
-        {
             if (distance != null)
             {
                 args.Add(SearchArgs.DISTANCE);
                 args.Add(distance);
             }
+        }
+
+        int? IDialectAwareParam.Dialect
+        {
+            get { return dialect; }
+            set { dialect = value; }
         }
     }
 }
