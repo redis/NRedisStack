@@ -1,12 +1,10 @@
 // EXAMPLE: cmds_hash
 // HIDE_START
-
-using NRedisStack.Tests;
 using StackExchange.Redis;
-
 // HIDE_END
-
 // REMOVE_START
+using NRedisStack.Tests;
+
 namespace Doc;
 [Collection("DocsTests")]
 // REMOVE_END
@@ -26,7 +24,6 @@ public class CmdsHashExample
         //REMOVE_END
         // HIDE_END
 
-
         // STEP_START hget
         bool res1 = db.HashSet("myhash", "field1", "foo");
 
@@ -37,8 +34,6 @@ public class CmdsHashExample
         Console.WriteLine(res3);    // >>> Null
 
         // STEP_END
-
-        // Tests for 'hget' step.
         // REMOVE_START
         Assert.True(res1);
         Assert.Equal("foo", res2);
@@ -70,8 +65,6 @@ public class CmdsHashExample
         // >>> field1: Hello, field2: Hi, field3: World
 
         // STEP_END
-
-        // Tests for 'hset' step.
         // REMOVE_START
         Assert.True(res4);
         Assert.Equal("Hello", res5);
