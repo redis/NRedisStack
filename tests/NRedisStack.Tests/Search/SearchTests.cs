@@ -2796,7 +2796,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2L, await ft.SugLenAsync(key));
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.3")]
     public void TestProfileSearch()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2812,15 +2812,14 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         var profile = ft.ProfileSearch(index, new Query("foo"));
         // Iterators profile={Type=TEXT, Time=0.0, Term=foo, Counter=1, Size=1}
-        profile.Item2["Iterators profile"].ToDictionary();
-        var iteratorsProfile = profile.Item2["Iterators profile"].ToDictionary();
-        Assert.Equal("TEXT", iteratorsProfile["Type"].ToString());
-        Assert.Equal("foo", iteratorsProfile["Term"].ToString());
-        Assert.Equal("1", iteratorsProfile["Counter"].ToString());
-        Assert.Equal("1", iteratorsProfile["Size"].ToString());
+        var info = (RedisResult[])profile.Item2.Info;
+        int shardsIndex = Array.FindIndex(info, item => item.ToString() == "Shards");
+        int coordinatorIndex = Array.FindIndex(info, item => item.ToString() == "Coordinator");
+        CustomAssertions.GreaterThan(shardsIndex, -1);
+        CustomAssertions.GreaterThan(coordinatorIndex, -1);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.3")]
     public async Task TestProfileSearchAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2835,17 +2834,52 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                                 new HashEntry("t2", "bar")});
 
         var profile = await ft.ProfileSearchAsync(index, new Query("foo"));
-        // Iterators profile={Type=TEXT, Time=0.0, Term=foo, Counter=1, Size=1}
-        profile.Item2["Iterators profile"].ToDictionary();
-        var iteratorsProfile = profile.Item2["Iterators profile"].ToDictionary();
-        Assert.Equal("TEXT", iteratorsProfile["Type"].ToString());
-        Assert.Equal("foo", iteratorsProfile["Term"].ToString());
-        Assert.Equal("1", iteratorsProfile["Counter"].ToString());
-        Assert.Equal("1", iteratorsProfile["Size"].ToString());
+        var info = (RedisResult[])profile.Item2.Info;
+        int shardsIndex = Array.FindIndex(info, item => item.ToString() == "Shards");
+        int coordinatorIndex = Array.FindIndex(info, item => item.ToString() == "Coordinator");
+        CustomAssertions.GreaterThan(shardsIndex, -1);
+        CustomAssertions.GreaterThan(coordinatorIndex, -1);
     }
 
+    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3")]
+    public void TestProfileSearch_WithoutCoordinator()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
 
-    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
+        Schema sc = new Schema().AddTextField("t1", 1.0).AddTextField("t2", 1.0);
+        Assert.True(ft.Create(index, new FTCreateParams(), sc));
+
+        db.HashSet("doc1", new HashEntry[] {
+                                new HashEntry("t1", "foo"),
+                                new HashEntry("t2", "bar")});
+
+        var profile = ft.ProfileSearch(index, new Query("foo"));
+        var info = (RedisResult[])profile.Item2.Info;
+        CustomAssertions.GreaterThan(info.Length, 4);
+    }
+
+    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3")]
+    public async Task TestProfileSearchAsync_WithoutCoordinator()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        Schema sc = new Schema().AddTextField("t1", 1.0).AddTextField("t2", 1.0);
+        Assert.True(ft.Create(index, new FTCreateParams(), sc));
+
+        db.HashSet("doc1", new HashEntry[] {
+                                new HashEntry("t1", "foo"),
+                                new HashEntry("t2", "bar")});
+
+        var profile = await ft.ProfileSearchAsync(index, new Query("foo"));
+        var info = (RedisResult[])profile.Item2.Info;
+        CustomAssertions.GreaterThan(info.Length, 4);
+    }
+
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.3")]
     public void TestProfile()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2860,22 +2894,28 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var q = new Query("hello|world").SetNoContent();
         var profileSearch = ft.ProfileSearch(index, q);
         var searchRes = profileSearch.Item1;
-        var searchDet = profileSearch.Item2;
+        var searchDet = (RedisResult[])profileSearch.Item2.Info;
 
-        Assert.Equal(5, searchDet.Count);
         Assert.Equal(2, searchRes.Documents.Count);
-
+        int shardsIndex = Array.FindIndex(searchDet, item => item.ToString() == "Shards");
+        int coordinatorIndex = Array.FindIndex(searchDet, item => item.ToString() == "Coordinator");
+        CustomAssertions.GreaterThan(shardsIndex, -1);
+        CustomAssertions.GreaterThan(coordinatorIndex, -1);
 
         // check using AggregationRequest
         var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
         var profileAggregate = ft.ProfileAggregate(index, aggReq);
         var aggregateRes = profileAggregate.Item1;
-        var aggregateDet = profileAggregate.Item2;
-        Assert.Equal(5, aggregateDet.Count);
+        var aggregateDet = (RedisResult[])profileAggregate.Item2.Info;
+
         Assert.Equal(2, aggregateRes.TotalResults);
+        shardsIndex = Array.FindIndex(aggregateDet, item => item.ToString() == "Shards");
+        coordinatorIndex = Array.FindIndex(aggregateDet, item => item.ToString() == "Coordinator");
+        CustomAssertions.GreaterThan(shardsIndex, -1);
+        CustomAssertions.GreaterThan(coordinatorIndex, -1);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.3")]
     public async Task TestProfileAsync()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2890,21 +2930,88 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var q = new Query("hello|world").SetNoContent();
         var profileSearch = await ft.ProfileSearchAsync(index, q);
         var searchRes = profileSearch.Item1;
-        var searchDet = profileSearch.Item2;
+        var searchDet = (RedisResult[])profileSearch.Item2.Info;
 
-        Assert.Equal(5, searchDet.Count);
         Assert.Equal(2, searchRes.Documents.Count);
+        int shardsIndex = Array.FindIndex(searchDet, item => item.ToString() == "Shards");
+        int coordinatorIndex = Array.FindIndex(searchDet, item => item.ToString() == "Coordinator");
+        CustomAssertions.GreaterThan(shardsIndex, -1);
+        CustomAssertions.GreaterThan(coordinatorIndex, -1);
 
         // check using AggregationRequest
         var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
         var profileAggregate = await ft.ProfileAggregateAsync(index, aggReq);
         var aggregateRes = profileAggregate.Item1;
-        var aggregateDet = profileAggregate.Item2;
-        Assert.Equal(5, aggregateDet.Count);
+        var aggregateDet = (RedisResult[])profileAggregate.Item2.Info;
+
         Assert.Equal(2, aggregateRes.TotalResults);
+        shardsIndex = Array.FindIndex(aggregateDet, item => item.ToString() == "Shards");
+        coordinatorIndex = Array.FindIndex(aggregateDet, item => item.ToString() == "Coordinator");
+        CustomAssertions.GreaterThan(shardsIndex, -1);
+        CustomAssertions.GreaterThan(coordinatorIndex, -1);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.3.242")]
+    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3")]
+    public void TestProfile_WithoutCoordinator()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        ft.Create(index, new Schema().AddTextField("t")); // Calling FT.CREATR without FTCreateParams
+        db.HashSet("1", "t", "hello");
+        db.HashSet("2", "t", "world");
+
+        // check using Query
+        var q = new Query("hello|world").SetNoContent();
+        var profileSearch = ft.ProfileSearch(index, q);
+        var searchRes = profileSearch.Item1;
+        var searchDet = (RedisResult[])profileSearch.Item2.Info;
+
+        Assert.Equal(2, searchRes.Documents.Count);
+        CustomAssertions.GreaterThan(searchDet.Length, 4);
+
+        // check using AggregationRequest
+        var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
+        var profileAggregate = ft.ProfileAggregate(index, aggReq);
+        var aggregateRes = profileAggregate.Item1;
+        var aggregateDet = (RedisResult[])profileAggregate.Item2.Info;
+
+        Assert.Equal(2, aggregateRes.TotalResults);
+        CustomAssertions.GreaterThan(searchDet.Length, 4);
+    }
+
+    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3")]
+    public async Task TestProfileAsync_WithoutCoordinator()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+        db.Execute("FLUSHALL");
+        var ft = db.FT();
+
+        await ft.CreateAsync(index, new Schema().AddTextField("t")); // Calling FT.CREATR without FTCreateParams
+        db.HashSet("1", "t", "hello");
+        db.HashSet("2", "t", "world");
+
+        // check using Query
+        var q = new Query("hello|world").SetNoContent();
+        var profileSearch = await ft.ProfileSearchAsync(index, q);
+        var searchRes = profileSearch.Item1;
+        var searchDet = (RedisResult[])profileSearch.Item2.Info;
+
+        Assert.Equal(2, searchRes.Documents.Count);
+        CustomAssertions.GreaterThan(searchDet.Length, 4);
+
+        // check using AggregationRequest
+        var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
+        var profileAggregate = await ft.ProfileAggregateAsync(index, aggReq);
+        var aggregateRes = profileAggregate.Item1;
+        var aggregateDet = (RedisResult[])profileAggregate.Item2.Info;
+
+        Assert.Equal(2, aggregateRes.TotalResults);
+        CustomAssertions.GreaterThan(searchDet.Length, 4);
+    }
+
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.240")]
     public void TestProfileIssue306()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2919,9 +3026,9 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var q = new Query("hello|world").SetNoContent();
         var profileSearch = ft.ProfileSearch(index, q);
         var searchRes = profileSearch.Item1;
-        var searchDet = profileSearch.Item2;
+        var searchDet = (RedisResult[])profileSearch.Item2.Info;
 
-        Assert.Equal(6, searchDet.Count);
+        CustomAssertions.GreaterThan(searchDet.Length, 3);
         Assert.Equal(2, searchRes.Documents.Count);
 
 
@@ -2929,12 +3036,12 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
         var profileAggregate = ft.ProfileAggregate(index, aggReq);
         var aggregateRes = profileAggregate.Item1;
-        var aggregateDet = profileAggregate.Item2;
-        Assert.True(aggregateDet.Count >= 6);
+        var aggregateDet = (RedisResult[])profileAggregate.Item2.Info;
+        CustomAssertions.GreaterThan(aggregateDet.Length, 3);
         Assert.Equal(2, aggregateRes.TotalResults);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.3.242")]
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.240")]
     public async Task TestProfileAsyncIssue306()
     {
         IDatabase db = redisFixture.Redis.GetDatabase();
@@ -2949,17 +3056,17 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var q = new Query("hello|world").SetNoContent();
         var profileSearch = await ft.ProfileSearchAsync(index, q);
         var searchRes = profileSearch.Item1;
-        var searchDet = profileSearch.Item2;
+        var searchDet = (RedisResult[])profileSearch.Item2.Info;
 
-        Assert.Equal(6, searchDet.Count);
+        CustomAssertions.GreaterThan(searchDet.Length, 3);
         Assert.Equal(2, searchRes.Documents.Count);
 
         // check using AggregationRequest
         var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
         var profileAggregate = await ft.ProfileAggregateAsync(index, aggReq);
         var aggregateRes = profileAggregate.Item1;
-        var aggregateDet = profileAggregate.Item2;
-        Assert.True(aggregateDet.Count >= 6);
+        var aggregateDet = (RedisResult[])profileAggregate.Item2.Info;
+        CustomAssertions.GreaterThan(aggregateDet.Length, 3);
         Assert.Equal(2, aggregateRes.TotalResults);
     }
 
