@@ -6,9 +6,13 @@ using Xunit;
 
 namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
-    public class TestAlter(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
+    public class TestAlter : AbstractNRedisStackTest, IDisposable
     {
         private readonly string key = "ALTER_TESTS";
+
+        public TestAlter(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+        {
+        }
 
 
         [Fact]

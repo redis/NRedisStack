@@ -12,7 +12,7 @@ using NetTopologySuite.Geometries;
 
 namespace NRedisStack.Tests.Search;
 
-public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
+public class SearchTests : AbstractNRedisStackTest, IDisposable
 {
     // private readonly string key = "SEARCH_TESTS";
     private readonly string index = "TEST_INDEX";
@@ -2568,6 +2568,10 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     string key = "SugTestKey";
+
+    public SearchTests(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+    {
+    }
 
     [Fact]
     public void TestAddAndGetSuggestion()

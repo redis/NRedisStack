@@ -4,10 +4,13 @@ using NRedisStack.RedisStackCommands;
 
 namespace NRedisStack.Tests.Bloom;
 
-public class BloomTests(EndpointsFixture endpointsFixture)
-    : AbstractNRedisStackTest(endpointsFixture), IDisposable
+public class BloomTests : AbstractNRedisStackTest, IDisposable
 {
     private readonly string key = "BLOOM_TESTS";
+
+    public BloomTests(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+    {
+    }
 
     [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]

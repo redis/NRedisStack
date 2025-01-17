@@ -6,10 +6,14 @@ using Xunit;
 
 namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
-    public class TestMADD(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
+    public class TestMADD : AbstractNRedisStackTest, IDisposable
     {
 
         private readonly string[] keys = { "MADD_TESTS_1", "MADD_TESTS_2" };
+
+        public TestMADD(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+        {
+        }
 
         [SkipIfRedis(Is.Enterprise)]
         [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]

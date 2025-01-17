@@ -8,9 +8,12 @@ using NRedisStack.Tests;
 
 namespace NRedisTimeSeries.Test.TestDataTypes
 {
-    public class TestInformation(NRedisStack.Tests.EndpointsFixture endpointsFixture)
-        : AbstractNRedisStackTest(endpointsFixture)
+    public class TestInformation : AbstractNRedisStackTest
     {
+        public TestInformation(NRedisStack.Tests.EndpointsFixture endpointsFixture) : base(endpointsFixture)
+        {
+        }
+
         [Fact]
         [Obsolete]
         public void TestInformationSync()

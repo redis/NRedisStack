@@ -5,9 +5,13 @@ using Xunit;
 
 namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
-    public class TestIncrBy(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
+    public class TestIncrBy : AbstractNRedisStackTest, IDisposable
     {
         private readonly string key = "INCRBY_TESTS";
+
+        public TestIncrBy(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+        {
+        }
 
         [Fact]
         public void TestDefaultIncrBy()

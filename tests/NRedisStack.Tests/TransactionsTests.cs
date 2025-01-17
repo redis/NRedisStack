@@ -6,10 +6,13 @@ using Xunit;
 
 namespace NRedisStack.Tests;
 
-public class TransactionTests(EndpointsFixture endpointsFixture)
-    : AbstractNRedisStackTest(endpointsFixture), IDisposable
+public class TransactionTests : AbstractNRedisStackTest, IDisposable
 {
     private readonly string key = "TRX_TESTS";
+
+    public TransactionTests(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+    {
+    }
 
     [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]

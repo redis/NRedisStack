@@ -6,8 +6,12 @@ using NRedisStack.RedisStackCommands;
 
 namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
-    public class TestMRevRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture)
+    public class TestMRevRangeAsync : AbstractNRedisStackTest
     {
+        public TestMRevRangeAsync(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+        {
+        }
+
         private async Task<List<TimeSeriesTuple>> CreateData(TimeSeriesCommands ts, string[] keys, int timeBucket)
         {
             var tuples = new List<TimeSeriesTuple>();

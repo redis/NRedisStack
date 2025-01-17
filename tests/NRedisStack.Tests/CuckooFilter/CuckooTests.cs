@@ -6,9 +6,13 @@ namespace NRedisStack.Tests.CuckooFilter;
 
 // 
 
-public class CuckooTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
+public class CuckooTests : AbstractNRedisStackTest, IDisposable
 {
     private readonly string key = "CUCKOO_TESTS";
+
+    public CuckooTests(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+    {
+    }
 
     [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]

@@ -4,9 +4,13 @@ using NRedisStack.RedisStackCommands;
 
 namespace NRedisStack.Tests.TopK;
 
-public class TopKTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
+public class TopKTests : AbstractNRedisStackTest, IDisposable
 {
     private readonly string key = "TOPK_TESTS";
+
+    public TopKTests(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+    {
+    }
 
 
     [Theory]

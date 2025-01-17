@@ -6,8 +6,12 @@ using NRedisStack.Search;
 
 namespace NRedisStack.Tests;
 
-public class PipelineTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
+public class PipelineTests : AbstractNRedisStackTest, IDisposable
 {
+    public PipelineTests(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+    {
+    }
+
     private const string key = "PIPELINE_TESTS";
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]

@@ -4,9 +4,13 @@ using NRedisStack.RedisStackCommands;
 
 namespace NRedisStack.Tests.CuckooFilter;
 
-public class CmsTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
+public class CmsTests : AbstractNRedisStackTest, IDisposable
 {
     private readonly string key = "CMS_TESTS";
+
+    public CmsTests(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+    {
+    }
 
 
     [Theory]

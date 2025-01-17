@@ -5,10 +5,14 @@ using Xunit;
 
 namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
-    public class TestMGet(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
+    public class TestMGet : AbstractNRedisStackTest, IDisposable
     {
 
         private readonly string[] keys = { "MGET_TESTS_1", "MGET_TESTS_2" };
+
+        public TestMGet(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+        {
+        }
 
         [SkipIfRedis(Is.Enterprise)]
         [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]

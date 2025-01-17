@@ -6,9 +6,13 @@ using NRedisStack.RedisStackCommands;
 
 namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
-    public class TestRange(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
+    public class TestRange : AbstractNRedisStackTest, IDisposable
     {
         private readonly string key = "RANGE_TESTS";
+
+        public TestRange(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+        {
+        }
 
         private List<TimeSeriesTuple> CreateData(ITimeSeriesCommands ts, int timeBucket)
         {

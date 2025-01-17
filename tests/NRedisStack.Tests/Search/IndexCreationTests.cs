@@ -6,10 +6,14 @@ using NetTopologySuite.Geometries;
 
 namespace NRedisStack.Tests.Search;
 
-public class IndexCreationTests(EndpointsFixture endpointsFixture)
-    : AbstractNRedisStackTest(endpointsFixture), IDisposable
+public class IndexCreationTests : AbstractNRedisStackTest, IDisposable
 {
     private readonly string index = "MISSING_EMPTY_INDEX";
+
+    public IndexCreationTests(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+    {
+    }
+
     private static readonly string INDEXMISSING = "INDEXMISSING";
     private static readonly string INDEXEMPTY = "INDEXEMPTY";
 

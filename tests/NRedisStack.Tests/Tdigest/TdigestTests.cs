@@ -4,9 +4,13 @@ using NRedisStack.RedisStackCommands;
 
 namespace NRedisStack.Tests.Tdigest;
 
-public class TdigestTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
+public class TdigestTests : AbstractNRedisStackTest, IDisposable
 {
     private readonly string key = "TDIGEST_TESTS";
+
+    public TdigestTests(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+    {
+    }
 
     private void AssertMergedUnmergedNodes(ITdigestCommands tdigest, string key, int mergedNodes, int unmergedNodes)
     {

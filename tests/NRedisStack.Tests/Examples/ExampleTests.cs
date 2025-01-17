@@ -10,10 +10,14 @@ using static NRedisStack.Search.Schema;
 
 namespace NRedisStack.Tests;
 
-public class ExampleTests(EndpointsFixture endpointsFixture, ITestOutputHelper testOutputHelper)
-    : AbstractNRedisStackTest(endpointsFixture), IDisposable
+public class ExampleTests : AbstractNRedisStackTest, IDisposable
 {
-    private readonly ITestOutputHelper testOutputHelper = testOutputHelper;
+    private readonly ITestOutputHelper testOutputHelper;
+
+    public ExampleTests(EndpointsFixture endpointsFixture, ITestOutputHelper testOutputHelper) : base(endpointsFixture)
+    {
+        this.testOutputHelper = testOutputHelper;
+    }
     // private readonly string key = "EXAMPLES_TESTS";
 
     [Theory]

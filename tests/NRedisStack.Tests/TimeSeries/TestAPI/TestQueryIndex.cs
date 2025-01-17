@@ -4,9 +4,13 @@ using Xunit;
 
 namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
-    public class TestQueryIndex(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
+    public class TestQueryIndex : AbstractNRedisStackTest, IDisposable
     {
         private readonly string[] keys = { "QUERYINDEX_TESTS_1", "QUERYINDEX_TESTS_2" };
+
+        public TestQueryIndex(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+        {
+        }
 
         [SkipIfRedis(Is.Enterprise)]
         [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]

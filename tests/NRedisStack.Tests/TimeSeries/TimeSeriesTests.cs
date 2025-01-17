@@ -5,8 +5,12 @@ using NRedisStack.RedisStackCommands;
 
 namespace NRedisStack.Tests.TimeSeries;
 
-public class TimeSeriesTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
+public class TimeSeriesTests : AbstractNRedisStackTest, IDisposable
 {
+    public TimeSeriesTests(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+    {
+    }
+
     [Fact]
     public void TestModulePrefixs()
     {

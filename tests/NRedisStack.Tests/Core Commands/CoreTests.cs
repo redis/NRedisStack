@@ -8,8 +8,12 @@ using NRedisStack.RedisStackCommands;
 
 namespace NRedisStack.Tests.Core;
 
-public class CoreTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
+public class CoreTests : AbstractNRedisStackTest, IDisposable
 {
+    public CoreTests(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+    {
+    }
+
     // TODO: understand why this test fails on enterprise
     [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]

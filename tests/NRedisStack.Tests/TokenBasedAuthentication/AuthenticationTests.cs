@@ -6,8 +6,12 @@ using NRedisStack.Search;
 
 namespace NRedisStack.Tests.TokenBasedAuthentication
 {
-    public class AuthenticationTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture)
+    public class AuthenticationTests : AbstractNRedisStackTest
     {
+        public AuthenticationTests(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+        {
+        }
+
         static readonly string key = "myKey";
         static readonly string value = "myValue";
         static readonly string index = "myIndex";

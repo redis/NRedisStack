@@ -6,8 +6,12 @@ using NRedisStack.Graph.DataTypes;
 
 namespace NRedisStack.Tests.Graph;
 
-public class GraphTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
+public class GraphTests : AbstractNRedisStackTest, IDisposable
 {
+    public GraphTests(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+    {
+    }
+
     #region SyncTests
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]

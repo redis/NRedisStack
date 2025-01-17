@@ -6,8 +6,12 @@ using NRedisStack.RedisStackCommands;
 
 namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
-    public class TestRulesAsync(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture)
+    public class TestRulesAsync : AbstractNRedisStackTest
     {
+        public TestRulesAsync(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+        {
+        }
+
         [SkipIfRedis(Is.Enterprise)]
         [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
         [Obsolete]

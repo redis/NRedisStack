@@ -7,8 +7,12 @@ using NRedisStack.Json.DataTypes;
 
 namespace NRedisStack.Tests;
 
-public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
+public class JsonTests : AbstractNRedisStackTest, IDisposable
 {
+    public JsonTests(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+    {
+    }
+
     [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestSetFromFile(string endpointId)
