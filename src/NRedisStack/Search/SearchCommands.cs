@@ -131,13 +131,13 @@ namespace NRedisStack
         new InfoResult(_db.Execute(SearchCommandBuilder.Info(index)));
 
         /// <inheritdoc/>
-        public Tuple<SearchResult, Dictionary<string, RedisResult>> ProfileSearch(string indexName, Query q, bool limited = false)
+        public Tuple<SearchResult, ProfilingInformation> ProfileSearch(string indexName, Query q, bool limited = false)
         {
             return _db.Execute(SearchCommandBuilder.ProfileSearch(indexName, q, limited))
                             .ToProfileSearchResult(q);
         }
         /// <inheritdoc/>
-        public Tuple<AggregationResult, Dictionary<string, RedisResult>> ProfileAggregate(string indexName, AggregationRequest query, bool limited = false)
+        public Tuple<AggregationResult, ProfilingInformation> ProfileAggregate(string indexName, AggregationRequest query, bool limited = false)
         {
             setDefaultDialectIfUnset(query);
             return _db.Execute(SearchCommandBuilder.ProfileAggregate(indexName, query, limited))

@@ -177,7 +177,7 @@ namespace NRedisStack
         /// <param name="q">The query string.</param>
         /// <param name="limited">Removes details of reader iterator.</param>
         /// <returns></returns>
-        Tuple<SearchResult, Dictionary<string, RedisResult>> ProfileSearch(string indexName, Query q, bool limited = false);
+        Tuple<SearchResult, ProfilingInformation> ProfileSearch(string indexName, Query q, bool limited = false);
 
         /// <summary>
         /// Apply FT.AGGREGATE command to collect performance details.
@@ -186,7 +186,7 @@ namespace NRedisStack
         /// <param name="query">The query string.</param>
         /// <param name="limited">Removes details of reader iterator.</param>
         /// <returns></returns>
-        Tuple<AggregationResult, Dictionary<string, RedisResult>> ProfileAggregate(string indexName, AggregationRequest query, bool limited = false);
+        Tuple<AggregationResult, ProfilingInformation> ProfileAggregate(string indexName, AggregationRequest query, bool limited = false);
 
         /// <summary>
         /// Search the index

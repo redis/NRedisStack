@@ -685,13 +685,13 @@ namespace NRedisStack
             return dict;
         }
 
-        public static Tuple<SearchResult, Dictionary<string, RedisResult>> ToProfileSearchResult(this RedisResult result, Query q)
+        public static Tuple<SearchResult, ProfilingInformation> ToProfileSearchResult(this RedisResult result, Query q)
         {
             var results = (RedisResult[])result!;
 
             var searchResult = results[0].ToSearchResult(q);
-            var profile = results[1].ToStringRedisResultDictionary();
-            return new Tuple<SearchResult, Dictionary<string, RedisResult>>(searchResult, profile);
+            var profile = new ProfilingInformation(results[1]);
+            return new Tuple<SearchResult, ProfilingInformation>(searchResult, profile);
         }
 
         public static SearchResult ToSearchResult(this RedisResult result, Query q)
@@ -699,12 +699,12 @@ namespace NRedisStack
             return new SearchResult((RedisResult[])result!, !q.NoContent, q.WithScores, q.WithPayloads/*, q.ExplainScore*/);
         }
 
-        public static Tuple<AggregationResult, Dictionary<string, RedisResult>> ToProfileAggregateResult(this RedisResult result, AggregationRequest q)
+        public static Tuple<AggregationResult, ProfilingInformation> ToProfileAggregateResult(this RedisResult result, AggregationRequest q)
         {
             var results = (RedisResult[])result!;
             var aggregateResult = results[0].ToAggregationResult(q);
-            var profile = results[1].ToStringRedisResultDictionary();
-            return new Tuple<AggregationResult, Dictionary<string, RedisResult>>(aggregateResult, profile);
+            var profile = new ProfilingInformation(results[1]);
+            return new Tuple<AggregationResult, ProfilingInformation>(aggregateResult, profile);
         }
 
         public static AggregationResult ToAggregationResult(this RedisResult result, AggregationRequest query)

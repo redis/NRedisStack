@@ -177,7 +177,7 @@ namespace NRedisStack
         /// <param name="q">The query string.</param>
         /// <param name="limited">Removes details of reader iterator.</param>
         /// <returns></returns>
-        Task<Tuple<SearchResult, Dictionary<string, RedisResult>>> ProfileSearchAsync(string indexName, Query q, bool limited = false);
+        Task<Tuple<SearchResult, ProfilingInformation>> ProfileSearchAsync(string indexName, Query q, bool limited = false);
 
 
         /// <summary>
@@ -187,7 +187,7 @@ namespace NRedisStack
         /// <param name="query">The query string.</param>
         /// <param name="limited">Removes details of reader iterator.</param>
         /// <returns></returns>
-        Task<Tuple<AggregationResult, Dictionary<string, RedisResult>>> ProfileAggregateAsync(string indexName, AggregationRequest query, bool limited = false);
+        Task<Tuple<AggregationResult, ProfilingInformation>> ProfileAggregateAsync(string indexName, AggregationRequest query, bool limited = false);
 
         /// <summary>
         /// Search the index
