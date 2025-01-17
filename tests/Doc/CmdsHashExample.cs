@@ -1,12 +1,10 @@
 // EXAMPLE: cmds_hash
 // HIDE_START
-
-using NRedisStack.Tests;
 using StackExchange.Redis;
-
 // HIDE_END
-
 // REMOVE_START
+using NRedisStack.Tests;
+
 namespace Doc;
 [Collection("DocsTests")]
 // REMOVE_END
@@ -26,7 +24,6 @@ public class CmdsHashExample
         //REMOVE_END
         // HIDE_END
 
-
         // STEP_START hget
         bool res1 = db.HashSet("myhash", "field1", "foo");
 
@@ -35,9 +32,8 @@ public class CmdsHashExample
 
         RedisValue res3 = db.HashGet("myhash", "field2");
         Console.WriteLine(res3);    // >>> Null
-        // STEP_END
 
-        // Tests for 'hget' step.
+        // STEP_END
         // REMOVE_START
         Assert.True(res1);
         Assert.Equal("foo", res2);
@@ -67,9 +63,8 @@ public class CmdsHashExample
         HashEntry[] res8 = db.HashGetAll("myhash");
         Console.WriteLine($"{string.Join(", ", res8.Select(h => $"{h.Name}: {h.Value}"))}");
         // >>> field1: Hello, field2: Hi, field3: World
-        // STEP_END
 
-        // Tests for 'hset' step.
+        // STEP_END
         // REMOVE_START
         Assert.True(res4);
         Assert.Equal("Hello", res5);
@@ -79,9 +74,46 @@ public class CmdsHashExample
             "field1: Hello, field2: Hi, field3: World",
             string.Join(", ", res8.Select(h => $"{h.Name}: {h.Value}"))
         );
+        db.KeyDelete("myhash");
+        // REMOVE_END
+
+        // STEP_START hgetall
+        db.HashSet("myhash",
+            new HashEntry[] {
+                new HashEntry("field1", "Hello"),
+                new HashEntry("field2", "World")
+            }
+        );
+
+        HashEntry[] hGetAllResult = db.HashGetAll("myhash");
+        Array.Sort(hGetAllResult, (a1, a2) => a1.Name.CompareTo(a2.Name));
+        Console.WriteLine(
+            string.Join(", ", hGetAllResult.Select(e => $"{e.Name}: {e.Value}"))
+        );
+        // >>> field1: Hello, field2: World
+        // STEP_END
+        // REMOVE_START
+        Assert.Equal("field1: Hello, field2: World", string.Join(", ", hGetAllResult.Select(e => $"{e.Name}: {e.Value}")));
+        db.KeyDelete("myhash");
+        // REMOVE_END
+
+        // STEP_START hvals
+        db.HashSet("myhash",
+            new HashEntry[] {
+                new HashEntry("field1", "Hello"),
+                new HashEntry("field2", "World")
+            }
+        );
+
+        RedisValue[] hValsResult = db.HashValues("myhash");
+        Array.Sort(hValsResult);
+        Console.WriteLine(string.Join(", ", hValsResult));
+        // >>> Hello, World
+        // STEP_END
+        // REMOVE_START
+        Assert.Equal("Hello, World", string.Join(", ", hValsResult));
         // REMOVE_END
         // HIDE_START
     }
 }
 // HIDE_END
-
