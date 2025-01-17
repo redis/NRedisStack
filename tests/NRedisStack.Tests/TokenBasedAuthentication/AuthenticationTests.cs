@@ -21,12 +21,14 @@ namespace NRedisStack.Tests.TokenBasedAuthentication
         [SkippableFact]
         public void TestTokenBasedAuthentication()
         {
-
+            // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
+            SkipIfTargetConnectionDoesNotExist(EndpointsFixture.Env.StandaloneEntraId);
+            
             var configurationOptions = new ConfigurationOptions().ConfigureForAzureWithTokenCredentialAsync(new DefaultAzureCredential()).Result!;
             configurationOptions.Ssl = false;
             configurationOptions.AbortOnConnectFail = true; // Fail fast for the purposes of this sample. In production code, this should remain false to retry connections on startup
 
-            ConnectionMultiplexer? connectionMultiplexer = GetConnection(configurationOptions, "standalone-entraid-acl");
+            ConnectionMultiplexer? connectionMultiplexer = GetConnection(configurationOptions, EndpointsFixture.Env.StandaloneEntraId);
 
             IDatabase db = connectionMultiplexer.GetDatabase();
 

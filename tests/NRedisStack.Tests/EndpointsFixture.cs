@@ -43,6 +43,7 @@ public class EndpointsFixture : IDisposable
     public static class Env
     {
         public const string Standalone = "standalone";
+        public const string StandaloneEntraId = "standalone-entraid";
         public const string Cluster = "cluster";
 
         public static IEnumerable<object[]> AllEnvironments()
