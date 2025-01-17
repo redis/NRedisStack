@@ -12,7 +12,8 @@ public abstract class AbstractNRedisStackTest : IClassFixture<EndpointsFixture>,
     protected readonly ConfigurationOptions DefaultConnectionConfig = new()
     {
         AsyncTimeout = 10000,
-        SyncTimeout = 10000
+        SyncTimeout = 10000,
+        AllowAdmin = true,
     };
     
     protected internal AbstractNRedisStackTest(EndpointsFixture endpointsFixture)
@@ -33,7 +34,21 @@ public abstract class AbstractNRedisStackTest : IClassFixture<EndpointsFixture>,
     
     protected IDatabase GetCleanDatabase(string endpointId = EndpointsFixture.Env.Standalone)
     {
-        IDatabase db = GetDatabase(endpointId);
+        var redis = GetConnection(endpointId);
+        
+        if (endpointId == EndpointsFixture.Env.Cluster)
+        {
+            foreach (var endPoint in redis.GetEndPoints())
+            {
+                var server = redis.GetServer(endPoint);
+                
+                if (server.IsReplica) continue;
+                
+                server.Execute("FLUSHALL");
+            }
+        }
+
+        IDatabase db = redis.GetDatabase();
         db.Execute("FLUSHALL");
         return db;
     }
