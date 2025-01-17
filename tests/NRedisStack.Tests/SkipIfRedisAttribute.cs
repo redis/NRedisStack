@@ -17,10 +17,27 @@ public enum Is
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 public class SkipIfRedisAttribute : FactAttribute
 {
+    private class RedisFixtureData
+    {
+        public RedisFixtureData()
+        {
+            using (var redisFixture = new RedisFixture())
+            {
+                isEnterprise = redisFixture.isEnterprise;
+                isOSSCluster = redisFixture.isOSSCluster;
+                serverVersion = redisFixture.Redis.GetServer(redisFixture.Redis.GetEndPoints()[0]).Version;
+            }
+        }
+
+        public readonly bool isEnterprise;
+        public readonly bool isOSSCluster;
+        public readonly Version serverVersion;
+    }
     private readonly string _targetVersion;
     private readonly Comparison _comparison;
     private readonly List<Is> _environments = new List<Is>();
 
+    private static RedisFixtureData _redisFixtureData;
     private static Version serverVersion = null;
 
     public SkipIfRedisAttribute(
@@ -64,60 +81,62 @@ public class SkipIfRedisAttribute : FactAttribute
         {
             string skipReason = "";
             bool skipped = false;
-            using (RedisFixture redisFixture = new RedisFixture())
+            if (_redisFixtureData == null)
             {
-                foreach (var environment in _environments)
+                _redisFixtureData = new RedisFixtureData();
+            }
+
+            foreach (var environment in _environments)
+            {
+                switch (environment)
                 {
-                    switch (environment)
+                    case Is.OSSCluster:
+                        if (_redisFixtureData.isOSSCluster)
+                        {
+                            skipReason = skipReason + " Redis server is OSS cluster.";
+                            skipped = true;
+                        }
+                        break;
+
+                    case Is.Standalone:
+                        if (!_redisFixtureData.isOSSCluster)
+                        {
+                            skipReason = skipReason + " Redis server is not OSS cluster.";
+                            skipped = true;
+                        }
+                        break;
+
+                    case Is.Enterprise:
+                        if (_redisFixtureData.isEnterprise)
+                        {
+                            skipReason = skipReason + " Redis Enterprise environment.";
+                            skipped = true;
+                        }
+                        break;
+                }
+            }
+            // Version check (if Is.Standalone/Is.OSSCluster is set then )
+
+            serverVersion = _redisFixtureData.serverVersion;
+            var targetVersion = new Version(_targetVersion);
+            int comparisonResult = serverVersion.CompareTo(targetVersion);
+
+            switch (_comparison)
+            {
+                case Comparison.LessThan:
+                    if (comparisonResult < 0)
                     {
-                        case Is.OSSCluster:
-                            if (redisFixture.isOSSCluster)
-                            {
-                                skipReason = skipReason + " Redis server is OSS cluster.";
-                                skipped = true;
-                            }
-                            break;
-
-                        case Is.Standalone:
-                            if (!redisFixture.isOSSCluster)
-                            {
-                                skipReason = skipReason + " Redis server is not OSS cluster.";
-                                skipped = true;
-                            }
-                            break;
-
-                        case Is.Enterprise:
-                            if (redisFixture.isEnterprise)
-                            {
-                                skipReason = skipReason + " Redis Enterprise environment.";
-                                skipped = true;
-                            }
-                            break;
+                        skipReason = skipReason + $" Redis server version ({serverVersion}) is less than {_targetVersion}.";
+                        skipped = true;
                     }
-                }
-                // Version check (if Is.Standalone/Is.OSSCluster is set then )
-
-                serverVersion = serverVersion ?? redisFixture.Redis.GetServer(redisFixture.Redis.GetEndPoints()[0]).Version;
-                var targetVersion = new Version(_targetVersion);
-                int comparisonResult = serverVersion.CompareTo(targetVersion);
-
-                switch (_comparison)
-                {
-                    case Comparison.LessThan:
-                        if (comparisonResult < 0)
-                        {
-                            skipReason = skipReason + $" Redis server version ({serverVersion}) is less than {_targetVersion}.";
-                            skipped = true;
-                        }
-                        break;
-                    case Comparison.GreaterThanOrEqual:
-                        if (comparisonResult >= 0)
-                        {
-                            skipReason = skipReason + $" Redis server version ({serverVersion}) is greater than or equal to {_targetVersion}.";
-                            skipped = true;
-                        }
-                        break;
-                }
+                    break;
+                case Comparison.GreaterThanOrEqual:
+                    if (comparisonResult >= 0)
+                    {
+                        skipReason = skipReason + $" Redis server version ({serverVersion}) is greater than or equal to {_targetVersion}.";
+                        skipped = true;
+                    }
+                    break;
             }
 
             if (skipped)
