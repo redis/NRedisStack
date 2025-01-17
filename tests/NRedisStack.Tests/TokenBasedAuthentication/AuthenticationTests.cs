@@ -23,7 +23,7 @@ namespace NRedisStack.Tests.TokenBasedAuthentication
         {
             // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
             SkipIfTargetConnectionDoesNotExist(EndpointsFixture.Env.StandaloneEntraId);
-            
+
             var configurationOptions = new ConfigurationOptions().ConfigureForAzureWithTokenCredentialAsync(new DefaultAzureCredential()).Result!;
             configurationOptions.Ssl = false;
             configurationOptions.AbortOnConnectFail = true; // Fail fast for the purposes of this sample. In production code, this should remain false to retry connections on startup

@@ -1954,7 +1954,6 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestQueryCommandBuilder()
     {
         var testQuery = new Query("foo").HighlightFields(new Query.HighlightTags("<b>", "</b>"), "txt")
@@ -2052,7 +2051,6 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestQueryCommandBuilderReturnField()
     {
         var testQuery = new Query("foo").HighlightFields("txt")
@@ -2088,7 +2086,6 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [Fact]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestQueryCommandBuilderScore()
     {
         // TODO: write better test for scores and payloads

@@ -57,7 +57,7 @@ public abstract class AbstractNRedisStackTest : IClassFixture<EndpointsFixture>,
     {
         Skip.IfNot(EndpointsFixture.IsTargetConnectionExist(id), $"The connection with id '{id}' is not configured.");
     }
-    
+
     private List<string> keyNames = new List<string>();
 
     protected internal string CreateKeyName([CallerMemberName] string memberName = "") => CreateKeyNames(1, memberName)[0];
