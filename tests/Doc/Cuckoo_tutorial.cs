@@ -15,7 +15,7 @@ namespace Doc;
 // HIDE_START
 public class Cuckoo_tutorial
 {
-    
+
     public void run()
     {
         var muxer = ConnectionMultiplexer.Connect("localhost:6379");

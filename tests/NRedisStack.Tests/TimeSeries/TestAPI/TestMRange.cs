@@ -380,7 +380,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
                 Assert.Equal(0, results[0].values[i].Val);
             }
         }
-        
+
         [SkipIfRedis(Is.Enterprise)]
         [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
         public void TestMRangeReduceStdS(string endpointId)
@@ -405,7 +405,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
                 Assert.Equal(0, results[0].values[i].Val);
             }
         }
-        
+
         [SkipIfRedis(Is.Enterprise)]
         [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
         public void TestMRangeReduceVarP(string endpointId)
@@ -430,7 +430,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
                 Assert.Equal(0, results[0].values[i].Val);
             }
         }
-        
+
         [SkipIfRedis(Is.Enterprise)]
         [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
         public void TestMRangeReduceVarS(string endpointId)

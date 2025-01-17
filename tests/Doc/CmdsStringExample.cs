@@ -14,7 +14,7 @@ namespace Doc;
 // HIDE_START
 public class CmdsStringExample
 {
-    
+
     public void run()
     {
         var muxer = ConnectionMultiplexer.Connect("localhost:6379");

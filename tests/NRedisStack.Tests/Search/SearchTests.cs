@@ -919,7 +919,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             }
         }
     }
-    
+
     [SkipIfRedis(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task AlterAddSortableAsync(string endpointId)
@@ -1033,7 +1033,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     // TODO : fix with FT.CONFIG response change
-    [SkipIfRedis( Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
+    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestDialectConfig(string endpointId)
     {
@@ -1203,7 +1203,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Is.Enterprise)]
-[MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAggregationGroupBy(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -1953,7 +1953,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("doc1", res1.Documents[0].Id);
     }
 
-    [Theory]
+    [Fact]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestQueryCommandBuilder()
     {
@@ -2051,7 +2051,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Empty(res.Documents);
     }
 
-    [Theory]
+    [Fact]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestQueryCommandBuilderReturnField()
     {
@@ -2087,7 +2087,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Empty(res.Documents);
     }
 
-    [Theory]
+    [Fact]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestQueryCommandBuilderScore()
     {
@@ -3303,6 +3303,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Empty(d.GetProperties().ToList());
     }
 
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestDocumentLoadWithDB_Issue352(string endpointId)
     {

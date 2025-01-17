@@ -10,7 +10,7 @@ namespace Doc;
 //REMOVE_END
 public class HashExample
 {
-    
+
     public void run()
     {
         var muxer = ConnectionMultiplexer.Connect("localhost:6379");

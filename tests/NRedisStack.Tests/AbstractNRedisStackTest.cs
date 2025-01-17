@@ -15,35 +15,35 @@ public abstract class AbstractNRedisStackTest : IClassFixture<EndpointsFixture>,
         SyncTimeout = 10000,
         AllowAdmin = true,
     };
-    
+
     protected internal AbstractNRedisStackTest(EndpointsFixture endpointsFixture)
     {
         this.EndpointsFixture = endpointsFixture;
     }
-    
+
     protected ConnectionMultiplexer GetConnection(string endpointId = EndpointsFixture.Env.Standalone) => EndpointsFixture.GetConnectionById(this.DefaultConnectionConfig, endpointId);
-    
+
     protected ConnectionMultiplexer GetConnection(ConfigurationOptions configurationOptions, string endpointId = EndpointsFixture.Env.Standalone) => EndpointsFixture.GetConnectionById(configurationOptions, endpointId);
-    
+
     protected IDatabase GetDatabase(string endpointId = EndpointsFixture.Env.Standalone)
     {
         var redis = GetConnection(endpointId);
         IDatabase db = redis.GetDatabase();
         return db;
     }
-    
+
     protected IDatabase GetCleanDatabase(string endpointId = EndpointsFixture.Env.Standalone)
     {
         var redis = GetConnection(endpointId);
-        
+
         if (endpointId == EndpointsFixture.Env.Cluster)
         {
             foreach (var endPoint in redis.GetEndPoints())
             {
                 var server = redis.GetServer(endPoint);
-                
+
                 if (server.IsReplica) continue;
-                
+
                 server.Execute("FLUSHALL");
             }
         }

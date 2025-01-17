@@ -99,7 +99,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     {
         ResetInfoDefaults(); // demonstrate first connection
         var db = GetConnection(endpointId).GetDatabase(null);
-        
+
         var infoBefore = db.Execute("CLIENT", "INFO").ToString();
         db.Execute(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
@@ -122,7 +122,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
     {
         ResetInfoDefaults(); // demonstrate first connection
         var db = GetConnection(endpointId).GetDatabase(null);
-        
+
         var infoBefore = (await db.ExecuteAsync("CLIENT", "INFO")).ToString();
         await db.ExecuteAsync(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 

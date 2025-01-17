@@ -102,7 +102,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         }
     }
 
-    
+
     [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestRankCommands(string endpointId)

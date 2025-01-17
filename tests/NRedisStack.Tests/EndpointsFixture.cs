@@ -44,25 +44,25 @@ public class EndpointsFixture : IDisposable
     {
         public const string Standalone = "standalone";
         public const string Cluster = "cluster";
-        
+
         public static IEnumerable<object[]> AllEnvironments()
         {
             yield return new object[] { Standalone };
             yield return new object[] { Cluster };
             // TODO(imalinovskiy): Add support for Sentinel
         }
-        
+
         public static IEnumerable<object[]> StandaloneOnly()
         {
             yield return new object[] { Standalone };
         }
     }
-    
+
     private readonly string? redisEndpointsPath = Environment.GetEnvironmentVariable("REDIS_ENDPOINTS_CONFIG_PATH") ?? "endpoints.json";
     private Dictionary<string, EndpointConfig> redisEndpoints = new();
-    
+
     public static readonly bool IsEnterprise = Environment.GetEnvironmentVariable("IS_ENTERPRISE") == "true";
-    
+
     public static Version RedisVersion = new Version(Environment.GetEnvironmentVariable("REDIS_VERSION") ?? "0.0.0");
 
     public EndpointsFixture()
@@ -79,7 +79,7 @@ public class EndpointsFixture : IDisposable
             throw new FileNotFoundException("The Redis endpoints configuration file is not found.");
         }
     }
-    
+
     public void Dispose()
     {
     }

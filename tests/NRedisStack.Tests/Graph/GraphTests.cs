@@ -797,7 +797,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestPoint(string endpointId)
+    public void TestPoint()
     {
         var point = new Point(30.27822306, -97.75134723);
 

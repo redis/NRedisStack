@@ -19,7 +19,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public void TestReserveBasic(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
-        
+
         var cf = db.CF();
         Assert.True(cf.Reserve(key, 100L, maxIterations: 20, expansion: 1));
         Assert.Throws<RedisServerException>(() => cf.Reserve(key, 100L));
@@ -395,7 +395,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     public void TestModulePrefixs(string endpointId)
     {
         var redis = GetConnection(endpointId);
-        
+
         IDatabase db1 = redis.GetDatabase();
         IDatabase db2 = redis.GetDatabase();
 

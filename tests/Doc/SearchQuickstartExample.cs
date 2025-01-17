@@ -13,7 +13,7 @@ namespace Doc;
 // REMOVE_END
 public class SearchQuickstartExample
 {
-    
+
     public void run()
     {
         // STEP_START connect
