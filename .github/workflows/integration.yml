@@ -69,22 +69,31 @@ jobs:
         ENDPOINT: ${{ secrets.ENDPOINT }}
       steps:
         - uses: actions/checkout@v3
+        - uses: Vampire/setup-wsl@v2
+          with:
+            distribution: Ubuntu-22.04
         - name: Install Redis
-          shell: cmd
+          shell: wsl-bash {0}
           run: |
-            docker compose --profile all -f tests/dockers/docker-compose.yml up -d --build
+            sudo apt-get update
+            sudo apt-get install curl -y && sudo apt-get install gpg -y && apt-get install lsb-release -y && apt-get install libgomp1 -y
+            curl https://packages.redis.io/redis-stack/redis-stack-server-${{env.redis_stack_version}}.jammy.x86_64.tar.gz -o redis-stack.tar.gz
+            tar xf redis-stack.tar.gz
         - name: Restore dependencies
           run: dotnet restore
         - name: Build
           run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
-#        - name: Save test certificates
-#          shell: wsl-bash {0}
-#          run: |
-#            echo "${{secrets.REDIS_CA_PEM}}" > tests/NRedisStack.Tests/bin/Debug/net481/redis_ca.pem
-#            echo "${{secrets.REDIS_USER_CRT}}" > tests/NRedisStack.Tests/bin/Debug/net481/redis_user.crt
-#            echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > tests/NRedisStack.Tests/bin/Debug/net481/redis_user_private.key
-#            ls -R
+        - name: Save test certificates
+          shell: wsl-bash {0}
+          run: |
+            echo "${{secrets.REDIS_CA_PEM}}" > tests/NRedisStack.Tests/bin/Debug/net481/redis_ca.pem
+            echo "${{secrets.REDIS_USER_CRT}}" > tests/NRedisStack.Tests/bin/Debug/net481/redis_user.crt
+            echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > tests/NRedisStack.Tests/bin/Debug/net481/redis_user_private.key
+            jq 'del(.cluster)' tests/dockers/endpoints.json > standalone_only.json
+            ls -R
         - name: Test
           shell: cmd
-          run: |            
+          run: |
+            START wsl ./redis-stack-server-${{env.redis_stack_version}}/bin/redis-stack-server &
+            set REDIS_ENDPOINTS_CONFIG_PATH=standalone_only.json
             dotnet test -f net481 --no-build --verbosity detailed -p:BuildInParallel=false tests/Test.proj --logger GitHubActions
