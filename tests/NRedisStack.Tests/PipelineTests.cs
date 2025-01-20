@@ -66,7 +66,7 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(db.TOPK().Info("topk-key"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
     public void TestModulesPipelineWithoutGraph(string endpointId)
@@ -114,7 +114,7 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(db.TOPK().Info("topk-key"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestBloomPipeline(string endpointId)
     {
@@ -140,7 +140,7 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
         }
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestJsonPipeline(string endpointId)
     {

@@ -20,7 +20,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
     }
     // private readonly string key = "EXAMPLES_TESTS";
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void HSETandSearch(string endpointId)
     {
@@ -72,7 +72,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, lastNameRod.TotalResults);
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task AsyncExample(string endpointId)
     {
@@ -87,7 +87,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         var john = await json.GetAsync("key");
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void PipelineExample(string endpointId)
     {
@@ -122,7 +122,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expected, result.ToString());
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task JsonWithSearchPipeline(string endpointId)
     {
@@ -272,7 +272,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("[1200]", totalAmtOfShachar.Result.ToString());
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestJsonConvert(string endpointId)
     {
@@ -566,7 +566,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
 #endif
 #endif
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void BasicJsonExamplesTest(string endpointId)
     {
@@ -821,7 +821,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("{\n\t\"arr1\":[\n\t\t\"val2\",\n\t\t\"val3\"\n\t]\n}", res.ToString());
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void AdvancedJsonExamplesTest(string endpointId)
     {
@@ -967,7 +967,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expected, res.ToString());
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void BasicQueryOperationsTest(string endpointId)
     {
@@ -1145,7 +1145,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expected, res[0].ToString());
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void AdvancedQueryOperationsTest(string endpointId)
     {

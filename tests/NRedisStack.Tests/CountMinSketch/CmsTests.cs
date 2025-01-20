@@ -13,7 +13,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestInitByDim(string endpointId)
     {
@@ -28,7 +28,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, info.Count);
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestInitByDimAsync(string endpointId)
     {
@@ -43,7 +43,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, info.Count);
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestInitByProb(string endpointId)
     {
@@ -58,7 +58,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, info.Count);
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestInitByProbAsync(string endpointId)
     {
@@ -73,7 +73,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, info.Count);
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestKeyAlreadyExists(string endpointId)
     {
@@ -84,7 +84,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
         Assert.Throws<RedisServerException>(() => cms.InitByDim("dup", 8, 6));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestKeyAlreadyExistsAsync(string endpointId)
     {
@@ -95,7 +95,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
         await Assert.ThrowsAsync<RedisServerException>(() => cms.InitByDimAsync("dup", 8, 6));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestIncrBy(string endpointId)
     {
@@ -113,7 +113,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
 
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestIncrByAsync(string endpointId)
     {
@@ -131,7 +131,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
 
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestIncrByMultipleArgs(string endpointId)
     {
@@ -154,7 +154,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(25, info.Count);
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestIncrByMultipleArgsAsync(string endpointId)
     {
@@ -178,7 +178,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestQuery(string endpointId)
     {
@@ -196,7 +196,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(new long[] { 10, 15 }, resp);
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestQueryAsync(string endpointId)
     {
@@ -312,7 +312,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestModulePrefixs(string endpointId)
     {

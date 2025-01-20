@@ -13,7 +13,7 @@ public class TopKTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void CreateTopKFilter(string endpointId)
     {
@@ -50,7 +50,7 @@ public class TopKTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2000, info.Width);
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task CreateTopKFilterAsync(string endpointId)
     {
@@ -86,7 +86,7 @@ public class TopKTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2000, info.Width);
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestModulePrefixs(string endpointId)
     {

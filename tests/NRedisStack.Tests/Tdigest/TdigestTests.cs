@@ -26,7 +26,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         //Assert.Equal(totalWeight, 0.01);
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestCreateSimple(string endpointId)
     {
@@ -47,7 +47,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, info.UnmergedNodes);
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestCreateSimpleAsync(string endpointId)
     {
@@ -68,7 +68,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, info.UnmergedNodes);
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestCreateAndInfo(string endpointId)
     {
@@ -85,7 +85,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         }
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestCreateAndInfoAsync(string endpointId)
     {
@@ -103,7 +103,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestRankCommands(string endpointId)
     {
@@ -118,7 +118,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(new double[] { 5, 3 }, tdigest.ByRevRank(key, 0, 1));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestRankCommandsAsync(string endpointId)
     {
@@ -134,7 +134,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestReset(string endpointId)
     {
@@ -156,7 +156,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         AssertMergedUnmergedNodes(tdigest, "reset", 0, 0);
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestResetAsync(string endpointId)
     {
@@ -179,7 +179,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         AssertMergedUnmergedNodes(tdigest, "reset", 0, 0);
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAdd(string endpointId)
     {
@@ -195,7 +195,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         AssertMergedUnmergedNodes(tdigest, "tdadd", 0, 5);
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAddAsync(string endpointId)
     {
@@ -299,7 +299,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(50, tdigest.Info("to").Compression);
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestCDF(string endpointId)
     {
@@ -321,7 +321,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         tdigest.CDF("tdcdf", 25, 50, 75); // TODO: Why needed?
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestCDFAsync(string endpointId)
     {
@@ -344,7 +344,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
 
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestQuantile(string endpointId)
     {
@@ -362,7 +362,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(new double[] { 1 }, tdigest.Quantile("tdqnt", 0.5));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestQuantileAsync(string endpointId)
     {
@@ -380,7 +380,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(new double[] { 1 }, await tdigest.QuantileAsync("tdqnt", 0.5));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMinAndMax(string endpointId)
     {
@@ -399,7 +399,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(5d, tdigest.Max(key));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMinAndMaxAsync(string endpointId)
     {
@@ -418,7 +418,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(5d, await tdigest.MaxAsync(key));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestTrimmedMean(string endpointId)
     {
@@ -439,7 +439,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(14.5, tdigest.TrimmedMean(key, 0.5, 1.0));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestTrimmedMeanAsync(string endpointId)
     {
@@ -461,7 +461,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestModulePrefixs(string endpointId)
     {

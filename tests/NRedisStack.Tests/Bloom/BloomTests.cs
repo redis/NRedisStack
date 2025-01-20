@@ -12,7 +12,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
     {
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestReserveBasic(string endpointId)
     {
@@ -26,7 +26,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.False(bf.Exists(key, "item2"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestReserveBasicAsync(string endpointId)
     {
@@ -40,7 +40,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.False(await bf.ExistsAsync(key, "item2"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAddWhenExist(string endpointId)
     {
@@ -51,7 +51,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.False(bf.Add(key, "item1")); // second time
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAddWhenExistAsync(string endpointId)
     {
@@ -62,7 +62,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.False(await bf.AddAsync(key, "item1")); // second time
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAddExists(string endpointId)
     {
@@ -73,7 +73,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.True(bf.Exists(key, "item1"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAddExistsAsync(string endpointId)
     {
@@ -84,7 +84,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await bf.ExistsAsync(key, "item1"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAddExistsMulti(string endpointId)
     {
@@ -100,7 +100,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(new bool[] { true, false, false }, result);
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAddExistsMultiAsync(string endpointId)
     {
@@ -116,7 +116,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(new bool[] { true, false, false }, result);
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestExample(string endpointId)
     {
@@ -145,7 +145,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         bf.Add("specialBloom", "foo");
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestExampleAsync(string endpointId)
     {
@@ -174,7 +174,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         await bf.AddAsync("specialBloom", "foo");
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestInsert(string endpointId)
     {
@@ -190,7 +190,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.True(bf.Exists("key", "item3"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestInsertAsync(string endpointId)
     {
@@ -206,7 +206,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await bf.ExistsAsync("key", "item3"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestExistsNonExist(string endpointId)
     {
@@ -217,7 +217,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.False(bf.Exists("NonExistKey", item));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestExistsNonExistAsync(string endpointId)
     {
@@ -228,7 +228,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.False(await bf.ExistsAsync("NonExistKey", item));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestInfo(string endpointId)
     {
@@ -244,7 +244,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.Throws<RedisServerException>(() => bf.Info("notExistKey"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestInfoAsync(string endpointId)
     {
@@ -260,7 +260,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         await Assert.ThrowsAsync<RedisServerException>(() => bf.InfoAsync("notExistKey"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestScanDumpAndLoadChunk(string endpointId)
     {
@@ -285,7 +285,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.True(bf.Exists("bloom-load", "a"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestScanDumpAndLoadChunkAsync(string endpointId)
     {
@@ -310,7 +310,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await bf.ExistsAsync("bloom-load", "a"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestModulePrefixs(string endpointId)
     {
@@ -324,7 +324,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.NotEqual(bf1.GetHashCode(), bf2.GetHashCode());
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestCard(string endpointId)
     {
@@ -343,7 +343,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.Throws<RedisServerException>(() => bf.Card("setKey"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestCardAsync(string endpointId)
     {
@@ -362,7 +362,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         await Assert.ThrowsAsync<RedisServerException>(() => bf.CardAsync("setKey"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestInsertArgsError(string endpointId)
     {

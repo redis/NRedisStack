@@ -14,7 +14,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     {
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestReserveBasic(string endpointId)
     {
@@ -29,7 +29,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.False(cf.Exists(key, "item2"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestReserveBasicAsync(string endpointId)
     {
@@ -43,7 +43,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.False(await cf.ExistsAsync(key, "item2"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAddExists(string endpointId)
     {
@@ -54,7 +54,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.True(cf.Exists(key, "item1"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAddExistsAsync(string endpointId)
     {
@@ -65,7 +65,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await cf.ExistsAsync(key, "item1"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAddNX(string endpointId)
     {
@@ -77,7 +77,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.True(cf.Exists(key, "item1"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAddNXAsync(string endpointId)
     {
@@ -89,7 +89,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await cf.ExistsAsync(key, "item1"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestCountFilterDoesNotExist(string endpointId)
     {
@@ -99,7 +99,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, cf.Count("notExistFilter", "notExistItem"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestCountFilterDoesNotExistAsync(string endpointId)
     {
@@ -109,7 +109,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, await cf.CountAsync("notExistFilter", "notExistItem"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestCountFilterExist(string endpointId)
     {
@@ -120,7 +120,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, cf.Count(key, "notExistItem"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestCountFilterExistAsync(string endpointId)
     {
@@ -131,7 +131,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, await cf.CountAsync(key, "notExistItem"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestCountItemExist(string endpointId)
     {
@@ -142,7 +142,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, cf.Count(key, "foo"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestCountItemExistAsync(string endpointId)
     {
@@ -153,7 +153,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, await cf.CountAsync(key, "foo"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestDelete(string endpointId)
     {
@@ -167,7 +167,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.Throws<RedisServerException>(() => cf.Del("notExistKey", "item"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestDeleteAsync(string endpointId)
     {
@@ -181,7 +181,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         await Assert.ThrowsAsync<RedisServerException>(() => cf.DelAsync("notExistKey", "item"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestInfo(string endpointId)
     {
@@ -204,7 +204,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.Throws<RedisServerException>(() => cf.Info("notExistKey"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestInfoAsync(string endpointId)
     {
@@ -229,7 +229,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         await Assert.ThrowsAsync<RedisServerException>(() => cf.InfoAsync("notExistKey"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestInsert(string endpointId)
     {
@@ -245,7 +245,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.True(cf.Exists("key", "item3"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestInsertAsync(string endpointId)
     {
@@ -261,7 +261,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await cf.ExistsAsync("key", "item3"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestInsertNX(string endpointId)
     {
@@ -289,7 +289,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.Throws<ArgumentOutOfRangeException>(() => cf.InsertNX(key, new RedisValue[] { }));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestInsertNXAsync(string endpointId)
     {
@@ -317,7 +317,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         _ = Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await cf.InsertNXAsync(key, new RedisValue[] { }));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestExistsNonExist(string endpointId)
     {
@@ -328,7 +328,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.False(cf.Exists("NonExistKey", item));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestExistsNonExistAsync(string endpointId)
     {
@@ -339,7 +339,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.False(await cf.ExistsAsync("NonExistKey", item));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestScanDumpAndLoadChunk(string endpointId)
     {
@@ -364,7 +364,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         Assert.True(cf.Exists("cuckoo-load", "a"));
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestScanDumpAndLoadChunkAsync(string endpointId)
     {
@@ -390,7 +390,7 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestModulePrefixs(string endpointId)
     {
