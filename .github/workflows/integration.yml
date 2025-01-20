@@ -61,7 +61,7 @@ jobs:
       strategy:
         fail-fast: false
         matrix:
-          redis-stack-version: ['6.2.6-v9', '7.2.0-RC3']
+          redis-stack-version: ['6.2.6-v18', '7.2.0-v14', '7.4.0-v2']
       env:
         redis_stack_version: ${{matrix.redis-stack-version}}
         USER_NAME: ${{ secrets.USER_NAME }}
@@ -92,8 +92,13 @@ jobs:
             jq 'del(.cluster)' tests/dockers/endpoints.json > standalone_only.json
             rm tests/dockers/endpoints.json && mv standalone_only.json tests/dockers/endpoints.json
             ls -R
+        - name: Run redis-server
+          shell: wsl-bash {0}
+          run: |
+            ./redis-stack-server-${{env.redis_stack_version}}/bin/redis-stack-server &
+            sleep 3
+            ./redis-stack-server-${{env.redis_stack_version}}/bin/redis-cli INFO SERVER | grep redis_version
         - name: Test
           shell: cmd
-          run: |
-            START wsl ./redis-stack-server-${{env.redis_stack_version}}/bin/redis-stack-server &            
+          run: |                      
             dotnet test -f net481 --no-build --verbosity detailed -p:BuildInParallel=false tests/Test.proj --logger GitHubActions
