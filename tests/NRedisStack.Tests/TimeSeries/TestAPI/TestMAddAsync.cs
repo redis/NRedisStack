@@ -8,17 +8,17 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
     public class TestMAddAsync : AbstractNRedisStackTest
     {
-        public TestMAddAsync(RedisFixture redisFixture) : base(redisFixture) { }
+        public TestMAddAsync(EndpointsFixture endpointsFixture) : base(endpointsFixture) { }
 
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
         [Obsolete]
-        public async Task TestStarMADD()
+        public async Task TestStarMADD(string endpointId)
         {
             var keys = CreateKeyNames(2);
 
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase(endpointId);
             var ts = db.TS();
 
             foreach (string key in keys)
@@ -44,12 +44,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public async Task TestSuccessfulMAdd()
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public async Task TestSuccessfulMAdd(string endpointId)
         {
             var keys = CreateKeyNames(2);
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase(endpointId);
             var ts = db.TS();
 
             foreach (var key in keys)
@@ -74,12 +74,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public async Task TestOverrideMAdd()
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public async Task TestOverrideMAdd(string endpointId)
         {
             var keys = CreateKeyNames(2);
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase(endpointId);
             var ts = db.TS();
 
             foreach (var key in keys)

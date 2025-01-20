@@ -7,7 +7,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
     public class TestAlterAsync : AbstractNRedisStackTest
     {
-        public TestAlterAsync(RedisFixture redisFixture) : base(redisFixture) { }
+        public TestAlterAsync(EndpointsFixture endpointsFixture) : base(endpointsFixture) { }
 
         [Fact]
         [Obsolete]
@@ -15,8 +15,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         {
             var key = CreateKeyName();
             long retentionTime = 5000;
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             await ts.CreateAsync(key);
             Assert.True(await ts.AlterAsync(key, retentionTime: retentionTime));
@@ -30,8 +29,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async Task TestAlterLabels()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             var label = new TimeSeriesLabel("key", "value");
             var labels = new List<TimeSeriesLabel> { label };
@@ -53,8 +51,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async Task TestAlterPolicyAndChunkAsync()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             ts.Create(key);
             Assert.True(await ts.AlterAsync(key, chunkSizeBytes: 128, duplicatePolicy: TsDuplicatePolicy.MIN));

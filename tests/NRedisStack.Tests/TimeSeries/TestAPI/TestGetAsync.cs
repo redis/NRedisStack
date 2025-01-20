@@ -7,14 +7,13 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
     public class TestGetAsync : AbstractNRedisStackTest
     {
-        public TestGetAsync(RedisFixture redisFixture) : base(redisFixture) { }
+        public TestGetAsync(EndpointsFixture endpointsFixture) : base(endpointsFixture) { }
 
         [Fact]
         public async Task TestGetNotExists()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             var ex = await Assert.ThrowsAsync<RedisServerException>(async () => await ts.GetAsync(key));
             Assert.Equal("ERR TSDB: the key does not exist", ex.Message);
@@ -24,8 +23,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async Task TestEmptyGet()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             await ts.CreateAsync(key);
             Assert.Null(await ts.GetAsync(key));
@@ -37,8 +35,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             var key = CreateKeyName();
             var now = DateTime.UtcNow;
             var expected = new TimeSeriesTuple(now, 1.1);
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             await ts.CreateAsync(key);
             await ts.AddAsync(key, now, 1.1);

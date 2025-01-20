@@ -15,7 +15,6 @@ namespace Doc;
 public class Hll_tutorial
 {
 
-    [SkipIfRedis(Is.OSSCluster)]
     public void run()
     {
         var muxer = ConnectionMultiplexer.Connect("localhost:6379");

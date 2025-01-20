@@ -18,7 +18,6 @@ namespace Doc;
 public class QueryEmExample
 {
 
-    [SkipIfRedis(Is.OSSCluster)]
     public void run()
     {
         var muxer = ConnectionMultiplexer.Connect("localhost:6379");

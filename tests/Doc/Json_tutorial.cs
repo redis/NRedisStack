@@ -17,7 +17,6 @@ namespace Doc;
 public class Json_tutorial
 {
 
-    [SkipIfRedis(Is.OSSCluster)]
     public void run()
     {
         var muxer = ConnectionMultiplexer.Connect("localhost:6379");

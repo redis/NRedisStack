@@ -8,13 +8,15 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
     {
         private readonly string[] keys = { "QUERYINDEX_TESTS_1", "QUERYINDEX_TESTS_2" };
 
-        public TestQueryIndex(RedisFixture redisFixture) : base(redisFixture) { }
-
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public void TestTSQueryIndex()
+        public TestQueryIndex(EndpointsFixture endpointsFixture) : base(endpointsFixture)
         {
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+        }
+
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public void TestTSQueryIndex(string endpointId)
+        {
+            var db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             var label1 = new TimeSeriesLabel("QUERYINDEX_TESTS_1", "value");
             var label2 = new TimeSeriesLabel("QUERYINDEX_TESTS_2", "value2");

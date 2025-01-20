@@ -8,15 +8,17 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
     public class TestRulesAsync : AbstractNRedisStackTest
     {
-        public TestRulesAsync(RedisFixture redisFixture) : base(redisFixture) { }
+        public TestRulesAsync(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+        {
+        }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
         [Obsolete]
-        public async Task TestRulesAdditionDeletion()
+        public async Task TestRulesAdditionDeletion(string endpointId)
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             await ts.CreateAsync(key);
             var aggregations = (TsAggregation[])Enum.GetValues(typeof(TsAggregation));
@@ -54,12 +56,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [SkipIfRedis(Is.Enterprise)]
-        public async Task TestNonExistingSrc()
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public async Task TestNonExistingSrc(string endpointId)
         {
             var key = CreateKeyName();
             var aggKey = $"{key}:{TsAggregation.Avg}";
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             await ts.CreateAsync(aggKey);
             var rule = new TimeSeriesRule(aggKey, 50, TsAggregation.Avg);
@@ -73,12 +75,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [SkipIfRedis(Is.Enterprise)]
-        public async Task TestNonExisitingDestinaion()
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public async Task TestNonExisitingDestinaion(string endpointId)
         {
             var key = CreateKeyName();
             var aggKey = $"{key}:{TsAggregation.Avg}";
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             await ts.CreateAsync(key);
             var rule = new TimeSeriesRule(aggKey, 50, TsAggregation.Avg);
@@ -89,11 +91,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal("ERR TSDB: compaction rule does not exist", ex.Message);
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public async Task TestAlignTimestampAsync()
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public async Task TestAlignTimestampAsync(string endpointId)
         {
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             await ts.CreateAsync("ts1");
             await ts.CreateAsync("ts2");

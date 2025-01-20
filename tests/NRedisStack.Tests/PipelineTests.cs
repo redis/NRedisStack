@@ -8,15 +8,18 @@ namespace NRedisStack.Tests;
 
 public class PipelineTests : AbstractNRedisStackTest, IDisposable
 {
-    private const string key = "PIPELINE_TESTS";
-    public PipelineTests(RedisFixture redisFixture) : base(redisFixture) { }
-
-    [SkipIfRedis(Is.OSSCluster, Comparison.GreaterThanOrEqual, "7.1.242")]
-    [Obsolete]
-    public void TestModulesPipeline()
+    public PipelineTests(EndpointsFixture endpointsFixture) : base(endpointsFixture)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+    }
+
+    private const string key = "PIPELINE_TESTS";
+
+    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [Obsolete]
+    public void TestModulesPipeline(string endpointId)
+    {
+        IDatabase db = GetCleanDatabase(endpointId);
         var pipeline = new Pipeline(db);
 
         _ = pipeline.Bf.ReserveAsync("bf-key", 0.001, 100);
@@ -63,12 +66,12 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(db.TOPK().Info("topk-key"));
     }
 
-    [SkipIfRedis(Is.OSSCluster)]
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestModulesPipelineWithoutGraph()
+    public void TestModulesPipelineWithoutGraph(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var pipeline = new Pipeline(db);
 
         _ = pipeline.Bf.ReserveAsync("bf-key", 0.001, 100);
@@ -111,11 +114,11 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(db.TOPK().Info("topk-key"));
     }
 
-    [SkipIfRedis(Is.OSSCluster)]
-    public void TestBloomPipeline()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestBloomPipeline(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var pipeline = new Pipeline(db);
 
         _ = pipeline.Bf.ReserveAsync(key, 0.001, 100);
@@ -137,12 +140,12 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
         }
     }
 
-    [Fact]
-    public void TestJsonPipeline()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestJsonPipeline(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
+        IDatabase db = GetCleanDatabase(endpointId);
         var pipeline = new Pipeline(db);
-        pipeline.Db.ExecuteAsync("FLUSHALL");
 
         string jsonPerson = JsonSerializer.Serialize(new Person { Name = "Shachar", Age = 23 });
         _ = pipeline.Json.SetAsync("key", "$", jsonPerson);
