@@ -86,12 +86,18 @@ jobs:
         - name: Save test certificates
           shell: wsl-bash {0}
           run: |
-            echo "${{secrets.REDIS_CA_PEM}}" > tests/NRedisStack.Tests/bin/Debug/net481/redis_ca.pem
-            echo "${{secrets.REDIS_USER_CRT}}" > tests/NRedisStack.Tests/bin/Debug/net481/redis_user.crt
-            echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > tests/NRedisStack.Tests/bin/Debug/net481/redis_user_private.key
+            export TARGET_DIR=tests/NRedisStack.Tests/bin/Debug/net481
+            echo "${{secrets.REDIS_CA_PEM}}" > ${TARGET_DIR}/redis_ca.pem
+            echo "${{secrets.REDIS_USER_CRT}}" > ${TARGET_DIR}/redis_user.crt
+            echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > ${TARGET_DIR}redis_user_private.key
+            
+            # We need to remove the cluster endpoint from the endpoints.json file 
+            # because we run only standalone redis-stack-server.
             jq 'del(.cluster)' tests/dockers/endpoints.json > standalone_only.json
             rm tests/dockers/endpoints.json && mv standalone_only.json tests/dockers/endpoints.json
-            ls -R
+            cp -f standalone_only.json ${TARGET_DIR}/endpoints.json
+            cat tests/dockers/endpoints.json
+            cat ${TARGET_DIR}/endpoints.json            
         - name: Run redis-server
           shell: wsl-bash {0}
           run: |
