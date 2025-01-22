@@ -7,14 +7,17 @@ namespace NRedisStack.Tests.TopK;
 public class TopKTests : AbstractNRedisStackTest, IDisposable
 {
     private readonly string key = "TOPK_TESTS";
-    public TopKTests(RedisFixture redisFixture) : base(redisFixture) { }
 
-
-    [Fact]
-    public void CreateTopKFilter()
+    public TopKTests(EndpointsFixture endpointsFixture) : base(endpointsFixture)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+    }
+
+
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void CreateTopKFilter(string endpointId)
+    {
+        IDatabase db = GetCleanDatabase(endpointId);
         var topk = db.TOPK();
 
         //db.KeyDelete(key, CommandFlags.FireAndForget);
@@ -47,11 +50,11 @@ public class TopKTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2000, info.Width);
     }
 
-    [Fact]
-    public async Task CreateTopKFilterAsync()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task CreateTopKFilterAsync(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var topk = db.TOPK();
 
         await topk.ReserveAsync(key, 30, 2000, 7, 0.925);
@@ -83,11 +86,13 @@ public class TopKTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2000, info.Width);
     }
 
-    [Fact]
-    public void TestModulePrefixs()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestModulePrefixs(string endpointId)
     {
-        IDatabase db1 = redisFixture.Redis.GetDatabase();
-        IDatabase db2 = redisFixture.Redis.GetDatabase();
+        var redis = GetConnection(endpointId);
+        IDatabase db1 = redis.GetDatabase();
+        IDatabase db2 = redis.GetDatabase();
 
         var topk1 = db1.TOPK();
         var topk2 = db2.TOPK();

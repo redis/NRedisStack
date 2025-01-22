@@ -1,0 +1,136 @@
+name: 'Run NRedisStack tests'
+description: 'Runs NRedisStack tests against different Redis versions and configurations'
+inputs:  
+  dotnet-version:
+    description: 'SDK version'
+    required: true
+  redis-version:
+    description: 'Redis version to test against'
+    required: true
+  verify-nuget-package:
+    description: 'Verify Nuget package'
+    required: false
+    default: 'false'
+  REDIS_CA_PEM:
+    description: 'Redis CA PEM'
+    required: true
+  REDIS_USER_CRT:
+    description: 'Redis User CRT'
+    required: true
+  REDIS_USER_PRIVATE_KEY:
+    description: 'Redis User Private Key'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v4
+
+    - name: Install .NET Core 
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{inputs.dotnet-version}}
+        dotnet-quality: 'ga'
+
+    - name: Setup Environment variables and run Redis
+      env:
+        REDIS_VERSION: ${{ inputs.redis-version }}
+        REDIS_IMAGE: "redis:${{ inputs.redis-version }}"
+        CLIENT_LIBS_TEST_IMAGE: "redislabs/client-libs-test:${{ inputs.redis-version }}"
+      run: |
+        set -e
+        
+        echo "::group::Setup Environment variables and run Redis"
+        dotnet_major_minor_version=$(echo "${{ inputs.dotnet-version }}" | grep -oP '^\d+\.\d+')
+        echo "CLR_VERSION=net${dotnet_major_minor_version}" >> $GITHUB_ENV
+
+        redis_major_version=$(echo "$REDIS_VERSION" | grep -oP '^\d+')
+        echo "REDIS_MAJOR_VERSION=${redis_major_version}" >> $GITHUB_ENV
+        
+        if (( redis_major_version < 8 )); then
+          echo "Using redis-stack for module tests"
+        
+          # Mapping of redis version to stack version  
+          declare -A redis_stack_version_mapping=(
+            ["7.4.1"]="rs-7.4.0-v1"
+            ["7.2.6"]="rs-7.2.0-v13"
+            ["6.2.16"]="rs-6.2.6-v17"
+          )
+                  
+          if [[ -v redis_stack_version_mapping[$REDIS_VERSION] ]]; then
+            export CLIENT_LIBS_TEST_IMAGE="redislabs/client-libs-test:${redis_stack_version_mapping[$REDIS_VERSION]}"            
+          else
+            echo "Version not found in the mapping."
+            exit 1
+          fi
+                  
+          if (( redis_major_version < 7 )); then            
+            export REDIS_EXTRA_ARGS="--tls-auth-clients optional --save ''"            
+          fi           
+
+          docker compose --profile all -f tests/dockers/docker-compose.yml up -d --build
+        else
+          echo "Using redis CE for module tests"
+          export CLIENT_LIBS_TEST_IMAGE="redislabs/client-libs-test:$REDIS_VERSION"     
+          docker compose --profile all -f tests/dockers/docker-compose.yml up -d --build         
+        fi
+        echo "::endgroup::"
+      shell: bash
+
+    # Make sure only the desired dotnet version is set both as target and as active SDK.
+    - name: Tweak target frameworks
+      shell: bash
+      run: |
+        find . -name '*.csproj' | xargs -I {} sed -E -i "s|<TargetFrameworks(.*)>.*</TargetFrameworks>|<TargetFramework\1>${CLR_VERSION}</TargetFramework>|" {}
+        find . -name '*.csproj' | xargs cat
+        jq -n --arg version ${{inputs.dotnet-version}} '{"sdk":{"version":$version,"rollForward":"latestMinor"}}' > global.json
+    - name: Check .NET version
+      shell: bash
+      run: dotnet --version
+    - name: Check .NET SDKs
+      shell: bash
+      run: dotnet --list-sdks
+    - name: Check .NET runtimes
+      shell: bash
+      run: dotnet --list-runtimes
+    - name: Restore dependencies
+      shell: bash
+      run: dotnet restore
+
+    - name: Build
+      shell: bash
+      run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
+
+    - name: Test
+      shell: bash
+      run: |
+        echo "::group::Run tests"
+        echo "${{inputs.REDIS_CA_PEM}}" > tests/NRedisStack.Tests/bin/Debug/${CLR_VERSION}/redis_ca.pem
+        echo "${{inputs.REDIS_USER_CRT}}" > tests/NRedisStack.Tests/bin/Debug/${CLR_VERSION}/redis_user.crt
+        echo "${{inputs.REDIS_USER_PRIVATE_KEY}}" > tests/NRedisStack.Tests/bin/Debug/${CLR_VERSION}/redis_user_private.key
+        dotnet test -f ${CLR_VERSION} --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover -p:BuildInParallel=false tests/Test.proj --logger GitHubActions
+        echo "::endgroup::"
+    - name: Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        verbose: true
+    - name: Build
+      shell: bash
+      run: dotnet pack -c Release
+
+    - name: Test against Nuget package from local source      
+      if: inputs.verify-nuget-package == 'true'
+      working-directory: PackageVerification
+      shell: bash
+      run: |
+        echo "::group::Test against Nuget package from local source"
+        mkdir -p test-source
+        dotnet nuget add source $(readlink -f test-source) -n test-source
+        find .. -name '*.nupkg' | xargs -I {} dotnet nuget push {} -s test-source
+        ls -R
+        dotnet nuget remove source nuget.org
+        dotnet nuget list source
+        find . -name '*.csproj' | xargs -I {} sed -E -i 's|<TargetFrameworks(.*)>.*</TargetFrameworks>|<TargetFramework\1>${CLR_VERSION}</TargetFramework>|' {}
+        dotnet restore -s test-source -v detailed
+        dotnet run
+        echo "::endgroup::"
+

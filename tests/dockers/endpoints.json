@@ -1,0 +1,17 @@
+{
+  "standalone":{
+    "endpoints": [
+        "localhost:6379"
+    ]
+  },
+  "cluster": {
+    "endpoints": [
+        "localhost:16379",
+        "localhost:16380",
+        "localhost:16381",
+        "localhost:16382",
+        "localhost:16383",
+        "localhost:16384"
+    ]
+  }
+}

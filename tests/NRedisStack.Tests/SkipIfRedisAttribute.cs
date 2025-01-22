@@ -1,6 +1,7 @@
 using Xunit;
 
 namespace NRedisStack.Tests;
+
 public enum Comparison
 {
     LessThan,
@@ -9,24 +10,20 @@ public enum Comparison
 
 public enum Is
 {
-    Standalone,
-    OSSCluster,
     Enterprise
 }
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-public class SkipIfRedisAttribute : FactAttribute
+public class SkipIfRedisAttribute : SkippableTheoryAttribute
 {
     private readonly string _targetVersion;
     private readonly Comparison _comparison;
     private readonly List<Is> _environments = new List<Is>();
 
-    private static Version serverVersion = null;
-
     public SkipIfRedisAttribute(
-            Is environment,
-            Comparison comparison = Comparison.LessThan,
-            string targetVersion = "0.0.0")
+        Is environment,
+        Comparison comparison = Comparison.LessThan,
+        string targetVersion = "0.0.0")
     {
         _environments.Add(environment);
         _comparison = comparison;
@@ -35,10 +32,10 @@ public class SkipIfRedisAttribute : FactAttribute
 
     // skip more than one environment:
     public SkipIfRedisAttribute(
-            Is environment1,
-            Is environment2,
-            Comparison comparison = Comparison.LessThan,
-            string targetVersion = "0.0.0")
+        Is environment1,
+        Is environment2,
+        Comparison comparison = Comparison.LessThan,
+        string targetVersion = "0.0.0")
     {
         _environments.Add(environment1);
         _environments.Add(environment2);
@@ -64,61 +61,47 @@ public class SkipIfRedisAttribute : FactAttribute
         {
             string skipReason = "";
             bool skipped = false;
-            using (RedisFixture redisFixture = new RedisFixture())
+
+            foreach (var environment in _environments)
             {
-                foreach (var environment in _environments)
+                switch (environment)
                 {
-                    switch (environment)
-                    {
-                        case Is.OSSCluster:
-                            if (redisFixture.isOSSCluster)
-                            {
-                                skipReason = skipReason + " Redis server is OSS cluster.";
-                                skipped = true;
-                            }
-                            break;
-
-                        case Is.Standalone:
-                            if (!redisFixture.isOSSCluster)
-                            {
-                                skipReason = skipReason + " Redis server is not OSS cluster.";
-                                skipped = true;
-                            }
-                            break;
-
-                        case Is.Enterprise:
-                            if (redisFixture.isEnterprise)
-                            {
-                                skipReason = skipReason + " Redis Enterprise environment.";
-                                skipped = true;
-                            }
-                            break;
-                    }
-                }
-                // Version check (if Is.Standalone/Is.OSSCluster is set then )
-
-                serverVersion = serverVersion ?? redisFixture.Redis.GetServer(redisFixture.Redis.GetEndPoints()[0]).Version;
-                var targetVersion = new Version(_targetVersion);
-                int comparisonResult = serverVersion.CompareTo(targetVersion);
-
-                switch (_comparison)
-                {
-                    case Comparison.LessThan:
-                        if (comparisonResult < 0)
+                    case Is.Enterprise:
+                        if (EndpointsFixture.IsEnterprise)
                         {
-                            skipReason = skipReason + $" Redis server version ({serverVersion}) is less than {_targetVersion}.";
+                            skipReason = skipReason + " Redis Enterprise environment.";
                             skipped = true;
                         }
-                        break;
-                    case Comparison.GreaterThanOrEqual:
-                        if (comparisonResult >= 0)
-                        {
-                            skipReason = skipReason + $" Redis server version ({serverVersion}) is greater than or equal to {_targetVersion}.";
-                            skipped = true;
-                        }
+
                         break;
                 }
             }
+
+            var targetVersion = new Version(_targetVersion);
+            int comparisonResult = EndpointsFixture.RedisVersion.CompareTo(targetVersion);
+
+            switch (_comparison)
+            {
+                case Comparison.LessThan:
+                    if (comparisonResult < 0)
+                    {
+                        skipReason = skipReason +
+                                     $" Redis server version ({EndpointsFixture.RedisVersion}) is less than {_targetVersion}.";
+                        skipped = true;
+                    }
+
+                    break;
+                case Comparison.GreaterThanOrEqual:
+                    if (comparisonResult >= 0)
+                    {
+                        skipReason = skipReason +
+                                     $" Redis server version ({EndpointsFixture.RedisVersion}) is greater than or equal to {_targetVersion}.";
+                        skipped = true;
+                    }
+
+                    break;
+            }
+
 
             if (skipped)
                 return "Test skipped, because:" + skipReason;
