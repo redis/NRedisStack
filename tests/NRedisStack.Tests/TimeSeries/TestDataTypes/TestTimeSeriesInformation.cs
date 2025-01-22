@@ -10,15 +10,16 @@ namespace NRedisTimeSeries.Test.TestDataTypes
 {
     public class TestInformation : AbstractNRedisStackTest
     {
-        public TestInformation(NRedisStack.Tests.RedisFixture redisFixture) : base(redisFixture) { }
+        public TestInformation(NRedisStack.Tests.EndpointsFixture endpointsFixture) : base(endpointsFixture)
+        {
+        }
 
         [Fact]
         [Obsolete]
         public void TestInformationSync()
         {
             string key = CreateKeyName();
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase();
             var ts = db.TS();
             ts.Add(key, "*", 1.1);
             ts.Add(key, "*", 1.3, duplicatePolicy: TsDuplicatePolicy.LAST);
@@ -46,8 +47,7 @@ namespace NRedisTimeSeries.Test.TestDataTypes
         public async Task TestInformationAsync()
         {
             string key = CreateKeyName();
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase();
             var ts = db.TS();
             await ts.AddAsync(key, "*", 1.1);
             await ts.AddAsync(key, "*", 1.3, duplicatePolicy: TsDuplicatePolicy.LAST);

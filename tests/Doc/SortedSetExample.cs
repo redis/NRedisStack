@@ -11,9 +11,7 @@ namespace Doc;
 //REMOVE_END
 public class SortedSetExample
 {
-    //REMOVE_START
-    [SkipIfRedis(Is.OSSCluster)]
-    //REMOVE_END
+
     public void run()
     {
         var muxer = ConnectionMultiplexer.Connect("localhost:6379");

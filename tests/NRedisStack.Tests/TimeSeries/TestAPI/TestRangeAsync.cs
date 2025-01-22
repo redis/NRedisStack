@@ -8,7 +8,9 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
     public class TestRangeAsync : AbstractNRedisStackTest
     {
-        public TestRangeAsync(RedisFixture redisFixture) : base(redisFixture) { }
+        public TestRangeAsync(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+        {
+        }
 
         private async Task<List<TimeSeriesTuple>> CreateData(TimeSeriesCommands ts, string key, int timeBucket)
         {
@@ -25,8 +27,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async Task TestSimpleRange()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             var tuples = await CreateData(ts, key, 50);
             Assert.Equal(tuples, await ts.RangeAsync(key, "-", "+"));
@@ -36,8 +37,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async Task TestRangeCount()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             var tuples = await CreateData(ts, key, 50);
             Assert.Equal(tuples.GetRange(0, 5), await ts.RangeAsync(key, "-", "+", count: 5));
@@ -47,8 +47,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async Task TestRangeAggregation()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             var tuples = await CreateData(ts, key, 50);
             Assert.Equal(tuples, await ts.RangeAsync(key, "-", "+", aggregation: TsAggregation.Min, timeBucket: 50));
@@ -58,8 +57,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async Task TestRangeAlign()
         {
             var key = CreateKeyName();
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase();
             var ts = db.TS();
             var tuples = new List<TimeSeriesTuple>()
             {
@@ -100,8 +98,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async Task TestMissingTimeBucket()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             var tuples = await CreateData(ts, key, 50);
             var ex = await Assert.ThrowsAsync<ArgumentException>(async () => await ts.RangeAsync(key, "-", "+", aggregation: TsAggregation.Avg));
@@ -112,8 +109,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async Task TestFilterBy()
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase();
             var ts = db.TS();
             var tuples = await CreateData(ts, key, 50);
 
@@ -129,11 +125,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(tuples.GetRange(2, 1), res);
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public async Task TestLatestAsync()
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public async Task TestLatestAsync(string endpointId)
         {
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             await ts.CreateAsync("ts1");
             await ts.CreateAsync("ts2");
@@ -164,11 +160,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(new List<TimeSeriesTuple>() { latest, compact }, await ts.RevRangeAsync("ts2", 0, 10, true));
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public async Task TestAlignTimestampAsync()
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public async Task TestAlignTimestampAsync(string endpointId)
         {
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             ts.Create("ts1");
             ts.Create("ts2");
@@ -185,8 +181,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         [Fact]
         public async Task TestBucketTimestampAsync()
         {
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase();
             var ts = db.TS();
 
             ts.Create("t1");
@@ -247,8 +242,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         [Fact]
         public async Task TestEmptyAsync()
         {
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase();
             var ts = db.TS();
 
             ts.Create("t1");

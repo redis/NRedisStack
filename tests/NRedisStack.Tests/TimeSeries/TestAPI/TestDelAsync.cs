@@ -7,7 +7,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
     public class TestDelAsync : AbstractNRedisStackTest
     {
-        public TestDelAsync(RedisFixture redisFixture) : base(redisFixture) { }
+        public TestDelAsync(EndpointsFixture endpointsFixture) : base(endpointsFixture) { }
 
         private async Task<List<TimeSeriesTuple>> CreateData(TimeSeriesCommands ts, string key, int timeBucket)
         {
@@ -24,8 +24,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         public async Task TestDelNotExists()
         {
             var key = CreateKeyName();
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase();
             var ts = db.TS();
             var ex = await Assert.ThrowsAsync<RedisServerException>(async () => await ts.DelAsync(key, "-", "+"));
             Assert.Equal("ERR TSDB: the key does not exist", ex.Message);
@@ -34,8 +33,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         [Fact]
         public async Task TestDelRange()
         {
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase();
             var ts = db.TS();
             var key = CreateKeyName();
             var tuples = await CreateData(ts, key, 50);
