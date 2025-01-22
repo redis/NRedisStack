@@ -94,7 +94,7 @@ jobs:
             # We need to remove the cluster endpoint from the endpoints.json file 
             # because we run only standalone redis-stack-server.
             jq 'del(.cluster)' tests/dockers/endpoints.json > standalone_only.json
-            rm tests/dockers/endpoints.json && mv standalone_only.json tests/dockers/endpoints.json
+            rm tests/dockers/endpoints.json && cp standalone_only.json tests/dockers/endpoints.json
             cp -f standalone_only.json ${TARGET_DIR}/endpoints.json
             cat tests/dockers/endpoints.json
             cat ${TARGET_DIR}/endpoints.json            
