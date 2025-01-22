@@ -42,7 +42,7 @@ public class SkippableTheoryDiscoverer : IXunitTestCaseDiscoverer
     public virtual IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute)
     {
         Requires.NotNull(factAttribute, nameof(factAttribute));
-        string[] skippingExceptionNames = ["Xunit.SkippableFact.SkipException"];
+        string[] skippingExceptionNames = new[] { "Xunit.SkippableFact.SkipException" };
         TestMethodDisplay defaultMethodDisplay = discoveryOptions.MethodDisplayOrDefault();
 
         IEnumerable<IXunitTestCase>? basis = this.theoryDiscoverer.Discover(discoveryOptions, testMethod, factAttribute);
