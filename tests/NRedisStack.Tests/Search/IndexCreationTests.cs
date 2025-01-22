@@ -9,10 +9,13 @@ namespace NRedisStack.Tests.Search;
 public class IndexCreationTests : AbstractNRedisStackTest, IDisposable
 {
     private readonly string index = "MISSING_EMPTY_INDEX";
+
+    public IndexCreationTests(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+    {
+    }
+
     private static readonly string INDEXMISSING = "INDEXMISSING";
     private static readonly string INDEXEMPTY = "INDEXEMPTY";
-
-    public IndexCreationTests(RedisFixture redisFixture) : base(redisFixture) { }
 
     [Fact]
     public void TestMissingEmptyFieldCommandArgs()
@@ -38,11 +41,11 @@ public class IndexCreationTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expectedArgs, cmd.Args);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.3.240")]
-    public void TestMissingFields()
+    [SkipIfRedis(Comparison.LessThan, "7.3.240")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestMissingFields(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT(2);
         var vectorAttrs = new Dictionary<string, object>()
         {
@@ -94,11 +97,11 @@ public class IndexCreationTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("hashWithMissingFields", result.Documents[0].Id);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.3.240")]
-    public void TestEmptyFields()
+    [SkipIfRedis(Comparison.LessThan, "7.3.240")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestEmptyFields(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT(2);
         Schema sc = new Schema()
            .AddTextField("text1", 1.0, emptyIndex: true)
@@ -123,11 +126,11 @@ public class IndexCreationTests : AbstractNRedisStackTest, IDisposable
 
     }
 
-    [SkipIfRedis(Is.OSSCluster, Comparison.LessThan, "7.3.240")]
-    public void TestCreateFloat16VectorField()
+    [SkipIfRedis(Comparison.LessThan, "7.3.240")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestCreateFloat16VectorField(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT(2);
         var schema = new Schema().AddVectorField("v", Schema.VectorField.VectorAlgo.FLAT, new Dictionary<string, object>()
         {

@@ -10,7 +10,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
     {
         private readonly string key = "DEL_TESTS";
 
-        public TestDel(RedisFixture redisFixture) : base(redisFixture) { }
+        public TestDel(EndpointsFixture endpointsFixture) : base(endpointsFixture) { }
 
 
         private List<TimeSeriesTuple> CreateData(ITimeSeriesCommands ts, int timeBucket) //TODO: check this
@@ -27,8 +27,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         [Fact]
         public void TestDelNotExists()
         {
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase();
             var ts = db.TS();
             var ex = Assert.Throws<RedisServerException>(() => ts.Del(key, "-", "+"));
             Assert.Equal("ERR TSDB: the key does not exist", ex.Message);
@@ -37,8 +36,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         [Fact]
         public void TestDelRange()
         {
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase();
             var ts = db.TS();
             var tuples = CreateData(ts, 50);
             TimeStamp from = tuples[0].Time;

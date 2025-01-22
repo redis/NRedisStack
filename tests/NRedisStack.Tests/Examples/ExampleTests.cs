@@ -13,22 +13,23 @@ namespace NRedisStack.Tests;
 public class ExampleTests : AbstractNRedisStackTest, IDisposable
 {
     private readonly ITestOutputHelper testOutputHelper;
-    // private readonly string key = "EXAMPLES_TESTS";
-    public ExampleTests(RedisFixture redisFixture, ITestOutputHelper testOutputHelper) : base(redisFixture)
+
+    public ExampleTests(EndpointsFixture endpointsFixture, ITestOutputHelper testOutputHelper) : base(endpointsFixture)
     {
         this.testOutputHelper = testOutputHelper;
     }
+    // private readonly string key = "EXAMPLES_TESTS";
 
-    [SkipIfRedis(Is.OSSCluster)]
-    public void HSETandSearch()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void HSETandSearch(string endpointId)
     {
         // Connect to the Redis server
         // var redis = ConnectionMultiplexer.Connect("localhost");
 
         // Get a reference to the database and for search commands:
         // var db = redis.GetDatabase();
-        var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
         // Use HSET to add a field-value pair to a hash
@@ -71,14 +72,14 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, lastNameRod.TotalResults);
     }
 
-    [Fact]
-    public async Task AsyncExample()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task AsyncExample(string endpointId)
     {
         // Connect to the Redis server
         // var redis = await ConnectionMultiplexer.ConnectAsync("localhost");
         // var db = redis.GetDatabase();
-        var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         var json = db.JSON();
 
         // call async version of JSON.SET/GET
@@ -86,12 +87,14 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         var john = await json.GetAsync("key");
     }
 
-    [Fact]
-    public void PipelineExample()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void PipelineExample(string endpointId)
     {
+        Skip.If(true, "FIXME: JsonSet is not executed in pipeline, see https://github.com/redis/NRedisStack/issues/379");
+
         // Pipeline can get IDatabase for pipeline
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var pipeline = new Pipeline(db);
 
         // Add JsonSet to pipeline
@@ -121,11 +124,11 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expected, result.ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster)]
-    public async Task JsonWithSearchPipeline()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task JsonWithSearchPipeline(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         //Setup pipeline connection
         var pipeline = new Pipeline(db);
 
@@ -165,16 +168,16 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         // Assert.Equal("person:01", firstPerson?.Id);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-    public async Task PipelineWithAsync()
+    [SkipIfRedis(Is.Enterprise)]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task PipelineWithAsync(string endpointId)
     {
         // Connect to the Redis server
         // var redis = ConnectionMultiplexer.Connect("localhost");
 
         // Get a reference to the database
         // var db = redis.GetDatabase();
-        var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         // Setup pipeline connection
 
         var pipeline = new Pipeline(db);
@@ -226,8 +229,9 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("temp:JLM", response[0].key);
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-    public void TransactionExample()
+    [SkipIfRedis(Is.Enterprise)]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TransactionExample(string endpointId)
     {
         // Connect to the Redis server
         // var redis = ConnectionMultiplexer.Connect("localhost");
@@ -235,8 +239,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         // Get a reference to the database
         // var db = redis.GetDatabase();
 
-        var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
 
         // Setup transaction with IDatabase
         var tran = new Transaction(db);
@@ -271,14 +274,14 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("[1200]", totalAmtOfShachar.Result.ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster)]
-    public void TestJsonConvert()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestJsonConvert(string endpointId)
     {
         // ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
         // IDatabase db = redis.GetDatabase();
 
-        var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         ISearchCommands ft = db.FT();
         IJsonCommands json = db.JSON();
 
@@ -565,13 +568,13 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
 #endif
 #endif
 
-    [Fact]
-    public void BasicJsonExamplesTest()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void BasicJsonExamplesTest(string endpointId)
     {
         // ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
         // IDatabase db = redis.GetDatabase();
-        var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         IJsonCommands json = db.JSON();
 
         // Insert a simple KVP as a JSON object:
@@ -820,13 +823,13 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("{\n\t\"arr1\":[\n\t\t\"val2\",\n\t\t\"val3\"\n\t]\n}", res.ToString());
     }
 
-    [Fact]
-    public void AdvancedJsonExamplesTest()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void AdvancedJsonExamplesTest(string endpointId)
     {
         // ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
         // IDatabase db = redis.GetDatabase();
-        var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         IJsonCommands json = db.JSON();
 
         json.Set("warehouse:1", "$", new
@@ -966,13 +969,13 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expected, res.ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster)]
-    public void BasicQueryOperationsTest()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void BasicQueryOperationsTest(string endpointId)
     {
         // ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
         // IDatabase db = redis.GetDatabase();
-        var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         IJsonCommands json = db.JSON();
         ISearchCommands ft = db.FT();
 
@@ -1144,13 +1147,13 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expected, res[0].ToString());
     }
 
-    [SkipIfRedis(Is.OSSCluster)]
-    public void AdvancedQueryOperationsTest()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void AdvancedQueryOperationsTest(string endpointId)
     {
         // ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
         // IDatabase db = redis.GetDatabase();
-        var db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        var db = GetCleanDatabase(endpointId);
         IJsonCommands json = db.JSON();
         ISearchCommands ft = db.FT();
 

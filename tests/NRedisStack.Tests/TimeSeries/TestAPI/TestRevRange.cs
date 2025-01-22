@@ -7,7 +7,9 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
     public class TestRevRange : AbstractNRedisStackTest
     {
-        public TestRevRange(RedisFixture redisFixture) : base(redisFixture) { }
+        public TestRevRange(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+        {
+        }
 
         private List<TimeSeriesTuple> CreateData(ITimeSeriesCommands ts, string key, int timeBucket)
         {
@@ -21,44 +23,44 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [SkipIfRedis(Is.Enterprise)]
-        public void TestSimpleRevRange()
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public void TestSimpleRevRange(string endpointId)
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             var tuples = CreateData(ts, key, 50);
             Assert.Equal(ReverseData(tuples), ts.RevRange(key, "-", "+"));
         }
 
         [SkipIfRedis(Is.Enterprise)]
-        public void TestRevRangeCount()
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public void TestRevRangeCount(string endpointId)
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             var tuples = CreateData(ts, key, 50);
             Assert.Equal(ReverseData(tuples).GetRange(0, 5), ts.RevRange(key, "-", "+", count: 5));
         }
 
         [SkipIfRedis(Is.Enterprise)]
-        public void TestRevRangeAggregation()
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public void TestRevRangeAggregation(string endpointId)
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             var tuples = CreateData(ts, key, 50);
             Assert.Equal(ReverseData(tuples), ts.RevRange(key, "-", "+", aggregation: TsAggregation.Min, timeBucket: 50));
         }
 
         [SkipIfRedis(Is.Enterprise)]
-        public void TestRevRangeAlign()
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public void TestRevRangeAlign(string endpointId)
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             var tuples = new List<TimeSeriesTuple>()
             {
@@ -96,24 +98,23 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [SkipIfRedis(Is.Enterprise)]
-        public void TestMissingTimeBucket()
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public void TestMissingTimeBucket(string endpointId)
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             var tuples = CreateData(ts, key, 50);
             var ex = Assert.Throws<ArgumentException>(() => ts.RevRange(key, "-", "+", aggregation: TsAggregation.Avg));
             Assert.Equal("RANGE Aggregation should have timeBucket value", ex.Message);
-
         }
 
         [SkipIfRedis(Is.Enterprise)]
-        public void TestFilterBy()
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public void TestFilterBy(string endpointId)
         {
             var key = CreateKeyName();
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             var tuples = CreateData(ts, key, 50);
 
