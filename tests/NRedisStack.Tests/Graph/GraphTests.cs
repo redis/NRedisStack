@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Xunit;
 using StackExchange.Redis;
 using NRedisStack.RedisStackCommands;
@@ -6,6 +7,7 @@ using NRedisStack.Graph.DataTypes;
 
 namespace NRedisStack.Tests.Graph;
 
+[SuppressMessage("Usage", "xUnit1026:Theory methods should use all of their parameters")]
 public class GraphTests : AbstractNRedisStackTest, IDisposable
 {
     public GraphTests(EndpointsFixture endpointsFixture) : base(endpointsFixture)
@@ -797,7 +799,7 @@ public class GraphTests : AbstractNRedisStackTest, IDisposable
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestPoint()
+    public void TestPoint(string endpointId)
     {
         var point = new Point(30.27822306, -97.75134723);
 
