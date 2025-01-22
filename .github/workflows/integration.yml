@@ -17,8 +17,6 @@ concurrency:
 
 env:
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  REDIS_IMAGE: redis:latest
-  REDIS_STACK_IMAGE: redis/redis-stack-server:latest
   CURRENT_REDIS_VERSION: '7.4.1'
 
 jobs:

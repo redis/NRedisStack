@@ -39,6 +39,7 @@ runs:
       run: |
         set -e
         
+        echo "::group::Setup Environment variables and run Redis"
         dotnet_major_minor_version=$(echo "${{ inputs.dotnet-version }}" | grep -oP '^\d+\.\d+')
         echo "CLR_VERSION=net${dotnet_major_minor_version}" >> $GITHUB_ENV
 
@@ -50,9 +51,9 @@ runs:
         
           # Mapping of redis version to stack version  
           declare -A redis_stack_version_mapping=(
-            ["7.4.1"]="rs-7.4.0-v1"
-            ["7.2.6"]="rs-7.2.0-v13"
-            ["6.2.16"]="rs-6.2.6-v17"
+            ["7.4.1"]="rs-7.4.0-v2"
+            ["7.2.6"]="rs-7.2.0-v14"
+            ["6.2.16"]="rs-6.2.6-v18"
           )
                   
           if [[ -v redis_stack_version_mapping[$REDIS_VERSION] ]]; then
@@ -71,7 +72,8 @@ runs:
           echo "Using redis CE for module tests"
           export CLIENT_LIBS_TEST_IMAGE="redislabs/client-libs-test:$REDIS_VERSION"     
           docker compose --profile all -f tests/dockers/docker-compose.yml up -d --build         
-        fi        
+        fi
+        echo "::endgroup::"
       shell: bash
 
     # Make sure only the desired dotnet version is set both as target and as active SDK.
@@ -101,10 +103,12 @@ runs:
     - name: Test
       shell: bash
       run: |
+        echo "::group::Run tests"
         echo "${{inputs.REDIS_CA_PEM}}" > tests/NRedisStack.Tests/bin/Debug/${CLR_VERSION}/redis_ca.pem
         echo "${{inputs.REDIS_USER_CRT}}" > tests/NRedisStack.Tests/bin/Debug/${CLR_VERSION}/redis_user.crt
         echo "${{inputs.REDIS_USER_PRIVATE_KEY}}" > tests/NRedisStack.Tests/bin/Debug/${CLR_VERSION}/redis_user_private.key
         dotnet test -f ${CLR_VERSION} --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover -p:BuildInParallel=false tests/Test.proj --logger GitHubActions
+        echo "::endgroup::"
     - name: Codecov
       uses: codecov/codecov-action@v4
       with:
@@ -118,6 +122,7 @@ runs:
       working-directory: PackageVerification
       shell: bash
       run: |
+        echo "::group::Test against Nuget package from local source"
         mkdir -p test-source
         dotnet nuget add source $(readlink -f test-source) -n test-source
         find .. -name '*.nupkg' | xargs -I {} dotnet nuget push {} -s test-source
@@ -127,4 +132,5 @@ runs:
         find . -name '*.csproj' | xargs -I {} sed -E -i 's|<TargetFrameworks(.*)>.*</TargetFrameworks>|<TargetFramework\1>${CLR_VERSION}</TargetFramework>|' {}
         dotnet restore -s test-source -v detailed
         dotnet run
+        echo "::endgroup::"
 
