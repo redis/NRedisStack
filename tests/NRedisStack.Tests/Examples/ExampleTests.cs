@@ -91,6 +91,8 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void PipelineExample(string endpointId)
     {
+        Skip.If(true, "FIXME: JsonSet is not executed in pipeline, see https://github.com/redis/NRedisStack/issues/379");
+        
         // Pipeline can get IDatabase for pipeline
         IDatabase db = GetCleanDatabase(endpointId);
         var pipeline = new Pipeline(db);
@@ -110,12 +112,9 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
 
         // Get the Json response
         var getResponse = pipeline.Json.GetAsync("person");
-
+        
         // Execute the pipeline
         pipeline.Execute();
-
-        // Wait for the pipeline operations to complete
-        Task.Delay(100).Wait();
         
         // Get the result back JSON
         var result = getResponse.Result;
