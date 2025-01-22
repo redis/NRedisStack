@@ -114,6 +114,9 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         // Execute the pipeline
         pipeline.Execute();
 
+        // Wait for the pipeline operations to complete
+        Task.Delay(100).Wait();
+        
         // Get the result back JSON
         var result = getResponse.Result;
 
