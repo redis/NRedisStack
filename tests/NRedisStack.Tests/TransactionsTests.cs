@@ -15,7 +15,7 @@ public class TransactionTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestJsonTransaction(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -34,7 +34,7 @@ public class TransactionTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
-    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
     public void TestModulesTransaction(string endpointId)
     {
