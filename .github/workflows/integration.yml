@@ -104,5 +104,7 @@ jobs:
             ./redis-stack-server-${{env.redis_stack_version}}/bin/redis-cli INFO SERVER | grep redis_version
         - name: Test
           shell: cmd
+          env:
+            REDIS_VERSION: ${{env.redis_stack_version}}
           run: |                      
             dotnet test -f net481 --no-build --verbosity detailed -p:BuildInParallel=false tests/Test.proj --logger GitHubActions
