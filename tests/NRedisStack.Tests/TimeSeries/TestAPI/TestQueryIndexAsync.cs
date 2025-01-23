@@ -6,14 +6,16 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
     public class TestQueryIndexAsync : AbstractNRedisStackTest
     {
-        public TestQueryIndexAsync(RedisFixture redisFixture) : base(redisFixture) { }
+        public TestQueryIndexAsync(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+        {
+        }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public async Task TestTSQueryIndex()
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public async Task TestTSQueryIndex(string endpointId)
         {
             var keys = CreateKeyNames(2);
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             var label1 = new TimeSeriesLabel(keys[0], "value");
             var label2 = new TimeSeriesLabel(keys[1], "value2");
