@@ -2776,7 +2776,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2L, await ft.SugLenAsync(key));
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.3")]
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.9")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestProfileSearch(string endpointId)
     {
@@ -2790,7 +2790,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                                 new HashEntry("t1", "foo"),
                                 new HashEntry("t2", "bar")});
 
-        var profile = ft.ProfileSearch(index, new Query("foo"));
+        var profile = ft.ProfileOnSearch(index, new Query("foo"));
         // Iterators profile={Type=TEXT, Time=0.0, Term=foo, Counter=1, Size=1}
         var info = (RedisResult[])profile.Item2.Info;
         int shardsIndex = Array.FindIndex(info, item => item.ToString() == "Shards");
@@ -2799,7 +2799,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         CustomAssertions.GreaterThan(coordinatorIndex, -1);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.3")]
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.9")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestProfileSearchAsync(string endpointId)
     {
@@ -2813,7 +2813,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                                 new HashEntry("t1", "foo"),
                                 new HashEntry("t2", "bar")});
 
-        var profile = await ft.ProfileSearchAsync(index, new Query("foo"));
+        var profile = await ft.ProfileOnSearchAsync(index, new Query("foo"));
         var info = (RedisResult[])profile.Item2.Info;
         int shardsIndex = Array.FindIndex(info, item => item.ToString() == "Shards");
         int coordinatorIndex = Array.FindIndex(info, item => item.ToString() == "Coordinator");
@@ -2821,12 +2821,11 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         CustomAssertions.GreaterThan(coordinatorIndex, -1);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3")]
+    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.9")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
-    public void TestProfileSearch_WithoutCoordinator()
+    public void TestProfileSearch_WithoutCoordinator(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
         Schema sc = new Schema().AddTextField("t1", 1.0).AddTextField("t2", 1.0);
@@ -2837,16 +2836,15 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                                 new HashEntry("t2", "bar")});
 
         var profile = ft.ProfileSearch(index, new Query("foo"));
-        var info = (RedisResult[])profile.Item2.Info;
-        CustomAssertions.GreaterThan(info.Length, 4);
+        var info = profile.Item2;
+        CustomAssertions.GreaterThan(info.Count, 4);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3")]
+    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.9")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
-    public async Task TestProfileSearchAsync_WithoutCoordinator()
+    public async Task TestProfileSearchAsync_WithoutCoordinator(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
         Schema sc = new Schema().AddTextField("t1", 1.0).AddTextField("t2", 1.0);
@@ -2857,11 +2855,11 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                                 new HashEntry("t2", "bar")});
 
         var profile = await ft.ProfileSearchAsync(index, new Query("foo"));
-        var info = (RedisResult[])profile.Item2.Info;
-        CustomAssertions.GreaterThan(info.Length, 4);
+        var info = profile.Item2;
+        CustomAssertions.GreaterThan(info.Count, 4);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.3")]
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.9")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestProfile(string endpointId)
     {
@@ -2874,7 +2872,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         // check using Query
         var q = new Query("hello|world").SetNoContent();
-        var profileSearch = ft.ProfileSearch(index, q);
+        var profileSearch = ft.ProfileOnSearch(index, q);
         var searchRes = profileSearch.Item1;
         var searchDet = (RedisResult[])profileSearch.Item2.Info;
 
@@ -2886,7 +2884,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         // check using AggregationRequest
         var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
-        var profileAggregate = ft.ProfileAggregate(index, aggReq);
+        var profileAggregate = ft.ProfileOnAggregate(index, aggReq);
         var aggregateRes = profileAggregate.Item1;
         var aggregateDet = (RedisResult[])profileAggregate.Item2.Info;
 
@@ -2897,7 +2895,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         CustomAssertions.GreaterThan(coordinatorIndex, -1);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.3")]
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.9")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestProfileAsync(string endpointId)
     {
@@ -2910,7 +2908,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         // check using Query
         var q = new Query("hello|world").SetNoContent();
-        var profileSearch = await ft.ProfileSearchAsync(index, q);
+        var profileSearch = await ft.ProfileOnSearchAsync(index, q);
         var searchRes = profileSearch.Item1;
         var searchDet = (RedisResult[])profileSearch.Item2.Info;
 
@@ -2922,7 +2920,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         // check using AggregationRequest
         var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
-        var profileAggregate = await ft.ProfileAggregateAsync(index, aggReq);
+        var profileAggregate = await ft.ProfileOnAggregateAsync(index, aggReq);
         var aggregateRes = profileAggregate.Item1;
         var aggregateDet = (RedisResult[])profileAggregate.Item2.Info;
 
@@ -2933,11 +2931,11 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         CustomAssertions.GreaterThan(coordinatorIndex, -1);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3")]
-    public void TestProfile_WithoutCoordinator()
+    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.9")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestProfile_WithoutCoordinator(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
         ft.Create(index, new Schema().AddTextField("t")); // Calling FT.CREATR without FTCreateParams
@@ -2948,26 +2946,26 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var q = new Query("hello|world").SetNoContent();
         var profileSearch = ft.ProfileSearch(index, q);
         var searchRes = profileSearch.Item1;
-        var searchDet = (RedisResult[])profileSearch.Item2.Info;
+        var searchDet = profileSearch.Item2;
 
         Assert.Equal(2, searchRes.Documents.Count);
-        CustomAssertions.GreaterThan(searchDet.Length, 4);
+        CustomAssertions.GreaterThan(searchDet.Count, 4);
 
         // check using AggregationRequest
         var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
         var profileAggregate = ft.ProfileAggregate(index, aggReq);
         var aggregateRes = profileAggregate.Item1;
-        var aggregateDet = (RedisResult[])profileAggregate.Item2.Info;
+        var aggregateDet = profileAggregate.Item2;
 
         Assert.Equal(2, aggregateRes.TotalResults);
-        CustomAssertions.GreaterThan(searchDet.Length, 4);
+        CustomAssertions.GreaterThan(aggregateDet.Count, 4);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3")]
-    public async Task TestProfileAsync_WithoutCoordinator()
+    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.9")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestProfileAsync_WithoutCoordinator(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
         await ft.CreateAsync(index, new Schema().AddTextField("t")); // Calling FT.CREATR without FTCreateParams
@@ -2978,19 +2976,19 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var q = new Query("hello|world").SetNoContent();
         var profileSearch = await ft.ProfileSearchAsync(index, q);
         var searchRes = profileSearch.Item1;
-        var searchDet = (RedisResult[])profileSearch.Item2.Info;
+        var searchDet = profileSearch.Item2;
 
         Assert.Equal(2, searchRes.Documents.Count);
-        CustomAssertions.GreaterThan(searchDet.Length, 4);
+        CustomAssertions.GreaterThan(searchDet.Count, 4);
 
         // check using AggregationRequest
         var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
         var profileAggregate = await ft.ProfileAggregateAsync(index, aggReq);
         var aggregateRes = profileAggregate.Item1;
-        var aggregateDet = (RedisResult[])profileAggregate.Item2.Info;
+        var aggregateDet = profileAggregate.Item2;
 
         Assert.Equal(2, aggregateRes.TotalResults);
-        CustomAssertions.GreaterThan(searchDet.Length, 4);
+        CustomAssertions.GreaterThan(searchDet.Count, 4);
     }
 
     [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.3.240")]
@@ -3006,7 +3004,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         // check using Query
         var q = new Query("hello|world").SetNoContent();
-        var profileSearch = ft.ProfileSearch(index, q);
+        var profileSearch = ft.ProfileOnSearch(index, q);
         var searchRes = profileSearch.Item1;
         var searchDet = (RedisResult[])profileSearch.Item2.Info;
 
@@ -3016,7 +3014,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         // check using AggregationRequest
         var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
-        var profileAggregate = ft.ProfileAggregate(index, aggReq);
+        var profileAggregate = ft.ProfileOnAggregate(index, aggReq);
         var aggregateRes = profileAggregate.Item1;
         var aggregateDet = (RedisResult[])profileAggregate.Item2.Info;
         CustomAssertions.GreaterThan(aggregateDet.Length, 3);
@@ -3036,7 +3034,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         // check using Query
         var q = new Query("hello|world").SetNoContent();
-        var profileSearch = await ft.ProfileSearchAsync(index, q);
+        var profileSearch = await ft.ProfileOnSearchAsync(index, q);
         var searchRes = profileSearch.Item1;
         var searchDet = (RedisResult[])profileSearch.Item2.Info;
 
@@ -3045,7 +3043,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         // check using AggregationRequest
         var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
-        var profileAggregate = await ft.ProfileAggregateAsync(index, aggReq);
+        var profileAggregate = await ft.ProfileOnAggregateAsync(index, aggReq);
         var aggregateRes = profileAggregate.Item1;
         var aggregateDet = (RedisResult[])profileAggregate.Item2.Info;
         CustomAssertions.GreaterThan(aggregateDet.Length, 3);

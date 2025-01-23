@@ -169,6 +169,15 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/ft.info"/></remarks>
         Task<InfoResult> InfoAsync(RedisValue index);
 
+        /// <summary>
+        /// Apply FT.SEARCH command to collect performance details.
+        /// </summary>
+        /// <param name="indexName">The index name, created using FT.CREATE.</param>
+        /// <param name="q">The query string.</param>
+        /// <param name="limited">Removes details of reader iterator.</param>
+        /// <returns></returns>
+        [Obsolete("Consider using ProfileOnSearchAsync with Redis CE 8.0 and later")]
+        Task<Tuple<SearchResult, Dictionary<string, RedisResult>>> ProfileSearchAsync(string indexName, Query q, bool limited = false);
 
         /// <summary>
         /// Apply FT.SEARCH command to collect performance details.
@@ -177,8 +186,7 @@ namespace NRedisStack
         /// <param name="q">The query string.</param>
         /// <param name="limited">Removes details of reader iterator.</param>
         /// <returns></returns>
-        Task<Tuple<SearchResult, ProfilingInformation>> ProfileSearchAsync(string indexName, Query q, bool limited = false);
-
+        Task<Tuple<SearchResult, ProfilingInformation>> ProfileOnSearchAsync(string indexName, Query q, bool limited = false);
 
         /// <summary>
         /// Apply FT.AGGREGATE command to collect performance details.
@@ -187,7 +195,17 @@ namespace NRedisStack
         /// <param name="query">The query string.</param>
         /// <param name="limited">Removes details of reader iterator.</param>
         /// <returns></returns>
-        Task<Tuple<AggregationResult, ProfilingInformation>> ProfileAggregateAsync(string indexName, AggregationRequest query, bool limited = false);
+        [Obsolete("Consider using ProfileOnAggregateAsync with Redis CE 8.0 and later")]
+        Task<Tuple<AggregationResult, Dictionary<string, RedisResult>>> ProfileAggregateAsync(string indexName, AggregationRequest query, bool limited = false);
+
+        /// <summary>
+        /// Apply FT.AGGREGATE command to collect performance details.
+        /// </summary>
+        /// <param name="indexName">The index name, created using FT.CREATE.</param>
+        /// <param name="query">The query string.</param>
+        /// <param name="limited">Removes details of reader iterator.</param>
+        /// <returns></returns>
+        Task<Tuple<AggregationResult, ProfilingInformation>> ProfileOnAggregateAsync(string indexName, AggregationRequest query, bool limited = false);
 
         /// <summary>
         /// Search the index
