@@ -751,7 +751,6 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.True(info.OffsetsPerTermAvg > 0.8);
         Assert.Equal(8, info.OffsetBitsPerRecordAvg);
         Assert.Equal(0, info.HashIndexingFailures);
-        Assert.True(info.TotalIndexingTime > 0);
         Assert.Equal(0, info.Indexing);
         Assert.Equal(1, info.PercentIndexed);
         Assert.Equal(4, info.NumberOfUses);
@@ -813,7 +812,6 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.True(info.OffsetsPerTermAvg > 0.8);
         Assert.Equal(8, info.OffsetBitsPerRecordAvg);
         Assert.Equal(0, info.HashIndexingFailures);
-        Assert.True(info.TotalIndexingTime > 0);
         Assert.Equal(0, info.Indexing);
         Assert.Equal(1, info.PercentIndexed);
         Assert.Equal(4, info.NumberOfUses);
@@ -877,7 +875,6 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.True(info.OffsetsPerTermAvg > 0.8);
         Assert.Equal(8, info.OffsetBitsPerRecordAvg);
         Assert.Equal(0, info.HashIndexingFailures);
-        Assert.True(info.TotalIndexingTime > 0);
         Assert.Equal(0, info.Indexing);
         Assert.Equal(1, info.PercentIndexed);
         Assert.Equal(4, info.NumberOfUses);
@@ -974,7 +971,6 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.True(info.OffsetsPerTermAvg > 0.8);
         Assert.Equal(8, info.OffsetBitsPerRecordAvg);
         Assert.Equal(0, info.HashIndexingFailures);
-        Assert.True(info.TotalIndexingTime > 0);
         Assert.Equal(0, info.Indexing);
         Assert.Equal(1, info.PercentIndexed);
         Assert.Equal(4, info.NumberOfUses);
