@@ -107,8 +107,8 @@ jobs:
           shell: cmd
           env:
             REDIS_VERSION: ${{env.redis_stack_version}}
-          run: |         
-            # trim version to major.minor.patch format
-            REDIS_VERSION=$(echo "$REDIS_VERSION" | sed -E 's/[^0-9]*([0-9]+\.[0-9]+(\.[0-9]+)?).*/\1/')
-            echo $REDIS_VERSION
+          run: |
+            rem Extract part of the version before the '-' character
+            for /f "tokens=1 delims=-" %%a in ("%REDIS_VERSION%") do set REDIS_VERSION=%%a
+            echo %REDIS_VERSION%
             dotnet test -f net481 --no-build --verbosity detailed -p:BuildInParallel=false tests/Test.proj --logger GitHubActions
