@@ -7,7 +7,6 @@ on:
       - '**/*.md'
     branches:
       - master
-      - ali/fix_ci_wind_tests
   pull_request:
   schedule:
     - cron: "0 1 * * *"
