@@ -131,18 +131,37 @@ namespace NRedisStack
         new InfoResult(_db.Execute(SearchCommandBuilder.Info(index)));
 
         /// <inheritdoc/>
+        [Obsolete("Consider using ProfileOnSearch with Redis CE 8.0 and later")]
         public Tuple<SearchResult, Dictionary<string, RedisResult>> ProfileSearch(string indexName, Query q, bool limited = false)
         {
             return _db.Execute(SearchCommandBuilder.ProfileSearch(indexName, q, limited))
-                            .ToProfileSearchResult(q);
+                    .ToProfileSearchResult(q);
         }
+
         /// <inheritdoc/>
+        public Tuple<SearchResult, ProfilingInformation> ProfileOnSearch(string indexName, Query q, bool limited = false)
+        {
+            return _db.Execute(SearchCommandBuilder.ProfileSearch(indexName, q, limited))
+                            .ParseProfileSearchResult(q);
+        }
+
+        /// <inheritdoc/>
+        [Obsolete("Consider using ProfileOnAggregate with Redis CE 8.0 and later")]
         public Tuple<AggregationResult, Dictionary<string, RedisResult>> ProfileAggregate(string indexName, AggregationRequest query, bool limited = false)
         {
             setDefaultDialectIfUnset(query);
             return _db.Execute(SearchCommandBuilder.ProfileAggregate(indexName, query, limited))
                             .ToProfileAggregateResult(query);
         }
+
+        /// <inheritdoc/>
+        public Tuple<AggregationResult, ProfilingInformation> ProfileOnAggregate(string indexName, AggregationRequest query, bool limited = false)
+        {
+            setDefaultDialectIfUnset(query);
+            return _db.Execute(SearchCommandBuilder.ProfileAggregate(indexName, query, limited))
+                            .ParseProfileAggregateResult(query);
+        }
+
         /// <inheritdoc/>
         public SearchResult Search(string indexName, Query q)
         {

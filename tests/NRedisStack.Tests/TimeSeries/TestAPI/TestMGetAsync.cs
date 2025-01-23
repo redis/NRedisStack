@@ -6,14 +6,16 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 {
     public class TestMGetAsync : AbstractNRedisStackTest
     {
-        public TestMGetAsync(RedisFixture redisFixture) : base(redisFixture) { }
+        public TestMGetAsync(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+        {
+        }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public async Task TestMGetQuery()
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public async Task TestMGetQuery(string endpointId)
         {
             var keys = CreateKeyNames(2);
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase(endpointId);
             var ts = db.TS();
 
             var label1 = new TimeSeriesLabel(keys[0], "value");
@@ -36,12 +38,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(new List<TimeSeriesLabel>(), results[1].labels);
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public async Task TestMGetQueryWithLabels()
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public async Task TestMGetQueryWithLabels(string endpointId)
         {
             var keys = CreateKeyNames(2);
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase(endpointId);
             var ts = db.TS();
 
             var label1 = new TimeSeriesLabel(keys[0], "value");
@@ -64,12 +66,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal(labels2, results[1].labels);
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public async Task TestMGetQuerySelectedLabelsAsync()
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public async Task TestMGetQuerySelectedLabelsAsync(string endpointId)
         {
             var keys = CreateKeyNames(2);
-            var db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            var db = GetCleanDatabase(endpointId);
             var ts = db.TS();
 
             var label1 = new TimeSeriesLabel("MGET_TESTS_1", "value");

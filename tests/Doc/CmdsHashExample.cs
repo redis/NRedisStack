@@ -13,7 +13,6 @@ namespace Doc;
 public class CmdsHashExample
 {
 
-    [SkipIfRedis(Is.OSSCluster)]
     public void run()
     {
         var muxer = ConnectionMultiplexer.Connect("localhost:6379");
