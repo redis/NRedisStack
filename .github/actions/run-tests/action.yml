@@ -102,6 +102,8 @@ runs:
 
     - name: Test
       shell: bash
+      env:
+        REDIS_VERSION: ${{ inputs.redis-version }}
       run: |
         echo "::group::Run tests"
         echo "${{inputs.REDIS_CA_PEM}}" > tests/NRedisStack.Tests/bin/Debug/${CLR_VERSION}/redis_ca.pem
