@@ -177,7 +177,17 @@ namespace NRedisStack
         /// <param name="q">The query string.</param>
         /// <param name="limited">Removes details of reader iterator.</param>
         /// <returns></returns>
+        [Obsolete("Consider using ProfileOnSearch with Redis CE 8.0 and later")]
         Tuple<SearchResult, Dictionary<string, RedisResult>> ProfileSearch(string indexName, Query q, bool limited = false);
+
+        /// <summary>
+        /// Apply FT.SEARCH command to collect performance details.
+        /// </summary>
+        /// <param name="indexName">The index name, created using FT.CREATE.</param>
+        /// <param name="q">The query string.</param>
+        /// <param name="limited">Removes details of reader iterator.</param>
+        /// <returns></returns>
+        Tuple<SearchResult, ProfilingInformation> ProfileOnSearch(string indexName, Query q, bool limited = false);
 
         /// <summary>
         /// Apply FT.AGGREGATE command to collect performance details.
@@ -186,7 +196,17 @@ namespace NRedisStack
         /// <param name="query">The query string.</param>
         /// <param name="limited">Removes details of reader iterator.</param>
         /// <returns></returns>
+        [Obsolete("Consider using ProfileOnAggregate with Redis CE 8.0 and later")]
         Tuple<AggregationResult, Dictionary<string, RedisResult>> ProfileAggregate(string indexName, AggregationRequest query, bool limited = false);
+
+        /// <summary>
+        /// Apply FT.AGGREGATE command to collect performance details.
+        /// </summary>
+        /// <param name="indexName">The index name, created using FT.CREATE.</param>
+        /// <param name="query">The query string.</param>
+        /// <param name="limited">Removes details of reader iterator.</param>
+        /// <returns></returns>
+        Tuple<AggregationResult, ProfilingInformation> ProfileOnAggregate(string indexName, AggregationRequest query, bool limited = false);
 
         /// <summary>
         /// Search the index

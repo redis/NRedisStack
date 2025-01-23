@@ -10,15 +10,15 @@ public class TransactionTests : AbstractNRedisStackTest, IDisposable
 {
     private readonly string key = "TRX_TESTS";
 
-    public TransactionTests(RedisFixture redisFixture) : base(redisFixture)
+    public TransactionTests(EndpointsFixture endpointsFixture) : base(endpointsFixture)
     {
     }
 
-    [Fact]
-    public void TestJsonTransaction()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestJsonTransaction(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var transaction = new Transaction(db);
         string jsonPerson = JsonSerializer.Serialize(new Person { Name = "Shachar", Age = 23 });
         var setResponse = transaction.Json.SetAsync(key, "$", jsonPerson);
@@ -34,11 +34,11 @@ public class TransactionTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestModulesTransaction()
+    public void TestModulesTransaction(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var tran = new Transaction(db);
 
         _ = tran.Bf.ReserveAsync("bf-key", 0.001, 100);
@@ -85,12 +85,12 @@ public class TransactionTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(db.TOPK().Info("topk-key"));
     }
 
-    [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+    [SkipIfRedis(Is.Enterprise)]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public void TestModulesTransactionWithoutGraph()
+    public void TestModulesTransactionWithoutGraph(string endpointId)
     {
-        IDatabase db = redisFixture.Redis.GetDatabase();
-        db.Execute("FLUSHALL");
+        IDatabase db = GetCleanDatabase(endpointId);
         var tran = new Transaction(db);
 
         _ = tran.Bf.ReserveAsync("bf-key", 0.001, 100);

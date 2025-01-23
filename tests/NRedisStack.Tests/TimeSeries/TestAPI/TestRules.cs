@@ -12,9 +12,8 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
         private Dictionary<TsAggregation, string> destKeys;
 
-        public TestRules(RedisFixture redisFixture) : base(redisFixture)
+        public TestRules(EndpointsFixture endpointsFixture) : base(endpointsFixture)
         {
-
             destKeys = new Dictionary<TsAggregation, string>
             {
                 { TsAggregation.Avg, "RULES_DEST_" + TsAggregation.Avg },
@@ -32,12 +31,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             };
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
         [Obsolete]
-        public void TestRulesAdditionDeletion()
+        public void TestRulesAdditionDeletion(string endpointId)
         {
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             ts.Create(srcKey);
             foreach (var destKey in destKeys.Values)
@@ -69,8 +68,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         [Fact]
         public void TestNonExistingSrc()
         {
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase();
             var ts = db.TS();
             string destKey = "RULES_DEST_" + TsAggregation.Avg;
             ts.Create(destKey);
@@ -84,8 +82,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         [Fact]
         public void TestNonExisitingDestinaion()
         {
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase();
             var ts = db.TS();
             string destKey = "RULES_DEST_" + TsAggregation.Avg;
             ts.Create(srcKey);
@@ -96,11 +93,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             Assert.Equal("ERR TSDB: compaction rule does not exist", ex.Message);
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public void TestAlignTimestamp()
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public void TestAlignTimestamp(string endpointId)
         {
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase(endpointId);
             var ts = db.TS();
             ts.Create("ts1");
             ts.Create("ts2");

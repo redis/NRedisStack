@@ -11,15 +11,17 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
         private readonly string[] keys = { "MADD_TESTS_1", "MADD_TESTS_2" };
 
-        public TestMADD(RedisFixture redisFixture) : base(redisFixture) { }
+        public TestMADD(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+        {
+        }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
         [Obsolete]
-        public void TestStarMADD()
+        public void TestStarMADD(string endpointId)
         {
 
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase(endpointId);
             var ts = db.TS();
 
             foreach (string key in keys)
@@ -43,12 +45,12 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public void TestSuccessfulMADD()
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public void TestSuccessfulMADD(string endpointId)
         {
 
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase(endpointId);
             var ts = db.TS();
 
             foreach (string key in keys)
@@ -73,11 +75,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             }
         }
 
-        [SkipIfRedis(Is.OSSCluster, Is.Enterprise)]
-        public void TestOverrideMADD()
+        [SkipIfRedis(Is.Enterprise)]
+        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+        public void TestOverrideMADD(string endpointId)
         {
-            IDatabase db = redisFixture.Redis.GetDatabase();
-            db.Execute("FLUSHALL");
+            IDatabase db = GetCleanDatabase(endpointId);
             var ts = db.TS();
 
             foreach (string key in keys)

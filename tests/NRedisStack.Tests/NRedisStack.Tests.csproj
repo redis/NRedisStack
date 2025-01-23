@@ -26,12 +26,14 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="NetTopologySuite" Version="2.5.0" />
+    <PackageReference Include="Validation" Version="2.6.68" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.0.1" />
     <PackageReference Include="StackExchange.Redis" Version="2.8.24" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.assert" Version="2.4.1" />
     <PackageReference Include="BouncyCastle.Cryptography" Version="2.5.0" />
     <PackageReference Include="Microsoft.Azure.StackExchangeRedis" Version="3.1.0" />
+    <PackageReference Include="Xunit.SkippableFact" Version="1.4.13" />
   </ItemGroup>
 
   <ItemGroup>
@@ -41,6 +43,12 @@
   <ItemGroup>
     <None Update="xunit.runner.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\dockers\endpoints.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
