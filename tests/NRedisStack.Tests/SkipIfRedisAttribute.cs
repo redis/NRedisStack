@@ -1,4 +1,5 @@
 using Xunit;
+using Xunit.Sdk;
 
 namespace NRedisStack.Tests;
 
@@ -14,6 +15,7 @@ public enum Is
 }
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+[XunitTestCaseDiscoverer("NRedisStack.Tests.SkippableTheoryDiscoverer", "NRedisStack.Tests")]
 public class SkipIfRedisAttribute : SkippableTheoryAttribute
 {
     private readonly string _targetVersion;
@@ -26,19 +28,6 @@ public class SkipIfRedisAttribute : SkippableTheoryAttribute
         string targetVersion = "0.0.0")
     {
         _environments.Add(environment);
-        _comparison = comparison;
-        _targetVersion = targetVersion;
-    }
-
-    // skip more than one environment:
-    public SkipIfRedisAttribute(
-        Is environment1,
-        Is environment2,
-        Comparison comparison = Comparison.LessThan,
-        string targetVersion = "0.0.0")
-    {
-        _environments.Add(environment1);
-        _environments.Add(environment2);
         _comparison = comparison;
         _targetVersion = targetVersion;
     }

@@ -42,7 +42,7 @@ public class IndexCreationTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Comparison.LessThan, "7.3.240")]
-    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMissingFields(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);

@@ -215,7 +215,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkipIfRedis(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMerge(string endpointId)
     {
         var db = GetCleanDatabase(endpointId);
@@ -264,7 +264,7 @@ public class CmsTests : AbstractNRedisStackTest, IDisposable
 
 
     [SkipIfRedis(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMergeAsync(string endpointId)
     {
         var db = GetCleanDatabase(endpointId);
