@@ -109,6 +109,8 @@ runs:
         echo "${{inputs.REDIS_CA_PEM}}" > tests/NRedisStack.Tests/bin/Debug/${CLR_VERSION}/redis_ca.pem
         echo "${{inputs.REDIS_USER_CRT}}" > tests/NRedisStack.Tests/bin/Debug/${CLR_VERSION}/redis_user.crt
         echo "${{inputs.REDIS_USER_PRIVATE_KEY}}" > tests/NRedisStack.Tests/bin/Debug/${CLR_VERSION}/redis_user_private.key
+        REDIS_VERSION=$(echo "$REDIS_VERSION" | cut -d'-' -f1)
+        echo $REDIS_VERSION
         dotnet test -f ${CLR_VERSION} --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover -p:BuildInParallel=false tests/Test.proj --logger GitHubActions
         echo "::endgroup::"
     - name: Codecov
