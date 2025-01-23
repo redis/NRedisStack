@@ -106,5 +106,8 @@ jobs:
           shell: cmd
           env:
             REDIS_VERSION: ${{env.redis_stack_version}}
-          run: |                      
+          run: |         
+            # trim version to major.minor.patch format
+            REDIS_VERSION=$(echo "$REDIS_VERSION" | sed -E 's/[^0-9]*([0-9]+\.[0-9]+(\.[0-9]+)?).*/\1/')
+            echo $REDIS_VERSION
             dotnet test -f net481 --no-build --verbosity detailed -p:BuildInParallel=false tests/Test.proj --logger GitHubActions
