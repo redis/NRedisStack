@@ -165,6 +165,7 @@ namespace NRedisStack
         [Obsolete("Consider using ProfileOnSearchAsync with Redis CE 8.0 and later")]
         public async Task<Tuple<SearchResult, Dictionary<string, RedisResult>>> ProfileSearchAsync(string indexName, Query q, bool limited = false)
         {
+            setDefaultDialectIfUnset(q);
             return (await _db.ExecuteAsync(SearchCommandBuilder.ProfileSearch(indexName, q, limited)))
                             .ToProfileSearchResult(q);
         }
@@ -179,6 +180,7 @@ namespace NRedisStack
         [Obsolete("Consider using ProfileOnSearchAsync with Redis CE 8.0 and later")]
         public async Task<Tuple<AggregationResult, Dictionary<string, RedisResult>>> ProfileAggregateAsync(string indexName, AggregationRequest query, bool limited = false)
         {
+            setDefaultDialectIfUnset(query);
             return (await _db.ExecuteAsync(SearchCommandBuilder.ProfileAggregate(indexName, query, limited)))
                             .ToProfileAggregateResult(query);
         }
