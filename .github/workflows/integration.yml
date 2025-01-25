@@ -15,164 +15,99 @@ concurrency:
   group: ${{ github.event.pull_request.number || github.ref }}-integration
   cancel-in-progress: true
 
+env:
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  CURRENT_REDIS_VERSION: '7.4.1'
+
 jobs:
-  enterprise-tests:
-    name: Redis Enterprise
-    runs-on: ubuntu-latest
+    redis_version:
+      runs-on: ubuntu-latest
+      outputs:
+        CURRENT: ${{ env.CURRENT_REDIS_VERSION }}
+      steps:
+        - name: Compute outputs
+          run: |
+            echo "CURRENT=${{ env.CURRENT_REDIS_VERSION }}" >> $GITHUB_OUTPUT
 
-    strategy:
-      fail-fast: false
-      matrix:
-        enterprise_version: ['7.4.2-54']
-        env_file_mode: ['enterprise', 'enterprise_oss_cluster']
+    tests:
+      runs-on: ubuntu-latest
+      timeout-minutes: 60
+      needs: redis_version
+      strategy:
+        max-parallel: 15
+        fail-fast: false
+        matrix:
+          redis-version: [ '8.0-M02', '8.0-M03', '${{ needs.redis_version.outputs.CURRENT }}', '7.2.6', '6.2.16']
+          dotnet-version: ['6.0', '7.0', '8.0']
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+      name: Redis ${{ matrix.redis-version }}; .NET ${{ matrix.dotnet-version }};
+      steps:
+        - uses: actions/checkout@v4
+        - name: Run tests
+          uses: ./.github/actions/run-tests
+          with:
+              dotnet-version: ${{ matrix.dotnet-version }}              
+              redis-version: ${{ matrix.redis-version }}
+              REDIS_CA_PEM: ${{ secrets.REDIS_CA_PEM }}
+              REDIS_USER_CRT: ${{ secrets.REDIS_USER_CRT }}
+              REDIS_USER_PRIVATE_KEY: ${{ secrets.REDIS_USER_PRIVATE_KEY }}
 
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Load dotnenv for CI
-        uses: xom9ikk/dotenv@v2
-        with:
-          path: .github/workflows/modes
-          mode: ${{ matrix.env_file_mode }}
-
-      - name: Clone ee docker code
-        uses: actions/checkout@v4
-        with:
-          repository: redislabs/redis-ee-docker
-          path: redis-ee-docker
-
-      - name: Start docker
-        working-directory: redis-ee-docker
-        env:
-          IMAGE: redislabs/redis:${{ matrix.enterprise_version }}
-        run: ./build.sh
-
-      - name: .NET Core 8
-        uses: actions/setup-dotnet@v2
-        with:
-          dotnet-version: '8.0.x'
-
-      - name: Restore dependencies
-        run: dotnet restore
-
-      - name: Build
-        run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
-
-      - name: Test
-        run: dotnet test -f net8.0 --no-build --verbosity detailed -p:BuildInParallel=false tests/Test.proj --logger GitHubActions
-
-  dotnet_6_cluster:
-    name: .NET 6 on [redis-stack cluster]
-    uses: ./.github/workflows/reusable.yml
-    with:
-      redis_stack_type: cluster
-      clr_version: net6.0
-      mode: oss_cluster
-      dotnet_sdk_version: 6.0.0
-    secrets: inherit
-
-  dotnet_6:
-    name: .NET 6 on [redis-stack ${{matrix.redis-stack-type}}]
-    uses: ./.github/workflows/reusable.yml
-    strategy:
-      fail-fast: false
-      max-parallel: 5
-      matrix:
-        redis-stack-type: ['edge', '6.2.6', '7.2.0-RC3']
-    with:
-      redis_stack_type: ${{matrix.redis-stack-type}}
-      clr_version: net6.0
-      mode: standalone
-      dotnet_sdk_version: 6.0.0
-    secrets: inherit
-
-  dotnet_7_cluster:
-    name: .NET 7 on [redis-stack cluster]
-    uses: ./.github/workflows/reusable.yml
-    with:
-      redis_stack_type: cluster
-      clr_version: net7.0
-      mode: oss_cluster
-      dotnet_sdk_version: 7.0.0
-    secrets: inherit
-
-  dotnet_7:
-    name: .NET 7 on [redis-stack ${{matrix.redis-stack-type}}]
-    uses: ./.github/workflows/reusable.yml
-    strategy:
-      fail-fast: false
-      max-parallel: 5
-      matrix:
-        redis-stack-type: ['edge', '6.2.6', '7.2.0-RC3']
-    with:
-      redis_stack_type: ${{matrix.redis-stack-type}}
-      clr_version: net7.0
-      mode: standalone
-      dotnet_sdk_version: 7.0.0
-    secrets: inherit
-
-  dotnet_8_cluster:
-    name: .NET 8 on [redis-stack cluster]
-    uses: ./.github/workflows/reusable.yml
-    with:
-      redis_stack_type: cluster
-      clr_version: net8.0
-      mode: oss_cluster
-      dotnet_sdk_version: 8.0.0
-    secrets: inherit
-
-  dotnet_8:
-    name: .NET 8 on [redis-stack ${{matrix.redis-stack-type}}]
-    uses: ./.github/workflows/reusable.yml
-    strategy:
-      fail-fast: false
-      max-parallel: 5
-      matrix:
-        redis-stack-type: ['edge', '6.2.6', '7.2.0-RC3']
-    with:
-      redis_stack_type: ${{matrix.redis-stack-type}}
-      clr_version: net8.0
-      mode: standalone
-      dotnet_sdk_version: 8.0.0
-    secrets: inherit
-
-  build_and_test_windows:
-    name: Windows Test ${{matrix.redis-stack-version}}
-    runs-on: windows-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        redis-stack-version: ['6.2.6-v9', '7.2.0-RC3']
-    env:
-      redis_stack_version: ${{matrix.redis-stack-version}}
-      USER_NAME: ${{ secrets.USER_NAME }}
-      PASSWORD: ${{ secrets.PASSWORD }}
-      ENDPOINT: ${{ secrets.ENDPOINT }}
-    steps:
-      - uses: actions/checkout@v3
-      - uses: Vampire/setup-wsl@v2
-        with:
-          distribution: Ubuntu-22.04
-      - name: Install Redis
-        shell: wsl-bash {0}
-        run: |
-          sudo apt-get update
-          sudo apt-get install curl -y && sudo apt-get install gpg -y && apt-get install lsb-release -y && apt-get install libgomp1 -y
-          curl https://packages.redis.io/redis-stack/redis-stack-server-${{env.redis_stack_version}}.jammy.x86_64.tar.gz -o redis-stack.tar.gz
-          tar xf redis-stack.tar.gz
-      - name: Restore dependencies
-        run: dotnet restore
-      - name: Build
-        run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
-      - name: Save test certificates
-        shell: wsl-bash {0}
-        run: |
-          echo "${{secrets.REDIS_CA_PEM}}" > tests/NRedisStack.Tests/bin/Debug/net481/redis_ca.pem
-          echo "${{secrets.REDIS_USER_CRT}}" > tests/NRedisStack.Tests/bin/Debug/net481/redis_user.crt
-          echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > tests/NRedisStack.Tests/bin/Debug/net481/redis_user_private.key
-          ls -R
-      - name: Test
-        shell: cmd
-        run: |
-          START wsl ./redis-stack-server-${{env.redis_stack_version}}/bin/redis-stack-server &
-          dotnet test -f net481 --no-build --verbosity detailed -p:BuildInParallel=false tests/Test.proj --logger GitHubActions
+    build_and_test_windows:
+      name: Windows Test ${{matrix.redis-stack-version}}
+      runs-on: windows-latest
+      strategy:
+        fail-fast: false
+        matrix:
+          redis-stack-version: ['6.2.6-v18', '7.2.0-v14', '7.4.0-v2']
+      env:
+        redis_stack_version: ${{matrix.redis-stack-version}}
+        USER_NAME: ${{ secrets.USER_NAME }}
+        PASSWORD: ${{ secrets.PASSWORD }}
+        ENDPOINT: ${{ secrets.ENDPOINT }}
+      steps:
+        - uses: actions/checkout@v3
+        - uses: Vampire/setup-wsl@v2
+          with:
+            distribution: Ubuntu-22.04
+        - name: Install Redis
+          shell: wsl-bash {0}
+          run: |
+            sudo apt-get update
+            sudo apt-get install curl gpg lsb-release libgomp1 jq -y
+            curl https://packages.redis.io/redis-stack/redis-stack-server-${{env.redis_stack_version}}.jammy.x86_64.tar.gz -o redis-stack.tar.gz
+            tar xf redis-stack.tar.gz
+        - name: Restore dependencies
+          run: dotnet restore
+        - name: Build
+          run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
+        - name: Save test certificates
+          shell: wsl-bash {0}
+          run: |
+            export TARGET_DIR=tests/NRedisStack.Tests/bin/Debug/net481
+            echo "${{secrets.REDIS_CA_PEM}}" > ${TARGET_DIR}/redis_ca.pem
+            echo "${{secrets.REDIS_USER_CRT}}" > ${TARGET_DIR}/redis_user.crt
+            echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > ${TARGET_DIR}redis_user_private.key
+            
+            # We need to remove the cluster endpoint from the endpoints.json file 
+            # because we run only standalone redis-stack-server.
+            jq 'del(.cluster)' tests/dockers/endpoints.json > standalone_only.json
+            rm tests/dockers/endpoints.json && cp standalone_only.json tests/dockers/endpoints.json
+            cp -f standalone_only.json ${TARGET_DIR}/endpoints.json
+            cat tests/dockers/endpoints.json
+            cat ${TARGET_DIR}/endpoints.json            
+        - name: Run redis-server
+          shell: wsl-bash {0}
+          run: |
+            ./redis-stack-server-${{env.redis_stack_version}}/bin/redis-stack-server &
+            sleep 3
+            ./redis-stack-server-${{env.redis_stack_version}}/bin/redis-cli INFO SERVER | grep redis_version
+        - name: Test
+          shell: cmd
+          env:
+            REDIS_VERSION: ${{env.redis_stack_version}}
+          run: |
+            rem Extract part of the version before the '-' character
+            for /f "tokens=1 delims=-" %%a in ("%REDIS_VERSION%") do set REDIS_VERSION=%%a
+            echo %REDIS_VERSION%
+            dotnet test -f net481 --no-build --verbosity detailed -p:BuildInParallel=false tests/Test.proj --logger GitHubActions

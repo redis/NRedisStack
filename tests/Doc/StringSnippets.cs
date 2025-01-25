@@ -11,9 +11,6 @@ namespace Doc;
 //REMOVE_END
 public class StringSnippets
 {
-    //REMOVE_START
-    [SkipIfRedis(Is.OSSCluster)]
-    //REMOVE_END
     public void run()
     {
         var redis = ConnectionMultiplexer.Connect("localhost:6379");
