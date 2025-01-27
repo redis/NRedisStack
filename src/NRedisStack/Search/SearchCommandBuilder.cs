@@ -47,11 +47,13 @@ namespace NRedisStack
             return new SerializedCommand(FT.ALTER, args);
         }
 
+        [Obsolete("Starting from Redis 8.0, use db.ConfigGet instead")]
         public static SerializedCommand ConfigGet(string option)
         {
             return new SerializedCommand(FT.CONFIG, "GET", option);
         }
 
+        [Obsolete("Starting from Redis 8.0, use db.ConfigSet instead")]
         public static SerializedCommand ConfigSet(string option, string value)
         {
             return new SerializedCommand(FT.CONFIG, "SET", option, value);
