@@ -669,9 +669,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddField(new TextField(FieldName.Of("last")));
 
         Assert.True(ft.Create(index, FTCreateParams.CreateParams().Prefix("student:", "pupil:"), sc));
-
-        SearchResult asOriginal = ft.Search(index, new Query("@first:Jo*"));
-        Assert.Equal(0, asOriginal.TotalResults);
+        RedisServerException exc = Assert.Throws<RedisServerException>(() => ft.Search(index, new Query("@first:Jo*")));
     }
 
     [SkippableTheory]
