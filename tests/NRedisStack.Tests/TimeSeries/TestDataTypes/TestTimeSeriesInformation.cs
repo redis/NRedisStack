@@ -39,7 +39,7 @@ namespace NRedisTimeSeries.Test.TestDataTypes
             Assert.Equal(1, infoDebug.ChunkCount);
             Assert.Null(infoDebug.DuplicatePolicy);
             Assert.Equal(infoDebug.KeySelfName, key);
-            Assert.Equal(1, infoDebug.Chunks!.Count);
+            Assert.Single(infoDebug.Chunks!);
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace NRedisTimeSeries.Test.TestDataTypes
             Assert.Equal(1, infoDebug.ChunkCount);
             Assert.Null(infoDebug.DuplicatePolicy);
             Assert.Equal(infoDebug.KeySelfName, key);
-            Assert.Equal(1, infoDebug.Chunks!.Count);
+            Assert.Single(infoDebug.Chunks!);
         }
     }
 }

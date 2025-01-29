@@ -192,14 +192,14 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         var info = cf.Info(key);
 
         Assert.NotNull(info);
-        Assert.Equal(info.BucketSize, (long)2);
-        Assert.Equal(info.ExpansionRate, (long)1);
-        Assert.Equal(info.MaxIterations, (long)20);
-        Assert.Equal(info.NumberOfBuckets, (long)512);
-        Assert.Equal(info.NumberOfFilters, (long)1);
-        Assert.Equal(info.NumberOfItemsDeleted, (long)0);
-        Assert.Equal(info.NumberOfItemsInserted, (long)1);
-        Assert.Equal(info.Size, (long)1080);
+        Assert.Equal((long)2, info.BucketSize);
+        Assert.Equal((long)1, info.ExpansionRate);
+        Assert.Equal((long)20, info.MaxIterations);
+        Assert.Equal((long)512, info.NumberOfBuckets);
+        Assert.Equal((long)1, info.NumberOfFilters);
+        Assert.Equal((long)0, info.NumberOfItemsDeleted);
+        Assert.Equal((long)1, info.NumberOfItemsInserted);
+        Assert.Equal((long)1080, info.Size);
 
         Assert.Throws<RedisServerException>(() => cf.Info("notExistKey"));
     }
@@ -215,14 +215,14 @@ public class CuckooTests : AbstractNRedisStackTest, IDisposable
         var info = await cf.InfoAsync(key);
 
         Assert.NotNull(info);
-        Assert.Equal(info.BucketSize, (long)2);
-        Assert.Equal(info.ExpansionRate, (long)1);
-        Assert.Equal(info.MaxIterations, (long)20);
-        Assert.Equal(info.NumberOfBuckets, (long)512);
-        Assert.Equal(info.NumberOfFilters, (long)1);
-        Assert.Equal(info.NumberOfItemsDeleted, (long)0);
-        Assert.Equal(info.NumberOfItemsInserted, (long)1);
-        Assert.Equal(info.Size, (long)1080);
+        Assert.Equal((long)2, info.BucketSize);
+        Assert.Equal((long)1, info.ExpansionRate);
+        Assert.Equal((long)20, info.MaxIterations);
+        Assert.Equal((long)512, info.NumberOfBuckets);
+        Assert.Equal((long)1, info.NumberOfFilters);
+        Assert.Equal((long)0, info.NumberOfItemsDeleted);
+        Assert.Equal((long)1, info.NumberOfItemsInserted);
+        Assert.Equal((long)1080, info.Size);
 
 
 

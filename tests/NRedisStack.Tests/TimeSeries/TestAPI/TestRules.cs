@@ -114,7 +114,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             ts.Add("ts1", 21, 7);
 
             Assert.Equal(2, ts.Range("ts2", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10).Count);
-            Assert.Equal(1, ts.Range("ts3", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10).Count);
+            Assert.Single(ts.Range("ts3", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10));
         }
     }
 }

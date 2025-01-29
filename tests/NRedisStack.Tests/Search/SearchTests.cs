@@ -2170,7 +2170,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var req = new AggregationRequest("*").SortBy("@t1").Limit(1);
         var res = ft.Aggregate("idx", req);
 
-        Assert.Equal(1, res.GetResults().Count);
+        Assert.Single(res.GetResults());
         Assert.Equal("a", res.GetResults()[0]["t1"].ToString());
     }
 
@@ -2190,7 +2190,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var req = new AggregationRequest("*").SortBy("@t1").Limit(1, 1);
         var res = await ft.AggregateAsync("idx", req);
 
-        Assert.Equal(1, res.GetResults().Count);
+        Assert.Single(res.GetResults());
         Assert.Equal("b", res.GetResults()[0]["t1"].ToString());
     }
 

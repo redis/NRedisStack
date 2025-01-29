@@ -71,7 +71,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
-        public async void TestCreatehDuplicatePolicyFirst()
+        public async Task TestCreatehDuplicatePolicyFirst()
         {
             var key = CreateKeyName();
             var db = GetCleanDatabase();
@@ -80,7 +80,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
-        public async void TestCreatehDuplicatePolicyLast()
+        public async Task TestCreatehDuplicatePolicyLast()
         {
             var key = CreateKeyName();
             var db = GetCleanDatabase();
@@ -89,7 +89,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
-        public async void TestCreatehDuplicatePolicyMin()
+        public async Task TestCreatehDuplicatePolicyMin()
         {
             var key = CreateKeyName();
             var db = GetCleanDatabase();
@@ -98,7 +98,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
-        public async void TestCreatehDuplicatePolicyMax()
+        public async Task TestCreatehDuplicatePolicyMax()
         {
             var key = CreateKeyName();
             var db = GetCleanDatabase();
@@ -107,7 +107,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
         }
 
         [Fact]
-        public async void TestCreatehDuplicatePolicySum()
+        public async Task TestCreatehDuplicatePolicySum()
         {
             var key = CreateKeyName();
             var db = GetCleanDatabase();
