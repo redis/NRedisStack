@@ -109,8 +109,8 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             RedisResult info = TimeSeriesHelper.getInfo(db, key, out j, out k);
             Assert.NotNull(info);
             Assert.True(info.Length > 0);
-            Assert.NotEqual(j, -1);
-            Assert.NotEqual(k, -1);
+            Assert.NotEqual(-1, j);
+            Assert.NotEqual(-1, k);
             Assert.Equal(15, (long)info[j + 1]);
             Assert.Equal(16, (long)info[k + 1]);
         }

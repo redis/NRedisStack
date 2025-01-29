@@ -239,7 +239,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         var info = bf.Info(key);
 
         Assert.NotNull(info);
-        Assert.Equal(info.NumberOfItemsInserted, (long)1);
+        Assert.Equal((long)1, info.NumberOfItemsInserted);
 
         Assert.Throws<RedisServerException>(() => bf.Info("notExistKey"));
     }
@@ -255,7 +255,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         var info = await bf.InfoAsync(key);
 
         Assert.NotNull(info);
-        Assert.Equal(info.NumberOfItemsInserted, (long)1);
+        Assert.Equal((long)1, info.NumberOfItemsInserted);
 
         await Assert.ThrowsAsync<RedisServerException>(() => bf.InfoAsync("notExistKey"));
     }

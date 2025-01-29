@@ -49,7 +49,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             for (var i = 0; i < results.Count; i++)
             {
                 Assert.Equal(keys[i], results[i].key);
-                Assert.Equal(0, results[i].labels.Count);
+                Assert.Empty(results[i].labels);
                 Assert.Equal(ReverseData(tuples), results[i].values);
             }
         }
@@ -116,9 +116,9 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             await ts.CreateAsync(keys[0], labels: labels);
             var tuples = await CreateData(ts, keys, 50);
             var results = await ts.MRevRangeAsync("-", "+", new List<string> { $"{keys[0]}=value" });
-            Assert.Equal(1, results.Count);
+            Assert.Single(results);
             Assert.Equal(keys[0], results[0].key);
-            Assert.Equal(0, results[0].labels.Count);
+            Assert.Empty(results[0].labels);
             Assert.Equal(ReverseData(tuples), results[0].values);
         }
 
@@ -143,7 +143,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             for (var i = 0; i < results.Count; i++)
             {
                 Assert.Equal(keys[i], results[i].key);
-                Assert.Equal(0, results[i].labels.Count);
+                Assert.Empty(results[i].labels);
                 Assert.Equal(ReverseData(tuples).GetRange(0, (int)count), results[i].values);
             }
         }
@@ -168,7 +168,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             for (var i = 0; i < results.Count; i++)
             {
                 Assert.Equal(keys[i], results[i].key);
-                Assert.Equal(0, results[i].labels.Count);
+                Assert.Empty(results[i].labels);
                 Assert.Equal(ReverseData(tuples), results[i].values);
             }
         }
@@ -190,7 +190,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
                 new TimeSeriesTuple(350,1)
             };
             var results = await ts.MRevRangeAsync(0, "+", new List<string> { $"{keys[0]}=value" }, align: "-", aggregation: TsAggregation.Count, timeBucket: 10, count: 3);
-            Assert.Equal(1, results.Count);
+            Assert.Single(results);
             Assert.Equal(keys[0], results[0].key);
             Assert.Equal(expected, results[0].values);
             results = await ts.MRevRangeAsync(0, 500, new List<string> { $"{keys[0]}=value" }, align: "+", aggregation: TsAggregation.Count, timeBucket: 10, count: 1);
@@ -282,7 +282,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
             var tuples = await CreateData(ts, keys, 50);
             var results = await ts.MRevRangeAsync("-", "+", new List<string> { $"{keys[0]}=value" }, withLabels: true, groupbyTuple: (keys[0], TsReduce.Sum));
-            Assert.Equal(1, results.Count);
+            Assert.Single(results);
             Assert.Equal($"{keys[0]}=value", results[0].key);
             Assert.Equal(new TimeSeriesLabel(keys[0], "value"), results[0].labels.FirstOrDefault());
             Assert.Equal(new TimeSeriesLabel("__reducer__", "sum"), results[0].labels[1]);
