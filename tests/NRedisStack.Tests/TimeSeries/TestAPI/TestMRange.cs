@@ -50,7 +50,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             for (int i = 0; i < results.Count; i++)
             {
                 Assert.Equal(_keys[i], results[i].key);
-                Assert.Equal(0, results[i].labels.Count);
+                Assert.Empty(results[i].labels);
                 Assert.Equal(tuples, results[i].values);
             }
         }
@@ -118,9 +118,9 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             ts.Create(_keys[0], labels: labels);
             var tuples = CreateData(ts, 50);
             var results = ts.MRange("-", "+", new List<string> { "key=MRangeFilter" });
-            Assert.Equal(1, results.Count);
+            Assert.Single(results);
             Assert.Equal(_keys[0], results[0].key);
-            Assert.Equal(0, results[0].labels.Count);
+            Assert.Empty(results[0].labels);
             Assert.Equal(tuples, results[0].values);
         }
 
@@ -144,7 +144,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             for (int i = 0; i < results.Count; i++)
             {
                 Assert.Equal(_keys[i], results[i].key);
-                Assert.Equal(0, results[i].labels.Count);
+                Assert.Empty(results[i].labels);
                 Assert.Equal(tuples.GetRange(0, (int)count), results[i].values);
             }
         }
@@ -168,7 +168,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
             for (int i = 0; i < results.Count; i++)
             {
                 Assert.Equal(_keys[i], results[i].key);
-                Assert.Equal(0, results[i].labels.Count);
+                Assert.Empty(results[i].labels);
                 Assert.Equal(tuples, results[i].values);
             }
         }
@@ -189,7 +189,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
                 new TimeSeriesTuple(100,1)
             };
             var results = ts.MRange(0, "+", new List<string> { "key=MRangeAlign" }, align: "-", aggregation: TsAggregation.Count, timeBucket: 10, count: 3);
-            Assert.Equal(1, results.Count);
+            Assert.Single(results);
             Assert.Equal(_keys[0], results[0].key);
             Assert.Equal(expected, results[0].values);
             results = ts.MRange(1, 500, new List<string> { "key=MRangeAlign" }, align: "+", aggregation: TsAggregation.Count, timeBucket: 10, count: 1);
@@ -270,7 +270,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
             var tuples = CreateData(ts, 50);
             var results = ts.MRange("-", "+", new List<string> { "key=MRangeReduce" }, withLabels: true, groupbyTuple: ("key", TsReduce.Sum));
-            Assert.Equal(1, results.Count);
+            Assert.Single(results);
             Assert.Equal("key=MRangeReduce", results[0].key);
             Assert.Equal(new TimeSeriesLabel("key", "MRangeReduce"), results[0].labels[0]);
             Assert.Equal(new TimeSeriesLabel("__reducer__", "sum"), results[0].labels[1]);
@@ -295,7 +295,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
             var tuples = CreateData(ts, 50);
             var results = ts.MRange("-", "+", new List<string> { "key=MRangeReduce" }, withLabels: true, groupbyTuple: ("key", TsReduce.Avg));
-            Assert.Equal(1, results.Count);
+            Assert.Single(results);
             Assert.Equal("key=MRangeReduce", results[0].key);
             Assert.Equal(new TimeSeriesLabel("key", "MRangeReduce"), results[0].labels[0]);
             Assert.Equal(new TimeSeriesLabel("__reducer__", "avg"), results[0].labels[1]);
@@ -320,7 +320,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
             var tuples = CreateData(ts, 50);
             var results = ts.MRange("-", "+", new List<string> { "key=MRangeReduce" }, withLabels: true, groupbyTuple: ("key", TsReduce.Range));
-            Assert.Equal(1, results.Count);
+            Assert.Single(results);
             Assert.Equal("key=MRangeReduce", results[0].key);
             Assert.Equal(new TimeSeriesLabel("key", "MRangeReduce"), results[0].labels[0]);
             Assert.Equal(new TimeSeriesLabel("__reducer__", "range"), results[0].labels[1]);
@@ -345,7 +345,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
             var tuples = CreateData(ts, 50);
             var results = ts.MRange("-", "+", new List<string> { "key=MRangeReduce" }, withLabels: true, groupbyTuple: ("key", TsReduce.Count));
-            Assert.Equal(1, results.Count);
+            Assert.Single(results);
             Assert.Equal("key=MRangeReduce", results[0].key);
             Assert.Equal(new TimeSeriesLabel("key", "MRangeReduce"), results[0].labels[0]);
             Assert.Equal(new TimeSeriesLabel("__reducer__", "count"), results[0].labels[1]);
@@ -370,7 +370,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
             var tuples = CreateData(ts, 50);
             var results = ts.MRange("-", "+", new List<string> { "key=MRangeReduce" }, withLabels: true, groupbyTuple: ("key", TsReduce.StdP));
-            Assert.Equal(1, results.Count);
+            Assert.Single(results);
             Assert.Equal("key=MRangeReduce", results[0].key);
             Assert.Equal(new TimeSeriesLabel("key", "MRangeReduce"), results[0].labels[0]);
             Assert.Equal(new TimeSeriesLabel("__reducer__", "std.p"), results[0].labels[1]);
@@ -395,7 +395,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
             var tuples = CreateData(ts, 50);
             var results = ts.MRange("-", "+", new List<string> { "key=MRangeReduce" }, withLabels: true, groupbyTuple: ("key", TsReduce.StdS));
-            Assert.Equal(1, results.Count);
+            Assert.Single(results);
             Assert.Equal("key=MRangeReduce", results[0].key);
             Assert.Equal(new TimeSeriesLabel("key", "MRangeReduce"), results[0].labels[0]);
             Assert.Equal(new TimeSeriesLabel("__reducer__", "std.s"), results[0].labels[1]);
@@ -420,7 +420,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
             var tuples = CreateData(ts, 50);
             var results = ts.MRange("-", "+", new List<string> { "key=MRangeReduce" }, withLabels: true, groupbyTuple: ("key", TsReduce.VarP));
-            Assert.Equal(1, results.Count);
+            Assert.Single(results);
             Assert.Equal("key=MRangeReduce", results[0].key);
             Assert.Equal(new TimeSeriesLabel("key", "MRangeReduce"), results[0].labels[0]);
             Assert.Equal(new TimeSeriesLabel("__reducer__", "var.p"), results[0].labels[1]);
@@ -445,7 +445,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
             var tuples = CreateData(ts, 50);
             var results = ts.MRange("-", "+", new List<string> { "key=MRangeReduce" }, withLabels: true, groupbyTuple: ("key", TsReduce.VarS));
-            Assert.Equal(1, results.Count);
+            Assert.Single(results);
             Assert.Equal("key=MRangeReduce", results[0].key);
             Assert.Equal(new TimeSeriesLabel("key", "MRangeReduce"), results[0].labels[0]);
             Assert.Equal(new TimeSeriesLabel("__reducer__", "var.s"), results[0].labels[1]);

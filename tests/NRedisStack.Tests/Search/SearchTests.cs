@@ -652,14 +652,24 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         SearchResult noFilters = ft.Search(index, new Query());
         Assert.Equal(5, noFilters.TotalResults);
 
-        SearchResult asOriginal = ft.Search(index, new Query("@first:Jo*"));
-        Assert.Equal(0, asOriginal.TotalResults);
-
         SearchResult asAttribute = ft.Search(index, new Query("@given:Jo*"));
         Assert.Equal(2, asAttribute.TotalResults);
 
         SearchResult nonAttribute = ft.Search(index, new Query("@last:Rod"));
         Assert.Equal(1, nonAttribute.TotalResults);
+    }
+
+    [SkipIfRedis(Comparison.LessThan, "7.9.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void FailWhenAttributeNotExist(string endpointId)
+    {
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ft = db.FT();
+        Schema sc = new Schema().AddField(new TextField(FieldName.Of("first").As("given")))
+            .AddField(new TextField(FieldName.Of("last")));
+
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams().Prefix("student:", "pupil:"), sc));
+        RedisServerException exc = Assert.Throws<RedisServerException>(() => ft.Search(index, new Query("@first:Jo*")));
     }
 
     [SkippableTheory]
@@ -684,14 +694,24 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         SearchResult noFilters = await ft.SearchAsync(index, new Query());
         Assert.Equal(5, noFilters.TotalResults);
 
-        SearchResult asOriginal = await ft.SearchAsync(index, new Query("@first:Jo*"));
-        Assert.Equal(0, asOriginal.TotalResults);
-
         SearchResult asAttribute = await ft.SearchAsync(index, new Query("@given:Jo*"));
         Assert.Equal(2, asAttribute.TotalResults);
 
         SearchResult nonAttribute = await ft.SearchAsync(index, new Query("@last:Rod"));
         Assert.Equal(1, nonAttribute.TotalResults);
+    }
+
+    [SkipIfRedis(Comparison.LessThan, "7.9.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task FailWhenAttributeNotExistAsync(string endpointId)
+    {
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ft = db.FT();
+        Schema sc = new Schema().AddField(new TextField(FieldName.Of("first").As("given")))
+            .AddField(new TextField(FieldName.Of("last")));
+
+        Assert.True(await ft.CreateAsync(index, FTCreateParams.CreateParams().Prefix("student:", "pupil:"), sc));
+        RedisServerException exc = await Assert.ThrowsAsync<RedisServerException>(async () => await ft.SearchAsync(index, new Query("@first:Jo*")));
     }
 
     [SkipIfRedis(Is.Enterprise)]
@@ -2170,7 +2190,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var req = new AggregationRequest("*").SortBy("@t1").Limit(1);
         var res = ft.Aggregate("idx", req);
 
-        Assert.Equal(1, res.GetResults().Count);
+        Assert.Single(res.GetResults());
         Assert.Equal("a", res.GetResults()[0]["t1"].ToString());
     }
 
@@ -2190,7 +2210,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var req = new AggregationRequest("*").SortBy("@t1").Limit(1, 1);
         var res = await ft.AggregateAsync("idx", req);
 
-        Assert.Equal(1, res.GetResults().Count);
+        Assert.Single(res.GetResults());
         Assert.Equal("b", res.GetResults()[0]["t1"].ToString());
     }
 
