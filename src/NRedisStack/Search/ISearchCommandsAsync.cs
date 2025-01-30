@@ -66,6 +66,7 @@ namespace NRedisStack
         /// <param name="option">is name of the configuration option, or '*' for all.</param>
         /// <returns>An array reply of the configuration name and value.</returns>
         /// <remarks><seealso href="https://redis.io/commands/ft.config-get"/></remarks>
+        [Obsolete("Starting from Redis 8.0, use db.ConfigGetAsync instead")]
         Task<Dictionary<string, string>> ConfigGetAsync(string option);
 
         /// <summary>
@@ -75,6 +76,7 @@ namespace NRedisStack
         /// <param name="value">is value of the configuration option.</param>
         /// <returns><see langword="true"/> if executed correctly, error otherwise.</returns>
         /// <remarks><seealso href="https://redis.io/commands/ft.config-set"/></remarks>
+        [Obsolete("Starting from Redis 8.0, use db.ConfigSetAsync instead")]
         Task<bool> ConfigSetAsync(string option, string value);
 
         /// <summary>
