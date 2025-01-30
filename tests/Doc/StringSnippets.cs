@@ -9,12 +9,17 @@ using StackExchange.Redis;
 namespace Doc;
 [Collection("DocsTests")]
 //REMOVE_END
-public class StringSnippets
+public class StringSnippets : AbstractNRedisStackTest, IDisposable
 {
-    public void run()
+    public StringSnippets(EndpointsFixture fixture) : base(fixture) { }
+
+    //REMOVE_START
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    //REMOVE_END
+    public void run(string endpointId)
     {
-        var redis = ConnectionMultiplexer.Connect("localhost:6379");
-        var db = redis.GetDatabase();
+        var db = GetCleanDatabase(endpointId);
 
         //HIDE_END
 

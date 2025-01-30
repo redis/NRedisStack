@@ -14,13 +14,15 @@ namespace Doc;
 // REMOVE_END
 
 // HIDE_START
-public class Cms_tutorial
+public class Cms_tutorial : AbstractNRedisStackTest, IDisposable
 {
+    public Cms_tutorial(EndpointsFixture fixture) : base(fixture) { }
 
-    public void run()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void run(string endpointId)
     {
-        var muxer = ConnectionMultiplexer.Connect("localhost:6379");
-        var db = muxer.GetDatabase();
+        var db = GetCleanDatabase(endpointId);
         //REMOVE_START
         // Clear any keys here before using them in tests.
         db.KeyDelete("bikes:profit");
