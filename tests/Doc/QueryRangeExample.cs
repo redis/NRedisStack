@@ -15,10 +15,10 @@ namespace Doc;
 // REMOVE_END
 
 // HIDE_START
-public class QueryRangeExample: AbstractNRedisStackTest, IDisposable
+public class QueryRangeExample : AbstractNRedisStackTest, IDisposable
 {
     public QueryRangeExample(EndpointsFixture fixture) : base(fixture) { }
-  
+
     [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void run(string endpointId)

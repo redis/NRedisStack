@@ -9,10 +9,10 @@ using StackExchange.Redis;
 namespace Doc;
 [Collection("DocsTests")]
 //REMOVE_END
-public class SortedSetExample: AbstractNRedisStackTest, IDisposable
+public class SortedSetExample : AbstractNRedisStackTest, IDisposable
 {
     public SortedSetExample(EndpointsFixture fixture) : base(fixture) { }
-  
+
     //REMOVE_START
     [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]

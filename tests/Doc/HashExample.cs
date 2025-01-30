@@ -8,10 +8,10 @@ using StackExchange.Redis;
 namespace Doc;
 [Collection("DocsTests")]
 //REMOVE_END
-public class HashExample: AbstractNRedisStackTest, IDisposable
+public class HashExample : AbstractNRedisStackTest, IDisposable
 {
     public HashExample(EndpointsFixture fixture) : base(fixture) { }
-  
+
     [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void run(string endpointId)

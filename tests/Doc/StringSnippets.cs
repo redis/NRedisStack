@@ -19,8 +19,7 @@ public class StringSnippets : AbstractNRedisStackTest, IDisposable
     //REMOVE_END
     public void run(string endpointId)
     {
-        var redis = ConnectionMultiplexer.Connect("localhost:6379");
-        var db = redis.GetDatabase();
+        var db = GetCleanDatabase(endpointId);
 
         //HIDE_END
 

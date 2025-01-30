@@ -12,10 +12,10 @@ namespace Doc;
 // REMOVE_END
 
 // HIDE_START
-public class CmdsStringExample: AbstractNRedisStackTest, IDisposable
+public class CmdsStringExample : AbstractNRedisStackTest, IDisposable
 {
     public CmdsStringExample(EndpointsFixture fixture) : base(fixture) { }
-  
+
     [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void run(string endpointId)

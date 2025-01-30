@@ -15,7 +15,7 @@ namespace Doc;
 public class Geo_tutorial : AbstractNRedisStackTest, IDisposable
 {
     public Geo_tutorial(EndpointsFixture fixture) : base(fixture) { }
-  
+
     [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void run(string endpointId)

@@ -15,7 +15,7 @@ namespace Doc;
 public class Bitmap_tutorial : AbstractNRedisStackTest, IDisposable
 {
     public Bitmap_tutorial(EndpointsFixture fixture) : base(fixture) { }
-  
+
     [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void run(string endpointId)

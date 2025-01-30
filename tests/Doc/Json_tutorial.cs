@@ -17,7 +17,7 @@ namespace Doc;
 public class Json_tutorial : AbstractNRedisStackTest, IDisposable
 {
     public Json_tutorial(EndpointsFixture fixture) : base(fixture) { }
-  
+
     [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void run(string endpointId)
