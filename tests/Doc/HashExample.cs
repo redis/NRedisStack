@@ -8,13 +8,15 @@ using StackExchange.Redis;
 namespace Doc;
 [Collection("DocsTests")]
 //REMOVE_END
-public class HashExample
+public class HashExample: AbstractNRedisStackTest, IDisposable
 {
-
-    public void run()
+    public HashExample(EndpointsFixture fixture) : base(fixture) { }
+  
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void run(string endpointId)
     {
-        var muxer = ConnectionMultiplexer.Connect("localhost:6379");
-        var db = muxer.GetDatabase();
+        var db = GetCleanDatabase(endpointId);
         db.KeyDelete("bike:1");
         //HIDE_END
         //STEP_START set_get_all

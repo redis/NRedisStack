@@ -11,12 +11,17 @@ using StackExchange.Redis;
 namespace Doc;
 [Collection("DocsTests")]
 //REMOVE_END
-public class ListExample
+public class ListExample: AbstractNRedisStackTest, IDisposable
 {
-    public void run()
+    public ListExample(EndpointsFixture fixture) : base(fixture) { }
+  
+    //REMOVE_START
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    //REMOVE_END
+    public void run(string endpointId)
     {
-        var muxer = ConnectionMultiplexer.Connect("localhost:6379");
-        var db = muxer.GetDatabase();
+        var db = GetCleanDatabase(endpointId);
         //HIDE_END
         //REMOVE_START
         db.KeyDelete("bikes:repairs");

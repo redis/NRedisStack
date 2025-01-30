@@ -9,13 +9,17 @@ using StackExchange.Redis;
 namespace Doc;
 [Collection("DocsTests")]
 //REMOVE_END
-public class SortedSetExample
+public class SortedSetExample: AbstractNRedisStackTest, IDisposable
 {
-
-    public void run()
+    public SortedSetExample(EndpointsFixture fixture) : base(fixture) { }
+  
+    //REMOVE_START
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    //REMOVE_END
+    public void run(string endpointId)
     {
-        var muxer = ConnectionMultiplexer.Connect("localhost:6379");
-        var db = muxer.GetDatabase();
+        var db = GetCleanDatabase(endpointId);
         //REMOVE_START
         db.KeyDelete("racer_scores");
         //REMOVE_END

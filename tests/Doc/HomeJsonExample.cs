@@ -16,14 +16,17 @@ namespace Doc;
 // REMOVE_END
 
 // HIDE_START
-public class HomeJsonExample
+public class HomeJsonExample: AbstractNRedisStackTest, IDisposable
 {
-
-    public void run()
+    public HomeJsonExample(EndpointsFixture fixture) : base(fixture) { }
+  
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void run(string endpointId)
     {
         // STEP_START connect
-        var muxer = ConnectionMultiplexer.Connect("localhost:6379");
-        var db = muxer.GetDatabase();
+
+        var db = GetCleanDatabase(endpointId);
         // STEP_END
 
         //REMOVE_START

@@ -11,10 +11,13 @@ using StackExchange.Redis;
 namespace Doc;
 [Collection("DocsTests")]
 // REMOVE_END
-public class SearchQuickstartExample
+public class SearchQuickstartExample: AbstractNRedisStackTest, IDisposable
 {
-
-    public void run()
+    public SearchQuickstartExample(EndpointsFixture fixture) : base(fixture) { }
+  
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void run(string endpointId)
     {
         // STEP_START connect
         var redis = ConnectionMultiplexer.Connect("localhost:6379");
