@@ -67,6 +67,7 @@ namespace NRedisStack
         /// <param name="option">is name of the configuration option, or '*' for all.</param>
         /// <returns>An array reply of the configuration name and value.</returns>
         /// <remarks><seealso href="https://redis.io/commands/ft.config-get"/></remarks>
+        [Obsolete("Starting from Redis 8.0, use db.ConfigGet instead")]
         Dictionary<string, string> ConfigGet(string option);
 
         /// <summary>
@@ -76,6 +77,7 @@ namespace NRedisStack
         /// <param name="value">is value of the configuration option.</param>
         /// <returns><see langword="true"/> if executed correctly, error otherwise.</returns>
         /// <remarks><seealso href="https://redis.io/commands/ft.config-set"/></remarks>
+        [Obsolete("Starting from Redis 8.0, use db.ConfigSet instead")]
         bool ConfigSet(string option, string value);
 
         /// <summary>
