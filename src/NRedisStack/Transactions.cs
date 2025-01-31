@@ -22,9 +22,6 @@ namespace NRedisStack
         public BloomCommandsAsync Bf => new BloomCommandsAsync(_transaction);
         public CmsCommandsAsync Cms => new CmsCommandsAsync(_transaction);
         public CuckooCommandsAsync Cf => new CuckooCommandsAsync(_transaction);
-
-        [Obsolete]
-        public GraphCommandsAsync Graph => new GraphCommandsAsync(_transaction);
         public JsonCommandsAsync Json => new JsonCommandsAsync(_transaction);
         public SearchCommandsAsync Ft => new SearchCommandsAsync(_transaction);
         public TdigestCommandsAsync Tdigest => new TdigestCommandsAsync(_transaction);
