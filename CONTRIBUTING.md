@@ -113,6 +113,19 @@ e.g:
 dotnet test --environment="REDIS=127.17.0.1:6379"
 ```
 
+Most of the integration tests rely on specific server capabilities,
+so, to be able run matching test cases properly you will need to set `REDIS_VERSION` variable with your actual server version that tests running against.
+```bash
+dotnet test --environment="REDIS=<redisServer:port>" --environment="REDIS_VERSION=<redisServerVersion>"
+```
+e.g:
+```bash
+dotnet test --environment="REDIS=127.17.0.1:6379" --environment="REDIS_VERSION=7.4.0"
+```
+
+If you are relying on an IDE to run the tests, then you can set these parameters in [.runsettings](.vscode/.runsettings) file. 
+You also need to check if your IDE supports [settings.json](.vscode/settings.json) for this to work.
+
 To run your tests against an oss cluster:
 ```bash
 dotnet test --environment "REDIS_CLUSTER=<redisServer:port>" --environment "NUM_REDIS_CLUSTER_NODES=<number of nodes in the cluster>"
