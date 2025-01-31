@@ -19,6 +19,25 @@ jobs:
         run: dotnet --list-sdks
       - name: Check .NET runtimes
         run: dotnet --list-runtimes
+
+      - name: get version from tag
+        id: get_version
+        run: |
+          realversion="${GITHUB_REF/refs\/tags\//}"
+          realversion="${realversion//v/}"
+          echo "VERSION=$realversion" >> $GITHUB_OUTPUT
+
+      - name: Update version in csproj
+        run: |
+          VERSION=${{ steps.get_version.outputs.VERSION }}
+          echo "Setting version to $VERSION"
+
+          # Update the version in the NRedisStack.csproj file
+          sed -i "s|<Version>.*</Version>|<Version>$VERSION</Version>|" ./src/NRedisStack/NRedisStack.csproj
+          sed -i "s|<ReleaseVersion>.*</ReleaseVersion>|<ReleaseVersion>$VERSION</ReleaseVersion>|" ./src/NRedisStack/NRedisStack.csproj
+          sed -i "s|<PackageVersion>.*</PackageVersion>|<PackageVersion>$VERSION</PackageVersion>|" ./src/NRedisStack/NRedisStack.csproj        
+          cat ./src/NRedisStack/NRedisStack.csproj    
+
       - name: Build
         run: dotnet pack -c Release --output .
       - name: Publish
