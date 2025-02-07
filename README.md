@@ -155,9 +155,12 @@ ft.DropIndex("myIndex");
 
 More examples can be found in the [examples folder](Examples).
 
+## For Contributors
+To contribute NRedisStack, please see :point_right: [Contribution notes](CONTRIBUTING.md)
+
 ------
 
-### Author
+# Author
 
 NRedisStack is developed and maintained by [Redis Inc](https://redis.com). It can be found [here](
 https://github.com/redis/NRedisStack), or downloaded from [NuGet](https://www.nuget.org/packages/NRedisStack).
