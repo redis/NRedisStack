@@ -25,7 +25,7 @@ public class StringSnippets
         //REMOVE_START
         // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
         SkipIfTargetConnectionDoesNotExist(EndpointsFixture.Env.Standalone);
-        var db_ = GetCleanDatabase(EndpointsFixture.Env.Standalone);
+        var _ = GetCleanDatabase(EndpointsFixture.Env.Standalone);
         //REMOVE_END
         var muxer = ConnectionMultiplexer.Connect("localhost:6379");
         var db = muxer.GetDatabase();

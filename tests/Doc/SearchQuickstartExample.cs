@@ -27,7 +27,7 @@ public class SearchQuickstartExample
         //REMOVE_START
         // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
         SkipIfTargetConnectionDoesNotExist(EndpointsFixture.Env.Standalone);
-        var db_ = GetCleanDatabase(EndpointsFixture.Env.Standalone);
+        var _ = GetCleanDatabase(EndpointsFixture.Env.Standalone);
         //REMOVE_END
         // STEP_START connect
         var muxer = ConnectionMultiplexer.Connect("localhost:6379");
