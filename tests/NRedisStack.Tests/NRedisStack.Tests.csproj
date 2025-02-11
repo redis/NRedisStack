@@ -27,11 +27,11 @@
     </PackageReference>
     <PackageReference Include="NetTopologySuite" Version="2.5.0" />
     <PackageReference Include="Validation" Version="2.6.68" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2" />
     <PackageReference Include="StackExchange.Redis" Version="2.8.24" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.assert" Version="2.9.3" />
-    <PackageReference Include="BouncyCastle.Cryptography" Version="2.5.0" />
+    <PackageReference Include="BouncyCastle.Cryptography" Version="2.5.1" />
     <PackageReference Include="Microsoft.Azure.StackExchangeRedis" Version="3.1.0" />
     <PackageReference Include="Xunit.SkippableFact" Version="1.5.23" />
   </ItemGroup>
