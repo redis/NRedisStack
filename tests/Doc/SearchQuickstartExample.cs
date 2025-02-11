@@ -11,16 +11,27 @@ using StackExchange.Redis;
 namespace Doc;
 [Collection("DocsTests")]
 // REMOVE_END
-public class SearchQuickstartExample : AbstractNRedisStackTest, IDisposable
+public class SearchQuickstartExample
+// REMOVE_START
+: AbstractNRedisStackTest, IDisposable
+// REMOVE_END
 {
+    // REMOVE_START
+
     public SearchQuickstartExample(EndpointsFixture fixture) : base(fixture) { }
 
-    [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
-    public void run(string endpointId)
+    [SkippableFact]
+    // REMOVE_END
+    public void run()
     {
+        //REMOVE_START
+        // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
+        SkipIfTargetConnectionDoesNotExist(EndpointsFixture.Env.Standalone);
+        var db_ = GetCleanDatabase(EndpointsFixture.Env.Standalone);
+        //REMOVE_END
         // STEP_START connect
-        var db = GetCleanDatabase(endpointId);
+        var muxer = ConnectionMultiplexer.Connect("localhost:6379");
+        var db = muxer.GetDatabase();
         var ft = db.FT();
         var json = db.JSON();
         // STEP_END

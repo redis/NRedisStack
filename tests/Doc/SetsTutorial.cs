@@ -13,15 +13,26 @@ namespace Doc;
 //REMOVE_END
 
 // HIDE_START
-public class SetsExample : AbstractNRedisStackTest, IDisposable
+public class SetsExample 
+// REMOVE_START
+: AbstractNRedisStackTest, IDisposable
+// REMOVE_END
 {
+    // REMOVE_START
+
     public SetsExample(EndpointsFixture fixture) : base(fixture) { }
 
-    [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
-    public void run(string endpointId)
+    [SkippableFact]
+    // REMOVE_END
+    public void run()
     {
-        var db = GetCleanDatabase(endpointId);
+        //REMOVE_START
+        // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
+        SkipIfTargetConnectionDoesNotExist(EndpointsFixture.Env.Standalone);
+        var db_ = GetCleanDatabase(EndpointsFixture.Env.Standalone);
+        //REMOVE_END
+        var muxer = ConnectionMultiplexer.Connect("localhost:6379");
+        var db = muxer.GetDatabase();
         //REMOVE_START
         // Clear any keys here before using them in tests.
         bool delRes = db.KeyDelete("bikes:racing:france");

@@ -13,15 +13,26 @@ namespace Doc;
 // REMOVE_END
 
 // HIDE_START
-public class StreamTutorial : AbstractNRedisStackTest, IDisposable
+public class StreamTutorial 
+// REMOVE_START
+: AbstractNRedisStackTest, IDisposable
+// REMOVE_END
 {
+    // REMOVE_START
+
     public StreamTutorial(EndpointsFixture fixture) : base(fixture) { }
 
-    [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
-    public void run(string endpointId)
+    [SkippableFact]
+    // REMOVE_END
+    public void run()
     {
-        var db = GetCleanDatabase(endpointId);
+        //REMOVE_START
+        // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
+        SkipIfTargetConnectionDoesNotExist(EndpointsFixture.Env.Standalone);
+        var db_ = GetCleanDatabase(EndpointsFixture.Env.Standalone);
+        //REMOVE_END
+        var muxer = ConnectionMultiplexer.Connect("localhost:6379");
+        var db = muxer.GetDatabase();
         //REMOVE_START
         // Clear any keys here before using them in tests.
         db.KeyDelete("race:france");
@@ -191,7 +202,7 @@ public class StreamTutorial : AbstractNRedisStackTest, IDisposable
 
         // STEP_START xadd_7
         RedisValue res11 = "";
-        Version version = GetConnection(endpointId).GetServers()[0].Version;
+        Version version = GetConnection("localhost:6379").GetServers()[0].Version;
         if (version.Major >= 7)
         {
             res11 = db.StreamAdd(
