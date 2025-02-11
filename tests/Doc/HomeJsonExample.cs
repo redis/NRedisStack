@@ -17,10 +17,23 @@ namespace Doc;
 
 // HIDE_START
 public class HomeJsonExample
+// REMOVE_START
+: AbstractNRedisStackTest, IDisposable
+// REMOVE_END
 {
+    // REMOVE_START
+    public HomeJsonExample(EndpointsFixture fixture) : base(fixture) { }
 
+    [SkippableFact]
+    // REMOVE_END
     public void run()
     {
+        //REMOVE_START
+        // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
+        SkipIfTargetConnectionDoesNotExist(EndpointsFixture.Env.Standalone);
+        var _ = GetCleanDatabase(EndpointsFixture.Env.Standalone);
+        //REMOVE_END
+
         // STEP_START connect
         var muxer = ConnectionMultiplexer.Connect("localhost:6379");
         var db = muxer.GetDatabase();
