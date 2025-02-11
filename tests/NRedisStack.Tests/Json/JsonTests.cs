@@ -990,7 +990,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         }
         else
         {
-            Assert.True(false, "$..a was not a json array");
+            Assert.Fail("$..a was not a json array");
         }
 
         Assert.True(obj["$.b"]![0]!["a"]!.ToString() == "world");
@@ -1015,7 +1015,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         }
         else
         {
-            Assert.True(false, "$..a was not a json array");
+            Assert.Fail("$..a was not a json array");
         }
 
         Assert.True(obj["$.b"]![0]!["a"]!.ToString() == "world");

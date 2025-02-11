@@ -41,6 +41,7 @@ Each module has a command class with its own commands.
 The supported modules are [Search](https://redis.io/commands/?group=search), [JSON](https://redis.io/commands/?group=json), [TimeSeries](https://redis.io/commands/?group=timeseries), [Bloom Filter](https://redis.io/commands/?group=bf), [Cuckoo Filter](https://redis.io/commands/?group=cf), [T-Digest](https://redis.io/commands/?group=tdigest), [Count-min Sketch](https://redis.io/commands/?group=cms), and [Top-K](https://redis.io/commands/?group=topk).
 
 **Note:** RedisGraph support has been deprecated starting from Redis Stack version 7.2. For more information, please refer to [this blog post](https://redis.com/blog/redisgraph-eol/).
+**IMPORTANT:** NRedisStack will end the support for Graph functionalities with version 0.13.x  
 
 # Usage
 
@@ -87,7 +88,7 @@ TdigestCommands tdigest = db.TDIGEST();
 SearchCommands ft = db.FT();
 JsonCommands json = db.JSON();
 TimeSeriesCommands ts = db.TS();
-GraphCommands graph = db.GRAPH(); // If Redis version is less than 7.2
+GraphCommands graph = db.GRAPH(); // If Redis version is less than 7.2 and NRedisStack version is less than 0.13.x
 ```
 Then, that variable will allow you to call all the commands of that module.
 
@@ -154,9 +155,12 @@ ft.DropIndex("myIndex");
 
 More examples can be found in the [examples folder](Examples).
 
+## For Contributors
+To contribute NRedisStack, please see :point_right: [Contribution notes](CONTRIBUTING.md)
+
 ------
 
-### Author
+# Author
 
 NRedisStack is developed and maintained by [Redis Inc](https://redis.com). It can be found [here](
 https://github.com/redis/NRedisStack), or downloaded from [NuGet](https://www.nuget.org/packages/NRedisStack).

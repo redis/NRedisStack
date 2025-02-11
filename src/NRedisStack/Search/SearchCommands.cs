@@ -51,12 +51,14 @@ namespace NRedisStack
         }
 
         /// <inheritdoc/>
+        [Obsolete("Starting from Redis 8.0, use db.ConfigGet instead")]
         public Dictionary<string, string> ConfigGet(string option)
         {
             return _db.Execute(SearchCommandBuilder.ConfigGet(option)).ToConfigDictionary();
         }
 
         /// <inheritdoc/>
+        [Obsolete("Starting from Redis 8.0, use db.ConfigSet instead")]
         public bool ConfigSet(string option, string value)
         {
             return _db.Execute(SearchCommandBuilder.ConfigSet(option, value)).OKtoBoolean();

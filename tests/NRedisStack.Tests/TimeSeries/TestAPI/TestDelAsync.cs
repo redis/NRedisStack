@@ -43,7 +43,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
             // check that the operation deleted the timestamps
             IReadOnlyList<TimeSeriesTuple> res = await ts.RangeAsync(key, from, to);
-            Assert.Equal(0, res.Count);
+            Assert.Empty(res);
             Assert.NotNull(await ts.GetAsync(key));
         }
     }

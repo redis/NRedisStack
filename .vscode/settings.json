@@ -1,5 +1,6 @@
 {
     "dotnet-test-explorer.testArguments": "/p:CollectCoverage=true /p:CoverletOutputFormat=lcov /p:CoverletOutput=./lcov.info",
     "dotnet-test-explorer.testProjectPath": "**/*NRedisStack.Tests.csproj",
-    "dotnet.defaultSolution": "NRedisStack.sln"
+    "dotnet.defaultSolution": "NRedisStack.sln",
+    "dotnet.unitTests.runSettingsPath": ".vscode/.runsettings"
 }

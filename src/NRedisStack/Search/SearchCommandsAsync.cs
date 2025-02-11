@@ -83,12 +83,14 @@ namespace NRedisStack
         }
 
         /// <inheritdoc/>
+        [Obsolete("Starting from Redis 8.0, use db.ConfigGetAsync instead")]
         public async Task<Dictionary<string, string>> ConfigGetAsync(string option)
         {
             return (await _db.ExecuteAsync(SearchCommandBuilder.ConfigGet(option))).ToConfigDictionary();
         }
 
         /// <inheritdoc/>
+        [Obsolete("Starting from Redis 8.0, use db.ConfigSetAsync instead")]
         public async Task<bool> ConfigSetAsync(string option, string value)
         {
             return (await _db.ExecuteAsync(SearchCommandBuilder.ConfigSet(option, value))).OKtoBoolean();

@@ -225,7 +225,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
             selectedLabels: new List<string> { "location" });
 
         // Assert the response
-        Assert.Equal(1, response.Count);
+        Assert.Single(response);
         Assert.Equal("temp:JLM", response[0].key);
     }
 
