@@ -14,7 +14,7 @@ namespace Doc;
 // REMOVE_END
 
 // HIDE_START
-public class Cms_tutorial 
+public class Cms_tutorial
 // REMOVE_START
 : AbstractNRedisStackTest, IDisposable
 // REMOVE_END

@@ -15,7 +15,7 @@ namespace Doc;
 // REMOVE_END
 
 // HIDE_START
-public class QueryRangeExample 
+public class QueryRangeExample
 // REMOVE_START
 : AbstractNRedisStackTest, IDisposable
 // REMOVE_END

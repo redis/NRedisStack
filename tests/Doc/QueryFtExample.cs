@@ -15,7 +15,7 @@ namespace Doc;
 // REMOVE_END
 
 // HIDE_START
-public class QueryFtExample 
+public class QueryFtExample
 // REMOVE_START
 : AbstractNRedisStackTest, IDisposable
 // REMOVE_END

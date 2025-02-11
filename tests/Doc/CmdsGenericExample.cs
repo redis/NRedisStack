@@ -26,7 +26,7 @@ public class CmdsGenericExample
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
 
     // REMOVE_END
-    public void run()
+    public void run(string endpoint = "standalone")
     {
         //REMOVE_START
         // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection

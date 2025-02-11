@@ -8,7 +8,7 @@ using StackExchange.Redis;
 namespace Doc;
 [Collection("DocsTests")]
 //REMOVE_END
-public class HashExample 
+public class HashExample
 // REMOVE_START
 : AbstractNRedisStackTest, IDisposable
 // REMOVE_END

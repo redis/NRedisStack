@@ -12,7 +12,7 @@ namespace Doc;
 // REMOVE_END
 
 // HIDE_START
-public class Hll_tutorial 
+public class Hll_tutorial
 // REMOVE_START
 : AbstractNRedisStackTest, IDisposable
 // REMOVE_END

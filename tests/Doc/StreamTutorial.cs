@@ -13,7 +13,7 @@ namespace Doc;
 // REMOVE_END
 
 // HIDE_START
-public class StreamTutorial 
+public class StreamTutorial
 // REMOVE_START
 : AbstractNRedisStackTest, IDisposable
 // REMOVE_END

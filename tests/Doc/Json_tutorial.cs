@@ -14,7 +14,7 @@ namespace Doc;
 // REMOVE_END
 
 // HIDE_START
-public class Json_tutorial 
+public class Json_tutorial
 // REMOVE_START
 : AbstractNRedisStackTest, IDisposable
 // REMOVE_END

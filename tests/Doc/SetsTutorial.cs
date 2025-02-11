@@ -13,7 +13,7 @@ namespace Doc;
 //REMOVE_END
 
 // HIDE_START
-public class SetsExample 
+public class SetsExample
 // REMOVE_START
 : AbstractNRedisStackTest, IDisposable
 // REMOVE_END

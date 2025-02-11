@@ -10,7 +10,7 @@ namespace Doc;
 // REMOVE_END
 
 // HIDE_START
-public class CmdsHashExample 
+public class CmdsHashExample
 // REMOVE_START
 : AbstractNRedisStackTest, IDisposable
 // REMOVE_END

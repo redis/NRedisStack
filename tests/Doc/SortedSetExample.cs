@@ -9,7 +9,7 @@ using StackExchange.Redis;
 namespace Doc;
 [Collection("DocsTests")]
 //REMOVE_END
-public class SortedSetExample 
+public class SortedSetExample
 // REMOVE_START
 : AbstractNRedisStackTest, IDisposable
 // REMOVE_END
