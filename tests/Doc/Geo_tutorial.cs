@@ -18,7 +18,6 @@ public class Geo_tutorial
 // REMOVE_END
 {
     // REMOVE_START
-
     public Geo_tutorial(EndpointsFixture fixture) : base(fixture) { }
 
     [SkippableFact]

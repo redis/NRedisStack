@@ -14,7 +14,6 @@ public class HashExample
 // REMOVE_END
 {
     // REMOVE_START
-
     public HashExample(EndpointsFixture fixture) : base(fixture) { }
 
     [SkippableFact]

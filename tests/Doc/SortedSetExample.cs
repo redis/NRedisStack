@@ -15,7 +15,6 @@ public class SortedSetExample
 // REMOVE_END
 {
     // REMOVE_START
-
     public SortedSetExample(EndpointsFixture fixture) : base(fixture) { }
 
     [SkippableFact]

@@ -22,7 +22,6 @@ public class QueryAggExample
 // REMOVE_END
 {
     // REMOVE_START
-
     public QueryAggExample(EndpointsFixture fixture) : base(fixture) { }
 
     [SkippableFact]

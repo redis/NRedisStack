@@ -18,7 +18,6 @@ public class CmdsSortedSet
 // REMOVE_END
 {
     // REMOVE_START
-
     public CmdsSortedSet(EndpointsFixture fixture) : base(fixture) { }
 
     [SkippableFact]

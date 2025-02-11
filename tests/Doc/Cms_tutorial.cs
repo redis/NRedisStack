@@ -20,7 +20,6 @@ public class Cms_tutorial
 // REMOVE_END
 {
     // REMOVE_START
-
     public Cms_tutorial(EndpointsFixture fixture) : base(fixture) { }
 
     [SkippableFact]

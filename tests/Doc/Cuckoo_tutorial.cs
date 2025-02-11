@@ -19,7 +19,6 @@ public class Cuckoo_tutorial
 // REMOVE_END
 {
     // REMOVE_START
-
     public Cuckoo_tutorial(EndpointsFixture fixture) : base(fixture) { }
 
     [SkippableFact]

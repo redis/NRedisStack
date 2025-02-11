@@ -21,7 +21,6 @@ public class QueryEmExample
 // REMOVE_END
 {
     // REMOVE_START
-
     public QueryEmExample(EndpointsFixture fixture) : base(fixture) { }
 
     [SkippableFact]

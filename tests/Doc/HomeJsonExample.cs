@@ -22,7 +22,6 @@ public class HomeJsonExample
 // REMOVE_END
 {
     // REMOVE_START
-
     public HomeJsonExample(EndpointsFixture fixture) : base(fixture) { }
 
     [SkippableFact]

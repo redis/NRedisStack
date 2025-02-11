@@ -18,7 +18,6 @@ public class Bitmap_tutorial
 // REMOVE_END
 {
     // REMOVE_START
-
     public Bitmap_tutorial(EndpointsFixture fixture) : base(fixture) { }
 
     [SkippableFact]

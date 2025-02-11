@@ -18,7 +18,6 @@ public class Hll_tutorial
 // REMOVE_END
 {
     // REMOVE_START
-
     public Hll_tutorial(EndpointsFixture fixture) : base(fixture) { }
 
     [SkippableFact]

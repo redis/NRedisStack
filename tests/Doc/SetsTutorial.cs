@@ -19,7 +19,6 @@ public class SetsExample
 // REMOVE_END
 {
     // REMOVE_START
-
     public SetsExample(EndpointsFixture fixture) : base(fixture) { }
 
     [SkippableFact]

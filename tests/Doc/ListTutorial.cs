@@ -17,7 +17,6 @@ public class ListExample
 // REMOVE_END
 {
     // REMOVE_START
-
     public ListExample(EndpointsFixture fixture) : base(fixture) { }
 
     [SkippableFact]

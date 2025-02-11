@@ -19,7 +19,6 @@ public class Tdigest_tutorial
 // REMOVE_END
 {
     // REMOVE_START
-
     public Tdigest_tutorial(EndpointsFixture fixture) : base(fixture) { }
 
     [SkippableFact]

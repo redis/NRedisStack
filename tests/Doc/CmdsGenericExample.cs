@@ -18,15 +18,12 @@ public class CmdsGenericExample
 // REMOVE_END
 {
     // REMOVE_START
-
     public CmdsGenericExample(EndpointsFixture fixture) : base(fixture) { }
 
-
     [SkipIfRedis(Comparison.LessThan, "7.0.0")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
-
+    [InlineData] // No parameters passed, but still uses Theory
     // REMOVE_END
-    public void run(string endpoint = "standalone")
+    public void run()
     {
         //REMOVE_START
         // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection

@@ -19,7 +19,6 @@ public class Topk_tutorial
 // REMOVE_END
 {
     // REMOVE_START
-
     public Topk_tutorial(EndpointsFixture fixture) : base(fixture) { }
 
     [SkippableFact]

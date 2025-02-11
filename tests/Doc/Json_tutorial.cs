@@ -20,7 +20,6 @@ public class Json_tutorial
 // REMOVE_END
 {
     // REMOVE_START
-
     public Json_tutorial(EndpointsFixture fixture) : base(fixture) { }
 
     [SkippableFact]

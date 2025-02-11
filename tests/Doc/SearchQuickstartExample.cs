@@ -17,7 +17,6 @@ public class SearchQuickstartExample
 // REMOVE_END
 {
     // REMOVE_START
-
     public SearchQuickstartExample(EndpointsFixture fixture) : base(fixture) { }
 
     [SkippableFact]
