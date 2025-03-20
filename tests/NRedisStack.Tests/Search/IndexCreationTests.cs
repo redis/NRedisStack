@@ -166,4 +166,40 @@ public class IndexCreationTests : AbstractNRedisStackTest, IDisposable
         res = ft.Search("idx", q.AddParam("vec", vec2ToBytes));
         Assert.Equal(2, res.TotalResults);
     }
+
+    [SkipIfRedis(Comparison.LessThan, "7.9.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestCreateInt8VectorField(string endpointId)
+    {
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ft = db.FT(2);
+        var schema = new Schema().AddVectorField("v", Schema.VectorField.VectorAlgo.FLAT, new Dictionary<string, object>()
+        {
+            ["TYPE"] = "INT8",
+            ["DIM"] = "5",
+            ["DISTANCE_METRIC"] = "L2",
+        }).AddVectorField("v2", Schema.VectorField.VectorAlgo.FLAT, new Dictionary<string, object>()
+        {
+            ["TYPE"] = "UINT8",
+            ["DIM"] = "4",
+            ["DISTANCE_METRIC"] = "L2",
+        });
+        Assert.True(ft.Create("idx", new FTCreateParams(), schema));
+
+        byte[] vec1 = new byte[] { 2, 1, 2, 2, 2 };
+        byte[] vec2 = new byte[] { 1, 2, 2, 2 };
+
+        var entries = new HashEntry[] { new HashEntry("v", vec1), new HashEntry("v2", vec2) };
+        db.HashSet("a", entries);
+        db.HashSet("b", entries);
+        db.HashSet("c", entries);
+
+        var q = new Query("*=>[KNN 2 @v $vec]").ReturnFields("__v_score");
+        var res = ft.Search("idx", q.AddParam("vec", vec1));
+        Assert.Equal(2, res.TotalResults);
+
+        q = new Query("*=>[KNN 2 @v2 $vec]").ReturnFields("__v_score");
+        res = ft.Search("idx", q.AddParam("vec", vec2));
+        Assert.Equal(2, res.TotalResults);
+    }
 }
