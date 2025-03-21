@@ -156,4 +156,22 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
         Assert.True(setResponse.Result);
         Assert.Equal("{\"Name\":\"Shachar\",\"Age\":23}", getResponse.Result.ToString());
     }
+
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [Obsolete]
+    public async void Issue401_TestPipelineAsInitialCommand(string endpointId)
+    {
+        IDatabase db = GetCleanDatabase(endpointId);
+
+        Auxiliary.ResetInfoDefaults(); // demonstrate first connection
+        var pipeline = new Pipeline(db);
+
+        var setTask = pipeline.Json.SetAsync("json-key", "$", "{}");
+        _ = pipeline.Db.KeyExpireAsync(key, TimeSpan.FromSeconds(10));
+
+        pipeline.Execute();
+
+        Assert.True(await setTask);
+    }
 }
