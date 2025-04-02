@@ -16,6 +16,7 @@ public class IndexCreationTests : AbstractNRedisStackTest, IDisposable
 
     private static readonly string INDEXMISSING = "INDEXMISSING";
     private static readonly string INDEXEMPTY = "INDEXEMPTY";
+    private static readonly string SORTABLE = "SORTABLE";
 
     [Fact]
     public void TestMissingEmptyFieldCommandArgs()
@@ -202,4 +203,84 @@ public class IndexCreationTests : AbstractNRedisStackTest, IDisposable
         res = ft.Search("idx", q.AddParam("vec", vec2));
         Assert.Equal(2, res.TotalResults);
     }
+
+    [Fact]
+    public void TestMissingSortableFieldCommandArgs()
+    {
+        string idx = "MISSING_EMPTY_SORTABLE_INDEX";
+        Schema sc = new Schema()
+                .AddTextField("text1", 1.0, missingIndex: true, emptyIndex: true, sortable: true)
+                .AddTagField("tag1", missingIndex: true, emptyIndex: true, sortable: true)
+                .AddNumericField("numeric1", missingIndex: true, sortable: true)
+                .AddGeoField("geo1", missingIndex: true, sortable: true);
+
+        var ftCreateParams = FTCreateParams.CreateParams();
+
+        var cmd = SearchCommandBuilder.Create(idx, ftCreateParams, sc);
+        var expectedArgs = new object[] { idx, "SCHEMA",
+                                            "text1","TEXT",INDEXMISSING,INDEXEMPTY,SORTABLE,
+                                            "tag1","TAG", INDEXMISSING,INDEXEMPTY,SORTABLE,
+                                            "numeric1","NUMERIC", INDEXMISSING,SORTABLE,
+                                            "geo1","GEO", INDEXMISSING, SORTABLE};
+        Assert.Equal(expectedArgs, cmd.Args);
+    }
+
+    [SkipIfRedis(Comparison.LessThan, "7.3.240")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestCombiningMissingEmptySortableFields(string endpointId)
+    {
+        string idx = "MISSING_EMPTY_SORTABLE_INDEX";
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ft = db.FT(2);
+        var vectorAttrs = new Dictionary<string, object>()
+        {
+            ["TYPE"] = "FLOAT32",
+            ["DIM"] = "2",
+            ["DISTANCE_METRIC"] = "L2",
+        };
+        Schema sc = new Schema()
+           .AddTextField("text1", 1.0, missingIndex: true, emptyIndex: true, sortable: true)
+           .AddTagField("tag1", missingIndex: true, emptyIndex: true, sortable: true)
+           .AddNumericField("numeric1", missingIndex: true, sortable: true)
+           .AddGeoField("geo1", missingIndex: true,  sortable: true)
+           .AddGeoShapeField("geoshape1", Schema.GeoShapeField.CoordinateSystem.FLAT, missingIndex: true)
+           .AddVectorField("vector1", Schema.VectorField.VectorAlgo.FLAT, vectorAttrs, missingIndex: true);
+
+        var ftCreateParams = FTCreateParams.CreateParams();
+        Assert.True(ft.Create(idx, ftCreateParams, sc));
+
+        var sampleHash = new HashEntry[] { new("field1", "value1"), new("field2", "value2") };
+        db.HashSet("hashWithMissingFields", sampleHash);
+
+        Polygon polygon = new GeometryFactory().CreatePolygon(new Coordinate[] { new Coordinate(1, 1), new Coordinate(10, 10), new Coordinate(100, 100), new Coordinate(1, 1), });
+
+        var hashWithAllFields = new HashEntry[] { new("text1", "value1"), new("tag1", "value2"), new("numeric1", "3.141"), new("geo1", "-0.441,51.458"), new("geoshape1", polygon.ToString()), new("vector1", "aaaaaaaa") };
+        db.HashSet("hashWithAllFields", hashWithAllFields);
+
+        var result = ft.Search(idx, new Query("ismissing(@text1)"));
+        Assert.Equal(1, result.TotalResults);
+        Assert.Equal("hashWithMissingFields", result.Documents[0].Id);
+
+        result = ft.Search(idx, new Query("ismissing(@tag1)"));
+        Assert.Equal(1, result.TotalResults);
+        Assert.Equal("hashWithMissingFields", result.Documents[0].Id);
+
+        result = ft.Search(idx, new Query("ismissing(@numeric1)"));
+        Assert.Equal(1, result.TotalResults);
+        Assert.Equal("hashWithMissingFields", result.Documents[0].Id);
+
+        result = ft.Search(idx, new Query("ismissing(@geo1)"));
+        Assert.Equal(1, result.TotalResults);
+        Assert.Equal("hashWithMissingFields", result.Documents[0].Id);
+
+        result = ft.Search(idx, new Query("ismissing(@geoshape1)"));
+        Assert.Equal(1, result.TotalResults);
+        Assert.Equal("hashWithMissingFields", result.Documents[0].Id);
+
+        result = ft.Search(idx, new Query("ismissing(@vector1)"));
+        Assert.Equal(1, result.TotalResults);
+        Assert.Equal("hashWithMissingFields", result.Documents[0].Id);
+    }
+
+
 }
