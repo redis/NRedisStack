@@ -242,7 +242,7 @@ public class IndexCreationTests : AbstractNRedisStackTest, IDisposable
            .AddTextField("text1", 1.0, missingIndex: true, emptyIndex: true, sortable: true)
            .AddTagField("tag1", missingIndex: true, emptyIndex: true, sortable: true)
            .AddNumericField("numeric1", missingIndex: true, sortable: true)
-           .AddGeoField("geo1", missingIndex: true,  sortable: true)
+           .AddGeoField("geo1", missingIndex: true, sortable: true)
            .AddGeoShapeField("geoshape1", Schema.GeoShapeField.CoordinateSystem.FLAT, missingIndex: true)
            .AddVectorField("vector1", Schema.VectorField.VectorAlgo.FLAT, vectorAttrs, missingIndex: true);
 
