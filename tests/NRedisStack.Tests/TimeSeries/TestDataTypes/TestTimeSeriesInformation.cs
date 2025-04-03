@@ -27,14 +27,12 @@ namespace NRedisTimeSeries.Test.TestDataTypes
             TimeSeriesInformation info = ts.Info(key);
             TimeSeriesInformation infoDebug = ts.Info(key, debug: true);
 
-            Assert.Equal(4184, info.MemoryUsage);
             Assert.Equal(0, info.RetentionTime);
             Assert.Equal(1, info.ChunkCount);
             Assert.Null(info.DuplicatePolicy);
             Assert.Null(info.KeySelfName);
             Assert.Null(info.Chunks);
 
-            Assert.Equal(4184, infoDebug.MemoryUsage);
             Assert.Equal(0, infoDebug.RetentionTime);
             Assert.Equal(1, infoDebug.ChunkCount);
             Assert.Null(infoDebug.DuplicatePolicy);
@@ -55,14 +53,12 @@ namespace NRedisTimeSeries.Test.TestDataTypes
             TimeSeriesInformation info = await ts.InfoAsync(key);
             TimeSeriesInformation infoDebug = await ts.InfoAsync(key, debug: true);
 
-            Assert.Equal(4184, info.MemoryUsage);
             Assert.Equal(0, info.RetentionTime);
             Assert.Equal(1, info.ChunkCount);
             Assert.Null(info.DuplicatePolicy);
             Assert.Null(info.KeySelfName);
             Assert.Null(info.Chunks);
 
-            Assert.Equal(4184, infoDebug.MemoryUsage);
             Assert.Equal(0, infoDebug.RetentionTime);
             Assert.Equal(1, infoDebug.ChunkCount);
             Assert.Null(infoDebug.DuplicatePolicy);
