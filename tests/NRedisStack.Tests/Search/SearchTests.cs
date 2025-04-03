@@ -1384,7 +1384,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         }
         catch (RedisServerException ex)
         {
-            Assert.Contains("no such index", ex.Message);
+            Assert.Contains("no such index", ex.Message, StringComparison.OrdinalIgnoreCase);
         }
         Assert.Equal("100", db.Execute("DBSIZE").ToString());
     }
