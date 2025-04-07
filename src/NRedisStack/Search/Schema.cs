@@ -97,11 +97,10 @@ namespace NRedisStack.Search
                 AddPhonetic(args);
                 AddWeight(args);
                 if (WithSuffixTrie) args.Add(SearchArgs.WITHSUFFIXTRIE);
-                if (Sortable) args.Add(FieldOptions.SORTABLE);
                 if (Unf) args.Add(SearchArgs.UNF);
                 if (MissingIndex) args.Add(FieldOptions.INDEXMISSING);
                 if (EmptyIndex) args.Add(FieldOptions.INDEXEMPTY);
-
+                if (Sortable) args.Add(FieldOptions.SORTABLE);
             }
 
             private void AddWeight(List<object> args)
@@ -165,10 +164,10 @@ namespace NRedisStack.Search
                     args.Add(Separator);
                 }
                 if (CaseSensitive) args.Add(SearchArgs.CASESENSITIVE);
-                if (Sortable) args.Add(FieldOptions.SORTABLE);
                 if (Unf) args.Add(SearchArgs.UNF);
                 if (MissingIndex) args.Add(FieldOptions.INDEXMISSING);
                 if (EmptyIndex) args.Add(FieldOptions.INDEXEMPTY);
+                if (Sortable) args.Add(FieldOptions.SORTABLE);
             }
         }
 
@@ -192,10 +191,9 @@ namespace NRedisStack.Search
             internal override void AddFieldTypeArgs(List<object> args)
             {
                 if (NoIndex) args.Add(SearchArgs.NOINDEX);
-                if (Sortable) args.Add(FieldOptions.SORTABLE);
                 if (MissingIndex) args.Add(FieldOptions.INDEXMISSING);
+                if (Sortable) args.Add(FieldOptions.SORTABLE);
             }
-
         }
 
         public class GeoShapeField : Field
@@ -252,10 +250,9 @@ namespace NRedisStack.Search
             internal override void AddFieldTypeArgs(List<object> args)
             {
                 if (NoIndex) args.Add(SearchArgs.NOINDEX);
-                if (Sortable) args.Add(FieldOptions.SORTABLE);
                 if (MissingIndex) args.Add(FieldOptions.INDEXMISSING);
+                if (Sortable) args.Add(FieldOptions.SORTABLE);
             }
-
         }
 
         public class VectorField : Field
@@ -322,6 +319,10 @@ namespace NRedisStack.Search
         /// <param name="unf">Set this to true to prevent the indexer from sorting on the normalized form.
         /// Normalied form is the field sent to lower case with all diaretics removed</param>
         /// <param name="withSuffixTrie">Keeps a suffix trie with all terms which match the suffix.</param>
+        /// <param name="missingIndex"> search for missing values, that is, documents that do not contain a specific field. 
+        /// Note the difference between a field with an empty value and a document with a missing value. 
+        /// By default, missing values are not indexed.</param>
+        /// <param name="emptyIndex">  allows you to index and search for empty strings. By default, empty strings are not indexed.</param>
         /// <returns>The <see cref="Schema"/> object.</returns>
         public Schema AddTextField(string name, double weight = 1.0, bool sortable = false, bool unf = false, bool noStem = false,
                                    string? phonetic = null, bool noIndex = false, bool withSuffixTrie = false, bool missingIndex = false, bool emptyIndex = false)
@@ -342,6 +343,10 @@ namespace NRedisStack.Search
         /// <param name="unf">Set this to true to prevent the indexer from sorting on the normalized form.
         /// Normalied form is the field sent to lower case with all diaretics removed</param>
         /// <param name="withSuffixTrie">Keeps a suffix trie with all terms which match the suffix.</param>
+        /// <param name="missingIndex"> search for missing values, that is, documents that do not contain a specific field. 
+        /// Note the difference between a field with an empty value and a document with a missing value. 
+        /// By default, missing values are not indexed.</param>
+        /// <param name="emptyIndex">  allows you to index and search for empty strings. By default, empty strings are not indexed.</param>
         /// <returns>The <see cref="Schema"/> object.</returns>
         public Schema AddTextField(FieldName name, double weight = 1.0, bool sortable = false, bool unf = false, bool noStem = false,
                                    string? phonetic = null, bool noIndex = false, bool withSuffixTrie = false, bool missingIndex = false, bool emptyIndex = false)
@@ -355,6 +360,9 @@ namespace NRedisStack.Search
         /// </summary>
         /// <param name="name">The field's name.</param>
         /// <param name="system">The coordinate system to use.</param>
+        /// <param name="missingIndex"> search for missing values, that is, documents that do not contain a specific field. 
+        /// Note the difference between a field with an empty value and a document with a missing value. 
+        /// By default, missing values are not indexed.</param>
         /// <returns>The <see cref="Schema"/> object.</returns>
         public Schema AddGeoShapeField(string name, CoordinateSystem system, bool missingIndex = false)
         {
@@ -367,6 +375,9 @@ namespace NRedisStack.Search
         /// </summary>
         /// <param name="name">The field's name.</param>
         /// <param name="system">The coordinate system to use.</param>
+        /// <param name="missingIndex"> search for missing values, that is, documents that do not contain a specific field. 
+        /// Note the difference between a field with an empty value and a document with a missing value. 
+        /// By default, missing values are not indexed.</param>
         /// <returns>The <see cref="Schema"/> object.</returns>
         public Schema AddGeoShapeField(FieldName name, CoordinateSystem system, bool missingIndex = false)
         {
@@ -380,6 +391,9 @@ namespace NRedisStack.Search
         /// <param name="name">The field's name.</param>
         /// <param name="sortable">If true, the text field can be sorted.</param>
         /// <param name="noIndex">Attributes can have the NOINDEX option, which means they will not be indexed.</param>
+        /// <param name="missingIndex"> search for missing values, that is, documents that do not contain a specific field. 
+        /// Note the difference between a field with an empty value and a document with a missing value. 
+        /// By default, missing values are not indexed.</param>
         /// <returns>The <see cref="Schema"/> object.</returns>
         public Schema AddGeoField(FieldName name, bool sortable = false, bool noIndex = false, bool missingIndex = false)
         {
@@ -393,6 +407,9 @@ namespace NRedisStack.Search
         /// <param name="name">The field's name.</param>
         /// <param name="sortable">If true, the text field can be sorted.</param>
         /// <param name="noIndex">Attributes can have the NOINDEX option, which means they will not be indexed.</param>
+        /// <param name="missingIndex"> search for missing values, that is, documents that do not contain a specific field. 
+        /// Note the difference between a field with an empty value and a document with a missing value. 
+        /// By default, missing values are not indexed.</param>
         /// <returns>The <see cref="Schema"/> object.</returns>
         public Schema AddGeoField(string name, bool sortable = false, bool noIndex = false, bool missingIndex = false)
         {
@@ -406,6 +423,9 @@ namespace NRedisStack.Search
         /// <param name="name">The field's name.</param>
         /// <param name="sortable">If true, the text field can be sorted.</param>
         /// <param name="noIndex">Attributes can have the NOINDEX option, which means they will not be indexed.</param>
+        /// <param name="missingIndex"> search for missing values, that is, documents that do not contain a specific field. 
+        /// Note the difference between a field with an empty value and a document with a missing value. 
+        /// By default, missing values are not indexed.</param>
         /// <returns>The <see cref="Schema"/> object.</returns>
         public Schema AddNumericField(FieldName name, bool sortable = false, bool noIndex = false, bool missingIndex = false)
         {
@@ -419,6 +439,9 @@ namespace NRedisStack.Search
         /// <param name="name">The field's name.</param>
         /// <param name="sortable">If true, the text field can be sorted.</param>
         /// <param name="noIndex">Attributes can have the NOINDEX option, which means they will not be indexed.</param>
+        /// <param name="missingIndex"> search for missing values, that is, documents that do not contain a specific field. 
+        /// Note the difference between a field with an empty value and a document with a missing value. 
+        /// By default, missing values are not indexed.</param>
         /// <returns>The <see cref="Schema"/> object.</returns>
         public Schema AddNumericField(string name, bool sortable = false, bool noIndex = false, bool missingIndex = false)
         {
@@ -437,6 +460,10 @@ namespace NRedisStack.Search
         /// <param name="caseSensitive">If true, Keeps the original letter cases of the tags.</param>
         /// Normalied form is the field sent to lower case with all diaretics removed</param>
         /// <param name="withSuffixTrie">Keeps a suffix trie with all terms which match the suffix.</param>
+        /// <param name="missingIndex"> search for missing values, that is, documents that do not contain a specific field. 
+        /// Note the difference between a field with an empty value and a document with a missing value. 
+        /// By default, missing values are not indexed.</param>
+        /// <param name="emptyIndex">  allows you to index and search for empty strings. By default, empty strings are not indexed.</param>
         /// <returns>The <see cref="Schema"/> object.</returns>
         public Schema AddTagField(FieldName name, bool sortable = false, bool unf = false,
                               bool noIndex = false, string separator = ",",
@@ -457,6 +484,10 @@ namespace NRedisStack.Search
         /// <param name="caseSensitive">If true, Keeps the original letter cases of the tags.</param>
         /// Normalied form is the field sent to lower case with all diaretics removed</param>
         /// <param name="withSuffixTrie">Keeps a suffix trie with all terms which match the suffix.</param>
+        /// <param name="missingIndex"> search for missing values, that is, documents that do not contain a specific field. 
+        /// Note the difference between a field with an empty value and a document with a missing value. 
+        /// By default, missing values are not indexed.</param>
+        /// <param name="emptyIndex">  allows you to index and search for empty strings. By default, empty strings are not indexed.</param>
         /// <returns>The <see cref="Schema"/> object.</returns>
         public Schema AddTagField(string name, bool sortable = false, bool unf = false,
                               bool noIndex = false, string separator = ",",
@@ -471,7 +502,10 @@ namespace NRedisStack.Search
         /// </summary>
         /// <param name="name">The field's name.</param>
         /// <param name="algorithm">The vector similarity algorithm to use.</param>
-        /// <param name="attribute">The algorithm attributes for the creation of the vector index.</param>
+        /// <param name="attributes">The algorithm attributes for the creation of the vector index.</param>
+        /// <param name="missingIndex"> search for missing values, that is, documents that do not contain a specific field. 
+        /// Note the difference between a field with an empty value and a document with a missing value. 
+        /// By default, missing values are not indexed.</param>
         /// <returns>The <see cref="Schema"/> object.</returns>
         public Schema AddVectorField(FieldName name, VectorAlgo algorithm, Dictionary<string, object>? attributes = null, bool missingIndex = false)
         {
@@ -484,7 +518,10 @@ namespace NRedisStack.Search
         /// </summary>
         /// <param name="name">The field's name.</param>
         /// <param name="algorithm">The vector similarity algorithm to use.</param>
-        /// <param name="attribute">The algorithm attributes for the creation of the vector index.</param>
+        /// <param name="attributes">The algorithm attributes for the creation of the vector index.</param>
+        /// <param name="missingIndex"> search for missing values, that is, documents that do not contain a specific field. 
+        /// Note the difference between a field with an empty value and a document with a missing value. 
+        /// By default, missing values are not indexed.</param>
         /// <returns>The <see cref="Schema"/> object.</returns>
         public Schema AddVectorField(string name, VectorAlgo algorithm, Dictionary<string, object>? attributes = null, bool missingIndex = false)
         {
