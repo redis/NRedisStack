@@ -3441,7 +3441,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     /// </summary>
     [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
-    public void TestDocumentLoadWithDB_Issue352(string endpointId)
+    public async void TestDocumentLoadWithDB_Issue352(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
@@ -3494,7 +3494,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                 tasks.Add(Task.Run(checker));
             }
             Task checkTask = Task.WhenAll(tasks);
-            Task.WhenAny(checkTask, Task.Delay(1500)).GetAwaiter().GetResult();
+            await Task.WhenAny(checkTask, Task.Delay(1500));
             Assert.True(checkTask.IsCompleted);
             Assert.Null(checkTask.Exception);
             cancelled = true;
