@@ -8,9 +8,6 @@ using NRedisStack.Search.Literals.Enums;
 using System.Runtime.InteropServices;
 using NetTopologySuite.IO;
 using NetTopologySuite.Geometries;
-using System.Linq.Expressions;
-using System.Collections;
-
 
 namespace NRedisStack.Tests.Search;
 
@@ -3456,6 +3453,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         {
             // try until succesfully create the key and set the TTL
             bool ttlRefreshed = false;
+            Int32 completed = 0;
+
             do
             {
                 db.HashSet("student:1111", new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", 18) });
@@ -3474,6 +3473,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                     // doc would show up in search result with no fields 
                     if (docs.Count == 0)
                     {
+                        Interlocked.Increment(ref completed);
                         break;
                     }
                     // if we get a document with no fields then we know that the key 
@@ -3482,6 +3482,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                     else if (docs[0].GetProperties().Count() == 0)
                     {
                         droppedDocument = docs[0];
+                        Interlocked.Increment(ref completed);
                         break;
                     }
                 }
@@ -3495,8 +3496,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             }
             Task checkTask = Task.WhenAll(tasks);
             await Task.WhenAny(checkTask, Task.Delay(1500));
-            Assert.True(checkTask.IsCompleted);
-            Assert.Null(checkTask.Exception);
+            Assert.Equal(3, completed);
             cancelled = true;
         } while (droppedDocument == null && numberOfAttempts++ < 5);
         // we wont do an actual assert here since 
