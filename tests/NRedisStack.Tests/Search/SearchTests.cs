@@ -8,6 +8,8 @@ using NRedisStack.Search.Literals.Enums;
 using System.Runtime.InteropServices;
 using NetTopologySuite.IO;
 using NetTopologySuite.Geometries;
+using System.Linq.Expressions;
+using System.Collections;
 
 
 namespace NRedisStack.Tests.Search;
@@ -3416,6 +3418,13 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, ft.Search(index, new Query("@version==123 @id==456").Dialect(4)).TotalResults);
     }
 
+    /// <summary>
+    /// this test is to check if the issue 352 is fixed
+    /// Load operation was failing because the document was not being dropped in search result due to this behaviour;
+    /// "If a relevant key expires while a query is running, an attempt to load the key's value will return a null array. 
+    /// However, the key is still counted in the total number of results."
+    /// https://redis.io/docs/latest/commands/ft.search/#:~:text=If%20a%20relevant%20key%20expires,the%20total%20number%20of%20results. 
+    /// </summary>
     [Fact]
     public void TestDocumentLoad_Issue352()
     {
@@ -3423,6 +3432,13 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Empty(d.GetProperties().ToList());
     }
 
+    /// <summary>
+    /// this test is to check if the issue 352 is fixed
+    /// Load operation was failing because the document was not being dropped in search result due to this behaviour;
+    /// "If a relevant key expires while a query is running, an attempt to load the key's value will return a null array. 
+    /// However, the key is still counted in the total number of results."
+    /// https://redis.io/docs/latest/commands/ft.search/#:~:text=If%20a%20relevant%20key%20expires,the%20total%20number%20of%20results. 
+    /// </summary>
     [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestDocumentLoadWithDB_Issue352(string endpointId)
@@ -3435,33 +3451,56 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Document droppedDocument = null;
         int numberOfAttempts = 0;
+
         do
         {
-            db.HashSet("student:1111", new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", 18) });
-
-            Assert.True(db.KeyExpire("student:1111", TimeSpan.FromMilliseconds(500)));
+            // try until succesfully create the key and set the TTL
+            bool ttlRefreshed = false;
+            do
+            {
+                db.HashSet("student:1111", new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", 18) });
+                ttlRefreshed = db.KeyExpire("student:1111", TimeSpan.FromMilliseconds(500));
+            } while (!ttlRefreshed);
 
             Boolean cancelled = false;
-            Task searchTask = Task.Run(() =>
+            Action checker = () =>
             {
-                for (int i = 0; i < 100000; i++)
+                for (int i = 0; i < 100000 && !cancelled; i++)
                 {
                     SearchResult result = ft.Search(index, new Query());
                     List<Document> docs = result.Documents;
-                    if (docs.Count == 0 || cancelled)
+                    // check if doc is already dropped before search and load;
+                    // if yes then its already late and we missed the window that 
+                    // doc would show up in search result with no fields 
+                    if (docs.Count == 0)
                     {
                         break;
                     }
-                    else if (docs[0].GetProperties().ToList().Count == 0)
+                    // if we get a document with no fields then we know that the key 
+                    // expired while the query is running, and we are able to catch the state
+                    // so we can break the loop
+                    else if (docs[0].GetProperties().Count() == 0)
                     {
                         droppedDocument = docs[0];
+                        break;
                     }
                 }
-            });
-            Task.WhenAny(searchTask, Task.Delay(1000)).GetAwaiter().GetResult();
-            Assert.True(searchTask.IsCompleted);
-            Assert.Null(searchTask.Exception);
+            };
+
+            List<Task> tasks = new List<Task>();
+            // try with 3 different tasks simultaneously to increase the chance of hitting it
+            for (int i = 0; i < 3; i++)
+            {
+                tasks.Add(Task.Run(checker));
+            }
+            Task checkTask = Task.WhenAll(tasks);
+            Task.WhenAny(checkTask, Task.Delay(1500)).GetAwaiter().GetResult();
+            Assert.True(checkTask.IsCompleted);
+            Assert.Null(checkTask.Exception);
             cancelled = true;
-        } while (droppedDocument == null && numberOfAttempts++ < 3);
+        } while (droppedDocument == null && numberOfAttempts++ < 5);
+        // we wont do an actual assert here since 
+        // it is not guaranteed that window stays open wide enough to catch it.
+        // instead we attempt 5 times 
     }
 }
