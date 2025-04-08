@@ -42,7 +42,7 @@ The supported modules are [Search](https://redis.io/commands/?group=search), [JS
 
 **Note:** RedisGraph support has been deprecated starting from Redis Stack version 7.2. For more information, please refer to [this blog post](https://redis.com/blog/redisgraph-eol/).<br>
 **IMPORTANT:** NRedisStack will end the support for Graph functionalities with version 0.13.x<br>
-**IMPORTANT:** Starting from version **1.0.0-beta1**, by default, the client now overrides the server-side dialect with version 2, automatically appending `DIALECT 2` to commands like **FT.AGGREGATE** and **FT.SEARCH**. Be aware that the query dialect may impact the results returned. If needed, you can revert to a different dialect version by configuring the client accordingly. Please see [release notes](https://github.com/redis/NRedisStack/releases/tag/v1.0.0-beta1).
+**IMPORTANT:** Starting from version **1.0.0-beta1**, by default, the client now overrides the [server-side dialect](https://redis.io/docs/latest/develop/interact/search-and-query/advanced-concepts/dialects/) with version 2, automatically appending `DIALECT 2` to commands like **FT.AGGREGATE** and **FT.SEARCH**. Be aware that the query dialect may impact the results returned. If needed, you can revert to a different dialect version by configuring the client accordingly. Please see [release notes](https://github.com/redis/NRedisStack/releases/tag/v1.0.0-beta1).
 
 # Usage
 
