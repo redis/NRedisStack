@@ -157,4 +157,20 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
         Assert.True(setResponse.Result);
         Assert.Equal("{\"Name\":\"Shachar\",\"Age\":23}", getResponse.Result.ToString());
     }
+
+    [SkipIfRedis(Is.OSSCluster)]
+    public async void Issue401_TestPipelineAsInitialCommand()
+    {
+        IDatabase db = redisFixture.Redis.GetDatabase();
+
+        Auxiliary.ResetInfoDefaults(); // demonstrate first connection
+        var pipeline = new Pipeline(db);
+
+        var setTask = pipeline.Json.SetAsync("json-key", "$", "{}");
+        _ = pipeline.Db.KeyExpireAsync(key, TimeSpan.FromSeconds(10));
+
+        pipeline.Execute();
+
+        Assert.True(await setTask);
+    }
 }
