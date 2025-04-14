@@ -158,12 +158,10 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("{\"Name\":\"Shachar\",\"Age\":23}", getResponse.Result.ToString());
     }
 
-    [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
-    [Obsolete]
-    public async void Issue401_TestPipelineAsInitialCommand(string endpointId)
+    [SkipIfRedis(Is.OSSCluster)]
+    public async void Issue401_TestPipelineAsInitialCommand()
     {
-        IDatabase db = GetCleanDatabase(endpointId);
+        IDatabase db = redisFixture.Redis.GetDatabase();
 
         Auxiliary.ResetInfoDefaults(); // demonstrate first connection
         var pipeline = new Pipeline(db);
