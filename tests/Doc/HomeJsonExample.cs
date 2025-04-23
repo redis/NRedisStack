@@ -218,7 +218,8 @@ public class HomeJsonExample
             new Query("Paul @age:[30 40]")
         );
 
-        foreach(Document doc in findPaulHashResult.Documents) {
+        foreach (Document doc in findPaulHashResult.Documents)
+        {
             Console.WriteLine(
                 $"Name: {doc["name"]}, email: {doc["email"]}, " +
                 $"age: {doc["age"]}, city:{doc["city"]}"
