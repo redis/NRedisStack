@@ -29,13 +29,13 @@ namespace NRedisTimeSeries.Test.TestDataTypes
 
             Assert.Equal(0, info.RetentionTime);
             Assert.Equal(1, info.ChunkCount);
-            Assert.Null(info.DuplicatePolicy);
+            Assert.Equal(TsDuplicatePolicy.BLOCK, info.DuplicatePolicy);
             Assert.Null(info.KeySelfName);
             Assert.Null(info.Chunks);
 
             Assert.Equal(0, infoDebug.RetentionTime);
             Assert.Equal(1, infoDebug.ChunkCount);
-            Assert.Null(infoDebug.DuplicatePolicy);
+            Assert.Equal(TsDuplicatePolicy.BLOCK, infoDebug.DuplicatePolicy);
             Assert.Equal(infoDebug.KeySelfName, key);
             Assert.Single(infoDebug.Chunks!);
         }
@@ -55,13 +55,13 @@ namespace NRedisTimeSeries.Test.TestDataTypes
 
             Assert.Equal(0, info.RetentionTime);
             Assert.Equal(1, info.ChunkCount);
-            Assert.Null(info.DuplicatePolicy);
+            Assert.Equal(TsDuplicatePolicy.BLOCK, info.DuplicatePolicy);
             Assert.Null(info.KeySelfName);
             Assert.Null(info.Chunks);
 
             Assert.Equal(0, infoDebug.RetentionTime);
             Assert.Equal(1, infoDebug.ChunkCount);
-            Assert.Null(infoDebug.DuplicatePolicy);
+            Assert.Equal(TsDuplicatePolicy.BLOCK, infoDebug.DuplicatePolicy);
             Assert.Equal(infoDebug.KeySelfName, key);
             Assert.Single(infoDebug.Chunks!);
         }
