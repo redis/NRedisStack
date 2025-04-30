@@ -13,6 +13,8 @@
 	<Version>1.0.0-beta1</Version>
 	<ReleaseVersion>1.0.0-beta1</ReleaseVersion>
 	<PackageVersion>1.0.0-beta1</PackageVersion>
+	<SignAssembly>True</SignAssembly>
+	<AssemblyOriginatorKeyFile>NRedisStack.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
