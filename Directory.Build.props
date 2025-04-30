@@ -23,6 +23,8 @@
         <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
         <SuppressTfmSupportBuildErrors>true</SuppressTfmSupportBuildErrors>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+        <AssemblyOriginatorKeyFile>../../NRedisStack.snk</AssemblyOriginatorKeyFile>
+        <SignAssembly>True</SignAssembly>
         <NoWarn>$(NoWarn);CS1591</NoWarn>
         <IsWindows>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::get_Windows())))</IsWindows>
     </PropertyGroup>

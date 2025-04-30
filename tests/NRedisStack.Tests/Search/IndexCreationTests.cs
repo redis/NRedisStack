@@ -316,9 +316,9 @@ public class IndexCreationTests(EndpointsFixture endpointsFixture, ITestOutputHe
         IDatabase db = GetCleanDatabase(endpointId);
         // ReSharper disable once RedundantArgumentDefaultValue
         var ft = db.FT(2);
-        var schema = new Schema().AddSvsVanamaVectorField("v", Schema.VectorField.VectorType.FLOAT16, 5,
+        var schema = new Schema().AddSvsVamanaVectorField("v", Schema.VectorField.VectorType.FLOAT16, 5,
                 Schema.VectorField.VectorDistanceMetric.EuclideanDistance)
-            .AddSvsVanamaVectorField("v2", Schema.VectorField.VectorType.FLOAT32, 4,
+            .AddSvsVamanaVectorField("v2", Schema.VectorField.VectorType.FLOAT32, 4,
                 Schema.VectorField.VectorDistanceMetric.EuclideanDistance);
 
         var cmd = SearchCommandBuilder.Create("idx", FTCreateParams.CreateParams(), schema).ToString();
@@ -350,10 +350,10 @@ public class IndexCreationTests(EndpointsFixture endpointsFixture, ITestOutputHe
         IDatabase db = GetCleanDatabase(endpointId);
         // ReSharper disable once RedundantArgumentDefaultValue
         var ft = db.FT(2);
-        var schema = new Schema().AddSvsVanamaVectorField("v", Schema.VectorField.VectorType.FLOAT16, 5,
+        var schema = new Schema().AddSvsVamanaVectorField("v", Schema.VectorField.VectorType.FLOAT16, 5,
                 Schema.VectorField.VectorDistanceMetric.EuclideanDistance,
                 reducedDimensions: 2, compressionAlgorithm: Schema.VectorField.VectorCompressionAlgorithm.LeanVec4x8)
-            .AddSvsVanamaVectorField("v2", Schema.VectorField.VectorType.FLOAT32, 4,
+            .AddSvsVamanaVectorField("v2", Schema.VectorField.VectorType.FLOAT32, 4,
                 Schema.VectorField.VectorDistanceMetric.EuclideanDistance,
                 compressionAlgorithm: Schema.VectorField.VectorCompressionAlgorithm.LVQ4);
 
@@ -387,7 +387,7 @@ public class IndexCreationTests(EndpointsFixture endpointsFixture, ITestOutputHe
                 Schema.VectorField.VectorDistanceMetric.EuclideanDistance, missingIndex: true)
             .AddHnswVectorField("vector2", Schema.VectorField.VectorType.FLOAT64, 3,
                 Schema.VectorField.VectorDistanceMetric.CosineDistance, missingIndex: false)
-            .AddSvsVanamaVectorField("vector3", Schema.VectorField.VectorType.FLOAT16, 4,
+            .AddSvsVamanaVectorField("vector3", Schema.VectorField.VectorType.FLOAT16, 4,
                 Schema.VectorField.VectorDistanceMetric.InnerProduct, missingIndex: true);
 
         var ftCreateParams = FTCreateParams.CreateParams();
@@ -430,7 +430,7 @@ public class IndexCreationTests(EndpointsFixture endpointsFixture, ITestOutputHe
                 Schema.VectorField.VectorDistanceMetric.CosineDistance,
                 maxOutgoingConnections: 10, maxConnectedNeighbors: 20, maxTopCandidates: 30, boundaryFactor: 0.7,
                 missingIndex: false)
-            .AddSvsVanamaVectorField("vector3", Schema.VectorField.VectorType.FLOAT16, 4,
+            .AddSvsVamanaVectorField("vector3", Schema.VectorField.VectorType.FLOAT16, 4,
                 Schema.VectorField.VectorDistanceMetric.InnerProduct,
                 compressionAlgorithm: Schema.VectorField.VectorCompressionAlgorithm.LeanVec4x8,
                 constructionWindowSize: 35, graphMaxDegree: 17, searchWindowSize: 30,
