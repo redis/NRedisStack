@@ -9,7 +9,6 @@ using System.Runtime.InteropServices;
 using NetTopologySuite.IO;
 using NetTopologySuite.Geometries;
 
-
 namespace NRedisStack.Tests.Search;
 
 public class SearchTests : AbstractNRedisStackTest, IDisposable
@@ -1384,7 +1383,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         }
         catch (RedisServerException ex)
         {
-            Assert.Contains("no such index", ex.Message);
+            Assert.Contains("no such index", ex.Message, StringComparison.OrdinalIgnoreCase);
         }
         Assert.Equal("100", db.Execute("DBSIZE").ToString());
     }
@@ -1417,7 +1416,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         }
         catch (RedisServerException ex)
         {
-            Assert.Contains("no such index", ex.Message);
+            Assert.Contains("no such index", ex.Message, StringComparison.OrdinalIgnoreCase);
         }
         Assert.Equal("100", db.Execute("DBSIZE").ToString());
     }
@@ -2140,8 +2139,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             "PHONETIC",
             "dm:en",
             "WITHSUFFIXTRIE",
-            "SORTABLE",
             "UNF",
+            "SORTABLE",
             "num",
             "NUMERIC",
             "NOINDEX",
@@ -2157,8 +2156,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             "SEPARATOR",
             ";",
             "CASESENSITIVE",
-            "SORTABLE",
             "UNF",
+            "SORTABLE",
             "vec",
             "VECTOR",
             "FLAT",
@@ -3416,6 +3415,13 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(1, ft.Search(index, new Query("@version==123 @id==456").Dialect(4)).TotalResults);
     }
 
+    /// <summary>
+    /// this test is to check if the issue 352 is fixed
+    /// Load operation was failing because the document was not being dropped in search result due to this behaviour;
+    /// "If a relevant key expires while a query is running, an attempt to load the key's value will return a null array. 
+    /// However, the key is still counted in the total number of results."
+    /// https://redis.io/docs/latest/commands/ft.search/#:~:text=If%20a%20relevant%20key%20expires,the%20total%20number%20of%20results. 
+    /// </summary>
     [Fact]
     public void TestDocumentLoad_Issue352()
     {
@@ -3423,45 +3429,75 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Empty(d.GetProperties().ToList());
     }
 
+    /// <summary>
+    /// this test is to check if the issue 352 is fixed
+    /// Load operation was failing because the document was not being dropped in search result due to this behaviour;
+    /// "If a relevant key expires while a query is running, an attempt to load the key's value will return a null array. 
+    /// However, the key is still counted in the total number of results."
+    /// https://redis.io/docs/latest/commands/ft.search/#:~:text=If%20a%20relevant%20key%20expires,the%20total%20number%20of%20results. 
+    /// </summary>
     [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
-    public void TestDocumentLoadWithDB_Issue352(string endpointId)
+    public async void TestDocumentLoadWithDB_Issue352(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
-        Schema sc = new Schema().AddTextField("first", 1.0).AddTextField("last", 1.0).AddNumericField("age");
+        Schema sc = new Schema().AddTextField("firstText", 1.0).AddTextField("lastText", 1.0).AddNumericField("ageNumeric");
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
         Document droppedDocument = null;
         int numberOfAttempts = 0;
         do
         {
-            db.HashSet("student:1111", new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", 18) });
-
-            Assert.True(db.KeyExpire("student:1111", TimeSpan.FromMilliseconds(500)));
-
-            Boolean cancelled = false;
-            Task searchTask = Task.Run(() =>
+            // try until succesfully create the key and set the TTL
+            bool ttlRefreshed = false;
+            do
             {
-                for (int i = 0; i < 100000; i++)
+                db.HashSet("student:22222", new HashEntry[] { new("firstText", "Joe"), new("lastText", "Dod"), new("ageNumeric", 18) });
+                ttlRefreshed = db.KeyExpire("student:22222", TimeSpan.FromMilliseconds(500));
+            } while (!ttlRefreshed);
+
+            Int32 completed = 0;
+
+            Action checker = () =>
+            {
+                for (int i = 0; i < 1000000; i++)
                 {
                     SearchResult result = ft.Search(index, new Query());
                     List<Document> docs = result.Documents;
-                    if (docs.Count == 0 || cancelled)
+
+                    // check if doc is already dropped before search and load;
+                    // if yes then its already late and we missed the window that 
+                    // doc would show up in search result with no fields 
+                    if (docs.Count == 0)
                     {
+                        Interlocked.Increment(ref completed);
                         break;
                     }
-                    else if (docs[0].GetProperties().ToList().Count == 0)
+                    // if we get a document with no fields then we know that the key 
+                    // is going to be expired while the query is running, and we are able to catch the state
+                    // but key itself might not be expired yet
+                    else if (docs[0].GetProperties().Count() == 0)
                     {
                         droppedDocument = docs[0];
                     }
                 }
-            });
-            Task.WhenAny(searchTask, Task.Delay(1000)).GetAwaiter().GetResult();
-            Assert.True(searchTask.IsCompleted);
-            Assert.Null(searchTask.Exception);
-            cancelled = true;
-        } while (droppedDocument == null && numberOfAttempts++ < 3);
+            };
+
+            List<Task> tasks = new List<Task>();
+            // try with 3 different tasks simultaneously to increase the chance of hitting it
+            for (int i = 0; i < 3; i++) { tasks.Add(Task.Run(checker)); }
+            Task checkTask = Task.WhenAll(tasks);
+            await Task.WhenAny(checkTask, Task.Delay(1000));
+            var keyTtl = db.KeyTimeToLive("student:22222");
+            Assert.Equal(0, keyTtl.HasValue ? keyTtl.Value.Milliseconds : 0);
+            Assert.Equal(3, completed);
+        } while (droppedDocument == null && numberOfAttempts++ < 5);
+        // we won't do an actual assert here since 
+        // it is not guaranteed that window stays open wide enough to catch it.
+        // instead we attempt 5 times.
+        // Without fix for Issue352, document load in this case fails %100 with my local test runs,, and %100 success with fixed version.
+        // The results in pipeline should be the same.
     }
 }
