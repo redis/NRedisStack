@@ -3,7 +3,6 @@ using NRedisStack;
 using StackExchange.Redis;
 //REMOVE_START
 using NRedisStack.Tests;
-using System.Threading.Tasks;
 
 namespace Doc;
 [Collection("DocsTests")]
@@ -38,8 +37,9 @@ public class PipeTransExample
 
         // STEP_START basic_pipe
         var pipeline = new Pipeline(db);
-        
-        for (int i = 0; i < 5; i++) {
+
+        for (int i = 0; i < 5; i++)
+        {
             pipeline.Db.StringSetAsync($"seat:{i}", $"#{i}");
         }
         pipeline.Execute();
@@ -82,7 +82,7 @@ public class PipeTransExample
         Assert.Equal("2", resp5);
         Assert.Equal("3", resp6);
         // REMOVE_END
-        
+
         // STEP_START trans_watch
         var watchedTrans = new Transaction(db);
 
