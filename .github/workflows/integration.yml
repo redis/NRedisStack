@@ -37,7 +37,7 @@ jobs:
         max-parallel: 15
         fail-fast: false
         matrix:
-          redis-version: [ '8.0-RC2-pre', '${{ needs.redis_version.outputs.CURRENT }}', '7.2.6', '6.2.16']
+          redis-version: [ '8.0.1-pre', '${{ needs.redis_version.outputs.CURRENT }}', '7.2.6', '6.2.16']
           dotnet-version: ['6.0', '7.0', '8.0']
       env:
         ACTIONS_ALLOW_UNSECURE_COMMANDS: true
