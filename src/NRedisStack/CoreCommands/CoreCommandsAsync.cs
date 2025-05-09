@@ -15,12 +15,20 @@ namespace NRedisStack
         /// <remarks><seealso href="https://redis.io/commands/client-setinfo/"/></remarks>
         public static async Task<bool> ClientSetInfoAsync(this IDatabaseAsync db, SetInfoAttr attr, string value)
         {
-            var compareVersions = db.Multiplexer.GetServer(db.Multiplexer.GetEndPoints()[0]).Version.CompareTo(new Version(7, 1, 242));
-            if (compareVersions < 0) // the server does not support the CLIENT SETNAME command
+            IServer server = db.Multiplexer.GetServer(db.Multiplexer.GetEndPoints()[0]);
+            return await server.ClientSetInfoAsync(attr, value);
+        }
+
+        internal static async Task<bool> ClientSetInfoAsync(this IServer server, SetInfoAttr attr, string value)
+        {
+            var compareVersions = server.Version.CompareTo(new Version(7, 1, 242));
+            if (compareVersions < 0) // the server does not support the CLIENT SETINFO command
             {
                 return false;
             }
-            return (await db.ExecuteAsync(CoreCommandBuilder.ClientSetInfo(attr, value))).OKtoBoolean();
+            await server.Multiplexer.GetDatabase().ExecuteAsync(CoreCommandBuilder.ClientSetInfo(attr, value));
+            var cmd = CoreCommandBuilder.ClientSetInfo(attr, value);
+            return (await server.ExecuteAsync(cmd.Command, cmd.Args)).OKtoBoolean();
         }
 
         /// <summary>
