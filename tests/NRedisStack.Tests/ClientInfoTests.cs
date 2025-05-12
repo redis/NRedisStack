@@ -23,6 +23,7 @@ public class ClientInfoTests : AbstractNRedisStackTest, IDisposable
         var db = GetCleanDatabase();
         db.Multiplexer.ConnectionRestored += (sender, e) => reconnected = true;
         Assert.Contains("lib-name=SE.Redis", db.Execute("CLIENT", "INFO").ToString());
+        Auxiliary.ResetInfoDefaults();
         db.FT()._List();
         Assert.Contains("lib-name=NRedisStack", db.Execute("CLIENT", "INFO").ToString());
 
