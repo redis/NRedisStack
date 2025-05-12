@@ -15,7 +15,8 @@ public class ClientInfoTests : AbstractNRedisStackTest, IDisposable
     {
     }
 
-    [Fact]
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [InlineData] // No parameters passed, but still uses Theory
     public void TestMultiplexerInfoOnReconnect()
     {
         bool reconnected = false;
@@ -50,7 +51,8 @@ public class ClientInfoTests : AbstractNRedisStackTest, IDisposable
         Assert.Contains("lib-name=SE.Redis", clientInfo);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [InlineData] // No parameters passed, but still uses Theory
     public void TestRedisClientInfoOnReconnect()
     {
         bool reconnected = false;
@@ -83,7 +85,8 @@ public class ClientInfoTests : AbstractNRedisStackTest, IDisposable
         Assert.Contains("lib-name=NRedisStack", clientInfo);
     }
 
-    [Fact]
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [InlineData] // No parameters passed, but still uses Theory
     public void TestConnectionMultiplexerConnect()
     {
         IDatabase db = ConnectionMultiplexer.Connect(GetEndpoint()).GetDatabase();
@@ -93,7 +96,8 @@ public class ClientInfoTests : AbstractNRedisStackTest, IDisposable
         Assert.Contains("lib-name=NRedisStack", db.Execute("CLIENT", "INFO").ToString());
     }
 
-    [Fact]
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [InlineData] // No parameters passed, but still uses Theory
     public void TestRedisClientConnect()
     {
         RedisClient rc = RedisClient.Connect(GetEndpoint());
@@ -102,7 +106,8 @@ public class ClientInfoTests : AbstractNRedisStackTest, IDisposable
         Assert.Contains("lib-name=NRedisStack", db.Execute("CLIENT", "INFO").ToString());
     }
 
-    [Fact]
+    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [InlineData] // No parameters passed, but still uses Theory
     public void TestRedisClientConnectWithConfigOptions()
     {
         ConfigurationOptions config = new ConfigurationOptions
