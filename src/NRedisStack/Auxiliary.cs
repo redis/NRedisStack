@@ -6,12 +6,12 @@ namespace NRedisStack;
 
 public static class Auxiliary
 {
-    private static string? _libraryName = $"NRedisStack(.NET_v{Environment.Version})";
+    private static string? _libraryName = $"NRedisStack-{GetNRedisStackVersion()}";
     private static bool _setInfo = true;
     public static void ResetInfoDefaults()
     {
         _setInfo = true;
-        _libraryName = $"NRedisStack(.NET_v{Environment.Version})";
+        _libraryName = $"NRedisStack-{GetNRedisStackVersion()}";
     }
     public static List<object> MergeArgs(RedisKey key, params RedisValue[] items)
     {
@@ -126,4 +126,7 @@ public static class Auxiliary
         Version version = typeof(Auxiliary).Assembly.GetName().Version!;
         return $"{version.Major}.{version.Minor}.{version.Build}";
     }
+
+    internal static string GetNRedisStackLibName() => _libraryName!;
+
 }
