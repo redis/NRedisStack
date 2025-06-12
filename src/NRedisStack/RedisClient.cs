@@ -7,7 +7,7 @@ namespace NRedisStack;
 /// Represents a Redis client that can connect to a Redis server 
 /// providing access to <see cref="IRedisDatabase"/> instances as well as the underlying multiplexer.
 /// </summary>
-public class RedisClient: IRedisClient
+public class RedisClient : IRedisClient
 {
     private IConnectionMultiplexer _multiplexer;
 
