@@ -7,11 +7,11 @@ namespace NRedisStack;
 /// Represents a Redis client that can connect to a Redis server 
 /// providing access to <see cref="IRedisDatabase"/> instances as well as the underlying multiplexer.
 /// </summary>
-public class RedisClient
+public class RedisClient: IRedisClient
 {
-    private ConnectionMultiplexer _multiplexer;
+    private IConnectionMultiplexer _multiplexer;
 
-    private RedisClient(ConnectionMultiplexer multiplexer)
+    private RedisClient(IConnectionMultiplexer multiplexer)
     {
         _multiplexer = multiplexer;
     }
@@ -21,7 +21,7 @@ public class RedisClient
     /// </summary>
     /// <param name="configuration">The string configuration to use for this client.</param>
     /// <param name="log">The <see cref="TextWriter"/> to log to.</param>
-    public static async Task<RedisClient> ConnectAsync(string configuration, TextWriter? log = null) =>
+    public static async Task<IRedisClient> ConnectAsync(string configuration, TextWriter? log = null) =>
         await ConnectAsync(ConfigurationOptions.Parse(configuration), log);
 
     /// <summary>
@@ -30,7 +30,7 @@ public class RedisClient
     /// <param name="configuration">The string configuration to use for this client.</param>
     /// <param name="configure">Action to further modify the parsed configuration options.</param>
     /// <param name="log">The <see cref="TextWriter"/> to log to.</param>
-    public static async Task<RedisClient> ConnectAsync(string configuration, Action<ConfigurationOptions> configure, TextWriter? log = null)
+    public static async Task<IRedisClient> ConnectAsync(string configuration, Action<ConfigurationOptions> configure, TextWriter? log = null)
     {
         Action<ConfigurationOptions> config = (ConfigurationOptions config) =>
         {
@@ -46,7 +46,7 @@ public class RedisClient
     /// <param name="configuration">The configuration options to use for this client.</param>
     /// <param name="log">The <see cref="TextWriter"/> to log to.</param>
     /// <remarks>Note: For Sentinel, do <b>not</b> specify a <see cref="ConfigurationOptions.CommandMap"/> - this is handled automatically.</remarks>
-    public static async Task<RedisClient> ConnectAsync(ConfigurationOptions configuration, TextWriter? log = null)
+    public static async Task<IRedisClient> ConnectAsync(ConfigurationOptions configuration, TextWriter? log = null)
     {
         SetNames(configuration);
         return new RedisClient(await ConnectionMultiplexer.ConnectAsync(configuration, log));
@@ -55,9 +55,9 @@ public class RedisClient
     /// <summary>
     /// Creates a new <see cref="RedisClient"/> instance.
     /// </summary>
-    /// <param name="configuration">The string configuration to use for this client.</param>
+    /// <param name="configuration">The string configuration to use for this client. See the StackExchange.Redis configuration documentation(https://stackexchange.github.io/StackExchange.Redis/Configuration) for detailed information.</param>
     /// <param name="log">The <see cref="TextWriter"/> to log to.</param>
-    public static RedisClient Connect(string configuration, TextWriter? log = null) =>
+    public static IRedisClient Connect(string configuration, TextWriter? log = null) =>
          Connect(ConfigurationOptions.Parse(configuration), log);
 
     /// <summary>
@@ -66,7 +66,7 @@ public class RedisClient
     /// <param name="configuration">The string configuration to use for this client.</param>
     /// <param name="configure">Action to further modify the parsed configuration options.</param>
     /// <param name="log">The <see cref="TextWriter"/> to log to.</param>
-    public static RedisClient Connect(string configuration, Action<ConfigurationOptions> configure, TextWriter? log = null)
+    public static IRedisClient Connect(string configuration, Action<ConfigurationOptions> configure, TextWriter? log = null)
     {
         Action<ConfigurationOptions> config = (ConfigurationOptions config) =>
         {
@@ -82,7 +82,7 @@ public class RedisClient
     /// <param name="configuration">The configuration options to use for this client.</param>
     /// <param name="log">The <see cref="TextWriter"/> to log to.</param>
     /// <remarks>Note: For Sentinel, do <b>not</b> specify a <see cref="ConfigurationOptions.CommandMap"/> - this is handled automatically.</remarks>
-    public static RedisClient Connect(ConfigurationOptions configuration, TextWriter? log = null)
+    public static IRedisClient Connect(ConfigurationOptions configuration, TextWriter? log = null)
     {
         SetNames(configuration);
         return new RedisClient(ConnectionMultiplexer.Connect(configuration, log));
@@ -104,7 +104,7 @@ public class RedisClient
     /// Gets the underlying <see cref="ConnectionMultiplexer"/> instance.
     /// </summary>
     /// <returns></returns>
-    public ConnectionMultiplexer GetMultiplexer()
+    public IConnectionMultiplexer GetMultiplexer()
     {
         return _multiplexer;
     }

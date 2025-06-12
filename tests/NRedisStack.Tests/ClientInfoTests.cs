@@ -57,7 +57,7 @@ public class ClientInfoTests : AbstractNRedisStackTest, IDisposable
     {
         bool reconnected = false;
         bool hang = false;
-        RedisClient rc = RedisClient.Connect(GetEndpoint());
+        IRedisClient rc = RedisClient.Connect(GetEndpoint());
         IRedisDatabase db = rc.GetDatabase();
         db.Multiplexer.ConnectionRestored += (sender, e) => reconnected = true;
 
@@ -100,7 +100,7 @@ public class ClientInfoTests : AbstractNRedisStackTest, IDisposable
     [InlineData] // No parameters passed, but still uses Theory
     public void TestRedisClientConnect()
     {
-        RedisClient rc = RedisClient.Connect(GetEndpoint());
+        IRedisClient rc = RedisClient.Connect(GetEndpoint());
         IRedisDatabase db = rc.GetDatabase();
         db.StringSetAsync("key1", "something");
         Assert.Contains("lib-name=NRedisStack", db.Execute("CLIENT", "INFO").ToString());
@@ -116,7 +116,7 @@ public class ClientInfoTests : AbstractNRedisStackTest, IDisposable
             LibraryName = "TestLib",
         };
 
-        RedisClient rc = RedisClient.Connect(config);
+        IRedisClient rc = RedisClient.Connect(config);
         IRedisDatabase db = rc.GetDatabase();
         db.StringSetAsync("key1", "something");
         Assert.Contains("lib-name=TestLib", db.Execute("CLIENT", "INFO").ToString());
