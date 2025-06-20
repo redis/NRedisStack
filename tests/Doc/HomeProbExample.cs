@@ -4,8 +4,6 @@ using StackExchange.Redis;
 
 // REMOVE_START
 using NRedisStack.Tests;
-using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Serialization;
-using Org.BouncyCastle.Crypto.Generators;
 
 namespace Doc;
 
