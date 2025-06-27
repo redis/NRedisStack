@@ -42,6 +42,7 @@ public class CmdsSetExample
         Console.WriteLine(sAddResult2); // >>> False
 
         RedisValue[] sAddResult4 = db.SetMembers("myset");
+        Array.Sort(sAddResult4);
         Console.WriteLine(string.Join(", ", sAddResult4));
         // >>> Hello, World
         // STEP_END
