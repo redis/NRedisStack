@@ -60,6 +60,7 @@ public class CmdsSetExample
         Console.WriteLine(sMembersResult1); // >>> 2
 
         RedisValue[] sMembersResult2 = db.SetMembers("myset");
+        Array.Sort(sMembersResult2);
         Console.WriteLine(string.Join(", ", sMembersResult2));
         // >>> Hello, World
         // STEP_END
