@@ -398,14 +398,23 @@ public class TimeSeriesTutorial
         // time series that use millimeters as the unit. Include all
         // labels in the results.
         var mmFilters = new List<string> { "unit=mm" };
-        var res30 = db.TS().MRange("-", 2, mmFilters, withLabels: true);
+
+        IReadOnlyList<
+            (string, IReadOnlyList<TimeSeriesLabel>, IReadOnlyList<TimeSeriesTuple>)
+        > res30 = db.TS().MRange(
+            "-", 2, mmFilters, withLabels: true
+        );
         Console.WriteLine(res30.Count); // >>> 1
 
         foreach (var (key, labels_result, values) in res30)
         {
-            Console.WriteLine($"{key}: ({string.Join(", ", labels_result.Select(l => $"{l.Key}={l.Value}"))}) {values.Count} data points");
+            Console.WriteLine($"{key}:");
+            Console.WriteLine($"  Labels: ({string.Join(", ", labels_result.Select(l => $"{l.Key}={l.Value}"))})");
+            Console.WriteLine($"  Values: [{string.Join(", ", values.Select(t => $"({t.Time.Value}, {t.Val})"))}]");
         }
-        // >>> rg:4: (location=uk, unit=mm) 3 data points
+        // >>> rg:4:
+        // >>>   Labels:location=uk,unit=mm
+        // >>>   Values: [(1, 23), (2, 21), (3, 19)]
 
         // Retrieve data points from time 1 to time 3 (inclusive) from
         // all time series that use centimeters or millimeters as the unit,
@@ -413,16 +422,23 @@ public class TimeSeriesTutorial
         // in descending order of timestamp.
         var cmMmFilters = new List<string> { "unit=(cm,mm)" };
         var locationLabels = new List<string> { "location" };
-        var res31 = db.TS().MRevRange(1, 3, cmMmFilters, selectLabels: locationLabels);
+        IReadOnlyList<
+            (string, IReadOnlyList<TimeSeriesLabel>, IReadOnlyList<TimeSeriesTuple>)
+        > res31 = db.TS().MRevRange(
+            1, 3, cmMmFilters, selectLabels: locationLabels
+        );
         Console.WriteLine(res31.Count); // >>> 2
 
         foreach (var (key, labels_result, values) in res31)
         {
             var locationLabel = labels_result.FirstOrDefault(l => l.Key == "location");
-            Console.WriteLine($"{key} (location: {locationLabel?.Value}): {values.Count} data points");
+            Console.WriteLine($"{key} (location: {locationLabel?.Value})");
+            Console.WriteLine($"  Values: [{string.Join(", ", values.Select(t => $"({t.Time.Value}, {t.Val})"))}]");
         }
-        // >>> rg:4 (location: uk): 3 data points
-        // >>> rg:2 (location: us): 3 data points
+        // >>> rg:4 (location: uk)
+        // >>>   Values: [(3, 19), (2, 21), (1, 23)]
+        // >>> rg:2 (location: us)
+        // >>>   Values: [(3, 2.3), (2, 2.1), (1, 1.8)]
         // STEP_END
         // REMOVE_START
         Assert.True(res20);
@@ -582,7 +598,9 @@ public class TimeSeriesTutorial
         // The result pairs contain the timestamp and the maximum sample value
         // for the country at that timestamp.
         var countryFilters = new List<string> { "country=(us,uk)" };
-        var res44 = db.TS().MRange(
+        IReadOnlyList<
+            (string, IReadOnlyList<TimeSeriesLabel>, IReadOnlyList<TimeSeriesTuple>)
+        > res44 = db.TS().MRange(
             "-", "+",
             countryFilters,
             groupbyTuple: ("country", TsReduce.Max)
@@ -591,14 +609,19 @@ public class TimeSeriesTutorial
 
         foreach (var (key, labels_result, values) in res44)
         {
-            Console.WriteLine($"{key}: ({string.Join(", ", labels_result.Select(l => $"{l.Key}={l.Value}"))}) {values.Count} data points");
+            Console.WriteLine($"{key}:");
+            Console.WriteLine($"  Values: [{string.Join(", ", values.Select(t => $"({t.Time.Value}, {t.Val})"))}]");
         }
-        // >>> wind:1: (country=uk) 3 data points
-        // >>> wind:3: (country=us) 3 data points
+        // >>> country=uk
+        // >>>   Values: [(1, 18), (2, 21), (3, 24)]
+        // >>> country=us
+        // >>>   Values: [(1, 20), (2, 25), (3, 18)]
 
         // The result pairs contain the timestamp and the average sample value
         // for the country at that timestamp.
-        var res45 = db.TS().MRange(
+        IReadOnlyList<
+            (string, IReadOnlyList<TimeSeriesLabel>, IReadOnlyList<TimeSeriesTuple>)
+        > res45 = db.TS().MRange(
             "-", "+",
             countryFilters,
             groupbyTuple: ("country", TsReduce.Avg)
@@ -607,10 +630,13 @@ public class TimeSeriesTutorial
 
         foreach (var (key, labels_result, values) in res45)
         {
-            Console.WriteLine($"{key}: ({string.Join(", ", labels_result.Select(l => $"{l.Key}={l.Value}"))}) {values.Count} data points");
+            Console.WriteLine($"{key}:");
+            Console.WriteLine($"  Values: [{string.Join(", ", values.Select(t => $"({t.Time.Value}, {t.Val})"))}]");
         }
-        // >>> wind:1: (country=uk) 3 data points
-        // >>> wind:3: (country=us) 3 data points
+        // >>>   country=uk
+        // >>>      Values: [(1, 14), (2, 18), (3, 10)]
+        // >>>   country=us
+        // >>>      Values: [(1, 16), (2, 22), (3, 14)]
         // STEP_END
         // REMOVE_START
         Assert.True(res37);
