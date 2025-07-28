@@ -4,11 +4,15 @@ using StackExchange.Redis;
 
 namespace NRedisStack;
 
+/// <summary>
+/// Class that provides access to some of blocking Redis core commands
+/// </summary>
 public static class CoreCommands
 {
     /// <summary>
     /// Sets information specific to the client or connection.
     /// </summary>
+    /// <param name="db">The <see cref="IDatabase"/> class where this extension method is applied.</param>
     /// <param name="attr">which attribute to set</param>
     /// <param name="value">the attribute value</param>
     /// <returns><see langword="true"/> if the attribute name was successfully set, Error otherwise.</returns>
