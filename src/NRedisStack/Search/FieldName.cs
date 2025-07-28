@@ -36,5 +36,7 @@ namespace NRedisStack.Search
             this.Alias = attribute;
             return this;
         }
+
+        public static implicit operator FieldName(string name) => Of(name);
     }
 }

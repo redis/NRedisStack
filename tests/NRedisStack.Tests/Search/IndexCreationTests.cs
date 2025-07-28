@@ -282,5 +282,64 @@ public class IndexCreationTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("hashWithMissingFields", result.Documents[0].Id);
     }
 
+    [Fact]
+    public void TestIndexingCreation_Default()
+    {
+        Schema sc = new Schema()
+            .AddFlatVectorField("vector1", Schema.VectorField.VectorType.FLOAT32, 2,
+                Schema.VectorField.VectorDistanceMetric.EuclideanDistance, missingIndex: true)
+            .AddHnswVectorField("vector2", Schema.VectorField.VectorType.FLOAT64, 3,
+                Schema.VectorField.VectorDistanceMetric.CosineDistance, missingIndex: false)
+            .AddSvsVanamaVectorField("vector3", Schema.VectorField.VectorType.FLOAT16, 4,
+                Schema.VectorField.VectorDistanceMetric.InnerProduct, missingIndex: true);
 
+        var ftCreateParams = FTCreateParams.CreateParams();
+        var cmd = SearchCommandBuilder.Create("IDX_NAME", ftCreateParams, sc).ToString();
+
+        Assert.Equal("FT.CREATE IDX_NAME SCHEMA vector1 VECTOR FLAT 6 DIM 2 TYPE FLOAT32 DISTANCE_METRIC L2 INDEXMISSING vector2 VECTOR HNSW 6 DIM 3 TYPE FLOAT64 DISTANCE_METRIC COSINE vector3 VECTOR SVS-VAMANA 6 DIM 4 TYPE FLOAT16 DISTANCE_METRIC IP INDEXMISSING", cmd);
+    }
+
+    [Fact]
+    public void TestIndexingCreation_WithAttribs()
+    {
+        Schema sc = new Schema()
+            .AddFlatVectorField("vector1", Schema.VectorField.VectorType.NotSpecified, 0,
+                Schema.VectorField.VectorDistanceMetric.NotSpecified, missingIndex: true, attributes: new Dictionary<string, object>()
+                {
+                    ["TYPE"] = "FUT1", // some values not representable in the old API
+                    ["DIM"] = "FUT2",
+                    ["DISTANCE_METRIC"] = "FUT3",
+                    ["NEW_FIELD"] = "NEW_VALUE",
+                });
+
+        var ftCreateParams = FTCreateParams.CreateParams();
+        var cmd = SearchCommandBuilder.Create("IDX_NAME", ftCreateParams, sc).ToString();
+
+        Assert.Equal("FT.CREATE IDX_NAME SCHEMA vector1 VECTOR FLAT 8 TYPE FUT1 DIM FUT2 DISTANCE_METRIC FUT3 NEW_FIELD NEW_VALUE INDEXMISSING", cmd);
+    }
+
+    [Fact]
+    public void TestIndexingCreation_Custom_Everything()
+    {
+        Schema sc = new Schema()
+            .AddFlatVectorField("vector1", Schema.VectorField.VectorType.FLOAT32, 2,
+                Schema.VectorField.VectorDistanceMetric.EuclideanDistance, missingIndex: true)
+            .AddHnswVectorField("vector2", Schema.VectorField.VectorType.FLOAT64, 3,
+                Schema.VectorField.VectorDistanceMetric.CosineDistance,
+                maxOutgoingConnections: 10, maxConnectedNeighbors: 20, maxTopCandidates: 30, boundaryFactor: 0.7,
+                missingIndex: false)
+            .AddSvsVanamaVectorField("vector3", Schema.VectorField.VectorType.FLOAT16, 4,
+                Schema.VectorField.VectorDistanceMetric.InnerProduct,
+                compressionAlgorithm: Schema.VectorField.VectorCompressionAlgorithm.LeanVec4x8,
+                constructionWindowSize: 35, graphMaxDegree: 17, searchWindowSize: 30, rangeSearchApproximationFactor: 0.5,
+                trainingThreshold: 100, reducedDimensions: 50,
+                missingIndex: true);
+
+        var ftCreateParams = FTCreateParams.CreateParams();
+        var cmd = SearchCommandBuilder.Create("IDX_NAME", ftCreateParams, sc).ToString();
+
+        Assert.Equal("FT.CREATE IDX_NAME SCHEMA vector1 VECTOR FLAT 6 DIM 2 TYPE FLOAT32 DISTANCE_METRIC L2 INDEXMISSING " +
+                    "vector2 VECTOR HNSW 14 DIM 3 TYPE FLOAT64 DISTANCE_METRIC COSINE M 10 EF_CONSTRUCTION 20 EF_RUNTIME 30 EPSILON 0.7 " +
+                    "vector3 VECTOR SVS-VAMANA 20 COMPRESSION LEAN_VEC4x8 DIM 4 TYPE FLOAT16 DISTANCE_METRIC IP CONSTRUCTION_WINDOW_SIZE 35 GRAPH_MAX_DEGREE 17 SEARCH_WINDOW_SIZE 30 EPSILON 0.5 TRAINING_THRESHOLD 100 REDUCE 50 INDEXMISSING", cmd);
+    }
 }
