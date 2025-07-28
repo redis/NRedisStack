@@ -608,7 +608,7 @@ namespace NRedisStack.Search
             /// </summary>
             public int ReducedDimensions { get; set; }
 
-            internal const int DEFAULT_CONSTRUCTION_WINDOW_SIZE = 200,  DEFAULT_GRAPH_MAX_DEGREE = 32,  DEFAULT_SEARCH_WINDOW_SIZE = 10;
+            internal const int DEFAULT_CONSTRUCTION_WINDOW_SIZE = 200, DEFAULT_GRAPH_MAX_DEGREE = 32, DEFAULT_SEARCH_WINDOW_SIZE = 10;
             internal const double DEFAULT_EPSILON = 0.01;
         }
 
