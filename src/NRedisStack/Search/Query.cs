@@ -563,7 +563,7 @@ namespace NRedisStack.Search
         /// <summary>
         /// Result's projection - the fields to return by the query
         /// </summary>
-        /// <param name="field">field a list of TEXT fields in the schemas</param>
+        /// <param name="fields">field a list of TEXT fields in the schemas</param>
         /// <returns>the query object itself</returns>
         public Query ReturnFields(params FieldName[] fields)
         {
@@ -683,10 +683,10 @@ namespace NRedisStack.Search
         /// <summary>
         /// Set the query to use a custom query expander instead of the stemmer
         /// </summary>
-        /// <param name="field the expander field's name"></param>
+        /// <param name="field">the expander field's name</param>
         /// <returns>the query object itself</returns>
 
-        public Query SetExpander(String field)
+        public Query SetExpander(string field)
         {
             _expander = field;
             return this;

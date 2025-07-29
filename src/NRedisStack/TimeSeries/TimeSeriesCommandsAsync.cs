@@ -59,12 +59,15 @@ namespace NRedisStack
         /// <inheritdoc/>
         public async Task<TimeStamp> IncrByAsync(string key, double value, TimeStamp? timestamp = null, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null)
         {
-            return (await _db.ExecuteAsync(TimeSeriesCommandsBuilder.IncrBy(key, value, timestamp, retentionTime,
+            return (await _db.ExecuteAsync(
+#pragma  warning disable CS0612
+                TimeSeriesCommandsBuilder.IncrBy(
+#pragma  warning restore CS0612
+                key, value, timestamp, retentionTime,
                                                                             labels, uncompressed, chunkSizeBytes))).ToTimeStamp();
         }
 
-
-        /// <inheritdoc/>
+        
         [Obsolete("Please use the other method with TsIncrByParams and check related builder TsIncryByParamsBuilder to build parameters.")]
         public async Task<TimeStamp> IncrByAsync(string key, TsIncrByParams parameters) => (await _db.ExecuteAsync(TimeSeriesCommandsBuilder.IncrBy(key, parameters))).ToTimeStamp();
 
@@ -72,11 +75,14 @@ namespace NRedisStack
         /// <inheritdoc/>
         public async Task<TimeStamp> DecrByAsync(string key, double value, TimeStamp? timestamp = null, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null)
         {
-            return (await _db.ExecuteAsync(TimeSeriesCommandsBuilder.DecrBy(key, value, timestamp, retentionTime,
+            return (await _db.ExecuteAsync(
+#pragma  warning disable CS0612
+                TimeSeriesCommandsBuilder.DecrBy(
+#pragma  warning restore CS0612
+                    key, value, timestamp, retentionTime,
                                                                             labels, uncompressed, chunkSizeBytes))).ToTimeStamp();
         }
-
-        /// <inheritdoc/>
+        
         [Obsolete("Please use the other method with TsDecrByParams and check related builder TsDecryByParamsBuilder to build parameters.")]
         public async Task<TimeStamp> DecrByAsync(string key, TsDecrByParams parameters) => (await _db.ExecuteAsync(TimeSeriesCommandsBuilder.DecrBy(key, parameters))).ToTimeStamp();
 

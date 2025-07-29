@@ -167,7 +167,7 @@ namespace NRedisStack
         /// <summary>
         /// Return information and statistics on the index.
         /// </summary>
-        /// <param name="key">The name of the index.</param>
+        /// <param name="index">The name of the index.</param>
         /// <returns>Dictionary of key and value with information about the index</returns>
         /// <remarks><seealso href="https://redis.io/commands/ft.info"/></remarks>
         InfoResult Info(RedisValue index);

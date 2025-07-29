@@ -81,7 +81,7 @@ namespace NRedisStack
 
         public static TimeStamp ToTimeStamp(this RedisResult result)
         {
-            if (result.Type == ResultType.None) return null!;
+            if (result.Resp2Type == ResultType.None) return null!;
             return new TimeStamp((long)result);
         }
 
@@ -508,7 +508,7 @@ namespace NRedisStack
         //     for (int i = 0; i < res.Length; i += 2)
         //     {
         //         var val = res[i + 1];
-        //         if (val.Type != ResultType.MultiBulk)
+        //         if (val.Type != ResultType.Array)
         //         {
         //             info.Add((string)res[i], (RedisValue)val);
         //         }
@@ -587,9 +587,9 @@ namespace NRedisStack
                 return Array.Empty<long?>();
             }
 
-            if (result.Type == ResultType.Integer)
+            if (result.Resp2Type == ResultType.Integer)
             {
-                return new[] { (long?)result };
+                return [(long?)result];
             }
 
             return ((RedisResult[])result!).Select(x => (long?)x).ToArray();
@@ -604,7 +604,7 @@ namespace NRedisStack
 
             var res = (RedisResult[])result!;
             var sets = new List<HashSet<string>>();
-            if (res.All(x => x.Type != ResultType.MultiBulk))
+            if (res.All(x => x.Resp2Type != ResultType.Array))
             {
                 var keys = res.Select(x => x.ToString()!);
                 sets.Add(new HashSet<string>(keys));
@@ -614,7 +614,7 @@ namespace NRedisStack
             foreach (var arr in res)
             {
                 var set = new HashSet<string>();
-                if (arr.Type == ResultType.MultiBulk)
+                if (arr.Resp2Type == ResultType.Array)
                 {
                     var resultArr = (RedisResult[])arr!;
                     foreach (var item in resultArr)
@@ -679,7 +679,7 @@ namespace NRedisStack
                 }
                 else
                 {
-                    dict.Add(arr[0].ToString()!, null);
+                    dict.Add(arr[0].ToString()!, null!);
                 }
             }
             return dict;

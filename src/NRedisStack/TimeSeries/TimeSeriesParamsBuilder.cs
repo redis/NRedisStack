@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using NRedisStack.Literals;
 using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;
@@ -156,8 +157,8 @@ namespace NRedisStack
             return new TsCreateParams(args);
         }
 
-        public TsCreateParamsBuilder AddUncompressed(bool uncompressed) => base.AddUncompressed(uncompressed);
-        public TsCreateParamsBuilder AddDuplicatePolicy(TsDuplicatePolicy duplicatePolicy) => base.AddDuplicatePolicy(duplicatePolicy);
+        public new TsCreateParamsBuilder AddUncompressed(bool uncompressed) => base.AddUncompressed(uncompressed);
+        public new TsCreateParamsBuilder AddDuplicatePolicy(TsDuplicatePolicy duplicatePolicy) => base.AddDuplicatePolicy(duplicatePolicy);
 
     }
 
@@ -174,7 +175,7 @@ namespace NRedisStack
             return new TsAlterParams(args);
         }
 
-        public TsAlterParamsBuilder AddDuplicatePolicy(TsDuplicatePolicy duplicatePolicy) => base.AddDuplicatePolicy(duplicatePolicy);
+        public new TsAlterParamsBuilder AddDuplicatePolicy(TsDuplicatePolicy duplicatePolicy) => base.AddDuplicatePolicy(duplicatePolicy);
     }
 
     public class TsAddParamsBuilder : TsBaseParamsBuilder<TsAddParamsBuilder>
@@ -194,9 +195,9 @@ namespace NRedisStack
             return new TsAddParams(args);
         }
 
-        public TsAddParamsBuilder AddValue(double value) => base.AddValue(value);
-        public TsAddParamsBuilder AddTimestamp(TimeStamp timestamp) => base.AddTimestamp(timestamp);
-        public TsAddParamsBuilder AddUncompressed(bool uncompressed) => base.AddUncompressed(uncompressed);
+        public new TsAddParamsBuilder AddValue(double value) => base.AddValue(value);
+        public new TsAddParamsBuilder AddTimestamp(TimeStamp timestamp) => base.AddTimestamp(timestamp);
+        public new TsAddParamsBuilder AddUncompressed(bool uncompressed) => base.AddUncompressed(uncompressed);
         public TsAddParamsBuilder AddOnDuplicate(TsDuplicatePolicy duplicatePolicy) => base.AddDuplicatePolicy(duplicatePolicy);
     }
 
@@ -216,10 +217,10 @@ namespace NRedisStack
             return new TsIncrByParams(args);
         }
 
-        public TsIncrByParamsBuilder AddValue(double value) => base.AddValue(value);
-        public TsIncrByParamsBuilder AddTimestamp(TimeStamp timestamp) => base.AddTimestamp(timestamp);
-        public TsIncrByParamsBuilder AddUncompressed(bool uncompressed) => base.AddUncompressed(uncompressed);
-        public TsIncrByParamsBuilder AddDuplicatePolicy(TsDuplicatePolicy duplicatePolicy) => base.AddDuplicatePolicy(duplicatePolicy);
+        public new TsIncrByParamsBuilder AddValue(double value) => base.AddValue(value);
+        public new TsIncrByParamsBuilder AddTimestamp(TimeStamp timestamp) => base.AddTimestamp(timestamp);
+        public new TsIncrByParamsBuilder AddUncompressed(bool uncompressed) => base.AddUncompressed(uncompressed);
+        public new TsIncrByParamsBuilder AddDuplicatePolicy(TsDuplicatePolicy duplicatePolicy) => base.AddDuplicatePolicy(duplicatePolicy);
     }
 
     public class TsDecrByParamsBuilder : TsBaseParamsBuilder<TsDecrByParamsBuilder>
@@ -237,9 +238,10 @@ namespace NRedisStack
             args.AddIgnoreValues(ignoreMaxTimeDiff, ignoreMaxValDiff);
             return new TsDecrByParams(args);
         }
-        public TsDecrByParamsBuilder AddValue(double value) => base.AddValue(value);
-        public TsDecrByParamsBuilder AddTimestamp(TimeStamp timestamp) => base.AddTimestamp(timestamp);
-        public TsDecrByParamsBuilder AddUncompressed(bool uncompressed) => base.AddUncompressed(uncompressed);
-        public TsDecrByParamsBuilder AddDuplicatePolicy(TsDuplicatePolicy duplicatePolicy) => base.AddDuplicatePolicy(duplicatePolicy);
+
+        public new TsDecrByParamsBuilder AddValue(double value) => base.AddValue(value);
+        public new TsDecrByParamsBuilder AddTimestamp(TimeStamp timestamp) => base.AddTimestamp(timestamp);
+        public new TsDecrByParamsBuilder AddUncompressed(bool uncompressed) => base.AddUncompressed(uncompressed);
+        public new TsDecrByParamsBuilder AddDuplicatePolicy(TsDuplicatePolicy duplicatePolicy) => base.AddDuplicatePolicy(duplicatePolicy);
     }
 }

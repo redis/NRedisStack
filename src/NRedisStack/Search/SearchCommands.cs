@@ -21,7 +21,7 @@ namespace NRedisStack
         /// <inheritdoc/>
         public AggregationResult Aggregate(string index, AggregationRequest query)
         {
-            setDefaultDialectIfUnset(query);
+            SetDefaultDialectIfUnset(query);
             var result = _db.Execute(SearchCommandBuilder.Aggregate(index, query));
             return result.ToAggregationResult(query);
         }
@@ -117,14 +117,14 @@ namespace NRedisStack
         /// <inheritdoc/>
         public string Explain(string indexName, string query, int? dialect = null)
         {
-            dialect = checkAndGetDefaultDialect(dialect);
+            dialect = CheckAndGetDefaultDialect(dialect);
             return _db.Execute(SearchCommandBuilder.Explain(indexName, query, dialect)).ToString()!;
         }
 
         /// <inheritdoc/>
         public RedisResult[] ExplainCli(string indexName, string query, int? dialect = null)
         {
-            dialect = checkAndGetDefaultDialect(dialect);
+            dialect = CheckAndGetDefaultDialect(dialect);
             return _db.Execute(SearchCommandBuilder.ExplainCli(indexName, query, dialect)).ToArray();
         }
 
@@ -136,7 +136,7 @@ namespace NRedisStack
         [Obsolete("Consider using ProfileOnSearch with Redis CE 8.0 and later")]
         public Tuple<SearchResult, Dictionary<string, RedisResult>> ProfileSearch(string indexName, Query q, bool limited = false)
         {
-            setDefaultDialectIfUnset(q);
+            SetDefaultDialectIfUnset(q);
             return _db.Execute(SearchCommandBuilder.ProfileSearch(indexName, q, limited))
                     .ToProfileSearchResult(q);
         }
@@ -152,7 +152,7 @@ namespace NRedisStack
         [Obsolete("Consider using ProfileOnAggregate with Redis CE 8.0 and later")]
         public Tuple<AggregationResult, Dictionary<string, RedisResult>> ProfileAggregate(string indexName, AggregationRequest query, bool limited = false)
         {
-            setDefaultDialectIfUnset(query);
+            SetDefaultDialectIfUnset(query);
             return _db.Execute(SearchCommandBuilder.ProfileAggregate(indexName, query, limited))
                             .ToProfileAggregateResult(query);
         }
@@ -160,7 +160,7 @@ namespace NRedisStack
         /// <inheritdoc/>
         public Tuple<AggregationResult, ProfilingInformation> ProfileOnAggregate(string indexName, AggregationRequest query, bool limited = false)
         {
-            setDefaultDialectIfUnset(query);
+            SetDefaultDialectIfUnset(query);
             return _db.Execute(SearchCommandBuilder.ProfileAggregate(indexName, query, limited))
                             .ParseProfileAggregateResult(query);
         }
@@ -168,14 +168,14 @@ namespace NRedisStack
         /// <inheritdoc/>
         public SearchResult Search(string indexName, Query q)
         {
-            setDefaultDialectIfUnset(q);
+            SetDefaultDialectIfUnset(q);
             return _db.Execute(SearchCommandBuilder.Search(indexName, q)).ToSearchResult(q);
         }
 
         /// <inheritdoc/>
         public Dictionary<string, Dictionary<string, double>> SpellCheck(string indexName, string query, FTSpellCheckParams? spellCheckParams = null)
         {
-            setDefaultDialectIfUnset(spellCheckParams);
+            SetDefaultDialectIfUnset(spellCheckParams);
             return _db.Execute(SearchCommandBuilder.SpellCheck(indexName, query, spellCheckParams)).ToFtSpellCheckResult();
         }
 

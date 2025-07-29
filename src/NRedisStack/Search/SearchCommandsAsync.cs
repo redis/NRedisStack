@@ -15,7 +15,7 @@ namespace NRedisStack
             SetDefaultDialect(defaultDialect);
         }
 
-        internal void setDefaultDialectIfUnset(IDialectAwareParam param)
+        internal void SetDefaultDialectIfUnset(IDialectAwareParam? param)
         {
             if (param != null && param.Dialect == null && defaultDialect != null)
             {
@@ -23,7 +23,7 @@ namespace NRedisStack
             }
         }
 
-        internal int? checkAndGetDefaultDialect(int? dialect) =>
+        internal int? CheckAndGetDefaultDialect(int? dialect) =>
              (dialect == null && defaultDialect != null) ? defaultDialect : dialect;
 
         public void SetDefaultDialect(int? defaultDialect)
@@ -44,7 +44,7 @@ namespace NRedisStack
         /// <inheritdoc/>
         public async Task<AggregationResult> AggregateAsync(string index, AggregationRequest query)
         {
-            setDefaultDialectIfUnset(query);
+            SetDefaultDialectIfUnset(query);
             var result = await _db.ExecuteAsync(SearchCommandBuilder.Aggregate(index, query));
             if (query.IsWithCursor())
             {
@@ -148,14 +148,14 @@ namespace NRedisStack
         /// <inheritdoc/>
         public async Task<string> ExplainAsync(string indexName, string query, int? dialect = null)
         {
-            dialect = checkAndGetDefaultDialect(dialect);
+            dialect = CheckAndGetDefaultDialect(dialect);
             return (await _db.ExecuteAsync(SearchCommandBuilder.Explain(indexName, query, dialect))).ToString()!;
         }
 
         /// <inheritdoc/>
         public async Task<RedisResult[]> ExplainCliAsync(string indexName, string query, int? dialect = null)
         {
-            dialect = checkAndGetDefaultDialect(dialect);
+            dialect = CheckAndGetDefaultDialect(dialect);
             return (await _db.ExecuteAsync(SearchCommandBuilder.ExplainCli(indexName, query, dialect))).ToArray();
         }
 
@@ -167,7 +167,7 @@ namespace NRedisStack
         [Obsolete("Consider using ProfileOnSearchAsync with Redis CE 8.0 and later")]
         public async Task<Tuple<SearchResult, Dictionary<string, RedisResult>>> ProfileSearchAsync(string indexName, Query q, bool limited = false)
         {
-            setDefaultDialectIfUnset(q);
+            SetDefaultDialectIfUnset(q);
             return (await _db.ExecuteAsync(SearchCommandBuilder.ProfileSearch(indexName, q, limited)))
                             .ToProfileSearchResult(q);
         }
@@ -182,7 +182,7 @@ namespace NRedisStack
         [Obsolete("Consider using ProfileOnSearchAsync with Redis CE 8.0 and later")]
         public async Task<Tuple<AggregationResult, Dictionary<string, RedisResult>>> ProfileAggregateAsync(string indexName, AggregationRequest query, bool limited = false)
         {
-            setDefaultDialectIfUnset(query);
+            SetDefaultDialectIfUnset(query);
             return (await _db.ExecuteAsync(SearchCommandBuilder.ProfileAggregate(indexName, query, limited)))
                             .ToProfileAggregateResult(query);
         }
@@ -196,14 +196,14 @@ namespace NRedisStack
         /// <inheritdoc/>
         public async Task<SearchResult> SearchAsync(string indexName, Query q)
         {
-            setDefaultDialectIfUnset(q);
+            SetDefaultDialectIfUnset(q);
             return (await _db.ExecuteAsync(SearchCommandBuilder.Search(indexName, q))).ToSearchResult(q);
         }
 
         /// <inheritdoc/>
         public async Task<Dictionary<string, Dictionary<string, double>>> SpellCheckAsync(string indexName, string query, FTSpellCheckParams? spellCheckParams = null)
         {
-            setDefaultDialectIfUnset(spellCheckParams);
+            SetDefaultDialectIfUnset(spellCheckParams);
             return (await _db.ExecuteAsync(SearchCommandBuilder.SpellCheck(indexName, query, spellCheckParams))).ToFtSpellCheckResult();
         }
 

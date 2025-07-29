@@ -9,6 +9,7 @@ namespace NRedisStack
         /// <summary>
         /// Sets information specific to the client or connection.
         /// </summary>
+        /// <param name="db">the database to query</param>
         /// <param name="attr">which attribute to set</param>
         /// <param name="value">the attribute value</param>
         /// <returns><see langword="true"/> if the attribute name was successfully set, Error otherwise.</returns>

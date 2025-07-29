@@ -40,17 +40,12 @@ public class JsonCommandsAsync : IJsonCommandsAsync
     {
         RedisResult result = await _db.ExecuteAsync(JsonCommandBuilder.ArrPop(key, path, index));
 
-        if (result.Type == ResultType.MultiBulk)
+        return result.Resp2Type switch
         {
-            return (RedisResult[])result!;
-        }
-
-        if (result.Type == ResultType.BulkString)
-        {
-            return new[] { result };
-        }
-
-        return Array.Empty<RedisResult>();
+            ResultType.Array => (RedisResult[])result!,
+            ResultType.BulkString => new[] { result },
+            _ => []
+        };
     }
 
     public async Task<long?[]> ArrTrimAsync(RedisKey key, string path, long start, long stop) =>
@@ -82,10 +77,10 @@ public class JsonCommandsAsync : IJsonCommandsAsync
         return await _db.ExecuteAsync(JsonCommandBuilder.Get(key, paths, indent, newLine, space));
     }
 
-    public async Task<T?> GetAsync<T>(RedisKey key, string path = "$", JsonSerializerOptions? serializerOptions = default)
+    public async Task<T?> GetAsync<T>(RedisKey key, string path = "$", JsonSerializerOptions? serializerOptions = null)
     {
         var res = await _db.ExecuteAsync(JsonCommandBuilder.Get<T>(key, path));
-        if (res.Type == ResultType.BulkString && !res.IsNull)
+        if (res.Resp2Type == ResultType.BulkString && !res.IsNull)
         {
             var arr = JsonSerializer.Deserialize<JsonArray>(res.ToString()!);
             if (arr?.Count > 0)
@@ -218,12 +213,12 @@ public class JsonCommandsAsync : IJsonCommandsAsync
 
         if (result.IsNull)
         {
-            return Array.Empty<bool?>();
+            return [];
         }
 
-        if (result.Type == ResultType.Integer)
+        if (result.Resp2Type == ResultType.Integer)
         {
-            return new bool?[] { (long)result == 1 };
+            return [(long)result == 1];
         }
 
         return ((RedisResult[])result!).Select(x => (bool?)((long)x == 1)).ToArray();
@@ -233,12 +228,12 @@ public class JsonCommandsAsync : IJsonCommandsAsync
     {
         RedisResult result = await _db.ExecuteAsync(JsonCommandBuilder.Type(key, path));
 
-        if (result.Type == ResultType.MultiBulk)
+        if (result.Resp2Type == ResultType.Array)
         {
             return ((RedisResult[])result!).Select(x => (JsonType)Enum.Parse(typeof(JsonType), x.ToString()!.ToUpper())).ToArray();
         }
 
-        if (result.Type == ResultType.BulkString)
+        if (result.Resp2Type == ResultType.BulkString)
         {
             return new[] { (JsonType)Enum.Parse(typeof(JsonType), result.ToString()!.ToUpper()) };
         }

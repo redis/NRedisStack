@@ -18,7 +18,7 @@ namespace NRedisStack
         /// Returns count for an items.
         /// </summary>
         /// <param name="key">Name of sketch where item is counted</param>
-        /// <param name="item">Items to be counted.</param>
+        /// <param name="items">Items to be counted.</param>
         /// <returns>count for responding item.</returns>
         /// <remarks><seealso href="https://redis.io/commands/cf.count"/></remarks>
         [Obsolete("TOPK.COUNT is deprecated as of Bloom 2.4.0")]
