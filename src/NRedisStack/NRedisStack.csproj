@@ -5,6 +5,9 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageIcon>Redis.png</PackageIcon>
+        <Version>1.0.0-beta1</Version>
+        <ReleaseVersion>1.0.0-beta1</ReleaseVersion>
+        <PackageVersion>1.0.0-beta1</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>

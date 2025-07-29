@@ -23,9 +23,6 @@
         <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
         <NoWarn>$(NoWarn);CS1591</NoWarn>
-        <Version>1.0.0-beta1</Version>
-        <ReleaseVersion>1.0.0-beta1</ReleaseVersion>
-        <PackageVersion>1.0.0-beta1</PackageVersion>
         <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
         <IsWindows>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::get_Windows())))</IsWindows>
     </PropertyGroup>
@@ -43,6 +40,6 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" PrivateAssets="All" IncludeAssets="runtime; build; native; contentfiles; analyzers"/>
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
-        <PackageReference Include="Nerdbank.GitVersioning" PrivateAssets="all"/>
+        <!--<PackageReference Include="Nerdbank.GitVersioning" PrivateAssets="all"/>-->
     </ItemGroup>
 </Project>
