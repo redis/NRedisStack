@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks Condition=" '$(IsWindows)' == 'true'">net6.0;net7.0;net8.0;net481</TargetFrameworks>
-        <TargetFrameworks Condition=" '$(IsWindows)' != 'true'">net6.0;net7.0;net8.0</TargetFrameworks>
+        <TargetFrameworks>net6.0;net7.0;net8.0;net481</TargetFrameworks>
         <IsPackable>false</IsPackable>
 
         <!-- don't warn about obsolete APIs, or theory with no data -->
