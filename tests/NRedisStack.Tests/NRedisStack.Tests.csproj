@@ -3,6 +3,7 @@
         <TargetFrameworks Condition=" '$(IsWindows)' == 'true'">net6.0;net7.0;net8.0;net481</TargetFrameworks>
         <TargetFrameworks Condition=" '$(IsWindows)' != 'true'">net6.0;net7.0;net8.0</TargetFrameworks>
         <IsPackable>false</IsPackable>
+        <PreserveCompilationContext>true</PreserveCompilationContext>
     </PropertyGroup>
 
     <ItemGroup>
