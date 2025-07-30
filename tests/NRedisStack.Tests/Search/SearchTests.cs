@@ -1,3 +1,4 @@
+#pragma  warning disable CS0618, CS0612 // allow testing obsolete methods
 using Xunit;
 using StackExchange.Redis;
 using NRedisStack.RedisStackCommands;
@@ -2807,7 +2808,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         var profile = ft.ProfileOnSearch(index, new Query("foo"));
         // Iterators profile={Type=TEXT, Time=0.0, Term=foo, Counter=1, Size=1}
-        var info = (RedisResult[])profile.Item2.Info;
+        var info = (RedisResult[])profile.Item2.Info!;
         int shardsIndex = Array.FindIndex(info, item => item.ToString() == "Shards");
         int coordinatorIndex = Array.FindIndex(info, item => item.ToString() == "Coordinator");
         CustomAssertions.GreaterThan(shardsIndex, -1);
@@ -2829,7 +2830,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                                 new HashEntry("t2", "bar")});
 
         var profile = await ft.ProfileOnSearchAsync(index, new Query("foo"));
-        var info = (RedisResult[])profile.Item2.Info;
+        var info = (RedisResult[])profile.Item2.Info!;
         int shardsIndex = Array.FindIndex(info, item => item.ToString() == "Shards");
         int coordinatorIndex = Array.FindIndex(info, item => item.ToString() == "Coordinator");
         CustomAssertions.GreaterThan(shardsIndex, -1);
@@ -2889,7 +2890,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var q = new Query("hello|world").SetNoContent();
         var profileSearch = ft.ProfileOnSearch(index, q);
         var searchRes = profileSearch.Item1;
-        var searchDet = (RedisResult[])profileSearch.Item2.Info;
+        var searchDet = (RedisResult[])profileSearch.Item2.Info!;
 
         Assert.Equal(2, searchRes.Documents.Count);
         int shardsIndex = Array.FindIndex(searchDet, item => item.ToString() == "Shards");
@@ -2901,7 +2902,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
         var profileAggregate = ft.ProfileOnAggregate(index, aggReq);
         var aggregateRes = profileAggregate.Item1;
-        var aggregateDet = (RedisResult[])profileAggregate.Item2.Info;
+        var aggregateDet = (RedisResult[])profileAggregate.Item2.Info!;
 
         Assert.Equal(2, aggregateRes.TotalResults);
         shardsIndex = Array.FindIndex(aggregateDet, item => item.ToString() == "Shards");
@@ -2925,7 +2926,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var q = new Query("hello|world").SetNoContent();
         var profileSearch = await ft.ProfileOnSearchAsync(index, q);
         var searchRes = profileSearch.Item1;
-        var searchDet = (RedisResult[])profileSearch.Item2.Info;
+        var searchDet = (RedisResult[])profileSearch.Item2.Info!;
 
         Assert.Equal(2, searchRes.Documents.Count);
         int shardsIndex = Array.FindIndex(searchDet, item => item.ToString() == "Shards");
@@ -2937,7 +2938,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
         var profileAggregate = await ft.ProfileOnAggregateAsync(index, aggReq);
         var aggregateRes = profileAggregate.Item1;
-        var aggregateDet = (RedisResult[])profileAggregate.Item2.Info;
+        var aggregateDet = (RedisResult[])profileAggregate.Item2.Info!;
 
         Assert.Equal(2, aggregateRes.TotalResults);
         shardsIndex = Array.FindIndex(aggregateDet, item => item.ToString() == "Shards");
@@ -3021,7 +3022,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var q = new Query("hello|world").SetNoContent();
         var profileSearch = ft.ProfileOnSearch(index, q);
         var searchRes = profileSearch.Item1;
-        var searchDet = (RedisResult[])profileSearch.Item2.Info;
+        var searchDet = (RedisResult[])profileSearch.Item2.Info!;
 
         CustomAssertions.GreaterThan(searchDet.Length, 3);
         Assert.Equal(2, searchRes.Documents.Count);
@@ -3031,7 +3032,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
         var profileAggregate = ft.ProfileOnAggregate(index, aggReq);
         var aggregateRes = profileAggregate.Item1;
-        var aggregateDet = (RedisResult[])profileAggregate.Item2.Info;
+        var aggregateDet = (RedisResult[])profileAggregate.Item2.Info!;
         CustomAssertions.GreaterThan(aggregateDet.Length, 3);
         Assert.Equal(2, aggregateRes.TotalResults);
     }
@@ -3051,7 +3052,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var q = new Query("hello|world").SetNoContent();
         var profileSearch = await ft.ProfileOnSearchAsync(index, q);
         var searchRes = profileSearch.Item1;
-        var searchDet = (RedisResult[])profileSearch.Item2.Info;
+        var searchDet = (RedisResult[])profileSearch.Item2.Info!;
 
         CustomAssertions.GreaterThan(searchDet.Length, 3);
         Assert.Equal(2, searchRes.Documents.Count);
@@ -3060,7 +3061,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
         var profileAggregate = await ft.ProfileOnAggregateAsync(index, aggReq);
         var aggregateRes = profileAggregate.Item1;
-        var aggregateDet = (RedisResult[])profileAggregate.Item2.Info;
+        var aggregateDet = (RedisResult[])profileAggregate.Item2.Info!;
         CustomAssertions.GreaterThan(aggregateDet.Length, 3);
         Assert.Equal(2, aggregateRes.TotalResults);
     }
@@ -3438,7 +3439,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     /// </summary>
     [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
-    public async void TestDocumentLoadWithDB_Issue352(string endpointId)
+    public async Task TestDocumentLoadWithDB_Issue352(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
@@ -3446,7 +3447,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Schema sc = new Schema().AddTextField("firstText", 1.0).AddTextField("lastText", 1.0).AddNumericField("ageNumeric");
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
-        Document droppedDocument = null;
+        Document? droppedDocument = null;
         int numberOfAttempts = 0;
         do
         {

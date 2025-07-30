@@ -3,6 +3,9 @@
         <TargetFrameworks Condition=" '$(IsWindows)' == 'true'">net6.0;net7.0;net8.0;net481</TargetFrameworks>
         <TargetFrameworks Condition=" '$(IsWindows)' != 'true'">net6.0;net7.0;net8.0</TargetFrameworks>
         <IsPackable>false</IsPackable>
+
+        <!-- don't warn about obsolete APIs, or theory with no data -->
+        <Nowarn>$(Nowarn);CS0612;CS0618;xUnit1006</Nowarn>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="GitHubActionsTestLogger">
@@ -11,7 +14,7 @@
         </PackageReference>
         <PackageReference Include="Microsoft.NET.Test.Sdk"/>
         <PackageReference Include="xunit"/>
-        <PackageReference Include="xunit.runner.visualstudio">
+        <PackageReference Include="xunit.runner.visualstudio" Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net481'">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>

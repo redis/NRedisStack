@@ -1,3 +1,4 @@
+#pragma  warning disable CS0618, CS0612, xUnit1006 // allow testing obsolete methods; ignore theory with no args
 using StackExchange.Redis;
 using NRedisStack.DataTypes;
 using NRedisStack.Literals.Enums;

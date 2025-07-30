@@ -17,12 +17,12 @@ public class PipeTransExample
 
     [SkippableFact]
     // REMOVE_END
-    public async Task run()
+    public void run()
     {
         //REMOVE_START
         // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
         SkipIfTargetConnectionDoesNotExist(EndpointsFixture.Env.Standalone);
-        var _ = GetCleanDatabase(EndpointsFixture.Env.Standalone);
+        _ = GetCleanDatabase(EndpointsFixture.Env.Standalone);
         //REMOVE_END
         var muxer = ConnectionMultiplexer.Connect("localhost:6379");
         var db = muxer.GetDatabase();
@@ -40,7 +40,7 @@ public class PipeTransExample
 
         for (int i = 0; i < 5; i++)
         {
-            pipeline.Db.StringSetAsync($"seat:{i}", $"#{i}");
+            _ = pipeline.Db.StringSetAsync($"seat:{i}", $"#{i}");
         }
         pipeline.Execute();
 
@@ -62,9 +62,9 @@ public class PipeTransExample
         // STEP_START basic_trans
         var trans = new Transaction(db);
 
-        trans.Db.StringIncrementAsync("counter:1", 1);
-        trans.Db.StringIncrementAsync("counter:2", 2);
-        trans.Db.StringIncrementAsync("counter:3", 3);
+        _ = trans.Db.StringIncrementAsync("counter:1", 1);
+        _ = trans.Db.StringIncrementAsync("counter:2", 2);
+        _ = trans.Db.StringIncrementAsync("counter:3", 3);
 
         trans.Execute();
 
@@ -88,7 +88,7 @@ public class PipeTransExample
 
         watchedTrans.AddCondition(Condition.KeyNotExists("customer:39182"));
 
-        watchedTrans.Db.HashSetAsync(
+        _ = watchedTrans.Db.HashSetAsync(
             "customer:39182",
             new HashEntry[]{
                 new HashEntry("name", "David"),
@@ -108,11 +108,11 @@ public class PipeTransExample
         Console.WriteLine(resp7); // >>> true
 
         db.HashSet("Details", "SerialNumber", "12345A", When.NotExists);
-        string resp8 = db.HashGet("Details", "SerialNumber");
+        string resp8 = db.HashGet("Details", "SerialNumber")!;
         Console.WriteLine(resp8); // >>> 12345
 
         db.HashSet("Details", "SerialNumber", "12345A");
-        string resp9 = db.HashGet("Details", "SerialNumber");
+        string resp9 = db.HashGet("Details", "SerialNumber")!;
         Console.WriteLine(resp9); // >>> 12345A
         // STEP_END
         // REMOVE_START

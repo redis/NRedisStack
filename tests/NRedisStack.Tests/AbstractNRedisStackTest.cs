@@ -95,10 +95,10 @@ public abstract class AbstractNRedisStackTest : IClassFixture<EndpointsFixture>,
         //Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
     }
 
-    public async Task DisposeAsync()
-    {
-        //var redis = Redis.GetDatabase();
-        // await redis.KeyDeleteAsync(keyNames.Select(i => (RedisKey)i).ToArray());
-        //await redis.ExecuteBroadcastAsync("FLUSHALL");
-    }
+    public Task DisposeAsync() => Task.CompletedTask;
+    /*{
+        var redis = Redis.GetDatabase();
+         await redis.KeyDeleteAsync(keyNames.Select(i => (RedisKey)i).ToArray());
+        await redis.ExecuteBroadcastAsync("FLUSHALL");
+    }*/
 }

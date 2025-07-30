@@ -1,4 +1,5 @@
-﻿using NRedisStack.DataTypes;
+﻿#pragma  warning disable CS0618, CS0612 // allow testing obsolete methods
+using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
 using Xunit;
@@ -98,7 +99,7 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI
 
         [SkipIfRedis(Comparison.LessThan, "7.4.0")]
         [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
-        public async void TestIncrDecryByAndIgnoreValues(string endpointId)
+        public void TestIncrDecryByAndIgnoreValues(string endpointId)
         {
             IDatabase db = GetCleanDatabase(endpointId);
             var ts = db.TS();

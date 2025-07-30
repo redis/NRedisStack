@@ -1,4 +1,5 @@
-﻿using NRedisStack.DataTypes;
+﻿#pragma  warning disable CS0618, CS0612 // allow testing obsolete methods
+using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
 using Xunit;

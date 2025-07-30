@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using System.Net.Http;
@@ -103,10 +104,11 @@ public class FaultInjectorClient
             return JsonSerializer.Deserialize<TriggerActionResponse>(result, new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            });
+            })!;
         }
         catch (HttpRequestException e)
         {
+            Debug.WriteLine(e);
             throw;
         }
     }

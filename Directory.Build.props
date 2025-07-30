@@ -21,6 +21,7 @@
         <CheckEolTargetFramework>false</CheckEolTargetFramework>
         <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
         <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
+        <SuppressTfmSupportBuildErrors>true</SuppressTfmSupportBuildErrors>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
         <NoWarn>$(NoWarn);CS1591</NoWarn>
         <IsWindows>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::get_Windows())))</IsWindows>

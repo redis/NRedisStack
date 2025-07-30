@@ -1,4 +1,5 @@
-﻿using StackExchange.Redis;
+﻿#pragma  warning disable CS0618 // allow testing obsolete methods
+using StackExchange.Redis;
 using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;
 using Xunit;

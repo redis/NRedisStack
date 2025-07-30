@@ -1,3 +1,4 @@
+#pragma  warning disable CS0618, CS0612 // allow testing obsolete methods
 using Xunit;
 using StackExchange.Redis;
 using Azure.Identity;
@@ -40,7 +41,7 @@ namespace NRedisStack.Tests.TokenBasedAuthentication
             catch { }
 
             db.StringSet(key, value);
-            string result = db.StringGet(key);
+            string result = db.StringGet(key)!;
             Assert.Equal(value, result);
 
             var ft = db.FT();

@@ -22,7 +22,10 @@
         </PackageReference>
         <PackageReference Include="NetTopologySuite"/>
         <PackageReference Include="Validation"/>
-        <PackageReference Include="xunit.runner.visualstudio"/>
+        <PackageReference Include="xunit.runner.visualstudio" Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net481'">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
         <PackageReference Include="StackExchange.Redis"/>
         <PackageReference Include="xunit"/>
         <PackageReference Include="xunit.assert"/>

@@ -160,7 +160,7 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
     [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
-    public async void Issue401_TestPipelineAsInitialCommand(string endpointId)
+    public async Task Issue401_TestPipelineAsInitialCommand(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
 
