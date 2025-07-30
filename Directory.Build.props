@@ -11,7 +11,7 @@
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/redis/nRedisStack/</RepositoryUrl>
         <PackageReleaseNotes>https://github.com/redis/NRedisStack/releases</PackageReleaseNotes>
-        <PackageProjectUrl>https://github.com/redis/nRedisStack/</PackageProjectUrl>
+        <PackageProjectUrl>https://redis.io/docs/latest/develop/clients/dotnet/</PackageProjectUrl>
         <Deterministic>false</Deterministic>
         <DebugSymbols>true</DebugSymbols>
         <DebugType>embedded</DebugType>
