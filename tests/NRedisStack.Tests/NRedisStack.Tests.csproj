@@ -27,6 +27,11 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
+        <!-- this is the last version with net6 support -->
+        <PackageReference Include="xunit.runner.visualstudio" Condition="'$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0'" VersionOverride="3.0.2">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
         <PackageReference Include="StackExchange.Redis"/>
         <PackageReference Include="xunit"/>
         <PackageReference Include="xunit.assert"/>
