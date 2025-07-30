@@ -8,7 +8,7 @@ public static class CmsCommandBuilder
 {
     public static SerializedCommand IncrBy(RedisKey key, RedisValue item, long increment)
     {
-        return new SerializedCommand(CMS.INCRBY, key, item, increment);
+        return new(CMS.INCRBY, key, item, increment);
     }
 
     public static SerializedCommand IncrBy(RedisKey key, Tuple<RedisValue, long>[] itemIncrements)
@@ -16,14 +16,14 @@ public static class CmsCommandBuilder
         if (itemIncrements.Length < 1)
             throw new ArgumentOutOfRangeException(nameof(itemIncrements));
 
-        List<object> args = new List<object> { key };
+        List<object> args = [key];
         foreach (var pair in itemIncrements)
         {
             args.Add(pair.Item1);
             args.Add(pair.Item2);
         }
 
-        return new SerializedCommand(CMS.INCRBY, args);
+        return new(CMS.INCRBY, args);
     }
 
     public static SerializedCommand Info(RedisKey key)
@@ -34,12 +34,12 @@ public static class CmsCommandBuilder
 
     public static SerializedCommand InitByDim(RedisKey key, long width, long depth)
     {
-        return new SerializedCommand(CMS.INITBYDIM, key, width, depth);
+        return new(CMS.INITBYDIM, key, width, depth);
     }
 
     public static SerializedCommand InitByProb(RedisKey key, double error, double probability)
     {
-        return new SerializedCommand(CMS.INITBYPROB, key, error, probability);
+        return new(CMS.INITBYPROB, key, error, probability);
     }
 
     public static SerializedCommand Merge(RedisValue destination, long numKeys, RedisValue[] source,
@@ -48,7 +48,7 @@ public static class CmsCommandBuilder
         if (source.Length < 1)
             throw new ArgumentOutOfRangeException(nameof(source));
 
-        List<object> args = new List<object> { destination, numKeys };
+        List<object> args = [destination, numKeys];
 
         foreach (var s in source) args.Add(s);
 
@@ -58,7 +58,7 @@ public static class CmsCommandBuilder
             foreach (var w in weight) args.Add(w);
         }
 
-        return new SerializedCommand(CMS.MERGE, args);
+        return new(CMS.MERGE, args);
     }
 
     public static SerializedCommand Query(RedisKey key, params RedisValue[] items)
@@ -66,9 +66,9 @@ public static class CmsCommandBuilder
         if (items.Length < 1)
             throw new ArgumentOutOfRangeException(nameof(items));
 
-        List<object> args = new List<object> { key };
+        List<object> args = [key];
         foreach (var item in items) args.Add(item);
 
-        return new SerializedCommand(CMS.QUERY, args);
+        return new(CMS.QUERY, args);
     }
 }

@@ -5,23 +5,16 @@ using System.Text.Json.Nodes;
 
 namespace NRedisStack;
 
-public class JsonCommands : JsonCommandsAsync, IJsonCommands
+public class JsonCommands(IDatabase db) : JsonCommandsAsync(db), IJsonCommands
 {
-    private readonly IDatabase _db;
-
-    public JsonCommands(IDatabase db) : base(db)
-    {
-        _db = db;
-    }
-
     /// <inheritdoc/>
     public RedisResult[] Resp(RedisKey key, string? path = null)
     {
-        RedisResult result = _db.Execute(JsonCommandBuilder.Resp(key, path));
+        RedisResult result = db.Execute(JsonCommandBuilder.Resp(key, path));
 
         if (result.IsNull)
         {
-            return Array.Empty<RedisResult>();
+            return [];
         }
 
         return (RedisResult[])result!;
@@ -38,26 +31,26 @@ public class JsonCommands : JsonCommandsAsync, IJsonCommands
     /// <inheritdoc/>
     public bool Set(RedisKey key, RedisValue path, RedisValue json, When when = When.Always)
     {
-        return _db.Execute(JsonCommandBuilder.Set(key, path, json, when)).OKtoBoolean();
+        return db.Execute(JsonCommandBuilder.Set(key, path, json, when)).OKtoBoolean();
     }
 
     /// <inheritdoc/>
     public bool MSet(KeyPathValue[] KeyPathValueList)
     {
-        return _db.Execute(JsonCommandBuilder.MSet(KeyPathValueList)).OKtoBoolean();
+        return db.Execute(JsonCommandBuilder.MSet(KeyPathValueList)).OKtoBoolean();
     }
 
     /// <inheritdoc/>
     public bool Merge(RedisKey key, RedisValue path, RedisValue json)
     {
-        return _db.Execute(JsonCommandBuilder.Merge(key, path, json)).OKtoBoolean();
+        return db.Execute(JsonCommandBuilder.Merge(key, path, json)).OKtoBoolean();
     }
 
     /// <inheritdoc/>
     public bool Merge(RedisKey key, RedisValue path, object obj, JsonSerializerOptions? serializerOptions = default)
     {
         string json = JsonSerializer.Serialize(obj, options: serializerOptions);
-        return _db.Execute(JsonCommandBuilder.Merge(key, path, json)).OKtoBoolean();
+        return db.Execute(JsonCommandBuilder.Merge(key, path, json)).OKtoBoolean();
     }
 
     /// <inheritdoc/>
@@ -97,19 +90,19 @@ public class JsonCommands : JsonCommandsAsync, IJsonCommands
     /// <inheritdoc/>
     public long?[] StrAppend(RedisKey key, string value, string? path = null)
     {
-        return _db.Execute(JsonCommandBuilder.StrAppend(key, value, path)).ToNullableLongArray();
+        return db.Execute(JsonCommandBuilder.StrAppend(key, value, path)).ToNullableLongArray();
     }
 
     /// <inheritdoc/>
     public long?[] StrLen(RedisKey key, string? path = null)
     {
-        return _db.Execute(JsonCommandBuilder.StrLen(key, path)).ToNullableLongArray();
+        return db.Execute(JsonCommandBuilder.StrLen(key, path)).ToNullableLongArray();
     }
 
     /// <inheritdoc/>
     public bool?[] Toggle(RedisKey key, string? path = null)
     {
-        RedisResult result = _db.Execute(JsonCommandBuilder.Toggle(key, path));
+        RedisResult result = db.Execute(JsonCommandBuilder.Toggle(key, path));
 
         if (result.IsNull)
         {
@@ -127,74 +120,74 @@ public class JsonCommands : JsonCommandsAsync, IJsonCommands
     /// <inheritdoc/>
     public JsonType[] Type(RedisKey key, string? path = null)
     {
-        RedisResult result = _db.Execute(JsonCommandBuilder.Type(key, path));
+        RedisResult result = db.Execute(JsonCommandBuilder.Type(key, path));
 
         return result.Resp2Type switch
         {
             ResultType.Array => ((RedisResult[])result!)
-                .Select(x => (JsonType)Enum.Parse(typeof(JsonType), x.ToString()!.ToUpper()))
+                .Select(x => (JsonType)Enum.Parse(typeof(JsonType), x.ToString().ToUpper()))
                 .ToArray(),
-            ResultType.BulkString => new[] { (JsonType)Enum.Parse(typeof(JsonType), result.ToString()!.ToUpper()) },
+            ResultType.BulkString => [(JsonType)Enum.Parse(typeof(JsonType), result.ToString().ToUpper())],
             _ => []
         };
     }
 
     public long DebugMemory(string key, string? path = null)
     {
-        return _db.Execute(JsonCommandBuilder.DebugMemory(key, path)).ToLong();
+        return db.Execute(JsonCommandBuilder.DebugMemory(key, path)).ToLong();
     }
 
     /// <inheritdoc/>
     public long?[] ArrAppend(RedisKey key, string? path = null, params object[] values)
     {
-        return _db.Execute(JsonCommandBuilder.ArrAppend(key, path, values)).ToNullableLongArray();
+        return db.Execute(JsonCommandBuilder.ArrAppend(key, path, values)).ToNullableLongArray();
     }
 
     /// <inheritdoc/>
     public long?[] ArrIndex(RedisKey key, string path, object value, long? start = null, long? stop = null)
     {
-        return _db.Execute(JsonCommandBuilder.ArrIndex(key, path, value, start, stop)).ToNullableLongArray();
+        return db.Execute(JsonCommandBuilder.ArrIndex(key, path, value, start, stop)).ToNullableLongArray();
     }
 
     /// <inheritdoc/>
     public long?[] ArrInsert(RedisKey key, string path, long index, params object[] values)
     {
-        return _db.Execute(JsonCommandBuilder.ArrInsert(key, path, index, values)).ToNullableLongArray();
+        return db.Execute(JsonCommandBuilder.ArrInsert(key, path, index, values)).ToNullableLongArray();
     }
 
     /// <inheritdoc/>
     public long?[] ArrLen(RedisKey key, string? path = null)
     {
-        return _db.Execute(JsonCommandBuilder.ArrLen(key, path)).ToNullableLongArray();
+        return db.Execute(JsonCommandBuilder.ArrLen(key, path)).ToNullableLongArray();
     }
 
     /// <inheritdoc/>
     public RedisResult[] ArrPop(RedisKey key, string? path = null, long? index = null)
     {
-        RedisResult result = _db.Execute(JsonCommandBuilder.ArrPop(key, path, index));
+        RedisResult result = db.Execute(JsonCommandBuilder.ArrPop(key, path, index));
 
         return result.Resp2Type switch
         {
             ResultType.Array => (RedisResult[])result!,
-            ResultType.BulkString => new[] { result },
+            ResultType.BulkString => [result],
             _ => []
         };
     }
 
     /// <inheritdoc/>
     public long?[] ArrTrim(RedisKey key, string path, long start, long stop) =>
-        _db.Execute(JsonCommandBuilder.ArrTrim(key, path, start, stop)).ToNullableLongArray();
+        db.Execute(JsonCommandBuilder.ArrTrim(key, path, start, stop)).ToNullableLongArray();
 
     /// <inheritdoc/>
     public long Clear(RedisKey key, string? path = null)
     {
-        return _db.Execute(JsonCommandBuilder.Clear(key, path)).ToLong();
+        return db.Execute(JsonCommandBuilder.Clear(key, path)).ToLong();
     }
 
     /// <inheritdoc/>
     public long Del(RedisKey key, string? path = null)
     {
-        return _db.Execute(JsonCommandBuilder.Del(key, path)).ToLong();
+        return db.Execute(JsonCommandBuilder.Del(key, path)).ToLong();
     }
 
     /// <inheritdoc/>
@@ -204,23 +197,23 @@ public class JsonCommands : JsonCommandsAsync, IJsonCommands
     public RedisResult Get(RedisKey key, RedisValue? indent = null, RedisValue? newLine = null,
         RedisValue? space = null, RedisValue? path = null)
     {
-        return _db.Execute(JsonCommandBuilder.Get(key, indent, newLine, space, path));
+        return db.Execute(JsonCommandBuilder.Get(key, indent, newLine, space, path));
     }
 
     /// <inheritdoc/>
     public RedisResult Get(RedisKey key, string[] paths, RedisValue? indent = null, RedisValue? newLine = null,
         RedisValue? space = null)
     {
-        return _db.Execute(JsonCommandBuilder.Get(key, paths, indent, newLine, space));
+        return db.Execute(JsonCommandBuilder.Get(key, paths, indent, newLine, space));
     }
 
     /// <inheritdoc/>
     public T? Get<T>(RedisKey key, string path = "$", JsonSerializerOptions? serializerOptions = null)
     {
-        var res = _db.Execute(JsonCommandBuilder.Get<T>(key, path));
+        var res = db.Execute(JsonCommandBuilder.Get<T>(key, path));
         if (res.Resp2Type == ResultType.BulkString && !res.IsNull)
         {
-            var arr = JsonSerializer.Deserialize<JsonArray>(res.ToString()!);
+            var arr = JsonSerializer.Deserialize<JsonArray>(res.ToString());
             if (arr?.Count > 0)
             {
                 return JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(arr[0]), serializerOptions);
@@ -233,32 +226,32 @@ public class JsonCommands : JsonCommandsAsync, IJsonCommands
     /// <inheritdoc/>
     public IEnumerable<T?> GetEnumerable<T>(RedisKey key, string path = "$")
     {
-        RedisResult res = _db.Execute(JsonCommandBuilder.Get<T>(key, path));
-        return JsonSerializer.Deserialize<IEnumerable<T>>(res.ToString()!)!;
+        RedisResult res = db.Execute(JsonCommandBuilder.Get<T>(key, path));
+        return JsonSerializer.Deserialize<IEnumerable<T>>(res.ToString())!;
     }
 
     /// <inheritdoc/>
     public RedisResult[] MGet(RedisKey[] keys, string path)
     {
-        return _db.Execute(JsonCommandBuilder.MGet(keys, path)).ToArray();
+        return db.Execute(JsonCommandBuilder.MGet(keys, path)).ToArray();
     }
 
     /// <inheritdoc/>
     public double?[] NumIncrby(RedisKey key, string path, double value)
     {
-        var res = _db.Execute(JsonCommandBuilder.NumIncrby(key, path, value));
-        return JsonSerializer.Deserialize<double?[]>(res.ToString()!)!;
+        var res = db.Execute(JsonCommandBuilder.NumIncrby(key, path, value));
+        return JsonSerializer.Deserialize<double?[]>(res.ToString())!;
     }
 
     /// <inheritdoc/>
     public IEnumerable<HashSet<string>> ObjKeys(RedisKey key, string? path = null)
     {
-        return _db.Execute(JsonCommandBuilder.ObjKeys(key, path)).ToHashSets();
+        return db.Execute(JsonCommandBuilder.ObjKeys(key, path)).ToHashSets();
     }
 
     /// <inheritdoc/>
     public long?[] ObjLen(RedisKey key, string? path = null)
     {
-        return _db.Execute(JsonCommandBuilder.ObjLen(key, path)).ToNullableLongArray();
+        return db.Execute(JsonCommandBuilder.ObjLen(key, path)).ToNullableLongArray();
     }
 }

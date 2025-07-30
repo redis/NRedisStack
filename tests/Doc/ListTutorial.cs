@@ -21,7 +21,7 @@ public class ListExample
 
     [SkippableFact]
     // REMOVE_END
-    public void run()
+    public void Run()
     {
         //REMOVE_START
         // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
@@ -140,10 +140,10 @@ public class ListExample
         //REMOVE_END
 
         //STEP_START variadic
-        long res19 = db.ListRightPush("bikes:repairs", new RedisValue[] { "bike:1", "bike:2", "bike:3" });
+        long res19 = db.ListRightPush("bikes:repairs", ["bike:1", "bike:2", "bike:3"]);
         Console.WriteLine(res19);   // >>> 3
 
-        long res20 = db.ListLeftPush("bikes:repairs", new RedisValue[] { "bike:important_bike", "bike:very_important_bike" });
+        long res20 = db.ListLeftPush("bikes:repairs", ["bike:important_bike", "bike:very_important_bike"]);
         Console.WriteLine(res20);   // >>> 5
 
         RedisValue[] res21 = db.ListRange("bikes:repairs", 0, -1);
@@ -159,7 +159,7 @@ public class ListExample
         //REMOVE_END
 
         //STEP_START lpop_rpop
-        long res22 = db.ListRightPush("bikes:repairs", new RedisValue[] { "bike:1", "bike:2", "bike:3" });
+        long res22 = db.ListRightPush("bikes:repairs", ["bike:1", "bike:2", "bike:3"]);
         Console.WriteLine(res22);   // >>> 3
 
         RedisValue res23 = db.ListRightPop("bikes:repairs");
@@ -184,7 +184,7 @@ public class ListExample
         //REMOVE_END
 
         //STEP_START ltrim
-        long res27 = db.ListLeftPush("bikes:repairs", new RedisValue[] { "bike:1", "bike:2", "bike:3", "bike:4", "bike:5" });
+        long res27 = db.ListLeftPush("bikes:repairs", ["bike:1", "bike:2", "bike:3", "bike:4", "bike:5"]);
         Console.WriteLine(res27);   // >>> 5
 
         db.ListTrim("bikes:repairs", 0, 2);
@@ -199,7 +199,7 @@ public class ListExample
         //REMOVE_END
 
         //STEP_START ltrim_end_of_list
-        long res29 = db.ListRightPush("bikes:repairs", new RedisValue[] { "bike:1", "bike:2", "bike:3", "bike:4", "bike:5" });
+        long res29 = db.ListRightPush("bikes:repairs", ["bike:1", "bike:2", "bike:3", "bike:4", "bike:5"]);
         Console.WriteLine(res29);   // >>> 5
 
         db.ListTrim("bikes:repairs", -3, -1);
@@ -214,20 +214,20 @@ public class ListExample
         //REMOVE_END
 
         //STEP_START brpop
-        long res31 = db.ListRightPush("bikes:repairs", new RedisValue[] { "bike:1", "bike:2" });
+        long res31 = db.ListRightPush("bikes:repairs", ["bike:1", "bike:2"]);
         Console.WriteLine(res31);   // >>> 2
 
-        Tuple<RedisKey, RedisValue>? res32 = db.BRPop(new RedisKey[] { "bikes:repairs" }, 1);
+        Tuple<RedisKey, RedisValue>? res32 = db.BRPop(["bikes:repairs"], 1);
 
         if (res32 != null)
             Console.WriteLine($"{res32.Item1} -> {res32.Item2}"); // >>> "bikes:repairs -> bike:2"
 
-        Tuple<RedisKey, RedisValue>? res33 = db.BRPop(new RedisKey[] { "bikes:repairs" }, 1);
+        Tuple<RedisKey, RedisValue>? res33 = db.BRPop(["bikes:repairs"], 1);
 
         if (res33 != null)
             Console.WriteLine($"{res33.Item1} -> {res33.Item2}"); // >>> "bikes:repairs -> bike:1"
 
-        Tuple<RedisKey, RedisValue>? res34 = db.BRPop(new RedisKey[] { "bikes:repairs" }, 1);
+        Tuple<RedisKey, RedisValue>? res34 = db.BRPop(["bikes:repairs"], 1);
         Console.WriteLine(res34);   // >>> "Null"
         //STEP_END
 
@@ -246,7 +246,7 @@ public class ListExample
         bool res35 = db.KeyDelete("new_bikes");
         Console.WriteLine(res35);   // >>> False
 
-        long res36 = db.ListRightPush("new_bikes", new RedisValue[] { "bike:1", "bike:2", "bike:3" });
+        long res36 = db.ListRightPush("new_bikes", ["bike:1", "bike:2", "bike:3"]);
         Console.WriteLine(res36);   // >>> 3
         //STEP_END
 
@@ -264,7 +264,7 @@ public class ListExample
 
         try
         {
-            long res39 = db.ListRightPush("new_bikes", new RedisValue[] { "bike:2", "bike:3" });
+            long res39 = db.ListRightPush("new_bikes", ["bike:2", "bike:3"]);
         }
         catch (Exception e)
         {
@@ -279,7 +279,7 @@ public class ListExample
         //REMOVE_END
 
         //STEP_START rule_2
-        long res40 = db.ListLeftPush("bikes:repairs", new RedisValue[] { "bike:1", "bike:2", "bike:3" });
+        long res40 = db.ListLeftPush("bikes:repairs", ["bike:1", "bike:2", "bike:3"]);
         Console.WriteLine(res40);   // >>> 3
 
         bool res41 = db.KeyExists("bikes:repairs");
@@ -325,7 +325,7 @@ public class ListExample
         //REMOVE_END
 
         //STEP_START ltrim.1
-        long res49 = db.ListLeftPush("bikes:repairs", new RedisValue[] { "bike:1", "bike:2", "bike:3", "bike:4", "bike:5" });
+        long res49 = db.ListLeftPush("bikes:repairs", ["bike:1", "bike:2", "bike:3", "bike:4", "bike:5"]);
         Console.WriteLine(res49);   // >>> 5
 
         db.ListTrim("bikes:repairs", 0, 2);

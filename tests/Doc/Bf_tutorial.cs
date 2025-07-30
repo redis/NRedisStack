@@ -13,17 +13,17 @@ namespace Doc;
 // REMOVE_END
 
 // HIDE_START
-public class Bf_tutorial
+public class BfTutorial
 // REMOVE_START
 : AbstractNRedisStackTest, IDisposable
 // REMOVE_END
 {
     // REMOVE_START
-    public Bf_tutorial(EndpointsFixture fixture) : base(fixture) { }
+    public BfTutorial(EndpointsFixture fixture) : base(fixture) { }
 
     [SkippableFact]
     // REMOVE_END
-    public void run()
+    public void Run()
     {
         //REMOVE_START
         // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
@@ -56,11 +56,11 @@ public class Bf_tutorial
         });
         Console.WriteLine(string.Join(", ", res4)); // >>> True, True, True
 
-        bool[] res5 = db.BF().MExists("bikes:models", new RedisValue[]{
+        bool[] res5 = db.BF().MExists("bikes:models", [
             "Rocky Mountain Racer",
             "Cloudy City Cruiser",
             "Windy City Wippet"
-        });
+        ]);
         Console.WriteLine(string.Join(", ", res5)); // >>> True, True, True
         // STEP_END
 

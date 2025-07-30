@@ -1,5 +1,4 @@
-﻿using System.Reflection.Emit;
-using StackExchange.Redis;
+﻿using StackExchange.Redis;
 
 namespace NRedisStack.Search.DataTypes;
 
@@ -11,7 +10,8 @@ public class InfoResult
     private Dictionary<string, RedisResult>? _gcStats;
     private Dictionary<string, RedisResult>? _cursorStats;
 
-    private static readonly string[] booleanAttributes = { "SORTABLE", "UNF", "NOSTEM", "NOINDEX", "CASESENSITIVE", "WITHSUFFIXTRIE", "INDEXEMPTY", "INDEXMISSING" };
+    private static readonly string[] booleanAttributes = ["SORTABLE", "UNF", "NOSTEM", "NOINDEX", "CASESENSITIVE", "WITHSUFFIXTRIE", "INDEXEMPTY", "INDEXMISSING"
+    ];
     public string IndexName => GetString("index_name")!;
     public Dictionary<string, RedisResult> IndexOption => _indexOption ??= GetRedisResultDictionary("index_options")!;
     public Dictionary<string, RedisResult>[] Attributes => _attributes ??= GetAttributesAsDictionaryArray()!;

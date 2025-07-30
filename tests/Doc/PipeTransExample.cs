@@ -17,7 +17,7 @@ public class PipeTransExample
 
     [SkippableFact]
     // REMOVE_END
-    public void run()
+    public void Run()
     {
         //REMOVE_START
         // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
@@ -27,12 +27,12 @@ public class PipeTransExample
         var muxer = ConnectionMultiplexer.Connect("localhost:6379");
         var db = muxer.GetDatabase();
         // REMOVE_START
-        db.KeyDelete(new RedisKey[] {
+        db.KeyDelete([
             "counter:1", "counter:2", "counter:3",
             "seat:0", "seat:1", "seat:2", "seat:3", "seat:4",
             "customer:39182",
             "Details"
-        });
+        ]);
         // REMOVE_END
 
         // STEP_START basic_pipe
@@ -90,10 +90,10 @@ public class PipeTransExample
 
         _ = watchedTrans.Db.HashSetAsync(
             "customer:39182",
-            new HashEntry[]{
-                new HashEntry("name", "David"),
-                new HashEntry("age", "27")
-            }
+            [
+                new("name", "David"),
+                new("age", "27")
+            ]
         );
 
         bool succeeded = watchedTrans.Execute();

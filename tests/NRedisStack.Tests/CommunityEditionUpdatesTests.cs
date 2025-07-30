@@ -17,7 +17,7 @@ public class CommunityEditionUpdatesTests : AbstractNRedisStackTest, IDisposable
         throw new InvalidOperationException("Requires a primary endpoint (found none)");
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.9.0")]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.9.0")]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void ConfigSearchSettings(string endpointId)
     {
@@ -46,7 +46,7 @@ public class CommunityEditionUpdatesTests : AbstractNRedisStackTest, IDisposable
         Assert.Single(server.ConfigGet("search-default-dialect"));
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.9.0")]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.9.0")]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void ConfigTimeSeriesSettings(string endpointId)
     {
@@ -69,7 +69,7 @@ public class CommunityEditionUpdatesTests : AbstractNRedisStackTest, IDisposable
         Assert.Single(server.ConfigGet("ts-ignore-max-val-diff"));
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.9.0")]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.9.0")]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void ConfigProbabilisticSettings(string endpointId)
     {
@@ -98,7 +98,7 @@ public class CommunityEditionUpdatesTests : AbstractNRedisStackTest, IDisposable
         Assert.Single(server.ConfigGet("cf-max-iterations"));
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.9.0")]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.9.0")]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void InfoSearchSection(string endpointId)
     {

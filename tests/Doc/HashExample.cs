@@ -18,7 +18,7 @@ public class HashExample
 
     [SkippableFact]
     // REMOVE_END
-    public void run()
+    public void Run()
     {
         //REMOVE_START
         // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
@@ -30,13 +30,12 @@ public class HashExample
         db.KeyDelete("bike:1");
         //HIDE_END
         //STEP_START set_get_all
-        db.HashSet("bike:1", new HashEntry[]
-        {
-            new HashEntry("model", "Deimos"),
-            new HashEntry("brand", "Ergonom"),
-            new HashEntry("type", "Enduro bikes"),
-            new HashEntry("price", 4972)
-        });
+        db.HashSet("bike:1", [
+            new("model", "Deimos"),
+            new("brand", "Ergonom"),
+            new("type", "Enduro bikes"),
+            new("price", 4972)
+        ]);
 
         Console.WriteLine("Hash Created");
         // Hash Created
@@ -66,7 +65,7 @@ public class HashExample
         //REMOVE_END
 
         //STEP_START hmget
-        var values = db.HashGet("bike:1", new RedisValue[] { "model", "price" });
+        var values = db.HashGet("bike:1", ["model", "price"]);
         Console.WriteLine(string.Join(" ", values));
         // Deimos 4972
         //REMOVE_START
@@ -127,7 +126,7 @@ public class HashExample
         //REMOVE_END
         // Owners: 1
 
-        var stats = db.HashGet("bike:1", new RedisValue[] { "crashes", "owners" });
+        var stats = db.HashGet("bike:1", ["crashes", "owners"]);
         Console.WriteLine($"Bike stats: crashes={stats[0]}, owners={stats[1]}");
         //REMOVE_START
         Assert.Equal(1, stats[0]);

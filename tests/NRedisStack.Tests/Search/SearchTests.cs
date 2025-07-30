@@ -12,7 +12,7 @@ using NetTopologySuite.Geometries;
 
 namespace NRedisStack.Tests.Search;
 
-public class SearchTests : AbstractNRedisStackTest, IDisposable
+public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
 {
     // private readonly string key = "SEARCH_TESTS";
     private readonly string index = "TEST_INDEX";
@@ -39,7 +39,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
     private void AddDocument(IDatabase db, string key, Dictionary<string, object> objDictionary)
     {
-        Dictionary<string, string> strDictionary = new Dictionary<string, string>();
+        Dictionary<string, string> strDictionary = new();
         // HashEntry[] hash = new  HashEntry[objDictionary.Count()];
         // for(int i = 0; i < objDictionary.Count(); i++)
         // {
@@ -56,18 +56,18 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         db.Execute("HSET", nameValue);
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAggregationRequestVerbatim(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
-        Schema sc = new Schema();
+        Schema sc = new();
         sc.AddTextField("name", 1.0, sortable: true);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
         AddDocument(db, new Document("data1").Set("name", "hello kitty"));
 
-        AggregationRequest r = new AggregationRequest("kitti");
+        AggregationRequest r = new("kitti");
 
         AggregationResult res = ft.Aggregate(index, r);
         Assert.Equal(1, res.TotalResults);
@@ -79,18 +79,18 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, res.TotalResults);
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAggregationRequestVerbatimAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
-        Schema sc = new Schema();
+        Schema sc = new();
         sc.AddTextField("name", 1.0, sortable: true);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
         AddDocument(db, new Document("data1").Set("name", "hello kitty"));
 
-        AggregationRequest r = new AggregationRequest("kitti");
+        AggregationRequest r = new("kitti");
 
         AggregationResult res = await ft.AggregateAsync(index, r);
         Assert.Equal(1, res.TotalResults);
@@ -108,7 +108,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
-        Schema sc = new Schema();
+        Schema sc = new();
         sc.AddTextField("name", 1.0, sortable: true);
         sc.AddNumericField("count", sortable: true);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
@@ -130,7 +130,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
-        Schema sc = new Schema();
+        Schema sc = new();
         sc.AddTextField("name", 1.0, sortable: true);
         sc.AddNumericField("count", sortable: true);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
@@ -152,7 +152,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
-        Schema sc = new Schema();
+        Schema sc = new();
         sc.AddTextField("name", 1.0, true);
         sc.AddNumericField("count", true);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
@@ -191,7 +191,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
-        Schema sc = new Schema();
+        Schema sc = new();
         sc.AddTextField("name", 1.0, true);
         sc.AddNumericField("count", true);
         await ft.CreateAsync(index, FTCreateParams.CreateParams(), sc);
@@ -232,7 +232,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         var sc = new Schema().AddTextField("t1").AddTextField("t2");
-        ft.Create("idx", new FTCreateParams(), sc);
+        ft.Create("idx", new(), sc);
 
         AddDocument(db, new Document("doc1").Set("t1", "hello").Set("t2", "world"));
 
@@ -260,7 +260,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         var sc = new Schema().AddTextField("t1").AddTextField("t2");
-        await ft.CreateAsync("idx", new FTCreateParams(), sc);
+        await ft.CreateAsync("idx", new(), sc);
 
         AddDocument(db, new Document("doc1").Set("t1", "hello").Set("t2", "world"));
 
@@ -289,7 +289,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
-        Schema sc = new Schema();
+        Schema sc = new();
         sc.AddTextField("name", 1.0, sortable: true);
         sc.AddNumericField("count", sortable: true);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
@@ -297,7 +297,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
         AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
 
-        Dictionary<string, object> parameters = new Dictionary<string, object>();
+        Dictionary<string, object> parameters = new();
         parameters.Add("name", "abc");
         parameters.Add("count", "10");
 
@@ -320,7 +320,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
-        Schema sc = new Schema();
+        Schema sc = new();
         sc.AddTextField("name", 1.0, sortable: true);
         sc.AddNumericField("count", sortable: true);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
@@ -328,7 +328,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
         AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
 
-        Dictionary<string, object> parameters = new Dictionary<string, object>();
+        Dictionary<string, object> parameters = new();
         parameters.Add("name", "abc");
         parameters.Add("count", "10");
 
@@ -352,7 +352,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT(2);
-        Schema sc = new Schema();
+        Schema sc = new();
         sc.AddTextField("name", 1.0, sortable: true);
         sc.AddNumericField("count", sortable: true);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
@@ -360,7 +360,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
         AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
 
-        Dictionary<string, object> parameters = new Dictionary<string, object>();
+        Dictionary<string, object> parameters = new();
         parameters.Add("name", "abc");
         parameters.Add("count", "10");
 
@@ -383,7 +383,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT(2);
-        Schema sc = new Schema();
+        Schema sc = new();
         sc.AddTextField("name", 1.0, sortable: true);
         sc.AddNumericField("count", sortable: true);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
@@ -391,7 +391,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
         AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
 
-        Dictionary<string, object> parameters = new Dictionary<string, object>();
+        Dictionary<string, object> parameters = new();
         parameters.Add("name", "abc");
         parameters.Add("count", "10");
 
@@ -426,7 +426,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
-        Dictionary<string, object> doc = new Dictionary<string, object>();
+        Dictionary<string, object> doc = new();
         doc.Add("field1", "value");
         AddDocument(db, "doc1", doc);
 
@@ -455,7 +455,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
-        Dictionary<string, object> doc = new Dictionary<string, object>();
+        Dictionary<string, object> doc = new();
         doc.Add("field1", "value");
         AddDocument(db, "doc1", doc);
 
@@ -480,7 +480,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
-        Schema sc = new Schema();
+        Schema sc = new();
         sc.AddTextField("name", 1.0, sortable: true);
         sc.AddNumericField("subj1", sortable: true);
         sc.AddNumericField("subj2", sortable: true);
@@ -527,24 +527,24 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Assert.True(ft.Create(index, parameters, schema));
 
-        db.HashSet("profesor:5555", new HashEntry[] { new("first", "Albert"), new("last", "Blue"), new("age", "55") });
-        db.HashSet("student:1111", new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", "18") });
-        db.HashSet("pupil:2222", new HashEntry[] { new("first", "Jen"), new("last", "Rod"), new("age", "14") });
-        db.HashSet("student:3333", new HashEntry[] { new("first", "El"), new("last", "Mark"), new("age", "17") });
-        db.HashSet("pupil:4444", new HashEntry[] { new("first", "Pat"), new("last", "Shu"), new("age", "21") });
-        db.HashSet("student:5555", new HashEntry[] { new("first", "Joen"), new("last", "Ko"), new("age", "20") });
-        db.HashSet("teacher:6666", new HashEntry[] { new("first", "Pat"), new("last", "Rod"), new("age", "20") });
+        db.HashSet("profesor:5555", [new("first", "Albert"), new("last", "Blue"), new("age", "55")]);
+        db.HashSet("student:1111", [new("first", "Joe"), new("last", "Dod"), new("age", "18")]);
+        db.HashSet("pupil:2222", [new("first", "Jen"), new("last", "Rod"), new("age", "14")]);
+        db.HashSet("student:3333", [new("first", "El"), new("last", "Mark"), new("age", "17")]);
+        db.HashSet("pupil:4444", [new("first", "Pat"), new("last", "Shu"), new("age", "21")]);
+        db.HashSet("student:5555", [new("first", "Joen"), new("last", "Ko"), new("age", "20")]);
+        db.HashSet("teacher:6666", [new("first", "Pat"), new("last", "Rod"), new("age", "20")]);
 
-        var noFilters = ft.Search(index, new Query());
+        var noFilters = ft.Search(index, new());
         Assert.Equal(4, noFilters.TotalResults);
 
-        var res1 = ft.Search(index, new Query("@first:Jo*"));
+        var res1 = ft.Search(index, new("@first:Jo*"));
         Assert.Equal(2, res1.TotalResults);
 
-        var res2 = ft.Search(index, new Query("@first:Pat"));
+        var res2 = ft.Search(index, new("@first:Pat"));
         Assert.Equal(1, res2.TotalResults);
 
-        var res3 = ft.Search(index, new Query("@last:Rod"));
+        var res3 = ft.Search(index, new("@last:Rod"));
         Assert.Equal(0, res3.TotalResults);
     }
 
@@ -557,20 +557,20 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var schema = new Schema().AddTextField("first").AddTextField("last").AddNumericField("age");
         var parameters = FTCreateParams.CreateParams().Filter("@age>16").Prefix("student:", "pupil:");
         Assert.True(await ft.CreateAsync(index, parameters, schema));
-        db.HashSet("profesor:5555", new HashEntry[] { new("first", "Albert"), new("last", "Blue"), new("age", "55") });
-        db.HashSet("student:1111", new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", "18") });
-        db.HashSet("pupil:2222", new HashEntry[] { new("first", "Jen"), new("last", "Rod"), new("age", "14") });
-        db.HashSet("student:3333", new HashEntry[] { new("first", "El"), new("last", "Mark"), new("age", "17") });
-        db.HashSet("pupil:4444", new HashEntry[] { new("first", "Pat"), new("last", "Shu"), new("age", "21") });
-        db.HashSet("student:5555", new HashEntry[] { new("first", "Joen"), new("last", "Ko"), new("age", "20") });
-        db.HashSet("teacher:6666", new HashEntry[] { new("first", "Pat"), new("last", "Rod"), new("age", "20") });
-        var noFilters = ft.Search(index, new Query());
+        db.HashSet("profesor:5555", [new("first", "Albert"), new("last", "Blue"), new("age", "55")]);
+        db.HashSet("student:1111", [new("first", "Joe"), new("last", "Dod"), new("age", "18")]);
+        db.HashSet("pupil:2222", [new("first", "Jen"), new("last", "Rod"), new("age", "14")]);
+        db.HashSet("student:3333", [new("first", "El"), new("last", "Mark"), new("age", "17")]);
+        db.HashSet("pupil:4444", [new("first", "Pat"), new("last", "Shu"), new("age", "21")]);
+        db.HashSet("student:5555", [new("first", "Joen"), new("last", "Ko"), new("age", "20")]);
+        db.HashSet("teacher:6666", [new("first", "Pat"), new("last", "Rod"), new("age", "20")]);
+        var noFilters = ft.Search(index, new());
         Assert.Equal(4, noFilters.TotalResults);
-        var res1 = ft.Search(index, new Query("@first:Jo*"));
+        var res1 = ft.Search(index, new("@first:Jo*"));
         Assert.Equal(2, res1.TotalResults);
-        var res2 = ft.Search(index, new Query("@first:Pat"));
+        var res2 = ft.Search(index, new("@first:Pat"));
         Assert.Equal(1, res2.TotalResults);
-        var res3 = ft.Search(index, new Query("@last:Rod"));
+        var res3 = ft.Search(index, new("@last:Rod"));
         Assert.Equal(0, res3.TotalResults);
     }
 
@@ -584,21 +584,21 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Schema sc = new Schema().AddTextField("first", 1.0).AddTextField("last", 1.0).AddNumericField("age");
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
-        db.HashSet("student:1111", new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", 18) });
-        db.HashSet("student:3333", new HashEntry[] { new("first", "El"), new("last", "Mark"), new("age", 17) });
-        db.HashSet("pupil:4444", new HashEntry[] { new("first", "Pat"), new("last", "Shu"), new("age", 21) });
-        db.HashSet("student:5555", new HashEntry[] { new("first", "Joen"), new("last", "Ko"), new("age", 20) });
+        db.HashSet("student:1111", [new("first", "Joe"), new("last", "Dod"), new("age", 18)]);
+        db.HashSet("student:3333", [new("first", "El"), new("last", "Mark"), new("age", 17)]);
+        db.HashSet("pupil:4444", [new("first", "Pat"), new("last", "Shu"), new("age", 21)]);
+        db.HashSet("student:5555", [new("first", "Joen"), new("last", "Ko"), new("age", 20)]);
 
-        SearchResult noFilters = ft.Search(index, new Query());
+        SearchResult noFilters = ft.Search(index, new());
         Assert.Equal(4, noFilters.TotalResults);
 
-        SearchResult res1 = ft.Search(index, new Query("@first:Jo*"));
+        SearchResult res1 = ft.Search(index, new("@first:Jo*"));
         Assert.Equal(2, res1.TotalResults);
 
-        SearchResult res2 = ft.Search(index, new Query("@first:Pat"));
+        SearchResult res2 = ft.Search(index, new("@first:Pat"));
         Assert.Equal(1, res2.TotalResults);
 
-        SearchResult res3 = ft.Search(index, new Query("@last:Rod"));
+        SearchResult res3 = ft.Search(index, new("@last:Rod"));
         Assert.Equal(0, res3.TotalResults);
     }
 
@@ -612,21 +612,21 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Schema sc = new Schema().AddTextField("first", 1.0).AddTextField("last", 1.0).AddNumericField("age");
         Assert.True(await ft.CreateAsync(index, FTCreateParams.CreateParams(), sc));
 
-        db.HashSet("student:1111", new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", 18) });
-        db.HashSet("student:3333", new HashEntry[] { new("first", "El"), new("last", "Mark"), new("age", 17) });
-        db.HashSet("pupil:4444", new HashEntry[] { new("first", "Pat"), new("last", "Shu"), new("age", 21) });
-        db.HashSet("student:5555", new HashEntry[] { new("first", "Joen"), new("last", "Ko"), new("age", 20) });
+        db.HashSet("student:1111", [new("first", "Joe"), new("last", "Dod"), new("age", 18)]);
+        db.HashSet("student:3333", [new("first", "El"), new("last", "Mark"), new("age", 17)]);
+        db.HashSet("pupil:4444", [new("first", "Pat"), new("last", "Shu"), new("age", 21)]);
+        db.HashSet("student:5555", [new("first", "Joen"), new("last", "Ko"), new("age", 20)]);
 
-        SearchResult noFilters = ft.Search(index, new Query());
+        SearchResult noFilters = ft.Search(index, new());
         Assert.Equal(4, noFilters.TotalResults);
 
-        SearchResult res1 = ft.Search(index, new Query("@first:Jo*"));
+        SearchResult res1 = ft.Search(index, new("@first:Jo*"));
         Assert.Equal(2, res1.TotalResults);
 
-        SearchResult res2 = ft.Search(index, new Query("@first:Pat"));
+        SearchResult res2 = ft.Search(index, new("@first:Pat"));
         Assert.Equal(1, res2.TotalResults);
 
-        SearchResult res3 = ft.Search(index, new Query("@last:Rod"));
+        SearchResult res3 = ft.Search(index, new("@last:Rod"));
         Assert.Equal(0, res3.TotalResults);
     }
 
@@ -641,25 +641,25 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Assert.True(ft.Create(index, FTCreateParams.CreateParams().Prefix("student:", "pupil:"), sc));
 
-        db.HashSet("profesor:5555", new HashEntry[] { new("first", "Albert"), new("last", "Blue"), new("age", "55") });
-        db.HashSet("student:1111", new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", "18") });
-        db.HashSet("pupil:2222", new HashEntry[] { new("first", "Jen"), new("last", "Rod"), new("age", "14") });
-        db.HashSet("student:3333", new HashEntry[] { new("first", "El"), new("last", "Mark"), new("age", "17") });
-        db.HashSet("pupil:4444", new HashEntry[] { new("first", "Pat"), new("last", "Shu"), new("age", "21") });
-        db.HashSet("student:5555", new HashEntry[] { new("first", "Joen"), new("last", "Ko"), new("age", "20") });
-        db.HashSet("teacher:6666", new HashEntry[] { new("first", "Pat"), new("last", "Rod"), new("age", "20") });
+        db.HashSet("profesor:5555", [new("first", "Albert"), new("last", "Blue"), new("age", "55")]);
+        db.HashSet("student:1111", [new("first", "Joe"), new("last", "Dod"), new("age", "18")]);
+        db.HashSet("pupil:2222", [new("first", "Jen"), new("last", "Rod"), new("age", "14")]);
+        db.HashSet("student:3333", [new("first", "El"), new("last", "Mark"), new("age", "17")]);
+        db.HashSet("pupil:4444", [new("first", "Pat"), new("last", "Shu"), new("age", "21")]);
+        db.HashSet("student:5555", [new("first", "Joen"), new("last", "Ko"), new("age", "20")]);
+        db.HashSet("teacher:6666", [new("first", "Pat"), new("last", "Rod"), new("age", "20")]);
 
-        SearchResult noFilters = ft.Search(index, new Query());
+        SearchResult noFilters = ft.Search(index, new());
         Assert.Equal(5, noFilters.TotalResults);
 
-        SearchResult asAttribute = ft.Search(index, new Query("@given:Jo*"));
+        SearchResult asAttribute = ft.Search(index, new("@given:Jo*"));
         Assert.Equal(2, asAttribute.TotalResults);
 
-        SearchResult nonAttribute = ft.Search(index, new Query("@last:Rod"));
+        SearchResult nonAttribute = ft.Search(index, new("@last:Rod"));
         Assert.Equal(1, nonAttribute.TotalResults);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.9.0")]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.9.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void FailWhenAttributeNotExist(string endpointId)
     {
@@ -669,7 +669,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddField(new TextField(FieldName.Of("last")));
 
         Assert.True(ft.Create(index, FTCreateParams.CreateParams().Prefix("student:", "pupil:"), sc));
-        RedisServerException exc = Assert.Throws<RedisServerException>(() => ft.Search(index, new Query("@first:Jo*")));
+        RedisServerException exc = Assert.Throws<RedisServerException>(() => ft.Search(index, new("@first:Jo*")));
     }
 
     [SkippableTheory]
@@ -683,25 +683,25 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Assert.True(await ft.CreateAsync(index, FTCreateParams.CreateParams().Prefix("student:", "pupil:"), sc));
 
-        db.HashSet("profesor:5555", new HashEntry[] { new("first", "Albert"), new("last", "Blue"), new("age", "55") });
-        db.HashSet("student:1111", new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", "18") });
-        db.HashSet("pupil:2222", new HashEntry[] { new("first", "Jen"), new("last", "Rod"), new("age", "14") });
-        db.HashSet("student:3333", new HashEntry[] { new("first", "El"), new("last", "Mark"), new("age", "17") });
-        db.HashSet("pupil:4444", new HashEntry[] { new("first", "Pat"), new("last", "Shu"), new("age", "21") });
-        db.HashSet("student:5555", new HashEntry[] { new("first", "Joen"), new("last", "Ko"), new("age", "20") });
-        db.HashSet("teacher:6666", new HashEntry[] { new("first", "Pat"), new("last", "Rod"), new("age", "20") });
+        db.HashSet("profesor:5555", [new("first", "Albert"), new("last", "Blue"), new("age", "55")]);
+        db.HashSet("student:1111", [new("first", "Joe"), new("last", "Dod"), new("age", "18")]);
+        db.HashSet("pupil:2222", [new("first", "Jen"), new("last", "Rod"), new("age", "14")]);
+        db.HashSet("student:3333", [new("first", "El"), new("last", "Mark"), new("age", "17")]);
+        db.HashSet("pupil:4444", [new("first", "Pat"), new("last", "Shu"), new("age", "21")]);
+        db.HashSet("student:5555", [new("first", "Joen"), new("last", "Ko"), new("age", "20")]);
+        db.HashSet("teacher:6666", [new("first", "Pat"), new("last", "Rod"), new("age", "20")]);
 
-        SearchResult noFilters = await ft.SearchAsync(index, new Query());
+        SearchResult noFilters = await ft.SearchAsync(index, new());
         Assert.Equal(5, noFilters.TotalResults);
 
-        SearchResult asAttribute = await ft.SearchAsync(index, new Query("@given:Jo*"));
+        SearchResult asAttribute = await ft.SearchAsync(index, new("@given:Jo*"));
         Assert.Equal(2, asAttribute.TotalResults);
 
-        SearchResult nonAttribute = await ft.SearchAsync(index, new Query("@last:Rod"));
+        SearchResult nonAttribute = await ft.SearchAsync(index, new("@last:Rod"));
         Assert.Equal(1, nonAttribute.TotalResults);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.9.0")]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.9.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task FailWhenAttributeNotExistAsync(string endpointId)
     {
@@ -711,10 +711,10 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddField(new TextField(FieldName.Of("last")));
 
         Assert.True(await ft.CreateAsync(index, FTCreateParams.CreateParams().Prefix("student:", "pupil:"), sc));
-        RedisServerException exc = await Assert.ThrowsAsync<RedisServerException>(async () => await ft.SearchAsync(index, new Query("@first:Jo*")));
+        RedisServerException exc = await Assert.ThrowsAsync<RedisServerException>(async () => await ft.SearchAsync(index, new("@first:Jo*")));
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void AlterAdd(string endpointId)
     {
@@ -725,7 +725,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
         //sleep:
-        System.Threading.Thread.Sleep(2000);
+        Thread.Sleep(2000);
 
         var fields = new HashEntry("title", "hello world");
         //fields.("title", "hello world");
@@ -733,7 +733,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         {
             db.HashSet($"doc{i}", fields.Name, fields.Value);
         }
-        SearchResult res = ft.Search(index, new Query("hello world"));
+        SearchResult res = ft.Search(index, new("hello world"));
         Assert.Equal(100, res.TotalResults);
 
         Assert.True(ft.Alter(index, new Schema().AddTagField("tags").AddTextField("name", weight: 0.5)));
@@ -744,7 +744,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             //      assertTrue(client.updateDocument(string.format("doc%d", i), 1.0, fields2));
             db.HashSet($"doc{i}", fields2);
         }
-        SearchResult res2 = ft.Search(index, new Query("@tags:{tagA}"));
+        SearchResult res2 = ft.Search(index, new("@tags:{tagA}"));
         Assert.Equal(100, res2.TotalResults);
 
         var info = ft.Info(index);
@@ -778,7 +778,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(4, info.CursorStats.Count);
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task AlterAddAsync(string endpointId)
     {
@@ -789,7 +789,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
         //sleep:
-        System.Threading.Thread.Sleep(2000);
+        Thread.Sleep(2000);
 
         var fields = new HashEntry("title", "hello world");
         //fields.("title", "hello world");
@@ -797,7 +797,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         {
             db.HashSet($"doc{i}", fields.Name, fields.Value);
         }
-        SearchResult res = ft.Search(index, new Query("hello world"));
+        SearchResult res = ft.Search(index, new("hello world"));
         Assert.Equal(100, res.TotalResults);
 
         Assert.True(await ft.AlterAsync(index, new Schema().AddTagField("tags").AddTextField("name", weight: 0.5)));
@@ -808,7 +808,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             //      assertTrue(client.updateDocument(string.format("doc%d", i), 1.0, fields2));
             db.HashSet($"doc{i}", fields2);
         }
-        SearchResult res2 = ft.Search(index, new Query("@tags:{tagA}"));
+        SearchResult res2 = ft.Search(index, new("@tags:{tagA}"));
         Assert.Equal(100, res2.TotalResults);
 
         var info = await ft.InfoAsync(index);
@@ -839,7 +839,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(4, info.CursorStats.Count);
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void AlterAddSortable(string endpointId)
     {
@@ -850,7 +850,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
         //sleep:
-        System.Threading.Thread.Sleep(2000);
+        Thread.Sleep(2000);
 
         var fields = new HashEntry("title", "hello world");
         //fields.("title", "hello world");
@@ -858,7 +858,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         {
             db.HashSet($"doc{i}", fields.Name, fields.Value);
         }
-        SearchResult res = ft.Search(index, new Query("hello world"));
+        SearchResult res = ft.Search(index, new("hello world"));
         Assert.Equal(100, res.TotalResults);
 
         Assert.True(ft.Alter(index, new Schema().AddTagField("tags").AddTextField("name", weight: 0.5)));
@@ -869,7 +869,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             //      assertTrue(client.updateDocument(string.format("doc%d", i), 1.0, fields2));
             db.HashSet($"doc{i}", fields2);
         }
-        SearchResult res2 = ft.Search(index, new Query("@tags:{tagA}"));
+        SearchResult res2 = ft.Search(index, new("@tags:{tagA}"));
         Assert.Equal(100, res2.TotalResults);
 
         var info = ft.Info(index);
@@ -902,7 +902,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(4, info.CursorStats.Count);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.3.0")]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.3.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void InfoWithIndexEmptyAndIndexMissing(string endpointId)
     {
@@ -921,8 +921,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddTagField("tag1", emptyIndex: true, missingIndex: true)
             .AddNumericField("numeric1", missingIndex: true)
             .AddGeoField("geo1", missingIndex: true)
-            .AddGeoShapeField("geoshape1", Schema.GeoShapeField.CoordinateSystem.FLAT, missingIndex: true)
-            .AddVectorField("vector1", Schema.VectorField.VectorAlgo.FLAT, vectorAttrs, missingIndex: true);
+            .AddGeoShapeField("geoshape1", GeoShapeField.CoordinateSystem.FLAT, missingIndex: true)
+            .AddVectorField("vector1", VectorField.VectorAlgo.FLAT, vectorAttrs, missingIndex: true);
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
         var info = ft.Info(index);
@@ -937,7 +937,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         }
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task AlterAddSortableAsync(string endpointId)
     {
@@ -948,7 +948,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
         //sleep:
-        System.Threading.Thread.Sleep(2000);
+        Thread.Sleep(2000);
 
         var fields = new HashEntry("title", "hello world");
         //fields.("title", "hello world");
@@ -956,7 +956,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         {
             db.HashSet($"doc{i}", fields.Name, fields.Value);
         }
-        SearchResult res = ft.Search(index, new Query("hello world"));
+        SearchResult res = ft.Search(index, new("hello world"));
         Assert.Equal(100, res.TotalResults);
 
         Assert.True(await ft.AlterAsync(index, new Schema().AddTagField("tags").AddTextField("name", weight: 0.5)));
@@ -967,7 +967,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             //      assertTrue(client.updateDocument(string.format("doc%d", i), 1.0, fields2));
             db.HashSet($"doc{i}", fields2);
         }
-        SearchResult res2 = ft.Search(index, new Query("@tags:{tagA}"));
+        SearchResult res2 = ft.Search(index, new("@tags:{tagA}"));
         Assert.Equal(100, res2.TotalResults);
 
         var info = await ft.InfoAsync(index);
@@ -999,7 +999,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     // TODO : fix with FT.CONFIG response change
-    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestConfig(string endpointId)
     {
@@ -1011,7 +1011,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     // TODO : fix with FT.CONFIG response change
-    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestConfigAsnyc(string endpointId)
     {
@@ -1023,7 +1023,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     // TODO : fix with FT.CONFIG response change
-    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void configOnTimeout(string endpointId)
     {
@@ -1036,7 +1036,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     // TODO : fix with FT.CONFIG response change
-    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task configOnTimeoutAsync(string endpointId)
     {
@@ -1049,7 +1049,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     // TODO : fix with FT.CONFIG response change
-    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestDialectConfig(string endpointId)
     {
@@ -1072,7 +1072,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     // TODO : fix with FT.CONFIG response change
-    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestDialectConfigAsync(string endpointId)
     {
@@ -1100,7 +1100,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
-        Schema sc = new Schema();
+        Schema sc = new();
         sc.AddTextField("name", 1.0, sortable: true);
         sc.AddNumericField("count", sortable: true);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
@@ -1162,7 +1162,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
-        Schema sc = new Schema();
+        Schema sc = new();
         sc.AddTextField("name", 1.0, sortable: true);
         sc.AddNumericField("count", sortable: true);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
@@ -1218,7 +1218,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         catch (RedisException) { }
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAggregationGroupBy(string endpointId)
     {
@@ -1226,26 +1226,26 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT();
 
         // Creating the index definition and schema
-        ft.Create("idx", new FTCreateParams(), new Schema().AddNumericField("random_num")
+        ft.Create("idx", new(), new Schema().AddNumericField("random_num")
                                                            .AddTextField("title")
                                                            .AddTextField("body")
                                                            .AddTextField("parent"));
 
         // Indexing a document
-        AddDocument(db, "search", new Dictionary<string, object>(){
+        AddDocument(db, "search", new(){
         { "title", "RediSearch" },
         { "body", "Redisearch impements a search engine on top of redis" },
         { "parent", "redis" },
         { "random_num", 10 }});
 
-        AddDocument(db, "ai", new Dictionary<string, object>
+        AddDocument(db, "ai", new()
         {
         { "title", "RedisAI" },
         { "body", "RedisAI executes Deep Learning/Machine Learning models and managing their data." },
         { "parent", "redis" },
         { "random_num", 3 }});
 
-        AddDocument(db, "json", new Dictionary<string, object>
+        AddDocument(db, "json", new()
         {
         { "title", "RedisJson" },
         { "body", "RedisJSON implements ECMA-404 The JSON Data Interchange Standard as a native data type." },
@@ -1322,7 +1322,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         // TODO: complete this assert after handling multi bulk reply
         actual = (List<object>)res.Get("random");
         Assert.Equal(2, actual.Count);
-        List<string> possibleValues = new List<string>() { "RediSearch", "RedisAI", "RedisJson" };
+        List<string> possibleValues = ["RediSearch", "RedisAI", "RedisJson"];
         Assert.Contains(actual[0].ToString(), possibleValues);
         Assert.Contains(actual[1].ToString(), possibleValues);
 
@@ -1332,7 +1332,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         res = db.FT().Aggregate("idx", req).GetRow(0);
         actual = (List<object>)res.Get("docs");
-        expected = new List<object> { "ai", "search", "json" };
+        expected = ["ai", "search", "json"];
         Assert.True(!expected.Except(actual).Any() && expected.Count == actual.Count);
     }
 
@@ -1365,21 +1365,21 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Schema sc = new Schema().AddTextField("title", 1.0);
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
-        Dictionary<string, object> fields = new Dictionary<string, object>();
+        Dictionary<string, object> fields = new();
         fields.Add("title", "hello world");
         for (int i = 0; i < 100; i++)
         {
             AddDocument(db, $"doc{i}", fields);
         }
 
-        SearchResult res = ft.Search(index, new Query("hello world"));
+        SearchResult res = ft.Search(index, new("hello world"));
         Assert.Equal(100, res.TotalResults);
 
         Assert.True(ft.DropIndex(index));
 
         try
         {
-            ft.Search(index, new Query("hello world"));
+            ft.Search(index, new("hello world"));
             //fail("Index should not exist.");
         }
         catch (RedisServerException ex)
@@ -1398,21 +1398,21 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Schema sc = new Schema().AddTextField("title", 1.0);
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
-        Dictionary<string, object> fields = new Dictionary<string, object>();
+        Dictionary<string, object> fields = new();
         fields.Add("title", "hello world");
         for (int i = 0; i < 100; i++)
         {
             AddDocument(db, $"doc{i}", fields);
         }
 
-        SearchResult res = ft.Search(index, new Query("hello world"));
+        SearchResult res = ft.Search(index, new("hello world"));
         Assert.Equal(100, res.TotalResults);
 
         Assert.True(await ft.DropIndexAsync(index));
 
         try
         {
-            ft.Search(index, new Query("hello world"));
+            ft.Search(index, new("hello world"));
             //fail("Index should not exist.");
         }
         catch (RedisServerException ex)
@@ -1431,14 +1431,14 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Schema sc = new Schema().AddTextField("title", 1.0);
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
-        Dictionary<string, object> fields = new Dictionary<string, object>();
+        Dictionary<string, object> fields = new();
         fields.Add("title", "hello world");
         for (int i = 0; i < 100; i++)
         {
             AddDocument(db, $"doc{i}", fields);
         }
 
-        SearchResult res = ft.Search(index, new Query("hello world"));
+        SearchResult res = ft.Search(index, new("hello world"));
         Assert.Equal(100, res.TotalResults);
 
         Assert.True(ft.DropIndex(index, true));
@@ -1457,14 +1457,14 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Schema sc = new Schema().AddTextField("title", 1.0);
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
-        Dictionary<string, object> fields = new Dictionary<string, object>();
+        Dictionary<string, object> fields = new();
         fields.Add("title", "hello world");
         for (int i = 0; i < 100; i++)
         {
             AddDocument(db, $"doc{i}", fields);
         }
 
-        SearchResult res = ft.Search(index, new Query("hello world"));
+        SearchResult res = ft.Search(index, new("hello world"));
         Assert.Equal(100, res.TotalResults);
 
         Assert.True(await ft.DropIndexAsync(index, true));
@@ -1493,7 +1493,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Empty((await ft.DictDumpAsync("dict")));
     }
 
-    string explainQuery = "@f3:f3_val @f2:f2_val @f1:f1_val";
+    readonly string explainQuery = "@f3:f3_val @f2:f2_val @f1:f1_val";
     [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestExplain(string endpointId)
@@ -1541,7 +1541,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.False(res.Length == 0);
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestExplainCli(string endpointId)
     {
@@ -1564,7 +1564,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.False(res.Length == 0);
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestExplainCliAsync(string endpointId)
     {
@@ -1640,10 +1640,10 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Dictionary<string, List<string>> dump = ft.SynDump(index);
 
-        Dictionary<string, List<string>> expected = new Dictionary<string, List<string>>();
-        expected.Add("girl", new List<string>() { group1_str });
-        expected.Add("baby", new List<string>() { group1_str });
-        expected.Add("child", new List<string>() { group1_str, group2_str });
+        Dictionary<string, List<string>> expected = new();
+        expected.Add("girl", [group1_str]);
+        expected.Add("baby", [group1_str]);
+        expected.Add("child", [group1_str, group2_str]);
         Assert.Equal(expected, dump);
     }
 
@@ -1666,10 +1666,10 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Dictionary<string, List<string>> dump = await ft.SynDumpAsync(index);
 
-        Dictionary<string, List<string>> expected = new Dictionary<string, List<string>>();
-        expected.Add("girl", new List<string>() { group1_str });
-        expected.Add("baby", new List<string>() { group1_str });
-        expected.Add("child", new List<string>() { group1_str, group2_str });
+        Dictionary<string, List<string>> expected = new();
+        expected.Add("girl", [group1_str]);
+        expected.Add("baby", [group1_str]);
+        expected.Add("child", [group1_str, group2_str]);
         Assert.Equal(expected, dump);
     }
 
@@ -1697,35 +1697,35 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddTagField("category");
 
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
-        Dictionary<string, object> fields1 = new Dictionary<string, object>();
+        Dictionary<string, object> fields1 = new();
         fields1.Add("title", "hello world");
         fields1.Add("category", "red");
         //    assertTrue(client.AddDocument(db, "foo", fields1));
         AddDocument(db, "foo", fields1);
-        Dictionary<string, object> fields2 = new Dictionary<string, object>();
+        Dictionary<string, object> fields2 = new();
         fields2.Add("title", "hello world");
         fields2.Add("category", "blue");
         //    assertTrue(client.AddDocument(db, "bar", fields2));
         AddDocument(db, "bar", fields2);
-        Dictionary<string, object> fields3 = new Dictionary<string, object>();
+        Dictionary<string, object> fields3 = new();
         fields3.Add("title", "hello world");
         fields3.Add("category", "green,yellow");
         //    assertTrue(client.AddDocument(db, "baz", fields3));
         AddDocument(db, "baz", fields3);
-        Dictionary<string, object> fields4 = new Dictionary<string, object>();
+        Dictionary<string, object> fields4 = new();
         fields4.Add("title", "hello world");
         fields4.Add("category", "orange;purple");
         //    assertTrue(client.AddDocument(db, "qux", fields4));
         AddDocument(db, "qux", fields4);
 
-        Assert.Equal(1, ft.Search(index, new Query("@category:{red}")).TotalResults);
-        Assert.Equal(1, ft.Search(index, new Query("@category:{blue}")).TotalResults);
-        Assert.Equal(1, ft.Search(index, new Query("hello @category:{red}")).TotalResults);
-        Assert.Equal(1, ft.Search(index, new Query("hello @category:{blue}")).TotalResults);
-        Assert.Equal(1, ft.Search(index, new Query("@category:{yellow}")).TotalResults);
-        Assert.Equal(0, ft.Search(index, new Query("@category:{purple}")).TotalResults);
-        Assert.Equal(1, ft.Search(index, new Query("@category:{orange\\;purple}")).TotalResults);
-        Assert.Equal(4, ft.Search(index, new Query("hello")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("@category:{red}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("@category:{blue}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("hello @category:{red}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("hello @category:{blue}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("@category:{yellow}")).TotalResults);
+        Assert.Equal(0, ft.Search(index, new("@category:{purple}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("@category:{orange\\;purple}")).TotalResults);
+        Assert.Equal(4, ft.Search(index, new("hello")).TotalResults);
 
         var SyncRes = ft.TagVals(index, "category");
         int i = 0;
@@ -1755,35 +1755,35 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddTagField("category", separator: ";");
 
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
-        Dictionary<string, object> fields1 = new Dictionary<string, object>();
+        Dictionary<string, object> fields1 = new();
         fields1.Add("title", "hello world");
         fields1.Add("category", "red");
         //    assertTrue(client.AddDocument(db, "foo", fields1));
         AddDocument(db, "foo", fields1);
-        Dictionary<string, object> fields2 = new Dictionary<string, object>();
+        Dictionary<string, object> fields2 = new();
         fields2.Add("title", "hello world");
         fields2.Add("category", "blue");
         //    assertTrue(client.AddDocument(db, "bar", fields2));
         AddDocument(db, "bar", fields2);
-        Dictionary<string, object> fields3 = new Dictionary<string, object>();
+        Dictionary<string, object> fields3 = new();
         fields3.Add("title", "hello world");
         fields3.Add("category", "green;yellow");
         AddDocument(db, "baz", fields3);
         //    assertTrue(client.AddDocument(db, "baz", fields3));
-        Dictionary<string, object> fields4 = new Dictionary<string, object>();
+        Dictionary<string, object> fields4 = new();
         fields4.Add("title", "hello world");
         fields4.Add("category", "orange,purple");
         //    assertTrue(client.AddDocument(db, "qux", fields4));
         AddDocument(db, "qux", fields4);
 
-        Assert.Equal(1, ft.Search(index, new Query("@category:{red}")).TotalResults);
-        Assert.Equal(1, ft.Search(index, new Query("@category:{blue}")).TotalResults);
-        Assert.Equal(1, ft.Search(index, new Query("hello @category:{red}")).TotalResults);
-        Assert.Equal(1, ft.Search(index, new Query("hello @category:{blue}")).TotalResults);
-        Assert.Equal(1, ft.Search(index, new Query("hello @category:{yellow}")).TotalResults);
-        Assert.Equal(0, ft.Search(index, new Query("@category:{purple}")).TotalResults);
-        Assert.Equal(1, ft.Search(index, new Query("@category:{orange\\,purple}")).TotalResults);
-        Assert.Equal(4, ft.Search(index, new Query("hello")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("@category:{red}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("@category:{blue}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("hello @category:{red}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("hello @category:{blue}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("hello @category:{yellow}")).TotalResults);
+        Assert.Equal(0, ft.Search(index, new("@category:{purple}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("@category:{orange\\,purple}")).TotalResults);
+        Assert.Equal(4, ft.Search(index, new("hello")).TotalResults);
 
         var SyncRes = ft.TagVals(index, "category");
         int i = 0;
@@ -1880,15 +1880,17 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddTextField("txt")
             .AddNumericField("num")
             .AddGeoField("loc");
-        ft.Create("idx", new FTCreateParams(), sc);
+        ft.Create("idx", new(), sc);
 
         // Add the two documents to the index
-        AddDocument(db, "doc1", new Dictionary<string, object> {
+        AddDocument(db, "doc1", new()
+        {
                 { "txt", "foo bar" },
                 { "num", "3.141" },
                 { "loc", "-0.441,51.458" }
             });
-        AddDocument(db, "doc2", new Dictionary<string, object> {
+        AddDocument(db, "doc2", new()
+        {
                 { "txt", "foo baz" },
                 { "num", "2" },
                 { "loc", "-0.1,51.2" }
@@ -1930,15 +1932,17 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddTextField("txt")
             .AddNumericField("num")
             .AddGeoField("loc");
-        await ft.CreateAsync("idx", new FTCreateParams(), sc);
+        await ft.CreateAsync("idx", new(), sc);
 
         // Add the two documents to the index
-        AddDocument(db, "doc1", new Dictionary<string, object> {
+        AddDocument(db, "doc1", new()
+        {
                 { "txt", "foo bar" },
                 { "num", "3.141" },
                 { "loc", "-0.441,51.458" }
             });
-        AddDocument(db, "doc2", new Dictionary<string, object> {
+        AddDocument(db, "doc2", new()
+        {
                 { "txt", "foo baz" },
                 { "num", "2" },
                 { "loc", "-0.1,51.2" }
@@ -2061,7 +2065,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         // test that the command not throw an exception:
         var db = GetCleanDatabase();
         var ft = db.FT();
-        ft.Create("idx", new FTCreateParams(), new Schema().AddTextField("txt"));
+        ft.Create("idx", new(), new Schema().AddTextField("txt"));
         var res = ft.Search("idx", testQuery);
         Assert.Empty(res.Documents);
     }
@@ -2096,7 +2100,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         // test that the command not throw an exception:
         var db = GetCleanDatabase();
         var ft = db.FT();
-        ft.Create("idx", new FTCreateParams(), new Schema().AddTextField("txt"));
+        ft.Create("idx", new(), new Schema().AddTextField("txt"));
         var res = ft.Search("idx", testQuery);
         Assert.Empty(res.Documents);
     }
@@ -2128,8 +2132,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddNumericField(FieldName.Of("num"), true, true)
             .AddGeoField(FieldName.Of("loc"), true, true)
             .AddTagField(FieldName.Of("tag"), true, true, true, ";", true, true)
-            .AddVectorField("vec", VectorField.VectorAlgo.FLAT, new Dictionary<string, object> { { "dim", 10 } });
-        var buildCommand = SearchCommandBuilder.Create("idx", new FTCreateParams(), sc);
+            .AddVectorField("vec", VectorField.VectorAlgo.FLAT, new() { { "dim", 10 } });
+        var buildCommand = SearchCommandBuilder.Create("idx", new(), sc);
         var expectedArgs = new List<object> {
             "idx",
             "SCHEMA",
@@ -2181,9 +2185,9 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
-        ft.Create("idx", new FTCreateParams(), new Schema().AddTextField("t1").AddTextField("t2"));
-        Document doc1 = new Document("doc1", new Dictionary<string, RedisValue> { { "t1", "a" }, { "t2", "b" } });
-        Document doc2 = new Document("doc2", new Dictionary<string, RedisValue> { { "t1", "b" }, { "t2", "a" } });
+        ft.Create("idx", new(), new Schema().AddTextField("t1").AddTextField("t2"));
+        Document doc1 = new("doc1", new() { { "t1", "a" }, { "t2", "b" } });
+        Document doc2 = new("doc2", new() { { "t1", "b" }, { "t2", "a" } });
         AddDocument(db, doc1);
         AddDocument(db, doc2);
 
@@ -2201,9 +2205,9 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
-        ft.Create("idx", new FTCreateParams(), new Schema().AddTextField("t1").AddTextField("t2"));
-        Document doc1 = new Document("doc1", new Dictionary<string, RedisValue> { { "t1", "a" }, { "t2", "b" } });
-        Document doc2 = new Document("doc2", new Dictionary<string, RedisValue> { { "t1", "b" }, { "t2", "a" } });
+        ft.Create("idx", new(), new Schema().AddTextField("t1").AddTextField("t2"));
+        Document doc1 = new("doc1", new() { { "t1", "a" }, { "t2", "b" } });
+        Document doc2 = new("doc2", new() { { "t1", "b" }, { "t2", "a" } });
         AddDocument(db, doc1);
         AddDocument(db, doc2);
 
@@ -2219,7 +2223,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = GetCleanDatabase();
         var ft = db.FT();
-        Assert.Equal(ft._List(), new RedisResult[] { });
+        Assert.Equal(ft._List(), []);
     }
 
     [Fact]
@@ -2227,20 +2231,20 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = GetCleanDatabase();
         var ft = db.FT();
-        Assert.Equal(await ft._ListAsync(), new RedisResult[] { });
+        Assert.Equal(await ft._ListAsync(), []);
     }
 
     [Fact]
     public void TestVectorCount_Issue70()
     {
-        var schema = new Schema().AddVectorField("fieldTest", Schema.VectorField.VectorAlgo.HNSW, new Dictionary<string, object>()
+        var schema = new Schema().AddVectorField("fieldTest", VectorField.VectorAlgo.HNSW, new()
         {
             ["TYPE"] = "FLOAT32",
             ["DIM"] = "128",
             ["DISTANCE_METRIC"] = "COSINE"
         });
 
-        var actual = SearchCommandBuilder.Create("test", new FTCreateParams(), schema);
+        var actual = SearchCommandBuilder.Create("test", new(), schema);
         var expected = new List<object>()
         {
             "test",
@@ -2277,7 +2281,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         json.Set("vec:3", "$", "{\"vector\":[3,3,3,3]}");
         json.Set("vec:4", "$", "{\"vector\":[4,4,4,4]}");
 
-        var schema = new Schema().AddVectorField(FieldName.Of("$.vector").As("vector"), Schema.VectorField.VectorAlgo.FLAT, new Dictionary<string, object>()
+        var schema = new Schema().AddVectorField(FieldName.Of("$.vector").As("vector"), VectorField.VectorAlgo.FLAT, new()
         {
             ["TYPE"] = "FLOAT32",
             ["DIM"] = "4",
@@ -2287,7 +2291,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var idxDef = new FTCreateParams().On(IndexDataType.JSON).Prefix("vec:");
         Assert.True(ft.Create("vss_idx", idxDef, schema));
 
-        float[] vec = new float[] { 2, 2, 2, 2 };
+        float[] vec = [2, 2, 2, 2];
         byte[] queryVec = MemoryMarshal.Cast<float, byte>(vec).ToArray();
 
 
@@ -2304,7 +2308,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, res.Documents[0]["__vector_score"]);
 
         var jsonRes = res.ToJson();
-        Assert.Equal("{\"vector\":[2,2,2,2]}", jsonRes![0]);
+        Assert.Equal("{\"vector\":[2,2,2,2]}", jsonRes[0]);
     }
 
     [SkippableTheory]
@@ -2315,14 +2319,14 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT();
         var json = db.JSON();
 
-        var schema = new Schema().AddVectorField("v", Schema.VectorField.VectorAlgo.HNSW, new Dictionary<string, object>()
+        var schema = new Schema().AddVectorField("v", VectorField.VectorAlgo.HNSW, new()
         {
             ["TYPE"] = "FLOAT32",
             ["DIM"] = "2",
             ["DISTANCE_METRIC"] = "L2",
         });
 
-        ft.Create("idx", new FTCreateParams(), schema);
+        ft.Create("idx", new(), schema);
 
         db.HashSet("a", "v", "aaaaaaaa");
         db.HashSet("b", "v", "aaaabaaa");
@@ -2344,7 +2348,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         await json.SetAsync("1", "$", "{\"vec\":[1,2,3,4]}");
 
         // FT.CREATE my_index ON JSON SCHEMA $.vec as vector VECTOR FLAT 6 TYPE FLOAT32 DIM 4 DISTANCE_METRIC L2
-        var schema = new Schema().AddVectorField(FieldName.Of("$.vec").As("vector"), Schema.VectorField.VectorAlgo.FLAT, new Dictionary<string, object>()
+        var schema = new Schema().AddVectorField(FieldName.Of("$.vec").As("vector"), VectorField.VectorAlgo.FLAT, new()
         {
             ["TYPE"] = "FLOAT32",
             ["DIM"] = "4",
@@ -2362,7 +2366,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT(2);
 
         var sc = new Schema().AddNumericField("numval");
-        Assert.True(ft.Create("idx", new FTCreateParams(), sc));
+        Assert.True(ft.Create("idx", new(), sc));
 
         db.HashSet("1", "numval", 1);
         db.HashSet("2", "numval", 2);
@@ -2381,7 +2385,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT(2);
 
         var sc = new Schema().AddNumericField("numval");
-        Assert.True(await ft.CreateAsync("idx", new FTCreateParams(), sc));
+        Assert.True(await ft.CreateAsync("idx", new(), sc));
 
         db.HashSet("1", "numval", 1);
         db.HashSet("2", "numval", 2);
@@ -2400,7 +2404,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT(2);
 
         var sc = new Schema().AddNumericField("numval");
-        Assert.True(ft.Create("idx", new FTCreateParams(), sc));
+        Assert.True(ft.Create("idx", new(), sc));
 
         db.HashSet("1", "numval", 1);
         db.HashSet("2", "numval", 2);
@@ -2415,7 +2419,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             ["min"] = 1,
             ["max"] = 2
         };
-        query = new Query("@numval:[$min $max]");
+        query = new("@numval:[$min $max]");
         res = ft.Search("idx", query.Params(paramValue));
         Assert.Equal(2, res.TotalResults);
     }
@@ -2427,11 +2431,11 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
-        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+        ft.Create(index, new(), new Schema().AddTextField("name").AddTextField("body"));
 
-        db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name1"), new HashEntry("body", "body1") });
-        db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name2"), new HashEntry("body", "body2") });
-        db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name2"), new HashEntry("body", "name2") });
+        db.HashSet("doc1", [new("name", "name1"), new("body", "body1")]);
+        db.HashSet("doc1", [new("name", "name2"), new("body", "body2")]);
+        db.HashSet("doc1", [new("name", "name2"), new("body", "name2")]);
 
         var reply = ft.SpellCheck(index, "name");
         Assert.Single(reply.Keys);
@@ -2447,11 +2451,11 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
-        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+        ft.Create(index, new(), new Schema().AddTextField("name").AddTextField("body"));
 
-        db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name1"), new HashEntry("body", "body1") });
-        db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name2"), new HashEntry("body", "body2") });
-        db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name2"), new HashEntry("body", "name2") });
+        db.HashSet("doc1", [new("name", "name1"), new("body", "body1")]);
+        db.HashSet("doc1", [new("name", "name2"), new("body", "body2")]);
+        db.HashSet("doc1", [new("name", "name2"), new("body", "name2")]);
 
         var reply = await ft.SpellCheckAsync(index, "name");
         Assert.Single(reply.Keys);
@@ -2467,11 +2471,11 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
-        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+        ft.Create(index, new(), new Schema().AddTextField("name").AddTextField("body"));
         ft.DictAdd("slang", "timmies", "toque", "toonie", "serviette", "kerfuffle", "chesterfield");
         var expected = new Dictionary<string, Dictionary<string, double>>()
         {
-            ["tooni"] = new Dictionary<string, double>()
+            ["tooni"] = new()
             {
                 ["toonie"] = 0d
             }
@@ -2491,11 +2495,11 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
-        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+        ft.Create(index, new(), new Schema().AddTextField("name").AddTextField("body"));
         ft.DictAdd("slang", "timmies", "toque", "toonie", "serviette", "kerfuffle", "chesterfield");
         var expected = new Dictionary<string, Dictionary<string, double>>()
         {
-            ["tooni"] = new Dictionary<string, double>()
+            ["tooni"] = new()
             {
                 ["toonie"] = 0d
             }
@@ -2514,7 +2518,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = GetCleanDatabase();
         var ft = db.FT();
 
-        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+        ft.Create(index, new(), new Schema().AddTextField("name").AddTextField("body"));
         // distance suppose to be between 1 and 4
         Assert.Throws<RedisServerException>(() => ft.SpellCheck(index, "name", new FTSpellCheckParams().Distance(0)));
     }
@@ -2525,7 +2529,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = GetCleanDatabase();
         var ft = db.FT();
 
-        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+        ft.Create(index, new(), new Schema().AddTextField("name").AddTextField("body"));
         // distance suppose to be between 1 and 4
         await Assert.ThrowsAsync<RedisServerException>(async () => await ft.SpellCheckAsync(index, "name", new FTSpellCheckParams().Distance(0)));
     }
@@ -2536,7 +2540,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = GetCleanDatabase();
         var ft = db.FT();
 
-        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("t"));
+        ft.Create(index, new(), new Schema().AddTextField("t"));
         // dialect 0 is not valid
         Assert.Throws<RedisServerException>(() => ft.SpellCheck(index, "name", new FTSpellCheckParams().Dialect(0)));
     }
@@ -2547,7 +2551,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = GetCleanDatabase();
         var ft = db.FT();
 
-        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("t"));
+        ft.Create(index, new(), new Schema().AddTextField("t"));
         // dialect 0 is not valid
         await Assert.ThrowsAsync<RedisServerException>(async () => await ft.SpellCheckAsync(index, "name", new FTSpellCheckParams().Dialect(0)));
     }
@@ -2560,7 +2564,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT(2);
 
         var sc = new Schema().AddNumericField("numval");
-        Assert.True(await ft.CreateAsync("idx", new FTCreateParams(), sc));
+        Assert.True(await ft.CreateAsync("idx", new(), sc));
 
         db.HashSet("1", "numval", 1);
         db.HashSet("2", "numval", 2);
@@ -2575,16 +2579,12 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             ["min"] = 1,
             ["max"] = 2
         };
-        query = new Query("@numval:[$min $max]");
+        query = new("@numval:[$min $max]");
         res = await ft.SearchAsync("idx", query.Params(paramValue));
         Assert.Equal(2, res.TotalResults);
     }
 
-    string key = "SugTestKey";
-
-    public SearchTests(EndpointsFixture endpointsFixture) : base(endpointsFixture)
-    {
-    }
+    readonly string key = "SugTestKey";
 
     [Fact]
     public void TestAddAndGetSuggestion()
@@ -2792,7 +2792,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2L, await ft.SugLenAsync(key));
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.9")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.9")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestProfileSearch(string endpointId)
     {
@@ -2800,13 +2800,14 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT();
 
         Schema sc = new Schema().AddTextField("t1", 1.0).AddTextField("t2", 1.0);
-        Assert.True(ft.Create(index, new FTCreateParams(), sc));
+        Assert.True(ft.Create(index, new(), sc));
 
-        db.HashSet("doc1", new HashEntry[] {
-                                new HashEntry("t1", "foo"),
-                                new HashEntry("t2", "bar")});
+        db.HashSet("doc1", [
+            new("t1", "foo"),
+                                new("t2", "bar")
+        ]);
 
-        var profile = ft.ProfileOnSearch(index, new Query("foo"));
+        var profile = ft.ProfileOnSearch(index, new("foo"));
         // Iterators profile={Type=TEXT, Time=0.0, Term=foo, Counter=1, Size=1}
         var info = (RedisResult[])profile.Item2.Info!;
         int shardsIndex = Array.FindIndex(info, item => item.ToString() == "Shards");
@@ -2815,7 +2816,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         CustomAssertions.GreaterThan(coordinatorIndex, -1);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.9")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.9")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestProfileSearchAsync(string endpointId)
     {
@@ -2823,13 +2824,14 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT();
 
         Schema sc = new Schema().AddTextField("t1", 1.0).AddTextField("t2", 1.0);
-        Assert.True(ft.Create(index, new FTCreateParams(), sc));
+        Assert.True(ft.Create(index, new(), sc));
 
-        db.HashSet("doc1", new HashEntry[] {
-                                new HashEntry("t1", "foo"),
-                                new HashEntry("t2", "bar")});
+        db.HashSet("doc1", [
+            new("t1", "foo"),
+                                new("t2", "bar")
+        ]);
 
-        var profile = await ft.ProfileOnSearchAsync(index, new Query("foo"));
+        var profile = await ft.ProfileOnSearchAsync(index, new("foo"));
         var info = (RedisResult[])profile.Item2.Info!;
         int shardsIndex = Array.FindIndex(info, item => item.ToString() == "Shards");
         int coordinatorIndex = Array.FindIndex(info, item => item.ToString() == "Coordinator");
@@ -2837,7 +2839,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         CustomAssertions.GreaterThan(coordinatorIndex, -1);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.9")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.9")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestProfileSearch_WithoutCoordinator(string endpointId)
     {
@@ -2845,18 +2847,19 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT();
 
         Schema sc = new Schema().AddTextField("t1", 1.0).AddTextField("t2", 1.0);
-        Assert.True(ft.Create(index, new FTCreateParams(), sc));
+        Assert.True(ft.Create(index, new(), sc));
 
-        db.HashSet("doc1", new HashEntry[] {
-                                new HashEntry("t1", "foo"),
-                                new HashEntry("t2", "bar")});
+        db.HashSet("doc1", [
+            new("t1", "foo"),
+                                new("t2", "bar")
+        ]);
 
-        var profile = ft.ProfileSearch(index, new Query("foo"));
+        var profile = ft.ProfileSearch(index, new("foo"));
         var info = profile.Item2;
         CustomAssertions.GreaterThan(info.Count, 4);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.9")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.9")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestProfileSearchAsync_WithoutCoordinator(string endpointId)
     {
@@ -2864,18 +2867,19 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT();
 
         Schema sc = new Schema().AddTextField("t1", 1.0).AddTextField("t2", 1.0);
-        Assert.True(ft.Create(index, new FTCreateParams(), sc));
+        Assert.True(ft.Create(index, new(), sc));
 
-        db.HashSet("doc1", new HashEntry[] {
-                                new HashEntry("t1", "foo"),
-                                new HashEntry("t2", "bar")});
+        db.HashSet("doc1", [
+            new("t1", "foo"),
+                                new("t2", "bar")
+        ]);
 
-        var profile = await ft.ProfileSearchAsync(index, new Query("foo"));
+        var profile = await ft.ProfileSearchAsync(index, new("foo"));
         var info = profile.Item2;
         CustomAssertions.GreaterThan(info.Count, 4);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.9")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.9")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestProfile(string endpointId)
     {
@@ -2911,7 +2915,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         CustomAssertions.GreaterThan(coordinatorIndex, -1);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.9")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.9")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestProfileAsync(string endpointId)
     {
@@ -2947,7 +2951,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         CustomAssertions.GreaterThan(coordinatorIndex, -1);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.9")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.9")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestProfile_WithoutCoordinator(string endpointId)
     {
@@ -2977,7 +2981,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         CustomAssertions.GreaterThan(aggregateDet.Count, 4);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.9")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.9")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestProfileAsync_WithoutCoordinator(string endpointId)
     {
@@ -3007,7 +3011,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         CustomAssertions.GreaterThan(searchDet.Count, 4);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.3.240")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.3.240")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestProfileIssue306(string endpointId)
     {
@@ -3037,7 +3041,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, aggregateRes.TotalResults);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.3.240")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.3.240")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestProfileAsyncIssue306(string endpointId)
     {
@@ -3069,13 +3073,13 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void TestProfileCommandBuilder()
     {
-        var search = SearchCommandBuilder.ProfileSearch("index", new Query(), true);
-        var aggregate = SearchCommandBuilder.ProfileAggregate("index", new AggregationRequest(), true);
+        var search = SearchCommandBuilder.ProfileSearch("index", new(), true);
+        var aggregate = SearchCommandBuilder.ProfileAggregate("index", new(), true);
 
         Assert.Equal("FT.PROFILE", search.Command);
         Assert.Equal("FT.PROFILE", aggregate.Command);
-        Assert.Equal(new object[] { "index", "SEARCH", "LIMITED", "QUERY", "*" }, search.Args);
-        Assert.Equal(new object[] { "index", "AGGREGATE", "LIMITED", "QUERY", "*" }, aggregate.Args);
+        Assert.Equal(["index", "SEARCH", "LIMITED", "QUERY", "*"], search.Args);
+        Assert.Equal(["index", "AGGREGATE", "LIMITED", "QUERY", "*"], aggregate.Args);
     }
 
     [SkippableTheory]
@@ -3096,57 +3100,57 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.True(ft.Create("myIndex", ftParams, schema));
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.2.1")]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.2.1")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void GeoShapeFilterSpherical(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
-        WKTReader reader = new WKTReader();
-        GeometryFactory factory = new GeometryFactory();
+        WKTReader reader = new();
+        GeometryFactory factory = new();
 
         Assert.True(ft.Create(index, new Schema().AddGeoShapeField("geom", GeoShapeField.CoordinateSystem.SPHERICAL)));
 
         // Create polygons
-        Polygon small = factory.CreatePolygon(new Coordinate[] {
-            new Coordinate(34.9001, 29.7001),
-            new Coordinate(34.9001, 29.7100),
-            new Coordinate(34.9100, 29.7100),
-            new Coordinate(34.9100, 29.7001),
-            new Coordinate(34.9001, 29.7001)
-        });
+        Polygon small = factory.CreatePolygon([
+            new(34.9001, 29.7001),
+            new(34.9001, 29.7100),
+            new(34.9100, 29.7100),
+            new(34.9100, 29.7001),
+            new(34.9001, 29.7001)
+        ]);
         db.HashSet("small", "geom", small.ToString());
 
-        Polygon large = factory.CreatePolygon(new Coordinate[] {
-            new Coordinate(34.9001, 29.7001),
-            new Coordinate(34.9001, 29.7200),
-            new Coordinate(34.9200, 29.7200),
-            new Coordinate(34.9200, 29.7001),
-            new Coordinate(34.9001, 29.7001)
-        });
+        Polygon large = factory.CreatePolygon([
+            new(34.9001, 29.7001),
+            new(34.9001, 29.7200),
+            new(34.9200, 29.7200),
+            new(34.9200, 29.7001),
+            new(34.9001, 29.7001)
+        ]);
         db.HashSet("large", "geom", large.ToString());
 
-        Polygon within = factory.CreatePolygon(new Coordinate[] {
-            new Coordinate(34.9000, 29.7000),
-            new Coordinate(34.9000, 29.7150),
-            new Coordinate(34.9150, 29.7150),
-            new Coordinate(34.9150, 29.7000),
-            new Coordinate(34.9000, 29.7000)
-        });
+        Polygon within = factory.CreatePolygon([
+            new(34.9000, 29.7000),
+            new(34.9000, 29.7150),
+            new(34.9150, 29.7150),
+            new(34.9150, 29.7000),
+            new(34.9000, 29.7000)
+        ]);
 
         var res = ft.Search(index, new Query($"@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
         Assert.Equal(1, res.TotalResults);
         Assert.Single(res.Documents);
         Assert.Equal(small, reader.Read(res.Documents[0]["geom"].ToString()));
 
-        Polygon contains = factory.CreatePolygon(new Coordinate[] {
-            new Coordinate(34.9002, 29.7002),
-            new Coordinate(34.9002, 29.7050),
-            new Coordinate(34.9050, 29.7050),
-            new Coordinate(34.9050, 29.7002),
-            new Coordinate(34.9002, 29.7002)
-        });
+        Polygon contains = factory.CreatePolygon([
+            new(34.9002, 29.7002),
+            new(34.9002, 29.7050),
+            new(34.9050, 29.7050),
+            new(34.9050, 29.7002),
+            new(34.9002, 29.7002)
+        ]);
 
         res = ft.Search(index, new Query($"@geom:[contains $poly]").AddParam("poly", contains.ToString()).Dialect(3));
         Assert.Equal(2, res.TotalResults);
@@ -3161,57 +3165,57 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, res.Documents.Count);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.2.1")]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.2.1")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task GeoShapeFilterSphericalAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
-        WKTReader reader = new WKTReader();
-        GeometryFactory factory = new GeometryFactory();
+        WKTReader reader = new();
+        GeometryFactory factory = new();
 
         Assert.True(await ft.CreateAsync(index, new Schema().AddGeoShapeField("geom", GeoShapeField.CoordinateSystem.SPHERICAL)));
 
         // Create polygons
-        Polygon small = factory.CreatePolygon(new Coordinate[] {
-            new Coordinate(34.9001, 29.7001),
-            new Coordinate(34.9001, 29.7100),
-            new Coordinate(34.9100, 29.7100),
-            new Coordinate(34.9100, 29.7001),
-            new Coordinate(34.9001, 29.7001)
-        });
+        Polygon small = factory.CreatePolygon([
+            new(34.9001, 29.7001),
+            new(34.9001, 29.7100),
+            new(34.9100, 29.7100),
+            new(34.9100, 29.7001),
+            new(34.9001, 29.7001)
+        ]);
         db.HashSet("small", "geom", small.ToString());
 
-        Polygon large = factory.CreatePolygon(new Coordinate[] {
-            new Coordinate(34.9001, 29.7001),
-            new Coordinate(34.9001, 29.7200),
-            new Coordinate(34.9200, 29.7200),
-            new Coordinate(34.9200, 29.7001),
-            new Coordinate(34.9001, 29.7001)
-        });
+        Polygon large = factory.CreatePolygon([
+            new(34.9001, 29.7001),
+            new(34.9001, 29.7200),
+            new(34.9200, 29.7200),
+            new(34.9200, 29.7001),
+            new(34.9001, 29.7001)
+        ]);
         db.HashSet("large", "geom", large.ToString());
 
-        Polygon within = factory.CreatePolygon(new Coordinate[] {
-            new Coordinate(34.9000, 29.7000),
-            new Coordinate(34.9000, 29.7150),
-            new Coordinate(34.9150, 29.7150),
-            new Coordinate(34.9150, 29.7000),
-            new Coordinate(34.9000, 29.7000)
-        });
+        Polygon within = factory.CreatePolygon([
+            new(34.9000, 29.7000),
+            new(34.9000, 29.7150),
+            new(34.9150, 29.7150),
+            new(34.9150, 29.7000),
+            new(34.9000, 29.7000)
+        ]);
 
         var res = await ft.SearchAsync(index, new Query($"@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
         Assert.Equal(1, res.TotalResults);
         Assert.Single(res.Documents);
         Assert.Equal(small, reader.Read(res.Documents[0]["geom"].ToString()));
 
-        Polygon contains = factory.CreatePolygon(new Coordinate[] {
-            new Coordinate(34.9002, 29.7002),
-            new Coordinate(34.9002, 29.7050),
-            new Coordinate(34.9050, 29.7050),
-            new Coordinate(34.9050, 29.7002),
-            new Coordinate(34.9002, 29.7002)
-        });
+        Polygon contains = factory.CreatePolygon([
+            new(34.9002, 29.7002),
+            new(34.9002, 29.7050),
+            new(34.9050, 29.7050),
+            new(34.9050, 29.7002),
+            new(34.9002, 29.7002)
+        ]);
 
         res = await ft.SearchAsync(index, new Query($"@geom:[contains $poly]").AddParam("poly", contains.ToString()).Dialect(3));
         Assert.Equal(2, res.TotalResults);
@@ -3226,29 +3230,35 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, res.Documents.Count);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.2.1")]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.2.1")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void GeoShapeFilterFlat(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
-        WKTReader reader = new WKTReader();
-        GeometryFactory factory = new GeometryFactory();
+        WKTReader reader = new();
+        GeometryFactory factory = new();
 
         Assert.True(ft.Create(index, new Schema().AddGeoShapeField("geom", GeoShapeField.CoordinateSystem.FLAT)));
 
         // polygon type
-        Polygon small = factory.CreatePolygon(new Coordinate[]{new Coordinate(1, 1),
-        new Coordinate(1, 100), new Coordinate(100, 100), new Coordinate(100, 1), new Coordinate(1, 1)});
+        Polygon small = factory.CreatePolygon([
+            new(1, 1),
+        new(1, 100), new(100, 100), new(100, 1), new(1, 1)
+        ]);
         db.HashSet("small", "geom", small.ToString());
 
-        Polygon large = factory.CreatePolygon(new Coordinate[]{new Coordinate(1, 1),
-        new Coordinate(1, 200), new Coordinate(200, 200), new Coordinate(200, 1), new Coordinate(1, 1)});
+        Polygon large = factory.CreatePolygon([
+            new(1, 1),
+        new(1, 200), new(200, 200), new(200, 1), new(1, 1)
+        ]);
         db.HashSet("large", "geom", large.ToString());
 
         // within condition
-        Polygon within = factory.CreatePolygon(new Coordinate[]{new Coordinate(0, 0),
-        new Coordinate(0, 150), new Coordinate(150, 150), new Coordinate(150, 0), new Coordinate(0, 0)});
+        Polygon within = factory.CreatePolygon([
+            new(0, 0),
+        new(0, 150), new(150, 150), new(150, 0), new(0, 0)
+        ]);
 
         SearchResult res = ft.Search(index, new Query("@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
         Assert.Equal(1, res.TotalResults);
@@ -3256,8 +3266,10 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(small, reader.Read(res.Documents[0]["geom"].ToString()));
 
         // contains condition
-        Polygon contains = factory.CreatePolygon(new Coordinate[]{new Coordinate(2, 2),
-        new Coordinate(2, 50), new Coordinate(50, 50), new Coordinate(50, 2), new Coordinate(2, 2)});
+        Polygon contains = factory.CreatePolygon([
+            new(2, 2),
+        new(2, 50), new(50, 50), new(50, 2), new(2, 2)
+        ]);
 
         res = ft.Search(index, new Query("@geom:[contains $poly]").AddParam("poly", contains.ToString()).Dialect(3));
         Assert.Equal(2, res.TotalResults);
@@ -3272,29 +3284,35 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, res.Documents.Count);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.2.1")]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.2.1")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task GeoShapeFilterFlatAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
-        WKTReader reader = new WKTReader();
-        GeometryFactory factory = new GeometryFactory();
+        WKTReader reader = new();
+        GeometryFactory factory = new();
 
         Assert.True(await ft.CreateAsync(index, new Schema().AddGeoShapeField("geom", GeoShapeField.CoordinateSystem.FLAT)));
 
         // polygon type
-        Polygon small = factory.CreatePolygon(new Coordinate[]{new Coordinate(1, 1),
-        new Coordinate(1, 100), new Coordinate(100, 100), new Coordinate(100, 1), new Coordinate(1, 1)});
+        Polygon small = factory.CreatePolygon([
+            new(1, 1),
+        new(1, 100), new(100, 100), new(100, 1), new(1, 1)
+        ]);
         db.HashSet("small", "geom", small.ToString());
 
-        Polygon large = factory.CreatePolygon(new Coordinate[]{new Coordinate(1, 1),
-        new Coordinate(1, 200), new Coordinate(200, 200), new Coordinate(200, 1), new Coordinate(1, 1)});
+        Polygon large = factory.CreatePolygon([
+            new(1, 1),
+        new(1, 200), new(200, 200), new(200, 1), new(1, 1)
+        ]);
         db.HashSet("large", "geom", large.ToString());
 
         // within condition
-        Polygon within = factory.CreatePolygon(new Coordinate[]{new Coordinate(0, 0),
-        new Coordinate(0, 150), new Coordinate(150, 150), new Coordinate(150, 0), new Coordinate(0, 0)});
+        Polygon within = factory.CreatePolygon([
+            new(0, 0),
+        new(0, 150), new(150, 150), new(150, 0), new(0, 0)
+        ]);
 
         SearchResult res = await ft.SearchAsync(index, new Query("@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
         Assert.Equal(1, res.TotalResults);
@@ -3302,8 +3320,10 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(small, reader.Read(res.Documents[0]["geom"].ToString()));
 
         // contains condition
-        Polygon contains = factory.CreatePolygon(new Coordinate[]{new Coordinate(2, 2),
-        new Coordinate(2, 50), new Coordinate(50, 50), new Coordinate(50, 2), new Coordinate(2, 2)});
+        Polygon contains = factory.CreatePolygon([
+            new(2, 2),
+        new(2, 50), new(50, 50), new(50, 2), new(2, 2)
+        ]);
 
         res = await ft.SearchAsync(index, new Query("@geom:[contains $poly]").AddParam("poly", contains.ToString()).Dialect(3));
         Assert.Equal(2, res.TotalResults);
@@ -3327,10 +3347,11 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var buildCommand = SearchCommandBuilder.Aggregate("idx:users", request);
         // expected: FT.AGGREGATE idx:users * FILTER @StatusId==1 GROUPBY 1 @CreatedDay REDUCE COUNT_DISTINCT 1 @UserId REDUCE COUNT 0 AS count DIALECT 3
         Assert.Equal("FT.AGGREGATE", buildCommand.Command);
-        Assert.Equal(new object[] { "idx:users", "*", "FILTER", "@StatusId==1", "GROUPBY", 1, "@CreatedDay", "REDUCE", "COUNT_DISTINCT", 1, "@UserId", "REDUCE", "COUNT", 0, "AS", "count", "DIALECT", 3 }, buildCommand.Args);
+        Assert.Equal(["idx:users", "*", "FILTER", "@StatusId==1", "GROUPBY", 1, "@CreatedDay", "REDUCE", "COUNT_DISTINCT", 1, "@UserId", "REDUCE", "COUNT", 0, "AS", "count", "DIALECT", 3
+        ], buildCommand.Args);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.3.240")]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.3.240")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestNumericInDialect4(string endpointId)
     {
@@ -3342,18 +3363,18 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddNumericField("version");
 
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
-        Dictionary<string, object> fields4 = new Dictionary<string, object>
+        Dictionary<string, object> fields4 = new()
         {
             { "title", "hello world" },
             { "version", 123 }
         };
         AddDocument(db, "qux", fields4);
 
-        Assert.Equal(1, ft.Search(index, new Query("@version:[123 123]")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("@version:[123 123]")).TotalResults);
         Assert.Equal(1, ft.Search(index, new Query("@version:[123]").Dialect(4)).TotalResults);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.3.240")]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.3.240")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestNumericOperatorsInDialect4(string endpointId)
     {
@@ -3365,25 +3386,25 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddNumericField("version");
 
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
-        Dictionary<string, object> fields4 = new Dictionary<string, object>
+        Dictionary<string, object> fields4 = new()
         {
             { "title", "hello world" },
             { "version", 123 }
         };
         AddDocument(db, "qux", fields4);
 
-        Assert.Equal(1, ft.Search(index, new Query("@version:[123 123]")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("@version:[123 123]")).TotalResults);
         Assert.Equal(1, ft.Search(index, new Query("@version==123").Dialect(4)).TotalResults);
 
-        Assert.Equal(1, ft.Search(index, new Query("@version:[122 +inf]")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("@version:[122 +inf]")).TotalResults);
         Assert.Equal(1, ft.Search(index, new Query("@version>=122").Dialect(4)).TotalResults);
 
-        Assert.Equal(1, ft.Search(index, new Query("@version:[-inf 124]")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("@version:[-inf 124]")).TotalResults);
         Assert.Equal(1, ft.Search(index, new Query("@version<=124").Dialect(4)).TotalResults);
 
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.3.240")]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.3.240")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestNumericLogicalOperatorsInDialect4(string endpointId)
     {
@@ -3396,7 +3417,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddNumericField("id");
 
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
-        Dictionary<string, object> fields4 = new Dictionary<string, object>
+        Dictionary<string, object> fields4 = new()
         {
             { "title", "hello world" },
             { "version", 123 },
@@ -3406,13 +3427,13 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Assert.Equal(1, ft.Search(index, new Query("@version<=124").Dialect(4)).TotalResults);
 
-        Assert.Equal(1, ft.Search(index, new Query("@version:[123 123]")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("@version:[123 123]")).TotalResults);
         Assert.Equal(1, ft.Search(index, new Query("@version:[123] | @version:[124]").Dialect(4)).TotalResults);
 
-        Assert.Equal(1, ft.Search(index, new Query("@version:[123 123] | @version:[7890 7890]")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("@version:[123 123] | @version:[7890 7890]")).TotalResults);
         Assert.Equal(1, ft.Search(index, new Query("@version==123 | @version==7890").Dialect(4)).TotalResults);
 
-        Assert.Equal(1, ft.Search(index, new Query("@version:[123 123] | @id:[456 7890]")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("@version:[123 123] | @id:[456 7890]")).TotalResults);
         Assert.Equal(1, ft.Search(index, new Query("@version==123 @id==456").Dialect(4)).TotalResults);
     }
 
@@ -3426,7 +3447,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void TestDocumentLoad_Issue352()
     {
-        Document d = Document.Load("1", 0.5, null, new RedisValue[] { RedisValue.Null });
+        Document d = Document.Load("1", 0.5, null, [RedisValue.Null]);
         Assert.Empty(d.GetProperties().ToList());
     }
 
@@ -3455,7 +3476,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             bool ttlRefreshed = false;
             do
             {
-                db.HashSet("student:22222", new HashEntry[] { new("firstText", "Joe"), new("lastText", "Dod"), new("ageNumeric", 18) });
+                db.HashSet("student:22222", [new("firstText", "Joe"), new("lastText", "Dod"), new("ageNumeric", 18)]);
                 ttlRefreshed = db.KeyExpire("student:22222", TimeSpan.FromMilliseconds(500));
             } while (!ttlRefreshed);
 
@@ -3465,7 +3486,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             {
                 for (int i = 0; i < 1000000; i++)
                 {
-                    SearchResult result = ft.Search(index, new Query());
+                    SearchResult result = ft.Search(index, new());
                     List<Document> docs = result.Documents;
 
                     // check if doc is already dropped before search and load;
@@ -3486,7 +3507,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
                 }
             };
 
-            List<Task> tasks = new List<Task>();
+            List<Task> tasks = [];
             // try with 3 different tasks simultaneously to increase the chance of hitting it
             for (int i = 0; i < 3; i++) { tasks.Add(Task.Run(checker)); }
             Task checkTask = Task.WhenAll(tasks);

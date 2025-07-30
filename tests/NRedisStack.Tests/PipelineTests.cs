@@ -14,7 +14,7 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
 
     private const string key = "PIPELINE_TESTS";
 
-    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedisTheory(Comparison.GreaterThanOrEqual, "7.1.242")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
     public void TestModulesPipeline(string endpointId)
@@ -27,7 +27,7 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
         _ = pipeline.Cms.InitByDimAsync("cms-key", 100, 5);
         _ = pipeline.Cf.ReserveAsync("cf-key", 100);
         _ = pipeline.Json.SetAsync("json-key", "$", "{}");
-        _ = pipeline.Ft.CreateAsync("ft-key", new FTCreateParams(), new Schema().AddTextField("txt"));
+        _ = pipeline.Ft.CreateAsync("ft-key", new(), new Schema().AddTextField("txt"));
         _ = pipeline.Tdigest.CreateAsync("tdigest-key", 100);
         _ = pipeline.Ts.CreateAsync("ts-key", 100);
         _ = pipeline.TopK.ReserveAsync("topk-key", 100, 100, 100);
@@ -75,7 +75,7 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
         _ = pipeline.Cms.InitByDimAsync("cms-key", 100, 5);
         _ = pipeline.Cf.ReserveAsync("cf-key", 100);
         _ = pipeline.Json.SetAsync("json-key", "$", "{}");
-        _ = pipeline.Ft.CreateAsync("ft-key", new FTCreateParams(), new Schema().AddTextField("txt"));
+        _ = pipeline.Ft.CreateAsync("ft-key", new(), new Schema().AddTextField("txt"));
         _ = pipeline.Tdigest.CreateAsync("tdigest-key", 100);
         _ = pipeline.Ts.CreateAsync("ts-key", 100);
         _ = pipeline.TopK.ReserveAsync("topk-key", 100, 100, 100);

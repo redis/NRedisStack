@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
-using System.Net.Http;
 
 public class FaultInjectorClient
 {
@@ -62,7 +61,7 @@ public class FaultInjectorClient
                 }
                 catch (HttpRequestException e)
                 {
-                    throw new Exception("Fault injection proxy error", e);
+                    throw new("Fault injection proxy error", e);
                 }
             }
             return false;

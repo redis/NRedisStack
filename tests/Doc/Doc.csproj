@@ -5,7 +5,7 @@
         <IsPackable>false</IsPackable>
 
         <!-- don't warn about obsolete APIs, or theory with no data -->
-        <Nowarn>$(Nowarn);CS0612;CS0618;xUnit1006</Nowarn>
+        <Nowarn>$(Nowarn);CS0612;CS0618</Nowarn>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="GitHubActionsTestLogger">

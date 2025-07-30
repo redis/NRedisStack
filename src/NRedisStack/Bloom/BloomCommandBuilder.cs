@@ -7,22 +7,22 @@ public static class BloomCommandBuilder
 {
     public static SerializedCommand Add(RedisKey key, RedisValue item)
     {
-        return new SerializedCommand(BF.ADD, key, item);
+        return new(BF.ADD, key, item);
     }
 
     public static SerializedCommand Card(RedisKey key)
     {
-        return new SerializedCommand(BF.CARD, key);
+        return new(BF.CARD, key);
     }
 
     public static SerializedCommand Exists(RedisKey key, RedisValue item)
     {
-        return new SerializedCommand(BF.EXISTS, key, item);
+        return new(BF.EXISTS, key, item);
     }
 
     public static SerializedCommand Info(RedisKey key)
     {
-        return new SerializedCommand(BF.INFO, key);
+        return new(BF.INFO, key);
     }
 
     public static SerializedCommand Insert(RedisKey key, RedisValue[] items, int? capacity = null,
@@ -34,12 +34,12 @@ public static class BloomCommandBuilder
 
         var args = BloomAux.BuildInsertArgs(key, items, capacity, error, expansion, nocreate, nonscaling);
 
-        return new SerializedCommand(BF.INSERT, args);
+        return new(BF.INSERT, args);
     }
 
     public static SerializedCommand LoadChunk(RedisKey key, long iterator, Byte[] data)
     {
-        return new SerializedCommand(BF.LOADCHUNK, key, iterator, data);
+        return new(BF.LOADCHUNK, key, iterator, data);
     }
 
     public static SerializedCommand MAdd(RedisKey key, params RedisValue[] items)
@@ -47,10 +47,10 @@ public static class BloomCommandBuilder
         if (items.Length < 1)
             throw new ArgumentOutOfRangeException(nameof(items));
 
-        List<object> args = new List<object> { key };
+        List<object> args = [key];
         args.AddRange(items.Cast<object>());
 
-        return new SerializedCommand(BF.MADD, args);
+        return new(BF.MADD, args);
     }
 
     public static SerializedCommand MExists(RedisKey key, RedisValue[] items)
@@ -58,17 +58,17 @@ public static class BloomCommandBuilder
         if (items.Length < 1)
             throw new ArgumentOutOfRangeException(nameof(items));
 
-        List<object> args = new List<object> { key };
+        List<object> args = [key];
         args.AddRange(items.Cast<object>());
 
-        return new SerializedCommand(BF.MEXISTS, args);
+        return new(BF.MEXISTS, args);
 
     }
 
     public static SerializedCommand Reserve(RedisKey key, double errorRate, long capacity,
         int? expansion = null, bool nonscaling = false)
     {
-        List<object> args = new List<object> { key, errorRate, capacity };
+        List<object> args = [key, errorRate, capacity];
 
         if (expansion != null)
         {
@@ -80,11 +80,11 @@ public static class BloomCommandBuilder
             args.Add(BloomArgs.NONSCALING);
         }
 
-        return new SerializedCommand(BF.RESERVE, args);
+        return new(BF.RESERVE, args);
     }
 
     public static SerializedCommand ScanDump(RedisKey key, long iterator)
     {
-        return new SerializedCommand(BF.SCANDUMP, key, iterator);
+        return new(BF.SCANDUMP, key, iterator);
     }
 }

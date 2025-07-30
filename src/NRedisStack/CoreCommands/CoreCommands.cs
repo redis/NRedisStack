@@ -16,7 +16,7 @@ public static class CoreCommands
     /// <remarks><seealso href="https://redis.io/commands/client-setinfo/"/></remarks>
     public static bool ClientSetInfo(this IDatabase db, SetInfoAttr attr, string value)
     {
-        var compareVersions = db.Multiplexer.GetServer(db.Multiplexer.GetEndPoints()[0]).Version.CompareTo(new Version(7, 1, 242));
+        var compareVersions = db.Multiplexer.GetServer(db.Multiplexer.GetEndPoints()[0]).Version.CompareTo(new(7, 1, 242));
         if (compareVersions < 0) // the server does not support the CLIENT SETNAME command
             return false;
         return db.Execute(CoreCommandBuilder.ClientSetInfo(attr, value)).OKtoBoolean();
@@ -76,7 +76,7 @@ public static class CoreCommands
     /// <remarks><seealso href="https://redis.io/commands/bzmpop"/></remarks>
     public static Tuple<RedisKey, List<RedisValueWithScore>>? BZMPop(this IDatabase db, double timeout, RedisKey key, MinMaxModifier minMaxModifier, long? count = null)
     {
-        return BZMPop(db, timeout, new[] { key }, minMaxModifier, count);
+        return BZMPop(db, timeout, [key], minMaxModifier, count);
     }
 
     /// <summary>
@@ -124,7 +124,7 @@ public static class CoreCommands
     /// <remarks><seealso href="https://redis.io/commands/bzpopmin"/></remarks>
     public static Tuple<RedisKey, RedisValueWithScore>? BZPopMin(this IDatabase db, RedisKey key, double timeout)
     {
-        return BZPopMin(db, new[] { key }, timeout);
+        return BZPopMin(db, [key], timeout);
     }
 
 
@@ -173,7 +173,7 @@ public static class CoreCommands
     /// <remarks><seealso href="https://redis.io/commands/bzpopmax"/></remarks>
     public static Tuple<RedisKey, RedisValueWithScore>? BZPopMax(this IDatabase db, RedisKey key, double timeout)
     {
-        return BZPopMax(db, new[] { key }, timeout);
+        return BZPopMax(db, [key], timeout);
     }
 
     /// <summary>
@@ -228,7 +228,7 @@ public static class CoreCommands
     /// <remarks><seealso href="https://redis.io/commands/blmpop"/></remarks>
     public static Tuple<RedisKey, List<RedisValue>>? BLMPop(this IDatabase db, double timeout, RedisKey key, ListSide listSide, long? count = null)
     {
-        return BLMPop(db, timeout, new[] { key }, listSide, count);
+        return BLMPop(db, timeout, [key], listSide, count);
     }
 
     /// <summary>
@@ -276,7 +276,7 @@ public static class CoreCommands
     /// <remarks><seealso href="https://redis.io/commands/blpop"/></remarks>
     public static Tuple<RedisKey, RedisValue>? BLPop(this IDatabase db, RedisKey key, double timeout)
     {
-        return BLPop(db, new[] { key }, timeout);
+        return BLPop(db, [key], timeout);
     }
 
     /// <summary>
@@ -324,7 +324,7 @@ public static class CoreCommands
     /// <remarks><seealso href="https://redis.io/commands/brpop"/></remarks>
     public static Tuple<RedisKey, RedisValue>? BRPop(this IDatabase db, RedisKey key, double timeout)
     {
-        return BRPop(db, new[] { key }, timeout);
+        return BRPop(db, [key], timeout);
     }
 
     /// <summary>
@@ -414,7 +414,7 @@ public static class CoreCommands
     /// </remarks>
     public static StreamEntry[]? XRead(this IDatabase db, RedisKey key, RedisValue position, int? count = null, int? timeoutMilliseconds = null)
     {
-        var result = XRead(db, new[] { key }, new[] { position }, count, timeoutMilliseconds);
+        var result = XRead(db, [key], [position], count, timeoutMilliseconds);
         if (result == null || result.Length == 0)
         {
             return null;
@@ -473,7 +473,7 @@ public static class CoreCommands
     /// </remarks>
     public static StreamEntry[]? XReadGroup(this IDatabase db, RedisValue groupName, RedisValue consumerName, RedisKey key, RedisValue position, int? count = null, int? timeoutMilliseconds = null, bool? noAck = null)
     {
-        var result = XReadGroup(db, groupName, consumerName, new[] { key }, new[] { position }, count, timeoutMilliseconds, noAck);
+        var result = XReadGroup(db, groupName, consumerName, [key], [position], count, timeoutMilliseconds, noAck);
         if (result == null || result.Length == 0)
         {
             return null;
