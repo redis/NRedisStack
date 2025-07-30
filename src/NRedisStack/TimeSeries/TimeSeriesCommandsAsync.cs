@@ -67,7 +67,7 @@ public class TimeSeriesCommandsAsync : ITimeSeriesCommandsAsync
                 labels, uncompressed, chunkSizeBytes))).ToTimeStamp();
     }
 
-        
+
     [Obsolete("Please use the other method with TsIncrByParams and check related builder TsIncryByParamsBuilder to build parameters.")]
     public async Task<TimeStamp> IncrByAsync(string key, TsIncrByParams parameters) => (await _db.ExecuteAsync(TimeSeriesCommandsBuilder.IncrBy(key, parameters))).ToTimeStamp();
 
@@ -82,7 +82,7 @@ public class TimeSeriesCommandsAsync : ITimeSeriesCommandsAsync
                 key, value, timestamp, retentionTime,
                 labels, uncompressed, chunkSizeBytes))).ToTimeStamp();
     }
-        
+
     [Obsolete("Please use the other method with TsDecrByParams and check related builder TsDecryByParamsBuilder to build parameters.")]
     public async Task<TimeStamp> DecrByAsync(string key, TsDecrByParams parameters) => (await _db.ExecuteAsync(TimeSeriesCommandsBuilder.DecrBy(key, parameters))).ToTimeStamp();
 

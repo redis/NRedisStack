@@ -606,7 +606,7 @@ internal static class ResponseParser
         if (res.All(x => x.Resp2Type != ResultType.Array))
         {
             var keys = res.Select(x => x.ToString());
-            sets.Add([..keys]);
+            sets.Add([.. keys]);
             return sets;
         }
 
