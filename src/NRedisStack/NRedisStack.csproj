@@ -5,6 +5,10 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageIcon>Redis.png</PackageIcon>
+
+        <!-- don't warn about overload gloop -->
+        <Nowarn>$(Nowarn);RS0026</Nowarn>
+
         <Version>1.0.0-beta1</Version>
         <ReleaseVersion>1.0.0-beta1</ReleaseVersion>
         <PackageVersion>1.0.0-beta1</PackageVersion>
@@ -16,5 +20,18 @@
         <PackageReference Include="System.Text.Json" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net481'"/>
         <None Include="../../Redis.png" Link="Redis.png" Pack="true" PackagePath="/" Visible="false"/>
         <None Include="../../README.md" Link="README.md" Pack="true" PackagePath="/" Visible="false"/>
+    </ItemGroup>
+    <ItemGroup>
+        <!-- enable API tracking -->
+        <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+    <ItemGroup>
+      <None Remove="PublicAPI\PublicAPI.Shipped.txt" />
+      <AdditionalFiles Include="PublicAPI\PublicAPI.Shipped.txt" />
+      <None Remove="PublicAPI\PublicAPI.Unshipped.txt" />
+      <AdditionalFiles Include="PublicAPI\PublicAPI.Unshipped.txt" />
     </ItemGroup>
 </Project>

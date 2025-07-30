@@ -5,6 +5,7 @@
         <PackageVersion Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3"/>
         <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0"/>
         <PackageVersion Include="Nerdbank.GitVersioning" Version="3.7.115"/>
+        <PackageVersion Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="3.3.4"/>
 
         <!-- primary library -->
         <PackageVersion Include="NetTopologySuite" Version="2.5.0"/>
