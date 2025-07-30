@@ -24,11 +24,13 @@ runs:
   using: "composite"
   steps:
     - uses: actions/checkout@v4
-
-    - name: Install .NET Core 
+    
+    - name: Install .NET Core
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: ${{inputs.dotnet-version}}
+        dotnet-version: |
+          '9.0.x'
+          ${{inputs.dotnet-version}}
         dotnet-quality: 'ga'
 
     - name: Setup Environment variables and run Redis
