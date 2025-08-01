@@ -275,7 +275,7 @@ public class IndexCreationTests : AbstractNRedisStackTest, IDisposable
         res = ft.Search("idx", q.AddParam("vec", vec2));
         Assert.Equal(2, res.TotalResults);
     }
-    
+
     [Fact]
     public void TestMissingSortableFieldCommandArgs()
     {
@@ -412,6 +412,6 @@ public class IndexCreationTests : AbstractNRedisStackTest, IDisposable
 
         Assert.Equal("FT.CREATE IDX_NAME SCHEMA vector1 VECTOR FLAT 6 DIM 2 TYPE FLOAT32 DISTANCE_METRIC L2 INDEXMISSING " +
                     "vector2 VECTOR HNSW 14 DIM 3 TYPE FLOAT64 DISTANCE_METRIC COSINE M 10 EF_CONSTRUCTION 20 EF_RUNTIME 30 EPSILON 0.7 " +
-                    "vector3 VECTOR SVS-VAMANA 20 COMPRESSION LEAN_VEC4x8 DIM 4 TYPE FLOAT16 DISTANCE_METRIC IP CONSTRUCTION_WINDOW_SIZE 35 GRAPH_MAX_DEGREE 17 SEARCH_WINDOW_SIZE 30 EPSILON 0.5 TRAINING_THRESHOLD 100 REDUCE 50 INDEXMISSING", cmd);
+                    "vector3 VECTOR SVS-VAMANA 20 COMPRESSION LeanVec4x8 DIM 4 TYPE FLOAT16 DISTANCE_METRIC IP CONSTRUCTION_WINDOW_SIZE 35 GRAPH_MAX_DEGREE 17 SEARCH_WINDOW_SIZE 30 EPSILON 0.5 TRAINING_THRESHOLD 100 REDUCE 50 INDEXMISSING", cmd);
     }
 }
