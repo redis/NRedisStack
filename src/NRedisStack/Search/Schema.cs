@@ -556,8 +556,8 @@ namespace NRedisStack.Search
                         VectorCompressionAlgorithm.LVQ4 => "LVQ4",
                         VectorCompressionAlgorithm.LVQ4x4 => "LVQ4x4",
                         VectorCompressionAlgorithm.LVQ4x8 => "LVQ4x8",
-                        VectorCompressionAlgorithm.LeanVec4x8 => "LEAN_VEC4x8",
-                        VectorCompressionAlgorithm.LeanVec8x8 => "LEAN_VEC8x8",
+                        VectorCompressionAlgorithm.LeanVec4x8 => "LeanVec4x8",
+                        VectorCompressionAlgorithm.LeanVec8x8 => "LeanVec8x8",
                         _ => CompressionAlgorithm.ToString(), // fallback
                     });
                 }

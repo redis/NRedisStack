@@ -1,8 +1,10 @@
+using System.Runtime.InteropServices;
 using StackExchange.Redis;
 using NRedisStack.Search;
 using NRedisStack.RedisStackCommands;
 using Xunit;
 using NetTopologySuite.Geometries;
+using Xunit.Abstractions;
 
 namespace NRedisStack.Tests.Search;
 
@@ -10,10 +12,11 @@ public class IndexCreationTests : AbstractNRedisStackTest, IDisposable
 {
     private readonly string index = "MISSING_EMPTY_INDEX";
 
-    public IndexCreationTests(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+    public IndexCreationTests(EndpointsFixture endpointsFixture, ITestOutputHelper log) : base(endpointsFixture, log)
     {
     }
 
+    private readonly ITestOutputHelper log;
     private static readonly string INDEXMISSING = "INDEXMISSING";
     private static readonly string INDEXEMPTY = "INDEXEMPTY";
     private static readonly string SORTABLE = "SORTABLE";
@@ -144,6 +147,7 @@ public class IndexCreationTests : AbstractNRedisStackTest, IDisposable
             ["DIM"] = "4",
             ["DISTANCE_METRIC"] = "L2",
         });
+
         Assert.True(ft.Create("idx", new FTCreateParams(), schema));
 
         short[] vec1 = new short[] { 2, 1, 2, 2, 2 };
@@ -153,6 +157,74 @@ public class IndexCreationTests : AbstractNRedisStackTest, IDisposable
         short[] vec2 = new short[] { 1, 2, 2, 2 };
         byte[] vec2ToBytes = new byte[vec2.Length * sizeof(short)];
         Buffer.BlockCopy(vec2, 0, vec2ToBytes, 0, vec2ToBytes.Length);
+
+        var entries = new HashEntry[] { new HashEntry("v", vec1ToBytes), new HashEntry("v2", vec2ToBytes) };
+        db.HashSet("a", entries);
+        db.HashSet("b", entries);
+        db.HashSet("c", entries);
+
+        var q = new Query("*=>[KNN 2 @v $vec]").ReturnFields("__v_score");
+        var res = ft.Search("idx", q.AddParam("vec", vec1ToBytes));
+        Assert.Equal(2, res.TotalResults);
+
+        q = new Query("*=>[KNN 2 @v2 $vec]").ReturnFields("__v_score");
+        res = ft.Search("idx", q.AddParam("vec", vec2ToBytes));
+        Assert.Equal(2, res.TotalResults);
+    }
+
+    [SkipIfRedis(Comparison.LessThan, "8.1.240")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestCreate_Float16_Int32_VectorField_Svs(string endpointId)
+    {
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ft = db.FT(2);
+        var schema = new Schema().AddSvsVanamaVectorField("v", Schema.VectorField.VectorType.FLOAT16, 5,
+                Schema.VectorField.VectorDistanceMetric.EuclideanDistance)
+            .AddSvsVanamaVectorField("v2", Schema.VectorField.VectorType.FLOAT32, 4,
+                Schema.VectorField.VectorDistanceMetric.EuclideanDistance);
+
+        var cmd = SearchCommandBuilder.Create("idx", FTCreateParams.CreateParams(), schema).ToString();
+        Log(cmd);
+
+        Assert.True(ft.Create("idx", new FTCreateParams(), schema));
+
+        byte[] vec1ToBytes = MemoryMarshal.AsBytes(stackalloc short[] { 2, 1, 2, 2, 2 }).ToArray();
+        byte[] vec2ToBytes = MemoryMarshal.AsBytes(stackalloc int[] { 1, 2, 2, 2 }).ToArray();
+
+        var entries = new HashEntry[] { new HashEntry("v", vec1ToBytes), new HashEntry("v2", vec2ToBytes) };
+        db.HashSet("a", entries);
+        db.HashSet("b", entries);
+        db.HashSet("c", entries);
+
+        var q = new Query("*=>[KNN 2 @v $vec]").ReturnFields("__v_score");
+        var res = ft.Search("idx", q.AddParam("vec", vec1ToBytes));
+        Assert.Equal(2, res.TotalResults);
+
+        q = new Query("*=>[KNN 2 @v2 $vec]").ReturnFields("__v_score");
+        res = ft.Search("idx", q.AddParam("vec", vec2ToBytes));
+        Assert.Equal(2, res.TotalResults);
+    }
+
+    [SkipIfRedis(Comparison.LessThan, "8.1.240")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestCreate_Float16_Int32_VectorField_Svs_WithCompression(string endpointId)
+    {
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ft = db.FT(2);
+        var schema = new Schema().AddSvsVanamaVectorField("v", Schema.VectorField.VectorType.FLOAT16, 5,
+                Schema.VectorField.VectorDistanceMetric.EuclideanDistance,
+                reducedDimensions: 2, compressionAlgorithm: Schema.VectorField.VectorCompressionAlgorithm.LeanVec4x8)
+            .AddSvsVanamaVectorField("v2", Schema.VectorField.VectorType.FLOAT32, 4,
+                Schema.VectorField.VectorDistanceMetric.EuclideanDistance,
+                compressionAlgorithm: Schema.VectorField.VectorCompressionAlgorithm.LVQ4);
+
+        var cmd = SearchCommandBuilder.Create("idx", FTCreateParams.CreateParams(), schema).ToString();
+        Log(cmd);
+
+        Assert.True(ft.Create("idx", new FTCreateParams(), schema));
+
+        byte[] vec1ToBytes = MemoryMarshal.AsBytes(stackalloc short[] { 2, 1, 2, 2, 2 }).ToArray();
+        byte[] vec2ToBytes = MemoryMarshal.AsBytes(stackalloc int[] { 1, 2, 2, 2 }).ToArray();
 
         var entries = new HashEntry[] { new HashEntry("v", vec1ToBytes), new HashEntry("v2", vec2ToBytes) };
         db.HashSet("a", entries);
@@ -203,7 +275,7 @@ public class IndexCreationTests : AbstractNRedisStackTest, IDisposable
         res = ft.Search("idx", q.AddParam("vec", vec2));
         Assert.Equal(2, res.TotalResults);
     }
-
+    
     [Fact]
     public void TestMissingSortableFieldCommandArgs()
     {
