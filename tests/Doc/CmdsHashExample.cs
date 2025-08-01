@@ -20,7 +20,7 @@ public class CmdsHashExample
 
     [SkippableFact]
     // REMOVE_END
-    public void run()
+    public void Run()
     {
         //REMOVE_START
         // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
@@ -59,10 +59,10 @@ public class CmdsHashExample
 
         db.HashSet(
             "myhash",
-            new HashEntry[] {
-                new HashEntry("field2", "Hi"),
-                new HashEntry("field3", "World")
-            }
+            [
+                new("field2", "Hi"),
+                new("field3", "World")
+            ]
         );
 
         RedisValue res6 = db.HashGet("myhash", "field2");
@@ -90,10 +90,10 @@ public class CmdsHashExample
 
         // STEP_START hgetall
         db.HashSet("myhash",
-            new HashEntry[] {
-                new HashEntry("field1", "Hello"),
-                new HashEntry("field2", "World")
-            }
+            [
+                new("field1", "Hello"),
+                new("field2", "World")
+            ]
         );
 
         HashEntry[] hGetAllResult = db.HashGetAll("myhash");
@@ -110,10 +110,10 @@ public class CmdsHashExample
 
         // STEP_START hvals
         db.HashSet("myhash",
-            new HashEntry[] {
-                new HashEntry("field1", "Hello"),
-                new HashEntry("field2", "World")
-            }
+            [
+                new("field1", "Hello"),
+                new("field2", "World")
+            ]
         );
 
         RedisValue[] hValsResult = db.HashValues("myhash");

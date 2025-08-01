@@ -12,17 +12,17 @@ namespace Doc;
 // REMOVE_END
 
 // HIDE_START
-public class Bitmap_tutorial
+public class BitmapTutorial
 // REMOVE_START
 : AbstractNRedisStackTest, IDisposable
 // REMOVE_END
 {
     // REMOVE_START
-    public Bitmap_tutorial(EndpointsFixture fixture) : base(fixture) { }
+    public BitmapTutorial(EndpointsFixture fixture) : base(fixture) { }
 
     [SkippableFact]
     // REMOVE_END
-    public void run()
+    public void Run()
     {
         //REMOVE_START
         // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection

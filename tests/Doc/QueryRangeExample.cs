@@ -25,7 +25,7 @@ public class QueryRangeExample
 
     [SkippableFact]
     // REMOVE_END
-    public void run()
+    public void Run()
     {
         //REMOVE_START
         // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
@@ -211,7 +211,7 @@ public class QueryRangeExample
         // STEP_START range1
         SearchResult res1 = db.FT().Search(
             "idx:bicycle",
-            new Query("@price:[500 1000]")
+            new("@price:[500 1000]")
         );
         Console.WriteLine(res1.TotalResults);   // >>> 3
         // STEP_END

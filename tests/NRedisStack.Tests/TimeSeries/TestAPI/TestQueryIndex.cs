@@ -1,32 +1,28 @@
-﻿using NRedisStack.DataTypes;
+﻿#pragma  warning disable CS0618, CS0612 // allow testing obsolete methods
+using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
 using Xunit;
 
-namespace NRedisStack.Tests.TimeSeries.TestAPI
+namespace NRedisStack.Tests.TimeSeries.TestAPI;
+
+public class TestQueryIndex(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
 {
-    public class TestQueryIndex : AbstractNRedisStackTest, IDisposable
+    private readonly string[] keys = ["QUERYINDEX_TESTS_1", "QUERYINDEX_TESTS_2"];
+
+    [SkipIfRedisTheory(Is.Enterprise)]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestTSQueryIndex(string endpointId)
     {
-        private readonly string[] keys = { "QUERYINDEX_TESTS_1", "QUERYINDEX_TESTS_2" };
+        var db = GetCleanDatabase(endpointId);
+        var ts = db.TS();
+        var label1 = new TimeSeriesLabel("QUERYINDEX_TESTS_1", "value");
+        var label2 = new TimeSeriesLabel("QUERYINDEX_TESTS_2", "value2");
+        var labels1 = new List<TimeSeriesLabel> { label1, label2 };
+        var labels2 = new List<TimeSeriesLabel> { label1 };
 
-        public TestQueryIndex(EndpointsFixture endpointsFixture) : base(endpointsFixture)
-        {
-        }
-
-        [SkipIfRedis(Is.Enterprise)]
-        [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
-        public void TestTSQueryIndex(string endpointId)
-        {
-            var db = GetCleanDatabase(endpointId);
-            var ts = db.TS();
-            var label1 = new TimeSeriesLabel("QUERYINDEX_TESTS_1", "value");
-            var label2 = new TimeSeriesLabel("QUERYINDEX_TESTS_2", "value2");
-            var labels1 = new List<TimeSeriesLabel> { label1, label2 };
-            var labels2 = new List<TimeSeriesLabel> { label1 };
-
-            ts.Create(keys[0], labels: labels1);
-            ts.Create(keys[1], labels: labels2);
-            Assert.Equal(keys, ts.QueryIndex(new List<string> { "QUERYINDEX_TESTS_1=value" }));
-            Assert.Equal(new List<string> { keys[0] }, ts.QueryIndex(new List<string> { "QUERYINDEX_TESTS_2=value2" }));
-        }
+        ts.Create(keys[0], labels: labels1);
+        ts.Create(keys[1], labels: labels2);
+        Assert.Equal(keys, ts.QueryIndex(new List<string> { "QUERYINDEX_TESTS_1=value" }));
+        Assert.Equal(new List<string> { keys[0] }, ts.QueryIndex(new List<string> { "QUERYINDEX_TESTS_2=value2" }));
     }
 }

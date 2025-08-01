@@ -54,8 +54,8 @@ public static class Auxiliary
         {
             _setInfo = false;
             if (_libraryName == null) return;
-            Pipeline pipeline = new Pipeline(db);
-            _ = pipeline.Db.ClientSetInfoAsync(SetInfoAttr.LibraryName, _libraryName!);
+            Pipeline pipeline = new(db);
+            _ = pipeline.Db.ClientSetInfoAsync(SetInfoAttr.LibraryName, _libraryName);
             _ = pipeline.Db.ClientSetInfoAsync(SetInfoAttr.LibraryVersion, GetNRedisStackVersion());
             pipeline.Execute();
         }

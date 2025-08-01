@@ -21,7 +21,7 @@ public class HomeProbExample
 
     [SkippableFact]
     // REMOVE_END
-    public void run()
+    public void Run()
     {
         // REMOVE_START
         // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
@@ -33,13 +33,13 @@ public class HomeProbExample
         var db = muxer.GetDatabase();
         // REMOVE_START
         // Clear any keys here before using them in tests.
-        db.KeyDelete(new RedisKey[] {
+        db.KeyDelete([
             "recorded_users", "other_users",
             "group:1", "group:2", "both_groups",
             "items_sold",
             "male_heights", "female_heights", "all_heights",
             "top_3_songs"
-        });
+        ]);
         // REMOVE_END
         // HIDE_END
 
@@ -57,7 +57,7 @@ public class HomeProbExample
         Console.WriteLine(res3); // >>> false
         // STEP_END
         // REMOVE_START
-        Assert.Equal(new bool[] { true, true, true, true }, res1);
+        Assert.Equal(new[] { true, true, true, true }, res1);
         // REMOVE_END
 
         // STEP_START cuckoo
@@ -84,7 +84,7 @@ public class HomeProbExample
         Assert.True(res4);
         Assert.True(res5);
         Assert.True(res6);
-        Assert.Equal(new bool[] { true, true, false }, res7);
+        Assert.Equal(new[] { true, true, false }, res7);
         Assert.True(res8);
         Assert.False(res9);
         // REMOVE_END
@@ -92,7 +92,7 @@ public class HomeProbExample
         // STEP_START hyperloglog
         bool res10 = db.HyperLogLogAdd(
             "group:1",
-            new RedisValue[] { "andy", "cameron", "david" }
+            ["andy", "cameron", "david"]
         );
         Console.WriteLine(res10); // >>> true
 
@@ -101,7 +101,7 @@ public class HomeProbExample
 
         bool res12 = db.HyperLogLogAdd(
             "group:2",
-            new RedisValue[] { "kaitlyn", "michelle", "paolo", "rachel" }
+            ["kaitlyn", "michelle", "paolo", "rachel"]
         );
         Console.WriteLine(res12); // >>> true
 
@@ -133,22 +133,22 @@ public class HomeProbExample
 
         long[] res16 = db.CMS().IncrBy(
             "items_sold",
-            new Tuple<RedisValue, long>[]{
+            [
                 new("bread", 300),
                 new("tea", 200),
                 new("coffee", 200),
                 new("beer", 100)
-            }
+            ]
         );
         Console.WriteLine(string.Join(", ", res16));
         // >>> 300, 200, 200, 100
 
         long[] res17 = db.CMS().IncrBy(
             "items_sold",
-            new Tuple<RedisValue, long>[]{
+            [
                 new("bread", 100),
-                new("coffee", 150),
-            }
+                new("coffee", 150)
+            ]
         );
         Console.WriteLine(string.Join(", ", res17));
         // >>> 400, 350
@@ -217,13 +217,13 @@ public class HomeProbExample
         Assert.True(res20);
         Assert.Equal(152.0, res21);
         Assert.Equal(196.0, res22);
-        Assert.Equal(new double[] { 181.0 }, res23);
-        Assert.Equal(new double[] { 0.7857142857142857 }, res24);
+        Assert.Equal(new[] { 181.0 }, res23);
+        Assert.Equal(new[] { 0.7857142857142857 }, res24);
         Assert.True(res25);
         Assert.True(res26);
-        Assert.Equal(new double[] { 170.0 }, res27);
+        Assert.Equal(new[] { 170.0 }, res27);
         Assert.True(res28);
-        Assert.Equal(new double[] { 175.5 }, res29);
+        Assert.Equal(new[] { 175.5 }, res29);
         // REMOVE_END
 
         // STEP_START topk
@@ -303,7 +303,7 @@ public class HomeProbExample
             )
         );
 
-        Assert.Equal(new bool[] { true, false }, res33);
+        Assert.Equal(new[] { true, false }, res33);
         // REMOVE_END
     }
 }

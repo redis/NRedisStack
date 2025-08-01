@@ -211,7 +211,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         AssertMergedUnmergedNodes(tdigest, "tdadd", 0, 5);
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMerge(string endpointId)
     {
@@ -234,7 +234,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMergeAsync(string endpointId)
     {
@@ -257,7 +257,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         AssertMergedUnmergedNodes(tdigest, "td2", 3, 2);
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void MergeMultiAndParams(string endpointId)
     {
@@ -271,14 +271,14 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         tdigest.Add("from1", 1d);
         tdigest.Add("from2", WeightedValue(1d, 10));
 
-        Assert.True(tdigest.Merge("to", 2, sourceKeys: new RedisKey[] { "from1", "from2" }));
+        Assert.True(tdigest.Merge("to", 2, sourceKeys: ["from1", "from2"]));
         AssertTotalWeight(tdigest, "to", 11d);
 
         Assert.True(tdigest.Merge("to", 50, true, "from1", "from2"));
         Assert.Equal(50, tdigest.Info("to").Compression);
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task MergeMultiAndParamsAsync(string endpointId)
     {
@@ -292,7 +292,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         tdigest.Add("from1", 1d);
         tdigest.Add("from2", WeightedValue(1d, 10));
 
-        Assert.True(await tdigest.MergeAsync("to", 2, sourceKeys: new RedisKey[] { "from1", "from2" }));
+        Assert.True(await tdigest.MergeAsync("to", 2, sourceKeys: ["from1", "from2"]));
         AssertTotalWeight(tdigest, "to", 11d);
 
         Assert.True(await tdigest.MergeAsync("to", 50, true, "from1", "from2"));
@@ -317,7 +317,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
 
         tdigest.Add("tdcdf", 1, 1, 1);
         tdigest.Add("tdcdf", 100, 100);
-        Assert.Equal(new double[] { 0.6 }, tdigest.CDF("tdcdf", 50));
+        Assert.Equal(new[] { 0.6 }, tdigest.CDF("tdcdf", 50));
         tdigest.CDF("tdcdf", 25, 50, 75); // TODO: Why needed?
     }
 
@@ -339,7 +339,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         tdigest.Add("tdcdf", 1, 1, 1);
         tdigest.Add("tdcdf", 100, 100);
 
-        Assert.Equal(new double[] { 0.6 }, await tdigest.CDFAsync("tdcdf", 50));
+        Assert.Equal(new[] { 0.6 }, await tdigest.CDFAsync("tdcdf", 50));
         await tdigest.CDFAsync("tdcdf", 25, 50, 75); // TODO: Why needed?
 
     }
@@ -353,7 +353,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
 
         tdigest.Create("tdqnt", 100);
         var resDelete = tdigest.Quantile("tdqnt", 0.5);
-        Assert.Equal(new double[] { double.NaN }, tdigest.Quantile("tdqnt", 0.5));
+        Assert.Equal(new[] { double.NaN }, tdigest.Quantile("tdqnt", 0.5));
 
         // tdigest.Add("tdqnt", DefinedValueWeight(1, 1), DefinedValueWeight(1, 1), DefinedValueWeight(1, 1));
         // tdigest.Add("tdqnt", DefinedValueWeight(100, 1), DefinedValueWeight(100, 1));
@@ -371,7 +371,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
 
         tdigest.Create("tdqnt", 100);
         var resDelete = await tdigest.QuantileAsync("tdqnt", 0.5);
-        Assert.Equal(new double[] { double.NaN }, await tdigest.QuantileAsync("tdqnt", 0.5));
+        Assert.Equal(new[] { double.NaN }, await tdigest.QuantileAsync("tdqnt", 0.5));
 
         // await tdigest.AddAsync("tdqnt", DefinedValueWeight(1, 1), DefinedValueWeight(1, 1), DefinedValueWeight(1, 1));
         // await tdigest.AddAsync("tdqnt", DefinedValueWeight(100, 1), DefinedValueWeight(100, 1));
@@ -477,15 +477,15 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
 
     private static double RandomValue()
     {
-        Random random = new Random();
+        Random random = new();
         return random.NextDouble() * 10000;
     }
 
     static Tuple<double, long> RandomValueWeight()
     {
-        Random random = new Random();
+        Random random = new();
 
-        return new Tuple<double, long>(random.NextDouble() * 10000, random.Next() + 1);
+        return new(random.NextDouble() * 10000, random.Next() + 1);
     }
 
     static Tuple<double, long>[] RandomValueWeightArray(int count)
@@ -500,7 +500,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
 
     static Tuple<double, long> DefinedValueWeight(double value, long weight)
     {
-        return new Tuple<double, long>(value, weight);
+        return new(value, weight);
     }
 
     private static double[] WeightedValue(double value, int weight)

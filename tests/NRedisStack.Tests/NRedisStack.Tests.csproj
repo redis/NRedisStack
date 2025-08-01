@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks Condition=" '$(IsWindows)' == 'true'">net6.0;net7.0;net8.0;net481</TargetFrameworks>
-        <TargetFrameworks Condition=" '$(IsWindows)' != 'true'">net6.0;net7.0;net8.0</TargetFrameworks>
+        <TargetFrameworks>net6.0;net7.0;net8.0;net481</TargetFrameworks>
         <IsPackable>false</IsPackable>
+        <PreserveCompilationContext>true</PreserveCompilationContext>
     </PropertyGroup>
 
     <ItemGroup>
@@ -22,7 +22,15 @@
         </PackageReference>
         <PackageReference Include="NetTopologySuite"/>
         <PackageReference Include="Validation"/>
-        <PackageReference Include="xunit.runner.visualstudio"/>
+        <PackageReference Include="xunit.runner.visualstudio" Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net481'">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <!-- this is the last version with net6 support -->
+        <PackageReference Include="xunit.runner.visualstudio" Condition="'$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0'" VersionOverride="3.0.2">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
         <PackageReference Include="StackExchange.Redis"/>
         <PackageReference Include="xunit"/>
         <PackageReference Include="xunit.assert"/>

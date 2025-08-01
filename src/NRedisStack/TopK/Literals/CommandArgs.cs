@@ -1,7 +1,6 @@
-namespace NRedisStack.TopK.Literals
+namespace NRedisStack.TopK.Literals;
+
+internal class TopKArgs
 {
-    internal class TopKArgs
-    {
-        // TOPK doesn't have literals to save, it's here in case they need it in the future
-    }
+    // TOPK doesn't have literals to save, it's here in case they need it in the future
 }

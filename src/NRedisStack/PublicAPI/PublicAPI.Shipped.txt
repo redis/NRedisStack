@@ -1,0 +1,1352 @@
+#nullable enable
+abstract NRedisStack.Search.Aggregation.Reducer.Name.get -> string!
+const NRedisStack.Core.DataTypes.StreamSpecialIds.AllMessagesId = "0" -> string!
+const NRedisStack.Core.DataTypes.StreamSpecialIds.NewMessagesId = "$" -> string!
+const NRedisStack.Core.DataTypes.StreamSpecialIds.UndeliveredMessagesId = ">" -> string!
+NRedisStack.Auxiliary
+NRedisStack.Bloom.DataTypes.BloomInformation
+NRedisStack.Bloom.DataTypes.BloomInformation.Capacity.get -> long
+NRedisStack.Bloom.DataTypes.BloomInformation.ExpansionRate.get -> long
+NRedisStack.Bloom.DataTypes.BloomInformation.NumberOfFilters.get -> long
+NRedisStack.Bloom.DataTypes.BloomInformation.NumberOfItemsInserted.get -> long
+NRedisStack.Bloom.DataTypes.BloomInformation.Size.get -> long
+NRedisStack.BloomAux
+NRedisStack.BloomCommandBuilder
+NRedisStack.BloomCommands
+NRedisStack.BloomCommands.Add(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> bool
+NRedisStack.BloomCommands.BloomCommands(StackExchange.Redis.IDatabase! db) -> void
+NRedisStack.BloomCommands.Card(StackExchange.Redis.RedisKey key) -> long
+NRedisStack.BloomCommands.Exists(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> bool
+NRedisStack.BloomCommands.Info(StackExchange.Redis.RedisKey key) -> NRedisStack.Bloom.DataTypes.BloomInformation!
+NRedisStack.BloomCommands.Insert(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue[]! items, int? capacity = null, double? error = null, int? expansion = null, bool nocreate = false, bool nonscaling = false) -> bool[]!
+NRedisStack.BloomCommands.LoadChunk(StackExchange.Redis.RedisKey key, long iterator, byte[]! data) -> bool
+NRedisStack.BloomCommands.MAdd(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> bool[]!
+NRedisStack.BloomCommands.MExists(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue[]! items) -> bool[]!
+NRedisStack.BloomCommands.Reserve(StackExchange.Redis.RedisKey key, double errorRate, long capacity, int? expansion = null, bool nonscaling = false) -> bool
+NRedisStack.BloomCommands.ScanDump(StackExchange.Redis.RedisKey key, long iterator) -> System.Tuple<long, byte[]!>!
+NRedisStack.BloomCommandsAsync
+NRedisStack.BloomCommandsAsync.AddAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.BloomCommandsAsync.BloomCommandsAsync(StackExchange.Redis.IDatabaseAsync! db) -> void
+NRedisStack.BloomCommandsAsync.CardAsync(StackExchange.Redis.RedisKey key) -> System.Threading.Tasks.Task<long>!
+NRedisStack.BloomCommandsAsync.ExistsAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.BloomCommandsAsync.InfoAsync(StackExchange.Redis.RedisKey key) -> System.Threading.Tasks.Task<NRedisStack.Bloom.DataTypes.BloomInformation!>!
+NRedisStack.BloomCommandsAsync.InsertAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue[]! items, int? capacity = null, double? error = null, int? expansion = null, bool nocreate = false, bool nonscaling = false) -> System.Threading.Tasks.Task<bool[]!>!
+NRedisStack.BloomCommandsAsync.LoadChunkAsync(StackExchange.Redis.RedisKey key, long iterator, byte[]! data) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.BloomCommandsAsync.MAddAsync(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> System.Threading.Tasks.Task<bool[]!>!
+NRedisStack.BloomCommandsAsync.MExistsAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue[]! items) -> System.Threading.Tasks.Task<bool[]!>!
+NRedisStack.BloomCommandsAsync.ReserveAsync(StackExchange.Redis.RedisKey key, double errorRate, long capacity, int? expansion = null, bool nonscaling = false) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.BloomCommandsAsync.ScanDumpAsync(StackExchange.Redis.RedisKey key, long iterator) -> System.Threading.Tasks.Task<System.Tuple<long, byte[]!>!>!
+NRedisStack.CmsCommandBuilder
+NRedisStack.CmsCommands
+NRedisStack.CmsCommands.CmsCommands(StackExchange.Redis.IDatabase! db) -> void
+NRedisStack.CmsCommands.IncrBy(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item, long increment) -> long
+NRedisStack.CmsCommands.IncrBy(StackExchange.Redis.RedisKey key, System.Tuple<StackExchange.Redis.RedisValue, long>![]! itemIncrements) -> long[]!
+NRedisStack.CmsCommands.Info(StackExchange.Redis.RedisKey key) -> NRedisStack.CountMinSketch.DataTypes.CmsInformation!
+NRedisStack.CmsCommands.InitByDim(StackExchange.Redis.RedisKey key, long width, long depth) -> bool
+NRedisStack.CmsCommands.InitByProb(StackExchange.Redis.RedisKey key, double error, double probability) -> bool
+NRedisStack.CmsCommands.Merge(StackExchange.Redis.RedisValue destination, long numKeys, StackExchange.Redis.RedisValue[]! source, long[]? weight = null) -> bool
+NRedisStack.CmsCommands.Query(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> long[]!
+NRedisStack.CmsCommandsAsync
+NRedisStack.CmsCommandsAsync.CmsCommandsAsync(StackExchange.Redis.IDatabaseAsync! db) -> void
+NRedisStack.CmsCommandsAsync.IncrByAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item, long increment) -> System.Threading.Tasks.Task<long>!
+NRedisStack.CmsCommandsAsync.IncrByAsync(StackExchange.Redis.RedisKey key, System.Tuple<StackExchange.Redis.RedisValue, long>![]! itemIncrements) -> System.Threading.Tasks.Task<long[]!>!
+NRedisStack.CmsCommandsAsync.InfoAsync(StackExchange.Redis.RedisKey key) -> System.Threading.Tasks.Task<NRedisStack.CountMinSketch.DataTypes.CmsInformation!>!
+NRedisStack.CmsCommandsAsync.InitByDimAsync(StackExchange.Redis.RedisKey key, long width, long depth) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.CmsCommandsAsync.InitByProbAsync(StackExchange.Redis.RedisKey key, double error, double probability) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.CmsCommandsAsync.MergeAsync(StackExchange.Redis.RedisValue destination, long numKeys, StackExchange.Redis.RedisValue[]! source, long[]? weight = null) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.CmsCommandsAsync.QueryAsync(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> System.Threading.Tasks.Task<long[]!>!
+NRedisStack.Core.DataTypes.MinMaxModifier
+NRedisStack.Core.DataTypes.MinMaxModifier.Max = 1 -> NRedisStack.Core.DataTypes.MinMaxModifier
+NRedisStack.Core.DataTypes.MinMaxModifier.Min = 0 -> NRedisStack.Core.DataTypes.MinMaxModifier
+NRedisStack.Core.DataTypes.MinMaxModifierExtensions
+NRedisStack.Core.DataTypes.RedisStreamEntries
+NRedisStack.Core.DataTypes.RedisStreamEntries.Entries.get -> StackExchange.Redis.StreamEntry[]!
+NRedisStack.Core.DataTypes.RedisStreamEntries.Key.get -> StackExchange.Redis.RedisKey
+NRedisStack.Core.DataTypes.RedisStreamEntries.RedisStreamEntries() -> void
+NRedisStack.Core.DataTypes.RedisValueWithScore
+NRedisStack.Core.DataTypes.RedisValueWithScore.RedisValueWithScore() -> void
+NRedisStack.Core.DataTypes.RedisValueWithScore.RedisValueWithScore(StackExchange.Redis.RedisValue value, double score) -> void
+NRedisStack.Core.DataTypes.RedisValueWithScore.Score.get -> double
+NRedisStack.Core.DataTypes.RedisValueWithScore.Value.get -> StackExchange.Redis.RedisValue
+NRedisStack.Core.DataTypes.StreamSpecialIds
+NRedisStack.Core.DataTypes.StreamSpecialIds.StreamSpecialIds() -> void
+NRedisStack.Core.SetInfoAttr
+NRedisStack.Core.SetInfoAttr.LibraryName = 0 -> NRedisStack.Core.SetInfoAttr
+NRedisStack.Core.SetInfoAttr.LibraryVersion = 1 -> NRedisStack.Core.SetInfoAttr
+NRedisStack.CoreCommandBuilder
+NRedisStack.CoreCommands
+NRedisStack.CoreCommandsAsync
+NRedisStack.CountMinSketch.DataTypes.CmsInformation
+NRedisStack.CountMinSketch.DataTypes.CmsInformation.Count.get -> long
+NRedisStack.CountMinSketch.DataTypes.CmsInformation.Depth.get -> long
+NRedisStack.CountMinSketch.DataTypes.CmsInformation.Width.get -> long
+NRedisStack.CuckooCommandBuilder
+NRedisStack.CuckooCommands
+NRedisStack.CuckooCommands.Add(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> bool
+NRedisStack.CuckooCommands.AddNX(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> bool
+NRedisStack.CuckooCommands.Count(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> long
+NRedisStack.CuckooCommands.CuckooCommands(StackExchange.Redis.IDatabase! db) -> void
+NRedisStack.CuckooCommands.Del(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> bool
+NRedisStack.CuckooCommands.Exists(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> bool
+NRedisStack.CuckooCommands.Info(StackExchange.Redis.RedisKey key) -> NRedisStack.CuckooFilter.DataTypes.CuckooInformation!
+NRedisStack.CuckooCommands.Insert(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue[]! items, int? capacity = null, bool nocreate = false) -> bool[]!
+NRedisStack.CuckooCommands.InsertNX(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue[]! items, int? capacity = null, bool nocreate = false) -> bool[]!
+NRedisStack.CuckooCommands.LoadChunk(StackExchange.Redis.RedisKey key, long iterator, byte[]! data) -> bool
+NRedisStack.CuckooCommands.MExists(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> bool[]!
+NRedisStack.CuckooCommands.Reserve(StackExchange.Redis.RedisKey key, long capacity, long? bucketSize = null, int? maxIterations = null, int? expansion = null) -> bool
+NRedisStack.CuckooCommands.ScanDump(StackExchange.Redis.RedisKey key, long iterator) -> System.Tuple<long, byte[]!>!
+NRedisStack.CuckooCommandsAsync
+NRedisStack.CuckooCommandsAsync.AddAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.CuckooCommandsAsync.AddNXAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.CuckooCommandsAsync.CountAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> System.Threading.Tasks.Task<long>!
+NRedisStack.CuckooCommandsAsync.CuckooCommandsAsync(StackExchange.Redis.IDatabaseAsync! db) -> void
+NRedisStack.CuckooCommandsAsync.DelAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.CuckooCommandsAsync.ExistsAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.CuckooCommandsAsync.InfoAsync(StackExchange.Redis.RedisKey key) -> System.Threading.Tasks.Task<NRedisStack.CuckooFilter.DataTypes.CuckooInformation!>!
+NRedisStack.CuckooCommandsAsync.InsertAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue[]! items, int? capacity = null, bool nocreate = false) -> System.Threading.Tasks.Task<bool[]!>!
+NRedisStack.CuckooCommandsAsync.InsertNXAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue[]! items, int? capacity = null, bool nocreate = false) -> System.Threading.Tasks.Task<bool[]!>!
+NRedisStack.CuckooCommandsAsync.LoadChunkAsync(StackExchange.Redis.RedisKey key, long iterator, byte[]! data) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.CuckooCommandsAsync.MExistsAsync(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> System.Threading.Tasks.Task<bool[]!>!
+NRedisStack.CuckooCommandsAsync.ReserveAsync(StackExchange.Redis.RedisKey key, long capacity, long? bucketSize = null, int? maxIterations = null, int? expansion = null) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.CuckooCommandsAsync.ScanDumpAsync(StackExchange.Redis.RedisKey key, long iterator) -> System.Threading.Tasks.Task<System.Tuple<long, byte[]!>!>!
+NRedisStack.CuckooFilter.DataTypes.CuckooInformation
+NRedisStack.CuckooFilter.DataTypes.CuckooInformation.BucketSize.get -> long
+NRedisStack.CuckooFilter.DataTypes.CuckooInformation.ExpansionRate.get -> long
+NRedisStack.CuckooFilter.DataTypes.CuckooInformation.MaxIterations.get -> long
+NRedisStack.CuckooFilter.DataTypes.CuckooInformation.NumberOfBuckets.get -> long
+NRedisStack.CuckooFilter.DataTypes.CuckooInformation.NumberOfFilters.get -> long
+NRedisStack.CuckooFilter.DataTypes.CuckooInformation.NumberOfItemsDeleted.get -> long
+NRedisStack.CuckooFilter.DataTypes.CuckooInformation.NumberOfItemsInserted.get -> long
+NRedisStack.CuckooFilter.DataTypes.CuckooInformation.Size.get -> long
+NRedisStack.DataTypes.TimeSeriesChunck
+NRedisStack.DataTypes.TimeSeriesChunck.BytesPerSample.get -> string!
+NRedisStack.DataTypes.TimeSeriesChunck.EndTimestamp.get -> long
+NRedisStack.DataTypes.TimeSeriesChunck.Samples.get -> long
+NRedisStack.DataTypes.TimeSeriesChunck.Size.get -> long
+NRedisStack.DataTypes.TimeSeriesChunck.StartTimestamp.get -> long
+NRedisStack.DataTypes.TimeSeriesChunck.TimeSeriesChunck(long startTimestamp, long endTimestamp, long samples, long size, string! bytesPerSample) -> void
+NRedisStack.DataTypes.TimeSeriesInformation
+NRedisStack.DataTypes.TimeSeriesInformation.ChunkCount.get -> long
+NRedisStack.DataTypes.TimeSeriesInformation.Chunks.get -> System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesChunck!>?
+NRedisStack.DataTypes.TimeSeriesInformation.ChunkSize.get -> long
+NRedisStack.DataTypes.TimeSeriesInformation.DuplicatePolicy.get -> NRedisStack.Literals.Enums.TsDuplicatePolicy?
+NRedisStack.DataTypes.TimeSeriesInformation.FirstTimeStamp.get -> NRedisStack.DataTypes.TimeStamp?
+NRedisStack.DataTypes.TimeSeriesInformation.KeySelfName.get -> string?
+NRedisStack.DataTypes.TimeSeriesInformation.Labels.get -> System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesLabel!>?
+NRedisStack.DataTypes.TimeSeriesInformation.LastTimeStamp.get -> NRedisStack.DataTypes.TimeStamp?
+NRedisStack.DataTypes.TimeSeriesInformation.MaxSamplesPerChunk.get -> long
+NRedisStack.DataTypes.TimeSeriesInformation.MemoryUsage.get -> long
+NRedisStack.DataTypes.TimeSeriesInformation.RetentionTime.get -> long
+NRedisStack.DataTypes.TimeSeriesInformation.Rules.get -> System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesRule!>?
+NRedisStack.DataTypes.TimeSeriesInformation.SourceKey.get -> string?
+NRedisStack.DataTypes.TimeSeriesInformation.TotalSamples.get -> long
+NRedisStack.DataTypes.TimeSeriesLabel
+NRedisStack.DataTypes.TimeSeriesLabel.Key.get -> string!
+NRedisStack.DataTypes.TimeSeriesLabel.TimeSeriesLabel(string! key, string! value) -> void
+NRedisStack.DataTypes.TimeSeriesLabel.Value.get -> string!
+NRedisStack.DataTypes.TimeSeriesRule
+NRedisStack.DataTypes.TimeSeriesRule.Aggregation.get -> NRedisStack.Literals.Enums.TsAggregation
+NRedisStack.DataTypes.TimeSeriesRule.DestKey.get -> string!
+NRedisStack.DataTypes.TimeSeriesRule.TimeBucket.get -> long
+NRedisStack.DataTypes.TimeSeriesRule.TimeSeriesRule(string! destKey, long timeBucket, NRedisStack.Literals.Enums.TsAggregation aggregation) -> void
+NRedisStack.DataTypes.TimeSeriesTuple
+NRedisStack.DataTypes.TimeSeriesTuple.Time.get -> NRedisStack.DataTypes.TimeStamp
+NRedisStack.DataTypes.TimeSeriesTuple.TimeSeriesTuple(NRedisStack.DataTypes.TimeStamp time, double val) -> void
+NRedisStack.DataTypes.TimeSeriesTuple.Val.get -> double
+NRedisStack.DataTypes.TimeStamp
+NRedisStack.DataTypes.TimeStamp.TimeStamp() -> void
+NRedisStack.DataTypes.TimeStamp.TimeStamp(long timestamp) -> void
+NRedisStack.DataTypes.TimeStamp.TimeStamp(string! timestamp) -> void
+NRedisStack.DataTypes.TimeStamp.TimeStamp(System.DateTime dateTime) -> void
+NRedisStack.DataTypes.TimeStamp.Value.get -> object!
+NRedisStack.IBloomCommands
+NRedisStack.IBloomCommands.Add(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> bool
+NRedisStack.IBloomCommands.Card(StackExchange.Redis.RedisKey key) -> long
+NRedisStack.IBloomCommands.Exists(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> bool
+NRedisStack.IBloomCommands.Info(StackExchange.Redis.RedisKey key) -> NRedisStack.Bloom.DataTypes.BloomInformation!
+NRedisStack.IBloomCommands.Insert(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue[]! items, int? capacity = null, double? error = null, int? expansion = null, bool nocreate = false, bool nonscaling = false) -> bool[]!
+NRedisStack.IBloomCommands.LoadChunk(StackExchange.Redis.RedisKey key, long iterator, byte[]! data) -> bool
+NRedisStack.IBloomCommands.MAdd(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> bool[]!
+NRedisStack.IBloomCommands.MExists(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue[]! items) -> bool[]!
+NRedisStack.IBloomCommands.Reserve(StackExchange.Redis.RedisKey key, double errorRate, long capacity, int? expansion = null, bool nonscaling = false) -> bool
+NRedisStack.IBloomCommands.ScanDump(StackExchange.Redis.RedisKey key, long iterator) -> System.Tuple<long, byte[]!>!
+NRedisStack.IBloomCommandsAsync
+NRedisStack.IBloomCommandsAsync.AddAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.IBloomCommandsAsync.CardAsync(StackExchange.Redis.RedisKey key) -> System.Threading.Tasks.Task<long>!
+NRedisStack.IBloomCommandsAsync.ExistsAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.IBloomCommandsAsync.InfoAsync(StackExchange.Redis.RedisKey key) -> System.Threading.Tasks.Task<NRedisStack.Bloom.DataTypes.BloomInformation!>!
+NRedisStack.IBloomCommandsAsync.InsertAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue[]! items, int? capacity = null, double? error = null, int? expansion = null, bool nocreate = false, bool nonscaling = false) -> System.Threading.Tasks.Task<bool[]!>!
+NRedisStack.IBloomCommandsAsync.LoadChunkAsync(StackExchange.Redis.RedisKey key, long iterator, byte[]! data) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.IBloomCommandsAsync.MAddAsync(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> System.Threading.Tasks.Task<bool[]!>!
+NRedisStack.IBloomCommandsAsync.MExistsAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue[]! items) -> System.Threading.Tasks.Task<bool[]!>!
+NRedisStack.IBloomCommandsAsync.ReserveAsync(StackExchange.Redis.RedisKey key, double errorRate, long capacity, int? expansion = null, bool nonscaling = false) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.IBloomCommandsAsync.ScanDumpAsync(StackExchange.Redis.RedisKey key, long iterator) -> System.Threading.Tasks.Task<System.Tuple<long, byte[]!>!>!
+NRedisStack.ICmsCommands
+NRedisStack.ICmsCommands.IncrBy(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item, long increment) -> long
+NRedisStack.ICmsCommands.IncrBy(StackExchange.Redis.RedisKey key, System.Tuple<StackExchange.Redis.RedisValue, long>![]! itemIncrements) -> long[]!
+NRedisStack.ICmsCommands.Info(StackExchange.Redis.RedisKey key) -> NRedisStack.CountMinSketch.DataTypes.CmsInformation!
+NRedisStack.ICmsCommands.InitByDim(StackExchange.Redis.RedisKey key, long width, long depth) -> bool
+NRedisStack.ICmsCommands.InitByProb(StackExchange.Redis.RedisKey key, double error, double probability) -> bool
+NRedisStack.ICmsCommands.Merge(StackExchange.Redis.RedisValue destination, long numKeys, StackExchange.Redis.RedisValue[]! source, long[]? weight = null) -> bool
+NRedisStack.ICmsCommands.Query(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> long[]!
+NRedisStack.ICmsCommandsAsync
+NRedisStack.ICmsCommandsAsync.IncrByAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item, long increment) -> System.Threading.Tasks.Task<long>!
+NRedisStack.ICmsCommandsAsync.IncrByAsync(StackExchange.Redis.RedisKey key, System.Tuple<StackExchange.Redis.RedisValue, long>![]! itemIncrements) -> System.Threading.Tasks.Task<long[]!>!
+NRedisStack.ICmsCommandsAsync.InfoAsync(StackExchange.Redis.RedisKey key) -> System.Threading.Tasks.Task<NRedisStack.CountMinSketch.DataTypes.CmsInformation!>!
+NRedisStack.ICmsCommandsAsync.InitByDimAsync(StackExchange.Redis.RedisKey key, long width, long depth) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ICmsCommandsAsync.InitByProbAsync(StackExchange.Redis.RedisKey key, double error, double probability) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ICmsCommandsAsync.MergeAsync(StackExchange.Redis.RedisValue destination, long numKeys, StackExchange.Redis.RedisValue[]! source, long[]? weight = null) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ICmsCommandsAsync.QueryAsync(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> System.Threading.Tasks.Task<long[]!>!
+NRedisStack.ICuckooCommands
+NRedisStack.ICuckooCommands.Add(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> bool
+NRedisStack.ICuckooCommands.AddNX(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> bool
+NRedisStack.ICuckooCommands.Count(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> long
+NRedisStack.ICuckooCommands.Del(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> bool
+NRedisStack.ICuckooCommands.Exists(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> bool
+NRedisStack.ICuckooCommands.Info(StackExchange.Redis.RedisKey key) -> NRedisStack.CuckooFilter.DataTypes.CuckooInformation!
+NRedisStack.ICuckooCommands.Insert(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue[]! items, int? capacity = null, bool nocreate = false) -> bool[]!
+NRedisStack.ICuckooCommands.InsertNX(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue[]! items, int? capacity = null, bool nocreate = false) -> bool[]!
+NRedisStack.ICuckooCommands.LoadChunk(StackExchange.Redis.RedisKey key, long iterator, byte[]! data) -> bool
+NRedisStack.ICuckooCommands.MExists(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> bool[]!
+NRedisStack.ICuckooCommands.Reserve(StackExchange.Redis.RedisKey key, long capacity, long? bucketSize = null, int? maxIterations = null, int? expansion = null) -> bool
+NRedisStack.ICuckooCommands.ScanDump(StackExchange.Redis.RedisKey key, long iterator) -> System.Tuple<long, byte[]!>!
+NRedisStack.ICuckooCommandsAsync
+NRedisStack.ICuckooCommandsAsync.AddAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ICuckooCommandsAsync.AddNXAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ICuckooCommandsAsync.CountAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> System.Threading.Tasks.Task<long>!
+NRedisStack.ICuckooCommandsAsync.DelAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ICuckooCommandsAsync.ExistsAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ICuckooCommandsAsync.InfoAsync(StackExchange.Redis.RedisKey key) -> System.Threading.Tasks.Task<NRedisStack.CuckooFilter.DataTypes.CuckooInformation!>!
+NRedisStack.ICuckooCommandsAsync.InsertAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue[]! items, int? capacity = null, bool nocreate = false) -> System.Threading.Tasks.Task<bool[]!>!
+NRedisStack.ICuckooCommandsAsync.InsertNXAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue[]! items, int? capacity = null, bool nocreate = false) -> System.Threading.Tasks.Task<bool[]!>!
+NRedisStack.ICuckooCommandsAsync.LoadChunkAsync(StackExchange.Redis.RedisKey key, long iterator, byte[]! data) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ICuckooCommandsAsync.MExistsAsync(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> System.Threading.Tasks.Task<bool[]!>!
+NRedisStack.ICuckooCommandsAsync.ReserveAsync(StackExchange.Redis.RedisKey key, long capacity, long? bucketSize = null, int? maxIterations = null, int? expansion = null) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ICuckooCommandsAsync.ScanDumpAsync(StackExchange.Redis.RedisKey key, long iterator) -> System.Threading.Tasks.Task<System.Tuple<long, byte[]!>!>!
+NRedisStack.IJsonCommands
+NRedisStack.IJsonCommands.ArrAppend(StackExchange.Redis.RedisKey key, string? path = null, params object![]! values) -> long?[]!
+NRedisStack.IJsonCommands.ArrIndex(StackExchange.Redis.RedisKey key, string! path, object! value, long? start = null, long? stop = null) -> long?[]!
+NRedisStack.IJsonCommands.ArrInsert(StackExchange.Redis.RedisKey key, string! path, long index, params object![]! values) -> long?[]!
+NRedisStack.IJsonCommands.ArrLen(StackExchange.Redis.RedisKey key, string? path = null) -> long?[]!
+NRedisStack.IJsonCommands.ArrPop(StackExchange.Redis.RedisKey key, string? path = null, long? index = null) -> StackExchange.Redis.RedisResult![]!
+NRedisStack.IJsonCommands.ArrTrim(StackExchange.Redis.RedisKey key, string! path, long start, long stop) -> long?[]!
+NRedisStack.IJsonCommands.Clear(StackExchange.Redis.RedisKey key, string? path = null) -> long
+NRedisStack.IJsonCommands.DebugMemory(string! key, string? path = null) -> long
+NRedisStack.IJsonCommands.Del(StackExchange.Redis.RedisKey key, string? path = null) -> long
+NRedisStack.IJsonCommands.Forget(StackExchange.Redis.RedisKey key, string? path = null) -> long
+NRedisStack.IJsonCommands.Get(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue? indent = null, StackExchange.Redis.RedisValue? newLine = null, StackExchange.Redis.RedisValue? space = null, StackExchange.Redis.RedisValue? path = null) -> StackExchange.Redis.RedisResult!
+NRedisStack.IJsonCommands.Get(StackExchange.Redis.RedisKey key, string![]! paths, StackExchange.Redis.RedisValue? indent = null, StackExchange.Redis.RedisValue? newLine = null, StackExchange.Redis.RedisValue? space = null) -> StackExchange.Redis.RedisResult!
+NRedisStack.IJsonCommands.Get<T>(StackExchange.Redis.RedisKey key, string! path = "$", System.Text.Json.JsonSerializerOptions? serializerOptions = null) -> T?
+NRedisStack.IJsonCommands.GetEnumerable<T>(StackExchange.Redis.RedisKey key, string! path = "$") -> System.Collections.Generic.IEnumerable<T?>!
+NRedisStack.IJsonCommands.Merge(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, object! obj, System.Text.Json.JsonSerializerOptions? serializerOptions = null) -> bool
+NRedisStack.IJsonCommands.Merge(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, StackExchange.Redis.RedisValue json) -> bool
+NRedisStack.IJsonCommands.MGet(StackExchange.Redis.RedisKey[]! keys, string! path) -> StackExchange.Redis.RedisResult![]!
+NRedisStack.IJsonCommands.MSet(NRedisStack.Json.DataTypes.KeyPathValue[]! KeyPathValueList) -> bool
+NRedisStack.IJsonCommands.NumIncrby(StackExchange.Redis.RedisKey key, string! path, double value) -> double?[]!
+NRedisStack.IJsonCommands.ObjKeys(StackExchange.Redis.RedisKey key, string? path = null) -> System.Collections.Generic.IEnumerable<System.Collections.Generic.HashSet<string!>!>!
+NRedisStack.IJsonCommands.ObjLen(StackExchange.Redis.RedisKey key, string? path = null) -> long?[]!
+NRedisStack.IJsonCommands.Resp(StackExchange.Redis.RedisKey key, string? path = null) -> StackExchange.Redis.RedisResult![]!
+NRedisStack.IJsonCommands.Set(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, object! obj, StackExchange.Redis.When when = StackExchange.Redis.When.Always, System.Text.Json.JsonSerializerOptions? serializerOptions = null) -> bool
+NRedisStack.IJsonCommands.Set(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, StackExchange.Redis.RedisValue json, StackExchange.Redis.When when = StackExchange.Redis.When.Always) -> bool
+NRedisStack.IJsonCommands.SetFromDirectory(StackExchange.Redis.RedisValue path, string! filesPath, StackExchange.Redis.When when = StackExchange.Redis.When.Always) -> int
+NRedisStack.IJsonCommands.SetFromFile(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, string! filePath, StackExchange.Redis.When when = StackExchange.Redis.When.Always) -> bool
+NRedisStack.IJsonCommands.StrAppend(StackExchange.Redis.RedisKey key, string! value, string? path = null) -> long?[]!
+NRedisStack.IJsonCommands.StrLen(StackExchange.Redis.RedisKey key, string? path = null) -> long?[]!
+NRedisStack.IJsonCommands.Toggle(StackExchange.Redis.RedisKey key, string? path = null) -> bool?[]!
+NRedisStack.IJsonCommands.Type(StackExchange.Redis.RedisKey key, string? path = null) -> NRedisStack.JsonType[]!
+NRedisStack.IJsonCommandsAsync
+NRedisStack.IJsonCommandsAsync.ArrAppendAsync(StackExchange.Redis.RedisKey key, string? path = null, params object![]! values) -> System.Threading.Tasks.Task<long?[]!>!
+NRedisStack.IJsonCommandsAsync.ArrIndexAsync(StackExchange.Redis.RedisKey key, string! path, object! value, long? start = null, long? stop = null) -> System.Threading.Tasks.Task<long?[]!>!
+NRedisStack.IJsonCommandsAsync.ArrInsertAsync(StackExchange.Redis.RedisKey key, string! path, long index, params object![]! values) -> System.Threading.Tasks.Task<long?[]!>!
+NRedisStack.IJsonCommandsAsync.ArrLenAsync(StackExchange.Redis.RedisKey key, string? path = null) -> System.Threading.Tasks.Task<long?[]!>!
+NRedisStack.IJsonCommandsAsync.ArrPopAsync(StackExchange.Redis.RedisKey key, string? path = null, long? index = null) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult![]!>!
+NRedisStack.IJsonCommandsAsync.ArrTrimAsync(StackExchange.Redis.RedisKey key, string! path, long start, long stop) -> System.Threading.Tasks.Task<long?[]!>!
+NRedisStack.IJsonCommandsAsync.ClearAsync(StackExchange.Redis.RedisKey key, string? path = null) -> System.Threading.Tasks.Task<long>!
+NRedisStack.IJsonCommandsAsync.DebugMemoryAsync(string! key, string? path = null) -> System.Threading.Tasks.Task<long>!
+NRedisStack.IJsonCommandsAsync.DelAsync(StackExchange.Redis.RedisKey key, string? path = null) -> System.Threading.Tasks.Task<long>!
+NRedisStack.IJsonCommandsAsync.ForgetAsync(StackExchange.Redis.RedisKey key, string? path = null) -> System.Threading.Tasks.Task<long>!
+NRedisStack.IJsonCommandsAsync.GetAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue? indent = null, StackExchange.Redis.RedisValue? newLine = null, StackExchange.Redis.RedisValue? space = null, StackExchange.Redis.RedisValue? path = null) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult!>!
+NRedisStack.IJsonCommandsAsync.GetAsync(StackExchange.Redis.RedisKey key, string![]! paths, StackExchange.Redis.RedisValue? indent = null, StackExchange.Redis.RedisValue? newLine = null, StackExchange.Redis.RedisValue? space = null) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult!>!
+NRedisStack.IJsonCommandsAsync.GetAsync<T>(StackExchange.Redis.RedisKey key, string! path = "$", System.Text.Json.JsonSerializerOptions? serializerOptions = null) -> System.Threading.Tasks.Task<T?>!
+NRedisStack.IJsonCommandsAsync.GetEnumerableAsync<T>(StackExchange.Redis.RedisKey key, string! path = "$") -> System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<T?>!>!
+NRedisStack.IJsonCommandsAsync.MergeAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, object! obj, System.Text.Json.JsonSerializerOptions? serializerOptions = null) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.IJsonCommandsAsync.MergeAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, StackExchange.Redis.RedisValue json) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.IJsonCommandsAsync.MGetAsync(StackExchange.Redis.RedisKey[]! keys, string! path) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult![]!>!
+NRedisStack.IJsonCommandsAsync.MSetAsync(NRedisStack.Json.DataTypes.KeyPathValue[]! KeyPathValueList) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.IJsonCommandsAsync.NumIncrbyAsync(StackExchange.Redis.RedisKey key, string! path, double value) -> System.Threading.Tasks.Task<double?[]!>!
+NRedisStack.IJsonCommandsAsync.ObjKeysAsync(StackExchange.Redis.RedisKey key, string? path = null) -> System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<System.Collections.Generic.HashSet<string!>!>!>!
+NRedisStack.IJsonCommandsAsync.ObjLenAsync(StackExchange.Redis.RedisKey key, string? path = null) -> System.Threading.Tasks.Task<long?[]!>!
+NRedisStack.IJsonCommandsAsync.RespAsync(StackExchange.Redis.RedisKey key, string? path = null) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult![]!>!
+NRedisStack.IJsonCommandsAsync.SetAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, object! obj, StackExchange.Redis.When when = StackExchange.Redis.When.Always, System.Text.Json.JsonSerializerOptions? serializerOptions = null) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.IJsonCommandsAsync.SetAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, StackExchange.Redis.RedisValue json, StackExchange.Redis.When when = StackExchange.Redis.When.Always) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.IJsonCommandsAsync.SetFromDirectoryAsync(StackExchange.Redis.RedisValue path, string! filesPath, StackExchange.Redis.When when = StackExchange.Redis.When.Always) -> System.Threading.Tasks.Task<int>!
+NRedisStack.IJsonCommandsAsync.SetFromFileAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, string! filePath, StackExchange.Redis.When when = StackExchange.Redis.When.Always) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.IJsonCommandsAsync.StrAppendAsync(StackExchange.Redis.RedisKey key, string! value, string? path = null) -> System.Threading.Tasks.Task<long?[]!>!
+NRedisStack.IJsonCommandsAsync.StrLenAsync(StackExchange.Redis.RedisKey key, string? path = null) -> System.Threading.Tasks.Task<long?[]!>!
+NRedisStack.IJsonCommandsAsync.ToggleAsync(StackExchange.Redis.RedisKey key, string? path = null) -> System.Threading.Tasks.Task<bool?[]!>!
+NRedisStack.IJsonCommandsAsync.TypeAsync(StackExchange.Redis.RedisKey key, string? path = null) -> System.Threading.Tasks.Task<NRedisStack.JsonType[]!>!
+NRedisStack.ISearchCommands
+NRedisStack.ISearchCommands.Aggregate(string! index, NRedisStack.Search.AggregationRequest! query) -> NRedisStack.Search.AggregationResult!
+NRedisStack.ISearchCommands.AliasAdd(string! alias, string! index) -> bool
+NRedisStack.ISearchCommands.AliasDel(string! alias) -> bool
+NRedisStack.ISearchCommands.AliasUpdate(string! alias, string! index) -> bool
+NRedisStack.ISearchCommands.Alter(string! index, NRedisStack.Search.Schema! schema, bool skipInitialScan = false) -> bool
+NRedisStack.ISearchCommands.ConfigGet(string! option) -> System.Collections.Generic.Dictionary<string!, string!>!
+NRedisStack.ISearchCommands.ConfigSet(string! option, string! value) -> bool
+NRedisStack.ISearchCommands.Create(string! indexName, NRedisStack.Search.FTCreateParams! parameters, NRedisStack.Search.Schema! schema) -> bool
+NRedisStack.ISearchCommands.CursorDel(string! indexName, long cursorId) -> bool
+NRedisStack.ISearchCommands.CursorRead(string! indexName, long cursorId, int? count = null) -> NRedisStack.Search.AggregationResult!
+NRedisStack.ISearchCommands.DictAdd(string! dict, params string![]! terms) -> long
+NRedisStack.ISearchCommands.DictDel(string! dict, params string![]! terms) -> long
+NRedisStack.ISearchCommands.DictDump(string! dict) -> StackExchange.Redis.RedisResult![]!
+NRedisStack.ISearchCommands.DropIndex(string! indexName, bool dd = false) -> bool
+NRedisStack.ISearchCommands.Explain(string! indexName, string! query, int? dialect = null) -> string!
+NRedisStack.ISearchCommands.ExplainCli(string! indexName, string! query, int? dialect = null) -> StackExchange.Redis.RedisResult![]!
+NRedisStack.ISearchCommands.Info(StackExchange.Redis.RedisValue index) -> NRedisStack.Search.DataTypes.InfoResult!
+NRedisStack.ISearchCommands.ProfileAggregate(string! indexName, NRedisStack.Search.AggregationRequest! query, bool limited = false) -> System.Tuple<NRedisStack.Search.AggregationResult!, System.Collections.Generic.Dictionary<string!, StackExchange.Redis.RedisResult!>!>!
+NRedisStack.ISearchCommands.ProfileOnAggregate(string! indexName, NRedisStack.Search.AggregationRequest! query, bool limited = false) -> System.Tuple<NRedisStack.Search.AggregationResult!, NRedisStack.Search.ProfilingInformation!>!
+NRedisStack.ISearchCommands.ProfileOnSearch(string! indexName, NRedisStack.Search.Query! q, bool limited = false) -> System.Tuple<NRedisStack.Search.SearchResult!, NRedisStack.Search.ProfilingInformation!>!
+NRedisStack.ISearchCommands.ProfileSearch(string! indexName, NRedisStack.Search.Query! q, bool limited = false) -> System.Tuple<NRedisStack.Search.SearchResult!, System.Collections.Generic.Dictionary<string!, StackExchange.Redis.RedisResult!>!>!
+NRedisStack.ISearchCommands.Search(string! indexName, NRedisStack.Search.Query! q) -> NRedisStack.Search.SearchResult!
+NRedisStack.ISearchCommands.SpellCheck(string! indexName, string! query, NRedisStack.Search.FTSpellCheckParams? spellCheckParams = null) -> System.Collections.Generic.Dictionary<string!, System.Collections.Generic.Dictionary<string!, double>!>!
+NRedisStack.ISearchCommands.SugAdd(string! key, string! str, double score, bool increment = false, string? payload = null) -> long
+NRedisStack.ISearchCommands.SugDel(string! key, string! str) -> bool
+NRedisStack.ISearchCommands.SugGet(string! key, string! prefix, bool fuzzy = false, bool withPayloads = false, int? max = null) -> System.Collections.Generic.List<string!>!
+NRedisStack.ISearchCommands.SugGetWithScores(string! key, string! prefix, bool fuzzy = false, bool withPayloads = false, int? max = null) -> System.Collections.Generic.List<System.Tuple<string!, double>!>!
+NRedisStack.ISearchCommands.SugLen(string! key) -> long
+NRedisStack.ISearchCommands.SynDump(string! indexName) -> System.Collections.Generic.Dictionary<string!, System.Collections.Generic.List<string!>!>!
+NRedisStack.ISearchCommands.SynUpdate(string! indexName, string! synonymGroupId, bool skipInitialScan = false, params string![]! terms) -> bool
+NRedisStack.ISearchCommands.TagVals(string! indexName, string! fieldName) -> StackExchange.Redis.RedisResult![]!
+NRedisStack.ISearchCommands._List() -> StackExchange.Redis.RedisResult![]!
+NRedisStack.ISearchCommandsAsync
+NRedisStack.ISearchCommandsAsync.AggregateAsync(string! index, NRedisStack.Search.AggregationRequest! query) -> System.Threading.Tasks.Task<NRedisStack.Search.AggregationResult!>!
+NRedisStack.ISearchCommandsAsync.AliasAddAsync(string! alias, string! index) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ISearchCommandsAsync.AliasDelAsync(string! alias) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ISearchCommandsAsync.AliasUpdateAsync(string! alias, string! index) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ISearchCommandsAsync.AlterAsync(string! index, NRedisStack.Search.Schema! schema, bool skipInitialScan = false) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ISearchCommandsAsync.ConfigGetAsync(string! option) -> System.Threading.Tasks.Task<System.Collections.Generic.Dictionary<string!, string!>!>!
+NRedisStack.ISearchCommandsAsync.ConfigSetAsync(string! option, string! value) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ISearchCommandsAsync.CreateAsync(string! indexName, NRedisStack.Search.FTCreateParams! parameters, NRedisStack.Search.Schema! schema) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ISearchCommandsAsync.CursorDelAsync(string! indexName, long cursorId) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ISearchCommandsAsync.CursorReadAsync(string! indexName, long cursorId, int? count = null) -> System.Threading.Tasks.Task<NRedisStack.Search.AggregationResult!>!
+NRedisStack.ISearchCommandsAsync.DictAddAsync(string! dict, params string![]! terms) -> System.Threading.Tasks.Task<long>!
+NRedisStack.ISearchCommandsAsync.DictDelAsync(string! dict, params string![]! terms) -> System.Threading.Tasks.Task<long>!
+NRedisStack.ISearchCommandsAsync.DictDumpAsync(string! dict) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult![]!>!
+NRedisStack.ISearchCommandsAsync.DropIndexAsync(string! indexName, bool dd = false) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ISearchCommandsAsync.ExplainAsync(string! indexName, string! query, int? dialect = null) -> System.Threading.Tasks.Task<string!>!
+NRedisStack.ISearchCommandsAsync.ExplainCliAsync(string! indexName, string! query, int? dialect = null) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult![]!>!
+NRedisStack.ISearchCommandsAsync.InfoAsync(StackExchange.Redis.RedisValue index) -> System.Threading.Tasks.Task<NRedisStack.Search.DataTypes.InfoResult!>!
+NRedisStack.ISearchCommandsAsync.ProfileAggregateAsync(string! indexName, NRedisStack.Search.AggregationRequest! query, bool limited = false) -> System.Threading.Tasks.Task<System.Tuple<NRedisStack.Search.AggregationResult!, System.Collections.Generic.Dictionary<string!, StackExchange.Redis.RedisResult!>!>!>!
+NRedisStack.ISearchCommandsAsync.ProfileOnAggregateAsync(string! indexName, NRedisStack.Search.AggregationRequest! query, bool limited = false) -> System.Threading.Tasks.Task<System.Tuple<NRedisStack.Search.AggregationResult!, NRedisStack.Search.ProfilingInformation!>!>!
+NRedisStack.ISearchCommandsAsync.ProfileOnSearchAsync(string! indexName, NRedisStack.Search.Query! q, bool limited = false) -> System.Threading.Tasks.Task<System.Tuple<NRedisStack.Search.SearchResult!, NRedisStack.Search.ProfilingInformation!>!>!
+NRedisStack.ISearchCommandsAsync.ProfileSearchAsync(string! indexName, NRedisStack.Search.Query! q, bool limited = false) -> System.Threading.Tasks.Task<System.Tuple<NRedisStack.Search.SearchResult!, System.Collections.Generic.Dictionary<string!, StackExchange.Redis.RedisResult!>!>!>!
+NRedisStack.ISearchCommandsAsync.SearchAsync(string! indexName, NRedisStack.Search.Query! q) -> System.Threading.Tasks.Task<NRedisStack.Search.SearchResult!>!
+NRedisStack.ISearchCommandsAsync.SpellCheckAsync(string! indexName, string! query, NRedisStack.Search.FTSpellCheckParams? spellCheckParams = null) -> System.Threading.Tasks.Task<System.Collections.Generic.Dictionary<string!, System.Collections.Generic.Dictionary<string!, double>!>!>!
+NRedisStack.ISearchCommandsAsync.SugAddAsync(string! key, string! str, double score, bool increment = false, string? payload = null) -> System.Threading.Tasks.Task<long>!
+NRedisStack.ISearchCommandsAsync.SugDelAsync(string! key, string! str) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ISearchCommandsAsync.SugGetAsync(string! key, string! prefix, bool fuzzy = false, bool withPayloads = false, int? max = null) -> System.Threading.Tasks.Task<System.Collections.Generic.List<string!>!>!
+NRedisStack.ISearchCommandsAsync.SugGetWithScoresAsync(string! key, string! prefix, bool fuzzy = false, bool withPayloads = false, int? max = null) -> System.Threading.Tasks.Task<System.Collections.Generic.List<System.Tuple<string!, double>!>!>!
+NRedisStack.ISearchCommandsAsync.SugLenAsync(string! key) -> System.Threading.Tasks.Task<long>!
+NRedisStack.ISearchCommandsAsync.SynDumpAsync(string! indexName) -> System.Threading.Tasks.Task<System.Collections.Generic.Dictionary<string!, System.Collections.Generic.List<string!>!>!>!
+NRedisStack.ISearchCommandsAsync.SynUpdateAsync(string! indexName, string! synonymGroupId, bool skipInitialScan = false, params string![]! terms) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ISearchCommandsAsync.TagValsAsync(string! indexName, string! fieldName) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult![]!>!
+NRedisStack.ISearchCommandsAsync._ListAsync() -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult![]!>!
+NRedisStack.ITdigestCommands
+NRedisStack.ITdigestCommands.Add(StackExchange.Redis.RedisKey key, params double[]! values) -> bool
+NRedisStack.ITdigestCommands.ByRank(StackExchange.Redis.RedisKey key, params long[]! ranks) -> double[]!
+NRedisStack.ITdigestCommands.ByRevRank(StackExchange.Redis.RedisKey key, params long[]! ranks) -> double[]!
+NRedisStack.ITdigestCommands.CDF(StackExchange.Redis.RedisKey key, params double[]! values) -> double[]!
+NRedisStack.ITdigestCommands.Create(StackExchange.Redis.RedisKey key, long compression = 100) -> bool
+NRedisStack.ITdigestCommands.Info(StackExchange.Redis.RedisKey key) -> NRedisStack.Tdigest.DataTypes.TdigestInformation!
+NRedisStack.ITdigestCommands.Max(StackExchange.Redis.RedisKey key) -> double
+NRedisStack.ITdigestCommands.Merge(StackExchange.Redis.RedisKey destinationKey, long compression = 0, bool overide = false, params StackExchange.Redis.RedisKey[]! sourceKeys) -> bool
+NRedisStack.ITdigestCommands.Min(StackExchange.Redis.RedisKey key) -> double
+NRedisStack.ITdigestCommands.Quantile(StackExchange.Redis.RedisKey key, params double[]! quantile) -> double[]!
+NRedisStack.ITdigestCommands.Rank(StackExchange.Redis.RedisKey key, params long[]! values) -> long[]!
+NRedisStack.ITdigestCommands.Reset(StackExchange.Redis.RedisKey key) -> bool
+NRedisStack.ITdigestCommands.RevRank(StackExchange.Redis.RedisKey key, params long[]! values) -> long[]!
+NRedisStack.ITdigestCommands.TrimmedMean(StackExchange.Redis.RedisKey key, double lowCutQuantile, double highCutQuantile) -> double
+NRedisStack.ITdigestCommandsAsync
+NRedisStack.ITdigestCommandsAsync.AddAsync(StackExchange.Redis.RedisKey key, params double[]! values) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ITdigestCommandsAsync.ByRankAsync(StackExchange.Redis.RedisKey key, params long[]! ranks) -> System.Threading.Tasks.Task<double[]!>!
+NRedisStack.ITdigestCommandsAsync.ByRevRankAsync(StackExchange.Redis.RedisKey key, params long[]! ranks) -> System.Threading.Tasks.Task<double[]!>!
+NRedisStack.ITdigestCommandsAsync.CDFAsync(StackExchange.Redis.RedisKey key, params double[]! values) -> System.Threading.Tasks.Task<double[]!>!
+NRedisStack.ITdigestCommandsAsync.CreateAsync(StackExchange.Redis.RedisKey key, long compression = 100) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ITdigestCommandsAsync.InfoAsync(StackExchange.Redis.RedisKey key) -> System.Threading.Tasks.Task<NRedisStack.Tdigest.DataTypes.TdigestInformation!>!
+NRedisStack.ITdigestCommandsAsync.MaxAsync(StackExchange.Redis.RedisKey key) -> System.Threading.Tasks.Task<double>!
+NRedisStack.ITdigestCommandsAsync.MergeAsync(StackExchange.Redis.RedisKey destinationKey, long compression = 0, bool overide = false, params StackExchange.Redis.RedisKey[]! sourceKeys) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ITdigestCommandsAsync.MinAsync(StackExchange.Redis.RedisKey key) -> System.Threading.Tasks.Task<double>!
+NRedisStack.ITdigestCommandsAsync.QuantileAsync(StackExchange.Redis.RedisKey key, params double[]! quantile) -> System.Threading.Tasks.Task<double[]!>!
+NRedisStack.ITdigestCommandsAsync.RankAsync(StackExchange.Redis.RedisKey key, params long[]! values) -> System.Threading.Tasks.Task<long[]!>!
+NRedisStack.ITdigestCommandsAsync.ResetAsync(StackExchange.Redis.RedisKey key) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ITdigestCommandsAsync.RevRankAsync(StackExchange.Redis.RedisKey key, params long[]! values) -> System.Threading.Tasks.Task<long[]!>!
+NRedisStack.ITdigestCommandsAsync.TrimmedMeanAsync(StackExchange.Redis.RedisKey key, double lowCutQuantile, double highCutQuantile) -> System.Threading.Tasks.Task<double>!
+NRedisStack.ITimeSeriesCommands
+NRedisStack.ITimeSeriesCommands.Add(string! key, NRedisStack.DataTypes.TimeStamp timestamp, double value, long? retentionTime = null, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeSeriesLabel!>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, NRedisStack.Literals.Enums.TsDuplicatePolicy? duplicatePolicy = null) -> NRedisStack.DataTypes.TimeStamp
+NRedisStack.ITimeSeriesCommands.Alter(string! key, long? retentionTime = null, long? chunkSizeBytes = null, NRedisStack.Literals.Enums.TsDuplicatePolicy? duplicatePolicy = null, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeSeriesLabel!>? labels = null) -> bool
+NRedisStack.ITimeSeriesCommands.Create(string! key, long? retentionTime = null, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeSeriesLabel!>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, NRedisStack.Literals.Enums.TsDuplicatePolicy? duplicatePolicy = null) -> bool
+NRedisStack.ITimeSeriesCommands.CreateRule(string! sourceKey, NRedisStack.DataTypes.TimeSeriesRule! rule, long alignTimestamp = 0) -> bool
+NRedisStack.ITimeSeriesCommands.DecrBy(string! key, double value, NRedisStack.DataTypes.TimeStamp? timestamp = null, long? retentionTime = null, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeSeriesLabel!>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null) -> NRedisStack.DataTypes.TimeStamp
+NRedisStack.ITimeSeriesCommands.Del(string! key, NRedisStack.DataTypes.TimeStamp fromTimeStamp, NRedisStack.DataTypes.TimeStamp toTimeStamp) -> long
+NRedisStack.ITimeSeriesCommands.DeleteRule(string! sourceKey, string! destKey) -> bool
+NRedisStack.ITimeSeriesCommands.Get(string! key, bool latest = false) -> NRedisStack.DataTypes.TimeSeriesTuple?
+NRedisStack.ITimeSeriesCommands.IncrBy(string! key, double value, NRedisStack.DataTypes.TimeStamp? timestamp = null, long? retentionTime = null, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeSeriesLabel!>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null) -> NRedisStack.DataTypes.TimeStamp
+NRedisStack.ITimeSeriesCommands.Info(string! key, bool debug = false) -> NRedisStack.DataTypes.TimeSeriesInformation!
+NRedisStack.ITimeSeriesCommands.MAdd(System.Collections.Generic.IReadOnlyCollection<(string! key, NRedisStack.DataTypes.TimeStamp timestamp, double value)>! sequence) -> System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeStamp>!
+NRedisStack.ITimeSeriesCommands.MGet(System.Collections.Generic.IReadOnlyCollection<string!>! filter, bool latest = false, bool? withLabels = null, System.Collections.Generic.IReadOnlyCollection<string!>? selectedLabels = null) -> System.Collections.Generic.IReadOnlyList<(string! key, System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesLabel!>! labels, NRedisStack.DataTypes.TimeSeriesTuple! value)>!
+NRedisStack.ITimeSeriesCommands.MRange(NRedisStack.DataTypes.TimeStamp fromTimeStamp, NRedisStack.DataTypes.TimeStamp toTimeStamp, System.Collections.Generic.IReadOnlyCollection<string!>! filter, bool latest = false, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeStamp>? filterByTs = null, (long, long)? filterByValue = null, bool? withLabels = null, System.Collections.Generic.IReadOnlyCollection<string!>? selectLabels = null, long? count = null, NRedisStack.DataTypes.TimeStamp? align = null, NRedisStack.Literals.Enums.TsAggregation? aggregation = null, long? timeBucket = null, NRedisStack.Literals.Enums.TsBucketTimestamps? bt = null, bool empty = false, (string!, NRedisStack.Literals.Enums.TsReduce)? groupbyTuple = null) -> System.Collections.Generic.IReadOnlyList<(string! key, System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesLabel!>! labels, System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesTuple!>! values)>!
+NRedisStack.ITimeSeriesCommands.MRevRange(NRedisStack.DataTypes.TimeStamp fromTimeStamp, NRedisStack.DataTypes.TimeStamp toTimeStamp, System.Collections.Generic.IReadOnlyCollection<string!>! filter, bool latest = false, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeStamp>? filterByTs = null, (long, long)? filterByValue = null, bool? withLabels = null, System.Collections.Generic.IReadOnlyCollection<string!>? selectLabels = null, long? count = null, NRedisStack.DataTypes.TimeStamp? align = null, NRedisStack.Literals.Enums.TsAggregation? aggregation = null, long? timeBucket = null, NRedisStack.Literals.Enums.TsBucketTimestamps? bt = null, bool empty = false, (string!, NRedisStack.Literals.Enums.TsReduce)? groupbyTuple = null) -> System.Collections.Generic.IReadOnlyList<(string! key, System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesLabel!>! labels, System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesTuple!>! values)>!
+NRedisStack.ITimeSeriesCommands.QueryIndex(System.Collections.Generic.IReadOnlyCollection<string!>! filter) -> System.Collections.Generic.IReadOnlyList<string!>!
+NRedisStack.ITimeSeriesCommands.Range(string! key, NRedisStack.DataTypes.TimeStamp fromTimeStamp, NRedisStack.DataTypes.TimeStamp toTimeStamp, bool latest = false, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeStamp>? filterByTs = null, (long, long)? filterByValue = null, long? count = null, NRedisStack.DataTypes.TimeStamp? align = null, NRedisStack.Literals.Enums.TsAggregation? aggregation = null, long? timeBucket = null, NRedisStack.Literals.Enums.TsBucketTimestamps? bt = null, bool empty = false) -> System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesTuple!>!
+NRedisStack.ITimeSeriesCommands.RevRange(string! key, NRedisStack.DataTypes.TimeStamp fromTimeStamp, NRedisStack.DataTypes.TimeStamp toTimeStamp, bool latest = false, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeStamp>? filterByTs = null, (long, long)? filterByValue = null, long? count = null, NRedisStack.DataTypes.TimeStamp? align = null, NRedisStack.Literals.Enums.TsAggregation? aggregation = null, long? timeBucket = null, NRedisStack.Literals.Enums.TsBucketTimestamps? bt = null, bool empty = false) -> System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesTuple!>!
+NRedisStack.ITimeSeriesCommandsAsync
+NRedisStack.ITimeSeriesCommandsAsync.AddAsync(string! key, NRedisStack.DataTypes.TimeStamp timestamp, double value, long? retentionTime = null, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeSeriesLabel!>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, NRedisStack.Literals.Enums.TsDuplicatePolicy? duplicatePolicy = null) -> System.Threading.Tasks.Task<NRedisStack.DataTypes.TimeStamp>!
+NRedisStack.ITimeSeriesCommandsAsync.AlterAsync(string! key, long? retentionTime = null, long? chunkSizeBytes = null, NRedisStack.Literals.Enums.TsDuplicatePolicy? duplicatePolicy = null, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeSeriesLabel!>? labels = null) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ITimeSeriesCommandsAsync.CreateAsync(string! key, long? retentionTime = null, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeSeriesLabel!>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, NRedisStack.Literals.Enums.TsDuplicatePolicy? duplicatePolicy = null) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ITimeSeriesCommandsAsync.CreateRuleAsync(string! sourceKey, NRedisStack.DataTypes.TimeSeriesRule! rule, long alignTimestamp = 0) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ITimeSeriesCommandsAsync.DecrByAsync(string! key, double value, NRedisStack.DataTypes.TimeStamp? timestamp = null, long? retentionTime = null, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeSeriesLabel!>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null) -> System.Threading.Tasks.Task<NRedisStack.DataTypes.TimeStamp>!
+NRedisStack.ITimeSeriesCommandsAsync.DelAsync(string! key, NRedisStack.DataTypes.TimeStamp fromTimeStamp, NRedisStack.DataTypes.TimeStamp toTimeStamp) -> System.Threading.Tasks.Task<long>!
+NRedisStack.ITimeSeriesCommandsAsync.DeleteRuleAsync(string! sourceKey, string! destKey) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ITimeSeriesCommandsAsync.GetAsync(string! key, bool latest = false) -> System.Threading.Tasks.Task<NRedisStack.DataTypes.TimeSeriesTuple?>!
+NRedisStack.ITimeSeriesCommandsAsync.IncrByAsync(string! key, double value, NRedisStack.DataTypes.TimeStamp? timestamp = null, long? retentionTime = null, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeSeriesLabel!>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null) -> System.Threading.Tasks.Task<NRedisStack.DataTypes.TimeStamp>!
+NRedisStack.ITimeSeriesCommandsAsync.InfoAsync(string! key, bool debug = false) -> System.Threading.Tasks.Task<NRedisStack.DataTypes.TimeSeriesInformation!>!
+NRedisStack.ITimeSeriesCommandsAsync.MAddAsync(System.Collections.Generic.IReadOnlyCollection<(string! key, NRedisStack.DataTypes.TimeStamp timestamp, double value)>! sequence) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeStamp>!>!
+NRedisStack.ITimeSeriesCommandsAsync.MGetAsync(System.Collections.Generic.IReadOnlyCollection<string!>! filter, bool latest = false, bool? withLabels = null, System.Collections.Generic.IReadOnlyCollection<string!>? selectedLabels = null) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<(string! key, System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesLabel!>! labels, NRedisStack.DataTypes.TimeSeriesTuple! value)>!>!
+NRedisStack.ITimeSeriesCommandsAsync.MRangeAsync(NRedisStack.DataTypes.TimeStamp fromTimeStamp, NRedisStack.DataTypes.TimeStamp toTimeStamp, System.Collections.Generic.IReadOnlyCollection<string!>! filter, bool latest = false, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeStamp>? filterByTs = null, (long, long)? filterByValue = null, bool? withLabels = null, System.Collections.Generic.IReadOnlyCollection<string!>? selectLabels = null, long? count = null, NRedisStack.DataTypes.TimeStamp? align = null, NRedisStack.Literals.Enums.TsAggregation? aggregation = null, long? timeBucket = null, NRedisStack.Literals.Enums.TsBucketTimestamps? bt = null, bool empty = false, (string!, NRedisStack.Literals.Enums.TsReduce)? groupbyTuple = null) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<(string! key, System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesLabel!>! labels, System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesTuple!>! values)>!>!
+NRedisStack.ITimeSeriesCommandsAsync.MRevRangeAsync(NRedisStack.DataTypes.TimeStamp fromTimeStamp, NRedisStack.DataTypes.TimeStamp toTimeStamp, System.Collections.Generic.IReadOnlyCollection<string!>! filter, bool latest = false, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeStamp>? filterByTs = null, (long, long)? filterByValue = null, bool? withLabels = null, System.Collections.Generic.IReadOnlyCollection<string!>? selectLabels = null, long? count = null, NRedisStack.DataTypes.TimeStamp? align = null, NRedisStack.Literals.Enums.TsAggregation? aggregation = null, long? timeBucket = null, NRedisStack.Literals.Enums.TsBucketTimestamps? bt = null, bool empty = false, (string!, NRedisStack.Literals.Enums.TsReduce)? groupbyTuple = null) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<(string! key, System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesLabel!>! labels, System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesTuple!>! values)>!>!
+NRedisStack.ITimeSeriesCommandsAsync.QueryIndexAsync(System.Collections.Generic.IReadOnlyCollection<string!>! filter) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<string!>!>!
+NRedisStack.ITimeSeriesCommandsAsync.RangeAsync(string! key, NRedisStack.DataTypes.TimeStamp fromTimeStamp, NRedisStack.DataTypes.TimeStamp toTimeStamp, bool latest = false, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeStamp>? filterByTs = null, (long, long)? filterByValue = null, long? count = null, NRedisStack.DataTypes.TimeStamp? align = null, NRedisStack.Literals.Enums.TsAggregation? aggregation = null, long? timeBucket = null, NRedisStack.Literals.Enums.TsBucketTimestamps? bt = null, bool empty = false) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesTuple!>!>!
+NRedisStack.ITimeSeriesCommandsAsync.RevRangeAsync(string! key, NRedisStack.DataTypes.TimeStamp fromTimeStamp, NRedisStack.DataTypes.TimeStamp toTimeStamp, bool latest = false, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeStamp>? filterByTs = null, (long, long)? filterByValue = null, long? count = null, NRedisStack.DataTypes.TimeStamp? align = null, NRedisStack.Literals.Enums.TsAggregation? aggregation = null, long? timeBucket = null, NRedisStack.Literals.Enums.TsBucketTimestamps? bt = null, bool empty = false) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesTuple!>!>!
+NRedisStack.ITopKCommands
+NRedisStack.ITopKCommands.Add(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> StackExchange.Redis.RedisResult![]?
+NRedisStack.ITopKCommands.Count(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> long[]!
+NRedisStack.ITopKCommands.IncrBy(StackExchange.Redis.RedisKey key, params System.Tuple<StackExchange.Redis.RedisValue, long>![]! itemIncrements) -> StackExchange.Redis.RedisResult![]!
+NRedisStack.ITopKCommands.Info(StackExchange.Redis.RedisKey key) -> NRedisStack.TopK.DataTypes.TopKInformation!
+NRedisStack.ITopKCommands.List(StackExchange.Redis.RedisKey key, bool withcount = false) -> StackExchange.Redis.RedisResult![]!
+NRedisStack.ITopKCommands.Query(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> bool[]!
+NRedisStack.ITopKCommands.Query(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> bool
+NRedisStack.ITopKCommands.Reserve(StackExchange.Redis.RedisKey key, long topk, long width = 7, long depth = 8, double decay = 0.9) -> bool
+NRedisStack.ITopKCommandsAsync
+NRedisStack.ITopKCommandsAsync.AddAsync(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult![]?>!
+NRedisStack.ITopKCommandsAsync.CountAsync(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> System.Threading.Tasks.Task<long[]!>!
+NRedisStack.ITopKCommandsAsync.IncrByAsync(StackExchange.Redis.RedisKey key, params System.Tuple<StackExchange.Redis.RedisValue, long>![]! itemIncrements) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult![]!>!
+NRedisStack.ITopKCommandsAsync.InfoAsync(StackExchange.Redis.RedisKey key) -> System.Threading.Tasks.Task<NRedisStack.TopK.DataTypes.TopKInformation!>!
+NRedisStack.ITopKCommandsAsync.ListAsync(StackExchange.Redis.RedisKey key, bool withcount = false) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult![]!>!
+NRedisStack.ITopKCommandsAsync.QueryAsync(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> System.Threading.Tasks.Task<bool[]!>!
+NRedisStack.ITopKCommandsAsync.QueryAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ITopKCommandsAsync.ReserveAsync(StackExchange.Redis.RedisKey key, long topk, long width = 7, long depth = 8, double decay = 0.9) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.Json.DataTypes.KeyPathValue
+NRedisStack.Json.DataTypes.KeyPathValue.KeyPathValue() -> void
+NRedisStack.Json.DataTypes.KeyPathValue.KeyPathValue(string! key, string! path, object! value) -> void
+NRedisStack.Json.DataTypes.KeyPathValue.ToArray() -> System.Collections.Generic.IEnumerable<string!>!
+NRedisStack.JsonCommandBuilder
+NRedisStack.JsonCommands
+NRedisStack.JsonCommands.ArrAppend(StackExchange.Redis.RedisKey key, string? path = null, params object![]! values) -> long?[]!
+NRedisStack.JsonCommands.ArrIndex(StackExchange.Redis.RedisKey key, string! path, object! value, long? start = null, long? stop = null) -> long?[]!
+NRedisStack.JsonCommands.ArrInsert(StackExchange.Redis.RedisKey key, string! path, long index, params object![]! values) -> long?[]!
+NRedisStack.JsonCommands.ArrLen(StackExchange.Redis.RedisKey key, string? path = null) -> long?[]!
+NRedisStack.JsonCommands.ArrPop(StackExchange.Redis.RedisKey key, string? path = null, long? index = null) -> StackExchange.Redis.RedisResult![]!
+NRedisStack.JsonCommands.ArrTrim(StackExchange.Redis.RedisKey key, string! path, long start, long stop) -> long?[]!
+NRedisStack.JsonCommands.Clear(StackExchange.Redis.RedisKey key, string? path = null) -> long
+NRedisStack.JsonCommands.DebugMemory(string! key, string? path = null) -> long
+NRedisStack.JsonCommands.Del(StackExchange.Redis.RedisKey key, string? path = null) -> long
+NRedisStack.JsonCommands.Forget(StackExchange.Redis.RedisKey key, string? path = null) -> long
+NRedisStack.JsonCommands.Get(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue? indent = null, StackExchange.Redis.RedisValue? newLine = null, StackExchange.Redis.RedisValue? space = null, StackExchange.Redis.RedisValue? path = null) -> StackExchange.Redis.RedisResult!
+NRedisStack.JsonCommands.Get(StackExchange.Redis.RedisKey key, string![]! paths, StackExchange.Redis.RedisValue? indent = null, StackExchange.Redis.RedisValue? newLine = null, StackExchange.Redis.RedisValue? space = null) -> StackExchange.Redis.RedisResult!
+NRedisStack.JsonCommands.Get<T>(StackExchange.Redis.RedisKey key, string! path = "$", System.Text.Json.JsonSerializerOptions? serializerOptions = null) -> T?
+NRedisStack.JsonCommands.GetEnumerable<T>(StackExchange.Redis.RedisKey key, string! path = "$") -> System.Collections.Generic.IEnumerable<T?>!
+NRedisStack.JsonCommands.JsonCommands(StackExchange.Redis.IDatabase! db) -> void
+NRedisStack.JsonCommands.Merge(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, object! obj, System.Text.Json.JsonSerializerOptions? serializerOptions = null) -> bool
+NRedisStack.JsonCommands.Merge(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, StackExchange.Redis.RedisValue json) -> bool
+NRedisStack.JsonCommands.MGet(StackExchange.Redis.RedisKey[]! keys, string! path) -> StackExchange.Redis.RedisResult![]!
+NRedisStack.JsonCommands.MSet(NRedisStack.Json.DataTypes.KeyPathValue[]! KeyPathValueList) -> bool
+NRedisStack.JsonCommands.NumIncrby(StackExchange.Redis.RedisKey key, string! path, double value) -> double?[]!
+NRedisStack.JsonCommands.ObjKeys(StackExchange.Redis.RedisKey key, string? path = null) -> System.Collections.Generic.IEnumerable<System.Collections.Generic.HashSet<string!>!>!
+NRedisStack.JsonCommands.ObjLen(StackExchange.Redis.RedisKey key, string? path = null) -> long?[]!
+NRedisStack.JsonCommands.Resp(StackExchange.Redis.RedisKey key, string? path = null) -> StackExchange.Redis.RedisResult![]!
+NRedisStack.JsonCommands.Set(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, object! obj, StackExchange.Redis.When when = StackExchange.Redis.When.Always, System.Text.Json.JsonSerializerOptions? serializerOptions = null) -> bool
+NRedisStack.JsonCommands.Set(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, StackExchange.Redis.RedisValue json, StackExchange.Redis.When when = StackExchange.Redis.When.Always) -> bool
+NRedisStack.JsonCommands.SetFromDirectory(StackExchange.Redis.RedisValue path, string! filesPath, StackExchange.Redis.When when = StackExchange.Redis.When.Always) -> int
+NRedisStack.JsonCommands.SetFromFile(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, string! filePath, StackExchange.Redis.When when = StackExchange.Redis.When.Always) -> bool
+NRedisStack.JsonCommands.StrAppend(StackExchange.Redis.RedisKey key, string! value, string? path = null) -> long?[]!
+NRedisStack.JsonCommands.StrLen(StackExchange.Redis.RedisKey key, string? path = null) -> long?[]!
+NRedisStack.JsonCommands.Toggle(StackExchange.Redis.RedisKey key, string? path = null) -> bool?[]!
+NRedisStack.JsonCommands.Type(StackExchange.Redis.RedisKey key, string? path = null) -> NRedisStack.JsonType[]!
+NRedisStack.JsonCommandsAsync
+NRedisStack.JsonCommandsAsync.ArrAppendAsync(StackExchange.Redis.RedisKey key, string? path = null, params object![]! values) -> System.Threading.Tasks.Task<long?[]!>!
+NRedisStack.JsonCommandsAsync.ArrIndexAsync(StackExchange.Redis.RedisKey key, string! path, object! value, long? start = null, long? stop = null) -> System.Threading.Tasks.Task<long?[]!>!
+NRedisStack.JsonCommandsAsync.ArrInsertAsync(StackExchange.Redis.RedisKey key, string! path, long index, params object![]! values) -> System.Threading.Tasks.Task<long?[]!>!
+NRedisStack.JsonCommandsAsync.ArrLenAsync(StackExchange.Redis.RedisKey key, string? path = null) -> System.Threading.Tasks.Task<long?[]!>!
+NRedisStack.JsonCommandsAsync.ArrPopAsync(StackExchange.Redis.RedisKey key, string? path = null, long? index = null) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult![]!>!
+NRedisStack.JsonCommandsAsync.ArrTrimAsync(StackExchange.Redis.RedisKey key, string! path, long start, long stop) -> System.Threading.Tasks.Task<long?[]!>!
+NRedisStack.JsonCommandsAsync.ClearAsync(StackExchange.Redis.RedisKey key, string? path = null) -> System.Threading.Tasks.Task<long>!
+NRedisStack.JsonCommandsAsync.DebugMemoryAsync(string! key, string? path = null) -> System.Threading.Tasks.Task<long>!
+NRedisStack.JsonCommandsAsync.DelAsync(StackExchange.Redis.RedisKey key, string? path = null) -> System.Threading.Tasks.Task<long>!
+NRedisStack.JsonCommandsAsync.ForgetAsync(StackExchange.Redis.RedisKey key, string? path = null) -> System.Threading.Tasks.Task<long>!
+NRedisStack.JsonCommandsAsync.GetAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue? indent = null, StackExchange.Redis.RedisValue? newLine = null, StackExchange.Redis.RedisValue? space = null, StackExchange.Redis.RedisValue? path = null) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult!>!
+NRedisStack.JsonCommandsAsync.GetAsync(StackExchange.Redis.RedisKey key, string![]! paths, StackExchange.Redis.RedisValue? indent = null, StackExchange.Redis.RedisValue? newLine = null, StackExchange.Redis.RedisValue? space = null) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult!>!
+NRedisStack.JsonCommandsAsync.GetAsync<T>(StackExchange.Redis.RedisKey key, string! path = "$", System.Text.Json.JsonSerializerOptions? serializerOptions = null) -> System.Threading.Tasks.Task<T?>!
+NRedisStack.JsonCommandsAsync.GetEnumerableAsync<T>(StackExchange.Redis.RedisKey key, string! path = "$") -> System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<T?>!>!
+NRedisStack.JsonCommandsAsync.JsonCommandsAsync(StackExchange.Redis.IDatabaseAsync! db) -> void
+NRedisStack.JsonCommandsAsync.MergeAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, object! obj, System.Text.Json.JsonSerializerOptions? serializerOptions = null) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.JsonCommandsAsync.MergeAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, StackExchange.Redis.RedisValue json) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.JsonCommandsAsync.MGetAsync(StackExchange.Redis.RedisKey[]! keys, string! path) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult![]!>!
+NRedisStack.JsonCommandsAsync.MSetAsync(NRedisStack.Json.DataTypes.KeyPathValue[]! KeyPathValueList) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.JsonCommandsAsync.NumIncrbyAsync(StackExchange.Redis.RedisKey key, string! path, double value) -> System.Threading.Tasks.Task<double?[]!>!
+NRedisStack.JsonCommandsAsync.ObjKeysAsync(StackExchange.Redis.RedisKey key, string? path = null) -> System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<System.Collections.Generic.HashSet<string!>!>!>!
+NRedisStack.JsonCommandsAsync.ObjLenAsync(StackExchange.Redis.RedisKey key, string? path = null) -> System.Threading.Tasks.Task<long?[]!>!
+NRedisStack.JsonCommandsAsync.RespAsync(StackExchange.Redis.RedisKey key, string? path = null) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult![]!>!
+NRedisStack.JsonCommandsAsync.SetAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, object! obj, StackExchange.Redis.When when = StackExchange.Redis.When.Always, System.Text.Json.JsonSerializerOptions? serializerOptions = null) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.JsonCommandsAsync.SetAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, StackExchange.Redis.RedisValue json, StackExchange.Redis.When when = StackExchange.Redis.When.Always) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.JsonCommandsAsync.SetFromDirectoryAsync(StackExchange.Redis.RedisValue path, string! filesPath, StackExchange.Redis.When when = StackExchange.Redis.When.Always) -> System.Threading.Tasks.Task<int>!
+NRedisStack.JsonCommandsAsync.SetFromFileAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, string! filePath, StackExchange.Redis.When when = StackExchange.Redis.When.Always) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.JsonCommandsAsync.StrAppendAsync(StackExchange.Redis.RedisKey key, string! value, string? path = null) -> System.Threading.Tasks.Task<long?[]!>!
+NRedisStack.JsonCommandsAsync.StrLenAsync(StackExchange.Redis.RedisKey key, string? path = null) -> System.Threading.Tasks.Task<long?[]!>!
+NRedisStack.JsonCommandsAsync.ToggleAsync(StackExchange.Redis.RedisKey key, string? path = null) -> System.Threading.Tasks.Task<bool?[]!>!
+NRedisStack.JsonCommandsAsync.TypeAsync(StackExchange.Redis.RedisKey key, string? path = null) -> System.Threading.Tasks.Task<NRedisStack.JsonType[]!>!
+NRedisStack.JsonType
+NRedisStack.JsonType.ARRAY = 6 -> NRedisStack.JsonType
+NRedisStack.JsonType.BOOLEAN = 2 -> NRedisStack.JsonType
+NRedisStack.JsonType.INTEGER = 3 -> NRedisStack.JsonType
+NRedisStack.JsonType.NULL = 1 -> NRedisStack.JsonType
+NRedisStack.JsonType.NUMBER = 4 -> NRedisStack.JsonType
+NRedisStack.JsonType.OBJECT = 7 -> NRedisStack.JsonType
+NRedisStack.JsonType.STRING = 5 -> NRedisStack.JsonType
+NRedisStack.JsonType.UNKNOWN = 0 -> NRedisStack.JsonType
+NRedisStack.Literals.Enums.TsAggregation
+NRedisStack.Literals.Enums.TsAggregation.Avg = 0 -> NRedisStack.Literals.Enums.TsAggregation
+NRedisStack.Literals.Enums.TsAggregation.Count = 5 -> NRedisStack.Literals.Enums.TsAggregation
+NRedisStack.Literals.Enums.TsAggregation.First = 6 -> NRedisStack.Literals.Enums.TsAggregation
+NRedisStack.Literals.Enums.TsAggregation.Last = 7 -> NRedisStack.Literals.Enums.TsAggregation
+NRedisStack.Literals.Enums.TsAggregation.Max = 3 -> NRedisStack.Literals.Enums.TsAggregation
+NRedisStack.Literals.Enums.TsAggregation.Min = 2 -> NRedisStack.Literals.Enums.TsAggregation
+NRedisStack.Literals.Enums.TsAggregation.Range = 4 -> NRedisStack.Literals.Enums.TsAggregation
+NRedisStack.Literals.Enums.TsAggregation.StdP = 8 -> NRedisStack.Literals.Enums.TsAggregation
+NRedisStack.Literals.Enums.TsAggregation.StdS = 9 -> NRedisStack.Literals.Enums.TsAggregation
+NRedisStack.Literals.Enums.TsAggregation.Sum = 1 -> NRedisStack.Literals.Enums.TsAggregation
+NRedisStack.Literals.Enums.TsAggregation.Twa = 12 -> NRedisStack.Literals.Enums.TsAggregation
+NRedisStack.Literals.Enums.TsAggregation.VarP = 10 -> NRedisStack.Literals.Enums.TsAggregation
+NRedisStack.Literals.Enums.TsAggregation.VarS = 11 -> NRedisStack.Literals.Enums.TsAggregation
+NRedisStack.Literals.Enums.TsBucketTimestamps
+NRedisStack.Literals.Enums.TsBucketTimestamps.high = 2 -> NRedisStack.Literals.Enums.TsBucketTimestamps
+NRedisStack.Literals.Enums.TsBucketTimestamps.low = 0 -> NRedisStack.Literals.Enums.TsBucketTimestamps
+NRedisStack.Literals.Enums.TsBucketTimestamps.mid = 1 -> NRedisStack.Literals.Enums.TsBucketTimestamps
+NRedisStack.Literals.Enums.TsDuplicatePolicy
+NRedisStack.Literals.Enums.TsDuplicatePolicy.BLOCK = 0 -> NRedisStack.Literals.Enums.TsDuplicatePolicy
+NRedisStack.Literals.Enums.TsDuplicatePolicy.FIRST = 1 -> NRedisStack.Literals.Enums.TsDuplicatePolicy
+NRedisStack.Literals.Enums.TsDuplicatePolicy.LAST = 2 -> NRedisStack.Literals.Enums.TsDuplicatePolicy
+NRedisStack.Literals.Enums.TsDuplicatePolicy.MAX = 4 -> NRedisStack.Literals.Enums.TsDuplicatePolicy
+NRedisStack.Literals.Enums.TsDuplicatePolicy.MIN = 3 -> NRedisStack.Literals.Enums.TsDuplicatePolicy
+NRedisStack.Literals.Enums.TsDuplicatePolicy.SUM = 5 -> NRedisStack.Literals.Enums.TsDuplicatePolicy
+NRedisStack.Literals.Enums.TsReduce
+NRedisStack.Literals.Enums.TsReduce.Avg = 3 -> NRedisStack.Literals.Enums.TsReduce
+NRedisStack.Literals.Enums.TsReduce.Count = 5 -> NRedisStack.Literals.Enums.TsReduce
+NRedisStack.Literals.Enums.TsReduce.Max = 2 -> NRedisStack.Literals.Enums.TsReduce
+NRedisStack.Literals.Enums.TsReduce.Min = 1 -> NRedisStack.Literals.Enums.TsReduce
+NRedisStack.Literals.Enums.TsReduce.Range = 4 -> NRedisStack.Literals.Enums.TsReduce
+NRedisStack.Literals.Enums.TsReduce.StdP = 6 -> NRedisStack.Literals.Enums.TsReduce
+NRedisStack.Literals.Enums.TsReduce.StdS = 7 -> NRedisStack.Literals.Enums.TsReduce
+NRedisStack.Literals.Enums.TsReduce.Sum = 0 -> NRedisStack.Literals.Enums.TsReduce
+NRedisStack.Literals.Enums.TsReduce.VarP = 8 -> NRedisStack.Literals.Enums.TsReduce
+NRedisStack.Literals.Enums.TsReduce.VarS = 9 -> NRedisStack.Literals.Enums.TsReduce
+NRedisStack.Pipeline
+NRedisStack.Pipeline.Bf.get -> NRedisStack.BloomCommandsAsync!
+NRedisStack.Pipeline.Cf.get -> NRedisStack.CuckooCommandsAsync!
+NRedisStack.Pipeline.Cms.get -> NRedisStack.CmsCommandsAsync!
+NRedisStack.Pipeline.Db.get -> StackExchange.Redis.IDatabaseAsync!
+NRedisStack.Pipeline.Execute() -> void
+NRedisStack.Pipeline.Ft.get -> NRedisStack.SearchCommandsAsync!
+NRedisStack.Pipeline.Json.get -> NRedisStack.JsonCommandsAsync!
+NRedisStack.Pipeline.Pipeline(StackExchange.Redis.IDatabase! db) -> void
+NRedisStack.Pipeline.Tdigest.get -> NRedisStack.TdigestCommandsAsync!
+NRedisStack.Pipeline.TopK.get -> NRedisStack.TopKCommandsAsync!
+NRedisStack.Pipeline.Ts.get -> NRedisStack.TimeSeriesCommandsAsync!
+NRedisStack.RedisStackCommands.ModulePrefixes
+NRedisStack.RedisStackCommands.SerializedCommand
+NRedisStack.RedisStackCommands.SerializedCommand.Args.get -> object![]!
+NRedisStack.RedisStackCommands.SerializedCommand.Command.get -> string!
+NRedisStack.RedisStackCommands.SerializedCommand.SerializedCommand(string! command, params object![]! args) -> void
+NRedisStack.RedisStackCommands.SerializedCommand.SerializedCommand(string! command, System.Collections.Generic.ICollection<object!>! args) -> void
+NRedisStack.Search.Aggregation.Group
+NRedisStack.Search.Aggregation.Group.Group(params string![]! fields) -> void
+NRedisStack.Search.Aggregation.Group.Group(System.Collections.Generic.IList<string!>! fields) -> void
+NRedisStack.Search.Aggregation.Reducer
+NRedisStack.Search.Aggregation.Reducer.Alias.get -> string?
+NRedisStack.Search.Aggregation.Reducer.Alias.set -> void
+NRedisStack.Search.Aggregation.Reducer.As(string! alias) -> NRedisStack.Search.Aggregation.Reducer!
+NRedisStack.Search.Aggregation.Reducer.Reducer(string? field) -> void
+NRedisStack.Search.Aggregation.Reducers
+NRedisStack.Search.Aggregation.Row
+NRedisStack.Search.Aggregation.Row.ContainsKey(string! key) -> bool
+NRedisStack.Search.Aggregation.Row.Get(string! key) -> object!
+NRedisStack.Search.Aggregation.Row.GetDouble(string! key) -> double
+NRedisStack.Search.Aggregation.Row.GetLong(string! key) -> long
+NRedisStack.Search.Aggregation.Row.GetString(string! key) -> string?
+NRedisStack.Search.Aggregation.Row.Row() -> void
+NRedisStack.Search.Aggregation.Row.this[string! key].get -> StackExchange.Redis.RedisValue
+NRedisStack.Search.Aggregation.SortedField
+NRedisStack.Search.Aggregation.SortedField.FieldName.get -> string!
+NRedisStack.Search.Aggregation.SortedField.Order.get -> NRedisStack.Search.Aggregation.SortedField.SortOrder
+NRedisStack.Search.Aggregation.SortedField.SortedField(string! fieldName, NRedisStack.Search.Aggregation.SortedField.SortOrder order = NRedisStack.Search.Aggregation.SortedField.SortOrder.ASC) -> void
+NRedisStack.Search.Aggregation.SortedField.SortOrder
+NRedisStack.Search.Aggregation.SortedField.SortOrder.ASC = 0 -> NRedisStack.Search.Aggregation.SortedField.SortOrder
+NRedisStack.Search.Aggregation.SortedField.SortOrder.DESC = 1 -> NRedisStack.Search.Aggregation.SortedField.SortOrder
+NRedisStack.Search.AggregationRequest
+NRedisStack.Search.AggregationRequest.AggregationRequest() -> void
+NRedisStack.Search.AggregationRequest.AggregationRequest(string! query, int? defaultDialect = null) -> void
+NRedisStack.Search.AggregationRequest.Apply(string! projection, string! alias) -> NRedisStack.Search.AggregationRequest!
+NRedisStack.Search.AggregationRequest.Cursor(int? count = null, long? maxIdle = null) -> NRedisStack.Search.AggregationRequest!
+NRedisStack.Search.AggregationRequest.Dialect(int dialect) -> NRedisStack.Search.AggregationRequest!
+NRedisStack.Search.AggregationRequest.dialect.get -> int?
+NRedisStack.Search.AggregationRequest.Filter(string! filter) -> NRedisStack.Search.AggregationRequest!
+NRedisStack.Search.AggregationRequest.GetArgs() -> System.Collections.Generic.List<object!>!
+NRedisStack.Search.AggregationRequest.GroupBy(NRedisStack.Search.Aggregation.Group! group) -> NRedisStack.Search.AggregationRequest!
+NRedisStack.Search.AggregationRequest.GroupBy(string! field, params NRedisStack.Search.Aggregation.Reducer![]! reducers) -> NRedisStack.Search.AggregationRequest!
+NRedisStack.Search.AggregationRequest.GroupBy(System.Collections.Generic.IList<string!>! fields, System.Collections.Generic.IList<NRedisStack.Search.Aggregation.Reducer!>! reducers) -> NRedisStack.Search.AggregationRequest!
+NRedisStack.Search.AggregationRequest.IsWithCursor() -> bool
+NRedisStack.Search.AggregationRequest.Limit(int count) -> NRedisStack.Search.AggregationRequest!
+NRedisStack.Search.AggregationRequest.Limit(int offset, int count) -> NRedisStack.Search.AggregationRequest!
+NRedisStack.Search.AggregationRequest.Load(params NRedisStack.Search.FieldName![]! fields) -> NRedisStack.Search.AggregationRequest!
+NRedisStack.Search.AggregationRequest.LoadAll() -> NRedisStack.Search.AggregationRequest!
+NRedisStack.Search.AggregationRequest.Params(System.Collections.Generic.Dictionary<string!, object!>! nameValue) -> NRedisStack.Search.AggregationRequest!
+NRedisStack.Search.AggregationRequest.SerializeRedisArgs() -> void
+NRedisStack.Search.AggregationRequest.SortBy(int max, params NRedisStack.Search.Aggregation.SortedField![]! fields) -> NRedisStack.Search.AggregationRequest!
+NRedisStack.Search.AggregationRequest.SortBy(params NRedisStack.Search.Aggregation.SortedField![]! fields) -> NRedisStack.Search.AggregationRequest!
+NRedisStack.Search.AggregationRequest.SortBy(string! property) -> NRedisStack.Search.AggregationRequest!
+NRedisStack.Search.AggregationRequest.Timeout(long timeout) -> NRedisStack.Search.AggregationRequest!
+NRedisStack.Search.AggregationRequest.Verbatim() -> NRedisStack.Search.AggregationRequest!
+NRedisStack.Search.AggregationResult
+NRedisStack.Search.AggregationResult.CursorId.get -> long
+NRedisStack.Search.AggregationResult.GetResults() -> System.Collections.Generic.IReadOnlyList<System.Collections.Generic.Dictionary<string!, StackExchange.Redis.RedisValue>!>!
+NRedisStack.Search.AggregationResult.GetRow(int index) -> NRedisStack.Search.Aggregation.Row
+NRedisStack.Search.AggregationResult.this[int index].get -> System.Collections.Generic.Dictionary<string!, StackExchange.Redis.RedisValue>?
+NRedisStack.Search.AggregationResult.TotalResults.get -> long
+NRedisStack.Search.DataTypes.InfoResult
+NRedisStack.Search.DataTypes.InfoResult.Attributes.get -> System.Collections.Generic.Dictionary<string!, StackExchange.Redis.RedisResult!>![]!
+NRedisStack.Search.DataTypes.InfoResult.BytesPerRecordAvg.get -> double
+NRedisStack.Search.DataTypes.InfoResult.CursorStats.get -> System.Collections.Generic.Dictionary<string!, StackExchange.Redis.RedisResult!>!
+NRedisStack.Search.DataTypes.InfoResult.DocTableSizeMebibytes.get -> double
+NRedisStack.Search.DataTypes.InfoResult.GcStats.get -> System.Collections.Generic.Dictionary<string!, StackExchange.Redis.RedisResult!>!
+NRedisStack.Search.DataTypes.InfoResult.HashIndexingFailures.get -> long
+NRedisStack.Search.DataTypes.InfoResult.Indexing.get -> long
+NRedisStack.Search.DataTypes.InfoResult.IndexName.get -> string!
+NRedisStack.Search.DataTypes.InfoResult.IndexOption.get -> System.Collections.Generic.Dictionary<string!, StackExchange.Redis.RedisResult!>!
+NRedisStack.Search.DataTypes.InfoResult.InfoResult(StackExchange.Redis.RedisResult! result) -> void
+NRedisStack.Search.DataTypes.InfoResult.InvertedSzMebibytes.get -> double
+NRedisStack.Search.DataTypes.InfoResult.KeyTableSizeMebibytes.get -> double
+NRedisStack.Search.DataTypes.InfoResult.MaxDocId.get -> string!
+NRedisStack.Search.DataTypes.InfoResult.NumberOfUses.get -> long
+NRedisStack.Search.DataTypes.InfoResult.NumDocs.get -> long
+NRedisStack.Search.DataTypes.InfoResult.NumRecords.get -> long
+NRedisStack.Search.DataTypes.InfoResult.NumTerms.get -> long
+NRedisStack.Search.DataTypes.InfoResult.OffsetBitsPerRecordAvg.get -> double
+NRedisStack.Search.DataTypes.InfoResult.OffsetsPerTermAvg.get -> double
+NRedisStack.Search.DataTypes.InfoResult.OffsetVectorsSzMebibytes.get -> double
+NRedisStack.Search.DataTypes.InfoResult.PercentIndexed.get -> double
+NRedisStack.Search.DataTypes.InfoResult.RecordsPerDocAvg.get -> double
+NRedisStack.Search.DataTypes.InfoResult.SortableValueSizeMebibytes.get -> double
+NRedisStack.Search.DataTypes.InfoResult.TotalIndexingTime.get -> double
+NRedisStack.Search.DataTypes.InfoResult.TotalInvertedIndexBlocks.get -> double
+NRedisStack.Search.DataTypes.InfoResult.VectorIndexSzMebibytes.get -> double
+NRedisStack.Search.Document
+NRedisStack.Search.Document.Document(string! id) -> void
+NRedisStack.Search.Document.Document(string! id, double score, byte[]? payload) -> void
+NRedisStack.Search.Document.Document(string! id, System.Collections.Generic.Dictionary<string!, StackExchange.Redis.RedisValue>! fields, double score = 1) -> void
+NRedisStack.Search.Document.Document(string! id, System.Collections.Generic.Dictionary<string!, StackExchange.Redis.RedisValue>? fields, double score, byte[]? payload) -> void
+NRedisStack.Search.Document.GetProperties() -> System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string!, StackExchange.Redis.RedisValue>>!
+NRedisStack.Search.Document.Id.get -> string!
+NRedisStack.Search.Document.Payload.get -> byte[]?
+NRedisStack.Search.Document.Score.get -> double
+NRedisStack.Search.Document.Score.set -> void
+NRedisStack.Search.Document.ScoreExplained.get -> string![]?
+NRedisStack.Search.Document.Set(string! field, StackExchange.Redis.RedisValue value) -> NRedisStack.Search.Document!
+NRedisStack.Search.Document.SetScore(double score) -> NRedisStack.Search.Document!
+NRedisStack.Search.Document.this[string! key].get -> StackExchange.Redis.RedisValue
+NRedisStack.Search.FieldName
+NRedisStack.Search.FieldName.AddCommandArguments(System.Collections.Generic.List<object!>! args) -> int
+NRedisStack.Search.FieldName.Alias.get -> string?
+NRedisStack.Search.FieldName.As(string! attribute) -> NRedisStack.Search.FieldName!
+NRedisStack.Search.FieldName.FieldName(string! name) -> void
+NRedisStack.Search.FieldName.FieldName(string! name, string? attribute) -> void
+NRedisStack.Search.FieldName.Name.get -> string!
+NRedisStack.Search.FTCreateParams
+NRedisStack.Search.FTCreateParams.AddParams(System.Collections.Generic.List<object!>! args) -> void
+NRedisStack.Search.FTCreateParams.AddPrefix(string! prefix) -> NRedisStack.Search.FTCreateParams!
+NRedisStack.Search.FTCreateParams.Filter(string! filter) -> NRedisStack.Search.FTCreateParams!
+NRedisStack.Search.FTCreateParams.FTCreateParams() -> void
+NRedisStack.Search.FTCreateParams.Language(string! defaultLanguage) -> NRedisStack.Search.FTCreateParams!
+NRedisStack.Search.FTCreateParams.LanguageField(string! languageAttribute) -> NRedisStack.Search.FTCreateParams!
+NRedisStack.Search.FTCreateParams.MaxTextFields() -> NRedisStack.Search.FTCreateParams!
+NRedisStack.Search.FTCreateParams.NoFields() -> NRedisStack.Search.FTCreateParams!
+NRedisStack.Search.FTCreateParams.NoFreqs() -> NRedisStack.Search.FTCreateParams!
+NRedisStack.Search.FTCreateParams.NoHighlights() -> NRedisStack.Search.FTCreateParams!
+NRedisStack.Search.FTCreateParams.NoHL() -> NRedisStack.Search.FTCreateParams!
+NRedisStack.Search.FTCreateParams.NoOffsets() -> NRedisStack.Search.FTCreateParams!
+NRedisStack.Search.FTCreateParams.NoStopwords() -> NRedisStack.Search.FTCreateParams!
+NRedisStack.Search.FTCreateParams.On(NRedisStack.Search.Literals.Enums.IndexDataType dataType) -> NRedisStack.Search.FTCreateParams!
+NRedisStack.Search.FTCreateParams.PayloadField(string! payloadAttribute) -> NRedisStack.Search.FTCreateParams!
+NRedisStack.Search.FTCreateParams.Prefix(params string![]! prefixes) -> NRedisStack.Search.FTCreateParams!
+NRedisStack.Search.FTCreateParams.Score(double defaultScore) -> NRedisStack.Search.FTCreateParams!
+NRedisStack.Search.FTCreateParams.ScoreField(string! scoreField) -> NRedisStack.Search.FTCreateParams!
+NRedisStack.Search.FTCreateParams.SkipInitialScan() -> NRedisStack.Search.FTCreateParams!
+NRedisStack.Search.FTCreateParams.Stopwords(params string![]! stopwords) -> NRedisStack.Search.FTCreateParams!
+NRedisStack.Search.FTCreateParams.Temporary(long seconds) -> NRedisStack.Search.FTCreateParams!
+NRedisStack.Search.FTSpellCheckParams
+NRedisStack.Search.FTSpellCheckParams.Dialect(int dialect) -> NRedisStack.Search.FTSpellCheckParams!
+NRedisStack.Search.FTSpellCheckParams.Distance(int distance) -> NRedisStack.Search.FTSpellCheckParams!
+NRedisStack.Search.FTSpellCheckParams.ExcludeTerm(string! dict) -> NRedisStack.Search.FTSpellCheckParams!
+NRedisStack.Search.FTSpellCheckParams.FTSpellCheckParams() -> void
+NRedisStack.Search.FTSpellCheckParams.GetArgs() -> System.Collections.Generic.List<object!>!
+NRedisStack.Search.FTSpellCheckParams.IncludeTerm(string! dict) -> NRedisStack.Search.FTSpellCheckParams!
+NRedisStack.Search.FTSpellCheckParams.SerializeRedisArgs() -> void
+NRedisStack.Search.Literals.Enums.IndexDataType
+NRedisStack.Search.Literals.Enums.IndexDataType.HASH = 0 -> NRedisStack.Search.Literals.Enums.IndexDataType
+NRedisStack.Search.Literals.Enums.IndexDataType.JSON = 1 -> NRedisStack.Search.Literals.Enums.IndexDataType
+NRedisStack.Search.ProfilingInformation
+NRedisStack.Search.ProfilingInformation.Info.get -> StackExchange.Redis.RedisResult!
+NRedisStack.Search.ProfilingInformation.ProfilingInformation(StackExchange.Redis.RedisResult! info) -> void
+NRedisStack.Search.Query
+NRedisStack.Search.Query.AddFilter(NRedisStack.Search.Query.Filter! f) -> NRedisStack.Search.Query!
+NRedisStack.Search.Query.AddParam(string! name, object! value) -> NRedisStack.Search.Query!
+NRedisStack.Search.Query.Dialect(int dialect) -> NRedisStack.Search.Query!
+NRedisStack.Search.Query.dialect.get -> int?
+NRedisStack.Search.Query.Filter
+NRedisStack.Search.Query.Filter.Property.get -> string!
+NRedisStack.Search.Query.GeoFilter
+NRedisStack.Search.Query.GeoFilter.GeoFilter(string! property, double lon, double lat, double radius, string! unit) -> void
+NRedisStack.Search.Query.HighlightFields(NRedisStack.Search.Query.HighlightTags tags, params string![]! fields) -> NRedisStack.Search.Query!
+NRedisStack.Search.Query.HighlightFields(params string![]! fields) -> NRedisStack.Search.Query!
+NRedisStack.Search.Query.HighlightTags
+NRedisStack.Search.Query.HighlightTags.Close.get -> string!
+NRedisStack.Search.Query.HighlightTags.HighlightTags() -> void
+NRedisStack.Search.Query.HighlightTags.HighlightTags(string! open, string! close) -> void
+NRedisStack.Search.Query.HighlightTags.Open.get -> string!
+NRedisStack.Search.Query.Language.get -> string?
+NRedisStack.Search.Query.Language.set -> void
+NRedisStack.Search.Query.Limit(int offset, int count) -> NRedisStack.Search.Query!
+NRedisStack.Search.Query.LimitFields(params string![]! fields) -> NRedisStack.Search.Query!
+NRedisStack.Search.Query.LimitKeys(params string![]! keys) -> NRedisStack.Search.Query!
+NRedisStack.Search.Query.NoContent.get -> bool
+NRedisStack.Search.Query.NoContent.set -> void
+NRedisStack.Search.Query.NoStopwords.get -> bool
+NRedisStack.Search.Query.NoStopwords.set -> void
+NRedisStack.Search.Query.NumericFilter
+NRedisStack.Search.Query.NumericFilter.NumericFilter(string! property, double min, bool exclusiveMin, double max, bool exclusiveMax) -> void
+NRedisStack.Search.Query.NumericFilter.NumericFilter(string! property, double min, double max) -> void
+NRedisStack.Search.Query.Params(System.Collections.Generic.Dictionary<string!, object!>! nameValue) -> NRedisStack.Search.Query!
+NRedisStack.Search.Query.Payload.get -> string?
+NRedisStack.Search.Query.Payload.set -> void
+NRedisStack.Search.Query.Query() -> void
+NRedisStack.Search.Query.Query(string! queryString) -> void
+NRedisStack.Search.Query.QueryString.get -> string!
+NRedisStack.Search.Query.ReturnFields(params NRedisStack.Search.FieldName![]! fields) -> NRedisStack.Search.Query!
+NRedisStack.Search.Query.ReturnFields(params string![]! fields) -> NRedisStack.Search.Query!
+NRedisStack.Search.Query.Scorer.get -> string?
+NRedisStack.Search.Query.Scorer.set -> void
+NRedisStack.Search.Query.SetExpander(string! field) -> NRedisStack.Search.Query!
+NRedisStack.Search.Query.SetInOrder() -> NRedisStack.Search.Query!
+NRedisStack.Search.Query.SetLanguage(string! language) -> NRedisStack.Search.Query!
+NRedisStack.Search.Query.SetNoContent(bool value = true) -> NRedisStack.Search.Query!
+NRedisStack.Search.Query.SetNoStopwords(bool value = true) -> NRedisStack.Search.Query!
+NRedisStack.Search.Query.SetPayload(string! payload) -> NRedisStack.Search.Query!
+NRedisStack.Search.Query.SetScorer(string! scorer) -> NRedisStack.Search.Query!
+NRedisStack.Search.Query.SetSortBy(string! field, bool? ascending = null) -> NRedisStack.Search.Query!
+NRedisStack.Search.Query.SetVerbatim(bool value = true) -> NRedisStack.Search.Query!
+NRedisStack.Search.Query.SetWithPayloads() -> NRedisStack.Search.Query!
+NRedisStack.Search.Query.SetWithScores(bool value = true) -> NRedisStack.Search.Query!
+NRedisStack.Search.Query.Slop(int slop) -> NRedisStack.Search.Query!
+NRedisStack.Search.Query.SortAscending.get -> bool?
+NRedisStack.Search.Query.SortAscending.set -> void
+NRedisStack.Search.Query.SortBy.get -> string?
+NRedisStack.Search.Query.SortBy.set -> void
+NRedisStack.Search.Query.SummarizeFields(int contextLen, int fragmentCount, string? separator, params string![]! fields) -> NRedisStack.Search.Query!
+NRedisStack.Search.Query.SummarizeFields(params string![]! fields) -> NRedisStack.Search.Query!
+NRedisStack.Search.Query.Timeout(long timeout) -> NRedisStack.Search.Query!
+NRedisStack.Search.Query.Verbatim.get -> bool
+NRedisStack.Search.Query.Verbatim.set -> void
+NRedisStack.Search.Query.WithPayloads.get -> bool
+NRedisStack.Search.Query.WithPayloads.set -> void
+NRedisStack.Search.Query.WithScores.get -> bool
+NRedisStack.Search.Query.WithScores.set -> void
+NRedisStack.Search.Schema
+NRedisStack.Search.Schema.AddField(NRedisStack.Search.Schema.Field! field) -> NRedisStack.Search.Schema!
+NRedisStack.Search.Schema.AddGeoField(NRedisStack.Search.FieldName! name, bool sortable = false, bool noIndex = false, bool missingIndex = false) -> NRedisStack.Search.Schema!
+NRedisStack.Search.Schema.AddGeoField(string! name, bool sortable = false, bool noIndex = false, bool missingIndex = false) -> NRedisStack.Search.Schema!
+NRedisStack.Search.Schema.AddGeoShapeField(NRedisStack.Search.FieldName! name, NRedisStack.Search.Schema.GeoShapeField.CoordinateSystem system, bool missingIndex = false) -> NRedisStack.Search.Schema!
+NRedisStack.Search.Schema.AddGeoShapeField(string! name, NRedisStack.Search.Schema.GeoShapeField.CoordinateSystem system, bool missingIndex = false) -> NRedisStack.Search.Schema!
+NRedisStack.Search.Schema.AddNumericField(NRedisStack.Search.FieldName! name, bool sortable = false, bool noIndex = false, bool missingIndex = false) -> NRedisStack.Search.Schema!
+NRedisStack.Search.Schema.AddNumericField(string! name, bool sortable = false, bool noIndex = false, bool missingIndex = false) -> NRedisStack.Search.Schema!
+NRedisStack.Search.Schema.AddTagField(NRedisStack.Search.FieldName! name, bool sortable = false, bool unf = false, bool noIndex = false, string! separator = ",", bool caseSensitive = false, bool withSuffixTrie = false, bool missingIndex = false, bool emptyIndex = false) -> NRedisStack.Search.Schema!
+NRedisStack.Search.Schema.AddTagField(string! name, bool sortable = false, bool unf = false, bool noIndex = false, string! separator = ",", bool caseSensitive = false, bool withSuffixTrie = false, bool missingIndex = false, bool emptyIndex = false) -> NRedisStack.Search.Schema!
+NRedisStack.Search.Schema.AddTextField(NRedisStack.Search.FieldName! name, double weight = 1, bool sortable = false, bool unf = false, bool noStem = false, string? phonetic = null, bool noIndex = false, bool withSuffixTrie = false, bool missingIndex = false, bool emptyIndex = false) -> NRedisStack.Search.Schema!
+NRedisStack.Search.Schema.AddTextField(string! name, double weight = 1, bool sortable = false, bool unf = false, bool noStem = false, string? phonetic = null, bool noIndex = false, bool withSuffixTrie = false, bool missingIndex = false, bool emptyIndex = false) -> NRedisStack.Search.Schema!
+NRedisStack.Search.Schema.AddVectorField(NRedisStack.Search.FieldName! name, NRedisStack.Search.Schema.VectorField.VectorAlgo algorithm, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false) -> NRedisStack.Search.Schema!
+NRedisStack.Search.Schema.AddVectorField(string! name, NRedisStack.Search.Schema.VectorField.VectorAlgo algorithm, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false) -> NRedisStack.Search.Schema!
+NRedisStack.Search.Schema.Field
+NRedisStack.Search.Schema.Field.FieldName.get -> NRedisStack.Search.FieldName!
+NRedisStack.Search.Schema.Field.Type.get -> NRedisStack.Search.Schema.FieldType
+NRedisStack.Search.Schema.Fields.get -> System.Collections.Generic.List<NRedisStack.Search.Schema.Field!>!
+NRedisStack.Search.Schema.FieldType
+NRedisStack.Search.Schema.FieldType.Geo = 1 -> NRedisStack.Search.Schema.FieldType
+NRedisStack.Search.Schema.FieldType.GeoShape = 2 -> NRedisStack.Search.Schema.FieldType
+NRedisStack.Search.Schema.FieldType.Numeric = 3 -> NRedisStack.Search.Schema.FieldType
+NRedisStack.Search.Schema.FieldType.Tag = 4 -> NRedisStack.Search.Schema.FieldType
+NRedisStack.Search.Schema.FieldType.Text = 0 -> NRedisStack.Search.Schema.FieldType
+NRedisStack.Search.Schema.FieldType.Vector = 5 -> NRedisStack.Search.Schema.FieldType
+NRedisStack.Search.Schema.GeoField
+NRedisStack.Search.Schema.GeoField.MissingIndex.get -> bool
+NRedisStack.Search.Schema.GeoField.NoIndex.get -> bool
+NRedisStack.Search.Schema.GeoField.Sortable.get -> bool
+NRedisStack.Search.Schema.GeoShapeField
+NRedisStack.Search.Schema.GeoShapeField.CoordinateSystem
+NRedisStack.Search.Schema.GeoShapeField.CoordinateSystem.FLAT = 0 -> NRedisStack.Search.Schema.GeoShapeField.CoordinateSystem
+NRedisStack.Search.Schema.GeoShapeField.CoordinateSystem.SPHERICAL = 1 -> NRedisStack.Search.Schema.GeoShapeField.CoordinateSystem
+NRedisStack.Search.Schema.GeoShapeField.MissingIndex.get -> bool
+NRedisStack.Search.Schema.NumericField
+NRedisStack.Search.Schema.NumericField.MissingIndex.get -> bool
+NRedisStack.Search.Schema.NumericField.NoIndex.get -> bool
+NRedisStack.Search.Schema.NumericField.Sortable.get -> bool
+NRedisStack.Search.Schema.Schema() -> void
+NRedisStack.Search.Schema.TagField
+NRedisStack.Search.Schema.TagField.CaseSensitive.get -> bool
+NRedisStack.Search.Schema.TagField.EmptyIndex.get -> bool
+NRedisStack.Search.Schema.TagField.MissingIndex.get -> bool
+NRedisStack.Search.Schema.TagField.NoIndex.get -> bool
+NRedisStack.Search.Schema.TagField.Separator.get -> string!
+NRedisStack.Search.Schema.TagField.Sortable.get -> bool
+NRedisStack.Search.Schema.TagField.Unf.get -> bool
+NRedisStack.Search.Schema.TagField.WithSuffixTrie.get -> bool
+NRedisStack.Search.Schema.TextField
+NRedisStack.Search.Schema.TextField.EmptyIndex.get -> bool
+NRedisStack.Search.Schema.TextField.MissingIndex.get -> bool
+NRedisStack.Search.Schema.TextField.NoIndex.get -> bool
+NRedisStack.Search.Schema.TextField.NoStem.get -> bool
+NRedisStack.Search.Schema.TextField.Phonetic.get -> string?
+NRedisStack.Search.Schema.TextField.Sortable.get -> bool
+NRedisStack.Search.Schema.TextField.TextField(NRedisStack.Search.FieldName! name, double weight = 1, bool noStem = false, string? phonetic = null, bool sortable = false, bool unf = false, bool noIndex = false, bool withSuffixTrie = false, bool missingIndex = false, bool emptyIndex = false) -> void
+NRedisStack.Search.Schema.TextField.TextField(string! name, double weight = 1, bool noStem = false, string? phonetic = null, bool sortable = false, bool unf = false, bool noIndex = false, bool withSuffixTrie = false, bool missingIndex = false, bool emptyIndex = false) -> void
+NRedisStack.Search.Schema.TextField.Unf.get -> bool
+NRedisStack.Search.Schema.TextField.Weight.get -> double
+NRedisStack.Search.Schema.TextField.WithSuffixTrie.get -> bool
+NRedisStack.Search.Schema.VectorField
+NRedisStack.Search.Schema.VectorField.Algorithm.get -> NRedisStack.Search.Schema.VectorField.VectorAlgo
+NRedisStack.Search.Schema.VectorField.Attributes.get -> System.Collections.Generic.Dictionary<string!, object!>?
+NRedisStack.Search.Schema.VectorField.MissingIndex.get -> bool
+NRedisStack.Search.Schema.VectorField.VectorAlgo
+NRedisStack.Search.Schema.VectorField.VectorAlgo.FLAT = 0 -> NRedisStack.Search.Schema.VectorField.VectorAlgo
+NRedisStack.Search.Schema.VectorField.VectorAlgo.HNSW = 1 -> NRedisStack.Search.Schema.VectorField.VectorAlgo
+NRedisStack.Search.Schema.VectorField.VectorField(NRedisStack.Search.FieldName! name, NRedisStack.Search.Schema.VectorField.VectorAlgo algorithm, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false) -> void
+NRedisStack.Search.Schema.VectorField.VectorField(string! name, NRedisStack.Search.Schema.VectorField.VectorAlgo algorithm, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false) -> void
+NRedisStack.Search.SearchResult
+NRedisStack.Search.SearchResult.Documents.get -> System.Collections.Generic.List<NRedisStack.Search.Document!>!
+NRedisStack.Search.SearchResult.ToJson() -> System.Collections.Generic.List<string!>!
+NRedisStack.Search.SearchResult.TotalResults.get -> long
+NRedisStack.SearchCommandBuilder
+NRedisStack.SearchCommands
+NRedisStack.SearchCommands.Aggregate(string! index, NRedisStack.Search.AggregationRequest! query) -> NRedisStack.Search.AggregationResult!
+NRedisStack.SearchCommands.AliasAdd(string! alias, string! index) -> bool
+NRedisStack.SearchCommands.AliasDel(string! alias) -> bool
+NRedisStack.SearchCommands.AliasUpdate(string! alias, string! index) -> bool
+NRedisStack.SearchCommands.Alter(string! index, NRedisStack.Search.Schema! schema, bool skipInitialScan = false) -> bool
+NRedisStack.SearchCommands.ConfigGet(string! option) -> System.Collections.Generic.Dictionary<string!, string!>!
+NRedisStack.SearchCommands.ConfigSet(string! option, string! value) -> bool
+NRedisStack.SearchCommands.Create(string! indexName, NRedisStack.Search.FTCreateParams! parameters, NRedisStack.Search.Schema! schema) -> bool
+NRedisStack.SearchCommands.Create(string! indexName, NRedisStack.Search.Schema! schema) -> bool
+NRedisStack.SearchCommands.CursorDel(string! indexName, long cursorId) -> bool
+NRedisStack.SearchCommands.CursorRead(string! indexName, long cursorId, int? count = null) -> NRedisStack.Search.AggregationResult!
+NRedisStack.SearchCommands.DictAdd(string! dict, params string![]! terms) -> long
+NRedisStack.SearchCommands.DictDel(string! dict, params string![]! terms) -> long
+NRedisStack.SearchCommands.DictDump(string! dict) -> StackExchange.Redis.RedisResult![]!
+NRedisStack.SearchCommands.DropIndex(string! indexName, bool dd = false) -> bool
+NRedisStack.SearchCommands.Explain(string! indexName, string! query, int? dialect = null) -> string!
+NRedisStack.SearchCommands.ExplainCli(string! indexName, string! query, int? dialect = null) -> StackExchange.Redis.RedisResult![]!
+NRedisStack.SearchCommands.Info(StackExchange.Redis.RedisValue index) -> NRedisStack.Search.DataTypes.InfoResult!
+NRedisStack.SearchCommands.ProfileAggregate(string! indexName, NRedisStack.Search.AggregationRequest! query, bool limited = false) -> System.Tuple<NRedisStack.Search.AggregationResult!, System.Collections.Generic.Dictionary<string!, StackExchange.Redis.RedisResult!>!>!
+NRedisStack.SearchCommands.ProfileOnAggregate(string! indexName, NRedisStack.Search.AggregationRequest! query, bool limited = false) -> System.Tuple<NRedisStack.Search.AggregationResult!, NRedisStack.Search.ProfilingInformation!>!
+NRedisStack.SearchCommands.ProfileOnSearch(string! indexName, NRedisStack.Search.Query! q, bool limited = false) -> System.Tuple<NRedisStack.Search.SearchResult!, NRedisStack.Search.ProfilingInformation!>!
+NRedisStack.SearchCommands.ProfileSearch(string! indexName, NRedisStack.Search.Query! q, bool limited = false) -> System.Tuple<NRedisStack.Search.SearchResult!, System.Collections.Generic.Dictionary<string!, StackExchange.Redis.RedisResult!>!>!
+NRedisStack.SearchCommands.Search(string! indexName, NRedisStack.Search.Query! q) -> NRedisStack.Search.SearchResult!
+NRedisStack.SearchCommands.SearchCommands(StackExchange.Redis.IDatabase! db, int? defaultDialect = 2) -> void
+NRedisStack.SearchCommands.SpellCheck(string! indexName, string! query, NRedisStack.Search.FTSpellCheckParams? spellCheckParams = null) -> System.Collections.Generic.Dictionary<string!, System.Collections.Generic.Dictionary<string!, double>!>!
+NRedisStack.SearchCommands.SugAdd(string! key, string! str, double score, bool increment = false, string? payload = null) -> long
+NRedisStack.SearchCommands.SugDel(string! key, string! str) -> bool
+NRedisStack.SearchCommands.SugGet(string! key, string! prefix, bool fuzzy = false, bool withPayloads = false, int? max = null) -> System.Collections.Generic.List<string!>!
+NRedisStack.SearchCommands.SugGetWithScores(string! key, string! prefix, bool fuzzy = false, bool withPayloads = false, int? max = null) -> System.Collections.Generic.List<System.Tuple<string!, double>!>!
+NRedisStack.SearchCommands.SugLen(string! key) -> long
+NRedisStack.SearchCommands.SynDump(string! indexName) -> System.Collections.Generic.Dictionary<string!, System.Collections.Generic.List<string!>!>!
+NRedisStack.SearchCommands.SynUpdate(string! indexName, string! synonymGroupId, bool skipInitialScan = false, params string![]! terms) -> bool
+NRedisStack.SearchCommands.TagVals(string! indexName, string! fieldName) -> StackExchange.Redis.RedisResult![]!
+NRedisStack.SearchCommands._List() -> StackExchange.Redis.RedisResult![]!
+NRedisStack.SearchCommandsAsync
+NRedisStack.SearchCommandsAsync.AggregateAsync(string! index, NRedisStack.Search.AggregationRequest! query) -> System.Threading.Tasks.Task<NRedisStack.Search.AggregationResult!>!
+NRedisStack.SearchCommandsAsync.AliasAddAsync(string! alias, string! index) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.SearchCommandsAsync.AliasDelAsync(string! alias) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.SearchCommandsAsync.AliasUpdateAsync(string! alias, string! index) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.SearchCommandsAsync.AlterAsync(string! index, NRedisStack.Search.Schema! schema, bool skipInitialScan = false) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.SearchCommandsAsync.ConfigGetAsync(string! option) -> System.Threading.Tasks.Task<System.Collections.Generic.Dictionary<string!, string!>!>!
+NRedisStack.SearchCommandsAsync.ConfigSetAsync(string! option, string! value) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.SearchCommandsAsync.CreateAsync(string! indexName, NRedisStack.Search.FTCreateParams! parameters, NRedisStack.Search.Schema! schema) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.SearchCommandsAsync.CreateAsync(string! indexName, NRedisStack.Search.Schema! schema) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.SearchCommandsAsync.CursorDelAsync(string! indexName, long cursorId) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.SearchCommandsAsync.CursorReadAsync(string! indexName, long cursorId, int? count = null) -> System.Threading.Tasks.Task<NRedisStack.Search.AggregationResult!>!
+NRedisStack.SearchCommandsAsync.defaultDialect -> int?
+NRedisStack.SearchCommandsAsync.DictAddAsync(string! dict, params string![]! terms) -> System.Threading.Tasks.Task<long>!
+NRedisStack.SearchCommandsAsync.DictDelAsync(string! dict, params string![]! terms) -> System.Threading.Tasks.Task<long>!
+NRedisStack.SearchCommandsAsync.DictDumpAsync(string! dict) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult![]!>!
+NRedisStack.SearchCommandsAsync.DropIndexAsync(string! indexName, bool dd = false) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.SearchCommandsAsync.ExplainAsync(string! indexName, string! query, int? dialect = null) -> System.Threading.Tasks.Task<string!>!
+NRedisStack.SearchCommandsAsync.ExplainCliAsync(string! indexName, string! query, int? dialect = null) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult![]!>!
+NRedisStack.SearchCommandsAsync.InfoAsync(StackExchange.Redis.RedisValue index) -> System.Threading.Tasks.Task<NRedisStack.Search.DataTypes.InfoResult!>!
+NRedisStack.SearchCommandsAsync.ProfileAggregateAsync(string! indexName, NRedisStack.Search.AggregationRequest! query, bool limited = false) -> System.Threading.Tasks.Task<System.Tuple<NRedisStack.Search.AggregationResult!, System.Collections.Generic.Dictionary<string!, StackExchange.Redis.RedisResult!>!>!>!
+NRedisStack.SearchCommandsAsync.ProfileOnAggregateAsync(string! indexName, NRedisStack.Search.AggregationRequest! query, bool limited = false) -> System.Threading.Tasks.Task<System.Tuple<NRedisStack.Search.AggregationResult!, NRedisStack.Search.ProfilingInformation!>!>!
+NRedisStack.SearchCommandsAsync.ProfileOnSearchAsync(string! indexName, NRedisStack.Search.Query! q, bool limited = false) -> System.Threading.Tasks.Task<System.Tuple<NRedisStack.Search.SearchResult!, NRedisStack.Search.ProfilingInformation!>!>!
+NRedisStack.SearchCommandsAsync.ProfileSearchAsync(string! indexName, NRedisStack.Search.Query! q, bool limited = false) -> System.Threading.Tasks.Task<System.Tuple<NRedisStack.Search.SearchResult!, System.Collections.Generic.Dictionary<string!, StackExchange.Redis.RedisResult!>!>!>!
+NRedisStack.SearchCommandsAsync.SearchAsync(string! indexName, NRedisStack.Search.Query! q) -> System.Threading.Tasks.Task<NRedisStack.Search.SearchResult!>!
+NRedisStack.SearchCommandsAsync.SearchCommandsAsync(StackExchange.Redis.IDatabaseAsync! db, int? defaultDialect = 2) -> void
+NRedisStack.SearchCommandsAsync.SetDefaultDialect(int? defaultDialect) -> void
+NRedisStack.SearchCommandsAsync.SpellCheckAsync(string! indexName, string! query, NRedisStack.Search.FTSpellCheckParams? spellCheckParams = null) -> System.Threading.Tasks.Task<System.Collections.Generic.Dictionary<string!, System.Collections.Generic.Dictionary<string!, double>!>!>!
+NRedisStack.SearchCommandsAsync.SugAddAsync(string! key, string! str, double score, bool increment = false, string? payload = null) -> System.Threading.Tasks.Task<long>!
+NRedisStack.SearchCommandsAsync.SugDelAsync(string! key, string! str) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.SearchCommandsAsync.SugGetAsync(string! key, string! prefix, bool fuzzy = false, bool withPayloads = false, int? max = null) -> System.Threading.Tasks.Task<System.Collections.Generic.List<string!>!>!
+NRedisStack.SearchCommandsAsync.SugGetWithScoresAsync(string! key, string! prefix, bool fuzzy = false, bool withPayloads = false, int? max = null) -> System.Threading.Tasks.Task<System.Collections.Generic.List<System.Tuple<string!, double>!>!>!
+NRedisStack.SearchCommandsAsync.SugLenAsync(string! key) -> System.Threading.Tasks.Task<long>!
+NRedisStack.SearchCommandsAsync.SynDumpAsync(string! indexName) -> System.Threading.Tasks.Task<System.Collections.Generic.Dictionary<string!, System.Collections.Generic.List<string!>!>!>!
+NRedisStack.SearchCommandsAsync.SynUpdateAsync(string! indexName, string! synonymGroupId, bool skipInitialScan = false, params string![]! terms) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.SearchCommandsAsync.TagValsAsync(string! indexName, string! fieldName) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult![]!>!
+NRedisStack.SearchCommandsAsync._ListAsync() -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult![]!>!
+NRedisStack.Tdigest.DataTypes.TdigestInformation
+NRedisStack.Tdigest.DataTypes.TdigestInformation.Capacity.get -> long
+NRedisStack.Tdigest.DataTypes.TdigestInformation.Compression.get -> long
+NRedisStack.Tdigest.DataTypes.TdigestInformation.MemoryUsage.get -> long
+NRedisStack.Tdigest.DataTypes.TdigestInformation.MergedNodes.get -> long
+NRedisStack.Tdigest.DataTypes.TdigestInformation.MergedWeight.get -> double
+NRedisStack.Tdigest.DataTypes.TdigestInformation.Observations.get -> double
+NRedisStack.Tdigest.DataTypes.TdigestInformation.TotalCompressions.get -> long
+NRedisStack.Tdigest.DataTypes.TdigestInformation.UnmergedNodes.get -> long
+NRedisStack.Tdigest.DataTypes.TdigestInformation.UnmergedWeight.get -> double
+NRedisStack.TdigestCommandBuilder
+NRedisStack.TdigestCommands
+NRedisStack.TdigestCommands.Add(StackExchange.Redis.RedisKey key, params double[]! values) -> bool
+NRedisStack.TdigestCommands.ByRank(StackExchange.Redis.RedisKey key, params long[]! ranks) -> double[]!
+NRedisStack.TdigestCommands.ByRevRank(StackExchange.Redis.RedisKey key, params long[]! ranks) -> double[]!
+NRedisStack.TdigestCommands.CDF(StackExchange.Redis.RedisKey key, params double[]! values) -> double[]!
+NRedisStack.TdigestCommands.Create(StackExchange.Redis.RedisKey key, long compression = 100) -> bool
+NRedisStack.TdigestCommands.Info(StackExchange.Redis.RedisKey key) -> NRedisStack.Tdigest.DataTypes.TdigestInformation!
+NRedisStack.TdigestCommands.Max(StackExchange.Redis.RedisKey key) -> double
+NRedisStack.TdigestCommands.Merge(StackExchange.Redis.RedisKey destinationKey, long compression = 0, bool overide = false, params StackExchange.Redis.RedisKey[]! sourceKeys) -> bool
+NRedisStack.TdigestCommands.Min(StackExchange.Redis.RedisKey key) -> double
+NRedisStack.TdigestCommands.Quantile(StackExchange.Redis.RedisKey key, params double[]! quantile) -> double[]!
+NRedisStack.TdigestCommands.Rank(StackExchange.Redis.RedisKey key, params long[]! values) -> long[]!
+NRedisStack.TdigestCommands.Reset(StackExchange.Redis.RedisKey key) -> bool
+NRedisStack.TdigestCommands.RevRank(StackExchange.Redis.RedisKey key, params long[]! values) -> long[]!
+NRedisStack.TdigestCommands.TdigestCommands(StackExchange.Redis.IDatabase! db) -> void
+NRedisStack.TdigestCommands.TrimmedMean(StackExchange.Redis.RedisKey key, double lowCutQuantile, double highCutQuantile) -> double
+NRedisStack.TdigestCommandsAsync
+NRedisStack.TdigestCommandsAsync.AddAsync(StackExchange.Redis.RedisKey key, params double[]! values) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.TdigestCommandsAsync.ByRankAsync(StackExchange.Redis.RedisKey key, params long[]! ranks) -> System.Threading.Tasks.Task<double[]!>!
+NRedisStack.TdigestCommandsAsync.ByRevRankAsync(StackExchange.Redis.RedisKey key, params long[]! ranks) -> System.Threading.Tasks.Task<double[]!>!
+NRedisStack.TdigestCommandsAsync.CDFAsync(StackExchange.Redis.RedisKey key, params double[]! values) -> System.Threading.Tasks.Task<double[]!>!
+NRedisStack.TdigestCommandsAsync.CreateAsync(StackExchange.Redis.RedisKey key, long compression = 100) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.TdigestCommandsAsync.InfoAsync(StackExchange.Redis.RedisKey key) -> System.Threading.Tasks.Task<NRedisStack.Tdigest.DataTypes.TdigestInformation!>!
+NRedisStack.TdigestCommandsAsync.MaxAsync(StackExchange.Redis.RedisKey key) -> System.Threading.Tasks.Task<double>!
+NRedisStack.TdigestCommandsAsync.MergeAsync(StackExchange.Redis.RedisKey destinationKey, long compression = 0, bool overide = false, params StackExchange.Redis.RedisKey[]! sourceKeys) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.TdigestCommandsAsync.MinAsync(StackExchange.Redis.RedisKey key) -> System.Threading.Tasks.Task<double>!
+NRedisStack.TdigestCommandsAsync.QuantileAsync(StackExchange.Redis.RedisKey key, params double[]! quantile) -> System.Threading.Tasks.Task<double[]!>!
+NRedisStack.TdigestCommandsAsync.RankAsync(StackExchange.Redis.RedisKey key, params long[]! values) -> System.Threading.Tasks.Task<long[]!>!
+NRedisStack.TdigestCommandsAsync.ResetAsync(StackExchange.Redis.RedisKey key) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.TdigestCommandsAsync.RevRankAsync(StackExchange.Redis.RedisKey key, params long[]! values) -> System.Threading.Tasks.Task<long[]!>!
+NRedisStack.TdigestCommandsAsync.TdigestCommandsAsync(StackExchange.Redis.IDatabaseAsync! db) -> void
+NRedisStack.TdigestCommandsAsync.TrimmedMeanAsync(StackExchange.Redis.RedisKey key, double lowCutQuantile, double highCutQuantile) -> System.Threading.Tasks.Task<double>!
+NRedisStack.TimeSeriesAux
+NRedisStack.TimeSeriesCommands
+NRedisStack.TimeSeriesCommands.Add(string! key, NRedisStack.DataTypes.TimeStamp timestamp, double value, long? retentionTime = null, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeSeriesLabel!>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, NRedisStack.Literals.Enums.TsDuplicatePolicy? duplicatePolicy = null) -> NRedisStack.DataTypes.TimeStamp
+NRedisStack.TimeSeriesCommands.Add(string! key, NRedisStack.TsAddParams! parameters) -> NRedisStack.DataTypes.TimeStamp
+NRedisStack.TimeSeriesCommands.Alter(string! key, long? retentionTime = null, long? chunkSizeBytes = null, NRedisStack.Literals.Enums.TsDuplicatePolicy? duplicatePolicy = null, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeSeriesLabel!>? labels = null) -> bool
+NRedisStack.TimeSeriesCommands.Alter(string! key, NRedisStack.TsAlterParams! parameters) -> bool
+NRedisStack.TimeSeriesCommands.Create(string! key, long? retentionTime = null, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeSeriesLabel!>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, NRedisStack.Literals.Enums.TsDuplicatePolicy? duplicatePolicy = null) -> bool
+NRedisStack.TimeSeriesCommands.Create(string! key, NRedisStack.TsCreateParams! parameters) -> bool
+NRedisStack.TimeSeriesCommands.CreateRule(string! sourceKey, NRedisStack.DataTypes.TimeSeriesRule! rule, long alignTimestamp = 0) -> bool
+NRedisStack.TimeSeriesCommands.DecrBy(string! key, double value, NRedisStack.DataTypes.TimeStamp? timestamp = null, long? retentionTime = null, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeSeriesLabel!>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null) -> NRedisStack.DataTypes.TimeStamp
+NRedisStack.TimeSeriesCommands.DecrBy(string! key, NRedisStack.TsDecrByParams! parameters) -> NRedisStack.DataTypes.TimeStamp
+NRedisStack.TimeSeriesCommands.Del(string! key, NRedisStack.DataTypes.TimeStamp fromTimeStamp, NRedisStack.DataTypes.TimeStamp toTimeStamp) -> long
+NRedisStack.TimeSeriesCommands.DeleteRule(string! sourceKey, string! destKey) -> bool
+NRedisStack.TimeSeriesCommands.Get(string! key, bool latest = false) -> NRedisStack.DataTypes.TimeSeriesTuple?
+NRedisStack.TimeSeriesCommands.IncrBy(string! key, double value, NRedisStack.DataTypes.TimeStamp? timestamp = null, long? retentionTime = null, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeSeriesLabel!>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null) -> NRedisStack.DataTypes.TimeStamp
+NRedisStack.TimeSeriesCommands.IncrBy(string! key, NRedisStack.TsIncrByParams! parameters) -> NRedisStack.DataTypes.TimeStamp
+NRedisStack.TimeSeriesCommands.Info(string! key, bool debug = false) -> NRedisStack.DataTypes.TimeSeriesInformation!
+NRedisStack.TimeSeriesCommands.MAdd(System.Collections.Generic.IReadOnlyCollection<(string! key, NRedisStack.DataTypes.TimeStamp timestamp, double value)>! sequence) -> System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeStamp>!
+NRedisStack.TimeSeriesCommands.MGet(System.Collections.Generic.IReadOnlyCollection<string!>! filter, bool latest = false, bool? withLabels = null, System.Collections.Generic.IReadOnlyCollection<string!>? selectedLabels = null) -> System.Collections.Generic.IReadOnlyList<(string! key, System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesLabel!>! labels, NRedisStack.DataTypes.TimeSeriesTuple! value)>!
+NRedisStack.TimeSeriesCommands.MRange(NRedisStack.DataTypes.TimeStamp fromTimeStamp, NRedisStack.DataTypes.TimeStamp toTimeStamp, System.Collections.Generic.IReadOnlyCollection<string!>! filter, bool latest = false, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeStamp>? filterByTs = null, (long, long)? filterByValue = null, bool? withLabels = null, System.Collections.Generic.IReadOnlyCollection<string!>? selectLabels = null, long? count = null, NRedisStack.DataTypes.TimeStamp? align = null, NRedisStack.Literals.Enums.TsAggregation? aggregation = null, long? timeBucket = null, NRedisStack.Literals.Enums.TsBucketTimestamps? bt = null, bool empty = false, (string!, NRedisStack.Literals.Enums.TsReduce)? groupbyTuple = null) -> System.Collections.Generic.IReadOnlyList<(string! key, System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesLabel!>! labels, System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesTuple!>! values)>!
+NRedisStack.TimeSeriesCommands.MRevRange(NRedisStack.DataTypes.TimeStamp fromTimeStamp, NRedisStack.DataTypes.TimeStamp toTimeStamp, System.Collections.Generic.IReadOnlyCollection<string!>! filter, bool latest = false, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeStamp>? filterByTs = null, (long, long)? filterByValue = null, bool? withLabels = null, System.Collections.Generic.IReadOnlyCollection<string!>? selectLabels = null, long? count = null, NRedisStack.DataTypes.TimeStamp? align = null, NRedisStack.Literals.Enums.TsAggregation? aggregation = null, long? timeBucket = null, NRedisStack.Literals.Enums.TsBucketTimestamps? bt = null, bool empty = false, (string!, NRedisStack.Literals.Enums.TsReduce)? groupbyTuple = null) -> System.Collections.Generic.IReadOnlyList<(string! key, System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesLabel!>! labels, System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesTuple!>! values)>!
+NRedisStack.TimeSeriesCommands.QueryIndex(System.Collections.Generic.IReadOnlyCollection<string!>! filter) -> System.Collections.Generic.IReadOnlyList<string!>!
+NRedisStack.TimeSeriesCommands.Range(string! key, NRedisStack.DataTypes.TimeStamp fromTimeStamp, NRedisStack.DataTypes.TimeStamp toTimeStamp, bool latest = false, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeStamp>? filterByTs = null, (long, long)? filterByValue = null, long? count = null, NRedisStack.DataTypes.TimeStamp? align = null, NRedisStack.Literals.Enums.TsAggregation? aggregation = null, long? timeBucket = null, NRedisStack.Literals.Enums.TsBucketTimestamps? bt = null, bool empty = false) -> System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesTuple!>!
+NRedisStack.TimeSeriesCommands.RevRange(string! key, NRedisStack.DataTypes.TimeStamp fromTimeStamp, NRedisStack.DataTypes.TimeStamp toTimeStamp, bool latest = false, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeStamp>? filterByTs = null, (long, long)? filterByValue = null, long? count = null, NRedisStack.DataTypes.TimeStamp? align = null, NRedisStack.Literals.Enums.TsAggregation? aggregation = null, long? timeBucket = null, NRedisStack.Literals.Enums.TsBucketTimestamps? bt = null, bool empty = false) -> System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesTuple!>!
+NRedisStack.TimeSeriesCommands.TimeSeriesCommands(StackExchange.Redis.IDatabase! db) -> void
+NRedisStack.TimeSeriesCommandsAsync
+NRedisStack.TimeSeriesCommandsAsync.AddAsync(string! key, NRedisStack.DataTypes.TimeStamp timestamp, double value, long? retentionTime = null, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeSeriesLabel!>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, NRedisStack.Literals.Enums.TsDuplicatePolicy? duplicatePolicy = null) -> System.Threading.Tasks.Task<NRedisStack.DataTypes.TimeStamp>!
+NRedisStack.TimeSeriesCommandsAsync.AddAsync(string! key, NRedisStack.TsAddParams! parameters) -> System.Threading.Tasks.Task<NRedisStack.DataTypes.TimeStamp>!
+NRedisStack.TimeSeriesCommandsAsync.AlterAsync(string! key, long? retentionTime = null, long? chunkSizeBytes = null, NRedisStack.Literals.Enums.TsDuplicatePolicy? duplicatePolicy = null, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeSeriesLabel!>? labels = null) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.TimeSeriesCommandsAsync.AlterAsync(string! key, NRedisStack.TsAlterParams! parameters) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.TimeSeriesCommandsAsync.CreateAsync(string! key, long? retentionTime = null, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeSeriesLabel!>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, NRedisStack.Literals.Enums.TsDuplicatePolicy? duplicatePolicy = null) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.TimeSeriesCommandsAsync.CreateAsync(string! key, NRedisStack.TsCreateParams! parameters) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.TimeSeriesCommandsAsync.CreateRuleAsync(string! sourceKey, NRedisStack.DataTypes.TimeSeriesRule! rule, long alignTimestamp = 0) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.TimeSeriesCommandsAsync.DecrByAsync(string! key, double value, NRedisStack.DataTypes.TimeStamp? timestamp = null, long? retentionTime = null, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeSeriesLabel!>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null) -> System.Threading.Tasks.Task<NRedisStack.DataTypes.TimeStamp>!
+NRedisStack.TimeSeriesCommandsAsync.DecrByAsync(string! key, NRedisStack.TsDecrByParams! parameters) -> System.Threading.Tasks.Task<NRedisStack.DataTypes.TimeStamp>!
+NRedisStack.TimeSeriesCommandsAsync.DelAsync(string! key, NRedisStack.DataTypes.TimeStamp fromTimeStamp, NRedisStack.DataTypes.TimeStamp toTimeStamp) -> System.Threading.Tasks.Task<long>!
+NRedisStack.TimeSeriesCommandsAsync.DeleteRuleAsync(string! sourceKey, string! destKey) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.TimeSeriesCommandsAsync.GetAsync(string! key, bool latest = false) -> System.Threading.Tasks.Task<NRedisStack.DataTypes.TimeSeriesTuple?>!
+NRedisStack.TimeSeriesCommandsAsync.IncrByAsync(string! key, double value, NRedisStack.DataTypes.TimeStamp? timestamp = null, long? retentionTime = null, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeSeriesLabel!>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null) -> System.Threading.Tasks.Task<NRedisStack.DataTypes.TimeStamp>!
+NRedisStack.TimeSeriesCommandsAsync.IncrByAsync(string! key, NRedisStack.TsIncrByParams! parameters) -> System.Threading.Tasks.Task<NRedisStack.DataTypes.TimeStamp>!
+NRedisStack.TimeSeriesCommandsAsync.InfoAsync(string! key, bool debug = false) -> System.Threading.Tasks.Task<NRedisStack.DataTypes.TimeSeriesInformation!>!
+NRedisStack.TimeSeriesCommandsAsync.MAddAsync(System.Collections.Generic.IReadOnlyCollection<(string! key, NRedisStack.DataTypes.TimeStamp timestamp, double value)>! sequence) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeStamp>!>!
+NRedisStack.TimeSeriesCommandsAsync.MGetAsync(System.Collections.Generic.IReadOnlyCollection<string!>! filter, bool latest = false, bool? withLabels = null, System.Collections.Generic.IReadOnlyCollection<string!>? selectedLabels = null) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<(string! key, System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesLabel!>! labels, NRedisStack.DataTypes.TimeSeriesTuple! value)>!>!
+NRedisStack.TimeSeriesCommandsAsync.MRangeAsync(NRedisStack.DataTypes.TimeStamp fromTimeStamp, NRedisStack.DataTypes.TimeStamp toTimeStamp, System.Collections.Generic.IReadOnlyCollection<string!>! filter, bool latest = false, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeStamp>? filterByTs = null, (long, long)? filterByValue = null, bool? withLabels = null, System.Collections.Generic.IReadOnlyCollection<string!>? selectLabels = null, long? count = null, NRedisStack.DataTypes.TimeStamp? align = null, NRedisStack.Literals.Enums.TsAggregation? aggregation = null, long? timeBucket = null, NRedisStack.Literals.Enums.TsBucketTimestamps? bt = null, bool empty = false, (string!, NRedisStack.Literals.Enums.TsReduce)? groupbyTuple = null) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<(string! key, System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesLabel!>! labels, System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesTuple!>! values)>!>!
+NRedisStack.TimeSeriesCommandsAsync.MRevRangeAsync(NRedisStack.DataTypes.TimeStamp fromTimeStamp, NRedisStack.DataTypes.TimeStamp toTimeStamp, System.Collections.Generic.IReadOnlyCollection<string!>! filter, bool latest = false, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeStamp>? filterByTs = null, (long, long)? filterByValue = null, bool? withLabels = null, System.Collections.Generic.IReadOnlyCollection<string!>? selectLabels = null, long? count = null, NRedisStack.DataTypes.TimeStamp? align = null, NRedisStack.Literals.Enums.TsAggregation? aggregation = null, long? timeBucket = null, NRedisStack.Literals.Enums.TsBucketTimestamps? bt = null, bool empty = false, (string!, NRedisStack.Literals.Enums.TsReduce)? groupbyTuple = null) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<(string! key, System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesLabel!>! labels, System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesTuple!>! values)>!>!
+NRedisStack.TimeSeriesCommandsAsync.QueryIndexAsync(System.Collections.Generic.IReadOnlyCollection<string!>! filter) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<string!>!>!
+NRedisStack.TimeSeriesCommandsAsync.RangeAsync(string! key, NRedisStack.DataTypes.TimeStamp fromTimeStamp, NRedisStack.DataTypes.TimeStamp toTimeStamp, bool latest = false, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeStamp>? filterByTs = null, (long, long)? filterByValue = null, long? count = null, NRedisStack.DataTypes.TimeStamp? align = null, NRedisStack.Literals.Enums.TsAggregation? aggregation = null, long? timeBucket = null, NRedisStack.Literals.Enums.TsBucketTimestamps? bt = null, bool empty = false) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesTuple!>!>!
+NRedisStack.TimeSeriesCommandsAsync.RevRangeAsync(string! key, NRedisStack.DataTypes.TimeStamp fromTimeStamp, NRedisStack.DataTypes.TimeStamp toTimeStamp, bool latest = false, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeStamp>? filterByTs = null, (long, long)? filterByValue = null, long? count = null, NRedisStack.DataTypes.TimeStamp? align = null, NRedisStack.Literals.Enums.TsAggregation? aggregation = null, long? timeBucket = null, NRedisStack.Literals.Enums.TsBucketTimestamps? bt = null, bool empty = false) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<NRedisStack.DataTypes.TimeSeriesTuple!>!>!
+NRedisStack.TimeSeriesCommandsAsync.TimeSeriesCommandsAsync(StackExchange.Redis.IDatabaseAsync! db) -> void
+NRedisStack.TimeSeriesCommandsBuilder
+NRedisStack.TopK.DataTypes.TopKInformation
+NRedisStack.TopK.DataTypes.TopKInformation.Decay.get -> double
+NRedisStack.TopK.DataTypes.TopKInformation.Depth.get -> long
+NRedisStack.TopK.DataTypes.TopKInformation.K.get -> long
+NRedisStack.TopK.DataTypes.TopKInformation.Width.get -> long
+NRedisStack.TopKCommandBuilder
+NRedisStack.TopKCommands
+NRedisStack.TopKCommands.Add(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> StackExchange.Redis.RedisResult![]?
+NRedisStack.TopKCommands.Count(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> long[]!
+NRedisStack.TopKCommands.IncrBy(StackExchange.Redis.RedisKey key, params System.Tuple<StackExchange.Redis.RedisValue, long>![]! itemIncrements) -> StackExchange.Redis.RedisResult![]!
+NRedisStack.TopKCommands.Info(StackExchange.Redis.RedisKey key) -> NRedisStack.TopK.DataTypes.TopKInformation!
+NRedisStack.TopKCommands.List(StackExchange.Redis.RedisKey key, bool withcount = false) -> StackExchange.Redis.RedisResult![]!
+NRedisStack.TopKCommands.Query(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> bool[]!
+NRedisStack.TopKCommands.Query(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> bool
+NRedisStack.TopKCommands.Reserve(StackExchange.Redis.RedisKey key, long topk, long width = 7, long depth = 8, double decay = 0.9) -> bool
+NRedisStack.TopKCommands.TopKCommands(StackExchange.Redis.IDatabase! db) -> void
+NRedisStack.TopKCommandsAsync
+NRedisStack.TopKCommandsAsync.AddAsync(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult![]?>!
+NRedisStack.TopKCommandsAsync.CountAsync(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> System.Threading.Tasks.Task<long[]!>!
+NRedisStack.TopKCommandsAsync.IncrByAsync(StackExchange.Redis.RedisKey key, params System.Tuple<StackExchange.Redis.RedisValue, long>![]! itemIncrements) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult![]!>!
+NRedisStack.TopKCommandsAsync.InfoAsync(StackExchange.Redis.RedisKey key) -> System.Threading.Tasks.Task<NRedisStack.TopK.DataTypes.TopKInformation!>!
+NRedisStack.TopKCommandsAsync.ListAsync(StackExchange.Redis.RedisKey key, bool withcount = false) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult![]!>!
+NRedisStack.TopKCommandsAsync.QueryAsync(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> System.Threading.Tasks.Task<bool[]!>!
+NRedisStack.TopKCommandsAsync.QueryAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.TopKCommandsAsync.ReserveAsync(StackExchange.Redis.RedisKey key, long topk, long width = 7, long depth = 8, double decay = 0.9) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.TopKCommandsAsync.TopKCommandsAsync(StackExchange.Redis.IDatabaseAsync! db) -> void
+NRedisStack.Transaction
+NRedisStack.Transaction.AddCondition(StackExchange.Redis.Condition! condition) -> StackExchange.Redis.ConditionResult!
+NRedisStack.Transaction.Bf.get -> NRedisStack.BloomCommandsAsync!
+NRedisStack.Transaction.Cf.get -> NRedisStack.CuckooCommandsAsync!
+NRedisStack.Transaction.Cms.get -> NRedisStack.CmsCommandsAsync!
+NRedisStack.Transaction.Db.get -> StackExchange.Redis.IDatabaseAsync!
+NRedisStack.Transaction.Execute(StackExchange.Redis.CommandFlags flags = StackExchange.Redis.CommandFlags.None) -> bool
+NRedisStack.Transaction.ExecuteAsync(StackExchange.Redis.CommandFlags flags = StackExchange.Redis.CommandFlags.None) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.Transaction.Ft.get -> NRedisStack.SearchCommandsAsync!
+NRedisStack.Transaction.Json.get -> NRedisStack.JsonCommandsAsync!
+NRedisStack.Transaction.Tdigest.get -> NRedisStack.TdigestCommandsAsync!
+NRedisStack.Transaction.TopK.get -> NRedisStack.TopKCommandsAsync!
+NRedisStack.Transaction.Transaction(StackExchange.Redis.IDatabase! db) -> void
+NRedisStack.Transaction.Ts.get -> NRedisStack.TimeSeriesCommandsAsync!
+NRedisStack.TsAddParams
+NRedisStack.TsAddParamsBuilder
+NRedisStack.TsAddParamsBuilder.AddOnDuplicate(NRedisStack.Literals.Enums.TsDuplicatePolicy duplicatePolicy) -> NRedisStack.TsAddParamsBuilder!
+NRedisStack.TsAddParamsBuilder.AddTimestamp(NRedisStack.DataTypes.TimeStamp timestamp) -> NRedisStack.TsAddParamsBuilder!
+NRedisStack.TsAddParamsBuilder.AddUncompressed(bool uncompressed) -> NRedisStack.TsAddParamsBuilder!
+NRedisStack.TsAddParamsBuilder.AddValue(double value) -> NRedisStack.TsAddParamsBuilder!
+NRedisStack.TsAddParamsBuilder.build() -> NRedisStack.TsAddParams!
+NRedisStack.TsAddParamsBuilder.TsAddParamsBuilder() -> void
+NRedisStack.TsAlterParams
+NRedisStack.TsAlterParamsBuilder
+NRedisStack.TsAlterParamsBuilder.AddDuplicatePolicy(NRedisStack.Literals.Enums.TsDuplicatePolicy duplicatePolicy) -> NRedisStack.TsAlterParamsBuilder!
+NRedisStack.TsAlterParamsBuilder.build() -> NRedisStack.TsAlterParams!
+NRedisStack.TsAlterParamsBuilder.TsAlterParamsBuilder() -> void
+NRedisStack.TsBaseParams
+NRedisStack.TsBaseParamsBuilder<T>
+NRedisStack.TsBaseParamsBuilder<T>.AddChunkSizeBytes(long chunkSizeBytes) -> T!
+NRedisStack.TsBaseParamsBuilder<T>.AddIgnoreValues(long ignoreMaxTimeDiff, long ignoreMaxValDiff) -> T!
+NRedisStack.TsBaseParamsBuilder<T>.AddLabels(System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeSeriesLabel!>! labels) -> T!
+NRedisStack.TsBaseParamsBuilder<T>.AddRetentionTime(long retentionTime) -> T!
+NRedisStack.TsCreateParams
+NRedisStack.TsCreateParamsBuilder
+NRedisStack.TsCreateParamsBuilder.AddDuplicatePolicy(NRedisStack.Literals.Enums.TsDuplicatePolicy duplicatePolicy) -> NRedisStack.TsCreateParamsBuilder!
+NRedisStack.TsCreateParamsBuilder.AddUncompressed(bool uncompressed) -> NRedisStack.TsCreateParamsBuilder!
+NRedisStack.TsCreateParamsBuilder.build() -> NRedisStack.TsCreateParams!
+NRedisStack.TsCreateParamsBuilder.TsCreateParamsBuilder() -> void
+NRedisStack.TsDecrByParams
+NRedisStack.TsDecrByParamsBuilder
+NRedisStack.TsDecrByParamsBuilder.AddDuplicatePolicy(NRedisStack.Literals.Enums.TsDuplicatePolicy duplicatePolicy) -> NRedisStack.TsDecrByParamsBuilder!
+NRedisStack.TsDecrByParamsBuilder.AddTimestamp(NRedisStack.DataTypes.TimeStamp timestamp) -> NRedisStack.TsDecrByParamsBuilder!
+NRedisStack.TsDecrByParamsBuilder.AddUncompressed(bool uncompressed) -> NRedisStack.TsDecrByParamsBuilder!
+NRedisStack.TsDecrByParamsBuilder.AddValue(double value) -> NRedisStack.TsDecrByParamsBuilder!
+NRedisStack.TsDecrByParamsBuilder.build() -> NRedisStack.TsDecrByParams!
+NRedisStack.TsDecrByParamsBuilder.TsDecrByParamsBuilder() -> void
+NRedisStack.TsIncrByParams
+NRedisStack.TsIncrByParamsBuilder
+NRedisStack.TsIncrByParamsBuilder.AddDuplicatePolicy(NRedisStack.Literals.Enums.TsDuplicatePolicy duplicatePolicy) -> NRedisStack.TsIncrByParamsBuilder!
+NRedisStack.TsIncrByParamsBuilder.AddTimestamp(NRedisStack.DataTypes.TimeStamp timestamp) -> NRedisStack.TsIncrByParamsBuilder!
+NRedisStack.TsIncrByParamsBuilder.AddUncompressed(bool uncompressed) -> NRedisStack.TsIncrByParamsBuilder!
+NRedisStack.TsIncrByParamsBuilder.AddValue(double value) -> NRedisStack.TsIncrByParamsBuilder!
+NRedisStack.TsIncrByParamsBuilder.build() -> NRedisStack.TsIncrByParams!
+NRedisStack.TsIncrByParamsBuilder.TsIncrByParamsBuilder() -> void
+NRedisStack.TsParamsHelper
+override NRedisStack.DataTypes.TimeSeriesLabel.Equals(object? obj) -> bool
+override NRedisStack.DataTypes.TimeSeriesLabel.GetHashCode() -> int
+override NRedisStack.DataTypes.TimeSeriesRule.Equals(object? obj) -> bool
+override NRedisStack.DataTypes.TimeSeriesRule.GetHashCode() -> int
+override NRedisStack.DataTypes.TimeSeriesTuple.Equals(object? obj) -> bool
+override NRedisStack.DataTypes.TimeSeriesTuple.GetHashCode() -> int
+override NRedisStack.DataTypes.TimeStamp.GetHashCode() -> int
+static NRedisStack.Auxiliary.AssembleNonNullArguments(params object?[]! arguments) -> object![]!
+static NRedisStack.Auxiliary.Execute(this StackExchange.Redis.IDatabase! db, NRedisStack.RedisStackCommands.SerializedCommand! command) -> StackExchange.Redis.RedisResult!
+static NRedisStack.Auxiliary.ExecuteAsync(this StackExchange.Redis.IDatabaseAsync! db, NRedisStack.RedisStackCommands.SerializedCommand! command) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult!>!
+static NRedisStack.Auxiliary.ExecuteBroadcast(this StackExchange.Redis.IDatabase! db, NRedisStack.RedisStackCommands.SerializedCommand! command) -> System.Collections.Generic.List<StackExchange.Redis.RedisResult!>!
+static NRedisStack.Auxiliary.ExecuteBroadcast(this StackExchange.Redis.IDatabase! db, string! command) -> System.Collections.Generic.List<StackExchange.Redis.RedisResult!>!
+static NRedisStack.Auxiliary.ExecuteBroadcastAsync(this StackExchange.Redis.IDatabaseAsync! db, string! command) -> System.Threading.Tasks.Task<System.Collections.Generic.List<StackExchange.Redis.RedisResult!>!>!
+static NRedisStack.Auxiliary.GetDatabase(this StackExchange.Redis.ConnectionMultiplexer! redis, string? LibraryName) -> StackExchange.Redis.IDatabase!
+static NRedisStack.Auxiliary.GetNRedisStackVersion() -> string!
+static NRedisStack.Auxiliary.MergeArgs(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> System.Collections.Generic.List<object!>!
+static NRedisStack.Auxiliary.ResetInfoDefaults() -> void
+static NRedisStack.BloomAux.BuildInsertArgs(StackExchange.Redis.RedisKey key, System.Collections.Generic.IEnumerable<StackExchange.Redis.RedisValue>! items, int? capacity, double? error, int? expansion, bool nocreate, bool nonscaling) -> System.Collections.Generic.List<object!>!
+static NRedisStack.BloomCommandBuilder.Add(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.BloomCommandBuilder.Card(StackExchange.Redis.RedisKey key) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.BloomCommandBuilder.Exists(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.BloomCommandBuilder.Info(StackExchange.Redis.RedisKey key) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.BloomCommandBuilder.Insert(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue[]! items, int? capacity = null, double? error = null, int? expansion = null, bool nocreate = false, bool nonscaling = false) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.BloomCommandBuilder.LoadChunk(StackExchange.Redis.RedisKey key, long iterator, byte[]! data) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.BloomCommandBuilder.MAdd(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.BloomCommandBuilder.MExists(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue[]! items) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.BloomCommandBuilder.Reserve(StackExchange.Redis.RedisKey key, double errorRate, long capacity, int? expansion = null, bool nonscaling = false) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.BloomCommandBuilder.ScanDump(StackExchange.Redis.RedisKey key, long iterator) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CmsCommandBuilder.IncrBy(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item, long increment) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CmsCommandBuilder.IncrBy(StackExchange.Redis.RedisKey key, System.Tuple<StackExchange.Redis.RedisValue, long>![]! itemIncrements) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CmsCommandBuilder.Info(StackExchange.Redis.RedisKey key) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CmsCommandBuilder.InitByDim(StackExchange.Redis.RedisKey key, long width, long depth) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CmsCommandBuilder.InitByProb(StackExchange.Redis.RedisKey key, double error, double probability) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CmsCommandBuilder.Merge(StackExchange.Redis.RedisValue destination, long numKeys, StackExchange.Redis.RedisValue[]! source, long[]? weight = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CmsCommandBuilder.Query(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.Core.DataTypes.MinMaxModifierExtensions.ToMinMax(this StackExchange.Redis.Order order) -> NRedisStack.Core.DataTypes.MinMaxModifier
+static NRedisStack.CoreCommandBuilder.BLMove(StackExchange.Redis.RedisKey source, StackExchange.Redis.RedisKey destination, StackExchange.Redis.ListSide sourceSide, StackExchange.Redis.ListSide destinationSide, double timeout) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CoreCommandBuilder.BLMPop(double timeout, StackExchange.Redis.RedisKey[]! keys, StackExchange.Redis.ListSide listSide, long? count) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CoreCommandBuilder.BLPop(StackExchange.Redis.RedisKey[]! keys, double timeout) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CoreCommandBuilder.BRPop(StackExchange.Redis.RedisKey[]! keys, double timeout) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CoreCommandBuilder.BRPopLPush(StackExchange.Redis.RedisKey source, StackExchange.Redis.RedisKey destination, double timeout) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CoreCommandBuilder.BZMPop(double timeout, StackExchange.Redis.RedisKey[]! keys, NRedisStack.Core.DataTypes.MinMaxModifier minMaxModifier, long? count) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CoreCommandBuilder.BZPopMax(StackExchange.Redis.RedisKey[]! keys, double timeout) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CoreCommandBuilder.BZPopMin(StackExchange.Redis.RedisKey[]! keys, double timeout) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CoreCommandBuilder.ClientSetInfo(NRedisStack.Core.SetInfoAttr attr, string! value) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CoreCommandBuilder.XRead(StackExchange.Redis.RedisKey[]! keys, StackExchange.Redis.RedisValue[]! positions, int? count, int? timeoutMilliseconds) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CoreCommandBuilder.XReadGroup(StackExchange.Redis.RedisValue groupName, StackExchange.Redis.RedisValue consumerName, StackExchange.Redis.RedisKey[]! keys, StackExchange.Redis.RedisValue[]! positions, int? count, int? timeoutMilliseconds, bool? noAcknowledge) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CoreCommands.BLMove(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.RedisKey source, StackExchange.Redis.RedisKey destination, StackExchange.Redis.ListSide sourceSide, StackExchange.Redis.ListSide destinationSide, double timeout) -> StackExchange.Redis.RedisValue?
+static NRedisStack.CoreCommands.BLMPop(this StackExchange.Redis.IDatabase! db, double timeout, StackExchange.Redis.RedisKey key, StackExchange.Redis.ListSide listSide, long? count = null) -> System.Tuple<StackExchange.Redis.RedisKey, System.Collections.Generic.List<StackExchange.Redis.RedisValue>!>?
+static NRedisStack.CoreCommands.BLMPop(this StackExchange.Redis.IDatabase! db, double timeout, StackExchange.Redis.RedisKey[]! keys, StackExchange.Redis.ListSide listSide, long? count = null) -> System.Tuple<StackExchange.Redis.RedisKey, System.Collections.Generic.List<StackExchange.Redis.RedisValue>!>?
+static NRedisStack.CoreCommands.BLPop(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.RedisKey key, double timeout) -> System.Tuple<StackExchange.Redis.RedisKey, StackExchange.Redis.RedisValue>?
+static NRedisStack.CoreCommands.BLPop(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.RedisKey[]! keys, double timeout) -> System.Tuple<StackExchange.Redis.RedisKey, StackExchange.Redis.RedisValue>?
+static NRedisStack.CoreCommands.BRPop(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.RedisKey key, double timeout) -> System.Tuple<StackExchange.Redis.RedisKey, StackExchange.Redis.RedisValue>?
+static NRedisStack.CoreCommands.BRPop(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.RedisKey[]! keys, double timeout) -> System.Tuple<StackExchange.Redis.RedisKey, StackExchange.Redis.RedisValue>?
+static NRedisStack.CoreCommands.BRPopLPush(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.RedisKey source, StackExchange.Redis.RedisKey destination, double timeout) -> StackExchange.Redis.RedisValue?
+static NRedisStack.CoreCommands.BZMPop(this StackExchange.Redis.IDatabase! db, double timeout, StackExchange.Redis.RedisKey key, NRedisStack.Core.DataTypes.MinMaxModifier minMaxModifier, long? count = null) -> System.Tuple<StackExchange.Redis.RedisKey, System.Collections.Generic.List<NRedisStack.Core.DataTypes.RedisValueWithScore>!>?
+static NRedisStack.CoreCommands.BZMPop(this StackExchange.Redis.IDatabase! db, double timeout, StackExchange.Redis.RedisKey[]! keys, NRedisStack.Core.DataTypes.MinMaxModifier minMaxModifier, long? count = null) -> System.Tuple<StackExchange.Redis.RedisKey, System.Collections.Generic.List<NRedisStack.Core.DataTypes.RedisValueWithScore>!>?
+static NRedisStack.CoreCommands.BZPopMax(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.RedisKey key, double timeout) -> System.Tuple<StackExchange.Redis.RedisKey, NRedisStack.Core.DataTypes.RedisValueWithScore>?
+static NRedisStack.CoreCommands.BZPopMax(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.RedisKey[]! keys, double timeout) -> System.Tuple<StackExchange.Redis.RedisKey, NRedisStack.Core.DataTypes.RedisValueWithScore>?
+static NRedisStack.CoreCommands.BZPopMin(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.RedisKey key, double timeout) -> System.Tuple<StackExchange.Redis.RedisKey, NRedisStack.Core.DataTypes.RedisValueWithScore>?
+static NRedisStack.CoreCommands.BZPopMin(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.RedisKey[]! keys, double timeout) -> System.Tuple<StackExchange.Redis.RedisKey, NRedisStack.Core.DataTypes.RedisValueWithScore>?
+static NRedisStack.CoreCommands.ClientSetInfo(this StackExchange.Redis.IDatabase! db, NRedisStack.Core.SetInfoAttr attr, string! value) -> bool
+static NRedisStack.CoreCommands.XRead(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue position, int? count = null, int? timeoutMilliseconds = null) -> StackExchange.Redis.StreamEntry[]?
+static NRedisStack.CoreCommands.XRead(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.RedisKey[]! keys, StackExchange.Redis.RedisValue[]! positions, int? count = null, int? timeoutMilliseconds = null) -> NRedisStack.Core.DataTypes.RedisStreamEntries[]?
+static NRedisStack.CoreCommands.XReadGroup(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.RedisValue groupName, StackExchange.Redis.RedisValue consumerName, StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue position, int? count = null, int? timeoutMilliseconds = null, bool? noAck = null) -> StackExchange.Redis.StreamEntry[]?
+static NRedisStack.CoreCommands.XReadGroup(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.RedisValue groupName, StackExchange.Redis.RedisValue consumerName, StackExchange.Redis.RedisKey[]! keys, StackExchange.Redis.RedisValue[]! positions, int? count = null, int? timeoutMilliseconds = null, bool? noAck = null) -> NRedisStack.Core.DataTypes.RedisStreamEntries[]?
+static NRedisStack.CoreCommandsAsync.BLMoveAsync(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.RedisKey source, StackExchange.Redis.RedisKey destination, StackExchange.Redis.ListSide sourceSide, StackExchange.Redis.ListSide destinationSide, double timeout) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisValue?>!
+static NRedisStack.CoreCommandsAsync.BLMPopAsync(this StackExchange.Redis.IDatabase! db, double timeout, StackExchange.Redis.RedisKey key, StackExchange.Redis.ListSide listSide, long? count = null) -> System.Threading.Tasks.Task<System.Tuple<StackExchange.Redis.RedisKey, System.Collections.Generic.List<StackExchange.Redis.RedisValue>!>?>!
+static NRedisStack.CoreCommandsAsync.BLMPopAsync(this StackExchange.Redis.IDatabase! db, double timeout, StackExchange.Redis.RedisKey[]! keys, StackExchange.Redis.ListSide listSide, long? count = null) -> System.Threading.Tasks.Task<System.Tuple<StackExchange.Redis.RedisKey, System.Collections.Generic.List<StackExchange.Redis.RedisValue>!>?>!
+static NRedisStack.CoreCommandsAsync.BLPopAsync(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.RedisKey key, double timeout) -> System.Threading.Tasks.Task<System.Tuple<StackExchange.Redis.RedisKey, StackExchange.Redis.RedisValue>?>!
+static NRedisStack.CoreCommandsAsync.BLPopAsync(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.RedisKey[]! keys, double timeout) -> System.Threading.Tasks.Task<System.Tuple<StackExchange.Redis.RedisKey, StackExchange.Redis.RedisValue>?>!
+static NRedisStack.CoreCommandsAsync.BRPopAsync(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.RedisKey key, double timeout) -> System.Threading.Tasks.Task<System.Tuple<StackExchange.Redis.RedisKey, StackExchange.Redis.RedisValue>?>!
+static NRedisStack.CoreCommandsAsync.BRPopAsync(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.RedisKey[]! keys, double timeout) -> System.Threading.Tasks.Task<System.Tuple<StackExchange.Redis.RedisKey, StackExchange.Redis.RedisValue>?>!
+static NRedisStack.CoreCommandsAsync.BRPopLPushAsync(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.RedisKey source, StackExchange.Redis.RedisKey destination, double timeout) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisValue?>!
+static NRedisStack.CoreCommandsAsync.BZMPopAsync(this StackExchange.Redis.IDatabase! db, double timeout, StackExchange.Redis.RedisKey key, NRedisStack.Core.DataTypes.MinMaxModifier minMaxModifier, long? count = null) -> System.Threading.Tasks.Task<System.Tuple<StackExchange.Redis.RedisKey, System.Collections.Generic.List<NRedisStack.Core.DataTypes.RedisValueWithScore>!>?>!
+static NRedisStack.CoreCommandsAsync.BZMPopAsync(this StackExchange.Redis.IDatabase! db, double timeout, StackExchange.Redis.RedisKey[]! keys, NRedisStack.Core.DataTypes.MinMaxModifier minMaxModifier, long? count = null) -> System.Threading.Tasks.Task<System.Tuple<StackExchange.Redis.RedisKey, System.Collections.Generic.List<NRedisStack.Core.DataTypes.RedisValueWithScore>!>?>!
+static NRedisStack.CoreCommandsAsync.BZPopMaxAsync(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.RedisKey key, double timeout) -> System.Threading.Tasks.Task<System.Tuple<StackExchange.Redis.RedisKey, NRedisStack.Core.DataTypes.RedisValueWithScore>?>!
+static NRedisStack.CoreCommandsAsync.BZPopMaxAsync(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.RedisKey[]! keys, double timeout) -> System.Threading.Tasks.Task<System.Tuple<StackExchange.Redis.RedisKey, NRedisStack.Core.DataTypes.RedisValueWithScore>?>!
+static NRedisStack.CoreCommandsAsync.BZPopMinAsync(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.RedisKey key, double timeout) -> System.Threading.Tasks.Task<System.Tuple<StackExchange.Redis.RedisKey, NRedisStack.Core.DataTypes.RedisValueWithScore>?>!
+static NRedisStack.CoreCommandsAsync.BZPopMinAsync(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.RedisKey[]! keys, double timeout) -> System.Threading.Tasks.Task<System.Tuple<StackExchange.Redis.RedisKey, NRedisStack.Core.DataTypes.RedisValueWithScore>?>!
+static NRedisStack.CoreCommandsAsync.ClientSetInfoAsync(this StackExchange.Redis.IDatabaseAsync! db, NRedisStack.Core.SetInfoAttr attr, string! value) -> System.Threading.Tasks.Task<bool>!
+static NRedisStack.CoreCommandsAsync.XReadAsync(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue position, int? count = null, int? timeoutMilliseconds = null) -> System.Threading.Tasks.Task<StackExchange.Redis.StreamEntry[]?>!
+static NRedisStack.CoreCommandsAsync.XReadAsync(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.RedisKey[]! keys, StackExchange.Redis.RedisValue[]! positions, int? count = null, int? timeoutMilliseconds = null) -> System.Threading.Tasks.Task<NRedisStack.Core.DataTypes.RedisStreamEntries[]?>!
+static NRedisStack.CoreCommandsAsync.XReadGroupAsync(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.RedisValue groupName, StackExchange.Redis.RedisValue consumerName, StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue position, int? count = null, int? timeoutMilliseconds = null, bool? noAck = null) -> System.Threading.Tasks.Task<StackExchange.Redis.StreamEntry[]?>!
+static NRedisStack.CoreCommandsAsync.XReadGroupAsync(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.RedisValue groupName, StackExchange.Redis.RedisValue consumerName, StackExchange.Redis.RedisKey[]! keys, StackExchange.Redis.RedisValue[]! positions, int? count = null, int? timeoutMilliseconds = null, bool? noAck = null) -> System.Threading.Tasks.Task<NRedisStack.Core.DataTypes.RedisStreamEntries[]?>!
+static NRedisStack.CuckooCommandBuilder.Add(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CuckooCommandBuilder.AddNX(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CuckooCommandBuilder.Count(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CuckooCommandBuilder.Del(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CuckooCommandBuilder.Exists(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CuckooCommandBuilder.Info(StackExchange.Redis.RedisKey key) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CuckooCommandBuilder.Insert(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue[]! items, int? capacity = null, bool nocreate = false) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CuckooCommandBuilder.InsertNX(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue[]! items, int? capacity = null, bool nocreate = false) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CuckooCommandBuilder.LoadChunk(StackExchange.Redis.RedisKey key, long iterator, byte[]! data) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CuckooCommandBuilder.MExists(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CuckooCommandBuilder.Reserve(StackExchange.Redis.RedisKey key, long capacity, long? bucketSize = null, int? maxIterations = null, int? expansion = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CuckooCommandBuilder.ScanDump(StackExchange.Redis.RedisKey key, long iterator) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.DataTypes.TimeSeriesInformation.implicit operator string!(NRedisStack.DataTypes.TimeSeriesInformation! info) -> string!
+static NRedisStack.DataTypes.TimeSeriesLabel.implicit operator string!(NRedisStack.DataTypes.TimeSeriesLabel! tsl) -> string!
+static NRedisStack.DataTypes.TimeSeriesRule.implicit operator string!(NRedisStack.DataTypes.TimeSeriesRule! tsr) -> string!
+static NRedisStack.DataTypes.TimeSeriesTuple.implicit operator string!(NRedisStack.DataTypes.TimeSeriesTuple! tst) -> string!
+static NRedisStack.DataTypes.TimeStamp.implicit operator long(NRedisStack.DataTypes.TimeStamp ts) -> long
+static NRedisStack.DataTypes.TimeStamp.implicit operator NRedisStack.DataTypes.TimeStamp(long l) -> NRedisStack.DataTypes.TimeStamp
+static NRedisStack.DataTypes.TimeStamp.implicit operator NRedisStack.DataTypes.TimeStamp(string! s) -> NRedisStack.DataTypes.TimeStamp
+static NRedisStack.DataTypes.TimeStamp.implicit operator NRedisStack.DataTypes.TimeStamp(System.DateTime dateTime) -> NRedisStack.DataTypes.TimeStamp
+static NRedisStack.DataTypes.TimeStamp.implicit operator string?(NRedisStack.DataTypes.TimeStamp ts) -> string?
+static NRedisStack.DataTypes.TimeStamp.implicit operator System.DateTime(NRedisStack.DataTypes.TimeStamp timeStamp) -> System.DateTime
+static NRedisStack.JsonCommandBuilder.ArrAppend(StackExchange.Redis.RedisKey key, string? path = null, params object![]! values) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.JsonCommandBuilder.ArrIndex(StackExchange.Redis.RedisKey key, string! path, object! value, long? start = null, long? stop = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.JsonCommandBuilder.ArrInsert(StackExchange.Redis.RedisKey key, string! path, long index, params object![]! values) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.JsonCommandBuilder.ArrLen(StackExchange.Redis.RedisKey key, string? path = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.JsonCommandBuilder.ArrPop(StackExchange.Redis.RedisKey key, string? path = null, long? index = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.JsonCommandBuilder.ArrTrim(StackExchange.Redis.RedisKey key, string! path, long start, long stop) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.JsonCommandBuilder.Clear(StackExchange.Redis.RedisKey key, string? path = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.JsonCommandBuilder.DebugMemory(string! key, string? path = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.JsonCommandBuilder.Del(StackExchange.Redis.RedisKey key, string? path = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.JsonCommandBuilder.Get(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue? indent = null, StackExchange.Redis.RedisValue? newLine = null, StackExchange.Redis.RedisValue? space = null, StackExchange.Redis.RedisValue? path = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.JsonCommandBuilder.Get(StackExchange.Redis.RedisKey key, string![]! paths, StackExchange.Redis.RedisValue? indent = null, StackExchange.Redis.RedisValue? newLine = null, StackExchange.Redis.RedisValue? space = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.JsonCommandBuilder.Get<T>(StackExchange.Redis.RedisKey key, string! path = "$") -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.JsonCommandBuilder.Merge(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, StackExchange.Redis.RedisValue json) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.JsonCommandBuilder.MGet(StackExchange.Redis.RedisKey[]! keys, string! path) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.JsonCommandBuilder.MSet(NRedisStack.Json.DataTypes.KeyPathValue[]! KeyPathValueList) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.JsonCommandBuilder.NumIncrby(StackExchange.Redis.RedisKey key, string! path, double value) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.JsonCommandBuilder.ObjKeys(StackExchange.Redis.RedisKey key, string? path = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.JsonCommandBuilder.ObjLen(StackExchange.Redis.RedisKey key, string? path = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.JsonCommandBuilder.Resp(StackExchange.Redis.RedisKey key, string? path = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.JsonCommandBuilder.Set(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, StackExchange.Redis.RedisValue json, StackExchange.Redis.When when = StackExchange.Redis.When.Always) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.JsonCommandBuilder.StrAppend(StackExchange.Redis.RedisKey key, string! value, string? path = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.JsonCommandBuilder.StrLen(StackExchange.Redis.RedisKey key, string? path = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.JsonCommandBuilder.Toggle(StackExchange.Redis.RedisKey key, string? path = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.JsonCommandBuilder.Type(StackExchange.Redis.RedisKey key, string? path = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.RedisStackCommands.ModulePrefixes.BF(this StackExchange.Redis.IDatabase! db) -> NRedisStack.BloomCommands!
+static NRedisStack.RedisStackCommands.ModulePrefixes.CF(this StackExchange.Redis.IDatabase! db) -> NRedisStack.CuckooCommands!
+static NRedisStack.RedisStackCommands.ModulePrefixes.CMS(this StackExchange.Redis.IDatabase! db) -> NRedisStack.CmsCommands!
+static NRedisStack.RedisStackCommands.ModulePrefixes.FT(this StackExchange.Redis.IDatabase! db, int? searchDialect = 2) -> NRedisStack.SearchCommands!
+static NRedisStack.RedisStackCommands.ModulePrefixes.JSON(this StackExchange.Redis.IDatabase! db) -> NRedisStack.JsonCommands!
+static NRedisStack.RedisStackCommands.ModulePrefixes.TDIGEST(this StackExchange.Redis.IDatabase! db) -> NRedisStack.TdigestCommands!
+static NRedisStack.RedisStackCommands.ModulePrefixes.TOPK(this StackExchange.Redis.IDatabase! db) -> NRedisStack.TopKCommands!
+static NRedisStack.RedisStackCommands.ModulePrefixes.TS(this StackExchange.Redis.IDatabase! db) -> NRedisStack.TimeSeriesCommands!
+static NRedisStack.Search.Aggregation.Reducers.Avg(string! field) -> NRedisStack.Search.Aggregation.Reducer!
+static NRedisStack.Search.Aggregation.Reducers.Count() -> NRedisStack.Search.Aggregation.Reducer!
+static NRedisStack.Search.Aggregation.Reducers.CountDistinct(string! field) -> NRedisStack.Search.Aggregation.Reducer!
+static NRedisStack.Search.Aggregation.Reducers.CountDistinctish(string! field) -> NRedisStack.Search.Aggregation.Reducer!
+static NRedisStack.Search.Aggregation.Reducers.FirstValue(string! field) -> NRedisStack.Search.Aggregation.Reducer!
+static NRedisStack.Search.Aggregation.Reducers.FirstValue(string! field, NRedisStack.Search.Aggregation.SortedField? sortBy) -> NRedisStack.Search.Aggregation.Reducer!
+static NRedisStack.Search.Aggregation.Reducers.Max(string! field) -> NRedisStack.Search.Aggregation.Reducer!
+static NRedisStack.Search.Aggregation.Reducers.Min(string! field) -> NRedisStack.Search.Aggregation.Reducer!
+static NRedisStack.Search.Aggregation.Reducers.Quantile(string! field, double percentile) -> NRedisStack.Search.Aggregation.Reducer!
+static NRedisStack.Search.Aggregation.Reducers.RandomSample(string! field, int size) -> NRedisStack.Search.Aggregation.Reducer!
+static NRedisStack.Search.Aggregation.Reducers.StdDev(string! field) -> NRedisStack.Search.Aggregation.Reducer!
+static NRedisStack.Search.Aggregation.Reducers.Sum(string! field) -> NRedisStack.Search.Aggregation.Reducer!
+static NRedisStack.Search.Aggregation.Reducers.ToList(string! field) -> NRedisStack.Search.Aggregation.Reducer!
+static NRedisStack.Search.Aggregation.SortedField.Asc(string! field) -> NRedisStack.Search.Aggregation.SortedField!
+static NRedisStack.Search.Aggregation.SortedField.Desc(string! field) -> NRedisStack.Search.Aggregation.SortedField!
+static NRedisStack.Search.Document.Load(string! id, double score, byte[]? payload, StackExchange.Redis.RedisValue[]? fields) -> NRedisStack.Search.Document!
+static NRedisStack.Search.Document.Load(string! id, double score, byte[]? payload, StackExchange.Redis.RedisValue[]? fields, string![]? scoreExplained) -> NRedisStack.Search.Document!
+static NRedisStack.Search.FieldName.Of(string! name) -> NRedisStack.Search.FieldName!
+static NRedisStack.Search.FTCreateParams.CreateParams() -> NRedisStack.Search.FTCreateParams!
+static NRedisStack.SearchCommandBuilder.Aggregate(string! index, NRedisStack.Search.AggregationRequest! query) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.SearchCommandBuilder.AliasAdd(string! alias, string! index) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.SearchCommandBuilder.AliasDel(string! alias) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.SearchCommandBuilder.AliasUpdate(string! alias, string! index) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.SearchCommandBuilder.Alter(string! index, NRedisStack.Search.Schema! schema, bool skipInitialScan = false) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.SearchCommandBuilder.ConfigGet(string! option) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.SearchCommandBuilder.ConfigSet(string! option, string! value) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.SearchCommandBuilder.Create(string! indexName, NRedisStack.Search.FTCreateParams! parameters, NRedisStack.Search.Schema! schema) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.SearchCommandBuilder.CursorDel(string! indexName, long cursorId) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.SearchCommandBuilder.CursorRead(string! indexName, long cursorId, int? count = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.SearchCommandBuilder.DictAdd(string! dict, params string![]! terms) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.SearchCommandBuilder.DictDel(string! dict, params string![]! terms) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.SearchCommandBuilder.DictDump(string! dict) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.SearchCommandBuilder.DropIndex(string! indexName, bool dd = false) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.SearchCommandBuilder.Explain(string! indexName, string! query, int? dialect) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.SearchCommandBuilder.ExplainCli(string! indexName, string! query, int? dialect) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.SearchCommandBuilder.Info(StackExchange.Redis.RedisValue index) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.SearchCommandBuilder.ProfileAggregate(string! IndexName, NRedisStack.Search.AggregationRequest! query, bool limited = false) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.SearchCommandBuilder.ProfileSearch(string! IndexName, NRedisStack.Search.Query! q, bool limited = false) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.SearchCommandBuilder.Search(string! indexName, NRedisStack.Search.Query! q) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.SearchCommandBuilder.SpellCheck(string! indexName, string! query, NRedisStack.Search.FTSpellCheckParams? spellCheckParams = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.SearchCommandBuilder.SugAdd(string! key, string! str, double score, bool increment = false, string? payload = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.SearchCommandBuilder.SugDel(string! key, string! str) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.SearchCommandBuilder.SugGet(string! key, string! prefix, bool fuzzy = false, bool withScores = false, bool withPayloads = false, int? max = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.SearchCommandBuilder.SugLen(string! key) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.SearchCommandBuilder.SynDump(string! indexName) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.SearchCommandBuilder.SynUpdate(string! indexName, string! synonymGroupId, bool skipInitialScan = false, params string![]! terms) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.SearchCommandBuilder.TagVals(string! indexName, string! fieldName) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.SearchCommandBuilder._List() -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TdigestCommandBuilder.Add(StackExchange.Redis.RedisKey key, params double[]! values) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TdigestCommandBuilder.ByRank(StackExchange.Redis.RedisKey key, params long[]! ranks) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TdigestCommandBuilder.ByRevRank(StackExchange.Redis.RedisKey key, params long[]! ranks) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TdigestCommandBuilder.CDF(StackExchange.Redis.RedisKey key, params double[]! values) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TdigestCommandBuilder.Create(StackExchange.Redis.RedisKey key, long compression = 100) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TdigestCommandBuilder.Info(StackExchange.Redis.RedisKey key) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TdigestCommandBuilder.Max(StackExchange.Redis.RedisKey key) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TdigestCommandBuilder.Merge(StackExchange.Redis.RedisKey destinationKey, long compression = 0, bool overide = false, params StackExchange.Redis.RedisKey[]! sourceKeys) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TdigestCommandBuilder.Min(StackExchange.Redis.RedisKey key) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TdigestCommandBuilder.Quantile(StackExchange.Redis.RedisKey key, params double[]! quantile) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TdigestCommandBuilder.Rank(StackExchange.Redis.RedisKey key, params long[]! values) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TdigestCommandBuilder.Reset(StackExchange.Redis.RedisKey key) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TdigestCommandBuilder.RevRank(StackExchange.Redis.RedisKey key, params long[]! values) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TdigestCommandBuilder.TrimmedMean(StackExchange.Redis.RedisKey key, double lowCutQuantile, double highCutQuantile) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TimeSeriesAux.AddAggregation(this System.Collections.Generic.IList<object!>! args, NRedisStack.DataTypes.TimeStamp? align, NRedisStack.Literals.Enums.TsAggregation? aggregation, long? timeBucket, NRedisStack.Literals.Enums.TsBucketTimestamps? bt, bool empty) -> void
+static NRedisStack.TimeSeriesAux.AddAggregation(this System.Collections.Generic.IList<object!>! args, NRedisStack.Literals.Enums.TsAggregation? aggregation, long? timeBucket) -> void
+static NRedisStack.TimeSeriesAux.AddAlign(this System.Collections.Generic.IList<object!>! args, NRedisStack.DataTypes.TimeStamp? alignMaybe) -> void
+static NRedisStack.TimeSeriesAux.AddBucketTimestamp(this System.Collections.Generic.IList<object!>! args, NRedisStack.Literals.Enums.TsBucketTimestamps? bt) -> void
+static NRedisStack.TimeSeriesAux.AddCount(this System.Collections.Generic.IList<object!>! args, long? count) -> void
+static NRedisStack.TimeSeriesAux.AddFilterByTs(this System.Collections.Generic.List<object!>! args, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeStamp>? filter) -> void
+static NRedisStack.TimeSeriesAux.AddFilterByValue(this System.Collections.Generic.List<object!>! args, (long, long)? filter) -> void
+static NRedisStack.TimeSeriesAux.AddFilters(this System.Collections.Generic.List<object!>! args, System.Collections.Generic.IReadOnlyCollection<string!>! filter) -> void
+static NRedisStack.TimeSeriesAux.AddGroupby(this System.Collections.Generic.IList<object!>! args, (string! groupby, NRedisStack.Literals.Enums.TsReduce reduce)? groupbyTuple) -> void
+static NRedisStack.TimeSeriesAux.AddLatest(this System.Collections.Generic.IList<object!>! args, bool latest) -> void
+static NRedisStack.TimeSeriesAux.AddRule(this System.Collections.Generic.IList<object!>! args, NRedisStack.DataTypes.TimeSeriesRule! rule) -> void
+static NRedisStack.TimeSeriesAux.AddTimeStamp(this System.Collections.Generic.IList<object!>! args, NRedisStack.DataTypes.TimeStamp timeStamp) -> void
+static NRedisStack.TimeSeriesAux.AddWithLabels(this System.Collections.Generic.IList<object!>! args, bool? withLabels, System.Collections.Generic.IReadOnlyCollection<string!>? selectLabels = null) -> void
+static NRedisStack.TimeSeriesAux.BuildMultiRangeArgs(NRedisStack.DataTypes.TimeStamp fromTimeStamp, NRedisStack.DataTypes.TimeStamp toTimeStamp, System.Collections.Generic.IReadOnlyCollection<string!>! filter, bool latest, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeStamp>? filterByTs, (long, long)? filterByValue, bool? withLabels, System.Collections.Generic.IReadOnlyCollection<string!>? selectLabels, long? count, NRedisStack.DataTypes.TimeStamp? align, NRedisStack.Literals.Enums.TsAggregation? aggregation, long? timeBucket, NRedisStack.Literals.Enums.TsBucketTimestamps? bt, bool empty, (string!, NRedisStack.Literals.Enums.TsReduce)? groupbyTuple) -> System.Collections.Generic.List<object!>!
+static NRedisStack.TimeSeriesAux.BuildRangeArgs(string! key, NRedisStack.DataTypes.TimeStamp fromTimeStamp, NRedisStack.DataTypes.TimeStamp toTimeStamp, bool latest, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeStamp>? filterByTs, (long, long)? filterByValue, long? count, NRedisStack.DataTypes.TimeStamp? align, NRedisStack.Literals.Enums.TsAggregation? aggregation, long? timeBucket, NRedisStack.Literals.Enums.TsBucketTimestamps? bt, bool empty) -> System.Collections.Generic.List<object!>!
+static NRedisStack.TimeSeriesAux.BuildTsDelArgs(string! key, NRedisStack.DataTypes.TimeStamp fromTimeStamp, NRedisStack.DataTypes.TimeStamp toTimeStamp) -> System.Collections.Generic.List<object!>!
+static NRedisStack.TimeSeriesAux.BuildTsMaddArgs(System.Collections.Generic.IReadOnlyCollection<(string! key, NRedisStack.DataTypes.TimeStamp timestamp, double value)>! sequence) -> System.Collections.Generic.List<object!>!
+static NRedisStack.TimeSeriesAux.BuildTsMgetArgs(bool latest, System.Collections.Generic.IReadOnlyCollection<string!>! filter, bool? withLabels = null, System.Collections.Generic.IReadOnlyCollection<string!>? selectedLabels = null) -> System.Collections.Generic.List<object!>!
+static NRedisStack.TimeSeriesCommandsBuilder.Add(string! key, NRedisStack.DataTypes.TimeStamp timestamp, double value, long? retentionTime = null, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeSeriesLabel!>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, NRedisStack.Literals.Enums.TsDuplicatePolicy? duplicatePolicy = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TimeSeriesCommandsBuilder.Add(string! key, NRedisStack.TsAddParams! parameters) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TimeSeriesCommandsBuilder.Alter(string! key, long? retentionTime = null, long? chunkSizeBytes = null, NRedisStack.Literals.Enums.TsDuplicatePolicy? duplicatePolicy = null, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeSeriesLabel!>? labels = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TimeSeriesCommandsBuilder.Alter(string! key, NRedisStack.TsAlterParams! parameters) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TimeSeriesCommandsBuilder.Create(string! key, long? retentionTime = null, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeSeriesLabel!>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, NRedisStack.Literals.Enums.TsDuplicatePolicy? duplicatePolicy = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TimeSeriesCommandsBuilder.Create(string! key, NRedisStack.TsCreateParams! parameters) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TimeSeriesCommandsBuilder.CreateRule(string! sourceKey, NRedisStack.DataTypes.TimeSeriesRule! rule, long alignTimestamp = 0) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TimeSeriesCommandsBuilder.DecrBy(string! key, double value, NRedisStack.DataTypes.TimeStamp? timestamp = null, long? retentionTime = null, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeSeriesLabel!>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TimeSeriesCommandsBuilder.DecrBy(string! key, NRedisStack.TsDecrByParams! parameters) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TimeSeriesCommandsBuilder.Del(string! key, NRedisStack.DataTypes.TimeStamp fromTimeStamp, NRedisStack.DataTypes.TimeStamp toTimeStamp) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TimeSeriesCommandsBuilder.DeleteRule(string! sourceKey, string! destKey) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TimeSeriesCommandsBuilder.Get(string! key, bool latest = false) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TimeSeriesCommandsBuilder.IncrBy(string! key, double value, NRedisStack.DataTypes.TimeStamp? timestamp = null, long? retentionTime = null, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeSeriesLabel!>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TimeSeriesCommandsBuilder.IncrBy(string! key, NRedisStack.TsIncrByParams! parameters) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TimeSeriesCommandsBuilder.Info(string! key, bool debug = false) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TimeSeriesCommandsBuilder.MAdd(System.Collections.Generic.IReadOnlyCollection<(string! key, NRedisStack.DataTypes.TimeStamp timestamp, double value)>! sequence) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TimeSeriesCommandsBuilder.MGet(System.Collections.Generic.IReadOnlyCollection<string!>! filter, bool latest = false, bool? withLabels = null, System.Collections.Generic.IReadOnlyCollection<string!>? selectedLabels = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TimeSeriesCommandsBuilder.MRange(NRedisStack.DataTypes.TimeStamp fromTimeStamp, NRedisStack.DataTypes.TimeStamp toTimeStamp, System.Collections.Generic.IReadOnlyCollection<string!>! filter, bool latest = false, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeStamp>? filterByTs = null, (long, long)? filterByValue = null, bool? withLabels = null, System.Collections.Generic.IReadOnlyCollection<string!>? selectLabels = null, long? count = null, NRedisStack.DataTypes.TimeStamp? align = null, NRedisStack.Literals.Enums.TsAggregation? aggregation = null, long? timeBucket = null, NRedisStack.Literals.Enums.TsBucketTimestamps? bt = null, bool empty = false, (string!, NRedisStack.Literals.Enums.TsReduce)? groupbyTuple = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TimeSeriesCommandsBuilder.MRevRange(NRedisStack.DataTypes.TimeStamp fromTimeStamp, NRedisStack.DataTypes.TimeStamp toTimeStamp, System.Collections.Generic.IReadOnlyCollection<string!>! filter, bool latest = false, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeStamp>? filterByTs = null, (long, long)? filterByValue = null, bool? withLabels = null, System.Collections.Generic.IReadOnlyCollection<string!>? selectLabels = null, long? count = null, NRedisStack.DataTypes.TimeStamp? align = null, NRedisStack.Literals.Enums.TsAggregation? aggregation = null, long? timeBucket = null, NRedisStack.Literals.Enums.TsBucketTimestamps? bt = null, bool empty = false, (string!, NRedisStack.Literals.Enums.TsReduce)? groupbyTuple = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TimeSeriesCommandsBuilder.QueryIndex(System.Collections.Generic.IReadOnlyCollection<string!>! filter) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TimeSeriesCommandsBuilder.Range(string! key, NRedisStack.DataTypes.TimeStamp fromTimeStamp, NRedisStack.DataTypes.TimeStamp toTimeStamp, bool latest = false, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeStamp>? filterByTs = null, (long, long)? filterByValue = null, long? count = null, NRedisStack.DataTypes.TimeStamp? align = null, NRedisStack.Literals.Enums.TsAggregation? aggregation = null, long? timeBucket = null, NRedisStack.Literals.Enums.TsBucketTimestamps? bt = null, bool empty = false) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TimeSeriesCommandsBuilder.RevRange(string! key, NRedisStack.DataTypes.TimeStamp fromTimeStamp, NRedisStack.DataTypes.TimeStamp toTimeStamp, bool latest = false, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeStamp>? filterByTs = null, (long, long)? filterByValue = null, long? count = null, NRedisStack.DataTypes.TimeStamp? align = null, NRedisStack.Literals.Enums.TsAggregation? aggregation = null, long? timeBucket = null, NRedisStack.Literals.Enums.TsBucketTimestamps? bt = null, bool empty = false) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TopKCommandBuilder.Add(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TopKCommandBuilder.Count(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TopKCommandBuilder.IncrBy(StackExchange.Redis.RedisKey key, params System.Tuple<StackExchange.Redis.RedisValue, long>![]! itemIncrements) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TopKCommandBuilder.Info(StackExchange.Redis.RedisKey key) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TopKCommandBuilder.List(StackExchange.Redis.RedisKey key, bool withcount = false) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TopKCommandBuilder.Query(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TopKCommandBuilder.Reserve(StackExchange.Redis.RedisKey key, long topk, long width = 7, long depth = 8, double decay = 0.9) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.TsParamsHelper.AddChunkSize(this System.Collections.Generic.IList<object!>! args, long? chunkSize) -> void
+static NRedisStack.TsParamsHelper.AddDuplicatePolicy(this System.Collections.Generic.IList<object!>! args, NRedisStack.Literals.Enums.TsDuplicatePolicy? policy) -> void
+static NRedisStack.TsParamsHelper.AddIgnoreValues(this System.Collections.Generic.IList<object!>! args, long? ignoreMaxTimeDiff, long? ignoreMaxValDiff) -> void
+static NRedisStack.TsParamsHelper.AddLabels(this System.Collections.Generic.IList<object!>! args, System.Collections.Generic.IReadOnlyCollection<NRedisStack.DataTypes.TimeSeriesLabel!>? labels) -> void
+static NRedisStack.TsParamsHelper.AddOnDuplicate(this System.Collections.Generic.IList<object!>! args, NRedisStack.Literals.Enums.TsDuplicatePolicy? policy) -> void
+static NRedisStack.TsParamsHelper.AddRetentionTime(this System.Collections.Generic.IList<object!>! args, long? retentionTime) -> void
+static NRedisStack.TsParamsHelper.AddUncompressed(this System.Collections.Generic.IList<object!>! args, bool? uncompressed) -> void
+static readonly NRedisStack.Search.Query.GeoFilter.FEET -> string!
+static readonly NRedisStack.Search.Query.GeoFilter.KILOMETERS -> string!
+static readonly NRedisStack.Search.Query.GeoFilter.METERS -> string!
+static readonly NRedisStack.Search.Query.GeoFilter.MILES -> string!
+virtual NRedisStack.Search.Aggregation.Reducer.AddOwnArgs(System.Collections.Generic.List<object!>! args) -> void
+virtual NRedisStack.Search.Aggregation.Reducer.GetOwnArgsCount() -> int

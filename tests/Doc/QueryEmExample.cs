@@ -25,7 +25,7 @@ public class QueryEmExample
 
     [SkippableFact]
     // REMOVE_END
-    public void run()
+    public void Run()
     {
         //REMOVE_START
         // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
@@ -213,7 +213,7 @@ public class QueryEmExample
         // STEP_START em1
         SearchResult res1 = db.FT().Search(
             "idx:bicycle",
-            new Query("@price:[270 270]")
+            new("@price:[270 270]")
         );
         Console.WriteLine(res1.TotalResults); //    >>> 1
 
@@ -236,7 +236,7 @@ public class QueryEmExample
         // STEP_START em2
         SearchResult res3 = db.FT().Search(
             "idx:bicycle",
-            new Query("@condition:{new}")
+            new("@condition:{new}")
         );
         Console.WriteLine(res3.TotalResults);   // >>> 4
         // STEP_END
@@ -277,7 +277,7 @@ public class QueryEmExample
         // STEP_START em4
         SearchResult res5 = db.FT().Search(
             "idx:bicycle",
-            new Query("@description:\"rough terrain\"")
+            new("@description:\"rough terrain\"")
         );
         Console.WriteLine(res5.TotalResults);   // >>> 1
         // STEP_END

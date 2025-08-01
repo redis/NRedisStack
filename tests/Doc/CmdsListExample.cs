@@ -22,7 +22,7 @@ public class CmdsListExample
 
     [SkippableFact]
     // REMOVE_END
-    public void run()
+    public void Run()
     {
         //REMOVE_START
         // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
@@ -57,7 +57,7 @@ public class CmdsListExample
         // REMOVE_END
 
         // STEP_START lpop
-        long lPopResult1 = db.ListRightPush("mylist", new RedisValue[] { "one", "two", "three", "four", "five" });
+        long lPopResult1 = db.ListRightPush("mylist", ["one", "two", "three", "four", "five"]);
         Console.WriteLine(lPopResult1); // >>> 5
 
         RedisValue lPopResult2 = db.ListLeftPop("mylist");
@@ -102,7 +102,7 @@ public class CmdsListExample
         // REMOVE_END
 
         // STEP_START lrange
-        long lRangeResult1 = db.ListRightPush("mylist", new RedisValue[] { "one", "two", "three" });
+        long lRangeResult1 = db.ListRightPush("mylist", ["one", "two", "three"]);
         Console.WriteLine(lRangeResult1); // >>> 3
 
         RedisValue[] lRangeResult2 = db.ListRange("mylist", 0, 0);
@@ -133,7 +133,7 @@ public class CmdsListExample
         // REMOVE_END
 
         // STEP_START rpop
-        long rPopResult1 = db.ListRightPush("mylist", new RedisValue[] { "one", "two", "three", "four", "five" });
+        long rPopResult1 = db.ListRightPush("mylist", ["one", "two", "three", "four", "five"]);
         Console.WriteLine(rPopResult1); // >>> 5
 
         RedisValue rPopResult2 = db.ListRightPop("mylist");

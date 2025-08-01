@@ -1,3 +1,4 @@
+#pragma  warning disable CS0618, CS0612 // allow testing obsolete methods
 using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
@@ -10,14 +11,11 @@ using static NRedisStack.Search.Schema;
 
 namespace NRedisStack.Tests;
 
-public class ExampleTests : AbstractNRedisStackTest, IDisposable
+public class ExampleTests(EndpointsFixture endpointsFixture, ITestOutputHelper testOutputHelper)
+    : AbstractNRedisStackTest(endpointsFixture), IDisposable
 {
-    private readonly ITestOutputHelper testOutputHelper;
+    private readonly ITestOutputHelper testOutputHelper = testOutputHelper;
 
-    public ExampleTests(EndpointsFixture endpointsFixture, ITestOutputHelper testOutputHelper) : base(endpointsFixture)
-    {
-        this.testOutputHelper = testOutputHelper;
-    }
     // private readonly string key = "EXAMPLES_TESTS";
 
     [SkippableTheory]
@@ -33,13 +31,13 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT();
 
         // Use HSET to add a field-value pair to a hash
-        db.HashSet("professor:5555", new HashEntry[] { new("first", "Albert"), new("last", "Blue"), new("age", "55") });
-        db.HashSet("student:1111", new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", "18") });
-        db.HashSet("pupil:2222", new HashEntry[] { new("first", "Jen"), new("last", "Rod"), new("age", "14") });
-        db.HashSet("student:3333", new HashEntry[] { new("first", "El"), new("last", "Mark"), new("age", "17") });
-        db.HashSet("pupil:4444", new HashEntry[] { new("first", "Pat"), new("last", "Shu"), new("age", "21") });
-        db.HashSet("student:5555", new HashEntry[] { new("first", "Joen"), new("last", "Ko"), new("age", "20") });
-        db.HashSet("teacher:6666", new HashEntry[] { new("first", "Pat"), new("last", "Rod"), new("age", "20") });
+        db.HashSet("professor:5555", [new("first", "Albert"), new("last", "Blue"), new("age", "55")]);
+        db.HashSet("student:1111", [new("first", "Joe"), new("last", "Dod"), new("age", "18")]);
+        db.HashSet("pupil:2222", [new("first", "Jen"), new("last", "Rod"), new("age", "14")]);
+        db.HashSet("student:3333", [new("first", "El"), new("last", "Mark"), new("age", "17")]);
+        db.HashSet("pupil:4444", [new("first", "Pat"), new("last", "Shu"), new("age", "21")]);
+        db.HashSet("student:5555", [new("first", "Joen"), new("last", "Ko"), new("age", "20")]);
+        db.HashSet("teacher:6666", [new("first", "Pat"), new("last", "Rod"), new("age", "20")]);
 
         // Create the schema to index first and last as text fields, and age as a numeric field
         var schema = new Schema().AddTextField("first").AddTextField("last").AddNumericField("age");
@@ -49,22 +47,22 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         ft.Create("example_index", parameters, schema);
 
         //sleep:
-        System.Threading.Thread.Sleep(2000);
+        Thread.Sleep(2000);
 
         // Search all hashes in the index
-        var noFilters = ft.Search("example_index", new Query());
+        var noFilters = ft.Search("example_index", new());
         // noFilters now contains: student:1111, student:5555, pupil:4444, student:3333
 
         // Search for hashes with a first name starting with Jo
-        var startWithJo = ft.Search("example_index", new Query("@first:Jo*"));
+        var startWithJo = ft.Search("example_index", new("@first:Jo*"));
         // startWithJo now contains: student:1111 (Joe), student:5555 (Joen)
 
         // Search for hashes with first name of Pat
-        var namedPat = ft.Search("example_index", new Query("@first:Pat"));
+        var namedPat = ft.Search("example_index", new("@first:Pat"));
         // namedPat now contains pupil:4444 (Pat). teacher:6666 (Pat) is not included because it does not have a prefix of student: or pupil:
 
         // Search for hashes with last name of Rod
-        var lastNameRod = ft.Search("example_index", new Query("@last:Rod"));
+        var lastNameRod = ft.Search("example_index", new("@last:Rod"));
         // lastNameRod is empty because there are no hashes with a last name of Rod that match the index definition
         Assert.Equal(4, noFilters.TotalResults);
         Assert.Equal(2, startWithJo.TotalResults);
@@ -153,7 +151,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
 
         // Search for all indexed person records
         Task.Delay(2000).Wait();
-        var getAllPersons = await db.FT().SearchAsync("person-idx", new Query());
+        var getAllPersons = await db.FT().SearchAsync("person-idx", new());
 
 
         // Get the total count of people records that indexed.
@@ -168,7 +166,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         // Assert.Equal("person:01", firstPerson?.Id);
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task PipelineWithAsync(string endpointId)
     {
@@ -183,8 +181,8 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         var pipeline = new Pipeline(db);
 
         // Create metadata labels for time-series.
-        TimeSeriesLabel label1 = new TimeSeriesLabel("temp", "TLV");
-        TimeSeriesLabel label2 = new TimeSeriesLabel("temp", "JLM");
+        TimeSeriesLabel label1 = new("temp", "TLV");
+        TimeSeriesLabel label2 = new("temp", "JLM");
         var labels1 = new List<TimeSeriesLabel> { label1 };
         var labels2 = new List<TimeSeriesLabel> { label2 };
 
@@ -194,21 +192,19 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
 
         // Adding multiple sequence of time-series data.
         List<(string, TimeStamp, double)> sequence1 =
-            new()
-            {
-                ("temp:TLV", 1000, 30),
-                ("temp:TLV", 1010, 35),
-                ("temp:TLV", 1020, 9999),
-                ("temp:TLV", 1030, 40)
-            };
+        [
+            ("temp:TLV", 1000, 30),
+            ("temp:TLV", 1010, 35),
+            ("temp:TLV", 1020, 9999),
+            ("temp:TLV", 1030, 40)
+        ];
         List<(string, TimeStamp, double)> sequence2 =
-            new()
-            {
-                ("temp:JLM", 1005, 30),
-                ("temp:JLM", 1015, 35),
-                ("temp:JLM", 1025, 9999),
-                ("temp:JLM", 1035, 40)
-            };
+        [
+            ("temp:JLM", 1005, 30),
+            ("temp:JLM", 1015, 35),
+            ("temp:JLM", 1025, 9999),
+            ("temp:JLM", 1035, 40)
+        ];
 
         // Adding multiple samples to multiple series.
         _ = pipeline.Ts.MAddAsync(sequence1);
@@ -229,7 +225,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("temp:JLM", response[0].key);
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TransactionExample(string endpointId)
     {
@@ -292,7 +288,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
             json.Set("doc:" + i, "$", "{\"name\":\"foo\"}");
         }
 
-        var res = ft.Search("test", new Query("@name:{foo}"));
+        var res = ft.Search("test", new("@name:{foo}"));
 
         var docs = res.ToJson();
 
@@ -658,7 +654,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Thread.Sleep(2000);
 
         res = json.Get(key: "ex2:3",
-            paths: new[] { "$.field1", "$.field2" },
+            paths: ["$.field1", "$.field2"],
             indent: "\t",
             newLine: "\n"
         );
@@ -1034,7 +1030,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Thread.Sleep(2000);
 
         // Find all documents for a given index:
-        var res = ft.Search("idx1", new Query("*")).ToJson();
+        var res = ft.Search("idx1", new("*")).ToJson();
 
         Assert.NotNull(res);
         // Assert.Equal(3, res!.Count);
@@ -1049,98 +1045,93 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
 
 
         // Find all documents with a given word in a text field:
-        res = ft.Search("idx1", new Query("@description:Slippers")).ToJson();
+        res = ft.Search("idx1", new("@description:Slippers")).ToJson();
         var expected =
             "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
-        Assert.Equal(expected, res![0].ToString());
+        Assert.Equal(expected, res[0].ToString());
 
 
         // Find all documents with a given phrase in a text field:
-        res = ft.Search("idx1", new Query("@description:(\"Blue Shirt\")")).ToJson();
+        res = ft.Search("idx1", new("@description:(\"Blue Shirt\")")).ToJson();
         expected =
             "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}";
-        Assert.Equal(expected, res![0]);
+        Assert.Equal(expected, res[0]);
 
         // Find all documents with a numeric field in a given range:
-        res = ft.Search("idx1", new Query("@price:[40,130]")).ToJson();
+        res = ft.Search("idx1", new("@price:[40,130]")).ToJson();
 
         expectedList =
-            new List<string>
-            {
-                "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}",
-                "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
-            };
+        [
+            "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}",
+            "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
+        ];
 
         SortAndCompare(expectedList, res);
 
 
         // Find all documents that contain a given value in an array field (tag):
-        res = ft.Search("idx1", new Query("@season:{Spring}")).ToJson();
+        res = ft.Search("idx1", new("@season:{Spring}")).ToJson();
         expected =
             "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}";
         Assert.Equal(expected, res[0]);
 
         // Find all documents contain both a numeric field in a range and a word in a text field:
-        res = ft.Search("idx1", new Query("@price:[40, 100] @description:Blue")).ToJson();
+        res = ft.Search("idx1", new("@price:[40, 100] @description:Blue")).ToJson();
         expected =
             "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
         Assert.Equal(expected, res[0]);
 
         // Find all documents that either match tag value or text value:
-        res = ft.Search("idx1", new Query("(@gender:{Women})|(@city:Boston)")).ToJson();
+        res = ft.Search("idx1", new("(@gender:{Women})|(@city:Boston)")).ToJson();
         expectedList =
-            new List<string>
-            {
-                "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}",
-                "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}"
-            };
+        [
+            "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}",
+            "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}"
+        ];
 
         SortAndCompare(expectedList, res);
 
         // Find all documents that do not contain a given word in a text field:
-        res = ft.Search("idx1", new Query("-(@description:Shirt)")).ToJson();
+        res = ft.Search("idx1", new("-(@description:Shirt)")).ToJson();
 
         expectedList =
-            new List<string>
-            {
-                "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}",
-                "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
-            };
+        [
+            "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}",
+            "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
+        ];
         SortAndCompare(expectedList, res);
 
         // Find all documents that have a word that begins with a given prefix value:
-        res = ft.Search("idx1", new Query("@description:Nav*")).ToJson();
+        res = ft.Search("idx1", new("@description:Nav*")).ToJson();
 
         expectedList =
-            new List<string>
-            {
-                "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}",
-                "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
-            };
+        [
+            "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}",
+            "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
+        ];
         SortAndCompare(expectedList, res);
 
         // Find all documents that contain a word that ends with a given suffix value:
-        res = ft.Search("idx1", new Query("@description:*Watch")).ToJson();
+        res = ft.Search("idx1", new("@description:*Watch")).ToJson();
 
         expected =
             "{\"id\":59263,\"gender\":\"Women\",\"season\":[\"Fall\",\"Winter\",\"Spring\",\"Summer\"],\"description\":\"Titan Women Silver Watch\",\"price\":129.99,\"city\":\"Dallas\",\"coords\":\"-96.808891, 32.779167\"}";
         Assert.Equal(expected, res[0].ToString());
 
         // Find all documents that contain a word that is within 1 Levenshtein distance of a given word:
-        res = ft.Search("idx1", new Query("@description:%wavy%")).ToJson();
+        res = ft.Search("idx1", new("@description:%wavy%")).ToJson();
 
 
         expectedList =
-            new List<string>
-            {
-                "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}",
-                "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
-            };
+        [
+            "{\"id\":15970,\"gender\":\"Men\",\"season\":[\"Fall\",\"Winter\"],\"description\":\"Turtle Check Men Navy Blue Shirt\",\"price\":34.95,\"city\":\"Boston\",\"coords\":\"-71.057083, 42.361145\"}",
+            "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}"
+        ];
         SortAndCompare(expectedList, res);
 
         // Find all documents that have geographic coordinates within a given range of a given coordinate.
         // Colorado Springs coords(long, lat) = -104.800644, 38.846127:
-        res = ft.Search("idx1", new Query("@coords:[-104.800644 38.846127 100 mi]")).ToJson();
+        res = ft.Search("idx1", new("@coords:[-104.800644 38.846127 100 mi]")).ToJson();
 
         expected =
             "{\"id\":46885,\"gender\":\"Boys\",\"season\":[\"Fall\"],\"description\":\"Ben 10 Boys Navy Blue Slippers\",\"price\":45.99,\"city\":\"Denver\",\"coords\":\"-104.991531, 39.742043\"}";
@@ -1159,26 +1150,22 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
 
         // Vector Similarity Search (VSS)
         // Data load:
-        db.HashSet("vec:1", new HashEntry[]
-        {
-            new("vector", (new float[] { 1f, 1f, 1f, 1f }).SelectMany(BitConverter.GetBytes).ToArray()),
+        db.HashSet("vec:1", [
+            new("vector", (new[] { 1f, 1f, 1f, 1f }).SelectMany(BitConverter.GetBytes).ToArray()),
             new("tag", "A")
-        });
-        db.HashSet("vec:2", new HashEntry[]
-        {
-            new("vector", (new float[] { 2f, 2f, 2f, 2f }).SelectMany(BitConverter.GetBytes).ToArray()),
+        ]);
+        db.HashSet("vec:2", [
+            new("vector", (new[] { 2f, 2f, 2f, 2f }).SelectMany(BitConverter.GetBytes).ToArray()),
             new("tag", "A")
-        });
-        db.HashSet("vec:3", new HashEntry[]
-        {
-            new("vector", (new float[] { 3f, 3f, 3f, 3f }).SelectMany(BitConverter.GetBytes).ToArray()),
+        ]);
+        db.HashSet("vec:3", [
+            new("vector", (new[] { 3f, 3f, 3f, 3f }).SelectMany(BitConverter.GetBytes).ToArray()),
             new("tag", "B")
-        });
-        db.HashSet("vec:4", new HashEntry[]
-        {
-            new("vector", (new float[] { 4f, 4f, 4f, 4f }).SelectMany(BitConverter.GetBytes).ToArray()),
+        ]);
+        db.HashSet("vec:4", [
+            new("vector", (new[] { 4f, 4f, 4f, 4f }).SelectMany(BitConverter.GetBytes).ToArray()),
             new("tag", "A")
-        });
+        ]);
 
         // Index creation:
         try
@@ -1194,7 +1181,7 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
             new Schema()
                 .AddTagField("tag")
                 .AddVectorField("vector", VectorField.VectorAlgo.FLAT,
-                    new Dictionary<string, object>()
+                    new()
                     {
                         ["TYPE"] = "FLOAT32",
                         ["DIM"] = "4",
@@ -1206,13 +1193,13 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         Thread.Sleep(2000);
 
         // Search:
-        float[] vec = new[] { 2f, 3f, 3f, 3f };
+        float[] vec = [2f, 3f, 3f, 3f];
         var res = ft.Search("vss_idx",
             new Query("*=>[KNN 2 @vector $query_vec]")
                 .AddParam("query_vec", vec.SelectMany(BitConverter.GetBytes).ToArray())
                 .SetSortBy("__vector_score")
                 .Dialect(2));
-        HashSet<string> resSet = new HashSet<string>();
+        HashSet<string> resSet = [];
         foreach (var doc in res.Documents)
         {
             foreach (var item in doc.GetProperties())
@@ -1224,11 +1211,11 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
             }
         }
 
-        HashSet<string> expectedResSet = new HashSet<string>()
-        {
+        HashSet<string> expectedResSet =
+        [
             "id: vec:3, score: 1",
-            "id: vec:2, score: 3",
-        };
+            "id: vec:2, score: 3"
+        ];
 
         Assert.Equal(expectedResSet, resSet);
 
@@ -1252,11 +1239,10 @@ public class ExampleTests : AbstractNRedisStackTest, IDisposable
         }
 
         expectedResSet =
-            new HashSet<string>
-            {
-                "id: vec:2, score: 3",
-                "id: vec:4, score: 7"
-            };
+        [
+            "id: vec:2, score: 3",
+            "id: vec:4, score: 7"
+        ];
 
         //Advanced Search Queries:
         // data load:

@@ -17,7 +17,7 @@ public class CmdsSetExample
 
     [SkippableFact]
     // REMOVE_END
-    public void run()
+    public void Run()
     {
         // REMOVE_START
         // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
@@ -56,7 +56,7 @@ public class CmdsSetExample
 
         // STEP_START smembers
         long sMembersResult1 = db.SetAdd(
-            "myset", new RedisValue[] { "Hello", "World" }
+            "myset", ["Hello", "World"]
         );
         Console.WriteLine(sMembersResult1); // >>> 2
 

@@ -1,145 +1,144 @@
 using NRedisStack.CuckooFilter.Literals;
 using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
-namespace NRedisStack
+namespace NRedisStack;
+
+public static class CuckooCommandBuilder
 {
-    public static class CuckooCommandBuilder
+
+    public static SerializedCommand Add(RedisKey key, RedisValue item)
     {
+        return new(CF.ADD, key, item);
+    }
 
-        public static SerializedCommand Add(RedisKey key, RedisValue item)
+    public static SerializedCommand AddNX(RedisKey key, RedisValue item)
+    {
+        return new(CF.ADDNX, key, item);
+    }
+
+    public static SerializedCommand Count(RedisKey key, RedisValue item)
+    {
+        return new(CF.COUNT, key, item);
+    }
+
+    public static SerializedCommand Del(RedisKey key, RedisValue item)
+    {
+        return new(CF.DEL, key, item);
+    }
+
+    public static SerializedCommand Exists(RedisKey key, RedisValue item)
+    {
+        return new(CF.EXISTS, key, item);
+    }
+
+    public static SerializedCommand Info(RedisKey key)
+    {
+        var info = new SerializedCommand(CF.INFO, key);
+        return info;
+    }
+
+    public static SerializedCommand Insert(RedisKey key, RedisValue[] items, int? capacity = null, bool nocreate = false)
+    {
+        if (items.Length < 1)
+            throw new ArgumentOutOfRangeException(nameof(items));
+
+        List<object> args = [key];
+
+        if (capacity != null)
         {
-            return new SerializedCommand(CF.ADD, key, item);
+            args.Add(CuckooArgs.CAPACITY);
+            args.Add(capacity);
         }
 
-        public static SerializedCommand AddNX(RedisKey key, RedisValue item)
+        if (nocreate)
         {
-            return new SerializedCommand(CF.ADDNX, key, item);
+            args.Add(CuckooArgs.NOCREATE);
         }
 
-        public static SerializedCommand Count(RedisKey key, RedisValue item)
+        args.Add(CuckooArgs.ITEMS);
+        foreach (var item in items)
         {
-            return new SerializedCommand(CF.COUNT, key, item);
+            args.Add(item);
         }
 
-        public static SerializedCommand Del(RedisKey key, RedisValue item)
+        return new(CF.INSERT, args);
+    }
+
+    public static SerializedCommand InsertNX(RedisKey key, RedisValue[] items, int? capacity = null, bool nocreate = false)
+    {
+        if (items.Length < 1)
+            throw new ArgumentOutOfRangeException(nameof(items));
+
+        List<object> args = [key];
+
+        if (capacity != null)
         {
-            return new SerializedCommand(CF.DEL, key, item);
+            args.Add(CuckooArgs.CAPACITY);
+            args.Add(capacity);
         }
 
-        public static SerializedCommand Exists(RedisKey key, RedisValue item)
+        if (nocreate)
         {
-            return new SerializedCommand(CF.EXISTS, key, item);
+            args.Add(CuckooArgs.NOCREATE);
         }
 
-        public static SerializedCommand Info(RedisKey key)
+        args.Add(CuckooArgs.ITEMS);
+        foreach (var item in items)
         {
-            var info = new SerializedCommand(CF.INFO, key);
-            return info;
+            args.Add(item);
         }
 
-        public static SerializedCommand Insert(RedisKey key, RedisValue[] items, int? capacity = null, bool nocreate = false)
+        return new(CF.INSERTNX, args);
+    }
+
+    public static SerializedCommand LoadChunk(RedisKey key, long iterator, Byte[] data)
+    {
+        return new(CF.LOADCHUNK, key, iterator, data);
+    }
+
+    public static SerializedCommand MExists(RedisKey key, params RedisValue[] items)
+    {
+        if (items.Length < 1)
+            throw new ArgumentOutOfRangeException(nameof(items));
+
+        List<object> args = [key];
+
+        foreach (var item in items)
         {
-            if (items.Length < 1)
-                throw new ArgumentOutOfRangeException(nameof(items));
-
-            List<object> args = new List<object> { key };
-
-            if (capacity != null)
-            {
-                args.Add(CuckooArgs.CAPACITY);
-                args.Add(capacity);
-            }
-
-            if (nocreate)
-            {
-                args.Add(CuckooArgs.NOCREATE);
-            }
-
-            args.Add(CuckooArgs.ITEMS);
-            foreach (var item in items)
-            {
-                args.Add(item);
-            }
-
-            return new SerializedCommand(CF.INSERT, args);
+            args.Add(item);
         }
 
-        public static SerializedCommand InsertNX(RedisKey key, RedisValue[] items, int? capacity = null, bool nocreate = false)
+        return new(CF.MEXISTS, args);
+    }
+
+    public static SerializedCommand Reserve(RedisKey key, long capacity,
+        long? bucketSize = null, int? maxIterations = null, int? expansion = null)
+    {
+        List<object> args = [key, capacity];
+
+        if (bucketSize != null)
         {
-            if (items.Length < 1)
-                throw new ArgumentOutOfRangeException(nameof(items));
-
-            List<object> args = new List<object> { key };
-
-            if (capacity != null)
-            {
-                args.Add(CuckooArgs.CAPACITY);
-                args.Add(capacity);
-            }
-
-            if (nocreate)
-            {
-                args.Add(CuckooArgs.NOCREATE);
-            }
-
-            args.Add(CuckooArgs.ITEMS);
-            foreach (var item in items)
-            {
-                args.Add(item);
-            }
-
-            return new SerializedCommand(CF.INSERTNX, args);
+            args.Add(CuckooArgs.BUCKETSIZE);
+            args.Add(bucketSize);
         }
 
-        public static SerializedCommand LoadChunk(RedisKey key, long iterator, Byte[] data)
+        if (maxIterations != null)
         {
-            return new SerializedCommand(CF.LOADCHUNK, key, iterator, data);
+            args.Add(CuckooArgs.MAXITERATIONS);
+            args.Add(maxIterations);
         }
 
-        public static SerializedCommand MExists(RedisKey key, params RedisValue[] items)
+        if (expansion != null)
         {
-            if (items.Length < 1)
-                throw new ArgumentOutOfRangeException(nameof(items));
-
-            List<object> args = new List<object> { key };
-
-            foreach (var item in items)
-            {
-                args.Add(item);
-            }
-
-            return new SerializedCommand(CF.MEXISTS, args);
+            args.Add(CuckooArgs.EXPANSION);
+            args.Add(expansion);
         }
 
-        public static SerializedCommand Reserve(RedisKey key, long capacity,
-                                           long? bucketSize = null, int? maxIterations = null, int? expansion = null)
-        {
-            List<object> args = new List<object> { key, capacity };
+        return new(CF.RESERVE, args);
+    }
 
-            if (bucketSize != null)
-            {
-                args.Add(CuckooArgs.BUCKETSIZE);
-                args.Add(bucketSize);
-            }
-
-            if (maxIterations != null)
-            {
-                args.Add(CuckooArgs.MAXITERATIONS);
-                args.Add(maxIterations);
-            }
-
-            if (expansion != null)
-            {
-                args.Add(CuckooArgs.EXPANSION);
-                args.Add(expansion);
-            }
-
-            return new SerializedCommand(CF.RESERVE, args);
-        }
-
-        public static SerializedCommand ScanDump(RedisKey key, long iterator)
-        {
-            return new SerializedCommand(CF.SCANDUMP, key, iterator);
-        }
+    public static SerializedCommand ScanDump(RedisKey key, long iterator)
+    {
+        return new(CF.SCANDUMP, key, iterator);
     }
 }

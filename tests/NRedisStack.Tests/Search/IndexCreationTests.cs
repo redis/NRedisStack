@@ -6,13 +6,10 @@ using NetTopologySuite.Geometries;
 
 namespace NRedisStack.Tests.Search;
 
-public class IndexCreationTests : AbstractNRedisStackTest, IDisposable
+public class IndexCreationTests(EndpointsFixture endpointsFixture)
+    : AbstractNRedisStackTest(endpointsFixture), IDisposable
 {
     private readonly string index = "MISSING_EMPTY_INDEX";
-
-    public IndexCreationTests(EndpointsFixture endpointsFixture) : base(endpointsFixture)
-    {
-    }
 
     private static readonly string INDEXMISSING = "INDEXMISSING";
     private static readonly string INDEXEMPTY = "INDEXEMPTY";
@@ -42,7 +39,7 @@ public class IndexCreationTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expectedArgs, cmd.Args);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.3.240")]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.3.240")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMissingFields(string endpointId)
     {
@@ -68,37 +65,38 @@ public class IndexCreationTests : AbstractNRedisStackTest, IDisposable
         var hashWithMissingFields = new HashEntry[] { new("field1", "value1"), new("field2", "value2") };
         db.HashSet("hashWithMissingFields", hashWithMissingFields);
 
-        Polygon polygon = new GeometryFactory().CreatePolygon(new Coordinate[] { new Coordinate(1, 1), new Coordinate(10, 10), new Coordinate(100, 100), new Coordinate(1, 1), });
+        Polygon polygon = new GeometryFactory().CreatePolygon([new(1, 1), new(10, 10), new(100, 100), new(1, 1)
+        ]);
 
         var hashWithAllFields = new HashEntry[] { new("text1", "value1"), new("tag1", "value2"), new("numeric1", "3.141"), new("geo1", "-0.441,51.458"), new("geoshape1", polygon.ToString()), new("vector1", "aaaaaaaa") };
         db.HashSet("hashWithAllFields", hashWithAllFields);
 
-        var result = ft.Search(index, new Query("ismissing(@text1)"));
+        var result = ft.Search(index, new("ismissing(@text1)"));
         Assert.Equal(1, result.TotalResults);
         Assert.Equal("hashWithMissingFields", result.Documents[0].Id);
 
-        result = ft.Search(index, new Query("ismissing(@tag1)"));
+        result = ft.Search(index, new("ismissing(@tag1)"));
         Assert.Equal(1, result.TotalResults);
         Assert.Equal("hashWithMissingFields", result.Documents[0].Id);
 
-        result = ft.Search(index, new Query("ismissing(@numeric1)"));
+        result = ft.Search(index, new("ismissing(@numeric1)"));
         Assert.Equal(1, result.TotalResults);
         Assert.Equal("hashWithMissingFields", result.Documents[0].Id);
 
-        result = ft.Search(index, new Query("ismissing(@geo1)"));
+        result = ft.Search(index, new("ismissing(@geo1)"));
         Assert.Equal(1, result.TotalResults);
         Assert.Equal("hashWithMissingFields", result.Documents[0].Id);
 
-        result = ft.Search(index, new Query("ismissing(@geoshape1)"));
+        result = ft.Search(index, new("ismissing(@geoshape1)"));
         Assert.Equal(1, result.TotalResults);
         Assert.Equal("hashWithMissingFields", result.Documents[0].Id);
 
-        result = ft.Search(index, new Query("ismissing(@vector1)"));
+        result = ft.Search(index, new("ismissing(@vector1)"));
         Assert.Equal(1, result.TotalResults);
         Assert.Equal("hashWithMissingFields", result.Documents[0].Id);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.3.240")]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.3.240")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestEmptyFields(string endpointId)
     {
@@ -117,44 +115,44 @@ public class IndexCreationTests : AbstractNRedisStackTest, IDisposable
         var hashWithAllFields = new HashEntry[] { new("text1", "value1"), new("tag1", "value2") };
         db.HashSet("hashWithAllFields", hashWithAllFields);
 
-        var result = ft.Search(index, new Query("@text1:''"));
+        var result = ft.Search(index, new("@text1:''"));
         Assert.Equal(1, result.TotalResults);
         Assert.Equal("hashWithEmptyFields", result.Documents[0].Id);
 
-        result = ft.Search(index, new Query("@tag1:{''}"));
+        result = ft.Search(index, new("@tag1:{''}"));
         Assert.Equal(1, result.TotalResults);
         Assert.Equal("hashWithEmptyFields", result.Documents[0].Id);
 
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.3.240")]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.3.240")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestCreateFloat16VectorField(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT(2);
-        var schema = new Schema().AddVectorField("v", Schema.VectorField.VectorAlgo.FLAT, new Dictionary<string, object>()
+        var schema = new Schema().AddVectorField("v", Schema.VectorField.VectorAlgo.FLAT, new()
         {
             ["TYPE"] = "FLOAT16",
             ["DIM"] = "5",
             ["DISTANCE_METRIC"] = "L2",
-        }).AddVectorField("v2", Schema.VectorField.VectorAlgo.FLAT, new Dictionary<string, object>()
+        }).AddVectorField("v2", Schema.VectorField.VectorAlgo.FLAT, new()
         {
             ["TYPE"] = "BFLOAT16",
             ["DIM"] = "4",
             ["DISTANCE_METRIC"] = "L2",
         });
-        Assert.True(ft.Create("idx", new FTCreateParams(), schema));
+        Assert.True(ft.Create("idx", new(), schema));
 
-        short[] vec1 = new short[] { 2, 1, 2, 2, 2 };
+        short[] vec1 = [2, 1, 2, 2, 2];
         byte[] vec1ToBytes = new byte[vec1.Length * sizeof(short)];
         Buffer.BlockCopy(vec1, 0, vec1ToBytes, 0, vec1ToBytes.Length);
 
-        short[] vec2 = new short[] { 1, 2, 2, 2 };
+        short[] vec2 = [1, 2, 2, 2];
         byte[] vec2ToBytes = new byte[vec2.Length * sizeof(short)];
         Buffer.BlockCopy(vec2, 0, vec2ToBytes, 0, vec2ToBytes.Length);
 
-        var entries = new HashEntry[] { new HashEntry("v", vec1ToBytes), new HashEntry("v2", vec2ToBytes) };
+        var entries = new HashEntry[] { new("v", vec1ToBytes), new("v2", vec2ToBytes) };
         db.HashSet("a", entries);
         db.HashSet("b", entries);
         db.HashSet("c", entries);
@@ -168,29 +166,29 @@ public class IndexCreationTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, res.TotalResults);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.9.0")]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.9.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestCreateInt8VectorField(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT(2);
-        var schema = new Schema().AddVectorField("v", Schema.VectorField.VectorAlgo.FLAT, new Dictionary<string, object>()
+        var schema = new Schema().AddVectorField("v", Schema.VectorField.VectorAlgo.FLAT, new()
         {
             ["TYPE"] = "INT8",
             ["DIM"] = "5",
             ["DISTANCE_METRIC"] = "L2",
-        }).AddVectorField("v2", Schema.VectorField.VectorAlgo.FLAT, new Dictionary<string, object>()
+        }).AddVectorField("v2", Schema.VectorField.VectorAlgo.FLAT, new()
         {
             ["TYPE"] = "UINT8",
             ["DIM"] = "4",
             ["DISTANCE_METRIC"] = "L2",
         });
-        Assert.True(ft.Create("idx", new FTCreateParams(), schema));
+        Assert.True(ft.Create("idx", new(), schema));
 
-        byte[] vec1 = new byte[] { 2, 1, 2, 2, 2 };
-        byte[] vec2 = new byte[] { 1, 2, 2, 2 };
+        byte[] vec1 = [2, 1, 2, 2, 2];
+        byte[] vec2 = [1, 2, 2, 2];
 
-        var entries = new HashEntry[] { new HashEntry("v", vec1), new HashEntry("v2", vec2) };
+        var entries = new HashEntry[] { new("v", vec1), new("v2", vec2) };
         db.HashSet("a", entries);
         db.HashSet("b", entries);
         db.HashSet("c", entries);
@@ -225,7 +223,7 @@ public class IndexCreationTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(expectedArgs, cmd.Args);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.3.240")]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.3.240")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestCombiningMissingEmptySortableFields(string endpointId)
     {
@@ -252,32 +250,33 @@ public class IndexCreationTests : AbstractNRedisStackTest, IDisposable
         var sampleHash = new HashEntry[] { new("field1", "value1"), new("field2", "value2") };
         db.HashSet("hashWithMissingFields", sampleHash);
 
-        Polygon polygon = new GeometryFactory().CreatePolygon(new Coordinate[] { new Coordinate(1, 1), new Coordinate(10, 10), new Coordinate(100, 100), new Coordinate(1, 1), });
+        Polygon polygon = new GeometryFactory().CreatePolygon([new(1, 1), new(10, 10), new(100, 100), new(1, 1)
+        ]);
 
         var hashWithAllFields = new HashEntry[] { new("text1", "value1"), new("tag1", "value2"), new("numeric1", "3.141"), new("geo1", "-0.441,51.458"), new("geoshape1", polygon.ToString()), new("vector1", "aaaaaaaa") };
         db.HashSet("hashWithAllFields", hashWithAllFields);
 
-        var result = ft.Search(idx, new Query("ismissing(@text1)"));
+        var result = ft.Search(idx, new("ismissing(@text1)"));
         Assert.Equal(1, result.TotalResults);
         Assert.Equal("hashWithMissingFields", result.Documents[0].Id);
 
-        result = ft.Search(idx, new Query("ismissing(@tag1)"));
+        result = ft.Search(idx, new("ismissing(@tag1)"));
         Assert.Equal(1, result.TotalResults);
         Assert.Equal("hashWithMissingFields", result.Documents[0].Id);
 
-        result = ft.Search(idx, new Query("ismissing(@numeric1)"));
+        result = ft.Search(idx, new("ismissing(@numeric1)"));
         Assert.Equal(1, result.TotalResults);
         Assert.Equal("hashWithMissingFields", result.Documents[0].Id);
 
-        result = ft.Search(idx, new Query("ismissing(@geo1)"));
+        result = ft.Search(idx, new("ismissing(@geo1)"));
         Assert.Equal(1, result.TotalResults);
         Assert.Equal("hashWithMissingFields", result.Documents[0].Id);
 
-        result = ft.Search(idx, new Query("ismissing(@geoshape1)"));
+        result = ft.Search(idx, new("ismissing(@geoshape1)"));
         Assert.Equal(1, result.TotalResults);
         Assert.Equal("hashWithMissingFields", result.Documents[0].Id);
 
-        result = ft.Search(idx, new Query("ismissing(@vector1)"));
+        result = ft.Search(idx, new("ismissing(@vector1)"));
         Assert.Equal(1, result.TotalResults);
         Assert.Equal("hashWithMissingFields", result.Documents[0].Id);
     }

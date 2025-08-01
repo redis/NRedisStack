@@ -26,7 +26,7 @@ public class HomeJsonExample
 
     [SkippableFact]
     // REMOVE_END
-    public void run()
+    public void Run()
     {
         //REMOVE_START
         // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
@@ -41,7 +41,7 @@ public class HomeJsonExample
 
         //REMOVE_START
         // Clear any keys here before using them in tests.
-        db.KeyDelete(new RedisKey[] { "user:1", "user:2", "user:3" });
+        db.KeyDelete(["user:1", "user:2", "user:3"]);
         try { db.FT().DropIndex("idx:users"); } catch { }
         //REMOVE_END
         // HIDE_END
@@ -106,7 +106,7 @@ public class HomeJsonExample
         // STEP_START query1
         SearchResult findPaulResult = db.FT().Search(
             "idx:users",
-            new Query("Paul @age:[30 40]")
+            new("Paul @age:[30 40]")
         );
         Console.WriteLine(string.Join(
             ", ",
@@ -190,32 +190,32 @@ public class HomeJsonExample
         // REMOVE_END
 
         // STEP_START add_hash_data
-        db.HashSet("huser:1", new HashEntry[] {
+        db.HashSet("huser:1", [
             new("name", "Paul John"),
             new("email", "paul.john@example.com"),
             new("age", 42),
             new("city", "London")
-        });
+        ]);
 
-        db.HashSet("huser:2", new HashEntry[] {
+        db.HashSet("huser:2", [
             new("name", "Eden Zamir"),
             new("email", "eden.zamir@example.com"),
             new("age", 29),
             new("city", "Tel Aviv")
-        });
+        ]);
 
-        db.HashSet("huser:3", new HashEntry[] {
+        db.HashSet("huser:3", [
             new("name", "Paul Zamir"),
             new("email", "paul.zamir@example.com"),
             new("age", 35),
             new("city", "Tel Aviv")
-        });
+        ]);
         // STEP_END
 
         // STEP_START query1_hash
         SearchResult findPaulHashResult = db.FT().Search(
             "hash-idx:users",
-            new Query("Paul @age:[30 40]")
+            new("Paul @age:[30 40]")
         );
 
         foreach (Document doc in findPaulHashResult.Documents)

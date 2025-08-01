@@ -1,7 +1,6 @@
-namespace NRedisStack.CountMinSketch.Literals
+namespace NRedisStack.CountMinSketch.Literals;
+
+internal class CmsArgs
 {
-    internal class CmsArgs
-    {
-        public const string WEIGHTS = "WEIGHTS";
-    }
+    public const string WEIGHTS = "WEIGHTS";
 }

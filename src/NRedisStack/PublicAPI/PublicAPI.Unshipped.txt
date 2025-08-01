@@ -1,0 +1,6 @@
+#nullable enable
+~override NRedisStack.DataTypes.TimeStamp.ToString() -> string
+~override NRedisStack.DataTypes.TimeStamp.Equals(object obj) -> bool
+NRedisStack.DataTypes.TimeStamp.Equals(NRedisStack.DataTypes.TimeStamp other) -> bool
+static NRedisStack.DataTypes.TimeStamp.operator ==(NRedisStack.DataTypes.TimeStamp left, NRedisStack.DataTypes.TimeStamp right) -> bool
+static NRedisStack.DataTypes.TimeStamp.operator !=(NRedisStack.DataTypes.TimeStamp left, NRedisStack.DataTypes.TimeStamp right) -> bool

@@ -28,7 +28,7 @@ public class TimeSeriesTutorial
 
     [SkippableFact]
     // REMOVE_END
-    public void run()
+    public void Run()
     {
         // REMOVE_START
         // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
@@ -42,13 +42,13 @@ public class TimeSeriesTutorial
 
         // REMOVE_START
         // Clear any keys here before using them in tests.
-        db.KeyDelete(new RedisKey[] {
+        db.KeyDelete([
             "thermometer:1", "thermometer:2", "thermometer:3",
             "rg:1", "rg:2", "rg:3", "rg:4",
             "sensor3",
             "wind:1", "wind:2", "wind:3", "wind:4",
             "hyg:1", "hyg:compacted"
-        });
+        ]);
         // REMOVE_END
 
         // STEP_START create
@@ -93,8 +93,8 @@ public class TimeSeriesTutorial
         // STEP_START create_labels
         var labels = new List<TimeSeriesLabel>
         {
-            new TimeSeriesLabel("location", "UK"),
-            new TimeSeriesLabel("type", "Mercury")
+            new("location", "UK"),
+            new("type", "Mercury")
         };
         long res6 = db.TS().Add(
             "thermometer:3",
@@ -261,8 +261,8 @@ public class TimeSeriesTutorial
         // data points.
         var labels2 = new List<TimeSeriesLabel>
         {
-            new TimeSeriesLabel("location", "us"),
-            new TimeSeriesLabel("unit", "cm")
+            new("location", "us"),
+            new("unit", "cm")
         };
         bool res20 = db.TS().Create(
             "rg:2",
@@ -274,8 +274,8 @@ public class TimeSeriesTutorial
 
         var labels3 = new List<TimeSeriesLabel>
         {
-            new TimeSeriesLabel("location", "us"),
-            new TimeSeriesLabel("unit", "in")
+            new("location", "us"),
+            new("unit", "in")
         };
 
         bool res21 = db.TS().Create(
@@ -288,8 +288,8 @@ public class TimeSeriesTutorial
 
         var labels4 = new List<TimeSeriesLabel>
         {
-            new TimeSeriesLabel("location", "uk"),
-            new TimeSeriesLabel("unit", "mm")
+            new("location", "uk"),
+            new("unit", "mm")
         };
         bool res22 = db.TS().Create(
             "rg:4",
@@ -369,7 +369,7 @@ public class TimeSeriesTutorial
         var res28 = db.TS().MGet(filters);
         Console.WriteLine(res28.Count); // >>> 2
 
-        foreach (var (key, labels_result, value) in res28)
+        foreach (var (key, labelsResult, value) in res28)
         {
             Console.WriteLine($"{key}: ({value.Time.Value}, {value.Val})");
         }
@@ -386,9 +386,9 @@ public class TimeSeriesTutorial
         );
         Console.WriteLine(res29.Count); // >>> 2
 
-        foreach (var (key, labels_result, value) in res29)
+        foreach (var (key, labelsResult, value) in res29)
         {
-            var unitLabel = labels_result.FirstOrDefault(l => l.Key == "unit");
+            var unitLabel = labelsResult.FirstOrDefault(l => l.Key == "unit");
             Console.WriteLine($"{key} (unit: {unitLabel?.Value}): ({value.Time.Value}, {value.Val})");
         }
         // >>> rg:2 (unit: cm): (4, 1.78)
@@ -406,10 +406,10 @@ public class TimeSeriesTutorial
         );
         Console.WriteLine(res30.Count); // >>> 1
 
-        foreach (var (key, labels_result, values) in res30)
+        foreach (var (key, labelsResult, values) in res30)
         {
             Console.WriteLine($"{key}:");
-            Console.WriteLine($"  Labels: ({string.Join(", ", labels_result.Select(l => $"{l.Key}={l.Value}"))})");
+            Console.WriteLine($"  Labels: ({string.Join(", ", labelsResult.Select(l => $"{l.Key}={l.Value}"))})");
             Console.WriteLine($"  Values: [{string.Join(", ", values.Select(t => $"({t.Time.Value}, {t.Val})"))}]");
         }
         // >>> rg:4:
@@ -429,9 +429,9 @@ public class TimeSeriesTutorial
         );
         Console.WriteLine(res31.Count); // >>> 2
 
-        foreach (var (key, labels_result, values) in res31)
+        foreach (var (key, labelsResult, values) in res31)
         {
-            var locationLabel = labels_result.FirstOrDefault(l => l.Key == "location");
+            var locationLabel = labelsResult.FirstOrDefault(l => l.Key == "location");
             Console.WriteLine($"{key} (location: {locationLabel?.Value})");
             Console.WriteLine($"  Values: [{string.Join(", ", values.Select(t => $"({t.Time.Value}, {t.Val})"))}]");
         }
@@ -521,7 +521,7 @@ public class TimeSeriesTutorial
         // REMOVE_END
 
         // STEP_START agg_multi
-        var ukLabels = new List<TimeSeriesLabel> { new TimeSeriesLabel("country", "uk") };
+        var ukLabels = new List<TimeSeriesLabel> { new("country", "uk") };
 
         bool res37 = db.TS().Create(
             "wind:1",
@@ -539,7 +539,7 @@ public class TimeSeriesTutorial
         );
         Console.WriteLine(res38); // >>> True
 
-        var usLabels = new List<TimeSeriesLabel> { new TimeSeriesLabel("country", "us") };
+        var usLabels = new List<TimeSeriesLabel> { new("country", "us") };
         bool res39 = db.TS().Create(
             "wind:3",
             new TsCreateParamsBuilder()
@@ -607,7 +607,7 @@ public class TimeSeriesTutorial
         );
         Console.WriteLine(res44.Count); // >>> 2
 
-        foreach (var (key, labels_result, values) in res44)
+        foreach (var (key, labelsResult, values) in res44)
         {
             Console.WriteLine($"{key}:");
             Console.WriteLine($"  Values: [{string.Join(", ", values.Select(t => $"({t.Time.Value}, {t.Val})"))}]");
@@ -628,7 +628,7 @@ public class TimeSeriesTutorial
         );
         Console.WriteLine(res45.Count); // >>> 2
 
-        foreach (var (key, labels_result, values) in res45)
+        foreach (var (key, labelsResult, values) in res45)
         {
             Console.WriteLine($"{key}:");
             Console.WriteLine($"  Values: [{string.Join(", ", values.Select(t => $"({t.Time.Value}, {t.Val})"))}]");

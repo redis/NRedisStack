@@ -22,7 +22,7 @@ public class CmdsSortedSet
 
     [SkippableFact]
     // REMOVE_END
-    public void run()
+    public void Run()
     {
         //REMOVE_START
         // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
@@ -77,10 +77,10 @@ public class CmdsSortedSet
 
         long zAddResult3 = db.SortedSetAdd(
             "myzset",
-            new SortedSetEntry[] {
-                new SortedSetEntry("two", 2),
-                new SortedSetEntry("three", 3)
-            }
+            [
+                new("two", 2),
+                new("three", 3)
+            ]
         );
         Console.WriteLine(zAddResult3); // >>> 2
 
@@ -245,11 +245,11 @@ public class CmdsSortedSet
         // STEP_START zrange1
         long zRangeResult1 = db.SortedSetAdd(
             "myzset",
-            new SortedSetEntry[] {
-                new SortedSetEntry("one", 1),
-                new SortedSetEntry("two", 2),
-                new SortedSetEntry("three", 3)
-            }
+            [
+                new("one", 1),
+                new("two", 2),
+                new("three", 3)
+            ]
         );
         Console.WriteLine(zRangeResult1);   // >>> 3
 
@@ -279,11 +279,11 @@ public class CmdsSortedSet
         // STEP_START zrange2
         long zRangeResult5 = db.SortedSetAdd(
             "myzset",
-            new SortedSetEntry[] {
-                new SortedSetEntry("one", 1),
-                new SortedSetEntry("two", 2),
-                new SortedSetEntry("three", 3)
-            }
+            [
+                new("one", 1),
+                new("two", 2),
+                new("three", 3)
+            ]
         );
 
         SortedSetEntry[] zRangeResult6 = db.SortedSetRangeByRankWithScores("myzset", 0, 1);
@@ -302,11 +302,11 @@ public class CmdsSortedSet
         // STEP_START zrange3
         long zRangeResult7 = db.SortedSetAdd(
             "myzset",
-            new SortedSetEntry[] {
-                new SortedSetEntry("one", 1),
-                new SortedSetEntry("two", 2),
-                new SortedSetEntry("three", 3)
-            }
+            [
+                new("one", 1),
+                new("two", 2),
+                new("three", 3)
+            ]
         );
 
         RedisValue[] zRangeResult8 = db.SortedSetRangeByScore(

@@ -12,17 +12,17 @@ namespace Doc;
 // REMOVE_END
 
 // HIDE_START
-public class Hll_tutorial
+public class HllTutorial
 // REMOVE_START
 : AbstractNRedisStackTest, IDisposable
 // REMOVE_END
 {
     // REMOVE_START
-    public Hll_tutorial(EndpointsFixture fixture) : base(fixture) { }
+    public HllTutorial(EndpointsFixture fixture) : base(fixture) { }
 
     [SkippableFact]
     // REMOVE_END
-    public void run()
+    public void Run()
     {
         //REMOVE_START
         // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
@@ -33,19 +33,19 @@ public class Hll_tutorial
         var db = muxer.GetDatabase();
         //REMOVE_START
         // Clear any keys here before using them in tests.
-        db.KeyDelete(new RedisKey[] { "{bikes}", "commuter_{bikes}", "all_{bikes}" });
+        db.KeyDelete(["{bikes}", "commuter_{bikes}", "all_{bikes}"]);
         //REMOVE_END
         // HIDE_END
 
 
         // STEP_START pfadd
-        bool res1 = db.HyperLogLogAdd("{bikes}", new RedisValue[] { "Hyperion", "Deimos", "Phoebe", "Quaoar" });
+        bool res1 = db.HyperLogLogAdd("{bikes}", ["Hyperion", "Deimos", "Phoebe", "Quaoar"]);
         Console.WriteLine(res1);    // >>> True
 
         long res2 = db.HyperLogLogLength("{bikes}");
         Console.WriteLine(res2);    // >>> 4
 
-        bool res3 = db.HyperLogLogAdd("commuter_{bikes}", new RedisValue[] { "Salacia", "Mimas", "Quaoar" });
+        bool res3 = db.HyperLogLogAdd("commuter_{bikes}", ["Salacia", "Mimas", "Quaoar"]);
         Console.WriteLine(res3);    // >>> True
 
         db.HyperLogLogMerge("all_{bikes}", "{bikes}", "commuter_{bikes}");

@@ -14,17 +14,17 @@ namespace Doc;
 // REMOVE_END
 
 // HIDE_START
-public class Json_tutorial
+public class JsonTutorial
 // REMOVE_START
 : AbstractNRedisStackTest, IDisposable
 // REMOVE_END
 {
     // REMOVE_START
-    public Json_tutorial(EndpointsFixture fixture) : base(fixture) { }
+    public JsonTutorial(EndpointsFixture fixture) : base(fixture) { }
 
     [SkippableFact]
     // REMOVE_END
-    public void run()
+    public void Run()
     {
         //REMOVE_START
         // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
