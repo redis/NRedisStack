@@ -16,5 +16,10 @@ namespace NRedisStack.RedisStackCommands
             Command = command;
             Args = args.ToArray();
         }
+
+        /// <inheritdoc />
+        public override string ToString() => Args is { Length: > 0 }
+            ? (Command + " " + string.Join(" ", Args))
+            : Command;
     }
 }
