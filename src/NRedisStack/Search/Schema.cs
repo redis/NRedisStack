@@ -405,15 +405,15 @@ namespace NRedisStack.Search
                 /// </summary>
                 NotSpecified = 0,
                 /// <summary>
-                /// Euclidean distance between two vectors.
+                /// Euclidean distance between two vectors - this corresponds to the L2 option in Redis.
                 /// </summary>
                 EuclideanDistance = 1,
                 /// <summary>
-                /// Inner product of two vectors.
+                /// Inner product of two vectors - this corresponds to the IP option in Redis.
                 /// </summary>
                 InnerProduct = 2,
                 /// <summary>
-                /// Cosine distance of two vectors.
+                /// Cosine distance of two vectors - this corresponds to the COSINE option in Redis.
                 /// </summary>
                 CosineDistance = 3,
             }
@@ -604,7 +604,7 @@ namespace NRedisStack.Search
             /// </summary>
             public int TrainingThreshold { get; set; }
             /// <summary>
-            /// The dimension used when using LeanVec compression for dimensionality reduction; defaults to dim/2 (applicable only with compression of type LeanVec, should always be < dim)
+            /// The dimension used when using LeanVec compression for dimensionality reduction; defaults to dim/2 (applicable only with compression of type LeanVec, should always be &lt; dim)
             /// </summary>
             public int ReducedDimensions { get; set; }
 
