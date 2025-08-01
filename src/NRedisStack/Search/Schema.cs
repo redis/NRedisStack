@@ -879,6 +879,7 @@ namespace NRedisStack.Search
         /// <summary>
         /// Add a <see href="VectorAlgo.SVS_VAMANA"/> vector to the schema.
         /// </summary>
+        /// <remarks>Note that <param name="reducedDimensions"/> is only applicable when using LeanVec compression.</remarks>
         public Schema AddSvsVanamaVectorField(FieldName name, VectorType type, int dimensions, VectorDistanceMetric distanceMetric,
             VectorCompressionAlgorithm compressionAlgorithm = VectorCompressionAlgorithm.NotSpecified,
             int constructionWindowSize = SvsVanamaVectorField.DEFAULT_CONSTRUCTION_WINDOW_SIZE,
