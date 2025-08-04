@@ -1,25 +1,27 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Nullable>enable</Nullable>
-	<TargetFrameworks>netstandard2.0;net6.0;net7.0;net8.0</TargetFrameworks>
-	<GenerateDocumentationFile>true</GenerateDocumentationFile>
-	<LangVersion>latest</LangVersion>
-	<ImplicitUsings>enable</ImplicitUsings>
-	<Authors>Redis Open Source</Authors>
-	<Owners>Redis OSS</Owners>
-	<Description>.Net Client for Redis Stack</Description>
-	<PackageReadmeFile>README.md</PackageReadmeFile>
-	<Version>1.0.0-beta1</Version>
-	<ReleaseVersion>1.0.0-beta1</ReleaseVersion>
-	<PackageVersion>1.0.0-beta1</PackageVersion>
+    <TargetFrameworks>netstandard2.0;net6.0;net7.0;net8.0</TargetFrameworks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Authors>Redis Open Source</Authors>
+    <Owners>Redis OSS</Owners>
+    <Description>.Net Client for Redis Stack</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Version>1.0.0-beta1</Version>
+    <ReleaseVersion>1.0.0-beta1</ReleaseVersion>
+    <PackageVersion>1.0.0-beta1</PackageVersion>
+    <PackageProjectUrl>https://github.com/redis/NRedisStack</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="NetTopologySuite" Version="2.5.0" />
-	<PackageReference Include="System.Text.Json" Version="9.0.2" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
-	<PackageReference Include="StackExchange.Redis" Version="2.8.24" />
-	<None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    <PackageReference Include="NetTopologySuite" Version="2.5.0" />
+    <PackageReference Include="System.Text.Json" Version="9.0.2" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
+    <PackageReference Include="StackExchange.Redis" Version="2.8.24" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>
