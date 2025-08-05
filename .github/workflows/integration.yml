@@ -59,7 +59,7 @@ jobs:
       strategy:
         fail-fast: false
         matrix:
-          redis-stack-version: ['6.2.6-v18', '7.2.0-v17', '7.4.0-v5']
+          redis-stack-version: ['6.2.6-v18', '7.2.0-v17', '7.4.0-v6']
       env:
         redis_stack_version: ${{matrix.redis-stack-version}}
         USER_NAME: ${{ secrets.USER_NAME }}
