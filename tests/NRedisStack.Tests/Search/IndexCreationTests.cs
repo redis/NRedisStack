@@ -65,8 +65,7 @@ public class IndexCreationTests(EndpointsFixture endpointsFixture)
         var hashWithMissingFields = new HashEntry[] { new("field1", "value1"), new("field2", "value2") };
         db.HashSet("hashWithMissingFields", hashWithMissingFields);
 
-        Polygon polygon = new GeometryFactory().CreatePolygon([new(1, 1), new(10, 10), new(100, 100), new(1, 1)
-        ]);
+        Polygon polygon = new GeometryFactory().CreatePolygon([new(1, 1), new(10, 10), new(100, 100), new(1, 1)]);
 
         var hashWithAllFields = new HashEntry[] { new("text1", "value1"), new("tag1", "value2"), new("numeric1", "3.141"), new("geo1", "-0.441,51.458"), new("geoshape1", polygon.ToString()), new("vector1", "aaaaaaaa") };
         db.HashSet("hashWithAllFields", hashWithAllFields);
@@ -250,8 +249,7 @@ public class IndexCreationTests(EndpointsFixture endpointsFixture)
         var sampleHash = new HashEntry[] { new("field1", "value1"), new("field2", "value2") };
         db.HashSet("hashWithMissingFields", sampleHash);
 
-        Polygon polygon = new GeometryFactory().CreatePolygon([new(1, 1), new(10, 10), new(100, 100), new(1, 1)
-        ]);
+        Polygon polygon = new GeometryFactory().CreatePolygon([new(1, 1), new(10, 10), new(100, 100), new(1, 1)]);
 
         var hashWithAllFields = new HashEntry[] { new("text1", "value1"), new("tag1", "value2"), new("numeric1", "3.141"), new("geo1", "-0.441,51.458"), new("geoshape1", polygon.ToString()), new("vector1", "aaaaaaaa") };
         db.HashSet("hashWithAllFields", hashWithAllFields);

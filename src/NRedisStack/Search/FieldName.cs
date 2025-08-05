@@ -1,39 +1,40 @@
-namespace NRedisStack.Search;
-
-public class FieldName
+namespace NRedisStack.Search
 {
-    public string Name { get; }
-    public string? Alias { get; private set; }
-
-    public FieldName(string name) : this(name, null) { }
-
-    public FieldName(string name, string? attribute)
+    public class FieldName
     {
-        Name = name;
-        Alias = attribute;
-    }
+        public string Name { get; }
+        public string? Alias { get; private set; }
 
-    public int AddCommandArguments(List<object> args)
-    {
-        args.Add(Name);
-        if (Alias is null)
+        public FieldName(string name) : this(name, null) { }
+
+        public FieldName(string name, string? attribute)
         {
-            return 1;
+            this.Name = name;
+            this.Alias = attribute;
         }
 
-        args.Add("AS");
-        args.Add(Alias);
-        return 3;
-    }
+        public int AddCommandArguments(List<object> args)
+        {
+            args.Add(Name);
+            if (Alias is null)
+            {
+                return 1;
+            }
 
-    public static FieldName Of(string name)
-    {
-        return new(name);
-    }
+            args.Add("AS");
+            args.Add(Alias);
+            return 3;
+        }
 
-    public FieldName As(string attribute)
-    {
-        Alias = attribute;
-        return this;
+        public static FieldName Of(string name)
+        {
+            return new FieldName(name);
+        }
+
+        public FieldName As(string attribute)
+        {
+            this.Alias = attribute;
+            return this;
+        }
     }
 }
