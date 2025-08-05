@@ -3,11 +3,16 @@ using NRedisStack.DataTypes;
 using System.Runtime.CompilerServices;
 using StackExchange.Redis;
 using Xunit;
+using Xunit.Abstractions;
+
 namespace NRedisStack.Tests;
 
 public abstract class AbstractNRedisStackTest : IClassFixture<EndpointsFixture>, IAsyncLifetime
 {
     protected internal EndpointsFixture EndpointsFixture;
+    private readonly ITestOutputHelper? log;
+
+    protected void Log(string message) => log?.WriteLine(message); // TODO: DISH overload in net9? net10?
 
     protected readonly ConfigurationOptions DefaultConnectionConfig = new()
     {
@@ -16,9 +21,10 @@ public abstract class AbstractNRedisStackTest : IClassFixture<EndpointsFixture>,
         AllowAdmin = true,
     };
 
-    protected internal AbstractNRedisStackTest(EndpointsFixture endpointsFixture)
+    protected internal AbstractNRedisStackTest(EndpointsFixture endpointsFixture, ITestOutputHelper? log = null)
     {
         this.EndpointsFixture = endpointsFixture;
+        this.log = log;
     }
 
     protected ConnectionMultiplexer GetConnection(string endpointId = EndpointsFixture.Env.Standalone) => EndpointsFixture.GetConnectionById(this.DefaultConnectionConfig, endpointId);
