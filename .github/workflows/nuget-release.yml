@@ -9,10 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up .NET Core 8
+      - name: Set up .NET 9
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 8
+          dotnet-version: 9
       - name: Check .NET version
         run: dotnet --version
       - name: Check .NET SDKs
