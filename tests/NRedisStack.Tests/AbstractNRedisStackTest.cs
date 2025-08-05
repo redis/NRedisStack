@@ -9,10 +9,14 @@ namespace NRedisStack.Tests;
 
 public abstract class AbstractNRedisStackTest : IClassFixture<EndpointsFixture>, IAsyncLifetime
 {
-    protected internal EndpointsFixture EndpointsFixture;
+    private protected EndpointsFixture EndpointsFixture { get; }
     private readonly ITestOutputHelper? log;
 
-    protected void Log(string message) => log?.WriteLine(message); // TODO: DISH overload in net9? net10?
+    protected void Log(string message)
+    {
+        if (log is null) throw new InvalidOperationException("Log is not initialized");
+        log.WriteLine(message);
+    }
 
     protected readonly ConfigurationOptions DefaultConnectionConfig = new()
     {

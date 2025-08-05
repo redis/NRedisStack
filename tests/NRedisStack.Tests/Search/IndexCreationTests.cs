@@ -4,11 +4,12 @@ using NRedisStack.Search;
 using NRedisStack.RedisStackCommands;
 using Xunit;
 using NetTopologySuite.Geometries;
+using Xunit.Abstractions;
 
 namespace NRedisStack.Tests.Search;
 
-public class IndexCreationTests(EndpointsFixture endpointsFixture)
-    : AbstractNRedisStackTest(endpointsFixture), IDisposable
+public class IndexCreationTests(EndpointsFixture endpointsFixture, ITestOutputHelper log)
+    : AbstractNRedisStackTest(endpointsFixture, log), IDisposable
 {
     private readonly string index = "MISSING_EMPTY_INDEX";
 
