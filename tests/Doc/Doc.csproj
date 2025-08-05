@@ -1,29 +1,31 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <IsWindows>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::get_Windows())))</IsWindows>
-    <TargetFrameworks Condition=" '$(IsWindows)' == 'true'">net6.0;net7.0;net8.0;net481</TargetFrameworks>
-    <TargetFrameworks Condition=" '$(IsWindows)' != 'true'">net6.0;net7.0;net8.0</TargetFrameworks>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <LangVersion>latest</LangVersion>
-    <IsPackable>false</IsPackable>
-<!--    <OutputType>Module</OutputType> -->
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="GitHubActionsTestLogger" Version="2.4.1">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
-    <PackageReference Include="xunit" Version="2.9.3" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="StackExchange.Redis" Version="2.8.24" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\NRedisStack\NRedisStack.csproj" />
-    <ProjectReference Include="..\..\tests\NRedisStack.Tests\NRedisStack.Tests.csproj" />
-  </ItemGroup>
+    <PropertyGroup>
+        <TargetFrameworks>net6.0;net7.0;net8.0;net481</TargetFrameworks>
+        <IsPackable>false</IsPackable>
+
+        <!-- don't warn about obsolete APIs, or theory with no data -->
+        <Nowarn>$(Nowarn);CS0612;CS0618</Nowarn>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="GitHubActionsTestLogger">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+        <PackageReference Include="xunit"/>
+        <PackageReference Include="xunit.runner.visualstudio" Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net481'">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <!-- this is the last version with net6 support -->
+        <PackageReference Include="xunit.runner.visualstudio" Condition="'$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0'" VersionOverride="3.0.2">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="StackExchange.Redis"/>
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\NRedisStack\NRedisStack.csproj"/>
+        <ProjectReference Include="..\..\tests\NRedisStack.Tests\NRedisStack.Tests.csproj"/>
+    </ItemGroup>
 </Project>

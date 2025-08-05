@@ -26,10 +26,7 @@ namespace NRedisStack.Search
             return 3;
         }
 
-        public static FieldName Of(string name)
-        {
-            return new FieldName(name);
-        }
+        public static FieldName Of(string name) => new(name);
 
         public FieldName As(string attribute)
         {
@@ -37,6 +34,6 @@ namespace NRedisStack.Search
             return this;
         }
 
-        public static implicit operator FieldName(string name) => Of(name);
+        public static implicit operator FieldName(string name) => new(name);
     }
 }

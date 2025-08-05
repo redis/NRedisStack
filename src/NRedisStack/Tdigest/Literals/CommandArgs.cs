@@ -1,7 +1,6 @@
-namespace NRedisStack.Literals
+namespace NRedisStack.Literals;
+
+internal class TdigestArgs
 {
-    internal class TdigestArgs
-    {
-        public const string COMPRESSION = "COMPRESSION";
-    }
+    public const string COMPRESSION = "COMPRESSION";
 }

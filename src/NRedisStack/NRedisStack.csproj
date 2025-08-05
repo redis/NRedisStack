@@ -1,25 +1,36 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <Nullable>enable</Nullable>
-	<TargetFrameworks>netstandard2.0;net6.0;net7.0;net8.0</TargetFrameworks>
-	<GenerateDocumentationFile>true</GenerateDocumentationFile>
-	<LangVersion>latest</LangVersion>
-	<ImplicitUsings>enable</ImplicitUsings>
-	<Authors>Redis Open Source</Authors>
-	<Owners>Redis OSS</Owners>
-	<Description>.Net Client for Redis Stack</Description>
-	<PackageReadmeFile>README.md</PackageReadmeFile>
-	<Version>1.0.0-beta1</Version>
-	<ReleaseVersion>1.0.0-beta1</ReleaseVersion>
-	<PackageVersion>1.0.0-beta1</PackageVersion>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFrameworks>net6.0;net7.0;net8.0;netstandard2.0;net481</TargetFrameworks>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>Redis.png</PackageIcon>
 
-  <ItemGroup>
-	<PackageReference Include="NetTopologySuite" Version="2.5.0" />
-	<PackageReference Include="System.Text.Json" Version="9.0.2" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
-	<PackageReference Include="StackExchange.Redis" Version="2.8.24" />
-	<None Include="..\..\README.md" Pack="true" PackagePath="\" />
-  </ItemGroup>
+        <!-- don't warn about overload gloop -->
+        <Nowarn>$(Nowarn);RS0026</Nowarn>
 
+        <Version>1.0.0-beta1</Version>
+        <ReleaseVersion>1.0.0-beta1</ReleaseVersion>
+        <PackageVersion>1.0.0-beta1</PackageVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="StackExchange.Redis"/>
+        <PackageReference Include="System.Text.Json" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net481'"/>
+        <None Include="../../Redis.png" Link="Redis.png" Pack="true" PackagePath="/" Visible="false"/>
+        <None Include="../../README.md" Link="README.md" Pack="true" PackagePath="/" Visible="false"/>
+    </ItemGroup>
+    <ItemGroup>
+        <!-- enable API tracking -->
+        <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+    <ItemGroup>
+      <None Remove="PublicAPI\PublicAPI.Shipped.txt" />
+      <AdditionalFiles Include="PublicAPI\PublicAPI.Shipped.txt" />
+      <None Remove="PublicAPI\PublicAPI.Unshipped.txt" />
+      <AdditionalFiles Include="PublicAPI\PublicAPI.Unshipped.txt" />
+    </ItemGroup>
 </Project>

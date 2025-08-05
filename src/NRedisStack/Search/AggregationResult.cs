@@ -7,7 +7,7 @@ public sealed class AggregationResult
 {
     public long TotalResults { get; }
     private readonly Dictionary<string, object>[] _results;
-    private Dictionary<string, RedisValue>[] _resultsAsRedisValues;
+    private Dictionary<string, RedisValue>[]? _resultsAsRedisValues;
 
     public long CursorId { get; }
 
@@ -29,7 +29,7 @@ public sealed class AggregationResult
             {
                 var key = (string)raw[j++]!;
                 var val = raw[j++];
-                if (val.Type == ResultType.MultiBulk)
+                if (val.Resp2Type == ResultType.Array)
                 {
                     cur.Add(key, ConvertMultiBulkToObject((RedisResult[])val!));
                 }
@@ -57,7 +57,7 @@ public sealed class AggregationResult
     /// <returns>object</returns>
     private object ConvertMultiBulkToObject(IEnumerable<RedisResult> multiBulkArray)
     {
-        return multiBulkArray.Select(item => item.Type == ResultType.MultiBulk
+        return multiBulkArray.Select(item => item.Resp2Type == ResultType.Array
                 ? ConvertMultiBulkToObject((RedisResult[])item!)
                 : (RedisValue)item)
             .ToList();
@@ -73,7 +73,7 @@ public sealed class AggregationResult
     [Obsolete("This method is deprecated and will be removed in future versions. Please use 'GetRow' instead.")]
     public IReadOnlyList<Dictionary<string, RedisValue>> GetResults()
     {
-        return getResultsAsRedisValues();
+        return GetResultsAsRedisValues();
     }
 
     /// <summary>
@@ -86,20 +86,18 @@ public sealed class AggregationResult
     /// </returns>
     [Obsolete("This method is deprecated and will be removed in future versions. Please use 'GetRow' instead.")]
     public Dictionary<string, RedisValue>? this[int index]
-   => index >= getResultsAsRedisValues().Length ? null : getResultsAsRedisValues()[index];
+   => index >= GetResultsAsRedisValues().Length ? null : GetResultsAsRedisValues()[index];
 
     public Row GetRow(int index)
     {
         return index >= _results.Length ? default : new Row(_results[index]);
     }
 
-    private Dictionary<string, RedisValue>[] getResultsAsRedisValues()
+    private Dictionary<string, RedisValue>[] GetResultsAsRedisValues()
     {
-        if (_resultsAsRedisValues == null)
-            _resultsAsRedisValues = _results.Select(dict => dict.ToDictionary(
-               kvp => kvp.Key,
-               kvp => kvp.Value is RedisValue value ? value : RedisValue.Null
-           )).ToArray();
-        return _resultsAsRedisValues;
+        return _resultsAsRedisValues ??= _results.Select(dict => dict.ToDictionary(
+            kvp => kvp.Key,
+            kvp => kvp.Value is RedisValue value ? value : RedisValue.Null
+        )).ToArray();
     }
 }

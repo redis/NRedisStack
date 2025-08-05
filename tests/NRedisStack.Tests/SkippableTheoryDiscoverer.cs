@@ -35,26 +35,26 @@ public class SkippableTheoryDiscoverer : IXunitTestCaseDiscoverer
     public SkippableTheoryDiscoverer(IMessageSink diagnosticMessageSink)
     {
         this.diagnosticMessageSink = diagnosticMessageSink;
-        this.theoryDiscoverer = new TheoryDiscoverer(diagnosticMessageSink);
+        theoryDiscoverer = new(diagnosticMessageSink);
     }
 
     /// <inheritdoc />
     public virtual IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute)
     {
         Requires.NotNull(factAttribute, nameof(factAttribute));
-        string[] skippingExceptionNames = new[] { "Xunit.SkippableFact.SkipException", "Xunit.SkipException" };
+        string[] skippingExceptionNames = ["Xunit.SkippableFact.SkipException", "Xunit.SkipException"];
         TestMethodDisplay defaultMethodDisplay = discoveryOptions.MethodDisplayOrDefault();
 
-        IEnumerable<IXunitTestCase>? basis = this.theoryDiscoverer.Discover(discoveryOptions, testMethod, factAttribute);
+        IEnumerable<IXunitTestCase>? basis = theoryDiscoverer.Discover(discoveryOptions, testMethod, factAttribute);
         foreach (IXunitTestCase? testCase in basis)
         {
             if (testCase is XunitTheoryTestCase)
             {
-                yield return new SkippableTheoryTestCase(skippingExceptionNames, this.diagnosticMessageSink, defaultMethodDisplay, discoveryOptions.MethodDisplayOptionsOrDefault(), testCase.TestMethod);
+                yield return new SkippableTheoryTestCase(skippingExceptionNames, diagnosticMessageSink, defaultMethodDisplay, discoveryOptions.MethodDisplayOptionsOrDefault(), testCase.TestMethod);
             }
             else
             {
-                yield return new SkippableFactTestCase(skippingExceptionNames, this.diagnosticMessageSink, defaultMethodDisplay, discoveryOptions.MethodDisplayOptionsOrDefault(), testCase.TestMethod, testCase.TestMethodArguments);
+                yield return new SkippableFactTestCase(skippingExceptionNames, diagnosticMessageSink, defaultMethodDisplay, discoveryOptions.MethodDisplayOptionsOrDefault(), testCase.TestMethod, testCase.TestMethodArguments);
             }
         }
     }

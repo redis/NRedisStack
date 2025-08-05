@@ -94,10 +94,10 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         var items2 = new RedisValue[] { "newElement", "bar", "baz" };
 
         var result = bf.MAdd(key, items);
-        Assert.Equal(new bool[] { true, true, true }, result);
+        Assert.Equal(new[] { true, true, true }, result);
 
         result = bf.MAdd(key, items2);
-        Assert.Equal(new bool[] { true, false, false }, result);
+        Assert.Equal(new[] { true, false, false }, result);
     }
 
     [SkippableTheory]
@@ -110,10 +110,10 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         var items2 = new RedisValue[] { "newElement", "bar", "baz" };
 
         var result = await bf.MAddAsync(key, items);
-        Assert.Equal(new bool[] { true, true, true }, result);
+        Assert.Equal(new[] { true, true, true }, result);
 
         result = await bf.MAddAsync(key, items2);
-        Assert.Equal(new bool[] { true, false, false }, result);
+        Assert.Equal(new[] { true, false, false }, result);
     }
 
     [SkippableTheory]
@@ -138,7 +138,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         var allItems = new RedisValue[] { "foo", "bar", "baz", "bat", "Mark", "nonexist" };
         var rv = bf.MExists("simpleBloom", allItems);
         // All items except the last one will be 'true'
-        Assert.Equal(new bool[] { true, true, true, true, true, false }, rv);
+        Assert.Equal(new[] { true, true, true, true, true, false }, rv);
 
         // Reserve a "customized" bloom filter
         bf.Reserve("specialBloom", 0.0001, 10000);
@@ -167,7 +167,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         var allItems = new RedisValue[] { "foo", "bar", "baz", "bat", "Mark", "nonexist" };
         var rv = await bf.MExistsAsync("simpleBloom", allItems);
         // All items except the last one will be 'true'
-        Assert.Equal(new bool[] { true, true, true, true, true, false }, rv);
+        Assert.Equal(new[] { true, true, true, true, true, false }, rv);
 
         // Reserve a "customized" bloom filter
         await bf.ReserveAsync("specialBloom", 0.0001, 10000);
@@ -181,7 +181,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = GetCleanDatabase(endpointId);
         var bf = db.BF();
 
-        RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
+        RedisValue[] items = ["item1", "item2", "item3"];
 
         bf.Insert("key", items);
 
@@ -197,7 +197,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = GetCleanDatabase(endpointId);
         var bf = db.BF();
 
-        RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
+        RedisValue[] items = ["item1", "item2", "item3"];
 
         await bf.InsertAsync("key", items);
 
@@ -213,7 +213,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = GetCleanDatabase(endpointId);
         var bf = db.BF();
 
-        RedisValue item = new RedisValue("item");
+        RedisValue item = new("item");
         Assert.False(bf.Exists("NonExistKey", item));
     }
 
@@ -224,7 +224,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = GetCleanDatabase(endpointId);
         var bf = db.BF();
 
-        RedisValue item = new RedisValue("item");
+        RedisValue item = new("item");
         Assert.False(await bf.ExistsAsync("NonExistKey", item));
     }
 
@@ -369,7 +369,7 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = GetCleanDatabase(endpointId);
         var bf = db.BF();
 
-        RedisValue[] items = new RedisValue[] { "item1", "item2", "item3" };
+        RedisValue[] items = ["item1", "item2", "item3"];
         // supose to throw exception:
         Assert.Throws<RedisServerException>(() => bf.Insert("key3", items, 100, 0.01, 2, nocreate: true, nonscaling: true));
     }

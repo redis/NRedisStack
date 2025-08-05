@@ -29,7 +29,7 @@ public class Document
 
     public static Document Load(string id, double score, byte[]? payload, RedisValue[]? fields)
     {
-        Document ret = new Document(id, score, payload);
+        Document ret = new(id, score, payload);
         if (fields == null) return ret;
         if (fields.Length == 1 && fields[0].IsNull)
         {

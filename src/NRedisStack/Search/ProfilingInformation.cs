@@ -1,15 +1,13 @@
 ﻿using StackExchange.Redis;
 
-namespace NRedisStack.Search
+namespace NRedisStack.Search;
+
+public class ProfilingInformation
 {
-
-    public class ProfilingInformation
+    public RedisResult Info { get; private set; }
+    public ProfilingInformation(RedisResult info)
     {
-        public RedisResult Info { get; private set; }
-        public ProfilingInformation(RedisResult info)
-        {
-            this.Info = info;
-        }
-
+        Info = info;
     }
+
 }
