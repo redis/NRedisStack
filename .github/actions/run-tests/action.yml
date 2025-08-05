@@ -51,7 +51,7 @@ runs:
         
           # Mapping of redis version to stack version  
           declare -A redis_stack_version_mapping=(
-            ["7.4.1"]="rs-7.4.0-v6"
+            ["7.4.1"]="rs-7.4.0-v5"
             ["7.2.6"]="rs-7.2.0-v17"
             ["6.2.16"]="rs-6.2.6-v17"
           )
