@@ -108,9 +108,14 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         int infoAfterLibNameIndex = infoAfter!.IndexOf("lib-name=");
         int infoBeforeLibNameIndex = infoBefore!.IndexOf("lib-name=");
 
+        int infoAfterLibVerIndex = infoAfter.IndexOf(" ", infoAfter!.IndexOf("lib-ver="));
+        infoAfterLibVerIndex = infoAfterLibVerIndex == -1 ? infoAfter.Length : infoAfterLibVerIndex;
+        int infoBeforeLibVerIndex = infoBefore!.IndexOf(" ", infoBefore!.IndexOf("lib-ver="));
+        infoBeforeLibVerIndex = infoBeforeLibVerIndex == -1 ? infoBefore.Length : infoBeforeLibVerIndex;
+
         // Extract the sub-strings starting from "lib-name="
-        string infoAfterLibNameToEnd = infoAfter.Substring(infoAfterLibNameIndex);
-        string infoBeforeLibNameToEnd = infoBefore.Substring(infoBeforeLibNameIndex);
+        string infoAfterLibNameToEnd = infoAfter.Substring(infoAfterLibNameIndex, infoAfterLibVerIndex - infoAfterLibNameIndex);
+        string infoBeforeLibNameToEnd = infoBefore.Substring(infoBeforeLibNameIndex, infoBeforeLibVerIndex - infoBeforeLibNameIndex);
 
         // Assert that the extracted sub-strings are equal
         Assert.Equal(infoAfterLibNameToEnd, infoBeforeLibNameToEnd);
@@ -131,9 +136,14 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         int infoAfterLibNameIndex = infoAfter!.IndexOf("lib-name=");
         int infoBeforeLibNameIndex = infoBefore!.IndexOf("lib-name=");
 
+        int infoAfterLibVerIndex = infoAfter.IndexOf(" ", infoAfter!.IndexOf("lib-ver="));
+        infoAfterLibVerIndex = infoAfterLibVerIndex == -1 ? infoAfter.Length : infoAfterLibVerIndex;
+        int infoBeforeLibVerIndex = infoBefore.IndexOf(" ", infoBefore!.IndexOf("lib-ver="));
+        infoBeforeLibVerIndex = infoBeforeLibVerIndex == -1 ? infoBefore.Length : infoBeforeLibVerIndex;
+
         // Extract the sub-strings starting from "lib-name="
-        string infoAfterLibNameToEnd = infoAfter.Substring(infoAfterLibNameIndex);
-        string infoBeforeLibNameToEnd = infoBefore.Substring(infoBeforeLibNameIndex);
+        string infoAfterLibNameToEnd = infoAfter.Substring(infoAfterLibNameIndex, infoAfterLibVerIndex - infoAfterLibNameIndex);
+        string infoBeforeLibNameToEnd = infoBefore.Substring(infoBeforeLibNameIndex, infoBeforeLibVerIndex - infoBeforeLibNameIndex);
 
         // Assert that the extracted sub-strings are equal
         Assert.Equal(infoAfterLibNameToEnd, infoBeforeLibNameToEnd);
