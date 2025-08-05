@@ -33,7 +33,7 @@ public class TransactionTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("{\"Name\":\"Shachar\",\"Age\":23}", getResponse.Result.ToString());
     }
 
-    [SkipIfRedis(Comparison.GreaterThanOrEqual, "7.1.242")]
+    [SkipIfRedisTheory(Comparison.GreaterThanOrEqual, "7.1.242")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
     public void TestModulesTransaction(string endpointId)
@@ -46,7 +46,7 @@ public class TransactionTests : AbstractNRedisStackTest, IDisposable
         _ = tran.Cms.InitByDimAsync("cms-key", 100, 5);
         _ = tran.Cf.ReserveAsync("cf-key", 100);
         _ = tran.Json.SetAsync("json-key", "$", "{}");
-        _ = tran.Ft.CreateAsync("ft-key", new FTCreateParams(), new Schema().AddTextField("txt"));
+        _ = tran.Ft.CreateAsync("ft-key", new(), new Schema().AddTextField("txt"));
         _ = tran.Tdigest.CreateAsync("tdigest-key", 100);
         _ = tran.Ts.CreateAsync("ts-key", 100);
         _ = tran.TopK.ReserveAsync("topk-key", 100, 100, 100);
@@ -81,7 +81,7 @@ public class TransactionTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(db.TOPK().Info("topk-key"));
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
     public void TestModulesTransactionWithoutGraph(string endpointId)
@@ -94,7 +94,7 @@ public class TransactionTests : AbstractNRedisStackTest, IDisposable
         _ = tran.Cms.InitByDimAsync("cms-key", 100, 5);
         _ = tran.Cf.ReserveAsync("cf-key", 100);
         _ = tran.Json.SetAsync("json-key", "$", "{}");
-        _ = tran.Ft.CreateAsync("ft-key", new FTCreateParams(), new Schema().AddTextField("txt"));
+        _ = tran.Ft.CreateAsync("ft-key", new(), new Schema().AddTextField("txt"));
         _ = tran.Tdigest.CreateAsync("tdigest-key", 100);
         _ = tran.Ts.CreateAsync("ts-key", 100);
         _ = tran.TopK.ReserveAsync("topk-key", 100, 100, 100);

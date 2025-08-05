@@ -14,17 +14,17 @@ namespace Doc;
 // REMOVE_END
 
 // HIDE_START
-public class Cms_tutorial
+public class CmsTutorial
 // REMOVE_START
 : AbstractNRedisStackTest, IDisposable
 // REMOVE_END
 {
     // REMOVE_START
-    public Cms_tutorial(EndpointsFixture fixture) : base(fixture) { }
+    public CmsTutorial(EndpointsFixture fixture) : base(fixture) { }
 
     [SkippableFact]
     // REMOVE_END
-    public void run()
+    public void Run()
     {
         //REMOVE_START
         // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
@@ -48,10 +48,10 @@ public class Cms_tutorial
         Console.WriteLine(res2);    // >>> 100
 
         long[] res3 = db.CMS().IncrBy("bikes:profit",
-            new Tuple<RedisValue, long>[]{
-                new Tuple<RedisValue, long>("Rocky Mountain Racer", 200),
-                new Tuple<RedisValue, long>("Cloudy City Cruiser", 150)
-            }
+            [
+                new("Rocky Mountain Racer", 200),
+                new("Cloudy City Cruiser", 150)
+            ]
         );
         Console.WriteLine(string.Join(", ", res3)); // >>> 200, 150
 

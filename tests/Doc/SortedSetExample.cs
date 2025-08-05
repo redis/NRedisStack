@@ -19,7 +19,7 @@ public class SortedSetExample
 
     [SkippableFact]
     // REMOVE_END
-    public void run()
+    public void Run()
     {
         //REMOVE_START
         // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
@@ -46,13 +46,13 @@ public class SortedSetExample
         Assert.True(res2);
         //REMOVE_END
 
-        long res3 = db.SortedSetAdd("racer_scores", new[]{
-            new SortedSetEntry("Sam-Bodden", 8),
-            new SortedSetEntry("Royce", 10),
-            new SortedSetEntry("Ford", 6),
-            new SortedSetEntry("Prickett", 14),
-            new SortedSetEntry("Castilla", 12)
-        });
+        long res3 = db.SortedSetAdd("racer_scores", [
+            new("Sam-Bodden", 8),
+            new("Royce", 10),
+            new("Ford", 6),
+            new("Prickett", 14),
+            new("Castilla", 12)
+        ]);
         Console.WriteLine(res3); // >>> 4
         //REMOVE_START
         Assert.Equal(4, res3);
@@ -133,14 +133,14 @@ public class SortedSetExample
         //STEP_END
 
         //STEP_START zadd_lex
-        long res13 = db.SortedSetAdd("racer_scores", new[] {
-            new SortedSetEntry("Norem", 0),
-            new SortedSetEntry("Sam-Bodden", 0),
-            new SortedSetEntry("Royce", 0),
-            new SortedSetEntry("Ford", 0),
-            new SortedSetEntry("Prickett", 0),
-            new SortedSetEntry("Castilla", 0)
-        });
+        long res13 = db.SortedSetAdd("racer_scores", [
+            new("Norem", 0),
+            new("Sam-Bodden", 0),
+            new("Royce", 0),
+            new("Ford", 0),
+            new("Prickett", 0),
+            new("Castilla", 0)
+        ]);
         Console.WriteLine(res13); // >>> 3
         //REMOVE_START
         Assert.Equal(3, res13);

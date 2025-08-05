@@ -1,6 +1,7 @@
+using System.Diagnostics;
+using System.Net.Http;
 using System.Text;
 using System.Text.Json;
-using System.Net.Http;
 
 public class FaultInjectorClient
 {
@@ -61,7 +62,7 @@ public class FaultInjectorClient
                 }
                 catch (HttpRequestException e)
                 {
-                    throw new Exception("Fault injection proxy error", e);
+                    throw new("Fault injection proxy error", e);
                 }
             }
             return false;
@@ -103,10 +104,11 @@ public class FaultInjectorClient
             return JsonSerializer.Deserialize<TriggerActionResponse>(result, new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            });
+            })!;
         }
         catch (HttpRequestException e)
         {
+            Debug.WriteLine(e);
             throw;
         }
     }

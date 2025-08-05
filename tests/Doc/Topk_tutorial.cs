@@ -13,17 +13,16 @@ namespace Doc;
 // REMOVE_END
 
 // HIDE_START
-public class Topk_tutorial
+public class TopkTutorial
 // REMOVE_START
-: AbstractNRedisStackTest, IDisposable
+    (EndpointsFixture fixture) : AbstractNRedisStackTest(fixture), IDisposable
 // REMOVE_END
 {
     // REMOVE_START
-    public Topk_tutorial(EndpointsFixture fixture) : base(fixture) { }
 
     [SkippableFact]
     // REMOVE_END
-    public void run()
+    public void Run()
     {
         //REMOVE_START
         // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection

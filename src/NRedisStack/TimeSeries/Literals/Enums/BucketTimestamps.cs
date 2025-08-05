@@ -1,23 +1,22 @@
-namespace NRedisStack.Literals.Enums
+namespace NRedisStack.Literals.Enums;
+
+/// <summary>
+/// controls how bucket timestamps are reported.
+/// </summary>
+public enum TsBucketTimestamps
 {
     /// <summary>
-    /// controls how bucket timestamps are reported.
+    /// Timestamp is the start time (default)
     /// </summary>
-    public enum TsBucketTimestamps
-    {
-        /// <summary>
-        /// Timestamp is the start time (default)
-        /// </summary>
-        low,
+    low,
 
-        /// <summary>
-        /// Timestamp is the mid time (rounded down if not an integer)
-        /// </summary>
-        mid,
+    /// <summary>
+    /// Timestamp is the mid time (rounded down if not an integer)
+    /// </summary>
+    mid,
 
-        /// <summary>
-        /// Timestamp is the end time
-        /// </summary>
-        high,
-    }
+    /// <summary>
+    /// Timestamp is the end time
+    /// </summary>
+    high,
 }

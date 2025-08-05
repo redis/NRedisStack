@@ -7,12 +7,8 @@ using NRedisStack.Json.DataTypes;
 
 namespace NRedisStack.Tests;
 
-public class JsonTests : AbstractNRedisStackTest, IDisposable
+public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
 {
-    public JsonTests(EndpointsFixture endpointsFixture) : base(endpointsFixture)
-    {
-    }
-
     [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestSetFromFile(string endpointId)
@@ -154,10 +150,10 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
 
         //assert
         var i = 0;
-        Assert.Equal("{", respResult[i++]!.ToString());
-        Assert.Equal("name", respResult[i++]!.ToString());
-        Assert.Equal("Steve", respResult[i++]!.ToString());
-        Assert.Equal("age", respResult[i++]!.ToString());
+        Assert.Equal("{", respResult[i++].ToString());
+        Assert.Equal("name", respResult[i++].ToString());
+        Assert.Equal("Steve", respResult[i++].ToString());
+        Assert.Equal("age", respResult[i++].ToString());
         Assert.Equal(33, (long)respResult[i]!);
         conn.GetDatabase().KeyDelete(key);
     }
@@ -180,10 +176,10 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
 
         //assert
         var i = 0;
-        Assert.Equal("{", respResult[i++]!.ToString());
-        Assert.Equal("name", respResult[i++]!.ToString());
-        Assert.Equal("Steve", respResult[i++]!.ToString());
-        Assert.Equal("age", respResult[i++]!.ToString());
+        Assert.Equal("{", respResult[i++].ToString());
+        Assert.Equal("name", respResult[i++].ToString());
+        Assert.Equal("Steve", respResult[i++].ToString());
+        Assert.Equal("age", respResult[i++].ToString());
         Assert.Equal(33, (long)respResult[i]!);
         conn.GetDatabase().KeyDelete(key);
     }
@@ -712,7 +708,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         result = commands.Get<Person>(caseInsensitiveKey, "$", jsonOptions);
         Assert.NotNull(result);
-        Assert.Equal("Alice", result!.Name);
+        Assert.Equal("Alice", result.Name);
         Assert.Equal(35, result.Age);
         var people = commands.GetEnumerable<Person>(complexKey, "$..a").ToArray();
         Assert.Equal(2, people.Length);
@@ -740,7 +736,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         result = await commands.GetAsync<Person>(caseInsensitiveKey, "$", jsonOptions);
         Assert.NotNull(result);
-        Assert.Equal("Alice", result!.Name);
+        Assert.Equal("Alice", result.Name);
         Assert.Equal(35, result.Age);
         var people = (await commands.GetEnumerableAsync<Person>(complexKey, "$..a")).ToArray();
         Assert.Equal(2, people.Length);
@@ -750,7 +746,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(35, people[1]!.Age);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.1.242")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void MSet(string endpointId)
     {
@@ -759,11 +755,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var key1 = keys[0];
         var key2 = keys[1];
 
-        KeyPathValue[] values = new[]
-        {
-            new KeyPathValue(key1, "$", new { a = "hello" }),
-            new KeyPathValue(key2, "$", new { a = "world" })
-        };
+        KeyPathValue[] values =
+        [
+            new(key1, "$", new { a = "hello" }),
+            new(key2, "$", new { a = "world" })
+        ];
         commands.MSet(values);
 
         var result = commands.MGet(keys.Select(x => new RedisKey(x)).ToArray(), "$.a");
@@ -772,10 +768,10 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("[\"world\"]", result[1].ToString());
 
         // test errors:
-        Assert.Throws<ArgumentOutOfRangeException>(() => commands.MSet(new KeyPathValue[0]));
+        Assert.Throws<ArgumentOutOfRangeException>(() => commands.MSet([]));
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.1.242")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task MSetAsync(string endpointId)
     {
@@ -783,11 +779,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var keys = CreateKeyNames(2);
         var key1 = keys[0];
         var key2 = keys[1];
-        KeyPathValue[] values = new[]
-        {
-            new KeyPathValue(key1, "$", new { a = "hello" }),
-            new KeyPathValue(key2, "$", new { a = "world" })
-        };
+        KeyPathValue[] values =
+        [
+            new(key1, "$", new { a = "hello" }),
+            new(key2, "$", new { a = "world" })
+        ];
         await commands.MSetAsync(values);
 
         var result = await commands.MGetAsync(keys.Select(x => new RedisKey(x)).ToArray(), "$.a");
@@ -796,10 +792,10 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("[\"world\"]", result[1].ToString());
 
         // test errors:
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await commands.MSetAsync(new KeyPathValue[0]));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await commands.MSetAsync([]));
     }
 
-    [SkipIfRedis("7.1.242")]
+    [SkipIfRedisTheory("7.1.242")]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void Merge(string endpointId)
     {
@@ -819,7 +815,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("{\"person\":{\"name\":\"John Doe\",\"phone\":\"123-456-7890\",\"address\":{\"home\":\"123 Main Street\",\"work\":\"Redis office\"}}}", commands.Get("test_merge").ToString());
     }
 
-    [SkipIfRedis("7.1.242")]
+    [SkipIfRedisTheory("7.1.242")]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task MergeAsync(string endpointId)
     {
@@ -839,7 +835,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("{\"person\":{\"name\":\"John Doe\",\"phone\":\"123-456-7890\",\"address\":{\"home\":\"123 Main Street\",\"work\":\"Redis office\"}}}", (await commands.GetAsync("test_merge")).ToString());
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void MGet(string endpointId)
     {
@@ -855,7 +851,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("[\"world\"]", result[1].ToString());
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task MGetAsync(string endpointId)
     {
@@ -979,8 +975,8 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var keys = CreateKeyNames(1);
         var key = keys[0];
         commands.Set(key, "$", new { a = "hello", b = new { a = "world" } });
-        var res = commands.Get(key, new[] { "$..a", "$.b" }).ToString();
-        var obj = JsonSerializer.Deserialize<JsonObject>(res!);
+        var res = commands.Get(key, ["$..a", "$.b"]).ToString();
+        var obj = JsonSerializer.Deserialize<JsonObject>(res);
         Assert.True(obj!.ContainsKey("$..a"));
         Assert.True(obj.ContainsKey("$.b"));
         if (obj["$..a"] is JsonArray arr)
@@ -1004,8 +1000,8 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         var keys = CreateKeyNames(1);
         var key = keys[0];
         await commands.SetAsync(key, "$", new { a = "hello", b = new { a = "world" } });
-        var res = (await commands.GetAsync(key, new[] { "$..a", "$.b" })).ToString();
-        var obj = JsonSerializer.Deserialize<JsonObject>(res!);
+        var res = (await commands.GetAsync(key, ["$..a", "$.b"])).ToString();
+        var obj = JsonSerializer.Deserialize<JsonObject>(res);
         Assert.True(obj!.ContainsKey("$..a"));
         Assert.True(obj.ContainsKey("$.b"));
         if (obj["$..a"] is JsonArray arr)
@@ -1136,7 +1132,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
     public void TestJsonCommandBuilder()
     {
         var getBuild1 = JsonCommandBuilder.Get("key", "indent", "newline", "space", "path");
-        var getBuild2 = JsonCommandBuilder.Get("key", new string[] { "path1", "path2", "path3" }, "indent", "newline", "space");
+        var getBuild2 = JsonCommandBuilder.Get("key", ["path1", "path2", "path3"], "indent", "newline", "space");
         var expectedArgs1 = new object[] { "key", "INDENT", "indent", "NEWLINE", "newline", "SPACE", "space", "path" };
         var expectedArgs2 = new object[] { "key", "INDENT", "indent", "NEWLINE", "newline", "SPACE", "space", "path1", "path2", "path3" };
 
@@ -1204,10 +1200,10 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Person? result = commands.Get<Person>(key, serializerOptions: jsonOptions);
 
         Assert.NotNull(result);
-        Assert.Equal(person.Name, result!.Name);
-        Assert.Equal(person.Age, result!.Age);
-        Assert.NotNull(result!.Birthday);
-        Assert.Equal(person.Birthday, result!.Birthday);
+        Assert.Equal(person.Name, result.Name);
+        Assert.Equal(person.Age, result.Age);
+        Assert.NotNull(result.Birthday);
+        Assert.Equal(person.Birthday, result.Birthday);
     }
 
     [SkippableTheory]
@@ -1224,13 +1220,13 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         Person? result = await commands.GetAsync<Person>(key, serializerOptions: jsonOptions);
 
         Assert.NotNull(result);
-        Assert.Equal(person.Name, result!.Name);
-        Assert.Equal(person.Age, result!.Age);
-        Assert.NotNull(result!.Birthday);
-        Assert.Equal(person.Birthday, result!.Birthday);
+        Assert.Equal(person.Name, result.Name);
+        Assert.Equal(person.Age, result.Age);
+        Assert.NotNull(result.Birthday);
+        Assert.Equal(person.Birthday, result.Birthday);
     }
 
-    [SkipIfRedis("7.1.242")]
+    [SkipIfRedisTheory("7.1.242")]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void MergeWithSerializationOptions(string endpointId)
     {
@@ -1247,11 +1243,11 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         RedisResult rr = commands.Get(key);
 
         Assert.False(rr.IsNull);
-        string actual = rr.ToString()!;
+        string actual = rr.ToString();
         Assert.Equal(expected, actual);
     }
 
-    [SkipIfRedis("7.1.242")]
+    [SkipIfRedisTheory("7.1.242")]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task MergeWithSerializationOptionsAsync(string endpointId)
     {
@@ -1268,7 +1264,7 @@ public class JsonTests : AbstractNRedisStackTest, IDisposable
         RedisResult rr = await commands.GetAsync(key);
 
         Assert.False(rr.IsNull);
-        string actual = rr.ToString()!;
+        string actual = rr.ToString();
         Assert.Equal(expected, actual);
     }
 }

@@ -14,16 +14,14 @@ namespace Doc;
 // HIDE_START
 public class CmdsGenericExample
 // REMOVE_START
-: AbstractNRedisStackTest, IDisposable
+    (EndpointsFixture fixture) : AbstractNRedisStackTest(fixture), IDisposable
 // REMOVE_END
 {
     // REMOVE_START
-    public CmdsGenericExample(EndpointsFixture fixture) : base(fixture) { }
 
-    [SkipIfRedis(Comparison.LessThan, "7.0.0")]
-    [InlineData] // No parameters passed, but still uses Theory
+    [SkipIfRedisFact(Comparison.LessThan, "7.0.0")]
     // REMOVE_END
-    public void run()
+    public void Run()
     {
         //REMOVE_START
         // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
@@ -56,7 +54,7 @@ public class CmdsGenericExample
         bool delResult2 = db.StringSet("key2", "World");
         Console.WriteLine(delResult2);  // >>> true
 
-        long delResult3 = db.KeyDelete(new RedisKey[] { "key1", "key2", "key3" });
+        long delResult3 = db.KeyDelete(["key1", "key2", "key3"]);
         Console.WriteLine(delResult3);  // >>> 2
         // STEP_END
 

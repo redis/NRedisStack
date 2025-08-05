@@ -18,10 +18,10 @@ public abstract class AbstractNRedisStackTest : IClassFixture<EndpointsFixture>,
 
     protected internal AbstractNRedisStackTest(EndpointsFixture endpointsFixture)
     {
-        this.EndpointsFixture = endpointsFixture;
+        EndpointsFixture = endpointsFixture;
     }
 
-    protected ConnectionMultiplexer GetConnection(string endpointId = EndpointsFixture.Env.Standalone) => EndpointsFixture.GetConnectionById(this.DefaultConnectionConfig, endpointId);
+    protected ConnectionMultiplexer GetConnection(string endpointId = EndpointsFixture.Env.Standalone) => EndpointsFixture.GetConnectionById(DefaultConnectionConfig, endpointId);
 
     protected ConnectionMultiplexer GetConnection(ConfigurationOptions configurationOptions, string endpointId = EndpointsFixture.Env.Standalone) => EndpointsFixture.GetConnectionById(configurationOptions, endpointId);
 
@@ -58,7 +58,7 @@ public abstract class AbstractNRedisStackTest : IClassFixture<EndpointsFixture>,
         Skip.IfNot(EndpointsFixture.IsTargetConnectionExist(id), $"The connection with id '{id}' is not configured.");
     }
 
-    private List<string> keyNames = new List<string>();
+    private List<string> keyNames = [];
 
     protected internal string CreateKeyName([CallerMemberName] string memberName = "") => CreateKeyNames(1, memberName)[0];
 
@@ -95,10 +95,10 @@ public abstract class AbstractNRedisStackTest : IClassFixture<EndpointsFixture>,
         //Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
     }
 
-    public async Task DisposeAsync()
-    {
-        //var redis = Redis.GetDatabase();
-        // await redis.KeyDeleteAsync(keyNames.Select(i => (RedisKey)i).ToArray());
-        //await redis.ExecuteBroadcastAsync("FLUSHALL");
-    }
+    public Task DisposeAsync() => Task.CompletedTask;
+    /*{
+        var redis = Redis.GetDatabase();
+         await redis.KeyDeleteAsync(keyNames.Select(i => (RedisKey)i).ToArray());
+        await redis.ExecuteBroadcastAsync("FLUSHALL");
+    }*/
 }
