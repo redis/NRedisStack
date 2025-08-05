@@ -109,7 +109,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         int infoBeforeLibNameIndex = infoBefore!.IndexOf("lib-name=");
 
         int infoAfterLibVerIndex = infoAfter.IndexOf(" ", infoAfter!.IndexOf("lib-ver="));
-         infoAfterLibVerIndex = infoAfterLibVerIndex == -1 ? infoAfter.Length : infoAfterLibVerIndex;
+        infoAfterLibVerIndex = infoAfterLibVerIndex == -1 ? infoAfter.Length : infoAfterLibVerIndex;
         int infoBeforeLibVerIndex = infoBefore!.IndexOf(" ", infoBefore!.IndexOf("lib-ver="));
         infoBeforeLibVerIndex = infoBeforeLibVerIndex == -1 ? infoBefore.Length : infoBeforeLibVerIndex;
 
