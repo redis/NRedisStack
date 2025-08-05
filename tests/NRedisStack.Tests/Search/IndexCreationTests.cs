@@ -35,7 +35,7 @@ public class IndexCreationTests(EndpointsFixture endpointsFixture)
                                             "numeric1","NUMERIC", INDEXMISSING,
                                             "geo1","GEO", INDEXMISSING,
                                             "geoshape1","GEOSHAPE", "FLAT", INDEXMISSING,
-                                            "vector1","VECTOR","FLAT", INDEXMISSING};
+                                            "vector1","VECTOR","FLAT", 0, INDEXMISSING};
         Assert.Equal(expectedArgs, cmd.Args);
     }
 
