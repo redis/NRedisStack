@@ -1,6 +1,6 @@
+using NRedisStack.Bloom.Literals;
 using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
-using NRedisStack.Bloom.Literals;
 namespace NRedisStack;
 
 public static class BloomCommandBuilder

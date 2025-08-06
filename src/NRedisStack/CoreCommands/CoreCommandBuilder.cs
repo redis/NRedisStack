@@ -1,7 +1,7 @@
-using NRedisStack.RedisStackCommands;
-using NRedisStack.Core.Literals;
 using NRedisStack.Core;
 using NRedisStack.Core.DataTypes;
+using NRedisStack.Core.Literals;
+using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
 
 namespace NRedisStack;

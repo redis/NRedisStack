@@ -1,5 +1,5 @@
-using System.Text.Json;
 using NRedisStack.Literals.Enums;
+using System.Text.Json;
 
 namespace NRedisStack.DataTypes;
 
