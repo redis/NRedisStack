@@ -1,5 +1,5 @@
-﻿using System.Diagnostics;
-using NRedisStack.Search.Literals;
+﻿using NRedisStack.Search.Literals;
+using System.Diagnostics;
 using static NRedisStack.Search.Schema.GeoShapeField;
 using static NRedisStack.Search.Schema.VectorField;
 
