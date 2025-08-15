@@ -1352,7 +1352,7 @@ virtual NRedisStack.Search.Aggregation.Reducer.AddOwnArgs(System.Collections.Gen
 virtual NRedisStack.Search.Aggregation.Reducer.GetOwnArgsCount() -> int
 NRedisStack.Search.Schema.AddFlatVectorField(NRedisStack.Search.FieldName! name, NRedisStack.Search.Schema.VectorField.VectorType type, int dimensions, NRedisStack.Search.Schema.VectorField.VectorDistanceMetric distanceMetric, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false) -> NRedisStack.Search.Schema!
 NRedisStack.Search.Schema.AddHnswVectorField(NRedisStack.Search.FieldName! name, NRedisStack.Search.Schema.VectorField.VectorType type, int dimensions, NRedisStack.Search.Schema.VectorField.VectorDistanceMetric distanceMetric, int maxOutgoingConnections = 16, int maxConnectedNeighbors = 200, int maxTopCandidates = 10, double boundaryFactor = 0.01, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false) -> NRedisStack.Search.Schema!
-NRedisStack.Search.Schema.AddSvsVanamaVectorField(NRedisStack.Search.FieldName! name, NRedisStack.Search.Schema.VectorField.VectorType type, int dimensions, NRedisStack.Search.Schema.VectorField.VectorDistanceMetric distanceMetric, NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm compressionAlgorithm = NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm.NotSpecified, int constructionWindowSize = 200, int graphMaxDegree = 32, int searchWindowSize = 10, double rangeSearchApproximationFactor = 0.01, int trainingThreshold = 0, int reducedDimensions = 0, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false) -> NRedisStack.Search.Schema!
+NRedisStack.Search.Schema.AddSvsVamanaVectorField(NRedisStack.Search.FieldName! name, NRedisStack.Search.Schema.VectorField.VectorType type, int dimensions, NRedisStack.Search.Schema.VectorField.VectorDistanceMetric distanceMetric, NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm compressionAlgorithm = NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm.NotSpecified, int constructionWindowSize = 200, int graphMaxDegree = 32, int searchWindowSize = 10, double rangeSearchApproximationFactor = 0.01, int trainingThreshold = 0, int reducedDimensions = 0, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false) -> NRedisStack.Search.Schema!
 NRedisStack.Search.Schema.FlatVectorField
 NRedisStack.Search.Schema.FlatVectorField.FlatVectorField(NRedisStack.Search.FieldName! name, NRedisStack.Search.Schema.VectorField.VectorType type, int dimensions, NRedisStack.Search.Schema.VectorField.VectorDistanceMetric distanceMetric, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false) -> void
 NRedisStack.Search.Schema.HnswVectorField
@@ -1365,22 +1365,22 @@ NRedisStack.Search.Schema.HnswVectorField.MaxOutgoingConnections.get -> int
 NRedisStack.Search.Schema.HnswVectorField.MaxOutgoingConnections.set -> void
 NRedisStack.Search.Schema.HnswVectorField.MaxTopCandidates.get -> int
 NRedisStack.Search.Schema.HnswVectorField.MaxTopCandidates.set -> void
-NRedisStack.Search.Schema.SvsVanamaVectorField
-NRedisStack.Search.Schema.SvsVanamaVectorField.CompressionAlgorithm.get -> NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm
-NRedisStack.Search.Schema.SvsVanamaVectorField.CompressionAlgorithm.set -> void
-NRedisStack.Search.Schema.SvsVanamaVectorField.ConstructionWindowSize.get -> int
-NRedisStack.Search.Schema.SvsVanamaVectorField.ConstructionWindowSize.set -> void
-NRedisStack.Search.Schema.SvsVanamaVectorField.GraphMaxDegree.get -> int
-NRedisStack.Search.Schema.SvsVanamaVectorField.GraphMaxDegree.set -> void
-NRedisStack.Search.Schema.SvsVanamaVectorField.RangeSearchApproximationFactor.get -> double
-NRedisStack.Search.Schema.SvsVanamaVectorField.RangeSearchApproximationFactor.set -> void
-NRedisStack.Search.Schema.SvsVanamaVectorField.ReducedDimensions.get -> int
-NRedisStack.Search.Schema.SvsVanamaVectorField.ReducedDimensions.set -> void
-NRedisStack.Search.Schema.SvsVanamaVectorField.SearchWindowSize.get -> int
-NRedisStack.Search.Schema.SvsVanamaVectorField.SearchWindowSize.set -> void
-NRedisStack.Search.Schema.SvsVanamaVectorField.SvsVanamaVectorField(NRedisStack.Search.FieldName! name, NRedisStack.Search.Schema.VectorField.VectorType type, int dimensions, NRedisStack.Search.Schema.VectorField.VectorDistanceMetric distanceMetric, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false) -> void
-NRedisStack.Search.Schema.SvsVanamaVectorField.TrainingThreshold.get -> int
-NRedisStack.Search.Schema.SvsVanamaVectorField.TrainingThreshold.set -> void
+NRedisStack.Search.Schema.SvsVamanaVectorField
+NRedisStack.Search.Schema.SvsVamanaVectorField.CompressionAlgorithm.get -> NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm
+NRedisStack.Search.Schema.SvsVamanaVectorField.CompressionAlgorithm.set -> void
+NRedisStack.Search.Schema.SvsVamanaVectorField.ConstructionWindowSize.get -> int
+NRedisStack.Search.Schema.SvsVamanaVectorField.ConstructionWindowSize.set -> void
+NRedisStack.Search.Schema.SvsVamanaVectorField.GraphMaxDegree.get -> int
+NRedisStack.Search.Schema.SvsVamanaVectorField.GraphMaxDegree.set -> void
+NRedisStack.Search.Schema.SvsVamanaVectorField.RangeSearchApproximationFactor.get -> double
+NRedisStack.Search.Schema.SvsVamanaVectorField.RangeSearchApproximationFactor.set -> void
+NRedisStack.Search.Schema.SvsVamanaVectorField.ReducedDimensions.get -> int
+NRedisStack.Search.Schema.SvsVamanaVectorField.ReducedDimensions.set -> void
+NRedisStack.Search.Schema.SvsVamanaVectorField.SearchWindowSize.get -> int
+NRedisStack.Search.Schema.SvsVamanaVectorField.SearchWindowSize.set -> void
+NRedisStack.Search.Schema.SvsVamanaVectorField.SvsVamanaVectorField(NRedisStack.Search.FieldName! name, NRedisStack.Search.Schema.VectorField.VectorType type, int dimensions, NRedisStack.Search.Schema.VectorField.VectorDistanceMetric distanceMetric, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false) -> void
+NRedisStack.Search.Schema.SvsVamanaVectorField.TrainingThreshold.get -> int
+NRedisStack.Search.Schema.SvsVamanaVectorField.TrainingThreshold.set -> void
 NRedisStack.Search.Schema.VectorField.Dimensions.get -> int
 NRedisStack.Search.Schema.VectorField.Dimensions.set -> void
 NRedisStack.Search.Schema.VectorField.DistanceMetric.get -> NRedisStack.Search.Schema.VectorField.VectorDistanceMetric

@@ -533,7 +533,7 @@ public sealed class Schema
     /// <summary>
     /// A <see cref="VectorField"/> that uses the <see cref="VectorField.VectorAlgo.SVS_VAMANA"/> algorithm.
     /// </summary>
-    public class SvsVanamaVectorField(
+    public class SvsVamanaVectorField(
         FieldName name,
         VectorType type,
         int dimensions,
@@ -890,17 +890,17 @@ public sealed class Schema
     /// Add a <see href="VectorAlgo.SVS_VAMANA"/> vector to the schema.
     /// </summary>
     /// <remarks>Note that <c>reducedDimensions</c> is only applicable when using LeanVec compression.</remarks>
-    public Schema AddSvsVanamaVectorField(FieldName name, VectorType type, int dimensions, VectorDistanceMetric distanceMetric,
+    public Schema AddSvsVamanaVectorField(FieldName name, VectorType type, int dimensions, VectorDistanceMetric distanceMetric,
         VectorCompressionAlgorithm compressionAlgorithm = VectorCompressionAlgorithm.NotSpecified,
-        int constructionWindowSize = SvsVanamaVectorField.DEFAULT_CONSTRUCTION_WINDOW_SIZE,
-        int graphMaxDegree = SvsVanamaVectorField.DEFAULT_GRAPH_MAX_DEGREE,
-        int searchWindowSize = SvsVanamaVectorField.DEFAULT_SEARCH_WINDOW_SIZE,
-        double rangeSearchApproximationFactor = SvsVanamaVectorField.DEFAULT_EPSILON,
+        int constructionWindowSize = SvsVamanaVectorField.DEFAULT_CONSTRUCTION_WINDOW_SIZE,
+        int graphMaxDegree = SvsVamanaVectorField.DEFAULT_GRAPH_MAX_DEGREE,
+        int searchWindowSize = SvsVamanaVectorField.DEFAULT_SEARCH_WINDOW_SIZE,
+        double rangeSearchApproximationFactor = SvsVamanaVectorField.DEFAULT_EPSILON,
         int trainingThreshold = 0,
         int reducedDimensions = 0,
         Dictionary<string, object>? attributes = null, bool missingIndex = false)
     {
-        Fields.Add(new SvsVanamaVectorField(name, type, dimensions, distanceMetric, attributes, missingIndex)
+        Fields.Add(new SvsVamanaVectorField(name, type, dimensions, distanceMetric, attributes, missingIndex)
         {
             CompressionAlgorithm = compressionAlgorithm,
             ConstructionWindowSize = constructionWindowSize,
