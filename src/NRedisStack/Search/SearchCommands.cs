@@ -27,7 +27,7 @@ public class SearchCommands(IDatabase db, int? defaultDialect = 2)
             // we can issue this anywhere, but follow-up calls need to be on the same server
             server = GetRandomServerForCluster(db, out database);
         }
-        
+
         RedisResult result;
         if (server is not null)
         {
@@ -151,7 +151,7 @@ public class SearchCommands(IDatabase db, int? defaultDialect = 2)
         var resp = db.Execute(SearchCommandBuilder.CursorRead(indexName, cursorId, count)).ToArray();
         return new(resp[0], (long)resp[1]);
     }
-    
+
     public AggregationResult CursorRead(AggregationResult result, int? count = null)
     {
         if (result is not AggregationResult.WithCursorAggregationResult withCursor)

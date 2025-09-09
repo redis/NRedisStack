@@ -1238,7 +1238,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
         ex = await Assert.ThrowsAsync<RedisServerException>(async () => await ft.CursorReadAsync(res, 1));
         Assert.Contains("Cursor not found", ex.Message, StringComparison.OrdinalIgnoreCase);
     }
-    
+
     [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestCursorEnumerableAsync(string endpointId)

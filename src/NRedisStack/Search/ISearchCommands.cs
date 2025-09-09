@@ -110,7 +110,7 @@ public interface ISearchCommands
     [Obsolete("When possible, use CursorDel(AggregationResult) instead.")]
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     bool CursorDel(string indexName, long cursorId);
-    
+
     /// <summary>
     /// Delete a cursor from the index.
     /// </summary>
