@@ -1,4 +1,6 @@
+using System.ComponentModel;
 using NRedisStack.Search;
+using NRedisStack.Search.Aggregation;
 using NRedisStack.Search.DataTypes;
 using StackExchange.Redis;
 namespace NRedisStack;
@@ -16,8 +18,54 @@ public class SearchCommands(IDatabase db, int? defaultDialect = 2)
     public AggregationResult Aggregate(string index, AggregationRequest query)
     {
         SetDefaultDialectIfUnset(query);
-        var result = db.Execute(SearchCommandBuilder.Aggregate(index, query));
-        return result.ToAggregationResult(query);
+        IServer? server = null;
+        int? database = null;
+
+        var command = SearchCommandBuilder.Aggregate(index, query);
+        if (query.IsWithCursor())
+        {
+            // we can issue this anywhere, but follow-up calls need to be on the same server
+            server = GetRandomServerForCluster(db, out database);
+        }
+        
+        RedisResult result;
+        if (server is not null)
+        {
+            result = server.Execute(database, command);
+        }
+        else
+        {
+            result = db.Execute(command);
+        }
+
+        return result.ToAggregationResult(index, query, server, database);
+    }
+
+    public IEnumerable<Row> AggregateEnumerable(string index, AggregationRequest query)
+    {
+        if (!query.IsWithCursor()) query.Cursor();
+
+        var result = Aggregate(index, query);
+        try
+        {
+            while (true)
+            {
+                var count = checked((int)result.TotalResults);
+                for (int i = 0; i < count; i++)
+                {
+                    yield return result.GetRow(i);
+                }
+                if (result.CursorId == 0) break;
+                result = CursorRead(result, query.Count);
+            }
+        }
+        finally
+        {
+            if (result.CursorId != 0)
+            {
+                CursorDel(result);
+            }
+        }
     }
 
     /// <inheritdoc/>
@@ -72,16 +120,50 @@ public class SearchCommands(IDatabase db, int? defaultDialect = 2)
     }
 
     /// <inheritdoc/>
+    [Obsolete("When possible, use CursorDelAsync(AggregationResult, int?) instead.")]
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public bool CursorDel(string indexName, long cursorId)
     {
         return db.Execute(SearchCommandBuilder.CursorDel(indexName, cursorId)).OKtoBoolean();
     }
 
+    public bool CursorDel(AggregationResult result)
+    {
+        if (result is not AggregationResult.WithCursorAggregationResult withCursor)
+        {
+            throw new ArgumentException(
+                message: $"{nameof(CursorDelAsync)} must be called with a value returned from a previous call to {nameof(AggregateAsync)} with a cursor.",
+                paramName: nameof(result));
+        }
+
+        var command = SearchCommandBuilder.CursorDel(withCursor.IndexName, withCursor.CursorId);
+        var resp = withCursor.Server is { } server
+            ? server.Execute(withCursor.Database, command)
+            : db.Execute(command);
+        return resp.OKtoBoolean();
+    }
+
     /// <inheritdoc/>
+    [Obsolete("When possible, use CursorReadAsync(AggregationResult, int?) instead.")]
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public AggregationResult CursorRead(string indexName, long cursorId, int? count = null)
     {
         var resp = db.Execute(SearchCommandBuilder.CursorRead(indexName, cursorId, count)).ToArray();
         return new(resp[0], (long)resp[1]);
+    }
+    
+    public AggregationResult CursorRead(AggregationResult result, int? count = null)
+    {
+        if (result is not AggregationResult.WithCursorAggregationResult withCursor)
+        {
+            throw new ArgumentException(message: $"{nameof(CursorReadAsync)} must be called with a value returned from a previous call to {nameof(AggregateAsync)} with a cursor.", paramName: nameof(result));
+        }
+        var command = SearchCommandBuilder.CursorRead(withCursor.IndexName, withCursor.CursorId, count);
+        var rawResult = withCursor.Server is { } server
+            ? server.Execute(withCursor.Database, command)
+            : db.Execute(command);
+        var resp = rawResult.ToArray();
+        return new AggregationResult.WithCursorAggregationResult(withCursor.IndexName, resp[0], (long)resp[1], withCursor.Server, withCursor.Database);
     }
 
     /// <inheritdoc/>

@@ -1095,7 +1095,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestCursor(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -1125,21 +1125,17 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
         Assert.Equal(0.0, row.Value.GetDouble("nosuchcol"));
         Assert.Null(row.Value.GetString("nosuchcol"));
 
-        res = ft.CursorRead(index, res.CursorId, 1);
+        res = ft.CursorRead(res, 1);
         Row? row2 = res.GetRow(0);
 
         Assert.NotNull(row2);
         Assert.Equal("abc", row2.Value.GetString("name"));
         Assert.Equal(10, row2.Value.GetLong("sum"));
 
-        Assert.True(ft.CursorDel(index, res.CursorId));
+        Assert.True(ft.CursorDel(res));
 
-        try
-        {
-            ft.CursorRead(index, res.CursorId, 1);
-            Assert.True(false);
-        }
-        catch (RedisException) { }
+        var ex = Assert.Throws<RedisServerException>(() => ft.CursorRead(res, 1));
+        Assert.Contains("Cursor not found", ex.Message, StringComparison.OrdinalIgnoreCase);
 
         _ = new AggregationRequest()
             .GroupBy("@name", Reducers.Sum("@count").As("sum"))
@@ -1148,16 +1144,49 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
 
         await Task.Delay(1000).ConfigureAwait(false);
 
-        try
-        {
-            ft.CursorRead(index, res.CursorId, 1);
-            Assert.True(false);
-        }
-        catch (RedisException) { }
+        ex = Assert.Throws<RedisServerException>(() => ft.CursorRead(res, 1));
+        Assert.Contains("Cursor not found", ex.Message, StringComparison.OrdinalIgnoreCase);
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestCursorEnumerable(string endpointId)
+    {
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ft = db.FT();
+        Schema sc = new();
+        sc.AddTextField("name", 1.0, sortable: true);
+        sc.AddNumericField("count", sortable: true);
+        ft.Create(index, FTCreateParams.CreateParams(), sc);
+        AddDocument(db, new Document("data1").Set("name", "abc").Set("count", 10));
+        AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
+        AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
+
+        AggregationRequest r = new AggregationRequest()
+            .GroupBy("@name", Reducers.Sum("@count").As("sum"))
+            .SortBy(10, SortedField.Desc("@sum"))
+            .Cursor(1, 3000);
+
+        // actual search
+        using var iter = ft.AggregateEnumerable(index, r).GetEnumerator();
+        Assert.True(iter.MoveNext());
+        var row = iter.Current;
+        Assert.Equal("def", row.GetString("name"));
+        Assert.Equal(30, row.GetLong("sum"));
+        Assert.Equal(30.0, row.GetDouble("sum"));
+
+        Assert.Equal(0L, row.GetLong("nosuchcol"));
+        Assert.Equal(0.0, row.GetDouble("nosuchcol"));
+        Assert.Null(row.GetString("nosuchcol"));
+
+        Assert.True(iter.MoveNext());
+        row = iter.Current;
+        Assert.Equal("abc", row.GetString("name"));
+        Assert.Equal(10, row.GetLong("sum"));
+    }
+
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestCursorAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -1187,21 +1216,17 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
         Assert.Equal(0.0, row.Value.GetDouble("nosuchcol"));
         Assert.Null(row.Value.GetString("nosuchcol"));
 
-        res = await ft.CursorReadAsync(index, res.CursorId, 1);
+        res = await ft.CursorReadAsync(res, 1);
         Row? row2 = res.GetRow(0);
 
         Assert.NotNull(row2);
         Assert.Equal("abc", row2.Value.GetString("name"));
         Assert.Equal(10, row2.Value.GetLong("sum"));
 
-        Assert.True(await ft.CursorDelAsync(index, res.CursorId));
+        Assert.True(await ft.CursorDelAsync(res));
 
-        try
-        {
-            await ft.CursorReadAsync(index, res.CursorId, 1);
-            Assert.True(false);
-        }
-        catch (RedisException) { }
+        var ex = await Assert.ThrowsAsync<RedisServerException>(async () => await ft.CursorReadAsync(res, 1));
+        Assert.Contains("Cursor not found", ex.Message, StringComparison.OrdinalIgnoreCase);
 
         _ = new AggregationRequest()
             .GroupBy("@name", Reducers.Sum("@count").As("sum"))
@@ -1210,12 +1235,45 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
 
         await Task.Delay(1000).ConfigureAwait(false);
 
-        try
-        {
-            await ft.CursorReadAsync(index, res.CursorId, 1);
-            Assert.True(false);
-        }
-        catch (RedisException) { }
+        ex = await Assert.ThrowsAsync<RedisServerException>(async () => await ft.CursorReadAsync(res, 1));
+        Assert.Contains("Cursor not found", ex.Message, StringComparison.OrdinalIgnoreCase);
+    }
+    
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestCursorEnumerableAsync(string endpointId)
+    {
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ft = db.FT();
+        Schema sc = new();
+        sc.AddTextField("name", 1.0, sortable: true);
+        sc.AddNumericField("count", sortable: true);
+        ft.Create(index, FTCreateParams.CreateParams(), sc);
+        AddDocument(db, new Document("data1").Set("name", "abc").Set("count", 10));
+        AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
+        AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
+
+        AggregationRequest r = new AggregationRequest()
+            .GroupBy("@name", Reducers.Sum("@count").As("sum"))
+            .SortBy(10, SortedField.Desc("@sum"))
+            .Cursor(1, 3000);
+
+        // actual search
+        await using var iter = ft.AggregateEnumerableAsync(index, r).GetAsyncEnumerator();
+        Assert.True(await iter.MoveNextAsync());
+        var row = iter.Current;
+        Assert.Equal("def", row.GetString("name"));
+        Assert.Equal(30, row.GetLong("sum"));
+        Assert.Equal(30.0, row.GetDouble("sum"));
+
+        Assert.Equal(0L, row.GetLong("nosuchcol"));
+        Assert.Equal(0.0, row.GetDouble("nosuchcol"));
+        Assert.Null(row.GetString("nosuchcol"));
+
+        Assert.True(await iter.MoveNextAsync());
+        row = iter.Current;
+        Assert.Equal("abc", row.GetString("name"));
+        Assert.Equal(10, row.GetLong("sum"));
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]

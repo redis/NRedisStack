@@ -3,14 +3,28 @@ using StackExchange.Redis;
 
 namespace NRedisStack.Search;
 
-public sealed class AggregationResult
+public class AggregationResult
 {
+    // internal subclass for WITHCURSOR calls, which need to be issued to the same connection
+    internal sealed class WithCursorAggregationResult : AggregationResult
+    {
+        internal WithCursorAggregationResult(string indexName, RedisResult result, long cursorId, IServer? server,
+            int? database) : base(result, cursorId)
+        {
+            IndexName = indexName;
+            Server = server;
+            Database = database;
+        }
+        public string IndexName { get; }
+        public IServer? Server { get; }
+        public int? Database { get; }
+    }
+
     public long TotalResults { get; }
     private readonly Dictionary<string, object>[] _results;
     private Dictionary<string, RedisValue>[]? _resultsAsRedisValues;
 
     public long CursorId { get; }
-
 
     internal AggregationResult(RedisResult result, long cursorId = -1)
     {
@@ -44,7 +58,6 @@ public sealed class AggregationResult
         TotalResults = _results.Length;
         CursorId = cursorId;
     }
-
 
     /// <summary>
     /// takes a Redis multi-bulk array represented by a RedisResult[] and recursively processes its elements.
