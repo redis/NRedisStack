@@ -1,5 +1,5 @@
-﻿using NRedisStack.Literals.Enums;
-using NRedisStack.Extensions;
+﻿using NRedisStack.Extensions;
+using NRedisStack.Literals.Enums;
 
 namespace NRedisStack.DataTypes;
 

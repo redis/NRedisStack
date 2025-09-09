@@ -1,0 +1,2 @@
+[*.cs]
+dotnet_sort_system_directives_first = false # we don't want this in docs, because of hidden sections
