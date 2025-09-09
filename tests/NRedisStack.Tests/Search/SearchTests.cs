@@ -1205,7 +1205,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
             .Cursor(1, 3000);
 
         // actual search
-        AggregationResult res = ft.Aggregate(index, r);
+        AggregationResult res = await ft.AggregateAsync(index, r);
         Row? row = res.GetRow(0);
         Assert.NotNull(row);
         Assert.Equal("def", row.Value.GetString("name"));
@@ -1259,7 +1259,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
             .Cursor(1, 3000);
 
         // actual search
-        await using var iter = ft.AggregateEnumerableAsync(index, r).GetAsyncEnumerator();
+        await using var iter = ft.AggregateAsyncEnumerable(index, r).GetAsyncEnumerator();
         Assert.True(await iter.MoveNextAsync());
         var row = iter.Current;
         Assert.Equal("def", row.GetString("name"));

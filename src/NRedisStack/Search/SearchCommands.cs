@@ -120,7 +120,7 @@ public class SearchCommands(IDatabase db, int? defaultDialect = 2)
     }
 
     /// <inheritdoc/>
-    [Obsolete("When possible, use CursorDelAsync(AggregationResult, int?) instead.")]
+    [Obsolete("When possible, use CursorDel(AggregationResult) instead.")]
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public bool CursorDel(string indexName, long cursorId)
     {
@@ -144,7 +144,7 @@ public class SearchCommands(IDatabase db, int? defaultDialect = 2)
     }
 
     /// <inheritdoc/>
-    [Obsolete("When possible, use CursorReadAsync(AggregationResult, int?) instead.")]
+    [Obsolete("When possible, use CusorReadEnumerable or CursorRead(AggregationResult, int?) instead.")]
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public AggregationResult CursorRead(string indexName, long cursorId, int? count = null)
     {

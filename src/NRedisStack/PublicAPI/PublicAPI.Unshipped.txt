@@ -1,7 +1,13 @@
 #nullable enable
+NRedisStack.ISearchCommands.AggregateEnumerable(string! index, NRedisStack.Search.AggregationRequest! query) -> System.Collections.Generic.IEnumerable<NRedisStack.Search.Aggregation.Row>!
+NRedisStack.ISearchCommands.CursorDel(NRedisStack.Search.AggregationResult! result) -> bool
+NRedisStack.ISearchCommands.CursorRead(NRedisStack.Search.AggregationResult! result, int? count = null) -> NRedisStack.Search.AggregationResult!
+NRedisStack.ISearchCommandsAsync.AggregateAsyncEnumerable(string! index, NRedisStack.Search.AggregationRequest! query) -> System.Collections.Generic.IAsyncEnumerable<NRedisStack.Search.Aggregation.Row>!
+NRedisStack.ISearchCommandsAsync.CursorDelAsync(NRedisStack.Search.AggregationResult! result) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ISearchCommandsAsync.CursorReadAsync(NRedisStack.Search.AggregationResult! result, int? count = null) -> System.Threading.Tasks.Task<NRedisStack.Search.AggregationResult!>!
 NRedisStack.SearchCommands.AggregateEnumerable(string! index, NRedisStack.Search.AggregationRequest! query) -> System.Collections.Generic.IEnumerable<NRedisStack.Search.Aggregation.Row>!
 NRedisStack.SearchCommands.CursorDel(NRedisStack.Search.AggregationResult! result) -> bool
 NRedisStack.SearchCommands.CursorRead(NRedisStack.Search.AggregationResult! result, int? count = null) -> NRedisStack.Search.AggregationResult!
-NRedisStack.SearchCommandsAsync.AggregateEnumerableAsync(string! index, NRedisStack.Search.AggregationRequest! query) -> System.Collections.Generic.IAsyncEnumerable<NRedisStack.Search.Aggregation.Row>!
+NRedisStack.SearchCommandsAsync.AggregateAsyncEnumerable(string! index, NRedisStack.Search.AggregationRequest! query) -> System.Collections.Generic.IAsyncEnumerable<NRedisStack.Search.Aggregation.Row>!
 NRedisStack.SearchCommandsAsync.CursorDelAsync(NRedisStack.Search.AggregationResult! result) -> System.Threading.Tasks.Task<bool>!
 NRedisStack.SearchCommandsAsync.CursorReadAsync(NRedisStack.Search.AggregationResult! result, int? count = null) -> System.Threading.Tasks.Task<NRedisStack.Search.AggregationResult!>!

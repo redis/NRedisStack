@@ -83,7 +83,7 @@ public class SearchCommandsAsync : ISearchCommandsAsync
         return result.ToAggregationResult(index, query, server, database);
     }
 
-    public async IAsyncEnumerable<Row> AggregateEnumerableAsync(string index, AggregationRequest query)
+    public async IAsyncEnumerable<Row> AggregateAsyncEnumerable(string index, AggregationRequest query)
     {
         if (!query.IsWithCursor()) query.Cursor();
 
@@ -185,7 +185,7 @@ public class SearchCommandsAsync : ISearchCommandsAsync
     }
 
     /// <inheritdoc/>
-    [Obsolete("When possible, use CursorReadAsync(AggregationResult, int?) instead.")]
+    [Obsolete("When possible, use AggregateAsyncEnumerable or CursorReadAsync(AggregationResult, int?) instead.")]
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public async Task<AggregationResult> CursorReadAsync(string indexName, long cursorId, int? count = null)
     {
