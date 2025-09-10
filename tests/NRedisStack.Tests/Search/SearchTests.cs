@@ -223,21 +223,26 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         ft.Create("idx", new(), sc);
 
         AddDocument(db, new Document("doc1").Set("t1", "hello").Set("t2", "world"));
+        Assert.Equal(1, DatabaseSize(db)); // in part, this is to allow replication to catch up
 
         // load t1
         var req = new AggregationRequest("*").Load(new FieldName("t1"));
         var res = ft.Aggregate("idx", req);
+        Assert.NotNull(res[0]?["t1"]);
         Assert.Equal("hello", res[0]!["t1"].ToString());
 
         // load t2
         req = new AggregationRequest("*").Load(new FieldName("t2"));
         res = ft.Aggregate("idx", req);
+        Assert.NotNull(res[0]?["t2"]);
         Assert.Equal("world", res[0]!["t2"]);
 
         // load all
         req = new AggregationRequest("*").LoadAll();
         res = ft.Aggregate("idx", req);
+        Assert.NotNull(res[0]?["t1"]);
         Assert.Equal("hello", res[0]!["t1"].ToString());
+        Assert.NotNull(res[0]?["t2"]);
         Assert.Equal("world", res[0]!["t2"]);
     }
 
@@ -251,25 +256,28 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         await ft.CreateAsync("idx", new(), sc);
 
         AddDocument(db, new Document("doc1").Set("t1", "hello").Set("t2", "world"));
+        Assert.Equal(1, await DatabaseSizeAsync(db)); // in part, this is to allow replication to catch up
 
         // load t1
         var req = new AggregationRequest("*").Load(new FieldName("t1"));
         var res = await ft.AggregateAsync("idx", req);
+        Assert.NotNull(res[0]?["t1"]);
         Assert.Equal("hello", res[0]!["t1"].ToString());
 
         // load t2
         req = new AggregationRequest("*").Load(new FieldName("t2"));
         res = await ft.AggregateAsync("idx", req);
+        Assert.NotNull(res[0]?["t2"]);
         Assert.Equal("world", res[0]!["t2"]);
 
         // load all
         req = new AggregationRequest("*").LoadAll();
         res = await ft.AggregateAsync("idx", req);
+        Assert.NotNull(res[0]?["t1"]);
         Assert.Equal("hello", res[0]!["t1"].ToString());
+        Assert.NotNull(res[0]?["t2"]);
         Assert.Equal("world", res[0]!["t2"]);
     }
-
-
 
     [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
@@ -418,7 +426,16 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         doc.Add("field1", "value");
         AddDocument(db, "doc1", doc);
 
-        Assert.True(ft.AliasAdd("ALIAS1", index));
+        try
+        {
+            Assert.True(ft.AliasAdd("ALIAS1", index));
+        }
+        catch (RedisServerException rse) 
+        {
+            Skip.If(rse.Message.StartsWith("CROSSSLOT"), "legacy failure");
+            throw;
+        }
+
         SearchResult res1 = ft.Search("ALIAS1", new Query("*").ReturnFields("field1"));
         Assert.Equal(1, res1.TotalResults);
         Assert.Equal("value", res1.Documents[0]["field1"]);
@@ -447,7 +464,16 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         doc.Add("field1", "value");
         AddDocument(db, "doc1", doc);
 
-        Assert.True(await ft.AliasAddAsync("ALIAS1", index));
+        try
+        {
+            Assert.True(await ft.AliasAddAsync("ALIAS1", index));
+        }
+        catch (RedisServerException rse) 
+        {
+            Skip.If(rse.Message.StartsWith("CROSSSLOT"), "legacy failure");
+            throw;
+        }
+
         SearchResult res1 = ft.Search("ALIAS1", new Query("*").ReturnFields("field1"));
         Assert.Equal(1, res1.TotalResults);
         Assert.Equal("value", res1.Documents[0]["field1"]);
@@ -642,6 +668,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         db.HashSet("pupil:4444", [new("first", "Pat"), new("last", "Shu"), new("age", "21")]);
         db.HashSet("student:5555", [new("first", "Joen"), new("last", "Ko"), new("age", "20")]);
         db.HashSet("teacher:6666", [new("first", "Pat"), new("last", "Rod"), new("age", "20")]);
+        Assert.Equal(7, DatabaseSize(db)); // in part, this is to allow replication to catch up
 
         SearchResult noFilters = ft.Search(index, new());
         Assert.Equal(5, noFilters.TotalResults);
@@ -3631,7 +3658,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     /// https://redis.io/docs/latest/commands/ft.search/#:~:text=If%20a%20relevant%20key%20expires,the%20total%20number%20of%20results. 
     /// </summary>
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestDocumentLoadWithDB_Issue352(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
