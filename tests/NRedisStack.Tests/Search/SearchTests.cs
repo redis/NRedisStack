@@ -1423,7 +1423,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
             "@parent", Reducers.FirstValue("@title").As("first"));
         var agg = ft.Aggregate("idx", req);
         Log($"results: {agg.TotalResults}");
-        for (int i = 0 ; i < agg.TotalResults; i++)
+        for (int i = 0; i < agg.TotalResults; i++)
         {
             Log($"parent: {agg.GetRow(i)["parent"]}, first: {agg.GetRow(i)["first"]}");
         }
