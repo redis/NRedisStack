@@ -430,7 +430,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         {
             Assert.True(ft.AliasAdd("ALIAS1", index));
         }
-        catch (RedisServerException rse) 
+        catch (RedisServerException rse)
         {
             Skip.If(rse.Message.StartsWith("CROSSSLOT"), "legacy failure");
             throw;
@@ -468,7 +468,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         {
             Assert.True(await ft.AliasAddAsync("ALIAS1", index));
         }
-        catch (RedisServerException rse) 
+        catch (RedisServerException rse)
         {
             Skip.If(rse.Message.StartsWith("CROSSSLOT"), "legacy failure");
             throw;
