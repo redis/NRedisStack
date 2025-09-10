@@ -39,7 +39,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
                 _ => throw new ArgumentException($"Unsupported type: {pair.Value.GetType()}"),
             }))
             .ToArray();
-        db.HashSet(key, hash);  
+        db.HashSet(key, hash);
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
