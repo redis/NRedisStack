@@ -1514,7 +1514,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         var count = 0L;
         foreach (var server in db.Multiplexer.GetServers())
         {
-            if (server.IsReplica)
+            if (server.IsReplica || !server.IsConnected)
             {
                 replicaCount++;
             }
@@ -1532,7 +1532,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         var count = 0L;
         foreach (var server in db.Multiplexer.GetServers())
         {
-            if (!server.IsReplica)
+            if (!server.IsReplica && server.IsConnected)
             {
                 count += await server.DatabaseSizeAsync();
             }
