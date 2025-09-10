@@ -19,41 +19,27 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
 
     private void AddDocument(IDatabase db, Document doc)
     {
-        string key = doc.Id;
-        var properties = doc.GetProperties();
-        // HashEntry[] hash = new  HashEntry[properties.Count()];
-        // for(int i = 0; i < properties.Count(); i++)
-        // {
-        //     var property = properties.ElementAt(i);
-        //     hash[i] = new HashEntry(property.Key, property.Value);
-        // }
-        // db.HashSet(key, hash);
-        var nameValue = new List<object>() { key };
-        foreach (var item in properties)
-        {
-            nameValue.Add(item.Key);
-            nameValue.Add(item.Value);
-        }
-        db.Execute("HSET", nameValue);
+        var hash = doc.GetProperties()
+            .Select(pair => new HashEntry(pair.Key, pair.Value))
+            .ToArray();
+        db.HashSet(doc.Id, hash);
     }
 
     private void AddDocument(IDatabase db, string key, Dictionary<string, object> objDictionary)
     {
         Dictionary<string, string> strDictionary = new();
-        // HashEntry[] hash = new  HashEntry[objDictionary.Count()];
-        // for(int i = 0; i < objDictionary.Count(); i++)
-        // {
-        //     var property = objDictionary.ElementAt(i);
-        //     hash[i] = new HashEntry(property.Key, property.Value.ToString());
-        // }
-        // db.HashSet(key, hash);
-        var nameValue = new List<object>() { key };
-        foreach (var item in objDictionary)
-        {
-            nameValue.Add(item.Key);
-            nameValue.Add(item.Value);
-        }
-        db.Execute("HSET", nameValue);
+        var hash = objDictionary
+            .Select(pair => new HashEntry(pair.Key, pair.Value switch
+            {
+                string s => (RedisValue)s,
+                byte[] b => b,
+                int i => i,
+                long l => l,
+                double d => d,
+                _ => throw new ArgumentException($"Unsupported type: {pair.Value.GetType()}"),
+            }))
+            .ToArray();
+        db.HashSet(key, hash);  
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
@@ -1444,7 +1430,16 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
         {
             Assert.Contains("no such index", ex.Message, StringComparison.OrdinalIgnoreCase);
         }
-        Assert.Equal("100", db.Execute("DBSIZE").ToString());
+
+        var count = 0L;
+        foreach (var server in db.Multiplexer.GetServers())
+        {
+            if (!server.IsReplica)
+            {
+                count += server.DatabaseSize();
+            }
+        }
+        Assert.Equal(100, count);
     }
 
     [SkippableTheory]
