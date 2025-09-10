@@ -485,6 +485,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         AddDocument(db, new Document("data4").Set("name", "abc").Set("subj1", 30).Set("subj2", 20));
         AddDocument(db, new Document("data5").Set("name", "def").Set("subj1", 65).Set("subj2", 45));
         AddDocument(db, new Document("data6").Set("name", "ghi").Set("subj1", 70).Set("subj2", 70));
+        Assert.Equal(6, DatabaseSize(db)); // in part, this is to allow replication to catch up
 
         AggregationRequest r = new AggregationRequest().Apply("(@subj1+@subj2)/2", "attemptavg")
             .GroupBy("@name", Reducers.Avg("@attemptavg").As("avgscore"))
@@ -522,6 +523,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         db.HashSet("pupil:4444", [new("first", "Pat"), new("last", "Shu"), new("age", "21")]);
         db.HashSet("student:5555", [new("first", "Joen"), new("last", "Ko"), new("age", "20")]);
         db.HashSet("teacher:6666", [new("first", "Pat"), new("last", "Rod"), new("age", "20")]);
+        Assert.Equal(7, DatabaseSize(db)); // in part, this is to allow replication to catch up
 
         var noFilters = ft.Search(index, new());
         Assert.Equal(4, noFilters.TotalResults);
@@ -552,6 +554,8 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         db.HashSet("pupil:4444", [new("first", "Pat"), new("last", "Shu"), new("age", "21")]);
         db.HashSet("student:5555", [new("first", "Joen"), new("last", "Ko"), new("age", "20")]);
         db.HashSet("teacher:6666", [new("first", "Pat"), new("last", "Rod"), new("age", "20")]);
+        Assert.Equal(7, await DatabaseSizeAsync(db)); // in part, this is to allow replication to catch up
+
         var noFilters = ft.Search(index, new());
         Assert.Equal(4, noFilters.TotalResults);
         var res1 = ft.Search(index, new("@first:Jo*"));
@@ -576,6 +580,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         db.HashSet("student:3333", [new("first", "El"), new("last", "Mark"), new("age", 17)]);
         db.HashSet("pupil:4444", [new("first", "Pat"), new("last", "Shu"), new("age", 21)]);
         db.HashSet("student:5555", [new("first", "Joen"), new("last", "Ko"), new("age", 20)]);
+        Assert.Equal(4, DatabaseSize(db)); // in part, this is to allow replication to catch up
 
         SearchResult noFilters = ft.Search(index, new());
         Assert.Equal(4, noFilters.TotalResults);
@@ -604,6 +609,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         db.HashSet("student:3333", [new("first", "El"), new("last", "Mark"), new("age", 17)]);
         db.HashSet("pupil:4444", [new("first", "Pat"), new("last", "Shu"), new("age", 21)]);
         db.HashSet("student:5555", [new("first", "Joen"), new("last", "Ko"), new("age", 20)]);
+        Assert.Equal(4, await DatabaseSizeAsync(db)); // in part, this is to allow replication to catch up
 
         SearchResult noFilters = ft.Search(index, new());
         Assert.Equal(4, noFilters.TotalResults);
@@ -1159,6 +1165,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         AddDocument(db, new Document("data1").Set("name", "abc").Set("count", 10));
         AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
         AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
+        Assert.Equal(3, DatabaseSize(db)); // in part, this is to allow replication to catch up
 
         AggregationRequest r = new AggregationRequest()
             .GroupBy("@name", Reducers.Sum("@count").As("sum"))
@@ -1213,6 +1220,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         AddDocument(db, new Document("data1").Set("name", "abc").Set("count", 10));
         AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
         AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
+        Assert.Equal(3, DatabaseSize(db)); // in part, this is to allow replication to catch up
 
         AggregationRequest r = new AggregationRequest()
             .GroupBy("@name", Reducers.Sum("@count").As("sum"))
@@ -1250,6 +1258,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         AddDocument(db, new Document("data1").Set("name", "abc").Set("count", 10));
         AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
         AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
+        Assert.Equal(3, await DatabaseSizeAsync(db)); // in part, this is to allow replication to catch up
 
         AggregationRequest r = new AggregationRequest()
             .GroupBy("@name", Reducers.Sum("@count").As("sum"))
@@ -1304,6 +1313,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         AddDocument(db, new Document("data1").Set("name", "abc").Set("count", 10));
         AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
         AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
+        Assert.Equal(3, await DatabaseSizeAsync(db)); // in part, this is to allow replication to catch up
 
         AggregationRequest r = new AggregationRequest()
             .GroupBy("@name", Reducers.Sum("@count").As("sum"))
@@ -2265,7 +2275,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         IDatabase db = GetCleanDatabase();
         var ft = db.FT();
 
-        db.Execute("JSON.SET", "doc:1", "$", "[{\"arr\": [1, 2, 3]}, {\"val\": \"hello\"}, {\"val\": \"world\"}]");
+        db.Execute("JSON.SET", (RedisKey)"doc:1", "$", "[{\"arr\": [1, 2, 3]}, {\"val\": \"hello\"}, {\"val\": \"world\"}]");
         db.Execute("FT.CREATE", "idx", "ON", "JSON", "PREFIX", "1", "doc:", "SCHEMA", "$..arr", "AS", "arr", "NUMERIC", "$..val", "AS", "val", "TEXT");
         // sleep:
         Thread.Sleep(2000);
@@ -2343,6 +2353,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Document doc2 = new("doc2", new() { { "t1", "b" }, { "t2", "a" } });
         AddDocument(db, doc1);
         AddDocument(db, doc2);
+        Assert.Equal(2, DatabaseSize(db)); // in part, this is to allow replication to catch up
 
         var req = new AggregationRequest("*").SortBy("@t1").Limit(1);
         var res = ft.Aggregate("idx", req);
@@ -2363,6 +2374,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Document doc2 = new("doc2", new() { { "t1", "b" }, { "t2", "a" } });
         AddDocument(db, doc1);
         AddDocument(db, doc2);
+        Assert.Equal(2, await DatabaseSizeAsync(db)); // in part, this is to allow replication to catch up
 
         var req = new AggregationRequest("*").SortBy("@t1").Limit(1, 1);
         var res = await ft.AggregateAsync("idx", req);
@@ -2447,7 +2459,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         float[] vec = [2, 2, 2, 2];
         byte[] queryVec = MemoryMarshal.Cast<float, byte>(vec).ToArray();
 
-
+        Assert.Equal(4, DatabaseSize(db)); // in part, this is to allow replication to catch up
         var query = new Query("*=>[KNN 3 @vector $query_vec]")
                             .AddParam("query_vec", queryVec)
                             .SetSortBy("__vector_score")
@@ -2485,6 +2497,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         db.HashSet("b", "v", "aaaabaaa");
         db.HashSet("c", "v", "aaaaabaa");
 
+        Assert.Equal(3, DatabaseSize(db)); // in part, this is to allow replication to catch up
         var q = new Query("*=>[KNN 2 @v $vec]").ReturnFields("__v_score").Dialect(2);
         var res = ft.Search("idx", q.AddParam("vec", "aaaaaaaa"));
         Assert.Equal(2, res.TotalResults);
@@ -2525,6 +2538,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         db.HashSet("2", "numval", 2);
         db.HashSet("3", "numval", 3);
 
+        Assert.Equal(3, DatabaseSize(db)); // in part, this is to allow replication to catch up
         Query query = new Query("@numval:[$min $max]").AddParam("min", 1).AddParam("max", 2);
         var res = ft.Search("idx", query);
         Assert.Equal(2, res.TotalResults);
@@ -2544,6 +2558,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         db.HashSet("2", "numval", 2);
         db.HashSet("3", "numval", 3);
 
+        Assert.Equal(3, await DatabaseSizeAsync(db)); // in part, this is to allow replication to catch up
         Query query = new Query("@numval:[$min $max]").AddParam("min", 1).AddParam("max", 2);
         var res = await ft.SearchAsync("idx", query);
         Assert.Equal(2, res.TotalResults);
@@ -2563,6 +2578,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         db.HashSet("2", "numval", 2);
         db.HashSet("3", "numval", 3);
 
+        Assert.Equal(3, DatabaseSize(db)); // in part, this is to allow replication to catch up
         Query query = new Query("@numval:[$min $max]").AddParam("min", 1).AddParam("max", 2);
         var res = ft.Search("idx", query);
         Assert.Equal(2, res.TotalResults);
@@ -2590,6 +2606,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         db.HashSet("doc1", [new("name", "name2"), new("body", "body2")]);
         db.HashSet("doc1", [new("name", "name2"), new("body", "name2")]);
 
+        Assert.Equal(1, DatabaseSize(db)); // in part, this is to allow replication to catch up
         var reply = ft.SpellCheck(index, "name");
         Assert.Single(reply.Keys);
         Assert.Equal("name", reply.Keys.First());
@@ -2610,6 +2627,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         db.HashSet("doc1", [new("name", "name2"), new("body", "body2")]);
         db.HashSet("doc1", [new("name", "name2"), new("body", "name2")]);
 
+        Assert.Equal(1, await DatabaseSizeAsync(db)); // in part, this is to allow replication to catch up
         var reply = await ft.SpellCheckAsync(index, "name");
         Assert.Single(reply.Keys);
         Assert.Equal("name", reply.Keys.First());
@@ -2723,6 +2741,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         db.HashSet("2", "numval", 2);
         db.HashSet("3", "numval", 3);
 
+        Assert.Equal(3, DatabaseSize(db)); // in part, this is to allow replication to catch up
         Query query = new Query("@numval:[$min $max]").AddParam("min", 1).AddParam("max", 2);
         var res = await ft.SearchAsync("idx", query);
         Assert.Equal(2, res.TotalResults);
