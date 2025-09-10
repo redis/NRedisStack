@@ -1498,7 +1498,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         var ft = db.FT();
 
         Assert.Equal(3L, ft.DictAdd("dict", "bar", "foo", "hello world"));
-
+        Assert.Equal(0, DatabaseSize(db)); // in part, this is to allow replication to catch up
         var dumResult = ft.DictDump("dict");
         int i = 0;
         Assert.Equal("bar", dumResult[i++].ToString());
@@ -1506,6 +1506,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal("hello world", dumResult[i].ToString());
 
         Assert.Equal(3L, ft.DictDel("dict", "foo", "bar", "hello world"));
+        Assert.Equal(0, DatabaseSize(db)); // in part, this is to allow replication to catch up
         Assert.Empty(ft.DictDump("dict"));
     }
 
@@ -1672,7 +1673,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         var ft = db.FT();
 
         Assert.Equal(3L, await ft.DictAddAsync("dict", "bar", "foo", "hello world"));
-
+        Assert.Equal(0, await DatabaseSizeAsync(db)); // in part, this is to allow replication to catch up
         var dumResult = await ft.DictDumpAsync("dict");
         int i = 0;
         Assert.Equal("bar", dumResult[i++].ToString());
@@ -1680,6 +1681,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal("hello world", dumResult[i].ToString());
 
         Assert.Equal(3L, await ft.DictDelAsync("dict", "foo", "bar", "hello world"));
+        Assert.Equal(0, await DatabaseSizeAsync(db)); // in part, this is to allow replication to catch up
         Assert.Empty((await ft.DictDumpAsync("dict")));
     }
 
@@ -2704,6 +2706,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
             }
         };
 
+        Assert.Equal(0, DatabaseSize(db)); // in part, this is to allow replication to catch up
         Assert.Equal(expected, await ft.SpellCheckAsync(index,
                                              "Tooni toque kerfuffle",
                                              new FTSpellCheckParams()
