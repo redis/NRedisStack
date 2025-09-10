@@ -91,7 +91,7 @@ public static class SearchCommandBuilder
             throw new ArgumentOutOfRangeException("At least one term must be provided");
         }
 
-        var args = new List<object>(terms.Length + 1) { dict };
+        var args = new List<object>(terms.Length + 1) { (RedisKey)dict };
         foreach (var t in terms)
         {
             args.Add(t);
@@ -107,7 +107,7 @@ public static class SearchCommandBuilder
             throw new ArgumentOutOfRangeException("At least one term must be provided");
         }
 
-        var args = new List<object>(terms.Length + 1) { dict };
+        var args = new List<object>(terms.Length + 1) { (RedisKey)dict };
         foreach (var t in terms)
         {
             args.Add(t);
@@ -118,7 +118,7 @@ public static class SearchCommandBuilder
 
     public static SerializedCommand DictDump(string dict)
     {
-        return new(FT.DICTDUMP, dict);
+        return new(FT.DICTDUMP, (RedisKey)dict);
     }
 
     public static SerializedCommand DropIndex(string indexName, bool dd = false)

@@ -2679,6 +2679,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
             }
         };
 
+        Assert.Equal(0, DatabaseSize(db)); // in part, this is to allow replication to catch up
         Assert.Equal(expected, ft.SpellCheck(index,
                                              "Tooni toque kerfuffle",
                                              new FTSpellCheckParams()
