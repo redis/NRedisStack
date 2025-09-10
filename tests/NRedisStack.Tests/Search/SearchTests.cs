@@ -550,7 +550,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
             Row r1 = res.GetRow(0);
             Row r2 = res.GetRow(1);
             Log($"Attempt {attempt} of {maxAttempts}: avgscore {r2.GetDouble("avgscore")}");
-            if (!IsNear(r2.GetDouble("avgscore"), 67.5)) continue; // this test can be flakey on cluster
+            if (attempt != maxAttempts && !IsNear(r2.GetDouble("avgscore"), 67.5)) continue; // this test can be flakey on cluster
 
             Assert.Equal("def", r1.GetString("name"));
             Assert.Equal(52.5, r1.GetDouble("avgscore"), 0);
