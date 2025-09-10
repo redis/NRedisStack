@@ -9,10 +9,12 @@ using NRedisStack.Search.Literals.Enums;
 using System.Runtime.InteropServices;
 using NetTopologySuite.IO;
 using NetTopologySuite.Geometries;
+using Xunit.Abstractions;
 
 namespace NRedisStack.Tests.Search;
 
-public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
+public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper log)
+    : AbstractNRedisStackTest(endpointsFixture, log), IDisposable
 {
     // private readonly string key = "SEARCH_TESTS";
     private readonly string index = "TEST_INDEX";
@@ -89,7 +91,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAggregationRequestTimeout(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -111,7 +113,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAggregationRequestTimeoutAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -133,7 +135,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAggregations(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -172,7 +174,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAggregationsAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -212,7 +214,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
 
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAggregationsLoad(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -240,7 +242,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAggregationsLoadAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -270,7 +272,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
 
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAggregationRequestParamsDialect(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -301,7 +303,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAggregationRequestParamsDialectAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -333,7 +335,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAggregationRequestParamsWithDefaultDialect(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -364,7 +366,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAggregationRequestParamsWithDefaultDialectAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -403,7 +405,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAlias(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -432,7 +434,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAliasAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -461,7 +463,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestApplyAndFilterAggregations(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -503,7 +505,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestCreate(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -535,7 +537,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestCreateAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -561,7 +563,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void CreateNoParams(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -589,7 +591,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task CreateNoParamsAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -617,7 +619,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void CreateWithFieldNames(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -646,7 +648,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkipIfRedisTheory(Comparison.LessThan, "7.9.0")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void FailWhenAttributeNotExist(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -659,7 +661,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task CreateWithFieldNamesAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -688,7 +690,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkipIfRedisTheory(Comparison.LessThan, "7.9.0")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task FailWhenAttributeNotExistAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -701,7 +703,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void AlterAdd(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -715,10 +717,24 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
 
         var fields = new HashEntry("title", "hello world");
         //fields.("title", "hello world");
+        Assert.Equal(0, DatabaseSize(db, out int replicas));
+        Log($"Replicas: {replicas}");
         for (int i = 0; i < 100; i++)
         {
             db.HashSet($"doc{i}", fields.Name, fields.Value);
         }
+        Assert.Equal(100, DatabaseSize(db));
+        var info = ft.Info(index);
+        Assert.Equal(index, info.IndexName);
+        if (endpointId == EndpointsFixture.Env.Cluster)
+        {
+            Assert.True(info.NumDocs is 100 or 200, $"NumDocs: {info.NumDocs}");
+        }
+        else
+        {
+            Assert.Equal(100, info.NumDocs);
+        }
+
         SearchResult res = ft.Search(index, new("hello world"));
         Assert.Equal(100, res.TotalResults);
 
@@ -733,7 +749,9 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
         SearchResult res2 = ft.Search(index, new("@tags:{tagA}"));
         Assert.Equal(100, res2.TotalResults);
 
-        var info = ft.Info(index);
+        Assert.Equal(100, DatabaseSize(db));
+
+        info = ft.Info(index);
         Assert.Equal(index, info.IndexName);
         Assert.Empty(info.IndexOption);
         // Assert.Equal(,info.IndexDefinition);
@@ -741,31 +759,40 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
         Assert.Equal("TAG", info.Attributes[1]["type"].ToString());
         Assert.Equal("name", info.Attributes[2]["attribute"].ToString());
 
-        Assert.Equal(100, info.NumDocs);
-        Assert.NotNull(info.MaxDocId);
-        Assert.Equal(102, info.NumTerms);
-        Assert.True(info.NumRecords >= 200);
-        Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
-        Assert.Equal(0, info.VectorIndexSzMebibytes);
-        Assert.Equal(208, info.TotalInvertedIndexBlocks);
-        Assert.True(info.OffsetVectorsSzMebibytes < 1);
-        Assert.True(info.DocTableSizeMebibytes < 1);
-        Assert.Equal(0, info.SortableValueSizeMebibytes);
-        Assert.True(info.KeyTableSizeMebibytes < 1);
-        Assert.Equal(8, (int)info.RecordsPerDocAvg);
-        Assert.True(info.BytesPerRecordAvg > 5);
-        Assert.True(info.OffsetsPerTermAvg > 0.8);
-        Assert.Equal(8, info.OffsetBitsPerRecordAvg);
-        Assert.Equal(0, info.HashIndexingFailures);
-        Assert.Equal(0, info.Indexing);
-        Assert.Equal(1, info.PercentIndexed);
-        Assert.Equal(4, info.NumberOfUses);
-        Assert.Equal(7, info.GcStats.Count);
-        Assert.Equal(4, info.CursorStats.Count);
+        if (endpointId == EndpointsFixture.Env.Cluster)
+        {
+            Assert.True(info.NumDocs is 100 or 200, $"NumDocs: {info.NumDocs}");
+        }
+        else
+        {
+            Assert.Equal(100, info.NumDocs);
+
+            // these numbers don't make sense when considering a shard
+            Assert.NotNull(info.MaxDocId);
+            Assert.Equal(102, info.NumTerms);
+            Assert.True(info.NumRecords >= 200);
+            Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
+            Assert.Equal(0, info.VectorIndexSzMebibytes);
+            Assert.Equal(208, info.TotalInvertedIndexBlocks);
+            Assert.True(info.OffsetVectorsSzMebibytes < 1);
+            Assert.True(info.DocTableSizeMebibytes < 1);
+            Assert.Equal(0, info.SortableValueSizeMebibytes);
+            Assert.True(info.KeyTableSizeMebibytes < 1);
+            Assert.Equal(8, (int)info.RecordsPerDocAvg);
+            Assert.True(info.BytesPerRecordAvg > 5);
+            Assert.True(info.OffsetsPerTermAvg > 0.8);
+            Assert.Equal(8, info.OffsetBitsPerRecordAvg);
+            Assert.Equal(0, info.HashIndexingFailures);
+            Assert.Equal(0, info.Indexing);
+            Assert.Equal(1, info.PercentIndexed);
+            Assert.Equal(5, info.NumberOfUses);
+            Assert.Equal(7, info.GcStats.Count);
+            Assert.Equal(4, info.CursorStats.Count);
+        }
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task AlterAddAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -785,6 +812,16 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
         }
         SearchResult res = ft.Search(index, new("hello world"));
         Assert.Equal(100, res.TotalResults);
+        var info = ft.Info(index);
+        Assert.Equal(index, info.IndexName);
+        if (endpointId == EndpointsFixture.Env.Cluster)
+        {
+            Assert.True(info.NumDocs is 100 or 200, $"NumDocs: {info.NumDocs}");
+        }
+        else
+        {
+            Assert.Equal(100, info.NumDocs);
+        }
 
         Assert.True(await ft.AlterAsync(index, new Schema().AddTagField("tags").AddTextField("name", weight: 0.5)));
         for (int i = 0; i < 100; i++)
@@ -797,36 +834,47 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
         SearchResult res2 = ft.Search(index, new("@tags:{tagA}"));
         Assert.Equal(100, res2.TotalResults);
 
-        var info = await ft.InfoAsync(index);
+        Assert.Equal(100, await DatabaseSizeAsync(db));
+
+        info = await ft.InfoAsync(index);
         Assert.Equal(index, info.IndexName);
         Assert.Equal("title", info.Attributes[0]["identifier"].ToString());
         Assert.Equal("TAG", info.Attributes[1]["type"].ToString());
         Assert.Equal("name", info.Attributes[2]["attribute"].ToString());
-        Assert.Equal(100, info.NumDocs);
-        Assert.Equal("300", info.MaxDocId);
-        Assert.Equal(102, info.NumTerms);
-        Assert.True(info.NumRecords >= 200);
-        Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
-        Assert.Equal(0, info.VectorIndexSzMebibytes);
-        Assert.Equal(208, info.TotalInvertedIndexBlocks);
-        Assert.True(info.OffsetVectorsSzMebibytes < 1);
-        Assert.True(info.DocTableSizeMebibytes < 1);
-        Assert.Equal(0, info.SortableValueSizeMebibytes);
-        Assert.True(info.KeyTableSizeMebibytes < 1);
-        Assert.Equal(8, (int)info.RecordsPerDocAvg);
-        Assert.True(info.BytesPerRecordAvg > 5);
-        Assert.True(info.OffsetsPerTermAvg > 0.8);
-        Assert.Equal(8, info.OffsetBitsPerRecordAvg);
-        Assert.Equal(0, info.HashIndexingFailures);
-        Assert.Equal(0, info.Indexing);
-        Assert.Equal(1, info.PercentIndexed);
-        Assert.Equal(4, info.NumberOfUses);
-        Assert.Equal(7, info.GcStats.Count);
-        Assert.Equal(4, info.CursorStats.Count);
+        if (endpointId == EndpointsFixture.Env.Cluster)
+        {
+            Assert.True(info.NumDocs is 100 or 200, $"NumDocs: {info.NumDocs}");
+        }
+        else
+        {
+            Assert.Equal(100, info.NumDocs);
+
+            // these numbers don't make sense when considering a shard
+            Assert.Equal("300", info.MaxDocId);
+            Assert.Equal(102, info.NumTerms);
+            Assert.True(info.NumRecords >= 200);
+            Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
+            Assert.Equal(0, info.VectorIndexSzMebibytes);
+            Assert.Equal(208, info.TotalInvertedIndexBlocks);
+            Assert.True(info.OffsetVectorsSzMebibytes < 1);
+            Assert.True(info.DocTableSizeMebibytes < 1);
+            Assert.Equal(0, info.SortableValueSizeMebibytes);
+            Assert.True(info.KeyTableSizeMebibytes < 1);
+            Assert.Equal(8, (int)info.RecordsPerDocAvg);
+            Assert.True(info.BytesPerRecordAvg > 5);
+            Assert.True(info.OffsetsPerTermAvg > 0.8);
+            Assert.Equal(8, info.OffsetBitsPerRecordAvg);
+            Assert.Equal(0, info.HashIndexingFailures);
+            Assert.Equal(0, info.Indexing);
+            Assert.Equal(1, info.PercentIndexed);
+            Assert.Equal(5, info.NumberOfUses);
+            Assert.Equal(7, info.GcStats.Count);
+            Assert.Equal(4, info.CursorStats.Count);
+        }
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void AlterAddSortable(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -865,31 +913,40 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
         Assert.Equal("title", info.Attributes[0]["identifier"].ToString());
         Assert.Equal("TAG", info.Attributes[1]["type"].ToString());
         Assert.Equal("name", info.Attributes[2]["attribute"].ToString());
-        Assert.Equal(100, info.NumDocs);
-        Assert.NotNull(info.MaxDocId);
-        Assert.Equal(102, info.NumTerms);
-        Assert.True(info.NumRecords >= 200);
-        Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
-        Assert.Equal(0, info.VectorIndexSzMebibytes);
-        Assert.Equal(208, info.TotalInvertedIndexBlocks);
-        Assert.True(info.OffsetVectorsSzMebibytes < 1);
-        Assert.True(info.DocTableSizeMebibytes < 1);
-        Assert.Equal(0, info.SortableValueSizeMebibytes);
-        Assert.True(info.KeyTableSizeMebibytes < 1);
-        Assert.Equal(8, (int)info.RecordsPerDocAvg);
-        Assert.True(info.BytesPerRecordAvg > 5);
-        Assert.True(info.OffsetsPerTermAvg > 0.8);
-        Assert.Equal(8, info.OffsetBitsPerRecordAvg);
-        Assert.Equal(0, info.HashIndexingFailures);
-        Assert.Equal(0, info.Indexing);
-        Assert.Equal(1, info.PercentIndexed);
-        Assert.Equal(4, info.NumberOfUses);
-        Assert.Equal(7, info.GcStats.Count);
-        Assert.Equal(4, info.CursorStats.Count);
+        if (endpointId == EndpointsFixture.Env.Cluster)
+        {
+            Assert.True(info.NumDocs is 100 or 200, $"NumDocs: {info.NumDocs}");
+        }
+        else
+        {
+            Assert.Equal(100, info.NumDocs);
+
+            // these numbers don't make sense when considering a shard
+            Assert.NotNull(info.MaxDocId);
+            Assert.Equal(102, info.NumTerms);
+            Assert.True(info.NumRecords >= 200);
+            Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
+            Assert.Equal(0, info.VectorIndexSzMebibytes);
+            Assert.Equal(208, info.TotalInvertedIndexBlocks);
+            Assert.True(info.OffsetVectorsSzMebibytes < 1);
+            Assert.True(info.DocTableSizeMebibytes < 1);
+            Assert.Equal(0, info.SortableValueSizeMebibytes);
+            Assert.True(info.KeyTableSizeMebibytes < 1);
+            Assert.Equal(8, (int)info.RecordsPerDocAvg);
+            Assert.True(info.BytesPerRecordAvg > 5);
+            Assert.True(info.OffsetsPerTermAvg > 0.8);
+            Assert.Equal(8, info.OffsetBitsPerRecordAvg);
+            Assert.Equal(0, info.HashIndexingFailures);
+            Assert.Equal(0, info.Indexing);
+            Assert.Equal(1, info.PercentIndexed);
+            Assert.Equal(4, info.NumberOfUses);
+            Assert.Equal(7, info.GcStats.Count);
+            Assert.Equal(4, info.CursorStats.Count);
+        }
     }
 
     [SkipIfRedisTheory(Comparison.LessThan, "7.3.0")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void InfoWithIndexEmptyAndIndexMissing(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -924,7 +981,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task AlterAddSortableAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -961,27 +1018,36 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
         Assert.Equal("title", info.Attributes[0]["identifier"].ToString());
         Assert.Equal("TAG", info.Attributes[1]["type"].ToString());
         Assert.Equal("name", info.Attributes[2]["attribute"].ToString());
-        Assert.Equal(100, info.NumDocs);
-        Assert.Equal("300", info.MaxDocId);
-        Assert.Equal(102, info.NumTerms);
-        Assert.True(info.NumRecords >= 200);
-        Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
-        Assert.Equal(0, info.VectorIndexSzMebibytes);
-        Assert.Equal(208, info.TotalInvertedIndexBlocks);
-        Assert.True(info.OffsetVectorsSzMebibytes < 1);
-        Assert.True(info.DocTableSizeMebibytes < 1);
-        Assert.Equal(0, info.SortableValueSizeMebibytes);
-        Assert.True(info.KeyTableSizeMebibytes < 1);
-        Assert.Equal(8, (int)info.RecordsPerDocAvg);
-        Assert.True(info.BytesPerRecordAvg > 5);
-        Assert.True(info.OffsetsPerTermAvg > 0.8);
-        Assert.Equal(8, info.OffsetBitsPerRecordAvg);
-        Assert.Equal(0, info.HashIndexingFailures);
-        Assert.Equal(0, info.Indexing);
-        Assert.Equal(1, info.PercentIndexed);
-        Assert.Equal(4, info.NumberOfUses);
-        Assert.Equal(7, info.GcStats.Count);
-        Assert.Equal(4, info.CursorStats.Count);
+        if (endpointId == EndpointsFixture.Env.Cluster)
+        {
+            Assert.True(info.NumDocs is 100 or 200, $"NumDocs: {info.NumDocs}");
+        }
+        else
+        {
+            Assert.Equal(100, info.NumDocs);
+
+            // these numbers don't make sense when considering a shard
+            Assert.Equal("300", info.MaxDocId);
+            Assert.Equal(102, info.NumTerms);
+            Assert.True(info.NumRecords >= 200);
+            Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
+            Assert.Equal(0, info.VectorIndexSzMebibytes);
+            Assert.Equal(208, info.TotalInvertedIndexBlocks);
+            Assert.True(info.OffsetVectorsSzMebibytes < 1);
+            Assert.True(info.DocTableSizeMebibytes < 1);
+            Assert.Equal(0, info.SortableValueSizeMebibytes);
+            Assert.True(info.KeyTableSizeMebibytes < 1);
+            Assert.Equal(8, (int)info.RecordsPerDocAvg);
+            Assert.True(info.BytesPerRecordAvg > 5);
+            Assert.True(info.OffsetsPerTermAvg > 0.8);
+            Assert.Equal(8, info.OffsetBitsPerRecordAvg);
+            Assert.Equal(0, info.HashIndexingFailures);
+            Assert.Equal(0, info.Indexing);
+            Assert.Equal(1, info.PercentIndexed);
+            Assert.Equal(4, info.NumberOfUses);
+            Assert.Equal(7, info.GcStats.Count);
+            Assert.Equal(4, info.CursorStats.Count);
+        }
     }
 
     // TODO : fix with FT.CONFIG response change
@@ -1355,7 +1421,13 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
 
         req = new AggregationRequest("redis").GroupBy(
             "@parent", Reducers.FirstValue("@title").As("first"));
-        res = ft.Aggregate("idx", req).GetRow(0);
+        var agg = ft.Aggregate("idx", req);
+        Log($"results: {agg.TotalResults}");
+        for (int i = 0 ; i < agg.TotalResults; i++)
+        {
+            Log($"parent: {agg.GetRow(i)["parent"]}, first: {agg.GetRow(i)["first"]}");
+        }
+        res = agg.GetRow(0);
         Assert.Equal("redis", res["parent"]);
         Assert.Equal("RediSearch", res["first"]);
 
@@ -1382,7 +1454,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
 
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestDictionary(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -1401,7 +1473,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestDropIndex(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -1431,19 +1503,46 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
             Assert.Contains("no such index", ex.Message, StringComparison.OrdinalIgnoreCase);
         }
 
+        Assert.Equal(100, DatabaseSize(db));
+    }
+
+    private int DatabaseSize(IDatabase db) => DatabaseSize(db, out _);
+
+    private int DatabaseSize(IDatabase db, out int replicaCount)
+    {
+        replicaCount = 0;
+        var count = 0L;
+        foreach (var server in db.Multiplexer.GetServers())
+        {
+            if (server.IsReplica)
+            {
+                replicaCount++;
+            }
+            else
+            {
+                count += server.DatabaseSize();
+            }
+        }
+
+        return checked((int)count);
+    }
+
+    private async Task<int> DatabaseSizeAsync(IDatabase db)
+    {
         var count = 0L;
         foreach (var server in db.Multiplexer.GetServers())
         {
             if (!server.IsReplica)
             {
-                count += server.DatabaseSize();
+                count += await server.DatabaseSizeAsync();
             }
         }
-        Assert.Equal(100, count);
+
+        return checked((int)count);
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestDropIndexAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -1472,11 +1571,12 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
         {
             Assert.Contains("no such index", ex.Message, StringComparison.OrdinalIgnoreCase);
         }
-        Assert.Equal("100", db.Execute("DBSIZE").ToString());
+
+        Assert.Equal(100, DatabaseSize(db));
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void dropIndexDD(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -1498,11 +1598,11 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
 
         RedisResult[] keys = (RedisResult[])db.Execute("KEYS", "*")!;
         Assert.Empty(keys);
-        Assert.Equal("0", db.Execute("DBSIZE").ToString());
+        Assert.Equal(0, DatabaseSize(db));
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task dropIndexDDAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -1524,11 +1624,11 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
 
         RedisResult[] keys = (RedisResult[])db.Execute("KEYS", "*")!;
         Assert.Empty(keys);
-        Assert.Equal("0", db.Execute("DBSIZE").ToString());
+        Assert.Equal(0, DatabaseSize(db));
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestDictionaryAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -1548,7 +1648,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
 
     readonly string explainQuery = "@f3:f3_val @f2:f2_val @f1:f1_val";
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestExplain(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -1572,7 +1672,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestExplainAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -1641,7 +1741,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestExplainWithDefaultDialect(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -1658,7 +1758,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestExplainWithDefaultDialectAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -1675,7 +1775,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestSynonym(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -1701,7 +1801,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestSynonymAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -1740,7 +1840,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task GetTagFieldSyncAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -1798,7 +1898,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestGetTagFieldWithNonDefaultSeparatorSyncAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -1923,7 +2023,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestFilters(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -1975,7 +2075,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestFiltersAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -2232,7 +2332,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestLimit(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -2252,7 +2352,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestLimitAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -2322,7 +2422,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void VectorSimilaritySearch(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -2365,7 +2465,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void QueryingVectorFields(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -2412,7 +2512,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestQueryAddParam_DefaultDialect(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -2431,7 +2531,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestQueryAddParam_DefaultDialectAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -2450,7 +2550,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestQueryParamsWithParams_DefaultDialect(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -2478,7 +2578,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestBasicSpellCheck(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -2498,7 +2598,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestBasicSpellCheckAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -2518,7 +2618,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestCrossTermDictionary(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -2542,7 +2642,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestCrossTermDictionaryAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -2610,7 +2710,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestQueryParamsWithParams_DefaultDialectAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -2846,7 +2946,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.9")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestProfileSearch(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -2870,7 +2970,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.9")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestProfileSearchAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -2893,7 +2993,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.9")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestProfileSearch_WithoutCoordinator(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -2913,7 +3013,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.9")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestProfileSearchAsync_WithoutCoordinator(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -2933,7 +3033,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.9")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestProfile(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -2969,7 +3069,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.9")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestProfileAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -3005,7 +3105,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.9")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestProfile_WithoutCoordinator(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -3035,7 +3135,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.9")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestProfileAsync_WithoutCoordinator(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -3065,7 +3165,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.3.240")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestProfileIssue306(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -3095,7 +3195,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.3.240")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestProfileAsyncIssue306(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -3136,7 +3236,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void Issue175(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -3154,7 +3254,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkipIfRedisTheory(Comparison.LessThan, "7.2.1")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void GeoShapeFilterSpherical(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -3219,7 +3319,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkipIfRedisTheory(Comparison.LessThan, "7.2.1")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task GeoShapeFilterSphericalAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -3284,7 +3384,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkipIfRedisTheory(Comparison.LessThan, "7.2.1")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void GeoShapeFilterFlat(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -3338,7 +3438,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkipIfRedisTheory(Comparison.LessThan, "7.2.1")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task GeoShapeFilterFlatAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -3405,7 +3505,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkipIfRedisTheory(Comparison.LessThan, "7.3.240")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestNumericInDialect4(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -3428,7 +3528,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkipIfRedisTheory(Comparison.LessThan, "7.3.240")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestNumericOperatorsInDialect4(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -3458,7 +3558,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     }
 
     [SkipIfRedisTheory(Comparison.LessThan, "7.3.240")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestNumericLogicalOperatorsInDialect4(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -3512,7 +3612,7 @@ public class SearchTests(EndpointsFixture endpointsFixture) : AbstractNRedisStac
     /// https://redis.io/docs/latest/commands/ft.search/#:~:text=If%20a%20relevant%20key%20expires,the%20total%20number%20of%20results. 
     /// </summary>
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestDocumentLoadWithDB_Issue352(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
