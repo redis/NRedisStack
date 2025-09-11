@@ -585,6 +585,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestCreate(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         var schema = new Schema().AddTextField("first").AddTextField("last").AddNumericField("age");
