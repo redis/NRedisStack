@@ -19,6 +19,15 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     // private readonly string key = "SEARCH_TESTS";
     private readonly string index = "TEST_INDEX";
 
+    private static void SkipClusterPre8(string endpointId)
+    {
+        // Many of the FT.* commands are ... more awkward pre 8 when using cluster. Rather than
+        // fight eventual-consistency/timing issues: grandfather the existing behaviour, and start
+        // afresh from v8, where things behave much more predictably and reasonably.
+        Skip.If(endpointId == EndpointsFixture.Env.Cluster
+            && EndpointsFixture.RedisVersion.Major < 8, "Ignoring cluster tests for FT.SEARCH pre Redis 8.0");
+    }
+
     private void AddDocument(IDatabase db, Document doc)
     {
         var hash = doc.GetProperties()
@@ -235,6 +244,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAggregationsLoad(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         var sc = new Schema().AddTextField("t1").AddTextField("t2");
@@ -632,6 +642,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void CreateNoParams(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
@@ -690,6 +701,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void CreateWithFieldNames(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new Schema().AddField(new TextField(FieldName.Of("first").As("given")))
@@ -869,6 +881,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task AlterAddAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new Schema().AddTextField("title", 1.0);
@@ -956,6 +969,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void AlterAddSortable(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new Schema().AddTextField("title", 1.0, sortable: true);
@@ -1251,6 +1265,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestCursor(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new();
@@ -1306,6 +1321,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestCursorEnumerable(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new();
@@ -1344,6 +1360,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestCursorAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new();
@@ -1399,6 +1416,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestCursorEnumerableAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new();
@@ -1587,6 +1605,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestDropIndex(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new Schema().AddTextField("title", 1.0);
@@ -1656,6 +1675,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestDropIndexAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new Schema().AddTextField("title", 1.0);
@@ -1690,6 +1710,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void dropIndexDD(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new Schema().AddTextField("title", 1.0);
@@ -1716,6 +1737,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task dropIndexDDAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new Schema().AddTextField("title", 1.0);
@@ -2145,6 +2167,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestFilters(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         // Create the index with the same fields as in the original test
@@ -2465,6 +2488,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestLimit(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
@@ -2486,6 +2510,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestLimitAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
@@ -2602,6 +2627,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void QueryingVectorFields(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         var json = db.JSON();
@@ -2690,6 +2716,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestQueryParamsWithParams_DefaultDialect(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT(2);
 
@@ -2761,6 +2788,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestCrossTermDictionary(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
@@ -2787,6 +2815,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestCrossTermDictionaryAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
@@ -2858,6 +2887,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestQueryParamsWithParams_DefaultDialectAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT(2);
 
@@ -3344,6 +3374,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestProfileAsyncIssue306(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
@@ -3404,6 +3435,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void GeoShapeFilterSpherical(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
@@ -3469,6 +3501,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task GeoShapeFilterSphericalAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
