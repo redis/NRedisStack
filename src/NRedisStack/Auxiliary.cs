@@ -67,10 +67,20 @@ public static class Auxiliary
         return db.Execute(command.Command, command.Args);
     }
 
+    internal static RedisResult Execute(this IServer server, int? db, SerializedCommand command)
+    {
+        return server.Execute(db, command.Command, command.Args);
+    }
+
     public static async Task<RedisResult> ExecuteAsync(this IDatabaseAsync db, SerializedCommand command)
     {
         ((IDatabase)db).SetInfoInPipeline();
         return await db.ExecuteAsync(command.Command, command.Args);
+    }
+
+    internal static async Task<RedisResult> ExecuteAsync(this IServer server, int? db, SerializedCommand command)
+    {
+        return await server.ExecuteAsync(db, command.Command, command.Args);
     }
 
     public static List<RedisResult> ExecuteBroadcast(this IDatabase db, string command)

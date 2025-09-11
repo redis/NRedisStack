@@ -52,7 +52,7 @@ public abstract class AbstractNRedisStackTest : IClassFixture<EndpointsFixture>,
             {
                 var server = redis.GetServer(endPoint);
 
-                if (server.IsReplica) continue;
+                if (server.IsReplica || !server.IsConnected) continue;
 
                 server.Execute("FLUSHALL");
             }

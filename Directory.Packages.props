@@ -12,7 +12,7 @@
     <!-- primary library -->
     <PackageVersion Include="NetTopologySuite" Version="2.6.0" />
     <PackageVersion Include="System.Text.Json" Version="9.0.7" />
-    <PackageVersion Include="StackExchange.Redis" Version="2.8.58" />
+    <PackageVersion Include="StackExchange.Redis" Version="2.9.17" />
     <!-- tests, etc -->
     <PackageVersion Include="BouncyCastle.Cryptography" Version="2.6.1" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />

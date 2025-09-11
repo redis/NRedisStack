@@ -128,6 +128,7 @@ public class AggregationRequest : IDialectAwareParam
 
         if (count != null)
         {
+            Count = count;
             args.Add(SearchArgs.COUNT);
             args.Add(count);
         }
@@ -139,6 +140,7 @@ public class AggregationRequest : IDialectAwareParam
         }
         return this;
     }
+    internal int? Count { get; set; }
 
     public AggregationRequest Params(Dictionary<string, object> nameValue)
     {

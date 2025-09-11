@@ -737,6 +737,20 @@ internal static class ResponseParser
         }
     }
 
+    internal static AggregationResult ToAggregationResult(this RedisResult result, string indexName, AggregationRequest query, IServer? server, int? database)
+    {
+        if (query.IsWithCursor())
+        {
+            var results = (RedisResult[])result!;
+
+            return new AggregationResult.WithCursorAggregationResult(indexName, results[0], (long)results[1], server, database);
+        }
+        else
+        {
+            return new(result);
+        }
+    }
+
     public static Dictionary<string, RedisResult>[] ToDictionarys(this RedisResult result)
     {
         var resArr = (RedisResult[])result!;
