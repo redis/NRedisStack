@@ -1,4 +1,4 @@
-#pragma  warning disable CS0618, CS0612 // allow testing obsolete methods
+#pragma warning disable CS0618, CS0612 // allow testing obsolete methods
 using Xunit;
 using StackExchange.Redis;
 using NRedisStack.RedisStackCommands;
@@ -79,7 +79,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(1, res.TotalResults);
 
         r = new AggregationRequest("kitti")
-                .Verbatim();
+            .Verbatim();
 
         res = ft.Aggregate(index, r);
         Assert.Equal(0, res.TotalResults);
@@ -102,7 +102,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(1, res.TotalResults);
 
         r = new AggregationRequest("kitti")
-                .Verbatim();
+            .Verbatim();
 
         res = await ft.AggregateAsync(index, r);
         Assert.Equal(0, res.TotalResults);
@@ -123,8 +123,8 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
 
         AggregationRequest r = new AggregationRequest()
-                .GroupBy("@name", Reducers.Sum("@count").As("sum"))
-                .Timeout(5000);
+            .GroupBy("@name", Reducers.Sum("@count").As("sum"))
+            .Timeout(5000);
 
         AggregationResult res = ft.Aggregate(index, r);
         Assert.Equal(2, res.TotalResults);
@@ -145,8 +145,8 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
 
         AggregationRequest r = new AggregationRequest()
-                .GroupBy("@name", Reducers.Sum("@count").As("sum"))
-                .Timeout(5000);
+            .GroupBy("@name", Reducers.Sum("@count").As("sum"))
+            .Timeout(5000);
 
         AggregationResult res = await ft.AggregateAsync(index, r);
         Assert.Equal(2, res.TotalResults);
@@ -171,7 +171,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
 
         AggregationRequest r = new AggregationRequest()
             .GroupBy("@name", Reducers.Sum("@count").As("sum"))
-        .SortBy(10, SortedField.Desc("@sum"));
+            .SortBy(10, SortedField.Desc("@sum"));
 
         // actual search
         var res = ft.Aggregate(index, r);
@@ -210,7 +210,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
 
         AggregationRequest r = new AggregationRequest()
             .GroupBy("@name", Reducers.Sum("@count").As("sum"))
-        .SortBy(10, SortedField.Desc("@sum"));
+            .SortBy(10, SortedField.Desc("@sum"));
 
         // actual search
         var res = await ft.AggregateAsync(index, r);
@@ -316,9 +316,9 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         parameters.Add("count", "10");
 
         AggregationRequest r = new AggregationRequest("$name")
-                .GroupBy("@name", Reducers.Sum("@count").As("sum"))
-                .Params(parameters)
-                .Dialect(2); // From documentation - To use PARAMS, DIALECT must be set to 2
+            .GroupBy("@name", Reducers.Sum("@count").As("sum"))
+            .Params(parameters)
+            .Dialect(2); // From documentation - To use PARAMS, DIALECT must be set to 2
 
         AggregationResult res = ft.Aggregate(index, r);
         Assert.Equal(1, res.TotalResults);
@@ -348,9 +348,9 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
 
 
         AggregationRequest r = new AggregationRequest("$name")
-                .GroupBy("@name", Reducers.Sum("@count").As("sum"))
-                .Params(parameters)
-                .Dialect(2); // From documentation - To use PARAMS, DIALECT must be set to 2
+            .GroupBy("@name", Reducers.Sum("@count").As("sum"))
+            .Params(parameters)
+            .Dialect(2); // From documentation - To use PARAMS, DIALECT must be set to 2
 
         AggregationResult res = await ft.AggregateAsync(index, r);
         Assert.Equal(1, res.TotalResults);
@@ -379,9 +379,9 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         parameters.Add("count", "10");
 
         AggregationRequest r = new AggregationRequest("$name")
-                .GroupBy("@name", Reducers.Sum("@count").As("sum"))
-                .Params(parameters); // From documentation - To use PARAMS, DIALECT must be set to 2
-                                     // which is the default as we set in the constructor (FT(2))
+            .GroupBy("@name", Reducers.Sum("@count").As("sum"))
+            .Params(parameters); // From documentation - To use PARAMS, DIALECT must be set to 2
+        // which is the default as we set in the constructor (FT(2))
 
         AggregationResult res = ft.Aggregate(index, r);
         Assert.Equal(1, res.TotalResults);
@@ -410,9 +410,9 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         parameters.Add("count", "10");
 
         AggregationRequest r = new AggregationRequest("$name")
-                .GroupBy("@name", Reducers.Sum("@count").As("sum"))
-                .Params(parameters); // From documentation - To use PARAMS, DIALECT must be set to 2
-                                     // which is the default as we set in the constructor (FT(2))
+            .GroupBy("@name", Reducers.Sum("@count").As("sum"))
+            .Params(parameters); // From documentation - To use PARAMS, DIALECT must be set to 2
+        // which is the default as we set in the constructor (FT(2))
 
         AggregationResult res = await ft.AggregateAsync(index, r);
         Assert.Equal(1, res.TotalResults);
@@ -550,7 +550,11 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
             Row r1 = res.GetRow(0);
             Row r2 = res.GetRow(1);
             Log($"Attempt {attempt} of {maxAttempts}: avgscore {r2.GetDouble("avgscore")}");
-            if (attempt != maxAttempts && !IsNear(r2.GetDouble("avgscore"), 67.5)) continue; // this test can be flakey on cluster
+            if (attempt != maxAttempts && !IsNear(r2.GetDouble("avgscore"), 67.5))
+            {
+                Thread.Sleep(400); // allow extra cluster replication time
+                continue;
+            }
 
             Assert.Equal("def", r1.GetString("name"));
             Assert.Equal(52.5, r1.GetDouble("avgscore"), 0);
@@ -764,7 +768,8 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
             .AddField(new TextField(FieldName.Of("last")));
 
         Assert.True(await ft.CreateAsync(index, FTCreateParams.CreateParams().Prefix("student:", "pupil:"), sc));
-        RedisServerException exc = await Assert.ThrowsAsync<RedisServerException>(async () => await ft.SearchAsync(index, new("@first:Jo*")));
+        RedisServerException exc =
+            await Assert.ThrowsAsync<RedisServerException>(async () => await ft.SearchAsync(index, new("@first:Jo*")));
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
@@ -787,6 +792,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         {
             db.HashSet($"doc{i}", fields.Name, fields.Value);
         }
+
         AssertDatabaseSize(db, 100);
         var info = ft.Info(index);
         Assert.Equal(index, info.IndexName);
@@ -805,11 +811,15 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.True(ft.Alter(index, new Schema().AddTagField("tags").AddTextField("name", weight: 0.5)));
         for (int i = 0; i < 100; i++)
         {
-            var fields2 = new HashEntry[] { new("name", "name" + i),
-                                      new("tags", $"tagA,tagB,tag{i}") };
+            var fields2 = new HashEntry[]
+            {
+                new("name", "name" + i),
+                new("tags", $"tagA,tagB,tag{i}")
+            };
             //      assertTrue(client.updateDocument(string.format("doc%d", i), 1.0, fields2));
             db.HashSet($"doc{i}", fields2);
         }
+
         SearchResult res2 = ft.Search(index, new("@tags:{tagA}"));
         Assert.Equal(100, res2.TotalResults);
 
@@ -874,6 +884,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         {
             db.HashSet($"doc{i}", fields.Name, fields.Value);
         }
+
         SearchResult res = ft.Search(index, new("hello world"));
         Assert.Equal(100, res.TotalResults);
         var info = ft.Info(index);
@@ -890,11 +901,15 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.True(await ft.AlterAsync(index, new Schema().AddTagField("tags").AddTextField("name", weight: 0.5)));
         for (int i = 0; i < 100; i++)
         {
-            var fields2 = new HashEntry[] { new("name", "name" + i),
-                                      new("tags", $"tagA,tagB,tag{i}") };
+            var fields2 = new HashEntry[]
+            {
+                new("name", "name" + i),
+                new("tags", $"tagA,tagB,tag{i}")
+            };
             //      assertTrue(client.updateDocument(string.format("doc%d", i), 1.0, fields2));
             db.HashSet($"doc{i}", fields2);
         }
+
         SearchResult res2 = ft.Search(index, new("@tags:{tagA}"));
         Assert.Equal(100, res2.TotalResults);
 
@@ -956,17 +971,22 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         {
             db.HashSet($"doc{i}", fields.Name, fields.Value);
         }
+
         SearchResult res = ft.Search(index, new("hello world"));
         Assert.Equal(100, res.TotalResults);
 
         Assert.True(ft.Alter(index, new Schema().AddTagField("tags").AddTextField("name", weight: 0.5)));
         for (int i = 0; i < 100; i++)
         {
-            var fields2 = new HashEntry[] { new("name", "name" + i),
-                                      new("tags", $"tagA,tagB,tag{i}") };
+            var fields2 = new HashEntry[]
+            {
+                new("name", "name" + i),
+                new("tags", $"tagA,tagB,tag{i}")
+            };
             //      assertTrue(client.updateDocument(string.format("doc%d", i), 1.0, fields2));
             db.HashSet($"doc{i}", fields2);
         }
+
         SearchResult res2 = ft.Search(index, new("@tags:{tagA}"));
         Assert.Equal(100, res2.TotalResults);
 
@@ -1063,17 +1083,22 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         {
             db.HashSet($"doc{i}", fields.Name, fields.Value);
         }
+
         SearchResult res = ft.Search(index, new("hello world"));
         Assert.Equal(100, res.TotalResults);
 
         Assert.True(await ft.AlterAsync(index, new Schema().AddTagField("tags").AddTextField("name", weight: 0.5)));
         for (int i = 0; i < 100; i++)
         {
-            var fields2 = new HashEntry[] { new("name", "name" + i),
-                                      new("tags", $"tagA,tagB,tag{i}") };
+            var fields2 = new HashEntry[]
+            {
+                new("name", "name" + i),
+                new("tags", $"tagA,tagB,tag{i}")
+            };
             //      assertTrue(client.updateDocument(string.format("doc%d", i), 1.0, fields2));
             db.HashSet($"doc{i}", fields2);
         }
+
         SearchResult res2 = ft.Search(index, new("@tags:{tagA}"));
         Assert.Equal(100, res2.TotalResults);
 
@@ -1148,7 +1173,13 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.True(ft.ConfigSet("ON_TIMEOUT", "fail"));
         Assert.Equal("fail", ft.ConfigGet("ON_TIMEOUT")["ON_TIMEOUT"]);
 
-        try { ft.ConfigSet("ON_TIMEOUT", "null"); } catch (RedisServerException) { }
+        try
+        {
+            ft.ConfigSet("ON_TIMEOUT", "null");
+        }
+        catch (RedisServerException)
+        {
+        }
     }
 
     // TODO : fix with FT.CONFIG response change
@@ -1161,7 +1192,13 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.True(await ft.ConfigSetAsync("ON_TIMEOUT", "fail"));
         Assert.Equal("fail", (await ft.ConfigGetAsync("ON_TIMEOUT"))["ON_TIMEOUT"]);
 
-        try { ft.ConfigSet("ON_TIMEOUT", "null"); } catch (RedisServerException) { }
+        try
+        {
+            ft.ConfigSet("ON_TIMEOUT", "null");
+        }
+        catch (RedisServerException)
+        {
+        }
     }
 
     // TODO : fix with FT.CONFIG response change
@@ -1405,30 +1442,34 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
 
         // Creating the index definition and schema
         ft.Create("idx", new(), new Schema().AddNumericField("random_num")
-                                                           .AddTextField("title")
-                                                           .AddTextField("body")
-                                                           .AddTextField("parent"));
+            .AddTextField("title")
+            .AddTextField("body")
+            .AddTextField("parent"));
 
         // Indexing a document
-        AddDocument(db, "search", new(){
-        { "title", "RediSearch" },
-        { "body", "Redisearch impements a search engine on top of redis" },
-        { "parent", "redis" },
-        { "random_num", 10 }});
+        AddDocument(db, "search", new()
+        {
+            { "title", "RediSearch" },
+            { "body", "Redisearch impements a search engine on top of redis" },
+            { "parent", "redis" },
+            { "random_num", 10 }
+        });
 
         AddDocument(db, "ai", new()
         {
-        { "title", "RedisAI" },
-        { "body", "RedisAI executes Deep Learning/Machine Learning models and managing their data." },
-        { "parent", "redis" },
-        { "random_num", 3 }});
+            { "title", "RedisAI" },
+            { "body", "RedisAI executes Deep Learning/Machine Learning models and managing their data." },
+            { "parent", "redis" },
+            { "random_num", 3 }
+        });
 
         AddDocument(db, "json", new()
         {
-        { "title", "RedisJson" },
-        { "body", "RedisJSON implements ECMA-404 The JSON Data Interchange Standard as a native data type." },
-        { "parent", "redis" },
-        { "random_num", 8 }});
+            { "title", "RedisJson" },
+            { "body", "RedisJSON implements ECMA-404 The JSON Data Interchange Standard as a native data type." },
+            { "parent", "redis" },
+            { "random_num", 8 }
+        });
 
         var req = new AggregationRequest("redis").GroupBy("@parent", Reducers.Count());
         var res = ft.Aggregate("idx", req).GetRow(0);
@@ -1475,7 +1516,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
             "@parent", Reducers.Quantile("@random_num", 0.5));
         res = ft.Aggregate("idx", req).GetRow(0);
         Assert.Equal("redis", res["parent"]);
-        Assert.Equal(8, res.GetLong("__generated_aliasquantilerandom_num,0.5"));  // median of 3,8,10
+        Assert.Equal(8, res.GetLong("__generated_aliasquantilerandom_num,0.5")); // median of 3,8,10
 
         req = new AggregationRequest("redis").GroupBy(
             "@parent", Reducers.ToList("@title"));
@@ -1495,6 +1536,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         {
             Log($"parent: {agg.GetRow(i)["parent"]}, first: {agg.GetRow(i)["first"]}");
         }
+
         res = agg.GetRow(0);
         Assert.Equal("redis", res["parent"]);
         Assert.Equal("RediSearch", res["first"]);
@@ -1511,8 +1553,8 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Contains(actual[1].ToString(), possibleValues);
 
         req = new AggregationRequest("redis")
-                .Load(new FieldName("__key"))
-                .GroupBy("@parent", Reducers.ToList("__key").As("docs"));
+            .Load(new FieldName("__key"))
+            .GroupBy("@parent", Reducers.ToList("__key").As("docs"));
 
         res = db.FT().Aggregate("idx", req).GetRow(0);
         actual = (List<object>)res.Get("docs");
@@ -1717,6 +1759,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     }
 
     readonly string explainQuery = "@f3:f3_val @f2:f2_val @f1:f1_val";
+
     [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestExplain(string endpointId)
@@ -1737,8 +1780,6 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         res = ft.Explain(index, explainQuery, 2);
         Assert.NotNull(res);
         Assert.False(res.Length == 0);
-
-
     }
 
     [SkippableTheory]
@@ -2036,36 +2077,40 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
             .AddTagField("category", separator: ";");
 
         var ftCreateParams = FTCreateParams.CreateParams().On(IndexDataType.JSON)
-                                                          .AddPrefix("doc:")
-                                                          .Filter("@category:{red}")
-                                                          .Language("English")
-                                                          .LanguageField("play")
-                                                          .Score(1.0)
-                                                          .ScoreField("chapter")
-                                                          .PayloadField("txt")
-                                                          .MaxTextFields()
-                                                          .NoOffsets()
-                                                          .Temporary(10)
-                                                          .NoHighlights()
-                                                          .NoFields()
-                                                          .NoFreqs()
-                                                          .Stopwords(new[] { "foo", "bar" })
-                                                          .SkipInitialScan();
+            .AddPrefix("doc:")
+            .Filter("@category:{red}")
+            .Language("English")
+            .LanguageField("play")
+            .Score(1.0)
+            .ScoreField("chapter")
+            .PayloadField("txt")
+            .MaxTextFields()
+            .NoOffsets()
+            .Temporary(10)
+            .NoHighlights()
+            .NoFields()
+            .NoFreqs()
+            .Stopwords(new[] { "foo", "bar" })
+            .SkipInitialScan();
 
         var builedCommand = SearchCommandBuilder.Create(index, ftCreateParams, sc);
-        var expectedArgs = new object[] { "TEST_INDEX", "ON", "JSON", "PREFIX", 1,
-                                           "doc:", "FILTER", "@category:{red}", "LANGUAGE",
-                                           "English", "LANGUAGE_FIELD", "play", "SCORE", 1,
-                                           "SCORE_FIELD", "chapter", "PAYLOAD_FIELD", "txt",
-                                           "MAXTEXTFIELDS", "NOOFFSETS", "TEMPORARY", 10,
-                                           "NOHL", "NOFIELDS", "NOFREQS", "STOPWORDS", 2,
-                                           "foo", "bar", "SKIPINITIALSCAN", "SCHEMA", "title",
-                                           "TEXT", "category", "TAG", "SEPARATOR", ";" };
+        var expectedArgs = new object[]
+        {
+            "TEST_INDEX", "ON", "JSON", "PREFIX", 1,
+            "doc:", "FILTER", "@category:{red}", "LANGUAGE",
+            "English", "LANGUAGE_FIELD", "play", "SCORE", 1,
+            "SCORE_FIELD", "chapter", "PAYLOAD_FIELD", "txt",
+            "MAXTEXTFIELDS", "NOOFFSETS", "TEMPORARY", 10,
+            "NOHL", "NOFIELDS", "NOFREQS", "STOPWORDS", 2,
+            "foo", "bar", "SKIPINITIALSCAN", "SCHEMA", "title",
+            "TEXT", "category", "TAG", "SEPARATOR", ";"
+        };
 
         for (int i = 0; i < expectedArgs.Length; i++)
         {
             Assert.Equal(expectedArgs[i].ToString(), builedCommand.Args[i].ToString());
         }
+
         Assert.Equal("FT.CREATE", builedCommand.Command.ToString());
     }
 
@@ -2080,8 +2125,11 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
 
         var ftCreateParams = FTCreateParams.CreateParams().NoStopwords();
 
-        var expectedArgs = new object[] { "TEST_INDEX", "STOPWORDS", 0, "SCHEMA", "title",
-                                          "TEXT", "category", "TAG", "SEPARATOR", ";" };
+        var expectedArgs = new object[]
+        {
+            "TEST_INDEX", "STOPWORDS", 0, "SCHEMA", "title",
+            "TEXT", "category", "TAG", "SEPARATOR", ";"
+        };
         var builedCommand = SearchCommandBuilder.Create(index, ftCreateParams, sc);
 
 
@@ -2089,6 +2137,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         {
             Assert.Equal(expectedArgs[i].ToString(), builedCommand.Args[i].ToString());
         }
+
         Assert.Equal("FT.CREATE", builedCommand.Command.ToString());
     }
 
@@ -2108,16 +2157,16 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         // Add the two documents to the index
         AddDocument(db, "doc1", new()
         {
-                { "txt", "foo bar" },
-                { "num", "3.141" },
-                { "loc", "-0.441,51.458" }
-            });
+            { "txt", "foo bar" },
+            { "num", "3.141" },
+            { "loc", "-0.441,51.458" }
+        });
         AddDocument(db, "doc2", new()
         {
-                { "txt", "foo baz" },
-                { "num", "2" },
-                { "loc", "-0.1,51.2" }
-            });
+            { "txt", "foo baz" },
+            { "num", "2" },
+            { "loc", "-0.1,51.2" }
+        });
         // WaitForIndex(client, ft.IndexName ?? "idx");
 
         // Test numerical filter
@@ -2160,16 +2209,16 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         // Add the two documents to the index
         AddDocument(db, "doc1", new()
         {
-                { "txt", "foo bar" },
-                { "num", "3.141" },
-                { "loc", "-0.441,51.458" }
-            });
+            { "txt", "foo bar" },
+            { "num", "3.141" },
+            { "loc", "-0.441,51.458" }
+        });
         AddDocument(db, "doc2", new()
         {
-                { "txt", "foo baz" },
-                { "num", "2" },
-                { "loc", "-0.1,51.2" }
-            });
+            { "txt", "foo baz" },
+            { "num", "2" },
+            { "loc", "-0.1,51.2" }
+        });
         // WaitForIndex(client, ft.IndexName ?? "idx");
 
         // Test numerical filter
@@ -2200,90 +2249,94 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     public void TestQueryCommandBuilder()
     {
         var testQuery = new Query("foo").HighlightFields(new Query.HighlightTags("<b>", "</b>"), "txt")
-                                            .SetVerbatim()
-                                            .SetNoStopwords()
-                                            .SetWithScores()
-                                            .SetPayload("txt")
-                                            .SetLanguage("English")
-                                            .SetScorer("TFIDF")
-                                            //.SetExplainScore()
-                                            .SetWithPayloads()
-                                            .SetSortBy("txt", true)
-                                            .Limit(0, 11)
-                                            .SummarizeFields(20, 3, ";", "txt")
-                                            .LimitKeys("key1", "key2")
-                                            .LimitFields("txt")
-                                            .ReturnFields("txt")
-                                            .AddParam("name", "value")
-                                            .Dialect(1)
-                                            .Slop(0)
-                                            .Timeout(1000)
-                                            .SetInOrder()
-                                            .SetExpander("myexpander");
+            .SetVerbatim()
+            .SetNoStopwords()
+            .SetWithScores()
+            .SetPayload("txt")
+            .SetLanguage("English")
+            .SetScorer("TFIDF")
+            //.SetExplainScore()
+            .SetWithPayloads()
+            .SetSortBy("txt", true)
+            .Limit(0, 11)
+            .SummarizeFields(20, 3, ";", "txt")
+            .LimitKeys("key1", "key2")
+            .LimitFields("txt")
+            .ReturnFields("txt")
+            .AddParam("name", "value")
+            .Dialect(1)
+            .Slop(0)
+            .Timeout(1000)
+            .SetInOrder()
+            .SetExpander("myexpander");
         var buildCommand = SearchCommandBuilder.Search("idx", testQuery);
-        var expectedArgs = new List<object> {"idx",
-                                             "foo",
-                                             "VERBATIM",
-                                             "NOSTOPWORDS",
-                                             "WITHSCORES",
-                                             "WITHPAYLOADS",
-                                             "LANGUAGE",
-                                             "English",
-                                             "SCORER",
-                                             "TFIDF",
-                                             "INFIELDS",
-                                             "1",
-                                             "txt",
-                                             "SORTBY",
-                                             "txt",
-                                             "ASC",
-                                             "PAYLOAD",
-                                             "txt",
-                                             "LIMIT",
-                                             "0",
-                                             "11",
-                                             "HIGHLIGHT",
-                                             "FIELDS",
-                                             "1",
-                                             "txt",
-                                             "TAGS",
-                                             "<b>",
-                                             "</b>",
-                                             "SUMMARIZE",
-                                             "FIELDS",
-                                             "1",
-                                             "txt",
-                                             "FRAGS",
-                                             "3",
-                                             "LEN",
-                                             "20",
-                                             "SEPARATOR",
-                                             ";",
-                                             "INKEYS",
-                                             "2",
-                                             "key1",
-                                             "key2",
-                                             "RETURN",
-                                             "1",
-                                             "txt",
-                                             "PARAMS",
-                                             "2",
-                                             "name",
-                                             "value",
-                                             "DIALECT",
-                                             "1",
-                                             "SLOP",
-                                             "0",
-                                             "TIMEOUT",
-                                             "1000",
-                                             "INORDER",
-                                             "EXPANDER",
-                                             "myexpander"};
+        var expectedArgs = new List<object>
+        {
+            "idx",
+            "foo",
+            "VERBATIM",
+            "NOSTOPWORDS",
+            "WITHSCORES",
+            "WITHPAYLOADS",
+            "LANGUAGE",
+            "English",
+            "SCORER",
+            "TFIDF",
+            "INFIELDS",
+            "1",
+            "txt",
+            "SORTBY",
+            "txt",
+            "ASC",
+            "PAYLOAD",
+            "txt",
+            "LIMIT",
+            "0",
+            "11",
+            "HIGHLIGHT",
+            "FIELDS",
+            "1",
+            "txt",
+            "TAGS",
+            "<b>",
+            "</b>",
+            "SUMMARIZE",
+            "FIELDS",
+            "1",
+            "txt",
+            "FRAGS",
+            "3",
+            "LEN",
+            "20",
+            "SEPARATOR",
+            ";",
+            "INKEYS",
+            "2",
+            "key1",
+            "key2",
+            "RETURN",
+            "1",
+            "txt",
+            "PARAMS",
+            "2",
+            "name",
+            "value",
+            "DIALECT",
+            "1",
+            "SLOP",
+            "0",
+            "TIMEOUT",
+            "1000",
+            "INORDER",
+            "EXPANDER",
+            "myexpander"
+        };
 
         for (int i = 0; i < buildCommand.Args.Count(); i++)
         {
             Assert.Equal(expectedArgs[i].ToString(), buildCommand.Args[i].ToString());
         }
+
         Assert.Equal("FT.SEARCH", buildCommand.Command);
         // test that the command not throw an exception:
         var db = GetCleanDatabase();
@@ -2297,27 +2350,31 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     public void TestQueryCommandBuilderReturnField()
     {
         var testQuery = new Query("foo").HighlightFields("txt")
-                                            .ReturnFields(new FieldName("txt"))
-                                            .SetNoContent();
+            .ReturnFields(new FieldName("txt"))
+            .SetNoContent();
 
 
         var buildCommand = SearchCommandBuilder.Search("idx", testQuery);
-        var expectedArgs = new List<object> {"idx",
-                                             "foo",
-                                             "NOCONTENT",
-                                             "HIGHLIGHT",
-                                             "FIELDS",
-                                             "1",
-                                             "txt",
-                                             "RETURN",
-                                             "1",
-                                             "txt"};
+        var expectedArgs = new List<object>
+        {
+            "idx",
+            "foo",
+            "NOCONTENT",
+            "HIGHLIGHT",
+            "FIELDS",
+            "1",
+            "txt",
+            "RETURN",
+            "1",
+            "txt"
+        };
 
         Assert.Equal(expectedArgs.Count(), buildCommand.Args.Count());
         for (int i = 0; i < buildCommand.Args.Count(); i++)
         {
             Assert.Equal(expectedArgs[i].ToString(), buildCommand.Args[i].ToString());
         }
+
         Assert.Equal("FT.SEARCH", buildCommand.Command);
 
         // test that the command not throw an exception:
@@ -2335,8 +2392,10 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         IDatabase db = GetCleanDatabase();
         var ft = db.FT();
 
-        db.Execute("JSON.SET", (RedisKey)"doc:1", "$", "[{\"arr\": [1, 2, 3]}, {\"val\": \"hello\"}, {\"val\": \"world\"}]");
-        db.Execute("FT.CREATE", "idx", "ON", "JSON", "PREFIX", "1", "doc:", "SCHEMA", "$..arr", "AS", "arr", "NUMERIC", "$..val", "AS", "val", "TEXT");
+        db.Execute("JSON.SET", (RedisKey)"doc:1", "$",
+            "[{\"arr\": [1, 2, 3]}, {\"val\": \"hello\"}, {\"val\": \"world\"}]");
+        db.Execute("FT.CREATE", "idx", "ON", "JSON", "PREFIX", "1", "doc:", "SCHEMA", "$..arr", "AS", "arr", "NUMERIC",
+            "$..val", "AS", "val", "TEXT");
         // sleep:
         Thread.Sleep(2000);
 
@@ -2357,7 +2416,8 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
             .AddTagField(FieldName.Of("tag"), true, true, true, ";", true, true)
             .AddVectorField("vec", VectorField.VectorAlgo.FLAT, new() { { "dim", 10 } });
         var buildCommand = SearchCommandBuilder.Create("idx", new(), sc);
-        var expectedArgs = new List<object> {
+        var expectedArgs = new List<object>
+        {
             "idx",
             "SCHEMA",
             "txt",
@@ -2490,6 +2550,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         {
             Assert.Equal(expected[i].ToString(), actual.Args[i].ToString());
         }
+
         Assert.Equal(expected.Count(), actual.Args.Length);
     }
 
@@ -2506,12 +2567,13 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         json.Set("vec:3", "$", "{\"vector\":[3,3,3,3]}");
         json.Set("vec:4", "$", "{\"vector\":[4,4,4,4]}");
 
-        var schema = new Schema().AddVectorField(FieldName.Of("$.vector").As("vector"), VectorField.VectorAlgo.FLAT, new()
-        {
-            ["TYPE"] = "FLOAT32",
-            ["DIM"] = "4",
-            ["DISTANCE_METRIC"] = "L2",
-        });
+        var schema = new Schema().AddVectorField(FieldName.Of("$.vector").As("vector"), VectorField.VectorAlgo.FLAT,
+            new()
+            {
+                ["TYPE"] = "FLOAT32",
+                ["DIM"] = "4",
+                ["DISTANCE_METRIC"] = "L2",
+            });
 
         var idxDef = new FTCreateParams().On(IndexDataType.JSON).Prefix("vec:");
         Assert.True(ft.Create("vss_idx", idxDef, schema));
@@ -2521,9 +2583,9 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
 
         AssertDatabaseSize(db, 4);
         var query = new Query("*=>[KNN 3 @vector $query_vec]")
-                            .AddParam("query_vec", queryVec)
-                            .SetSortBy("__vector_score")
-                            .Dialect(2);
+            .AddParam("query_vec", queryVec)
+            .SetSortBy("__vector_score")
+            .Dialect(2);
         var res = ft.Search("vss_idx", query);
 
         Assert.Equal(3, res.TotalResults);
@@ -2715,10 +2777,10 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         AssertDatabaseSize(db, 0);
 
         Assert.Equal(expected, ft.SpellCheck(index,
-                                             "Tooni toque kerfuffle",
-                                             new FTSpellCheckParams()
-                                             .IncludeTerm("slang")
-                                             .ExcludeTerm("slang")));
+            "Tooni toque kerfuffle",
+            new FTSpellCheckParams()
+                .IncludeTerm("slang")
+                .ExcludeTerm("slang")));
     }
 
     [SkippableTheory]
@@ -2740,10 +2802,10 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
 
         AssertDatabaseSize(db, 0);
         Assert.Equal(expected, await ft.SpellCheckAsync(index,
-                                             "Tooni toque kerfuffle",
-                                             new FTSpellCheckParams()
-                                             .IncludeTerm("slang")
-                                             .ExcludeTerm("slang")));
+            "Tooni toque kerfuffle",
+            new FTSpellCheckParams()
+                .IncludeTerm("slang")
+                .ExcludeTerm("slang")));
     }
 
     [Fact]
@@ -2765,7 +2827,8 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
 
         ft.Create(index, new(), new Schema().AddTextField("name").AddTextField("body"));
         // distance suppose to be between 1 and 4
-        await Assert.ThrowsAsync<RedisServerException>(async () => await ft.SpellCheckAsync(index, "name", new FTSpellCheckParams().Distance(0)));
+        await Assert.ThrowsAsync<RedisServerException>(async () =>
+            await ft.SpellCheckAsync(index, "name", new FTSpellCheckParams().Distance(0)));
     }
 
     [Fact]
@@ -2787,7 +2850,8 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
 
         ft.Create(index, new(), new Schema().AddTextField("t"));
         // dialect 0 is not valid
-        await Assert.ThrowsAsync<RedisServerException>(async () => await ft.SpellCheckAsync(index, "name", new FTSpellCheckParams().Dialect(0)));
+        await Assert.ThrowsAsync<RedisServerException>(async () =>
+            await ft.SpellCheckAsync(index, "name", new FTSpellCheckParams().Dialect(0)));
     }
 
     [SkippableTheory]
@@ -3039,7 +3103,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
 
         db.HashSet("doc1", [
             new("t1", "foo"),
-                                new("t2", "bar")
+            new("t2", "bar")
         ]);
 
         var profile = ft.ProfileOnSearch(index, new("foo"));
@@ -3063,7 +3127,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
 
         db.HashSet("doc1", [
             new("t1", "foo"),
-                                new("t2", "bar")
+            new("t2", "bar")
         ]);
 
         var profile = await ft.ProfileOnSearchAsync(index, new("foo"));
@@ -3086,7 +3150,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
 
         db.HashSet("doc1", [
             new("t1", "foo"),
-                                new("t2", "bar")
+            new("t2", "bar")
         ]);
 
         var profile = ft.ProfileSearch(index, new("foo"));
@@ -3106,7 +3170,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
 
         db.HashSet("doc1", [
             new("t1", "foo"),
-                                new("t2", "bar")
+            new("t2", "bar")
         ]);
 
         var profile = await ft.ProfileSearchAsync(index, new("foo"));
@@ -3283,7 +3347,8 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
-        await ft.CreateAsync(index, new Schema().AddTextField("t", sortable: true)); // Calling FT.CREATR without FTCreateParams
+        await ft.CreateAsync(index,
+            new Schema().AddTextField("t", sortable: true)); // Calling FT.CREATR without FTCreateParams
         db.HashSet("1", "t", "hello");
         db.HashSet("2", "t", "world");
 
@@ -3327,10 +3392,10 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
 
         var sortable = true;
         var ftParams = new FTCreateParams()
-                .On(IndexDataType.JSON)
-                .Prefix("doc:");
+            .On(IndexDataType.JSON)
+            .Prefix("doc:");
         var schema = new Schema().AddTagField("tag", sortable, false, false, "|")
-                                 .AddTextField("text", 1, sortable);
+            .AddTextField("text", 1, sortable);
 
         Assert.True(ft.Create("myIndex", ftParams, schema));
     }
@@ -3410,7 +3475,8 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         WKTReader reader = new();
         GeometryFactory factory = new();
 
-        Assert.True(await ft.CreateAsync(index, new Schema().AddGeoShapeField("geom", GeoShapeField.CoordinateSystem.SPHERICAL)));
+        Assert.True(await ft.CreateAsync(index,
+            new Schema().AddGeoShapeField("geom", GeoShapeField.CoordinateSystem.SPHERICAL)));
 
         // Create polygons
         Polygon small = factory.CreatePolygon([
@@ -3439,7 +3505,8 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
             new(34.9000, 29.7000)
         ]);
 
-        var res = await ft.SearchAsync(index, new Query($"@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
+        var res = await ft.SearchAsync(index,
+            new Query($"@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
         Assert.Equal(1, res.TotalResults);
         Assert.Single(res.Documents);
         Assert.Equal(small, reader.Read(res.Documents[0]["geom"].ToString()));
@@ -3452,7 +3519,8 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
             new(34.9002, 29.7002)
         ]);
 
-        res = await ft.SearchAsync(index, new Query($"@geom:[contains $poly]").AddParam("poly", contains.ToString()).Dialect(3));
+        res = await ft.SearchAsync(index,
+            new Query($"@geom:[contains $poly]").AddParam("poly", contains.ToString()).Dialect(3));
         Assert.Equal(2, res.TotalResults);
         Assert.Equal(2, res.Documents.Count);
 
@@ -3460,7 +3528,8 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Point point = factory.CreatePoint(new Coordinate(34.9010, 29.7010));
         db.HashSet("point", "geom", point.ToString());
 
-        res = await ft.SearchAsync(index, new Query($"@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
+        res = await ft.SearchAsync(index,
+            new Query($"@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
         Assert.Equal(2, res.TotalResults);
         Assert.Equal(2, res.Documents.Count);
     }
@@ -3479,23 +3548,24 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         // polygon type
         Polygon small = factory.CreatePolygon([
             new(1, 1),
-        new(1, 100), new(100, 100), new(100, 1), new(1, 1)
+            new(1, 100), new(100, 100), new(100, 1), new(1, 1)
         ]);
         db.HashSet("small", "geom", small.ToString());
 
         Polygon large = factory.CreatePolygon([
             new(1, 1),
-        new(1, 200), new(200, 200), new(200, 1), new(1, 1)
+            new(1, 200), new(200, 200), new(200, 1), new(1, 1)
         ]);
         db.HashSet("large", "geom", large.ToString());
 
         // within condition
         Polygon within = factory.CreatePolygon([
             new(0, 0),
-        new(0, 150), new(150, 150), new(150, 0), new(0, 0)
+            new(0, 150), new(150, 150), new(150, 0), new(0, 0)
         ]);
 
-        SearchResult res = ft.Search(index, new Query("@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
+        SearchResult res = ft.Search(index,
+            new Query("@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
         Assert.Equal(1, res.TotalResults);
         Assert.Single(res.Documents);
         Assert.Equal(small, reader.Read(res.Documents[0]["geom"].ToString()));
@@ -3503,7 +3573,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         // contains condition
         Polygon contains = factory.CreatePolygon([
             new(2, 2),
-        new(2, 50), new(50, 50), new(50, 2), new(2, 2)
+            new(2, 50), new(50, 50), new(50, 2), new(2, 2)
         ]);
 
         res = ft.Search(index, new Query("@geom:[contains $poly]").AddParam("poly", contains.ToString()).Dialect(3));
@@ -3528,28 +3598,30 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         WKTReader reader = new();
         GeometryFactory factory = new();
 
-        Assert.True(await ft.CreateAsync(index, new Schema().AddGeoShapeField("geom", GeoShapeField.CoordinateSystem.FLAT)));
+        Assert.True(await ft.CreateAsync(index,
+            new Schema().AddGeoShapeField("geom", GeoShapeField.CoordinateSystem.FLAT)));
 
         // polygon type
         Polygon small = factory.CreatePolygon([
             new(1, 1),
-        new(1, 100), new(100, 100), new(100, 1), new(1, 1)
+            new(1, 100), new(100, 100), new(100, 1), new(1, 1)
         ]);
         db.HashSet("small", "geom", small.ToString());
 
         Polygon large = factory.CreatePolygon([
             new(1, 1),
-        new(1, 200), new(200, 200), new(200, 1), new(1, 1)
+            new(1, 200), new(200, 200), new(200, 1), new(1, 1)
         ]);
         db.HashSet("large", "geom", large.ToString());
 
         // within condition
         Polygon within = factory.CreatePolygon([
             new(0, 0),
-        new(0, 150), new(150, 150), new(150, 0), new(0, 0)
+            new(0, 150), new(150, 150), new(150, 0), new(0, 0)
         ]);
 
-        SearchResult res = await ft.SearchAsync(index, new Query("@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
+        SearchResult res = await ft.SearchAsync(index,
+            new Query("@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
         Assert.Equal(1, res.TotalResults);
         Assert.Single(res.Documents);
         Assert.Equal(small, reader.Read(res.Documents[0]["geom"].ToString()));
@@ -3557,10 +3629,11 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         // contains condition
         Polygon contains = factory.CreatePolygon([
             new(2, 2),
-        new(2, 50), new(50, 50), new(50, 2), new(2, 2)
+            new(2, 50), new(50, 50), new(50, 2), new(2, 2)
         ]);
 
-        res = await ft.SearchAsync(index, new Query("@geom:[contains $poly]").AddParam("poly", contains.ToString()).Dialect(3));
+        res = await ft.SearchAsync(index,
+            new Query("@geom:[contains $poly]").AddParam("poly", contains.ToString()).Dialect(3));
         Assert.Equal(2, res.TotalResults);
         Assert.Equal(2, res.Documents.Count);
 
@@ -3568,7 +3641,8 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Point point = factory.CreatePoint(new Coordinate(10, 10));
         db.HashSet("point", "geom", point.ToString());
 
-        res = await ft.SearchAsync(index, new Query("@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
+        res = await ft.SearchAsync(index,
+            new Query("@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
         Assert.Equal(2, res.TotalResults);
         Assert.Equal(2, res.Documents.Count);
     }
@@ -3577,12 +3651,14 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     public void Issue230()
     {
         var request = new AggregationRequest("*", 3).Filter("@StatusId==1")
-                .GroupBy("@CreatedDay", Reducers.CountDistinct("@UserId"), Reducers.Count().As("count"));
+            .GroupBy("@CreatedDay", Reducers.CountDistinct("@UserId"), Reducers.Count().As("count"));
 
         var buildCommand = SearchCommandBuilder.Aggregate("idx:users", request);
         // expected: FT.AGGREGATE idx:users * FILTER @StatusId==1 GROUPBY 1 @CreatedDay REDUCE COUNT_DISTINCT 1 @UserId REDUCE COUNT 0 AS count DIALECT 3
         Assert.Equal("FT.AGGREGATE", buildCommand.Command);
-        Assert.Equal(["idx:users", "*", "FILTER", "@StatusId==1", "GROUPBY", 1, "@CreatedDay", "REDUCE", "COUNT_DISTINCT", 1, "@UserId", "REDUCE", "COUNT", 0, "AS", "count", "DIALECT", 3
+        Assert.Equal([
+            "idx:users", "*", "FILTER", "@StatusId==1", "GROUPBY", 1, "@CreatedDay", "REDUCE", "COUNT_DISTINCT", 1,
+            "@UserId", "REDUCE", "COUNT", 0, "AS", "count", "DIALECT", 3
         ], buildCommand.Args);
     }
 
@@ -3636,7 +3712,6 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
 
         Assert.Equal(1, ft.Search(index, new("@version:[-inf 124]")).TotalResults);
         Assert.Equal(1, ft.Search(index, new Query("@version<=124").Dialect(4)).TotalResults);
-
     }
 
     [SkipIfRedisTheory(Comparison.LessThan, "7.3.240")]
@@ -3700,7 +3775,8 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
-        Schema sc = new Schema().AddTextField("firstText", 1.0).AddTextField("lastText", 1.0).AddNumericField("ageNumeric");
+        Schema sc = new Schema().AddTextField("firstText", 1.0).AddTextField("lastText", 1.0)
+            .AddNumericField("ageNumeric");
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
         Document? droppedDocument = null;
@@ -3744,7 +3820,11 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
 
             List<Task> tasks = [];
             // try with 3 different tasks simultaneously to increase the chance of hitting it
-            for (int i = 0; i < 3; i++) { tasks.Add(Task.Run(checker)); }
+            for (int i = 0; i < 3; i++)
+            {
+                tasks.Add(Task.Run(checker));
+            }
+
             Task checkTask = Task.WhenAll(tasks);
             await Task.WhenAny(checkTask, Task.Delay(1000));
             var keyTtl = db.KeyTimeToLive("student:22222");
