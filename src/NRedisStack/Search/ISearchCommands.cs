@@ -1,4 +1,6 @@
+using System.ComponentModel;
 using NRedisStack.Search;
+using NRedisStack.Search.Aggregation;
 using NRedisStack.Search.DataTypes;
 using StackExchange.Redis;
 
@@ -18,10 +20,19 @@ public interface ISearchCommands
     /// Run a search query on an index, and perform aggregate transformations on the results.
     /// </summary>
     /// <param name="index">The index name.</param>
-    /// <param name="query">The query</param>
+    /// <param name="query">The query.</param>
     /// <returns>An <see langword="AggregationResult"/> object</returns>
     /// <remarks><seealso href="https://redis.io/commands/ft.aggregate"/></remarks>
     AggregationResult Aggregate(string index, AggregationRequest query);
+
+    /// <summary>
+    /// Run a search query on an index, and perform aggregate transformations on the results.
+    /// </summary>
+    /// <param name="index">The index name.</param>
+    /// <param name="query">The query.</param>
+    /// <returns>A sequence of <see langword="Row"/> values.</returns>
+    /// <remarks><seealso href="https://redis.io/commands/ft.aggregate"/></remarks>
+    IEnumerable<Row> AggregateEnumerable(string index, AggregationRequest query);
 
     /// <summary>
     /// Add an alias to an index.
@@ -92,21 +103,42 @@ public interface ISearchCommands
     /// <summary>
     /// Delete a cursor from the index.
     /// </summary>
-    /// <param name="indexName">The index name</param>
+    /// <param name="indexName">The index name.</param>
     /// <param name="cursorId">The cursor's ID.</param>
     /// <returns><see langword="true"/> if it has been deleted, <see langword="false"/> if it did not exist.</returns>
     /// <remarks><seealso href="https://redis.io/commands/ft.cursor-del/"/></remarks>
+    [Obsolete("When possible, use CursorDel(AggregationResult) instead. This legacy API will not work correctly on CLUSTER environments, but will continue to work for single-node deployments.")]
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     bool CursorDel(string indexName, long cursorId);
+
+    /// <summary>
+    /// Delete a cursor from the index.
+    /// </summary>
+    /// <param name="result">The result of a previous call to Aggregate or CursorRead.</param>
+    /// <returns><see langword="true"/> if it has been deleted, <see langword="false"/> if it did not exist.</returns>
+    /// <remarks><seealso href="https://redis.io/commands/ft.cursor-del/"/></remarks>
+    bool CursorDel(AggregationResult result);
 
     /// <summary>
     /// Read next results from an existing cursor.
     /// </summary>
-    /// <param name="indexName">The index name</param>
+    /// <param name="indexName">The index name.</param>
     /// <param name="cursorId">The cursor's ID.</param>
     /// <param name="count">Limit the amount of returned results.</param>
     /// <returns>A AggregationResult object with the results</returns>
     /// <remarks><seealso href="https://redis.io/commands/ft.cursor-read/"/></remarks>
+    [Obsolete("When possible, use AggregateEnumerable or CursorRead(AggregationResult, int?) instead. This legacy API will not work correctly on CLUSTER environments, but will continue to work for single-node deployments.")]
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     AggregationResult CursorRead(string indexName, long cursorId, int? count = null);
+
+    /// <summary>
+    /// Read next results from an existing cursor.
+    /// </summary>
+    /// <param name="result">The result of a previous call to Aggregate or CursorRead.</param>
+    /// <param name="count">Limit the amount of returned results.</param>
+    /// <returns>A AggregationResult object with the results</returns>
+    /// <remarks><seealso href="https://redis.io/commands/ft.cursor-read/"/></remarks>
+    public AggregationResult CursorRead(AggregationResult result, int? count = null);
 
     /// <summary>
     /// Add terms to a dictionary.

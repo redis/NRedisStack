@@ -22,7 +22,7 @@
         </PackageReference>
         <PackageReference Include="NetTopologySuite"/>
         <PackageReference Include="Validation"/>
-        <PackageReference Include="xunit.runner.visualstudio" Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net481'">
+        <PackageReference Include="xunit.runner.visualstudio" Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0')) or '$(TargetFramework)' == 'net481'">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
