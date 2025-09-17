@@ -1,4 +1,6 @@
+using System.ComponentModel;
 using NRedisStack.Search;
+using NRedisStack.Search.Aggregation;
 using NRedisStack.Search.DataTypes;
 using StackExchange.Redis;
 namespace NRedisStack;
@@ -40,20 +42,71 @@ public class SearchCommandsAsync : ISearchCommandsAsync
         return (await _db.ExecuteAsync(SearchCommandBuilder._List())).ToArray();
     }
 
+    internal static IServer? GetRandomServerForCluster(IDatabaseAsync db, out int? database)
+    {
+        var server = db.Multiplexer.GetServer(key: default(RedisKey));
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        if (server is null || server.ServerType != ServerType.Cluster)
+        {
+            database = null;
+            return null;
+        }
+        // This is vexingly misplaced, but: it doesn't actually matter for cluster
+        database = db is IDatabase nonAsync ? nonAsync.Database : null;
+        return server;
+    }
+
     /// <inheritdoc/>
     public async Task<AggregationResult> AggregateAsync(string index, AggregationRequest query)
     {
         SetDefaultDialectIfUnset(query);
-        var result = await _db.ExecuteAsync(SearchCommandBuilder.Aggregate(index, query));
+        IServer? server = null;
+        int? database = null;
+
+        var command = SearchCommandBuilder.Aggregate(index, query);
         if (query.IsWithCursor())
         {
-            var results = (RedisResult[])result!;
+            // we can issue this anywhere, but follow-up calls need to be on the same server
+            server = GetRandomServerForCluster(_db, out database);
+        }
 
-            return new(results[0], (long)results[1]);
+        RedisResult result;
+        if (server is not null)
+        {
+            result = await server.ExecuteAsync(database, command);
         }
         else
         {
-            return new(result);
+            result = await _db.ExecuteAsync(command);
+        }
+
+        return result.ToAggregationResult(index, query, server, database);
+    }
+
+    public async IAsyncEnumerable<Row> AggregateAsyncEnumerable(string index, AggregationRequest query)
+    {
+        if (!query.IsWithCursor()) query.Cursor();
+
+        var result = await AggregateAsync(index, query);
+        try
+        {
+            while (true)
+            {
+                var count = checked((int)result.TotalResults);
+                for (int i = 0; i < count; i++)
+                {
+                    yield return result.GetRow(i);
+                }
+                if (result.CursorId == 0) break;
+                result = await CursorReadAsync(result, query.Count);
+            }
+        }
+        finally
+        {
+            if (result.CursorId != 0)
+            {
+                await CursorDelAsync(result);
+            }
         }
     }
 
@@ -108,16 +161,50 @@ public class SearchCommandsAsync : ISearchCommandsAsync
     }
 
     /// <inheritdoc/>
+    [Obsolete("When possible, use CursorDelAsync(AggregationResult, int?) instead. This legacy API will not work correctly on CLUSTER environments, but will continue to work for single-node deployments.")]
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public async Task<bool> CursorDelAsync(string indexName, long cursorId)
     {
         return (await _db.ExecuteAsync(SearchCommandBuilder.CursorDel(indexName, cursorId))).OKtoBoolean();
     }
 
+    public async Task<bool> CursorDelAsync(AggregationResult result)
+    {
+        if (result is not AggregationResult.WithCursorAggregationResult withCursor)
+        {
+            throw new ArgumentException(
+                message: $"{nameof(CursorDelAsync)} must be called with a value returned from a previous call to {nameof(AggregateAsync)} with a cursor.",
+                paramName: nameof(result));
+        }
+
+        var command = SearchCommandBuilder.CursorDel(withCursor.IndexName, withCursor.CursorId);
+        var pending = withCursor.Server is { } server
+            ? server.ExecuteAsync(withCursor.Database, command)
+            : _db.ExecuteAsync(command);
+        return (await pending).OKtoBoolean();
+    }
+
     /// <inheritdoc/>
+    [Obsolete("When possible, use AggregateAsyncEnumerable or CursorReadAsync(AggregationResult, int?) instead. This legacy API will not work correctly on CLUSTER environments, but will continue to work for single-node deployments.")]
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public async Task<AggregationResult> CursorReadAsync(string indexName, long cursorId, int? count = null)
     {
         var resp = (await _db.ExecuteAsync(SearchCommandBuilder.CursorRead(indexName, cursorId, count))).ToArray();
         return new(resp[0], (long)resp[1]);
+    }
+
+    public async Task<AggregationResult> CursorReadAsync(AggregationResult result, int? count = null)
+    {
+        if (result is not AggregationResult.WithCursorAggregationResult withCursor)
+        {
+            throw new ArgumentException(message: $"{nameof(CursorReadAsync)} must be called with a value returned from a previous call to {nameof(AggregateAsync)} with a cursor.", paramName: nameof(result));
+        }
+        var command = SearchCommandBuilder.CursorRead(withCursor.IndexName, withCursor.CursorId, count);
+        var pending = withCursor.Server is { } server
+            ? server.ExecuteAsync(withCursor.Database, command)
+            : _db.ExecuteAsync(command);
+        var resp = (await pending).ToArray();
+        return new AggregationResult.WithCursorAggregationResult(withCursor.IndexName, resp[0], (long)resp[1], withCursor.Server, withCursor.Database);
     }
 
     /// <inheritdoc/>

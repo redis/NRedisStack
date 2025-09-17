@@ -410,3 +410,8 @@ tests/NRedisStack.Tests/redis_credentials/redis_user.crt
 # global.json
 global.json
 tests/NRedisStack.Tests/lcov.net8.0.info
+
+# docker containers
+tests/dockers/cluster/
+tests/dockers/standalone/
+tests/dockers/all/

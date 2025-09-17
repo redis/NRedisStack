@@ -1,4 +1,6 @@
+using System.ComponentModel;
 using NRedisStack.Search;
+using NRedisStack.Search.Aggregation;
 using NRedisStack.Search.DataTypes;
 using StackExchange.Redis;
 
@@ -14,13 +16,24 @@ public interface ISearchCommandsAsync
     Task<RedisResult[]> _ListAsync();
 
     /// <summary>
-    /// Run a search query on an index, and perform aggregate transformations on the results.
+    /// Run a search query on an index, and perform aggregate transformations on the results. This operates
+    /// as a cursor and may involve multiple commands to the server.
     /// </summary>
     /// <param name="index">The index name.</param>
     /// <param name="query">The query</param>
     /// <returns>An <see langword="AggregationResult"/> object</returns>
     /// <remarks><seealso href="https://redis.io/commands/ft.aggregate"/></remarks>
     Task<AggregationResult> AggregateAsync(string index, AggregationRequest query);
+
+    /// <summary>
+    /// Run a search query on an index, and perform aggregate transformations on the results. This operates
+    /// as a cursor and may involve multiple commands to the server.
+    /// </summary>
+    /// <param name="index">The index name.</param>
+    /// <param name="query">The query.</param>
+    /// <returns>A sequence of <see langword="Row"/> values.</returns>
+    /// <remarks><seealso href="https://redis.io/commands/ft.aggregate"/></remarks>
+    IAsyncEnumerable<Row> AggregateAsyncEnumerable(string index, AggregationRequest query);
 
     /// <summary>
     /// Add an alias to an index.
@@ -95,7 +108,17 @@ public interface ISearchCommandsAsync
     /// <param name="cursorId">The cursor's ID.</param>
     /// <returns><see langword="true"/> if it has been deleted, <see langword="false"/> if it did not exist.</returns>
     /// <remarks><seealso href="https://redis.io/commands/ft.cursor-del/"/></remarks>
+    [Obsolete("When possible, use CursorDelAsync(AggregationResult, int?) instead. This legacy API will not work correctly on CLUSTER environments, but will continue to work for single-node deployments.")]
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     Task<bool> CursorDelAsync(string indexName, long cursorId);
+
+    /// <summary>
+    /// Delete a cursor from the index.
+    /// </summary>
+    /// <param name="result">The result of a previous call to AggregateAsync or CursorReadAsync.</param>
+    /// <returns><see langword="true"/> if it has been deleted, <see langword="false"/> if it did not exist.</returns>
+    /// <remarks><seealso href="https://redis.io/commands/ft.cursor-del/"/></remarks>
+    Task<bool> CursorDelAsync(AggregationResult result);
 
     /// <summary>
     /// Read next results from an existing cursor.
@@ -105,7 +128,18 @@ public interface ISearchCommandsAsync
     /// <param name="count">Limit the amount of returned results.</param>
     /// <returns>A AggregationResult object with the results</returns>
     /// <remarks><seealso href="https://redis.io/commands/ft.cursor-read/"/></remarks>
+    [Obsolete("When possible, use AggregateAsyncEnumerable or CursorReadAsync(AggregationResult, int?) instead. This legacy API will not work correctly on CLUSTER environments, but will continue to work for single-node deployments.")]
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     Task<AggregationResult> CursorReadAsync(string indexName, long cursorId, int? count = null);
+
+    /// <summary>
+    /// Read next results from an existing cursor.
+    /// </summary>
+    /// <param name="result">The result of a previous AggregateAsync or CursorReadAsync call.</param>
+    /// <param name="count">Limit the amount of returned results.</param>
+    /// <returns>A AggregationResult object with the results</returns>
+    /// <remarks><seealso href="https://redis.io/commands/ft.cursor-read/"/></remarks>
+    Task<AggregationResult> CursorReadAsync(AggregationResult result, int? count = null);
 
     /// <summary>
     /// Add terms to a dictionary.
