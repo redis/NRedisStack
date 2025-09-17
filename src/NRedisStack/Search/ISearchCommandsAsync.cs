@@ -16,7 +16,8 @@ public interface ISearchCommandsAsync
     Task<RedisResult[]> _ListAsync();
 
     /// <summary>
-    /// Run a search query on an index, and perform aggregate transformations on the results.
+    /// Run a search query on an index, and perform aggregate transformations on the results. This operates
+    /// as a cursor and may involve multiple commands to the server.
     /// </summary>
     /// <param name="index">The index name.</param>
     /// <param name="query">The query</param>
@@ -25,7 +26,8 @@ public interface ISearchCommandsAsync
     Task<AggregationResult> AggregateAsync(string index, AggregationRequest query);
 
     /// <summary>
-    /// Run a search query on an index, and perform aggregate transformations on the results.
+    /// Run a search query on an index, and perform aggregate transformations on the results. This operates
+    /// as a cursor and may involve multiple commands to the server.
     /// </summary>
     /// <param name="index">The index name.</param>
     /// <param name="query">The query.</param>
