@@ -161,7 +161,7 @@ public class SearchCommandsAsync : ISearchCommandsAsync
     }
 
     /// <inheritdoc/>
-    [Obsolete("When possible, use CursorDelAsync(AggregationResult, int?) instead.")]
+    [Obsolete("When possible, use CursorDelAsync(AggregationResult, int?) instead. This legacy API will not work correctly on CLUSTER environments, but will continue to work for single-node deployments.")]
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public async Task<bool> CursorDelAsync(string indexName, long cursorId)
     {
@@ -185,7 +185,7 @@ public class SearchCommandsAsync : ISearchCommandsAsync
     }
 
     /// <inheritdoc/>
-    [Obsolete("When possible, use AggregateAsyncEnumerable or CursorReadAsync(AggregationResult, int?) instead.")]
+    [Obsolete("When possible, use AggregateAsyncEnumerable or CursorReadAsync(AggregationResult, int?) instead. This legacy API will not work correctly on CLUSTER environments, but will continue to work for single-node deployments.")]
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public async Task<AggregationResult> CursorReadAsync(string indexName, long cursorId, int? count = null)
     {

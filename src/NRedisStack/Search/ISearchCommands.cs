@@ -107,7 +107,7 @@ public interface ISearchCommands
     /// <param name="cursorId">The cursor's ID.</param>
     /// <returns><see langword="true"/> if it has been deleted, <see langword="false"/> if it did not exist.</returns>
     /// <remarks><seealso href="https://redis.io/commands/ft.cursor-del/"/></remarks>
-    [Obsolete("When possible, use CursorDel(AggregationResult) instead.")]
+    [Obsolete("When possible, use CursorDel(AggregationResult) instead. This legacy API will not work correctly on CLUSTER environments, but will continue to work for single-node deployments.")]
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     bool CursorDel(string indexName, long cursorId);
 
@@ -127,7 +127,7 @@ public interface ISearchCommands
     /// <param name="count">Limit the amount of returned results.</param>
     /// <returns>A AggregationResult object with the results</returns>
     /// <remarks><seealso href="https://redis.io/commands/ft.cursor-read/"/></remarks>
-    [Obsolete("When possible, use AggregateEnumerable or CursorRead(AggregationResult, int?) instead.")]
+    [Obsolete("When possible, use AggregateEnumerable or CursorRead(AggregationResult, int?) instead. This legacy API will not work correctly on CLUSTER environments, but will continue to work for single-node deployments.")]
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     AggregationResult CursorRead(string indexName, long cursorId, int? count = null);
 
