@@ -15,6 +15,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{84D6210F
 		Directory.Packages.props = Directory.Packages.props
 		global.json = global.json
 		version.json = version.json
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{CBEB7980-923E-49D1-B8D5-561E313AF525}"
+	ProjectSection(SolutionItems) = preProject
+		src\.editorconfig = src\.editorconfig
 	EndProjectSection
 EndProject
 Global
@@ -38,5 +44,8 @@ Global
 		{F14F6342-14A0-4DDD-AB05-C425B1AD8001}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F14F6342-14A0-4DDD-AB05-C425B1AD8001}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F14F6342-14A0-4DDD-AB05-C425B1AD8001}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{CBEB7980-923E-49D1-B8D5-561E313AF525} = {84D6210F-9A65-427A-965F-57E7B76424AB}
 	EndGlobalSection
 EndGlobal
