@@ -71,8 +71,8 @@ public static class JsonCommandBuilder
     public static SerializedCommand DebugMemory(string key, string? path = null)
     {
         return (path != null)
-            ? new(JSON.DEBUG, JSON.MEMORY, key, path)
-            : new SerializedCommand(JSON.DEBUG, JSON.MEMORY, key);
+            ? new(JSON.DEBUG, JSON.MEMORY, (RedisKey)key, path)
+            : new SerializedCommand(JSON.DEBUG, JSON.MEMORY, (RedisKey)key);
     }
 
     public static SerializedCommand ArrAppend(RedisKey key, string? path = null, params object[] values)

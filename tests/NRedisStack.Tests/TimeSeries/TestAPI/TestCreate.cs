@@ -137,7 +137,7 @@ public class TestCreate(EndpointsFixture endpointsFixture) : AbstractNRedisStack
             .AddUncompressed(true).build();
 
         var command = TimeSeriesCommandsBuilder.Create(key, parameters);
-        var expectedArgs = new object[] { key, "RETENTION", 5000L, "CHUNK_SIZE", 1000L, "LABELS", "key", "value", "UNCOMPRESSED", "DUPLICATE_POLICY", "FIRST", "IGNORE", 11L, 12L };
+        var expectedArgs = new object[] { (RedisKey)key, "RETENTION", 5000L, "CHUNK_SIZE", 1000L, "LABELS", "key", "value", "UNCOMPRESSED", "DUPLICATE_POLICY", "FIRST", "IGNORE", 11L, 12L };
         Assert.Equal(expectedArgs, command.Args);
 
         parameters = new TsCreateParamsBuilder()
@@ -149,7 +149,7 @@ public class TestCreate(EndpointsFixture endpointsFixture) : AbstractNRedisStack
             .AddUncompressed(false).build();
 
         command = TimeSeriesCommandsBuilder.Create(key, parameters);
-        expectedArgs = [key, "RETENTION", 5000L, "CHUNK_SIZE", 1000L, "LABELS", "key", "value", "COMPRESSED", "DUPLICATE_POLICY", "FIRST", "IGNORE", 11L, 12L
+        expectedArgs = [(RedisKey)key, "RETENTION", 5000L, "CHUNK_SIZE", 1000L, "LABELS", "key", "value", "COMPRESSED", "DUPLICATE_POLICY", "FIRST", "IGNORE", 11L, 12L
         ];
         Assert.Equal(expectedArgs, command.Args);
     }

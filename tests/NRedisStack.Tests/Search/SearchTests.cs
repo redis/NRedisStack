@@ -2933,10 +2933,12 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
 
     readonly string key = "SugTestKey";
 
-    [Fact]
-    public void TestAddAndGetSuggestion()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestAddAndGetSuggestion(string endpointId)
     {
-        IDatabase db = GetCleanDatabase();
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
         string suggestion = "ANOTHER_WORD";
@@ -2955,9 +2957,11 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Single(ft.SugGet(key, noMatch.Substring(1, 6), true, max: 5));
     }
 
-    [Fact]
-    public async Task TestAddAndGetSuggestionAsync()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestAddAndGetSuggestionAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase();
         var ft = db.FT();
 
@@ -2977,10 +2981,12 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Single(await ft.SugGetAsync(key, noMatch.Substring(1, 6), true, max: 5));
     }
 
-    [Fact]
-    public void AddSuggestionIncrAndGetSuggestionFuzzy()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void AddSuggestionIncrAndGetSuggestionFuzzy(string endpointId)
     {
-        IDatabase db = GetCleanDatabase();
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         string suggestion = "TOPIC OF WORDS";
 
@@ -2991,10 +2997,12 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(suggestion, ft.SugGet(key, suggestion.Substring(0, 3))[0]);
     }
 
-    [Fact]
-    public async Task AddSuggestionIncrAndGetSuggestionFuzzyAsync()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task AddSuggestionIncrAndGetSuggestionFuzzyAsync(string endpointId)
     {
-        IDatabase db = GetCleanDatabase();
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         string suggestion = "TOPIC OF WORDS";
 
@@ -3005,10 +3013,12 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(suggestion, (await ft.SugGetAsync(key, suggestion.Substring(0, 3)))[0]);
     }
 
-    [Fact]
-    public void getSuggestionScores()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void getSuggestionScores(string endpointId)
     {
-        IDatabase db = GetCleanDatabase();
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         ft.SugAdd(key, "COUNT_ME TOO", 1);
         ft.SugAdd(key, "COUNT", 1);
@@ -3025,10 +3035,12 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         }
     }
 
-    [Fact]
-    public async Task getSuggestionScoresAsync()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task getSuggestionScoresAsync(string endpointId)
     {
-        IDatabase db = GetCleanDatabase();
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         await ft.SugAddAsync(key, "COUNT_ME TOO", 1);
         await ft.SugAddAsync(key, "COUNT", 1);
@@ -3045,10 +3057,12 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         }
     }
 
-    [Fact]
-    public void getSuggestionMax()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void getSuggestionMax(string endpointId)
     {
-        IDatabase db = GetCleanDatabase();
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         ft.SugAdd(key, "COUNT_ME TOO", 1);
         ft.SugAdd(key, "COUNT", 1);
@@ -3059,10 +3073,12 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(2, ft.SugGetWithScores(key, "COU", true, max: 2).Count);
     }
 
-    [Fact]
-    public async Task getSuggestionMaxAsync()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task getSuggestionMaxAsync(string endpointId)
     {
-        IDatabase db = GetCleanDatabase();
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         await ft.SugAddAsync(key, "COUNT_ME TOO", 1);
         await ft.SugAddAsync(key, "COUNT", 1);
@@ -3073,10 +3089,12 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(2, (await ft.SugGetWithScoresAsync(key, "COU", true, max: 2)).Count);
     }
 
-    [Fact]
-    public void getSuggestionNoHit()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void getSuggestionNoHit(string endpointId)
     {
-        IDatabase db = GetCleanDatabase();
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         ft.SugAdd(key, "NO WORD", 0.4);
 
@@ -3084,10 +3102,12 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Empty(ft.SugGet(key, "DIF"));
     }
 
-    [Fact]
-    public async Task getSuggestionNoHitAsync()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task GetSuggestionNoHitAsync(string endpointId)
     {
-        IDatabase db = GetCleanDatabase();
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         await ft.SugAddAsync(key, "NO WORD", 0.4);
 
@@ -3095,10 +3115,12 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Empty((await ft.SugGetAsync(key, "DIF")));
     }
 
-    [Fact]
-    public void getSuggestionLengthAndDeleteSuggestion()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void GetSuggestionLengthAndDeleteSuggestion(string endpointId)
     {
-        IDatabase db = GetCleanDatabase();
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         ft.SugAdd(key, "TOPIC OF WORDS", 1, increment: true);
         ft.SugAdd(key, "ANOTHER ENTRY", 1, increment: true);
@@ -3117,10 +3139,12 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(2L, ft.SugLen(key));
     }
 
-    [Fact]
-    public async Task getSuggestionLengthAndDeleteSuggestionAsync()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task getSuggestionLengthAndDeleteSuggestionAsync(string endpointId)
     {
-        IDatabase db = GetCleanDatabase();
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         await ft.SugAddAsync(key, "TOPIC OF WORDS", 1, increment: true);
         await ft.SugAddAsync(key, "ANOTHER ENTRY", 1, increment: true);

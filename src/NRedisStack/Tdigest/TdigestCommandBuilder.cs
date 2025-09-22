@@ -8,12 +8,11 @@ public static class TdigestCommandBuilder
 {
     public static SerializedCommand Add(RedisKey key, params double[] values)
     {
-        if (values.Length < 0) throw new ArgumentOutOfRangeException(nameof(values));
-        var args = new string[values.Length + 1];
-        args[0] = key.ToString();
+        var args = new object[values.Length + 1];
+        args[0] = key;
         for (int i = 0; i < values.Length; i++)
         {
-            args[i + 1] = values[i].ToString();
+            args[i + 1] = values[i];
         }
 
         return new(TDIGEST.ADD, args);

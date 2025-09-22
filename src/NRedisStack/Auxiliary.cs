@@ -61,26 +61,31 @@ public static class Auxiliary
         }
     }
 
+#if DEBUG
+    private const CommandFlags Flags = CommandFlags.NoRedirect; // disable redirect, so we spot -MOVED in tests
+#else
+    private const CommandFlags Flags = CommandFlags.None;
+#endif
     public static RedisResult Execute(this IDatabase db, SerializedCommand command)
     {
         db.SetInfoInPipeline();
-        return db.Execute(command.Command, command.Args);
+        return db.Execute(command.Command, command.Args, flags: Flags);
     }
 
     internal static RedisResult Execute(this IServer server, int? db, SerializedCommand command)
     {
-        return server.Execute(db, command.Command, command.Args);
+        return server.Execute(db, command.Command, command.Args, flags: Flags);
     }
 
     public static async Task<RedisResult> ExecuteAsync(this IDatabaseAsync db, SerializedCommand command)
     {
         ((IDatabase)db).SetInfoInPipeline();
-        return await db.ExecuteAsync(command.Command, command.Args);
+        return await db.ExecuteAsync(command.Command, command.Args, flags: Flags);
     }
 
     internal static async Task<RedisResult> ExecuteAsync(this IServer server, int? db, SerializedCommand command)
     {
-        return await server.ExecuteAsync(db, command.Command, command.Args);
+        return await server.ExecuteAsync(db, command.Command, command.Args, flags: Flags);
     }
 
     public static List<RedisResult> ExecuteBroadcast(this IDatabase db, string command)
