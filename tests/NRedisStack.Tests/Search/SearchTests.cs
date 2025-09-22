@@ -314,6 +314,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAggregationRequestParamsDialect(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new();
@@ -345,6 +346,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAggregationRequestParamsDialectAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new();
@@ -377,6 +379,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAggregationRequestParamsWithDefaultDialect(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT(2);
         Schema sc = new();
@@ -408,6 +411,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAggregationRequestParamsWithDefaultDialectAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT(2);
         Schema sc = new();
@@ -447,6 +451,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAlias(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new Schema().AddTextField("field1");
@@ -485,6 +490,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAliasAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new Schema().AddTextField("field1");
