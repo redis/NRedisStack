@@ -2962,7 +2962,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     public async Task TestAddAndGetSuggestionAsync(string endpointId)
     {
         SkipClusterPre8(endpointId);
-        IDatabase db = GetCleanDatabase();
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
         string suggestion = "ANOTHER_WORD";
