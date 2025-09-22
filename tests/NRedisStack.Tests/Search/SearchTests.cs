@@ -55,20 +55,12 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
 
     private void AssertDatabaseSize(IDatabase db, int expected)
     {
-        // in part, this is to allow replication to catch up
-        for (int i = 0; i < 10; i++)
-        {
-            Assert.Equal(expected, DatabaseSize(db));
-        }
+        Assert.Equal(expected, DatabaseSize(db));
     }
 
     private async Task AssertDatabaseSizeAsync(IDatabase db, int expected)
     {
-        // in part, this is to allow replication to catch up
-        for (int i = 0; i < 10; i++)
-        {
-            Assert.Equal(expected, await DatabaseSizeAsync(db));
-        }
+        Assert.Equal(expected, await DatabaseSizeAsync(db));
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
