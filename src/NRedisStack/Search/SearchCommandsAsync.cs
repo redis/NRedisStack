@@ -1,8 +1,8 @@
-using System.ComponentModel;
 using NRedisStack.Search;
 using NRedisStack.Search.Aggregation;
 using NRedisStack.Search.DataTypes;
 using StackExchange.Redis;
+using System.ComponentModel;
 namespace NRedisStack;
 
 public class SearchCommandsAsync : ISearchCommandsAsync

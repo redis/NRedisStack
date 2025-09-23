@@ -1,6 +1,6 @@
-using StackExchange.Redis;
-using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;
+using NRedisStack.Literals.Enums;
+using StackExchange.Redis;
 namespace NRedisStack;
 
 public class TimeSeriesCommandsAsync : ITimeSeriesCommandsAsync

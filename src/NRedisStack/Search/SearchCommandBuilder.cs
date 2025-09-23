@@ -1,6 +1,6 @@
-using NRedisStack.Search.Literals;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
+using NRedisStack.Search.Literals;
 using StackExchange.Redis;
 namespace NRedisStack;
 

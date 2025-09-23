@@ -1,6 +1,6 @@
-﻿using System.Globalization;
-using NRedisStack.Search.Literals;
+﻿using NRedisStack.Search.Literals;
 using StackExchange.Redis;
+using System.Globalization;
 
 namespace NRedisStack.Search;
 
