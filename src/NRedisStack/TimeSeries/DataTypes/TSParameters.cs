@@ -1,5 +1,6 @@
 ﻿using NRedisStack.DataTypes;
 using NRedisStack.Literals.Enums;
+using StackExchange.Redis;
 
 namespace NRedisStack;
 
@@ -17,7 +18,7 @@ public class TsBaseParams
         this.parameters = parameters;
     }
 
-    internal object[] ToArray(string key)
+    internal object[] ToArray(RedisKey key)
     {
         parameters.Insert(0, key);
         return parameters.ToArray();

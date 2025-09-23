@@ -196,7 +196,7 @@ public static class SearchCommandBuilder
 
     public static SerializedCommand SugAdd(string key, string str, double score, bool increment = false, string? payload = null)
     {
-        var args = new List<object> { key, str, score };
+        var args = new List<object> { (RedisKey)key, str, score };
         if (increment) { args.Add(SearchArgs.INCR); }
         if (payload != null) { args.Add(SearchArgs.PAYLOAD); args.Add(payload); }
         return new(FT.SUGADD, args);
@@ -204,12 +204,12 @@ public static class SearchCommandBuilder
 
     public static SerializedCommand SugDel(string key, string str)
     {
-        return new(FT.SUGDEL, key, str);
+        return new(FT.SUGDEL, (RedisKey)key, str);
     }
 
     public static SerializedCommand SugGet(string key, string prefix, bool fuzzy = false, bool withScores = false, bool withPayloads = false, int? max = null)
     {
-        var args = new List<object> { key, prefix };
+        var args = new List<object> { (RedisKey)key, prefix };
         if (fuzzy) { args.Add(SearchArgs.FUZZY); }
         if (withScores) { args.Add(SearchArgs.WITHSCORES); }
         if (withPayloads) { args.Add(SearchArgs.WITHPAYLOADS); }
@@ -219,7 +219,7 @@ public static class SearchCommandBuilder
 
     public static SerializedCommand SugLen(string key)
     {
-        return new(FT.SUGLEN, key);
+        return new(FT.SUGLEN, (RedisKey)key);
     }
 
     public static SerializedCommand SynDump(string indexName)
