@@ -4,7 +4,7 @@
 [![NRedisStack NuGet release](https://img.shields.io/nuget/v/NRedisStack.svg?label=nuget&logo=nuget)](https://www.nuget.org/packages/NRedisStack)
 
 
-# NRedisStack
+# NRedisStack test
 
 .NET Client for Redis
 
