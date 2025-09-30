@@ -54,23 +54,38 @@ public static class Auxiliary
         {
             _setInfo = false;
             if (_libraryName == null) return;
-            Pipeline pipeline = new Pipeline(db);
-            _ = pipeline.Db.ClientSetInfoAsync(SetInfoAttr.LibraryName, _libraryName!);
+            Pipeline pipeline = new(db);
+            _ = pipeline.Db.ClientSetInfoAsync(SetInfoAttr.LibraryName, _libraryName);
             _ = pipeline.Db.ClientSetInfoAsync(SetInfoAttr.LibraryVersion, GetNRedisStackVersion());
             pipeline.Execute();
         }
     }
 
+#if DEBUG
+    private const CommandFlags Flags = CommandFlags.NoRedirect; // disable redirect, so we spot -MOVED in tests
+#else
+    private const CommandFlags Flags = CommandFlags.None;
+#endif
     public static RedisResult Execute(this IDatabase db, SerializedCommand command)
     {
         db.SetInfoInPipeline();
-        return db.Execute(command.Command, command.Args);
+        return db.Execute(command.Command, command.Args, flags: Flags);
+    }
+
+    internal static RedisResult Execute(this IServer server, int? db, SerializedCommand command)
+    {
+        return server.Execute(db, command.Command, command.Args, flags: Flags);
     }
 
     public static async Task<RedisResult> ExecuteAsync(this IDatabaseAsync db, SerializedCommand command)
     {
         ((IDatabase)db).SetInfoInPipeline();
-        return await db.ExecuteAsync(command.Command, command.Args);
+        return await db.ExecuteAsync(command.Command, command.Args, flags: Flags);
+    }
+
+    internal static async Task<RedisResult> ExecuteAsync(this IServer server, int? db, SerializedCommand command)
+    {
+        return await server.ExecuteAsync(db, command.Command, command.Args, flags: Flags);
     }
 
     public static List<RedisResult> ExecuteBroadcast(this IDatabase db, string command)

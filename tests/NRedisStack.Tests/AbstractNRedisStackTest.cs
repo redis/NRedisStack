@@ -3,11 +3,20 @@ using NRedisStack.DataTypes;
 using System.Runtime.CompilerServices;
 using StackExchange.Redis;
 using Xunit;
+using Xunit.Abstractions;
+
 namespace NRedisStack.Tests;
 
 public abstract class AbstractNRedisStackTest : IClassFixture<EndpointsFixture>, IAsyncLifetime
 {
-    protected internal EndpointsFixture EndpointsFixture;
+    private protected EndpointsFixture EndpointsFixture { get; }
+    private readonly ITestOutputHelper? log;
+
+    protected void Log(string message)
+    {
+        if (log is null) throw new InvalidOperationException("Log is not initialized");
+        log.WriteLine(message);
+    }
 
     protected readonly ConfigurationOptions DefaultConnectionConfig = new()
     {
@@ -16,9 +25,10 @@ public abstract class AbstractNRedisStackTest : IClassFixture<EndpointsFixture>,
         AllowAdmin = true,
     };
 
-    protected internal AbstractNRedisStackTest(EndpointsFixture endpointsFixture)
+    protected internal AbstractNRedisStackTest(EndpointsFixture endpointsFixture, ITestOutputHelper? log = null)
     {
         this.EndpointsFixture = endpointsFixture;
+        this.log = log;
     }
 
     protected ConnectionMultiplexer GetConnection(string endpointId = EndpointsFixture.Env.Standalone) => EndpointsFixture.GetConnectionById(this.DefaultConnectionConfig, endpointId);
@@ -42,7 +52,7 @@ public abstract class AbstractNRedisStackTest : IClassFixture<EndpointsFixture>,
             {
                 var server = redis.GetServer(endPoint);
 
-                if (server.IsReplica) continue;
+                if (server.IsReplica || !server.IsConnected) continue;
 
                 server.Execute("FLUSHALL");
             }
@@ -58,7 +68,7 @@ public abstract class AbstractNRedisStackTest : IClassFixture<EndpointsFixture>,
         Skip.IfNot(EndpointsFixture.IsTargetConnectionExist(id), $"The connection with id '{id}' is not configured.");
     }
 
-    private List<string> keyNames = new List<string>();
+    private List<string> keyNames = [];
 
     protected internal string CreateKeyName([CallerMemberName] string memberName = "") => CreateKeyNames(1, memberName)[0];
 
@@ -95,10 +105,10 @@ public abstract class AbstractNRedisStackTest : IClassFixture<EndpointsFixture>,
         //Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
     }
 
-    public async Task DisposeAsync()
-    {
-        //var redis = Redis.GetDatabase();
-        // await redis.KeyDeleteAsync(keyNames.Select(i => (RedisKey)i).ToArray());
-        //await redis.ExecuteBroadcastAsync("FLUSHALL");
-    }
+    public Task DisposeAsync() => Task.CompletedTask;
+    /*{
+        var redis = Redis.GetDatabase();
+         await redis.KeyDeleteAsync(keyNames.Select(i => (RedisKey)i).ToArray());
+        await redis.ExecuteBroadcastAsync("FLUSHALL");
+    }*/
 }

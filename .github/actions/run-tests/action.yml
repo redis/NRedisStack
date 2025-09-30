@@ -24,11 +24,13 @@ runs:
   using: "composite"
   steps:
     - uses: actions/checkout@v4
-
-    - name: Install .NET Core 
+    
+    - name: Install .NET Core
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: ${{inputs.dotnet-version}}
+        dotnet-version: |
+          9.0.x
+          ${{inputs.dotnet-version}}
         dotnet-quality: 'ga'
 
     - name: Setup Environment variables and run Redis
@@ -51,8 +53,8 @@ runs:
         
           # Mapping of redis version to stack version  
           declare -A redis_stack_version_mapping=(
-            ["7.4.1"]="rs-7.4.0-v1"
-            ["7.2.6"]="rs-7.2.0-v13"
+            ["7.4.1"]="rs-7.4.0-v5"
+            ["7.2.6"]="rs-7.2.0-v17"
             ["6.2.16"]="rs-6.2.6-v17"
           )
                   

@@ -4,14 +4,14 @@ using NRedisStack.Search.Literals;
 namespace NRedisStack.Search;
 public class AggregationRequest : IDialectAwareParam
 {
-    private List<object> args = new List<object>(); // Check if Readonly
+    private readonly List<object> args = []; // Check if Readonly
     private bool isWithCursor = false;
 
     public int? dialect { get; private set; } = null;
 
     public AggregationRequest(string query, int? defaultDialect = null)
     {
-        this.dialect = defaultDialect;
+        dialect = defaultDialect;
         args.Add(query);
     }
 
@@ -52,12 +52,12 @@ public class AggregationRequest : IDialectAwareParam
 
     public AggregationRequest GroupBy(string field, params Reducer[] reducers)
     {
-        return GroupBy(new[] { field }, reducers);
+        return GroupBy([field], reducers);
     }
 
     public AggregationRequest GroupBy(IList<string> fields, IList<Reducer> reducers)
     {
-        Group g = new Group(fields);
+        Group g = new(fields);
         foreach (Reducer r in reducers)
         {
             g.Reduce(r);
@@ -117,7 +117,7 @@ public class AggregationRequest : IDialectAwareParam
     public AggregationRequest Filter(string filter)
     {
         args.Add(SearchArgs.FILTER);
-        args.Add(filter!);
+        args.Add(filter);
         return this;
     }
 
@@ -128,6 +128,7 @@ public class AggregationRequest : IDialectAwareParam
 
         if (count != null)
         {
+            Count = count;
             args.Add(SearchArgs.COUNT);
             args.Add(count);
         }
@@ -139,6 +140,7 @@ public class AggregationRequest : IDialectAwareParam
         }
         return this;
     }
+    internal int? Count { get; set; }
 
     public AggregationRequest Params(Dictionary<string, object> nameValue)
     {

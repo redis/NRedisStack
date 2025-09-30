@@ -1,3 +1,4 @@
+#pragma warning disable CS0618, CS0612 // allow testing obsolete methods
 using Xunit;
 using StackExchange.Redis;
 using NRedisStack.RedisStackCommands;
@@ -8,107 +9,116 @@ using NRedisStack.Search.Literals.Enums;
 using System.Runtime.InteropServices;
 using NetTopologySuite.IO;
 using NetTopologySuite.Geometries;
-
+using Xunit.Abstractions;
 
 namespace NRedisStack.Tests.Search;
 
-public class SearchTests : AbstractNRedisStackTest, IDisposable
+public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper log)
+    : AbstractNRedisStackTest(endpointsFixture, log), IDisposable
 {
     // private readonly string key = "SEARCH_TESTS";
     private readonly string index = "TEST_INDEX";
 
+    private static void SkipClusterPre8(string endpointId)
+    {
+        // Many of the FT.* commands are ... more awkward pre 8 when using cluster. Rather than
+        // fight eventual-consistency/timing issues: grandfather the existing behaviour, and start
+        // afresh from v8, where things behave much more predictably and reasonably.
+        Skip.If(endpointId == EndpointsFixture.Env.Cluster
+            && EndpointsFixture.RedisVersion.Major < 8, "Ignoring cluster tests for FT.SEARCH pre Redis 8.0");
+    }
+
     private void AddDocument(IDatabase db, Document doc)
     {
-        string key = doc.Id;
-        var properties = doc.GetProperties();
-        // HashEntry[] hash = new  HashEntry[properties.Count()];
-        // for(int i = 0; i < properties.Count(); i++)
-        // {
-        //     var property = properties.ElementAt(i);
-        //     hash[i] = new HashEntry(property.Key, property.Value);
-        // }
-        // db.HashSet(key, hash);
-        var nameValue = new List<object>() { key };
-        foreach (var item in properties)
-        {
-            nameValue.Add(item.Key);
-            nameValue.Add(item.Value);
-        }
-        db.Execute("HSET", nameValue);
+        var hash = doc.GetProperties()
+            .Select(pair => new HashEntry(pair.Key, pair.Value))
+            .ToArray();
+        db.HashSet(doc.Id, hash);
     }
 
     private void AddDocument(IDatabase db, string key, Dictionary<string, object> objDictionary)
     {
-        Dictionary<string, string> strDictionary = new Dictionary<string, string>();
-        // HashEntry[] hash = new  HashEntry[objDictionary.Count()];
-        // for(int i = 0; i < objDictionary.Count(); i++)
-        // {
-        //     var property = objDictionary.ElementAt(i);
-        //     hash[i] = new HashEntry(property.Key, property.Value.ToString());
-        // }
-        // db.HashSet(key, hash);
-        var nameValue = new List<object>() { key };
-        foreach (var item in objDictionary)
-        {
-            nameValue.Add(item.Key);
-            nameValue.Add(item.Value);
-        }
-        db.Execute("HSET", nameValue);
+        Dictionary<string, string> strDictionary = new();
+        var hash = objDictionary
+            .Select(pair => new HashEntry(pair.Key, pair.Value switch
+            {
+                string s => (RedisValue)s,
+                byte[] b => b,
+                int i => i,
+                long l => l,
+                double d => d,
+                _ => throw new ArgumentException($"Unsupported type: {pair.Value.GetType()}"),
+            }))
+            .ToArray();
+        db.HashSet(key, hash);
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    private void AssertDatabaseSize(IDatabase db, int expected)
+    {
+        Assert.Equal(expected, DatabaseSize(db));
+    }
+
+    private async Task AssertDatabaseSizeAsync(IDatabase db, int expected)
+    {
+        Assert.Equal(expected, await DatabaseSizeAsync(db));
+    }
+
+    [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAggregationRequestVerbatim(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
-        Schema sc = new Schema();
+        Schema sc = new();
         sc.AddTextField("name", 1.0, sortable: true);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
         AddDocument(db, new Document("data1").Set("name", "hello kitty"));
 
-        AggregationRequest r = new AggregationRequest("kitti");
+        AggregationRequest r = new("kitti");
 
         AggregationResult res = ft.Aggregate(index, r);
         Assert.Equal(1, res.TotalResults);
 
         r = new AggregationRequest("kitti")
-                .Verbatim();
+            .Verbatim();
 
         res = ft.Aggregate(index, r);
         Assert.Equal(0, res.TotalResults);
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAggregationRequestVerbatimAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
-        Schema sc = new Schema();
+        Schema sc = new();
         sc.AddTextField("name", 1.0, sortable: true);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
         AddDocument(db, new Document("data1").Set("name", "hello kitty"));
 
-        AggregationRequest r = new AggregationRequest("kitti");
+        AggregationRequest r = new("kitti");
 
         AggregationResult res = await ft.AggregateAsync(index, r);
         Assert.Equal(1, res.TotalResults);
 
         r = new AggregationRequest("kitti")
-                .Verbatim();
+            .Verbatim();
 
         res = await ft.AggregateAsync(index, r);
         Assert.Equal(0, res.TotalResults);
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAggregationRequestTimeout(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
-        Schema sc = new Schema();
+        Schema sc = new();
         sc.AddTextField("name", 1.0, sortable: true);
         sc.AddNumericField("count", sortable: true);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
@@ -117,20 +127,21 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
 
         AggregationRequest r = new AggregationRequest()
-                .GroupBy("@name", Reducers.Sum("@count").As("sum"))
-                .Timeout(5000);
+            .GroupBy("@name", Reducers.Sum("@count").As("sum"))
+            .Timeout(5000);
 
         AggregationResult res = ft.Aggregate(index, r);
         Assert.Equal(2, res.TotalResults);
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAggregationRequestTimeoutAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
-        Schema sc = new Schema();
+        Schema sc = new();
         sc.AddTextField("name", 1.0, sortable: true);
         sc.AddNumericField("count", sortable: true);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
@@ -139,20 +150,21 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
 
         AggregationRequest r = new AggregationRequest()
-                .GroupBy("@name", Reducers.Sum("@count").As("sum"))
-                .Timeout(5000);
+            .GroupBy("@name", Reducers.Sum("@count").As("sum"))
+            .Timeout(5000);
 
         AggregationResult res = await ft.AggregateAsync(index, r);
         Assert.Equal(2, res.TotalResults);
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAggregations(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
-        Schema sc = new Schema();
+        Schema sc = new();
         sc.AddTextField("name", 1.0, true);
         sc.AddNumericField("count", true);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
@@ -165,7 +177,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         AggregationRequest r = new AggregationRequest()
             .GroupBy("@name", Reducers.Sum("@count").As("sum"))
-        .SortBy(10, SortedField.Desc("@sum"));
+            .SortBy(10, SortedField.Desc("@sum"));
 
         // actual search
         var res = ft.Aggregate(index, r);
@@ -186,12 +198,13 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAggregationsAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
-        Schema sc = new Schema();
+        Schema sc = new();
         sc.AddTextField("name", 1.0, true);
         sc.AddNumericField("count", true);
         await ft.CreateAsync(index, FTCreateParams.CreateParams(), sc);
@@ -204,7 +217,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         AggregationRequest r = new AggregationRequest()
             .GroupBy("@name", Reducers.Sum("@count").As("sum"))
-        .SortBy(10, SortedField.Desc("@sum"));
+            .SortBy(10, SortedField.Desc("@sum"));
 
         // actual search
         var res = await ft.AggregateAsync(index, r);
@@ -226,70 +239,81 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAggregationsLoad(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         var sc = new Schema().AddTextField("t1").AddTextField("t2");
-        ft.Create("idx", new FTCreateParams(), sc);
+        ft.Create("idx", new(), sc);
 
         AddDocument(db, new Document("doc1").Set("t1", "hello").Set("t2", "world"));
+        AssertDatabaseSize(db, 1);
 
         // load t1
         var req = new AggregationRequest("*").Load(new FieldName("t1"));
         var res = ft.Aggregate("idx", req);
+        Assert.NotNull(res[0]?["t1"]);
         Assert.Equal("hello", res[0]!["t1"].ToString());
 
         // load t2
         req = new AggregationRequest("*").Load(new FieldName("t2"));
         res = ft.Aggregate("idx", req);
+        Assert.NotNull(res[0]?["t2"]);
         Assert.Equal("world", res[0]!["t2"]);
 
         // load all
         req = new AggregationRequest("*").LoadAll();
         res = ft.Aggregate("idx", req);
+        Assert.NotNull(res[0]?["t1"]);
         Assert.Equal("hello", res[0]!["t1"].ToString());
+        Assert.NotNull(res[0]?["t2"]);
         Assert.Equal("world", res[0]!["t2"]);
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAggregationsLoadAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         var sc = new Schema().AddTextField("t1").AddTextField("t2");
-        await ft.CreateAsync("idx", new FTCreateParams(), sc);
+        await ft.CreateAsync("idx", new(), sc);
 
         AddDocument(db, new Document("doc1").Set("t1", "hello").Set("t2", "world"));
+        await AssertDatabaseSizeAsync(db, 1);
 
         // load t1
         var req = new AggregationRequest("*").Load(new FieldName("t1"));
         var res = await ft.AggregateAsync("idx", req);
+        Assert.NotNull(res[0]?["t1"]);
         Assert.Equal("hello", res[0]!["t1"].ToString());
 
         // load t2
         req = new AggregationRequest("*").Load(new FieldName("t2"));
         res = await ft.AggregateAsync("idx", req);
+        Assert.NotNull(res[0]?["t2"]);
         Assert.Equal("world", res[0]!["t2"]);
 
         // load all
         req = new AggregationRequest("*").LoadAll();
         res = await ft.AggregateAsync("idx", req);
+        Assert.NotNull(res[0]?["t1"]);
         Assert.Equal("hello", res[0]!["t1"].ToString());
+        Assert.NotNull(res[0]?["t2"]);
         Assert.Equal("world", res[0]!["t2"]);
     }
 
-
-
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAggregationRequestParamsDialect(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
-        Schema sc = new Schema();
+        Schema sc = new();
         sc.AddTextField("name", 1.0, sortable: true);
         sc.AddNumericField("count", sortable: true);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
@@ -297,14 +321,14 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
         AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
 
-        Dictionary<string, object> parameters = new Dictionary<string, object>();
+        Dictionary<string, object> parameters = new();
         parameters.Add("name", "abc");
         parameters.Add("count", "10");
 
         AggregationRequest r = new AggregationRequest("$name")
-                .GroupBy("@name", Reducers.Sum("@count").As("sum"))
-                .Params(parameters)
-                .Dialect(2); // From documentation - To use PARAMS, DIALECT must be set to 2
+            .GroupBy("@name", Reducers.Sum("@count").As("sum"))
+            .Params(parameters)
+            .Dialect(2); // From documentation - To use PARAMS, DIALECT must be set to 2
 
         AggregationResult res = ft.Aggregate(index, r);
         Assert.Equal(1, res.TotalResults);
@@ -315,12 +339,13 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAggregationRequestParamsDialectAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
-        Schema sc = new Schema();
+        Schema sc = new();
         sc.AddTextField("name", 1.0, sortable: true);
         sc.AddNumericField("count", sortable: true);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
@@ -328,15 +353,15 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
         AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
 
-        Dictionary<string, object> parameters = new Dictionary<string, object>();
+        Dictionary<string, object> parameters = new();
         parameters.Add("name", "abc");
         parameters.Add("count", "10");
 
 
         AggregationRequest r = new AggregationRequest("$name")
-                .GroupBy("@name", Reducers.Sum("@count").As("sum"))
-                .Params(parameters)
-                .Dialect(2); // From documentation - To use PARAMS, DIALECT must be set to 2
+            .GroupBy("@name", Reducers.Sum("@count").As("sum"))
+            .Params(parameters)
+            .Dialect(2); // From documentation - To use PARAMS, DIALECT must be set to 2
 
         AggregationResult res = await ft.AggregateAsync(index, r);
         Assert.Equal(1, res.TotalResults);
@@ -347,12 +372,13 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAggregationRequestParamsWithDefaultDialect(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT(2);
-        Schema sc = new Schema();
+        Schema sc = new();
         sc.AddTextField("name", 1.0, sortable: true);
         sc.AddNumericField("count", sortable: true);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
@@ -360,14 +386,14 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
         AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
 
-        Dictionary<string, object> parameters = new Dictionary<string, object>();
+        Dictionary<string, object> parameters = new();
         parameters.Add("name", "abc");
         parameters.Add("count", "10");
 
         AggregationRequest r = new AggregationRequest("$name")
-                .GroupBy("@name", Reducers.Sum("@count").As("sum"))
-                .Params(parameters); // From documentation - To use PARAMS, DIALECT must be set to 2
-                                     // which is the default as we set in the constructor (FT(2))
+            .GroupBy("@name", Reducers.Sum("@count").As("sum"))
+            .Params(parameters); // From documentation - To use PARAMS, DIALECT must be set to 2
+        // which is the default as we set in the constructor (FT(2))
 
         AggregationResult res = ft.Aggregate(index, r);
         Assert.Equal(1, res.TotalResults);
@@ -378,12 +404,13 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAggregationRequestParamsWithDefaultDialectAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT(2);
-        Schema sc = new Schema();
+        Schema sc = new();
         sc.AddTextField("name", 1.0, sortable: true);
         sc.AddNumericField("count", sortable: true);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
@@ -391,14 +418,14 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
         AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
 
-        Dictionary<string, object> parameters = new Dictionary<string, object>();
+        Dictionary<string, object> parameters = new();
         parameters.Add("name", "abc");
         parameters.Add("count", "10");
 
         AggregationRequest r = new AggregationRequest("$name")
-                .GroupBy("@name", Reducers.Sum("@count").As("sum"))
-                .Params(parameters); // From documentation - To use PARAMS, DIALECT must be set to 2
-                                     // which is the default as we set in the constructor (FT(2))
+            .GroupBy("@name", Reducers.Sum("@count").As("sum"))
+            .Params(parameters); // From documentation - To use PARAMS, DIALECT must be set to 2
+        // which is the default as we set in the constructor (FT(2))
 
         AggregationResult res = await ft.AggregateAsync(index, r);
         Assert.Equal(1, res.TotalResults);
@@ -417,20 +444,30 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAlias(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new Schema().AddTextField("field1");
 
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
-        Dictionary<string, object> doc = new Dictionary<string, object>();
+        Dictionary<string, object> doc = new();
         doc.Add("field1", "value");
         AddDocument(db, "doc1", doc);
 
-        Assert.True(ft.AliasAdd("ALIAS1", index));
+        try
+        {
+            Assert.True(ft.AliasAdd("ALIAS1", index));
+        }
+        catch (RedisServerException rse)
+        {
+            Skip.If(rse.Message.StartsWith("CROSSSLOT"), "legacy failure");
+            throw;
+        }
+
         SearchResult res1 = ft.Search("ALIAS1", new Query("*").ReturnFields("field1"));
         Assert.Equal(1, res1.TotalResults);
         Assert.Equal("value", res1.Documents[0]["field1"]);
@@ -446,20 +483,30 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAliasAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new Schema().AddTextField("field1");
 
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
-        Dictionary<string, object> doc = new Dictionary<string, object>();
+        Dictionary<string, object> doc = new();
         doc.Add("field1", "value");
         AddDocument(db, "doc1", doc);
 
-        Assert.True(await ft.AliasAddAsync("ALIAS1", index));
+        try
+        {
+            Assert.True(await ft.AliasAddAsync("ALIAS1", index));
+        }
+        catch (RedisServerException rse)
+        {
+            Skip.If(rse.Message.StartsWith("CROSSSLOT"), "legacy failure");
+            throw;
+        }
+
         SearchResult res1 = ft.Search("ALIAS1", new Query("*").ReturnFields("field1"));
         Assert.Equal(1, res1.TotalResults);
         Assert.Equal("value", res1.Documents[0]["field1"]);
@@ -475,12 +522,13 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestApplyAndFilterAggregations(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
-        Schema sc = new Schema();
+        Schema sc = new();
         sc.AddTextField("name", 1.0, sortable: true);
         sc.AddNumericField("subj1", sortable: true);
         sc.AddNumericField("subj2", sortable: true);
@@ -497,29 +545,49 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         AddDocument(db, new Document("data4").Set("name", "abc").Set("subj1", 30).Set("subj2", 20));
         AddDocument(db, new Document("data5").Set("name", "def").Set("subj1", 65).Set("subj2", 45));
         AddDocument(db, new Document("data6").Set("name", "ghi").Set("subj1", 70).Set("subj2", 70));
+        AssertDatabaseSize(db, 6);
 
-        AggregationRequest r = new AggregationRequest().Apply("(@subj1+@subj2)/2", "attemptavg")
-            .GroupBy("@name", Reducers.Avg("@attemptavg").As("avgscore"))
-            .Filter("@avgscore>=50")
-            .SortBy(10, SortedField.Asc("@name"));
+        int maxAttempts = endpointId == EndpointsFixture.Env.Cluster ? 10 : 3;
+        for (int attempt = 1; attempt <= maxAttempts; attempt++)
+        {
+            AggregationRequest r = new AggregationRequest().Apply("(@subj1+@subj2)/2", "attemptavg")
+                .GroupBy("@name", Reducers.Avg("@attemptavg").As("avgscore"))
+                .Filter("@avgscore>=50")
+                .SortBy(10, SortedField.Asc("@name"));
 
-        // actual search
-        AggregationResult res = ft.Aggregate(index, r);
-        Assert.Equal(2, res.TotalResults);
+            // abc: 20+70 => 45, 30+20 => 25, filtered out
+            // def: 60+40 => 50, 65+45 => 55, avg 52.5
+            // ghi: 50+80 => 65, 70+70 => 70, avg 67.5
 
-        Row r1 = res.GetRow(0);
-        Assert.Equal("def", r1.GetString("name"));
-        Assert.Equal(52.5, r1.GetDouble("avgscore"), 0);
+            // actual search
+            AggregationResult res = ft.Aggregate(index, r);
+            Assert.Equal(2, res.TotalResults);
 
-        Row r2 = res.GetRow(1);
-        Assert.Equal("ghi", r2.GetString("name"));
-        Assert.Equal(67.5, r2.GetDouble("avgscore"), 0);
+            Row r1 = res.GetRow(0);
+            Row r2 = res.GetRow(1);
+            Log($"Attempt {attempt} of {maxAttempts}: avgscore {r2.GetDouble("avgscore")}");
+            if (attempt != maxAttempts && !IsNear(r2.GetDouble("avgscore"), 67.5))
+            {
+                Thread.Sleep(400); // allow extra cluster replication time
+                continue;
+            }
+
+            Assert.Equal("def", r1.GetString("name"));
+            Assert.Equal(52.5, r1.GetDouble("avgscore"), 0);
+
+            Assert.Equal("ghi", r2.GetString("name"));
+            Assert.Equal(67.5, r2.GetDouble("avgscore"), 0);
+            break; // success!
+        }
     }
 
+    private static bool IsNear(double a, double b, double epsilon = 0.1) => Math.Abs(a - b) < epsilon;
+
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestCreate(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         var schema = new Schema().AddTextField("first").AddTextField("last").AddNumericField("age");
@@ -527,113 +595,122 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Assert.True(ft.Create(index, parameters, schema));
 
-        db.HashSet("profesor:5555", new HashEntry[] { new("first", "Albert"), new("last", "Blue"), new("age", "55") });
-        db.HashSet("student:1111", new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", "18") });
-        db.HashSet("pupil:2222", new HashEntry[] { new("first", "Jen"), new("last", "Rod"), new("age", "14") });
-        db.HashSet("student:3333", new HashEntry[] { new("first", "El"), new("last", "Mark"), new("age", "17") });
-        db.HashSet("pupil:4444", new HashEntry[] { new("first", "Pat"), new("last", "Shu"), new("age", "21") });
-        db.HashSet("student:5555", new HashEntry[] { new("first", "Joen"), new("last", "Ko"), new("age", "20") });
-        db.HashSet("teacher:6666", new HashEntry[] { new("first", "Pat"), new("last", "Rod"), new("age", "20") });
+        db.HashSet("profesor:5555", [new("first", "Albert"), new("last", "Blue"), new("age", "55")]);
+        db.HashSet("student:1111", [new("first", "Joe"), new("last", "Dod"), new("age", "18")]);
+        db.HashSet("pupil:2222", [new("first", "Jen"), new("last", "Rod"), new("age", "14")]);
+        db.HashSet("student:3333", [new("first", "El"), new("last", "Mark"), new("age", "17")]);
+        db.HashSet("pupil:4444", [new("first", "Pat"), new("last", "Shu"), new("age", "21")]);
+        db.HashSet("student:5555", [new("first", "Joen"), new("last", "Ko"), new("age", "20")]);
+        db.HashSet("teacher:6666", [new("first", "Pat"), new("last", "Rod"), new("age", "20")]);
+        AssertDatabaseSize(db, 7);
 
-        var noFilters = ft.Search(index, new Query());
+        var noFilters = ft.Search(index, new());
         Assert.Equal(4, noFilters.TotalResults);
 
-        var res1 = ft.Search(index, new Query("@first:Jo*"));
+        var res1 = ft.Search(index, new("@first:Jo*"));
         Assert.Equal(2, res1.TotalResults);
 
-        var res2 = ft.Search(index, new Query("@first:Pat"));
+        var res2 = ft.Search(index, new("@first:Pat"));
         Assert.Equal(1, res2.TotalResults);
 
-        var res3 = ft.Search(index, new Query("@last:Rod"));
+        var res3 = ft.Search(index, new("@last:Rod"));
         Assert.Equal(0, res3.TotalResults);
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestCreateAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         var schema = new Schema().AddTextField("first").AddTextField("last").AddNumericField("age");
         var parameters = FTCreateParams.CreateParams().Filter("@age>16").Prefix("student:", "pupil:");
         Assert.True(await ft.CreateAsync(index, parameters, schema));
-        db.HashSet("profesor:5555", new HashEntry[] { new("first", "Albert"), new("last", "Blue"), new("age", "55") });
-        db.HashSet("student:1111", new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", "18") });
-        db.HashSet("pupil:2222", new HashEntry[] { new("first", "Jen"), new("last", "Rod"), new("age", "14") });
-        db.HashSet("student:3333", new HashEntry[] { new("first", "El"), new("last", "Mark"), new("age", "17") });
-        db.HashSet("pupil:4444", new HashEntry[] { new("first", "Pat"), new("last", "Shu"), new("age", "21") });
-        db.HashSet("student:5555", new HashEntry[] { new("first", "Joen"), new("last", "Ko"), new("age", "20") });
-        db.HashSet("teacher:6666", new HashEntry[] { new("first", "Pat"), new("last", "Rod"), new("age", "20") });
-        var noFilters = ft.Search(index, new Query());
+        db.HashSet("profesor:5555", [new("first", "Albert"), new("last", "Blue"), new("age", "55")]);
+        db.HashSet("student:1111", [new("first", "Joe"), new("last", "Dod"), new("age", "18")]);
+        db.HashSet("pupil:2222", [new("first", "Jen"), new("last", "Rod"), new("age", "14")]);
+        db.HashSet("student:3333", [new("first", "El"), new("last", "Mark"), new("age", "17")]);
+        db.HashSet("pupil:4444", [new("first", "Pat"), new("last", "Shu"), new("age", "21")]);
+        db.HashSet("student:5555", [new("first", "Joen"), new("last", "Ko"), new("age", "20")]);
+        db.HashSet("teacher:6666", [new("first", "Pat"), new("last", "Rod"), new("age", "20")]);
+        await AssertDatabaseSizeAsync(db, 7);
+
+        var noFilters = ft.Search(index, new());
         Assert.Equal(4, noFilters.TotalResults);
-        var res1 = ft.Search(index, new Query("@first:Jo*"));
+        var res1 = ft.Search(index, new("@first:Jo*"));
         Assert.Equal(2, res1.TotalResults);
-        var res2 = ft.Search(index, new Query("@first:Pat"));
+        var res2 = ft.Search(index, new("@first:Pat"));
         Assert.Equal(1, res2.TotalResults);
-        var res3 = ft.Search(index, new Query("@last:Rod"));
+        var res3 = ft.Search(index, new("@last:Rod"));
         Assert.Equal(0, res3.TotalResults);
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void CreateNoParams(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
         Schema sc = new Schema().AddTextField("first", 1.0).AddTextField("last", 1.0).AddNumericField("age");
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
-        db.HashSet("student:1111", new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", 18) });
-        db.HashSet("student:3333", new HashEntry[] { new("first", "El"), new("last", "Mark"), new("age", 17) });
-        db.HashSet("pupil:4444", new HashEntry[] { new("first", "Pat"), new("last", "Shu"), new("age", 21) });
-        db.HashSet("student:5555", new HashEntry[] { new("first", "Joen"), new("last", "Ko"), new("age", 20) });
+        db.HashSet("student:1111", [new("first", "Joe"), new("last", "Dod"), new("age", 18)]);
+        db.HashSet("student:3333", [new("first", "El"), new("last", "Mark"), new("age", 17)]);
+        db.HashSet("pupil:4444", [new("first", "Pat"), new("last", "Shu"), new("age", 21)]);
+        db.HashSet("student:5555", [new("first", "Joen"), new("last", "Ko"), new("age", 20)]);
+        AssertDatabaseSize(db, 4);
 
-        SearchResult noFilters = ft.Search(index, new Query());
+        SearchResult noFilters = ft.Search(index, new());
         Assert.Equal(4, noFilters.TotalResults);
 
-        SearchResult res1 = ft.Search(index, new Query("@first:Jo*"));
+        SearchResult res1 = ft.Search(index, new("@first:Jo*"));
         Assert.Equal(2, res1.TotalResults);
 
-        SearchResult res2 = ft.Search(index, new Query("@first:Pat"));
+        SearchResult res2 = ft.Search(index, new("@first:Pat"));
         Assert.Equal(1, res2.TotalResults);
 
-        SearchResult res3 = ft.Search(index, new Query("@last:Rod"));
+        SearchResult res3 = ft.Search(index, new("@last:Rod"));
         Assert.Equal(0, res3.TotalResults);
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task CreateNoParamsAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
         Schema sc = new Schema().AddTextField("first", 1.0).AddTextField("last", 1.0).AddNumericField("age");
         Assert.True(await ft.CreateAsync(index, FTCreateParams.CreateParams(), sc));
 
-        db.HashSet("student:1111", new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", 18) });
-        db.HashSet("student:3333", new HashEntry[] { new("first", "El"), new("last", "Mark"), new("age", 17) });
-        db.HashSet("pupil:4444", new HashEntry[] { new("first", "Pat"), new("last", "Shu"), new("age", 21) });
-        db.HashSet("student:5555", new HashEntry[] { new("first", "Joen"), new("last", "Ko"), new("age", 20) });
+        db.HashSet("student:1111", [new("first", "Joe"), new("last", "Dod"), new("age", 18)]);
+        db.HashSet("student:3333", [new("first", "El"), new("last", "Mark"), new("age", 17)]);
+        db.HashSet("pupil:4444", [new("first", "Pat"), new("last", "Shu"), new("age", 21)]);
+        db.HashSet("student:5555", [new("first", "Joen"), new("last", "Ko"), new("age", 20)]);
+        await AssertDatabaseSizeAsync(db, 4);
 
-        SearchResult noFilters = ft.Search(index, new Query());
+        SearchResult noFilters = ft.Search(index, new());
         Assert.Equal(4, noFilters.TotalResults);
 
-        SearchResult res1 = ft.Search(index, new Query("@first:Jo*"));
+        SearchResult res1 = ft.Search(index, new("@first:Jo*"));
         Assert.Equal(2, res1.TotalResults);
 
-        SearchResult res2 = ft.Search(index, new Query("@first:Pat"));
+        SearchResult res2 = ft.Search(index, new("@first:Pat"));
         Assert.Equal(1, res2.TotalResults);
 
-        SearchResult res3 = ft.Search(index, new Query("@last:Rod"));
+        SearchResult res3 = ft.Search(index, new("@last:Rod"));
         Assert.Equal(0, res3.TotalResults);
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void CreateWithFieldNames(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new Schema().AddField(new TextField(FieldName.Of("first").As("given")))
@@ -641,26 +718,27 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Assert.True(ft.Create(index, FTCreateParams.CreateParams().Prefix("student:", "pupil:"), sc));
 
-        db.HashSet("profesor:5555", new HashEntry[] { new("first", "Albert"), new("last", "Blue"), new("age", "55") });
-        db.HashSet("student:1111", new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", "18") });
-        db.HashSet("pupil:2222", new HashEntry[] { new("first", "Jen"), new("last", "Rod"), new("age", "14") });
-        db.HashSet("student:3333", new HashEntry[] { new("first", "El"), new("last", "Mark"), new("age", "17") });
-        db.HashSet("pupil:4444", new HashEntry[] { new("first", "Pat"), new("last", "Shu"), new("age", "21") });
-        db.HashSet("student:5555", new HashEntry[] { new("first", "Joen"), new("last", "Ko"), new("age", "20") });
-        db.HashSet("teacher:6666", new HashEntry[] { new("first", "Pat"), new("last", "Rod"), new("age", "20") });
+        db.HashSet("profesor:5555", [new("first", "Albert"), new("last", "Blue"), new("age", "55")]);
+        db.HashSet("student:1111", [new("first", "Joe"), new("last", "Dod"), new("age", "18")]);
+        db.HashSet("pupil:2222", [new("first", "Jen"), new("last", "Rod"), new("age", "14")]);
+        db.HashSet("student:3333", [new("first", "El"), new("last", "Mark"), new("age", "17")]);
+        db.HashSet("pupil:4444", [new("first", "Pat"), new("last", "Shu"), new("age", "21")]);
+        db.HashSet("student:5555", [new("first", "Joen"), new("last", "Ko"), new("age", "20")]);
+        db.HashSet("teacher:6666", [new("first", "Pat"), new("last", "Rod"), new("age", "20")]);
+        AssertDatabaseSize(db, 7);
 
-        SearchResult noFilters = ft.Search(index, new Query());
+        SearchResult noFilters = ft.Search(index, new());
         Assert.Equal(5, noFilters.TotalResults);
 
-        SearchResult asAttribute = ft.Search(index, new Query("@given:Jo*"));
+        SearchResult asAttribute = ft.Search(index, new("@given:Jo*"));
         Assert.Equal(2, asAttribute.TotalResults);
 
-        SearchResult nonAttribute = ft.Search(index, new Query("@last:Rod"));
+        SearchResult nonAttribute = ft.Search(index, new("@last:Rod"));
         Assert.Equal(1, nonAttribute.TotalResults);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.9.0")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.9.0")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void FailWhenAttributeNotExist(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -669,13 +747,14 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddField(new TextField(FieldName.Of("last")));
 
         Assert.True(ft.Create(index, FTCreateParams.CreateParams().Prefix("student:", "pupil:"), sc));
-        RedisServerException exc = Assert.Throws<RedisServerException>(() => ft.Search(index, new Query("@first:Jo*")));
+        RedisServerException exc = Assert.Throws<RedisServerException>(() => ft.Search(index, new("@first:Jo*")));
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task CreateWithFieldNamesAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new Schema().AddField(new TextField(FieldName.Of("first").As("given")))
@@ -683,26 +762,26 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Assert.True(await ft.CreateAsync(index, FTCreateParams.CreateParams().Prefix("student:", "pupil:"), sc));
 
-        db.HashSet("profesor:5555", new HashEntry[] { new("first", "Albert"), new("last", "Blue"), new("age", "55") });
-        db.HashSet("student:1111", new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", "18") });
-        db.HashSet("pupil:2222", new HashEntry[] { new("first", "Jen"), new("last", "Rod"), new("age", "14") });
-        db.HashSet("student:3333", new HashEntry[] { new("first", "El"), new("last", "Mark"), new("age", "17") });
-        db.HashSet("pupil:4444", new HashEntry[] { new("first", "Pat"), new("last", "Shu"), new("age", "21") });
-        db.HashSet("student:5555", new HashEntry[] { new("first", "Joen"), new("last", "Ko"), new("age", "20") });
-        db.HashSet("teacher:6666", new HashEntry[] { new("first", "Pat"), new("last", "Rod"), new("age", "20") });
+        db.HashSet("profesor:5555", [new("first", "Albert"), new("last", "Blue"), new("age", "55")]);
+        db.HashSet("student:1111", [new("first", "Joe"), new("last", "Dod"), new("age", "18")]);
+        db.HashSet("pupil:2222", [new("first", "Jen"), new("last", "Rod"), new("age", "14")]);
+        db.HashSet("student:3333", [new("first", "El"), new("last", "Mark"), new("age", "17")]);
+        db.HashSet("pupil:4444", [new("first", "Pat"), new("last", "Shu"), new("age", "21")]);
+        db.HashSet("student:5555", [new("first", "Joen"), new("last", "Ko"), new("age", "20")]);
+        db.HashSet("teacher:6666", [new("first", "Pat"), new("last", "Rod"), new("age", "20")]);
 
-        SearchResult noFilters = await ft.SearchAsync(index, new Query());
+        SearchResult noFilters = await ft.SearchAsync(index, new());
         Assert.Equal(5, noFilters.TotalResults);
 
-        SearchResult asAttribute = await ft.SearchAsync(index, new Query("@given:Jo*"));
+        SearchResult asAttribute = await ft.SearchAsync(index, new("@given:Jo*"));
         Assert.Equal(2, asAttribute.TotalResults);
 
-        SearchResult nonAttribute = await ft.SearchAsync(index, new Query("@last:Rod"));
+        SearchResult nonAttribute = await ft.SearchAsync(index, new("@last:Rod"));
         Assert.Equal(1, nonAttribute.TotalResults);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.9.0")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.9.0")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task FailWhenAttributeNotExistAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -711,13 +790,15 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddField(new TextField(FieldName.Of("last")));
 
         Assert.True(await ft.CreateAsync(index, FTCreateParams.CreateParams().Prefix("student:", "pupil:"), sc));
-        RedisServerException exc = await Assert.ThrowsAsync<RedisServerException>(async () => await ft.SearchAsync(index, new Query("@first:Jo*")));
+        RedisServerException exc =
+            await Assert.ThrowsAsync<RedisServerException>(async () => await ft.SearchAsync(index, new("@first:Jo*")));
     }
 
-    [SkipIfRedis(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [SkipIfRedisTheory(Is.Enterprise)]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void AlterAdd(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new Schema().AddTextField("title", 1.0);
@@ -725,29 +806,49 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
         //sleep:
-        System.Threading.Thread.Sleep(2000);
+        Thread.Sleep(2000);
 
         var fields = new HashEntry("title", "hello world");
         //fields.("title", "hello world");
+        AssertDatabaseSize(db, 0);
         for (int i = 0; i < 100; i++)
         {
             db.HashSet($"doc{i}", fields.Name, fields.Value);
         }
-        SearchResult res = ft.Search(index, new Query("hello world"));
+
+        AssertDatabaseSize(db, 100);
+        var info = ft.Info(index);
+        Assert.Equal(index, info.IndexName);
+        if (endpointId == EndpointsFixture.Env.Cluster)
+        {
+            Assert.True(info.NumDocs is 100 or 200, $"NumDocs: {info.NumDocs}");
+        }
+        else
+        {
+            Assert.Equal(100, info.NumDocs);
+        }
+
+        SearchResult res = ft.Search(index, new("hello world"));
         Assert.Equal(100, res.TotalResults);
 
         Assert.True(ft.Alter(index, new Schema().AddTagField("tags").AddTextField("name", weight: 0.5)));
         for (int i = 0; i < 100; i++)
         {
-            var fields2 = new HashEntry[] { new("name", "name" + i),
-                                      new("tags", $"tagA,tagB,tag{i}") };
+            var fields2 = new HashEntry[]
+            {
+                new("name", "name" + i),
+                new("tags", $"tagA,tagB,tag{i}")
+            };
             //      assertTrue(client.updateDocument(string.format("doc%d", i), 1.0, fields2));
             db.HashSet($"doc{i}", fields2);
         }
-        SearchResult res2 = ft.Search(index, new Query("@tags:{tagA}"));
+
+        SearchResult res2 = ft.Search(index, new("@tags:{tagA}"));
         Assert.Equal(100, res2.TotalResults);
 
-        var info = ft.Info(index);
+        AssertDatabaseSize(db, 100);
+
+        info = ft.Info(index);
         Assert.Equal(index, info.IndexName);
         Assert.Empty(info.IndexOption);
         // Assert.Equal(,info.IndexDefinition);
@@ -755,33 +856,43 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("TAG", info.Attributes[1]["type"].ToString());
         Assert.Equal("name", info.Attributes[2]["attribute"].ToString());
 
-        Assert.Equal(100, info.NumDocs);
-        Assert.NotNull(info.MaxDocId);
-        Assert.Equal(102, info.NumTerms);
-        Assert.True(info.NumRecords >= 200);
-        Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
-        Assert.Equal(0, info.VectorIndexSzMebibytes);
-        Assert.Equal(208, info.TotalInvertedIndexBlocks);
-        Assert.True(info.OffsetVectorsSzMebibytes < 1);
-        Assert.True(info.DocTableSizeMebibytes < 1);
-        Assert.Equal(0, info.SortableValueSizeMebibytes);
-        Assert.True(info.KeyTableSizeMebibytes < 1);
-        Assert.Equal(8, (int)info.RecordsPerDocAvg);
-        Assert.True(info.BytesPerRecordAvg > 5);
-        Assert.True(info.OffsetsPerTermAvg > 0.8);
-        Assert.Equal(8, info.OffsetBitsPerRecordAvg);
-        Assert.Equal(0, info.HashIndexingFailures);
-        Assert.Equal(0, info.Indexing);
-        Assert.Equal(1, info.PercentIndexed);
-        Assert.Equal(4, info.NumberOfUses);
-        Assert.Equal(7, info.GcStats.Count);
-        Assert.Equal(4, info.CursorStats.Count);
+        if (endpointId == EndpointsFixture.Env.Cluster)
+        {
+            Assert.True(info.NumDocs is 100 or 200, $"NumDocs: {info.NumDocs}");
+        }
+        else
+        {
+            Assert.Equal(100, info.NumDocs);
+
+            // these numbers don't make sense when considering a shard
+            Assert.NotNull(info.MaxDocId);
+            Assert.Equal(102, info.NumTerms);
+            Assert.True(info.NumRecords >= 200);
+            Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
+            Assert.Equal(0, info.VectorIndexSzMebibytes);
+            Assert.Equal(208, info.TotalInvertedIndexBlocks);
+            Assert.True(info.OffsetVectorsSzMebibytes < 1);
+            Assert.True(info.DocTableSizeMebibytes < 1);
+            Assert.Equal(0, info.SortableValueSizeMebibytes);
+            Assert.True(info.KeyTableSizeMebibytes < 1);
+            Assert.Equal(8, (int)info.RecordsPerDocAvg);
+            Assert.True(info.BytesPerRecordAvg > 5);
+            Assert.True(info.OffsetsPerTermAvg > 0.8);
+            Assert.Equal(8, info.OffsetBitsPerRecordAvg);
+            Assert.Equal(0, info.HashIndexingFailures);
+            Assert.Equal(0, info.Indexing);
+            Assert.Equal(1, info.PercentIndexed);
+            Assert.Equal(5, info.NumberOfUses);
+            Assert.Equal(7, info.GcStats.Count);
+            Assert.Equal(4, info.CursorStats.Count);
+        }
     }
 
-    [SkipIfRedis(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [SkipIfRedisTheory(Is.Enterprise)]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task AlterAddAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new Schema().AddTextField("title", 1.0);
@@ -789,7 +900,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
         //sleep:
-        System.Threading.Thread.Sleep(2000);
+        Thread.Sleep(2000);
 
         var fields = new HashEntry("title", "hello world");
         //fields.("title", "hello world");
@@ -797,52 +908,79 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         {
             db.HashSet($"doc{i}", fields.Name, fields.Value);
         }
-        SearchResult res = ft.Search(index, new Query("hello world"));
+
+        SearchResult res = ft.Search(index, new("hello world"));
         Assert.Equal(100, res.TotalResults);
+        var info = ft.Info(index);
+        Assert.Equal(index, info.IndexName);
+        if (endpointId == EndpointsFixture.Env.Cluster)
+        {
+            Assert.True(info.NumDocs is 100 or 200, $"NumDocs: {info.NumDocs}");
+        }
+        else
+        {
+            Assert.Equal(100, info.NumDocs);
+        }
 
         Assert.True(await ft.AlterAsync(index, new Schema().AddTagField("tags").AddTextField("name", weight: 0.5)));
         for (int i = 0; i < 100; i++)
         {
-            var fields2 = new HashEntry[] { new("name", "name" + i),
-                                      new("tags", $"tagA,tagB,tag{i}") };
+            var fields2 = new HashEntry[]
+            {
+                new("name", "name" + i),
+                new("tags", $"tagA,tagB,tag{i}")
+            };
             //      assertTrue(client.updateDocument(string.format("doc%d", i), 1.0, fields2));
             db.HashSet($"doc{i}", fields2);
         }
-        SearchResult res2 = ft.Search(index, new Query("@tags:{tagA}"));
+
+        SearchResult res2 = ft.Search(index, new("@tags:{tagA}"));
         Assert.Equal(100, res2.TotalResults);
 
-        var info = await ft.InfoAsync(index);
+        await AssertDatabaseSizeAsync(db, 100);
+
+        info = await ft.InfoAsync(index);
         Assert.Equal(index, info.IndexName);
         Assert.Equal("title", info.Attributes[0]["identifier"].ToString());
         Assert.Equal("TAG", info.Attributes[1]["type"].ToString());
         Assert.Equal("name", info.Attributes[2]["attribute"].ToString());
-        Assert.Equal(100, info.NumDocs);
-        Assert.Equal("300", info.MaxDocId);
-        Assert.Equal(102, info.NumTerms);
-        Assert.True(info.NumRecords >= 200);
-        Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
-        Assert.Equal(0, info.VectorIndexSzMebibytes);
-        Assert.Equal(208, info.TotalInvertedIndexBlocks);
-        Assert.True(info.OffsetVectorsSzMebibytes < 1);
-        Assert.True(info.DocTableSizeMebibytes < 1);
-        Assert.Equal(0, info.SortableValueSizeMebibytes);
-        Assert.True(info.KeyTableSizeMebibytes < 1);
-        Assert.Equal(8, (int)info.RecordsPerDocAvg);
-        Assert.True(info.BytesPerRecordAvg > 5);
-        Assert.True(info.OffsetsPerTermAvg > 0.8);
-        Assert.Equal(8, info.OffsetBitsPerRecordAvg);
-        Assert.Equal(0, info.HashIndexingFailures);
-        Assert.Equal(0, info.Indexing);
-        Assert.Equal(1, info.PercentIndexed);
-        Assert.Equal(4, info.NumberOfUses);
-        Assert.Equal(7, info.GcStats.Count);
-        Assert.Equal(4, info.CursorStats.Count);
+        if (endpointId == EndpointsFixture.Env.Cluster)
+        {
+            Assert.True(info.NumDocs is 100 or 200, $"NumDocs: {info.NumDocs}");
+        }
+        else
+        {
+            Assert.Equal(100, info.NumDocs);
+
+            // these numbers don't make sense when considering a shard
+            Assert.Equal("300", info.MaxDocId);
+            Assert.Equal(102, info.NumTerms);
+            Assert.True(info.NumRecords >= 200);
+            Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
+            Assert.Equal(0, info.VectorIndexSzMebibytes);
+            Assert.Equal(208, info.TotalInvertedIndexBlocks);
+            Assert.True(info.OffsetVectorsSzMebibytes < 1);
+            Assert.True(info.DocTableSizeMebibytes < 1);
+            Assert.Equal(0, info.SortableValueSizeMebibytes);
+            Assert.True(info.KeyTableSizeMebibytes < 1);
+            Assert.Equal(8, (int)info.RecordsPerDocAvg);
+            Assert.True(info.BytesPerRecordAvg > 5);
+            Assert.True(info.OffsetsPerTermAvg > 0.8);
+            Assert.Equal(8, info.OffsetBitsPerRecordAvg);
+            Assert.Equal(0, info.HashIndexingFailures);
+            Assert.Equal(0, info.Indexing);
+            Assert.Equal(1, info.PercentIndexed);
+            Assert.Equal(5, info.NumberOfUses);
+            Assert.Equal(7, info.GcStats.Count);
+            Assert.Equal(4, info.CursorStats.Count);
+        }
     }
 
-    [SkipIfRedis(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [SkipIfRedisTheory(Is.Enterprise)]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void AlterAddSortable(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new Schema().AddTextField("title", 1.0, sortable: true);
@@ -850,7 +988,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
         //sleep:
-        System.Threading.Thread.Sleep(2000);
+        Thread.Sleep(2000);
 
         var fields = new HashEntry("title", "hello world");
         //fields.("title", "hello world");
@@ -858,18 +996,23 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         {
             db.HashSet($"doc{i}", fields.Name, fields.Value);
         }
-        SearchResult res = ft.Search(index, new Query("hello world"));
+
+        SearchResult res = ft.Search(index, new("hello world"));
         Assert.Equal(100, res.TotalResults);
 
         Assert.True(ft.Alter(index, new Schema().AddTagField("tags").AddTextField("name", weight: 0.5)));
         for (int i = 0; i < 100; i++)
         {
-            var fields2 = new HashEntry[] { new("name", "name" + i),
-                                      new("tags", $"tagA,tagB,tag{i}") };
+            var fields2 = new HashEntry[]
+            {
+                new("name", "name" + i),
+                new("tags", $"tagA,tagB,tag{i}")
+            };
             //      assertTrue(client.updateDocument(string.format("doc%d", i), 1.0, fields2));
             db.HashSet($"doc{i}", fields2);
         }
-        SearchResult res2 = ft.Search(index, new Query("@tags:{tagA}"));
+
+        SearchResult res2 = ft.Search(index, new("@tags:{tagA}"));
         Assert.Equal(100, res2.TotalResults);
 
         var info = ft.Info(index);
@@ -879,33 +1022,43 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("title", info.Attributes[0]["identifier"].ToString());
         Assert.Equal("TAG", info.Attributes[1]["type"].ToString());
         Assert.Equal("name", info.Attributes[2]["attribute"].ToString());
-        Assert.Equal(100, info.NumDocs);
-        Assert.NotNull(info.MaxDocId);
-        Assert.Equal(102, info.NumTerms);
-        Assert.True(info.NumRecords >= 200);
-        Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
-        Assert.Equal(0, info.VectorIndexSzMebibytes);
-        Assert.Equal(208, info.TotalInvertedIndexBlocks);
-        Assert.True(info.OffsetVectorsSzMebibytes < 1);
-        Assert.True(info.DocTableSizeMebibytes < 1);
-        Assert.Equal(0, info.SortableValueSizeMebibytes);
-        Assert.True(info.KeyTableSizeMebibytes < 1);
-        Assert.Equal(8, (int)info.RecordsPerDocAvg);
-        Assert.True(info.BytesPerRecordAvg > 5);
-        Assert.True(info.OffsetsPerTermAvg > 0.8);
-        Assert.Equal(8, info.OffsetBitsPerRecordAvg);
-        Assert.Equal(0, info.HashIndexingFailures);
-        Assert.Equal(0, info.Indexing);
-        Assert.Equal(1, info.PercentIndexed);
-        Assert.Equal(4, info.NumberOfUses);
-        Assert.Equal(7, info.GcStats.Count);
-        Assert.Equal(4, info.CursorStats.Count);
+        if (endpointId == EndpointsFixture.Env.Cluster)
+        {
+            Assert.True(info.NumDocs is 100 or 200, $"NumDocs: {info.NumDocs}");
+        }
+        else
+        {
+            Assert.Equal(100, info.NumDocs);
+
+            // these numbers don't make sense when considering a shard
+            Assert.NotNull(info.MaxDocId);
+            Assert.Equal(102, info.NumTerms);
+            Assert.True(info.NumRecords >= 200);
+            Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
+            Assert.Equal(0, info.VectorIndexSzMebibytes);
+            Assert.Equal(208, info.TotalInvertedIndexBlocks);
+            Assert.True(info.OffsetVectorsSzMebibytes < 1);
+            Assert.True(info.DocTableSizeMebibytes < 1);
+            Assert.Equal(0, info.SortableValueSizeMebibytes);
+            Assert.True(info.KeyTableSizeMebibytes < 1);
+            Assert.Equal(8, (int)info.RecordsPerDocAvg);
+            Assert.True(info.BytesPerRecordAvg > 5);
+            Assert.True(info.OffsetsPerTermAvg > 0.8);
+            Assert.Equal(8, info.OffsetBitsPerRecordAvg);
+            Assert.Equal(0, info.HashIndexingFailures);
+            Assert.Equal(0, info.Indexing);
+            Assert.Equal(1, info.PercentIndexed);
+            Assert.Equal(4, info.NumberOfUses);
+            Assert.Equal(7, info.GcStats.Count);
+            Assert.Equal(4, info.CursorStats.Count);
+        }
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.3.0")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.3.0")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void InfoWithIndexEmptyAndIndexMissing(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         db.Execute("FLUSHALL");
         var ft = db.FT(2);
@@ -921,8 +1074,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddTagField("tag1", emptyIndex: true, missingIndex: true)
             .AddNumericField("numeric1", missingIndex: true)
             .AddGeoField("geo1", missingIndex: true)
-            .AddGeoShapeField("geoshape1", Schema.GeoShapeField.CoordinateSystem.FLAT, missingIndex: true)
-            .AddVectorField("vector1", Schema.VectorField.VectorAlgo.FLAT, vectorAttrs, missingIndex: true);
+            .AddGeoShapeField("geoshape1", GeoShapeField.CoordinateSystem.FLAT, missingIndex: true)
+            .AddVectorField("vector1", VectorField.VectorAlgo.FLAT, vectorAttrs, missingIndex: true);
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
         var info = ft.Info(index);
@@ -937,10 +1090,11 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         }
     }
 
-    [SkipIfRedis(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [SkipIfRedisTheory(Is.Enterprise)]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task AlterAddSortableAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new Schema().AddTextField("title", 1.0, sortable: true);
@@ -948,7 +1102,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
         //sleep:
-        System.Threading.Thread.Sleep(2000);
+        Thread.Sleep(2000);
 
         var fields = new HashEntry("title", "hello world");
         //fields.("title", "hello world");
@@ -956,18 +1110,23 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         {
             db.HashSet($"doc{i}", fields.Name, fields.Value);
         }
-        SearchResult res = ft.Search(index, new Query("hello world"));
+
+        SearchResult res = ft.Search(index, new("hello world"));
         Assert.Equal(100, res.TotalResults);
 
         Assert.True(await ft.AlterAsync(index, new Schema().AddTagField("tags").AddTextField("name", weight: 0.5)));
         for (int i = 0; i < 100; i++)
         {
-            var fields2 = new HashEntry[] { new("name", "name" + i),
-                                      new("tags", $"tagA,tagB,tag{i}") };
+            var fields2 = new HashEntry[]
+            {
+                new("name", "name" + i),
+                new("tags", $"tagA,tagB,tag{i}")
+            };
             //      assertTrue(client.updateDocument(string.format("doc%d", i), 1.0, fields2));
             db.HashSet($"doc{i}", fields2);
         }
-        SearchResult res2 = ft.Search(index, new Query("@tags:{tagA}"));
+
+        SearchResult res2 = ft.Search(index, new("@tags:{tagA}"));
         Assert.Equal(100, res2.TotalResults);
 
         var info = await ft.InfoAsync(index);
@@ -975,31 +1134,40 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("title", info.Attributes[0]["identifier"].ToString());
         Assert.Equal("TAG", info.Attributes[1]["type"].ToString());
         Assert.Equal("name", info.Attributes[2]["attribute"].ToString());
-        Assert.Equal(100, info.NumDocs);
-        Assert.Equal("300", info.MaxDocId);
-        Assert.Equal(102, info.NumTerms);
-        Assert.True(info.NumRecords >= 200);
-        Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
-        Assert.Equal(0, info.VectorIndexSzMebibytes);
-        Assert.Equal(208, info.TotalInvertedIndexBlocks);
-        Assert.True(info.OffsetVectorsSzMebibytes < 1);
-        Assert.True(info.DocTableSizeMebibytes < 1);
-        Assert.Equal(0, info.SortableValueSizeMebibytes);
-        Assert.True(info.KeyTableSizeMebibytes < 1);
-        Assert.Equal(8, (int)info.RecordsPerDocAvg);
-        Assert.True(info.BytesPerRecordAvg > 5);
-        Assert.True(info.OffsetsPerTermAvg > 0.8);
-        Assert.Equal(8, info.OffsetBitsPerRecordAvg);
-        Assert.Equal(0, info.HashIndexingFailures);
-        Assert.Equal(0, info.Indexing);
-        Assert.Equal(1, info.PercentIndexed);
-        Assert.Equal(4, info.NumberOfUses);
-        Assert.Equal(7, info.GcStats.Count);
-        Assert.Equal(4, info.CursorStats.Count);
+        if (endpointId == EndpointsFixture.Env.Cluster)
+        {
+            Assert.True(info.NumDocs is 100 or 200, $"NumDocs: {info.NumDocs}");
+        }
+        else
+        {
+            Assert.Equal(100, info.NumDocs);
+
+            // these numbers don't make sense when considering a shard
+            Assert.Equal("300", info.MaxDocId);
+            Assert.Equal(102, info.NumTerms);
+            Assert.True(info.NumRecords >= 200);
+            Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
+            Assert.Equal(0, info.VectorIndexSzMebibytes);
+            Assert.Equal(208, info.TotalInvertedIndexBlocks);
+            Assert.True(info.OffsetVectorsSzMebibytes < 1);
+            Assert.True(info.DocTableSizeMebibytes < 1);
+            Assert.Equal(0, info.SortableValueSizeMebibytes);
+            Assert.True(info.KeyTableSizeMebibytes < 1);
+            Assert.Equal(8, (int)info.RecordsPerDocAvg);
+            Assert.True(info.BytesPerRecordAvg > 5);
+            Assert.True(info.OffsetsPerTermAvg > 0.8);
+            Assert.Equal(8, info.OffsetBitsPerRecordAvg);
+            Assert.Equal(0, info.HashIndexingFailures);
+            Assert.Equal(0, info.Indexing);
+            Assert.Equal(1, info.PercentIndexed);
+            Assert.Equal(4, info.NumberOfUses);
+            Assert.Equal(7, info.GcStats.Count);
+            Assert.Equal(4, info.CursorStats.Count);
+        }
     }
 
     // TODO : fix with FT.CONFIG response change
-    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestConfig(string endpointId)
     {
@@ -1011,7 +1179,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     // TODO : fix with FT.CONFIG response change
-    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestConfigAsnyc(string endpointId)
     {
@@ -1023,7 +1191,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     // TODO : fix with FT.CONFIG response change
-    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void configOnTimeout(string endpointId)
     {
@@ -1032,11 +1200,17 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.True(ft.ConfigSet("ON_TIMEOUT", "fail"));
         Assert.Equal("fail", ft.ConfigGet("ON_TIMEOUT")["ON_TIMEOUT"]);
 
-        try { ft.ConfigSet("ON_TIMEOUT", "null"); } catch (RedisServerException) { }
+        try
+        {
+            ft.ConfigSet("ON_TIMEOUT", "null");
+        }
+        catch (RedisServerException)
+        {
+        }
     }
 
     // TODO : fix with FT.CONFIG response change
-    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task configOnTimeoutAsync(string endpointId)
     {
@@ -1045,11 +1219,17 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.True(await ft.ConfigSetAsync("ON_TIMEOUT", "fail"));
         Assert.Equal("fail", (await ft.ConfigGetAsync("ON_TIMEOUT"))["ON_TIMEOUT"]);
 
-        try { ft.ConfigSet("ON_TIMEOUT", "null"); } catch (RedisServerException) { }
+        try
+        {
+            ft.ConfigSet("ON_TIMEOUT", "null");
+        }
+        catch (RedisServerException)
+        {
+        }
     }
 
     // TODO : fix with FT.CONFIG response change
-    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestDialectConfig(string endpointId)
     {
@@ -1072,7 +1252,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     // TODO : fix with FT.CONFIG response change
-    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.3.240")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestDialectConfigAsync(string endpointId)
     {
@@ -1095,18 +1275,20 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestCursor(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
-        Schema sc = new Schema();
+        Schema sc = new();
         sc.AddTextField("name", 1.0, sortable: true);
         sc.AddNumericField("count", sortable: true);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
         AddDocument(db, new Document("data1").Set("name", "abc").Set("count", 10));
         AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
         AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
+        AssertDatabaseSize(db, 3);
 
         AggregationRequest r = new AggregationRequest()
             .GroupBy("@name", Reducers.Sum("@count").As("sum"))
@@ -1125,21 +1307,17 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0.0, row.Value.GetDouble("nosuchcol"));
         Assert.Null(row.Value.GetString("nosuchcol"));
 
-        res = ft.CursorRead(index, res.CursorId, 1);
+        res = ft.CursorRead(res, 1);
         Row? row2 = res.GetRow(0);
 
         Assert.NotNull(row2);
         Assert.Equal("abc", row2.Value.GetString("name"));
         Assert.Equal(10, row2.Value.GetLong("sum"));
 
-        Assert.True(ft.CursorDel(index, res.CursorId));
+        Assert.True(ft.CursorDel(res));
 
-        try
-        {
-            ft.CursorRead(index, res.CursorId, 1);
-            Assert.True(false);
-        }
-        catch (RedisException) { }
+        var ex = Assert.Throws<RedisServerException>(() => ft.CursorRead(res, 1));
+        Assert.Contains("Cursor not found", ex.Message, StringComparison.OrdinalIgnoreCase);
 
         _ = new AggregationRequest()
             .GroupBy("@name", Reducers.Sum("@count").As("sum"))
@@ -1148,27 +1326,25 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         await Task.Delay(1000).ConfigureAwait(false);
 
-        try
-        {
-            ft.CursorRead(index, res.CursorId, 1);
-            Assert.True(false);
-        }
-        catch (RedisException) { }
+        ex = Assert.Throws<RedisServerException>(() => ft.CursorRead(res, 1));
+        Assert.Contains("Cursor not found", ex.Message, StringComparison.OrdinalIgnoreCase);
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
-    public async Task TestCursorAsync(string endpointId)
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestCursorEnumerable(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
-        Schema sc = new Schema();
+        Schema sc = new();
         sc.AddTextField("name", 1.0, sortable: true);
         sc.AddNumericField("count", sortable: true);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
         AddDocument(db, new Document("data1").Set("name", "abc").Set("count", 10));
         AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
         AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
+        AssertDatabaseSize(db, 3);
 
         AggregationRequest r = new AggregationRequest()
             .GroupBy("@name", Reducers.Sum("@count").As("sum"))
@@ -1176,7 +1352,46 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .Cursor(1, 3000);
 
         // actual search
-        AggregationResult res = ft.Aggregate(index, r);
+        using var iter = ft.AggregateEnumerable(index, r).GetEnumerator();
+        Assert.True(iter.MoveNext());
+        var row = iter.Current;
+        Assert.Equal("def", row.GetString("name"));
+        Assert.Equal(30, row.GetLong("sum"));
+        Assert.Equal(30.0, row.GetDouble("sum"));
+
+        Assert.Equal(0L, row.GetLong("nosuchcol"));
+        Assert.Equal(0.0, row.GetDouble("nosuchcol"));
+        Assert.Null(row.GetString("nosuchcol"));
+
+        Assert.True(iter.MoveNext());
+        row = iter.Current;
+        Assert.Equal("abc", row.GetString("name"));
+        Assert.Equal(10, row.GetLong("sum"));
+    }
+
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestCursorAsync(string endpointId)
+    {
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ft = db.FT();
+        Schema sc = new();
+        sc.AddTextField("name", 1.0, sortable: true);
+        sc.AddNumericField("count", sortable: true);
+        ft.Create(index, FTCreateParams.CreateParams(), sc);
+        AddDocument(db, new Document("data1").Set("name", "abc").Set("count", 10));
+        AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
+        AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
+        await AssertDatabaseSizeAsync(db, 3);
+
+        AggregationRequest r = new AggregationRequest()
+            .GroupBy("@name", Reducers.Sum("@count").As("sum"))
+            .SortBy(10, SortedField.Desc("@sum"))
+            .Cursor(1, 3000);
+
+        // actual search
+        AggregationResult res = await ft.AggregateAsync(index, r);
         Row? row = res.GetRow(0);
         Assert.NotNull(row);
         Assert.Equal("def", row.Value.GetString("name"));
@@ -1187,21 +1402,17 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0.0, row.Value.GetDouble("nosuchcol"));
         Assert.Null(row.Value.GetString("nosuchcol"));
 
-        res = await ft.CursorReadAsync(index, res.CursorId, 1);
+        res = await ft.CursorReadAsync(res, 1);
         Row? row2 = res.GetRow(0);
 
         Assert.NotNull(row2);
         Assert.Equal("abc", row2.Value.GetString("name"));
         Assert.Equal(10, row2.Value.GetLong("sum"));
 
-        Assert.True(await ft.CursorDelAsync(index, res.CursorId));
+        Assert.True(await ft.CursorDelAsync(res));
 
-        try
-        {
-            await ft.CursorReadAsync(index, res.CursorId, 1);
-            Assert.True(false);
-        }
-        catch (RedisException) { }
+        var ex = await Assert.ThrowsAsync<RedisServerException>(async () => await ft.CursorReadAsync(res, 1));
+        Assert.Contains("Cursor not found", ex.Message, StringComparison.OrdinalIgnoreCase);
 
         _ = new AggregationRequest()
             .GroupBy("@name", Reducers.Sum("@count").As("sum"))
@@ -1210,15 +1421,50 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         await Task.Delay(1000).ConfigureAwait(false);
 
-        try
-        {
-            await ft.CursorReadAsync(index, res.CursorId, 1);
-            Assert.True(false);
-        }
-        catch (RedisException) { }
+        ex = await Assert.ThrowsAsync<RedisServerException>(async () => await ft.CursorReadAsync(res, 1));
+        Assert.Contains("Cursor not found", ex.Message, StringComparison.OrdinalIgnoreCase);
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestCursorEnumerableAsync(string endpointId)
+    {
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ft = db.FT();
+        Schema sc = new();
+        sc.AddTextField("name", 1.0, sortable: true);
+        sc.AddNumericField("count", sortable: true);
+        ft.Create(index, FTCreateParams.CreateParams(), sc);
+        AddDocument(db, new Document("data1").Set("name", "abc").Set("count", 10));
+        AddDocument(db, new Document("data2").Set("name", "def").Set("count", 5));
+        AddDocument(db, new Document("data3").Set("name", "def").Set("count", 25));
+        await AssertDatabaseSizeAsync(db, 3);
+
+        AggregationRequest r = new AggregationRequest()
+            .GroupBy("@name", Reducers.Sum("@count").As("sum"))
+            .SortBy(10, SortedField.Desc("@sum"))
+            .Cursor(1, 3000);
+
+        // actual search
+        await using var iter = ft.AggregateAsyncEnumerable(index, r).GetAsyncEnumerator();
+        Assert.True(await iter.MoveNextAsync());
+        var row = iter.Current;
+        Assert.Equal("def", row.GetString("name"));
+        Assert.Equal(30, row.GetLong("sum"));
+        Assert.Equal(30.0, row.GetDouble("sum"));
+
+        Assert.Equal(0L, row.GetLong("nosuchcol"));
+        Assert.Equal(0.0, row.GetDouble("nosuchcol"));
+        Assert.Null(row.GetString("nosuchcol"));
+
+        Assert.True(await iter.MoveNextAsync());
+        row = iter.Current;
+        Assert.Equal("abc", row.GetString("name"));
+        Assert.Equal(10, row.GetLong("sum"));
+    }
+
+    [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAggregationGroupBy(string endpointId)
     {
@@ -1226,31 +1472,35 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var ft = db.FT();
 
         // Creating the index definition and schema
-        ft.Create("idx", new FTCreateParams(), new Schema().AddNumericField("random_num")
-                                                           .AddTextField("title")
-                                                           .AddTextField("body")
-                                                           .AddTextField("parent"));
+        ft.Create("idx", new(), new Schema().AddNumericField("random_num")
+            .AddTextField("title")
+            .AddTextField("body")
+            .AddTextField("parent"));
 
         // Indexing a document
-        AddDocument(db, "search", new Dictionary<string, object>(){
-        { "title", "RediSearch" },
-        { "body", "Redisearch impements a search engine on top of redis" },
-        { "parent", "redis" },
-        { "random_num", 10 }});
-
-        AddDocument(db, "ai", new Dictionary<string, object>
+        AddDocument(db, "search", new()
         {
-        { "title", "RedisAI" },
-        { "body", "RedisAI executes Deep Learning/Machine Learning models and managing their data." },
-        { "parent", "redis" },
-        { "random_num", 3 }});
+            { "title", "RediSearch" },
+            { "body", "Redisearch impements a search engine on top of redis" },
+            { "parent", "redis" },
+            { "random_num", 10 }
+        });
 
-        AddDocument(db, "json", new Dictionary<string, object>
+        AddDocument(db, "ai", new()
         {
-        { "title", "RedisJson" },
-        { "body", "RedisJSON implements ECMA-404 The JSON Data Interchange Standard as a native data type." },
-        { "parent", "redis" },
-        { "random_num", 8 }});
+            { "title", "RedisAI" },
+            { "body", "RedisAI executes Deep Learning/Machine Learning models and managing their data." },
+            { "parent", "redis" },
+            { "random_num", 3 }
+        });
+
+        AddDocument(db, "json", new()
+        {
+            { "title", "RedisJson" },
+            { "body", "RedisJSON implements ECMA-404 The JSON Data Interchange Standard as a native data type." },
+            { "parent", "redis" },
+            { "random_num", 8 }
+        });
 
         var req = new AggregationRequest("redis").GroupBy("@parent", Reducers.Count());
         var res = ft.Aggregate("idx", req).GetRow(0);
@@ -1297,7 +1547,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             "@parent", Reducers.Quantile("@random_num", 0.5));
         res = ft.Aggregate("idx", req).GetRow(0);
         Assert.Equal("redis", res["parent"]);
-        Assert.Equal(8, res.GetLong("__generated_aliasquantilerandom_num,0.5"));  // median of 3,8,10
+        Assert.Equal(8, res.GetLong("__generated_aliasquantilerandom_num,0.5")); // median of 3,8,10
 
         req = new AggregationRequest("redis").GroupBy(
             "@parent", Reducers.ToList("@title"));
@@ -1311,7 +1561,14 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         req = new AggregationRequest("redis").GroupBy(
             "@parent", Reducers.FirstValue("@title").As("first"));
-        res = ft.Aggregate("idx", req).GetRow(0);
+        var agg = ft.Aggregate("idx", req);
+        Log($"results: {agg.TotalResults}");
+        for (int i = 0; i < agg.TotalResults; i++)
+        {
+            Log($"parent: {agg.GetRow(i)["parent"]}, first: {agg.GetRow(i)["first"]}");
+        }
+
+        res = agg.GetRow(0);
         Assert.Equal("redis", res["parent"]);
         Assert.Equal("RediSearch", res["first"]);
 
@@ -1322,30 +1579,31 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         // TODO: complete this assert after handling multi bulk reply
         actual = (List<object>)res.Get("random");
         Assert.Equal(2, actual.Count);
-        List<string> possibleValues = new List<string>() { "RediSearch", "RedisAI", "RedisJson" };
+        List<string> possibleValues = ["RediSearch", "RedisAI", "RedisJson"];
         Assert.Contains(actual[0].ToString(), possibleValues);
         Assert.Contains(actual[1].ToString(), possibleValues);
 
         req = new AggregationRequest("redis")
-                .Load(new FieldName("__key"))
-                .GroupBy("@parent", Reducers.ToList("__key").As("docs"));
+            .Load(new FieldName("__key"))
+            .GroupBy("@parent", Reducers.ToList("__key").As("docs"));
 
         res = db.FT().Aggregate("idx", req).GetRow(0);
         actual = (List<object>)res.Get("docs");
-        expected = new List<object> { "ai", "search", "json" };
+        expected = ["ai", "search", "json"];
         Assert.True(!expected.Except(actual).Any() && expected.Count == actual.Count);
     }
 
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestDictionary(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
         Assert.Equal(3L, ft.DictAdd("dict", "bar", "foo", "hello world"));
-
+        AssertDatabaseSize(db, 0);
         var dumResult = ft.DictDump("dict");
         int i = 0;
         Assert.Equal("bar", dumResult[i++].ToString());
@@ -1353,136 +1611,179 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("hello world", dumResult[i].ToString());
 
         Assert.Equal(3L, ft.DictDel("dict", "foo", "bar", "hello world"));
+        AssertDatabaseSize(db, 0);
         Assert.Empty(ft.DictDump("dict"));
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestDropIndex(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new Schema().AddTextField("title", 1.0);
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
-        Dictionary<string, object> fields = new Dictionary<string, object>();
+        Dictionary<string, object> fields = new();
         fields.Add("title", "hello world");
         for (int i = 0; i < 100; i++)
         {
             AddDocument(db, $"doc{i}", fields);
         }
 
-        SearchResult res = ft.Search(index, new Query("hello world"));
+        SearchResult res = ft.Search(index, new("hello world"));
         Assert.Equal(100, res.TotalResults);
 
         Assert.True(ft.DropIndex(index));
 
         try
         {
-            ft.Search(index, new Query("hello world"));
+            ft.Search(index, new("hello world"));
             //fail("Index should not exist.");
         }
         catch (RedisServerException ex)
         {
-            Assert.Contains("no such index", ex.Message);
+            Assert.Contains("no such index", ex.Message, StringComparison.OrdinalIgnoreCase);
         }
-        Assert.Equal("100", db.Execute("DBSIZE").ToString());
+
+        AssertDatabaseSize(db, 100);
+    }
+
+    private int DatabaseSize(IDatabase db) => DatabaseSize(db, out _);
+
+    private int DatabaseSize(IDatabase db, out int replicaCount)
+    {
+        replicaCount = 0;
+        var count = 0L;
+        foreach (var server in db.Multiplexer.GetServers())
+        {
+            if (server.IsReplica || !server.IsConnected)
+            {
+                replicaCount++;
+            }
+            else
+            {
+                count += server.DatabaseSize();
+            }
+        }
+
+        return checked((int)count);
+    }
+
+    private async Task<int> DatabaseSizeAsync(IDatabase db)
+    {
+        var count = 0L;
+        foreach (var server in db.Multiplexer.GetServers())
+        {
+            if (!server.IsReplica && server.IsConnected)
+            {
+                count += await server.DatabaseSizeAsync();
+            }
+        }
+
+        return checked((int)count);
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestDropIndexAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new Schema().AddTextField("title", 1.0);
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
-        Dictionary<string, object> fields = new Dictionary<string, object>();
+        Dictionary<string, object> fields = new();
         fields.Add("title", "hello world");
         for (int i = 0; i < 100; i++)
         {
             AddDocument(db, $"doc{i}", fields);
         }
 
-        SearchResult res = ft.Search(index, new Query("hello world"));
+        SearchResult res = ft.Search(index, new("hello world"));
         Assert.Equal(100, res.TotalResults);
 
         Assert.True(await ft.DropIndexAsync(index));
 
         try
         {
-            ft.Search(index, new Query("hello world"));
+            ft.Search(index, new("hello world"));
             //fail("Index should not exist.");
         }
         catch (RedisServerException ex)
         {
-            Assert.Contains("no such index", ex.Message);
+            Assert.Contains("no such index", ex.Message, StringComparison.OrdinalIgnoreCase);
         }
-        Assert.Equal("100", db.Execute("DBSIZE").ToString());
+
+        AssertDatabaseSize(db, 100);
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void dropIndexDD(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new Schema().AddTextField("title", 1.0);
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
-        Dictionary<string, object> fields = new Dictionary<string, object>();
+        Dictionary<string, object> fields = new();
         fields.Add("title", "hello world");
         for (int i = 0; i < 100; i++)
         {
             AddDocument(db, $"doc{i}", fields);
         }
 
-        SearchResult res = ft.Search(index, new Query("hello world"));
+        SearchResult res = ft.Search(index, new("hello world"));
         Assert.Equal(100, res.TotalResults);
 
         Assert.True(ft.DropIndex(index, true));
 
         RedisResult[] keys = (RedisResult[])db.Execute("KEYS", "*")!;
         Assert.Empty(keys);
-        Assert.Equal("0", db.Execute("DBSIZE").ToString());
+        AssertDatabaseSize(db, 0);
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task dropIndexDDAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new Schema().AddTextField("title", 1.0);
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
-        Dictionary<string, object> fields = new Dictionary<string, object>();
+        Dictionary<string, object> fields = new();
         fields.Add("title", "hello world");
         for (int i = 0; i < 100; i++)
         {
             AddDocument(db, $"doc{i}", fields);
         }
 
-        SearchResult res = ft.Search(index, new Query("hello world"));
+        SearchResult res = ft.Search(index, new("hello world"));
         Assert.Equal(100, res.TotalResults);
 
         Assert.True(await ft.DropIndexAsync(index, true));
 
         RedisResult[] keys = (RedisResult[])db.Execute("KEYS", "*")!;
         Assert.Empty(keys);
-        Assert.Equal("0", db.Execute("DBSIZE").ToString());
+        AssertDatabaseSize(db, 0);
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestDictionaryAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
         Assert.Equal(3L, await ft.DictAddAsync("dict", "bar", "foo", "hello world"));
-
+        await AssertDatabaseSizeAsync(db, 0);
         var dumResult = await ft.DictDumpAsync("dict");
         int i = 0;
         Assert.Equal("bar", dumResult[i++].ToString());
@@ -1490,14 +1791,17 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("hello world", dumResult[i].ToString());
 
         Assert.Equal(3L, await ft.DictDelAsync("dict", "foo", "bar", "hello world"));
+        await AssertDatabaseSizeAsync(db, 0);
         Assert.Empty((await ft.DictDumpAsync("dict")));
     }
 
-    string explainQuery = "@f3:f3_val @f2:f2_val @f1:f1_val";
+    readonly string explainQuery = "@f3:f3_val @f2:f2_val @f1:f1_val";
+
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestExplain(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new Schema()
@@ -1514,14 +1818,13 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         res = ft.Explain(index, explainQuery, 2);
         Assert.NotNull(res);
         Assert.False(res.Length == 0);
-
-
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestExplainAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new Schema()
@@ -1541,10 +1844,11 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.False(res.Length == 0);
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestExplainCli(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT(2);
         Schema sc = new Schema()
@@ -1564,10 +1868,11 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.False(res.Length == 0);
     }
 
-    [SkipIfRedis(Is.Enterprise)]
+    [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestExplainCliAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT(2);
         Schema sc = new Schema()
@@ -1588,9 +1893,10 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestExplainWithDefaultDialect(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT(1);
         Schema sc = new Schema()
@@ -1605,9 +1911,10 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestExplainWithDefaultDialectAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT(1);
         Schema sc = new Schema()
@@ -1622,9 +1929,10 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestSynonym(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         var sc = new Schema().AddTextField("name", 1.0).AddTextField("addr", 1.0);
@@ -1640,17 +1948,18 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Dictionary<string, List<string>> dump = ft.SynDump(index);
 
-        Dictionary<string, List<string>> expected = new Dictionary<string, List<string>>();
-        expected.Add("girl", new List<string>() { group1_str });
-        expected.Add("baby", new List<string>() { group1_str });
-        expected.Add("child", new List<string>() { group1_str, group2_str });
+        Dictionary<string, List<string>> expected = new();
+        expected.Add("girl", [group1_str]);
+        expected.Add("baby", [group1_str]);
+        expected.Add("child", [group1_str, group2_str]);
         Assert.Equal(expected, dump);
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestSynonymAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         var sc = new Schema().AddTextField("name", 1.0).AddTextField("addr", 1.0);
@@ -1666,10 +1975,10 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Dictionary<string, List<string>> dump = await ft.SynDumpAsync(index);
 
-        Dictionary<string, List<string>> expected = new Dictionary<string, List<string>>();
-        expected.Add("girl", new List<string>() { group1_str });
-        expected.Add("baby", new List<string>() { group1_str });
-        expected.Add("child", new List<string>() { group1_str, group2_str });
+        Dictionary<string, List<string>> expected = new();
+        expected.Add("girl", [group1_str]);
+        expected.Add("baby", [group1_str]);
+        expected.Add("child", [group1_str, group2_str]);
         Assert.Equal(expected, dump);
     }
 
@@ -1687,9 +1996,10 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task GetTagFieldSyncAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new Schema()
@@ -1697,35 +2007,35 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddTagField("category");
 
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
-        Dictionary<string, object> fields1 = new Dictionary<string, object>();
+        Dictionary<string, object> fields1 = new();
         fields1.Add("title", "hello world");
         fields1.Add("category", "red");
         //    assertTrue(client.AddDocument(db, "foo", fields1));
         AddDocument(db, "foo", fields1);
-        Dictionary<string, object> fields2 = new Dictionary<string, object>();
+        Dictionary<string, object> fields2 = new();
         fields2.Add("title", "hello world");
         fields2.Add("category", "blue");
         //    assertTrue(client.AddDocument(db, "bar", fields2));
         AddDocument(db, "bar", fields2);
-        Dictionary<string, object> fields3 = new Dictionary<string, object>();
+        Dictionary<string, object> fields3 = new();
         fields3.Add("title", "hello world");
         fields3.Add("category", "green,yellow");
         //    assertTrue(client.AddDocument(db, "baz", fields3));
         AddDocument(db, "baz", fields3);
-        Dictionary<string, object> fields4 = new Dictionary<string, object>();
+        Dictionary<string, object> fields4 = new();
         fields4.Add("title", "hello world");
         fields4.Add("category", "orange;purple");
         //    assertTrue(client.AddDocument(db, "qux", fields4));
         AddDocument(db, "qux", fields4);
 
-        Assert.Equal(1, ft.Search(index, new Query("@category:{red}")).TotalResults);
-        Assert.Equal(1, ft.Search(index, new Query("@category:{blue}")).TotalResults);
-        Assert.Equal(1, ft.Search(index, new Query("hello @category:{red}")).TotalResults);
-        Assert.Equal(1, ft.Search(index, new Query("hello @category:{blue}")).TotalResults);
-        Assert.Equal(1, ft.Search(index, new Query("@category:{yellow}")).TotalResults);
-        Assert.Equal(0, ft.Search(index, new Query("@category:{purple}")).TotalResults);
-        Assert.Equal(1, ft.Search(index, new Query("@category:{orange\\;purple}")).TotalResults);
-        Assert.Equal(4, ft.Search(index, new Query("hello")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("@category:{red}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("@category:{blue}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("hello @category:{red}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("hello @category:{blue}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("@category:{yellow}")).TotalResults);
+        Assert.Equal(0, ft.Search(index, new("@category:{purple}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("@category:{orange\\;purple}")).TotalResults);
+        Assert.Equal(4, ft.Search(index, new("hello")).TotalResults);
 
         var SyncRes = ft.TagVals(index, "category");
         int i = 0;
@@ -1745,9 +2055,10 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestGetTagFieldWithNonDefaultSeparatorSyncAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         Schema sc = new Schema()
@@ -1755,35 +2066,35 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddTagField("category", separator: ";");
 
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
-        Dictionary<string, object> fields1 = new Dictionary<string, object>();
+        Dictionary<string, object> fields1 = new();
         fields1.Add("title", "hello world");
         fields1.Add("category", "red");
         //    assertTrue(client.AddDocument(db, "foo", fields1));
         AddDocument(db, "foo", fields1);
-        Dictionary<string, object> fields2 = new Dictionary<string, object>();
+        Dictionary<string, object> fields2 = new();
         fields2.Add("title", "hello world");
         fields2.Add("category", "blue");
         //    assertTrue(client.AddDocument(db, "bar", fields2));
         AddDocument(db, "bar", fields2);
-        Dictionary<string, object> fields3 = new Dictionary<string, object>();
+        Dictionary<string, object> fields3 = new();
         fields3.Add("title", "hello world");
         fields3.Add("category", "green;yellow");
         AddDocument(db, "baz", fields3);
         //    assertTrue(client.AddDocument(db, "baz", fields3));
-        Dictionary<string, object> fields4 = new Dictionary<string, object>();
+        Dictionary<string, object> fields4 = new();
         fields4.Add("title", "hello world");
         fields4.Add("category", "orange,purple");
         //    assertTrue(client.AddDocument(db, "qux", fields4));
         AddDocument(db, "qux", fields4);
 
-        Assert.Equal(1, ft.Search(index, new Query("@category:{red}")).TotalResults);
-        Assert.Equal(1, ft.Search(index, new Query("@category:{blue}")).TotalResults);
-        Assert.Equal(1, ft.Search(index, new Query("hello @category:{red}")).TotalResults);
-        Assert.Equal(1, ft.Search(index, new Query("hello @category:{blue}")).TotalResults);
-        Assert.Equal(1, ft.Search(index, new Query("hello @category:{yellow}")).TotalResults);
-        Assert.Equal(0, ft.Search(index, new Query("@category:{purple}")).TotalResults);
-        Assert.Equal(1, ft.Search(index, new Query("@category:{orange\\,purple}")).TotalResults);
-        Assert.Equal(4, ft.Search(index, new Query("hello")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("@category:{red}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("@category:{blue}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("hello @category:{red}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("hello @category:{blue}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("hello @category:{yellow}")).TotalResults);
+        Assert.Equal(0, ft.Search(index, new("@category:{purple}")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("@category:{orange\\,purple}")).TotalResults);
+        Assert.Equal(4, ft.Search(index, new("hello")).TotalResults);
 
         var SyncRes = ft.TagVals(index, "category");
         int i = 0;
@@ -1813,36 +2124,40 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddTagField("category", separator: ";");
 
         var ftCreateParams = FTCreateParams.CreateParams().On(IndexDataType.JSON)
-                                                          .AddPrefix("doc:")
-                                                          .Filter("@category:{red}")
-                                                          .Language("English")
-                                                          .LanguageField("play")
-                                                          .Score(1.0)
-                                                          .ScoreField("chapter")
-                                                          .PayloadField("txt")
-                                                          .MaxTextFields()
-                                                          .NoOffsets()
-                                                          .Temporary(10)
-                                                          .NoHighlights()
-                                                          .NoFields()
-                                                          .NoFreqs()
-                                                          .Stopwords(new[] { "foo", "bar" })
-                                                          .SkipInitialScan();
+            .AddPrefix("doc:")
+            .Filter("@category:{red}")
+            .Language("English")
+            .LanguageField("play")
+            .Score(1.0)
+            .ScoreField("chapter")
+            .PayloadField("txt")
+            .MaxTextFields()
+            .NoOffsets()
+            .Temporary(10)
+            .NoHighlights()
+            .NoFields()
+            .NoFreqs()
+            .Stopwords(new[] { "foo", "bar" })
+            .SkipInitialScan();
 
         var builedCommand = SearchCommandBuilder.Create(index, ftCreateParams, sc);
-        var expectedArgs = new object[] { "TEST_INDEX", "ON", "JSON", "PREFIX", 1,
-                                           "doc:", "FILTER", "@category:{red}", "LANGUAGE",
-                                           "English", "LANGUAGE_FIELD", "play", "SCORE", 1,
-                                           "SCORE_FIELD", "chapter", "PAYLOAD_FIELD", "txt",
-                                           "MAXTEXTFIELDS", "NOOFFSETS", "TEMPORARY", 10,
-                                           "NOHL", "NOFIELDS", "NOFREQS", "STOPWORDS", 2,
-                                           "foo", "bar", "SKIPINITIALSCAN", "SCHEMA", "title",
-                                           "TEXT", "category", "TAG", "SEPARATOR", ";" };
+        var expectedArgs = new object[]
+        {
+            "TEST_INDEX", "ON", "JSON", "PREFIX", 1,
+            "doc:", "FILTER", "@category:{red}", "LANGUAGE",
+            "English", "LANGUAGE_FIELD", "play", "SCORE", 1,
+            "SCORE_FIELD", "chapter", "PAYLOAD_FIELD", "txt",
+            "MAXTEXTFIELDS", "NOOFFSETS", "TEMPORARY", 10,
+            "NOHL", "NOFIELDS", "NOFREQS", "STOPWORDS", 2,
+            "foo", "bar", "SKIPINITIALSCAN", "SCHEMA", "title",
+            "TEXT", "category", "TAG", "SEPARATOR", ";"
+        };
 
         for (int i = 0; i < expectedArgs.Length; i++)
         {
             Assert.Equal(expectedArgs[i].ToString(), builedCommand.Args[i].ToString());
         }
+
         Assert.Equal("FT.CREATE", builedCommand.Command.ToString());
     }
 
@@ -1857,8 +2172,11 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         var ftCreateParams = FTCreateParams.CreateParams().NoStopwords();
 
-        var expectedArgs = new object[] { "TEST_INDEX", "STOPWORDS", 0, "SCHEMA", "title",
-                                          "TEXT", "category", "TAG", "SEPARATOR", ";" };
+        var expectedArgs = new object[]
+        {
+            "TEST_INDEX", "STOPWORDS", 0, "SCHEMA", "title",
+            "TEXT", "category", "TAG", "SEPARATOR", ";"
+        };
         var builedCommand = SearchCommandBuilder.Create(index, ftCreateParams, sc);
 
 
@@ -1866,13 +2184,15 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         {
             Assert.Equal(expectedArgs[i].ToString(), builedCommand.Args[i].ToString());
         }
+
         Assert.Equal("FT.CREATE", builedCommand.Command.ToString());
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestFilters(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         // Create the index with the same fields as in the original test
@@ -1880,19 +2200,21 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddTextField("txt")
             .AddNumericField("num")
             .AddGeoField("loc");
-        ft.Create("idx", new FTCreateParams(), sc);
+        ft.Create("idx", new(), sc);
 
         // Add the two documents to the index
-        AddDocument(db, "doc1", new Dictionary<string, object> {
-                { "txt", "foo bar" },
-                { "num", "3.141" },
-                { "loc", "-0.441,51.458" }
-            });
-        AddDocument(db, "doc2", new Dictionary<string, object> {
-                { "txt", "foo baz" },
-                { "num", "2" },
-                { "loc", "-0.1,51.2" }
-            });
+        AddDocument(db, "doc1", new()
+        {
+            { "txt", "foo bar" },
+            { "num", "3.141" },
+            { "loc", "-0.441,51.458" }
+        });
+        AddDocument(db, "doc2", new()
+        {
+            { "txt", "foo baz" },
+            { "num", "2" },
+            { "loc", "-0.1,51.2" }
+        });
         // WaitForIndex(client, ft.IndexName ?? "idx");
 
         // Test numerical filter
@@ -1920,9 +2242,10 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestFiltersAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         // Create the index with the same fields as in the original test
@@ -1930,19 +2253,21 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddTextField("txt")
             .AddNumericField("num")
             .AddGeoField("loc");
-        await ft.CreateAsync("idx", new FTCreateParams(), sc);
+        await ft.CreateAsync("idx", new(), sc);
 
         // Add the two documents to the index
-        AddDocument(db, "doc1", new Dictionary<string, object> {
-                { "txt", "foo bar" },
-                { "num", "3.141" },
-                { "loc", "-0.441,51.458" }
-            });
-        AddDocument(db, "doc2", new Dictionary<string, object> {
-                { "txt", "foo baz" },
-                { "num", "2" },
-                { "loc", "-0.1,51.2" }
-            });
+        AddDocument(db, "doc1", new()
+        {
+            { "txt", "foo bar" },
+            { "num", "3.141" },
+            { "loc", "-0.441,51.458" }
+        });
+        AddDocument(db, "doc2", new()
+        {
+            { "txt", "foo baz" },
+            { "num", "2" },
+            { "loc", "-0.1,51.2" }
+        });
         // WaitForIndex(client, ft.IndexName ?? "idx");
 
         // Test numerical filter
@@ -1973,95 +2298,99 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     public void TestQueryCommandBuilder()
     {
         var testQuery = new Query("foo").HighlightFields(new Query.HighlightTags("<b>", "</b>"), "txt")
-                                            .SetVerbatim()
-                                            .SetNoStopwords()
-                                            .SetWithScores()
-                                            .SetPayload("txt")
-                                            .SetLanguage("English")
-                                            .SetScorer("TFIDF")
-                                            //.SetExplainScore()
-                                            .SetWithPayloads()
-                                            .SetSortBy("txt", true)
-                                            .Limit(0, 11)
-                                            .SummarizeFields(20, 3, ";", "txt")
-                                            .LimitKeys("key1", "key2")
-                                            .LimitFields("txt")
-                                            .ReturnFields("txt")
-                                            .AddParam("name", "value")
-                                            .Dialect(1)
-                                            .Slop(0)
-                                            .Timeout(1000)
-                                            .SetInOrder()
-                                            .SetExpander("myexpander");
+            .SetVerbatim()
+            .SetNoStopwords()
+            .SetWithScores()
+            .SetPayload("txt")
+            .SetLanguage("English")
+            .SetScorer("TFIDF")
+            //.SetExplainScore()
+            .SetWithPayloads()
+            .SetSortBy("txt", true)
+            .Limit(0, 11)
+            .SummarizeFields(20, 3, ";", "txt")
+            .LimitKeys("key1", "key2")
+            .LimitFields("txt")
+            .ReturnFields("txt")
+            .AddParam("name", "value")
+            .Dialect(1)
+            .Slop(0)
+            .Timeout(1000)
+            .SetInOrder()
+            .SetExpander("myexpander");
         var buildCommand = SearchCommandBuilder.Search("idx", testQuery);
-        var expectedArgs = new List<object> {"idx",
-                                             "foo",
-                                             "VERBATIM",
-                                             "NOSTOPWORDS",
-                                             "WITHSCORES",
-                                             "WITHPAYLOADS",
-                                             "LANGUAGE",
-                                             "English",
-                                             "SCORER",
-                                             "TFIDF",
-                                             "INFIELDS",
-                                             "1",
-                                             "txt",
-                                             "SORTBY",
-                                             "txt",
-                                             "ASC",
-                                             "PAYLOAD",
-                                             "txt",
-                                             "LIMIT",
-                                             "0",
-                                             "11",
-                                             "HIGHLIGHT",
-                                             "FIELDS",
-                                             "1",
-                                             "txt",
-                                             "TAGS",
-                                             "<b>",
-                                             "</b>",
-                                             "SUMMARIZE",
-                                             "FIELDS",
-                                             "1",
-                                             "txt",
-                                             "FRAGS",
-                                             "3",
-                                             "LEN",
-                                             "20",
-                                             "SEPARATOR",
-                                             ";",
-                                             "INKEYS",
-                                             "2",
-                                             "key1",
-                                             "key2",
-                                             "RETURN",
-                                             "1",
-                                             "txt",
-                                             "PARAMS",
-                                             "2",
-                                             "name",
-                                             "value",
-                                             "DIALECT",
-                                             "1",
-                                             "SLOP",
-                                             "0",
-                                             "TIMEOUT",
-                                             "1000",
-                                             "INORDER",
-                                             "EXPANDER",
-                                             "myexpander"};
+        var expectedArgs = new List<object>
+        {
+            "idx",
+            "foo",
+            "VERBATIM",
+            "NOSTOPWORDS",
+            "WITHSCORES",
+            "WITHPAYLOADS",
+            "LANGUAGE",
+            "English",
+            "SCORER",
+            "TFIDF",
+            "INFIELDS",
+            "1",
+            "txt",
+            "SORTBY",
+            "txt",
+            "ASC",
+            "PAYLOAD",
+            "txt",
+            "LIMIT",
+            "0",
+            "11",
+            "HIGHLIGHT",
+            "FIELDS",
+            "1",
+            "txt",
+            "TAGS",
+            "<b>",
+            "</b>",
+            "SUMMARIZE",
+            "FIELDS",
+            "1",
+            "txt",
+            "FRAGS",
+            "3",
+            "LEN",
+            "20",
+            "SEPARATOR",
+            ";",
+            "INKEYS",
+            "2",
+            "key1",
+            "key2",
+            "RETURN",
+            "1",
+            "txt",
+            "PARAMS",
+            "2",
+            "name",
+            "value",
+            "DIALECT",
+            "1",
+            "SLOP",
+            "0",
+            "TIMEOUT",
+            "1000",
+            "INORDER",
+            "EXPANDER",
+            "myexpander"
+        };
 
         for (int i = 0; i < buildCommand.Args.Count(); i++)
         {
             Assert.Equal(expectedArgs[i].ToString(), buildCommand.Args[i].ToString());
         }
+
         Assert.Equal("FT.SEARCH", buildCommand.Command);
         // test that the command not throw an exception:
         var db = GetCleanDatabase();
         var ft = db.FT();
-        ft.Create("idx", new FTCreateParams(), new Schema().AddTextField("txt"));
+        ft.Create("idx", new(), new Schema().AddTextField("txt"));
         var res = ft.Search("idx", testQuery);
         Assert.Empty(res.Documents);
     }
@@ -2070,33 +2399,37 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     public void TestQueryCommandBuilderReturnField()
     {
         var testQuery = new Query("foo").HighlightFields("txt")
-                                            .ReturnFields(new FieldName("txt"))
-                                            .SetNoContent();
+            .ReturnFields(new FieldName("txt"))
+            .SetNoContent();
 
 
         var buildCommand = SearchCommandBuilder.Search("idx", testQuery);
-        var expectedArgs = new List<object> {"idx",
-                                             "foo",
-                                             "NOCONTENT",
-                                             "HIGHLIGHT",
-                                             "FIELDS",
-                                             "1",
-                                             "txt",
-                                             "RETURN",
-                                             "1",
-                                             "txt"};
+        var expectedArgs = new List<object>
+        {
+            "idx",
+            "foo",
+            "NOCONTENT",
+            "HIGHLIGHT",
+            "FIELDS",
+            "1",
+            "txt",
+            "RETURN",
+            "1",
+            "txt"
+        };
 
         Assert.Equal(expectedArgs.Count(), buildCommand.Args.Count());
         for (int i = 0; i < buildCommand.Args.Count(); i++)
         {
             Assert.Equal(expectedArgs[i].ToString(), buildCommand.Args[i].ToString());
         }
+
         Assert.Equal("FT.SEARCH", buildCommand.Command);
 
         // test that the command not throw an exception:
         var db = GetCleanDatabase();
         var ft = db.FT();
-        ft.Create("idx", new FTCreateParams(), new Schema().AddTextField("txt"));
+        ft.Create("idx", new(), new Schema().AddTextField("txt"));
         var res = ft.Search("idx", testQuery);
         Assert.Empty(res.Documents);
     }
@@ -2108,8 +2441,10 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = GetCleanDatabase();
         var ft = db.FT();
 
-        db.Execute("JSON.SET", "doc:1", "$", "[{\"arr\": [1, 2, 3]}, {\"val\": \"hello\"}, {\"val\": \"world\"}]");
-        db.Execute("FT.CREATE", "idx", "ON", "JSON", "PREFIX", "1", "doc:", "SCHEMA", "$..arr", "AS", "arr", "NUMERIC", "$..val", "AS", "val", "TEXT");
+        db.Execute("JSON.SET", (RedisKey)"doc:1", "$",
+            "[{\"arr\": [1, 2, 3]}, {\"val\": \"hello\"}, {\"val\": \"world\"}]");
+        db.Execute("FT.CREATE", "idx", "ON", "JSON", "PREFIX", "1", "doc:", "SCHEMA", "$..arr", "AS", "arr", "NUMERIC",
+            "$..val", "AS", "val", "TEXT");
         // sleep:
         Thread.Sleep(2000);
 
@@ -2128,9 +2463,10 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddNumericField(FieldName.Of("num"), true, true)
             .AddGeoField(FieldName.Of("loc"), true, true)
             .AddTagField(FieldName.Of("tag"), true, true, true, ";", true, true)
-            .AddVectorField("vec", VectorField.VectorAlgo.FLAT, new Dictionary<string, object> { { "dim", 10 } });
-        var buildCommand = SearchCommandBuilder.Create("idx", new FTCreateParams(), sc);
-        var expectedArgs = new List<object> {
+            .AddVectorField("vec", VectorField.VectorAlgo.FLAT, new() { { "dim", 10 } });
+        var buildCommand = SearchCommandBuilder.Create("idx", new(), sc);
+        var expectedArgs = new List<object>
+        {
             "idx",
             "SCHEMA",
             "txt",
@@ -2140,8 +2476,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             "PHONETIC",
             "dm:en",
             "WITHSUFFIXTRIE",
-            "SORTABLE",
             "UNF",
+            "SORTABLE",
             "num",
             "NUMERIC",
             "NOINDEX",
@@ -2157,8 +2493,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             "SEPARATOR",
             ";",
             "CASESENSITIVE",
-            "SORTABLE",
             "UNF",
+            "SORTABLE",
             "vec",
             "VECTOR",
             "FLAT",
@@ -2175,17 +2511,19 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestLimit(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
-        ft.Create("idx", new FTCreateParams(), new Schema().AddTextField("t1").AddTextField("t2"));
-        Document doc1 = new Document("doc1", new Dictionary<string, RedisValue> { { "t1", "a" }, { "t2", "b" } });
-        Document doc2 = new Document("doc2", new Dictionary<string, RedisValue> { { "t1", "b" }, { "t2", "a" } });
+        ft.Create("idx", new(), new Schema().AddTextField("t1").AddTextField("t2"));
+        Document doc1 = new("doc1", new() { { "t1", "a" }, { "t2", "b" } });
+        Document doc2 = new("doc2", new() { { "t1", "b" }, { "t2", "a" } });
         AddDocument(db, doc1);
         AddDocument(db, doc2);
+        AssertDatabaseSize(db, 2);
 
         var req = new AggregationRequest("*").SortBy("@t1").Limit(1);
         var res = ft.Aggregate("idx", req);
@@ -2195,17 +2533,19 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestLimitAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
-        ft.Create("idx", new FTCreateParams(), new Schema().AddTextField("t1").AddTextField("t2"));
-        Document doc1 = new Document("doc1", new Dictionary<string, RedisValue> { { "t1", "a" }, { "t2", "b" } });
-        Document doc2 = new Document("doc2", new Dictionary<string, RedisValue> { { "t1", "b" }, { "t2", "a" } });
+        ft.Create("idx", new(), new Schema().AddTextField("t1").AddTextField("t2"));
+        Document doc1 = new("doc1", new() { { "t1", "a" }, { "t2", "b" } });
+        Document doc2 = new("doc2", new() { { "t1", "b" }, { "t2", "a" } });
         AddDocument(db, doc1);
         AddDocument(db, doc2);
+        await AssertDatabaseSizeAsync(db, 2);
 
         var req = new AggregationRequest("*").SortBy("@t1").Limit(1, 1);
         var res = await ft.AggregateAsync("idx", req);
@@ -2219,7 +2559,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = GetCleanDatabase();
         var ft = db.FT();
-        Assert.Equal(ft._List(), new RedisResult[] { });
+        Assert.Equal(ft._List(), []);
     }
 
     [Fact]
@@ -2227,20 +2567,20 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     {
         IDatabase db = GetCleanDatabase();
         var ft = db.FT();
-        Assert.Equal(await ft._ListAsync(), new RedisResult[] { });
+        Assert.Equal(await ft._ListAsync(), []);
     }
 
     [Fact]
     public void TestVectorCount_Issue70()
     {
-        var schema = new Schema().AddVectorField("fieldTest", Schema.VectorField.VectorAlgo.HNSW, new Dictionary<string, object>()
+        var schema = new Schema().AddVectorField("fieldTest", VectorField.VectorAlgo.HNSW, new()
         {
             ["TYPE"] = "FLOAT32",
             ["DIM"] = "128",
             ["DISTANCE_METRIC"] = "COSINE"
         });
 
-        var actual = SearchCommandBuilder.Create("test", new FTCreateParams(), schema);
+        var actual = SearchCommandBuilder.Create("test", new(), schema);
         var expected = new List<object>()
         {
             "test",
@@ -2261,13 +2601,15 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         {
             Assert.Equal(expected[i].ToString(), actual.Args[i].ToString());
         }
+
         Assert.Equal(expected.Count(), actual.Args.Length);
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void VectorSimilaritySearch(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         var json = db.JSON();
@@ -2277,24 +2619,25 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         json.Set("vec:3", "$", "{\"vector\":[3,3,3,3]}");
         json.Set("vec:4", "$", "{\"vector\":[4,4,4,4]}");
 
-        var schema = new Schema().AddVectorField(FieldName.Of("$.vector").As("vector"), Schema.VectorField.VectorAlgo.FLAT, new Dictionary<string, object>()
-        {
-            ["TYPE"] = "FLOAT32",
-            ["DIM"] = "4",
-            ["DISTANCE_METRIC"] = "L2",
-        });
+        var schema = new Schema().AddVectorField(FieldName.Of("$.vector").As("vector"), VectorField.VectorAlgo.FLAT,
+            new()
+            {
+                ["TYPE"] = "FLOAT32",
+                ["DIM"] = "4",
+                ["DISTANCE_METRIC"] = "L2",
+            });
 
         var idxDef = new FTCreateParams().On(IndexDataType.JSON).Prefix("vec:");
         Assert.True(ft.Create("vss_idx", idxDef, schema));
 
-        float[] vec = new float[] { 2, 2, 2, 2 };
+        float[] vec = [2, 2, 2, 2];
         byte[] queryVec = MemoryMarshal.Cast<float, byte>(vec).ToArray();
 
-
+        AssertDatabaseSize(db, 4);
         var query = new Query("*=>[KNN 3 @vector $query_vec]")
-                            .AddParam("query_vec", queryVec)
-                            .SetSortBy("__vector_score")
-                            .Dialect(2);
+            .AddParam("query_vec", queryVec)
+            .SetSortBy("__vector_score")
+            .Dialect(2);
         var res = ft.Search("vss_idx", query);
 
         Assert.Equal(3, res.TotalResults);
@@ -2304,30 +2647,32 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(0, res.Documents[0]["__vector_score"]);
 
         var jsonRes = res.ToJson();
-        Assert.Equal("{\"vector\":[2,2,2,2]}", jsonRes![0]);
+        Assert.Equal("{\"vector\":[2,2,2,2]}", jsonRes[0]);
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void QueryingVectorFields(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         var json = db.JSON();
 
-        var schema = new Schema().AddVectorField("v", Schema.VectorField.VectorAlgo.HNSW, new Dictionary<string, object>()
+        var schema = new Schema().AddVectorField("v", VectorField.VectorAlgo.HNSW, new()
         {
             ["TYPE"] = "FLOAT32",
             ["DIM"] = "2",
             ["DISTANCE_METRIC"] = "L2",
         });
 
-        ft.Create("idx", new FTCreateParams(), schema);
+        ft.Create("idx", new(), schema);
 
         db.HashSet("a", "v", "aaaaaaaa");
         db.HashSet("b", "v", "aaaabaaa");
         db.HashSet("c", "v", "aaaaabaa");
 
+        AssertDatabaseSize(db, 3);
         var q = new Query("*=>[KNN 2 @v $vec]").ReturnFields("__v_score").Dialect(2);
         var res = ft.Search("idx", q.AddParam("vec", "aaaaaaaa"));
         Assert.Equal(2, res.TotalResults);
@@ -2344,7 +2689,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         await json.SetAsync("1", "$", "{\"vec\":[1,2,3,4]}");
 
         // FT.CREATE my_index ON JSON SCHEMA $.vec as vector VECTOR FLAT 6 TYPE FLOAT32 DIM 4 DISTANCE_METRIC L2
-        var schema = new Schema().AddVectorField(FieldName.Of("$.vec").As("vector"), Schema.VectorField.VectorAlgo.FLAT, new Dictionary<string, object>()
+        var schema = new Schema().AddVectorField(FieldName.Of("$.vec").As("vector"), VectorField.VectorAlgo.FLAT, new()
         {
             ["TYPE"] = "FLOAT32",
             ["DIM"] = "4",
@@ -2355,57 +2700,63 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestQueryAddParam_DefaultDialect(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT(2);
 
         var sc = new Schema().AddNumericField("numval");
-        Assert.True(ft.Create("idx", new FTCreateParams(), sc));
+        Assert.True(ft.Create("idx", new(), sc));
 
         db.HashSet("1", "numval", 1);
         db.HashSet("2", "numval", 2);
         db.HashSet("3", "numval", 3);
 
+        AssertDatabaseSize(db, 3);
         Query query = new Query("@numval:[$min $max]").AddParam("min", 1).AddParam("max", 2);
         var res = ft.Search("idx", query);
         Assert.Equal(2, res.TotalResults);
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestQueryAddParam_DefaultDialectAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT(2);
 
         var sc = new Schema().AddNumericField("numval");
-        Assert.True(await ft.CreateAsync("idx", new FTCreateParams(), sc));
+        Assert.True(await ft.CreateAsync("idx", new(), sc));
 
         db.HashSet("1", "numval", 1);
         db.HashSet("2", "numval", 2);
         db.HashSet("3", "numval", 3);
 
+        await AssertDatabaseSizeAsync(db, 3);
         Query query = new Query("@numval:[$min $max]").AddParam("min", 1).AddParam("max", 2);
         var res = await ft.SearchAsync("idx", query);
         Assert.Equal(2, res.TotalResults);
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestQueryParamsWithParams_DefaultDialect(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT(2);
 
         var sc = new Schema().AddNumericField("numval");
-        Assert.True(ft.Create("idx", new FTCreateParams(), sc));
+        Assert.True(ft.Create("idx", new(), sc));
 
         db.HashSet("1", "numval", 1);
         db.HashSet("2", "numval", 2);
         db.HashSet("3", "numval", 3);
 
+        AssertDatabaseSize(db, 3);
         Query query = new Query("@numval:[$min $max]").AddParam("min", 1).AddParam("max", 2);
         var res = ft.Search("idx", query);
         Assert.Equal(2, res.TotalResults);
@@ -2415,24 +2766,26 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             ["min"] = 1,
             ["max"] = 2
         };
-        query = new Query("@numval:[$min $max]");
+        query = new("@numval:[$min $max]");
         res = ft.Search("idx", query.Params(paramValue));
         Assert.Equal(2, res.TotalResults);
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestBasicSpellCheck(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
-        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+        ft.Create(index, new(), new Schema().AddTextField("name").AddTextField("body"));
 
-        db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name1"), new HashEntry("body", "body1") });
-        db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name2"), new HashEntry("body", "body2") });
-        db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name2"), new HashEntry("body", "name2") });
+        db.HashSet("doc1", [new("name", "name1"), new("body", "body1")]);
+        db.HashSet("doc1", [new("name", "name2"), new("body", "body2")]);
+        db.HashSet("doc1", [new("name", "name2"), new("body", "name2")]);
 
+        AssertDatabaseSize(db, 1);
         var reply = ft.SpellCheck(index, "name");
         Assert.Single(reply.Keys);
         Assert.Equal("name", reply.Keys.First());
@@ -2441,18 +2794,20 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestBasicSpellCheckAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
-        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+        ft.Create(index, new(), new Schema().AddTextField("name").AddTextField("body"));
 
-        db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name1"), new HashEntry("body", "body1") });
-        db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name2"), new HashEntry("body", "body2") });
-        db.HashSet("doc1", new HashEntry[] { new HashEntry("name", "name2"), new HashEntry("body", "name2") });
+        db.HashSet("doc1", [new("name", "name1"), new("body", "body1")]);
+        db.HashSet("doc1", [new("name", "name2"), new("body", "body2")]);
+        db.HashSet("doc1", [new("name", "name2"), new("body", "name2")]);
 
+        await AssertDatabaseSizeAsync(db, 1);
         var reply = await ft.SpellCheckAsync(index, "name");
         Assert.Single(reply.Keys);
         Assert.Equal("name", reply.Keys.First());
@@ -2461,51 +2816,56 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestCrossTermDictionary(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
-        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+        ft.Create(index, new(), new Schema().AddTextField("name").AddTextField("body"));
         ft.DictAdd("slang", "timmies", "toque", "toonie", "serviette", "kerfuffle", "chesterfield");
         var expected = new Dictionary<string, Dictionary<string, double>>()
         {
-            ["tooni"] = new Dictionary<string, double>()
+            ["tooni"] = new()
             {
                 ["toonie"] = 0d
             }
         };
 
+        AssertDatabaseSize(db, 0);
+
         Assert.Equal(expected, ft.SpellCheck(index,
-                                             "Tooni toque kerfuffle",
-                                             new FTSpellCheckParams()
-                                             .IncludeTerm("slang")
-                                             .ExcludeTerm("slang")));
+            "Tooni toque kerfuffle",
+            new FTSpellCheckParams()
+                .IncludeTerm("slang")
+                .ExcludeTerm("slang")));
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestCrossTermDictionaryAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
-        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+        ft.Create(index, new(), new Schema().AddTextField("name").AddTextField("body"));
         ft.DictAdd("slang", "timmies", "toque", "toonie", "serviette", "kerfuffle", "chesterfield");
         var expected = new Dictionary<string, Dictionary<string, double>>()
         {
-            ["tooni"] = new Dictionary<string, double>()
+            ["tooni"] = new()
             {
                 ["toonie"] = 0d
             }
         };
 
+        AssertDatabaseSize(db, 0);
         Assert.Equal(expected, await ft.SpellCheckAsync(index,
-                                             "Tooni toque kerfuffle",
-                                             new FTSpellCheckParams()
-                                             .IncludeTerm("slang")
-                                             .ExcludeTerm("slang")));
+            "Tooni toque kerfuffle",
+            new FTSpellCheckParams()
+                .IncludeTerm("slang")
+                .ExcludeTerm("slang")));
     }
 
     [Fact]
@@ -2514,7 +2874,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = GetCleanDatabase();
         var ft = db.FT();
 
-        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+        ft.Create(index, new(), new Schema().AddTextField("name").AddTextField("body"));
         // distance suppose to be between 1 and 4
         Assert.Throws<RedisServerException>(() => ft.SpellCheck(index, "name", new FTSpellCheckParams().Distance(0)));
     }
@@ -2525,9 +2885,10 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = GetCleanDatabase();
         var ft = db.FT();
 
-        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("name").AddTextField("body"));
+        ft.Create(index, new(), new Schema().AddTextField("name").AddTextField("body"));
         // distance suppose to be between 1 and 4
-        await Assert.ThrowsAsync<RedisServerException>(async () => await ft.SpellCheckAsync(index, "name", new FTSpellCheckParams().Distance(0)));
+        await Assert.ThrowsAsync<RedisServerException>(async () =>
+            await ft.SpellCheckAsync(index, "name", new FTSpellCheckParams().Distance(0)));
     }
 
     [Fact]
@@ -2536,7 +2897,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = GetCleanDatabase();
         var ft = db.FT();
 
-        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("t"));
+        ft.Create(index, new(), new Schema().AddTextField("t"));
         // dialect 0 is not valid
         Assert.Throws<RedisServerException>(() => ft.SpellCheck(index, "name", new FTSpellCheckParams().Dialect(0)));
     }
@@ -2547,25 +2908,28 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         IDatabase db = GetCleanDatabase();
         var ft = db.FT();
 
-        ft.Create(index, new FTCreateParams(), new Schema().AddTextField("t"));
+        ft.Create(index, new(), new Schema().AddTextField("t"));
         // dialect 0 is not valid
-        await Assert.ThrowsAsync<RedisServerException>(async () => await ft.SpellCheckAsync(index, "name", new FTSpellCheckParams().Dialect(0)));
+        await Assert.ThrowsAsync<RedisServerException>(async () =>
+            await ft.SpellCheckAsync(index, "name", new FTSpellCheckParams().Dialect(0)));
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestQueryParamsWithParams_DefaultDialectAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT(2);
 
         var sc = new Schema().AddNumericField("numval");
-        Assert.True(await ft.CreateAsync("idx", new FTCreateParams(), sc));
+        Assert.True(await ft.CreateAsync("idx", new(), sc));
 
         db.HashSet("1", "numval", 1);
         db.HashSet("2", "numval", 2);
         db.HashSet("3", "numval", 3);
 
+        AssertDatabaseSize(db, 3);
         Query query = new Query("@numval:[$min $max]").AddParam("min", 1).AddParam("max", 2);
         var res = await ft.SearchAsync("idx", query);
         Assert.Equal(2, res.TotalResults);
@@ -2575,21 +2939,19 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             ["min"] = 1,
             ["max"] = 2
         };
-        query = new Query("@numval:[$min $max]");
+        query = new("@numval:[$min $max]");
         res = await ft.SearchAsync("idx", query.Params(paramValue));
         Assert.Equal(2, res.TotalResults);
     }
 
-    string key = "SugTestKey";
+    readonly string key = "SugTestKey";
 
-    public SearchTests(EndpointsFixture endpointsFixture) : base(endpointsFixture)
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestAddAndGetSuggestion(string endpointId)
     {
-    }
-
-    [Fact]
-    public void TestAddAndGetSuggestion()
-    {
-        IDatabase db = GetCleanDatabase();
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
         string suggestion = "ANOTHER_WORD";
@@ -2608,10 +2970,12 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Single(ft.SugGet(key, noMatch.Substring(1, 6), true, max: 5));
     }
 
-    [Fact]
-    public async Task TestAddAndGetSuggestionAsync()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestAddAndGetSuggestionAsync(string endpointId)
     {
-        IDatabase db = GetCleanDatabase();
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
         string suggestion = "ANOTHER_WORD";
@@ -2630,10 +2994,12 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Single(await ft.SugGetAsync(key, noMatch.Substring(1, 6), true, max: 5));
     }
 
-    [Fact]
-    public void AddSuggestionIncrAndGetSuggestionFuzzy()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void AddSuggestionIncrAndGetSuggestionFuzzy(string endpointId)
     {
-        IDatabase db = GetCleanDatabase();
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         string suggestion = "TOPIC OF WORDS";
 
@@ -2644,10 +3010,12 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(suggestion, ft.SugGet(key, suggestion.Substring(0, 3))[0]);
     }
 
-    [Fact]
-    public async Task AddSuggestionIncrAndGetSuggestionFuzzyAsync()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task AddSuggestionIncrAndGetSuggestionFuzzyAsync(string endpointId)
     {
-        IDatabase db = GetCleanDatabase();
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         string suggestion = "TOPIC OF WORDS";
 
@@ -2658,10 +3026,12 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(suggestion, (await ft.SugGetAsync(key, suggestion.Substring(0, 3)))[0]);
     }
 
-    [Fact]
-    public void getSuggestionScores()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void getSuggestionScores(string endpointId)
     {
-        IDatabase db = GetCleanDatabase();
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         ft.SugAdd(key, "COUNT_ME TOO", 1);
         ft.SugAdd(key, "COUNT", 1);
@@ -2678,10 +3048,12 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         }
     }
 
-    [Fact]
-    public async Task getSuggestionScoresAsync()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task getSuggestionScoresAsync(string endpointId)
     {
-        IDatabase db = GetCleanDatabase();
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         await ft.SugAddAsync(key, "COUNT_ME TOO", 1);
         await ft.SugAddAsync(key, "COUNT", 1);
@@ -2698,10 +3070,12 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         }
     }
 
-    [Fact]
-    public void getSuggestionMax()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void getSuggestionMax(string endpointId)
     {
-        IDatabase db = GetCleanDatabase();
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         ft.SugAdd(key, "COUNT_ME TOO", 1);
         ft.SugAdd(key, "COUNT", 1);
@@ -2712,10 +3086,12 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, ft.SugGetWithScores(key, "COU", true, max: 2).Count);
     }
 
-    [Fact]
-    public async Task getSuggestionMaxAsync()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task getSuggestionMaxAsync(string endpointId)
     {
-        IDatabase db = GetCleanDatabase();
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         await ft.SugAddAsync(key, "COUNT_ME TOO", 1);
         await ft.SugAddAsync(key, "COUNT", 1);
@@ -2726,10 +3102,12 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, (await ft.SugGetWithScoresAsync(key, "COU", true, max: 2)).Count);
     }
 
-    [Fact]
-    public void getSuggestionNoHit()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void getSuggestionNoHit(string endpointId)
     {
-        IDatabase db = GetCleanDatabase();
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         ft.SugAdd(key, "NO WORD", 0.4);
 
@@ -2737,10 +3115,12 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Empty(ft.SugGet(key, "DIF"));
     }
 
-    [Fact]
-    public async Task getSuggestionNoHitAsync()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task GetSuggestionNoHitAsync(string endpointId)
     {
-        IDatabase db = GetCleanDatabase();
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         await ft.SugAddAsync(key, "NO WORD", 0.4);
 
@@ -2748,10 +3128,12 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Empty((await ft.SugGetAsync(key, "DIF")));
     }
 
-    [Fact]
-    public void getSuggestionLengthAndDeleteSuggestion()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void GetSuggestionLengthAndDeleteSuggestion(string endpointId)
     {
-        IDatabase db = GetCleanDatabase();
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         ft.SugAdd(key, "TOPIC OF WORDS", 1, increment: true);
         ft.SugAdd(key, "ANOTHER ENTRY", 1, increment: true);
@@ -2770,10 +3152,12 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2L, ft.SugLen(key));
     }
 
-    [Fact]
-    public async Task getSuggestionLengthAndDeleteSuggestionAsync()
+    [SkippableTheory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task getSuggestionLengthAndDeleteSuggestionAsync(string endpointId)
     {
-        IDatabase db = GetCleanDatabase();
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
         await ft.SugAddAsync(key, "TOPIC OF WORDS", 1, increment: true);
         await ft.SugAddAsync(key, "ANOTHER ENTRY", 1, increment: true);
@@ -2792,91 +3176,97 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2L, await ft.SugLenAsync(key));
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.9")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.9")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestProfileSearch(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
         Schema sc = new Schema().AddTextField("t1", 1.0).AddTextField("t2", 1.0);
-        Assert.True(ft.Create(index, new FTCreateParams(), sc));
+        Assert.True(ft.Create(index, new(), sc));
 
-        db.HashSet("doc1", new HashEntry[] {
-                                new HashEntry("t1", "foo"),
-                                new HashEntry("t2", "bar")});
+        db.HashSet("doc1", [
+            new("t1", "foo"),
+            new("t2", "bar")
+        ]);
 
-        var profile = ft.ProfileOnSearch(index, new Query("foo"));
+        var profile = ft.ProfileOnSearch(index, new("foo"));
         // Iterators profile={Type=TEXT, Time=0.0, Term=foo, Counter=1, Size=1}
-        var info = (RedisResult[])profile.Item2.Info;
+        var info = (RedisResult[])profile.Item2.Info!;
         int shardsIndex = Array.FindIndex(info, item => item.ToString() == "Shards");
         int coordinatorIndex = Array.FindIndex(info, item => item.ToString() == "Coordinator");
         CustomAssertions.GreaterThan(shardsIndex, -1);
         CustomAssertions.GreaterThan(coordinatorIndex, -1);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.9")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.9")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestProfileSearchAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
         Schema sc = new Schema().AddTextField("t1", 1.0).AddTextField("t2", 1.0);
-        Assert.True(ft.Create(index, new FTCreateParams(), sc));
+        Assert.True(ft.Create(index, new(), sc));
 
-        db.HashSet("doc1", new HashEntry[] {
-                                new HashEntry("t1", "foo"),
-                                new HashEntry("t2", "bar")});
+        db.HashSet("doc1", [
+            new("t1", "foo"),
+            new("t2", "bar")
+        ]);
 
-        var profile = await ft.ProfileOnSearchAsync(index, new Query("foo"));
-        var info = (RedisResult[])profile.Item2.Info;
+        var profile = await ft.ProfileOnSearchAsync(index, new("foo"));
+        var info = (RedisResult[])profile.Item2.Info!;
         int shardsIndex = Array.FindIndex(info, item => item.ToString() == "Shards");
         int coordinatorIndex = Array.FindIndex(info, item => item.ToString() == "Coordinator");
         CustomAssertions.GreaterThan(shardsIndex, -1);
         CustomAssertions.GreaterThan(coordinatorIndex, -1);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.9")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.9")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestProfileSearch_WithoutCoordinator(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
         Schema sc = new Schema().AddTextField("t1", 1.0).AddTextField("t2", 1.0);
-        Assert.True(ft.Create(index, new FTCreateParams(), sc));
+        Assert.True(ft.Create(index, new(), sc));
 
-        db.HashSet("doc1", new HashEntry[] {
-                                new HashEntry("t1", "foo"),
-                                new HashEntry("t2", "bar")});
+        db.HashSet("doc1", [
+            new("t1", "foo"),
+            new("t2", "bar")
+        ]);
 
-        var profile = ft.ProfileSearch(index, new Query("foo"));
+        var profile = ft.ProfileSearch(index, new("foo"));
         var info = profile.Item2;
         CustomAssertions.GreaterThan(info.Count, 4);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.9")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.9")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestProfileSearchAsync_WithoutCoordinator(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
         Schema sc = new Schema().AddTextField("t1", 1.0).AddTextField("t2", 1.0);
-        Assert.True(ft.Create(index, new FTCreateParams(), sc));
+        Assert.True(ft.Create(index, new(), sc));
 
-        db.HashSet("doc1", new HashEntry[] {
-                                new HashEntry("t1", "foo"),
-                                new HashEntry("t2", "bar")});
+        db.HashSet("doc1", [
+            new("t1", "foo"),
+            new("t2", "bar")
+        ]);
 
-        var profile = await ft.ProfileSearchAsync(index, new Query("foo"));
+        var profile = await ft.ProfileSearchAsync(index, new("foo"));
         var info = profile.Item2;
         CustomAssertions.GreaterThan(info.Count, 4);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.9")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.9")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestProfile(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -2890,7 +3280,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var q = new Query("hello|world").SetNoContent();
         var profileSearch = ft.ProfileOnSearch(index, q);
         var searchRes = profileSearch.Item1;
-        var searchDet = (RedisResult[])profileSearch.Item2.Info;
+        var searchDet = (RedisResult[])profileSearch.Item2.Info!;
 
         Assert.Equal(2, searchRes.Documents.Count);
         int shardsIndex = Array.FindIndex(searchDet, item => item.ToString() == "Shards");
@@ -2902,7 +3292,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
         var profileAggregate = ft.ProfileOnAggregate(index, aggReq);
         var aggregateRes = profileAggregate.Item1;
-        var aggregateDet = (RedisResult[])profileAggregate.Item2.Info;
+        var aggregateDet = (RedisResult[])profileAggregate.Item2.Info!;
 
         Assert.Equal(2, aggregateRes.TotalResults);
         shardsIndex = Array.FindIndex(aggregateDet, item => item.ToString() == "Shards");
@@ -2911,8 +3301,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         CustomAssertions.GreaterThan(coordinatorIndex, -1);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.9")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.9")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestProfileAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
@@ -2926,7 +3316,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var q = new Query("hello|world").SetNoContent();
         var profileSearch = await ft.ProfileOnSearchAsync(index, q);
         var searchRes = profileSearch.Item1;
-        var searchDet = (RedisResult[])profileSearch.Item2.Info;
+        var searchDet = (RedisResult[])profileSearch.Item2.Info!;
 
         Assert.Equal(2, searchRes.Documents.Count);
         int shardsIndex = Array.FindIndex(searchDet, item => item.ToString() == "Shards");
@@ -2938,7 +3328,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
         var profileAggregate = await ft.ProfileOnAggregateAsync(index, aggReq);
         var aggregateRes = profileAggregate.Item1;
-        var aggregateDet = (RedisResult[])profileAggregate.Item2.Info;
+        var aggregateDet = (RedisResult[])profileAggregate.Item2.Info!;
 
         Assert.Equal(2, aggregateRes.TotalResults);
         shardsIndex = Array.FindIndex(aggregateDet, item => item.ToString() == "Shards");
@@ -2947,10 +3337,11 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         CustomAssertions.GreaterThan(coordinatorIndex, -1);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.9")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.9")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestProfile_WithoutCoordinator(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
@@ -2977,10 +3368,11 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         CustomAssertions.GreaterThan(aggregateDet.Count, 4);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.9")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.GreaterThanOrEqual, "7.9")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestProfileAsync_WithoutCoordinator(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
@@ -3007,10 +3399,11 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         CustomAssertions.GreaterThan(searchDet.Count, 4);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.3.240")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.3.240")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestProfileIssue306(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
@@ -3022,7 +3415,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var q = new Query("hello|world").SetNoContent();
         var profileSearch = ft.ProfileOnSearch(index, q);
         var searchRes = profileSearch.Item1;
-        var searchDet = (RedisResult[])profileSearch.Item2.Info;
+        var searchDet = (RedisResult[])profileSearch.Item2.Info!;
 
         CustomAssertions.GreaterThan(searchDet.Length, 3);
         Assert.Equal(2, searchRes.Documents.Count);
@@ -3032,19 +3425,21 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
         var profileAggregate = ft.ProfileOnAggregate(index, aggReq);
         var aggregateRes = profileAggregate.Item1;
-        var aggregateDet = (RedisResult[])profileAggregate.Item2.Info;
+        var aggregateDet = (RedisResult[])profileAggregate.Item2.Info!;
         CustomAssertions.GreaterThan(aggregateDet.Length, 3);
         Assert.Equal(2, aggregateRes.TotalResults);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.3.240")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.3.240")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestProfileAsyncIssue306(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
-        await ft.CreateAsync(index, new Schema().AddTextField("t", sortable: true)); // Calling FT.CREATR without FTCreateParams
+        await ft.CreateAsync(index,
+            new Schema().AddTextField("t", sortable: true)); // Calling FT.CREATR without FTCreateParams
         db.HashSet("1", "t", "hello");
         db.HashSet("2", "t", "world");
 
@@ -3052,7 +3447,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var q = new Query("hello|world").SetNoContent();
         var profileSearch = await ft.ProfileOnSearchAsync(index, q);
         var searchRes = profileSearch.Item1;
-        var searchDet = (RedisResult[])profileSearch.Item2.Info;
+        var searchDet = (RedisResult[])profileSearch.Item2.Info!;
 
         CustomAssertions.GreaterThan(searchDet.Length, 3);
         Assert.Equal(2, searchRes.Documents.Count);
@@ -3061,7 +3456,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         var aggReq = new AggregationRequest("*").Load(FieldName.Of("t")).Apply("startswith(@t, 'hel')", "prefix");
         var profileAggregate = await ft.ProfileOnAggregateAsync(index, aggReq);
         var aggregateRes = profileAggregate.Item1;
-        var aggregateDet = (RedisResult[])profileAggregate.Item2.Info;
+        var aggregateDet = (RedisResult[])profileAggregate.Item2.Info!;
         CustomAssertions.GreaterThan(aggregateDet.Length, 3);
         Assert.Equal(2, aggregateRes.TotalResults);
     }
@@ -3069,84 +3464,86 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     [Fact]
     public void TestProfileCommandBuilder()
     {
-        var search = SearchCommandBuilder.ProfileSearch("index", new Query(), true);
-        var aggregate = SearchCommandBuilder.ProfileAggregate("index", new AggregationRequest(), true);
+        var search = SearchCommandBuilder.ProfileSearch("index", new(), true);
+        var aggregate = SearchCommandBuilder.ProfileAggregate("index", new(), true);
 
         Assert.Equal("FT.PROFILE", search.Command);
         Assert.Equal("FT.PROFILE", aggregate.Command);
-        Assert.Equal(new object[] { "index", "SEARCH", "LIMITED", "QUERY", "*" }, search.Args);
-        Assert.Equal(new object[] { "index", "AGGREGATE", "LIMITED", "QUERY", "*" }, aggregate.Args);
+        Assert.Equal(["index", "SEARCH", "LIMITED", "QUERY", "*"], search.Args);
+        Assert.Equal(["index", "AGGREGATE", "LIMITED", "QUERY", "*"], aggregate.Args);
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void Issue175(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
 
         SearchCommands ft = db.FT();
 
         var sortable = true;
         var ftParams = new FTCreateParams()
-                .On(IndexDataType.JSON)
-                .Prefix("doc:");
+            .On(IndexDataType.JSON)
+            .Prefix("doc:");
         var schema = new Schema().AddTagField("tag", sortable, false, false, "|")
-                                 .AddTextField("text", 1, sortable);
+            .AddTextField("text", 1, sortable);
 
         Assert.True(ft.Create("myIndex", ftParams, schema));
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.2.1")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.2.1")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void GeoShapeFilterSpherical(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
-        WKTReader reader = new WKTReader();
-        GeometryFactory factory = new GeometryFactory();
+        WKTReader reader = new();
+        GeometryFactory factory = new();
 
         Assert.True(ft.Create(index, new Schema().AddGeoShapeField("geom", GeoShapeField.CoordinateSystem.SPHERICAL)));
 
         // Create polygons
-        Polygon small = factory.CreatePolygon(new Coordinate[] {
-            new Coordinate(34.9001, 29.7001),
-            new Coordinate(34.9001, 29.7100),
-            new Coordinate(34.9100, 29.7100),
-            new Coordinate(34.9100, 29.7001),
-            new Coordinate(34.9001, 29.7001)
-        });
+        Polygon small = factory.CreatePolygon([
+            new(34.9001, 29.7001),
+            new(34.9001, 29.7100),
+            new(34.9100, 29.7100),
+            new(34.9100, 29.7001),
+            new(34.9001, 29.7001)
+        ]);
         db.HashSet("small", "geom", small.ToString());
 
-        Polygon large = factory.CreatePolygon(new Coordinate[] {
-            new Coordinate(34.9001, 29.7001),
-            new Coordinate(34.9001, 29.7200),
-            new Coordinate(34.9200, 29.7200),
-            new Coordinate(34.9200, 29.7001),
-            new Coordinate(34.9001, 29.7001)
-        });
+        Polygon large = factory.CreatePolygon([
+            new(34.9001, 29.7001),
+            new(34.9001, 29.7200),
+            new(34.9200, 29.7200),
+            new(34.9200, 29.7001),
+            new(34.9001, 29.7001)
+        ]);
         db.HashSet("large", "geom", large.ToString());
 
-        Polygon within = factory.CreatePolygon(new Coordinate[] {
-            new Coordinate(34.9000, 29.7000),
-            new Coordinate(34.9000, 29.7150),
-            new Coordinate(34.9150, 29.7150),
-            new Coordinate(34.9150, 29.7000),
-            new Coordinate(34.9000, 29.7000)
-        });
+        Polygon within = factory.CreatePolygon([
+            new(34.9000, 29.7000),
+            new(34.9000, 29.7150),
+            new(34.9150, 29.7150),
+            new(34.9150, 29.7000),
+            new(34.9000, 29.7000)
+        ]);
 
         var res = ft.Search(index, new Query($"@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
         Assert.Equal(1, res.TotalResults);
         Assert.Single(res.Documents);
         Assert.Equal(small, reader.Read(res.Documents[0]["geom"].ToString()));
 
-        Polygon contains = factory.CreatePolygon(new Coordinate[] {
-            new Coordinate(34.9002, 29.7002),
-            new Coordinate(34.9002, 29.7050),
-            new Coordinate(34.9050, 29.7050),
-            new Coordinate(34.9050, 29.7002),
-            new Coordinate(34.9002, 29.7002)
-        });
+        Polygon contains = factory.CreatePolygon([
+            new(34.9002, 29.7002),
+            new(34.9002, 29.7050),
+            new(34.9050, 29.7050),
+            new(34.9050, 29.7002),
+            new(34.9002, 29.7002)
+        ]);
 
         res = ft.Search(index, new Query($"@geom:[contains $poly]").AddParam("poly", contains.ToString()).Dialect(3));
         Assert.Equal(2, res.TotalResults);
@@ -3161,59 +3558,63 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, res.Documents.Count);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.2.1")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.2.1")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task GeoShapeFilterSphericalAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
-        WKTReader reader = new WKTReader();
-        GeometryFactory factory = new GeometryFactory();
+        WKTReader reader = new();
+        GeometryFactory factory = new();
 
-        Assert.True(await ft.CreateAsync(index, new Schema().AddGeoShapeField("geom", GeoShapeField.CoordinateSystem.SPHERICAL)));
+        Assert.True(await ft.CreateAsync(index,
+            new Schema().AddGeoShapeField("geom", GeoShapeField.CoordinateSystem.SPHERICAL)));
 
         // Create polygons
-        Polygon small = factory.CreatePolygon(new Coordinate[] {
-            new Coordinate(34.9001, 29.7001),
-            new Coordinate(34.9001, 29.7100),
-            new Coordinate(34.9100, 29.7100),
-            new Coordinate(34.9100, 29.7001),
-            new Coordinate(34.9001, 29.7001)
-        });
+        Polygon small = factory.CreatePolygon([
+            new(34.9001, 29.7001),
+            new(34.9001, 29.7100),
+            new(34.9100, 29.7100),
+            new(34.9100, 29.7001),
+            new(34.9001, 29.7001)
+        ]);
         db.HashSet("small", "geom", small.ToString());
 
-        Polygon large = factory.CreatePolygon(new Coordinate[] {
-            new Coordinate(34.9001, 29.7001),
-            new Coordinate(34.9001, 29.7200),
-            new Coordinate(34.9200, 29.7200),
-            new Coordinate(34.9200, 29.7001),
-            new Coordinate(34.9001, 29.7001)
-        });
+        Polygon large = factory.CreatePolygon([
+            new(34.9001, 29.7001),
+            new(34.9001, 29.7200),
+            new(34.9200, 29.7200),
+            new(34.9200, 29.7001),
+            new(34.9001, 29.7001)
+        ]);
         db.HashSet("large", "geom", large.ToString());
 
-        Polygon within = factory.CreatePolygon(new Coordinate[] {
-            new Coordinate(34.9000, 29.7000),
-            new Coordinate(34.9000, 29.7150),
-            new Coordinate(34.9150, 29.7150),
-            new Coordinate(34.9150, 29.7000),
-            new Coordinate(34.9000, 29.7000)
-        });
+        Polygon within = factory.CreatePolygon([
+            new(34.9000, 29.7000),
+            new(34.9000, 29.7150),
+            new(34.9150, 29.7150),
+            new(34.9150, 29.7000),
+            new(34.9000, 29.7000)
+        ]);
 
-        var res = await ft.SearchAsync(index, new Query($"@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
+        var res = await ft.SearchAsync(index,
+            new Query($"@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
         Assert.Equal(1, res.TotalResults);
         Assert.Single(res.Documents);
         Assert.Equal(small, reader.Read(res.Documents[0]["geom"].ToString()));
 
-        Polygon contains = factory.CreatePolygon(new Coordinate[] {
-            new Coordinate(34.9002, 29.7002),
-            new Coordinate(34.9002, 29.7050),
-            new Coordinate(34.9050, 29.7050),
-            new Coordinate(34.9050, 29.7002),
-            new Coordinate(34.9002, 29.7002)
-        });
+        Polygon contains = factory.CreatePolygon([
+            new(34.9002, 29.7002),
+            new(34.9002, 29.7050),
+            new(34.9050, 29.7050),
+            new(34.9050, 29.7002),
+            new(34.9002, 29.7002)
+        ]);
 
-        res = await ft.SearchAsync(index, new Query($"@geom:[contains $poly]").AddParam("poly", contains.ToString()).Dialect(3));
+        res = await ft.SearchAsync(index,
+            new Query($"@geom:[contains $poly]").AddParam("poly", contains.ToString()).Dialect(3));
         Assert.Equal(2, res.TotalResults);
         Assert.Equal(2, res.Documents.Count);
 
@@ -3221,43 +3622,54 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Point point = factory.CreatePoint(new Coordinate(34.9010, 29.7010));
         db.HashSet("point", "geom", point.ToString());
 
-        res = await ft.SearchAsync(index, new Query($"@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
+        res = await ft.SearchAsync(index,
+            new Query($"@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
         Assert.Equal(2, res.TotalResults);
         Assert.Equal(2, res.Documents.Count);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.2.1")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.2.1")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void GeoShapeFilterFlat(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
-        WKTReader reader = new WKTReader();
-        GeometryFactory factory = new GeometryFactory();
+        WKTReader reader = new();
+        GeometryFactory factory = new();
 
         Assert.True(ft.Create(index, new Schema().AddGeoShapeField("geom", GeoShapeField.CoordinateSystem.FLAT)));
 
         // polygon type
-        Polygon small = factory.CreatePolygon(new Coordinate[]{new Coordinate(1, 1),
-        new Coordinate(1, 100), new Coordinate(100, 100), new Coordinate(100, 1), new Coordinate(1, 1)});
+        Polygon small = factory.CreatePolygon([
+            new(1, 1),
+            new(1, 100), new(100, 100), new(100, 1), new(1, 1)
+        ]);
         db.HashSet("small", "geom", small.ToString());
 
-        Polygon large = factory.CreatePolygon(new Coordinate[]{new Coordinate(1, 1),
-        new Coordinate(1, 200), new Coordinate(200, 200), new Coordinate(200, 1), new Coordinate(1, 1)});
+        Polygon large = factory.CreatePolygon([
+            new(1, 1),
+            new(1, 200), new(200, 200), new(200, 1), new(1, 1)
+        ]);
         db.HashSet("large", "geom", large.ToString());
 
         // within condition
-        Polygon within = factory.CreatePolygon(new Coordinate[]{new Coordinate(0, 0),
-        new Coordinate(0, 150), new Coordinate(150, 150), new Coordinate(150, 0), new Coordinate(0, 0)});
+        Polygon within = factory.CreatePolygon([
+            new(0, 0),
+            new(0, 150), new(150, 150), new(150, 0), new(0, 0)
+        ]);
 
-        SearchResult res = ft.Search(index, new Query("@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
+        SearchResult res = ft.Search(index,
+            new Query("@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
         Assert.Equal(1, res.TotalResults);
         Assert.Single(res.Documents);
         Assert.Equal(small, reader.Read(res.Documents[0]["geom"].ToString()));
 
         // contains condition
-        Polygon contains = factory.CreatePolygon(new Coordinate[]{new Coordinate(2, 2),
-        new Coordinate(2, 50), new Coordinate(50, 50), new Coordinate(50, 2), new Coordinate(2, 2)});
+        Polygon contains = factory.CreatePolygon([
+            new(2, 2),
+            new(2, 50), new(50, 50), new(50, 2), new(2, 2)
+        ]);
 
         res = ft.Search(index, new Query("@geom:[contains $poly]").AddParam("poly", contains.ToString()).Dialect(3));
         Assert.Equal(2, res.TotalResults);
@@ -3272,40 +3684,52 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2, res.Documents.Count);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.2.1")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.2.1")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task GeoShapeFilterFlatAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
-        WKTReader reader = new WKTReader();
-        GeometryFactory factory = new GeometryFactory();
+        WKTReader reader = new();
+        GeometryFactory factory = new();
 
-        Assert.True(await ft.CreateAsync(index, new Schema().AddGeoShapeField("geom", GeoShapeField.CoordinateSystem.FLAT)));
+        Assert.True(await ft.CreateAsync(index,
+            new Schema().AddGeoShapeField("geom", GeoShapeField.CoordinateSystem.FLAT)));
 
         // polygon type
-        Polygon small = factory.CreatePolygon(new Coordinate[]{new Coordinate(1, 1),
-        new Coordinate(1, 100), new Coordinate(100, 100), new Coordinate(100, 1), new Coordinate(1, 1)});
+        Polygon small = factory.CreatePolygon([
+            new(1, 1),
+            new(1, 100), new(100, 100), new(100, 1), new(1, 1)
+        ]);
         db.HashSet("small", "geom", small.ToString());
 
-        Polygon large = factory.CreatePolygon(new Coordinate[]{new Coordinate(1, 1),
-        new Coordinate(1, 200), new Coordinate(200, 200), new Coordinate(200, 1), new Coordinate(1, 1)});
+        Polygon large = factory.CreatePolygon([
+            new(1, 1),
+            new(1, 200), new(200, 200), new(200, 1), new(1, 1)
+        ]);
         db.HashSet("large", "geom", large.ToString());
 
         // within condition
-        Polygon within = factory.CreatePolygon(new Coordinate[]{new Coordinate(0, 0),
-        new Coordinate(0, 150), new Coordinate(150, 150), new Coordinate(150, 0), new Coordinate(0, 0)});
+        Polygon within = factory.CreatePolygon([
+            new(0, 0),
+            new(0, 150), new(150, 150), new(150, 0), new(0, 0)
+        ]);
 
-        SearchResult res = await ft.SearchAsync(index, new Query("@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
+        SearchResult res = await ft.SearchAsync(index,
+            new Query("@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
         Assert.Equal(1, res.TotalResults);
         Assert.Single(res.Documents);
         Assert.Equal(small, reader.Read(res.Documents[0]["geom"].ToString()));
 
         // contains condition
-        Polygon contains = factory.CreatePolygon(new Coordinate[]{new Coordinate(2, 2),
-        new Coordinate(2, 50), new Coordinate(50, 50), new Coordinate(50, 2), new Coordinate(2, 2)});
+        Polygon contains = factory.CreatePolygon([
+            new(2, 2),
+            new(2, 50), new(50, 50), new(50, 2), new(2, 2)
+        ]);
 
-        res = await ft.SearchAsync(index, new Query("@geom:[contains $poly]").AddParam("poly", contains.ToString()).Dialect(3));
+        res = await ft.SearchAsync(index,
+            new Query("@geom:[contains $poly]").AddParam("poly", contains.ToString()).Dialect(3));
         Assert.Equal(2, res.TotalResults);
         Assert.Equal(2, res.Documents.Count);
 
@@ -3313,7 +3737,8 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
         Point point = factory.CreatePoint(new Coordinate(10, 10));
         db.HashSet("point", "geom", point.ToString());
 
-        res = await ft.SearchAsync(index, new Query("@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
+        res = await ft.SearchAsync(index,
+            new Query("@geom:[within $poly]").AddParam("poly", within.ToString()).Dialect(3));
         Assert.Equal(2, res.TotalResults);
         Assert.Equal(2, res.Documents.Count);
     }
@@ -3322,18 +3747,22 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
     public void Issue230()
     {
         var request = new AggregationRequest("*", 3).Filter("@StatusId==1")
-                .GroupBy("@CreatedDay", Reducers.CountDistinct("@UserId"), Reducers.Count().As("count"));
+            .GroupBy("@CreatedDay", Reducers.CountDistinct("@UserId"), Reducers.Count().As("count"));
 
         var buildCommand = SearchCommandBuilder.Aggregate("idx:users", request);
         // expected: FT.AGGREGATE idx:users * FILTER @StatusId==1 GROUPBY 1 @CreatedDay REDUCE COUNT_DISTINCT 1 @UserId REDUCE COUNT 0 AS count DIALECT 3
         Assert.Equal("FT.AGGREGATE", buildCommand.Command);
-        Assert.Equal(new object[] { "idx:users", "*", "FILTER", "@StatusId==1", "GROUPBY", 1, "@CreatedDay", "REDUCE", "COUNT_DISTINCT", 1, "@UserId", "REDUCE", "COUNT", 0, "AS", "count", "DIALECT", 3 }, buildCommand.Args);
+        Assert.Equal([
+            "idx:users", "*", "FILTER", "@StatusId==1", "GROUPBY", 1, "@CreatedDay", "REDUCE", "COUNT_DISTINCT", 1,
+            "@UserId", "REDUCE", "COUNT", 0, "AS", "count", "DIALECT", 3
+        ], buildCommand.Args);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.3.240")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.3.240")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestNumericInDialect4(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
@@ -3342,21 +3771,22 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddNumericField("version");
 
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
-        Dictionary<string, object> fields4 = new Dictionary<string, object>
+        Dictionary<string, object> fields4 = new()
         {
             { "title", "hello world" },
             { "version", 123 }
         };
         AddDocument(db, "qux", fields4);
 
-        Assert.Equal(1, ft.Search(index, new Query("@version:[123 123]")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("@version:[123 123]")).TotalResults);
         Assert.Equal(1, ft.Search(index, new Query("@version:[123]").Dialect(4)).TotalResults);
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.3.240")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.3.240")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestNumericOperatorsInDialect4(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
@@ -3365,28 +3795,28 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddNumericField("version");
 
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
-        Dictionary<string, object> fields4 = new Dictionary<string, object>
+        Dictionary<string, object> fields4 = new()
         {
             { "title", "hello world" },
             { "version", 123 }
         };
         AddDocument(db, "qux", fields4);
 
-        Assert.Equal(1, ft.Search(index, new Query("@version:[123 123]")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("@version:[123 123]")).TotalResults);
         Assert.Equal(1, ft.Search(index, new Query("@version==123").Dialect(4)).TotalResults);
 
-        Assert.Equal(1, ft.Search(index, new Query("@version:[122 +inf]")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("@version:[122 +inf]")).TotalResults);
         Assert.Equal(1, ft.Search(index, new Query("@version>=122").Dialect(4)).TotalResults);
 
-        Assert.Equal(1, ft.Search(index, new Query("@version:[-inf 124]")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("@version:[-inf 124]")).TotalResults);
         Assert.Equal(1, ft.Search(index, new Query("@version<=124").Dialect(4)).TotalResults);
-
     }
 
-    [SkipIfRedis(Comparison.LessThan, "7.3.240")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [SkipIfRedisTheory(Comparison.LessThan, "7.3.240")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestNumericLogicalOperatorsInDialect4(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
@@ -3396,7 +3826,7 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
             .AddNumericField("id");
 
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
-        Dictionary<string, object> fields4 = new Dictionary<string, object>
+        Dictionary<string, object> fields4 = new()
         {
             { "title", "hello world" },
             { "version", 123 },
@@ -3406,62 +3836,105 @@ public class SearchTests : AbstractNRedisStackTest, IDisposable
 
         Assert.Equal(1, ft.Search(index, new Query("@version<=124").Dialect(4)).TotalResults);
 
-        Assert.Equal(1, ft.Search(index, new Query("@version:[123 123]")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("@version:[123 123]")).TotalResults);
         Assert.Equal(1, ft.Search(index, new Query("@version:[123] | @version:[124]").Dialect(4)).TotalResults);
 
-        Assert.Equal(1, ft.Search(index, new Query("@version:[123 123] | @version:[7890 7890]")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("@version:[123 123] | @version:[7890 7890]")).TotalResults);
         Assert.Equal(1, ft.Search(index, new Query("@version==123 | @version==7890").Dialect(4)).TotalResults);
 
-        Assert.Equal(1, ft.Search(index, new Query("@version:[123 123] | @id:[456 7890]")).TotalResults);
+        Assert.Equal(1, ft.Search(index, new("@version:[123 123] | @id:[456 7890]")).TotalResults);
         Assert.Equal(1, ft.Search(index, new Query("@version==123 @id==456").Dialect(4)).TotalResults);
     }
 
+    /// <summary>
+    /// this test is to check if the issue 352 is fixed
+    /// Load operation was failing because the document was not being dropped in search result due to this behaviour;
+    /// "If a relevant key expires while a query is running, an attempt to load the key's value will return a null array. 
+    /// However, the key is still counted in the total number of results."
+    /// https://redis.io/docs/latest/commands/ft.search/#:~:text=If%20a%20relevant%20key%20expires,the%20total%20number%20of%20results. 
+    /// </summary>
     [Fact]
     public void TestDocumentLoad_Issue352()
     {
-        Document d = Document.Load("1", 0.5, null, new RedisValue[] { RedisValue.Null });
+        Document d = Document.Load("1", 0.5, null, [RedisValue.Null]);
         Assert.Empty(d.GetProperties().ToList());
     }
 
+    /// <summary>
+    /// this test is to check if the issue 352 is fixed
+    /// Load operation was failing because the document was not being dropped in search result due to this behaviour;
+    /// "If a relevant key expires while a query is running, an attempt to load the key's value will return a null array. 
+    /// However, the key is still counted in the total number of results."
+    /// https://redis.io/docs/latest/commands/ft.search/#:~:text=If%20a%20relevant%20key%20expires,the%20total%20number%20of%20results. 
+    /// </summary>
     [SkippableTheory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
-    public void TestDocumentLoadWithDB_Issue352(string endpointId)
+    public async Task TestDocumentLoadWithDB_Issue352(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
 
-        Schema sc = new Schema().AddTextField("first", 1.0).AddTextField("last", 1.0).AddNumericField("age");
+        Schema sc = new Schema().AddTextField("firstText", 1.0).AddTextField("lastText", 1.0)
+            .AddNumericField("ageNumeric");
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
 
-        Document droppedDocument = null;
+        Document? droppedDocument = null;
         int numberOfAttempts = 0;
         do
         {
-            db.HashSet("student:1111", new HashEntry[] { new("first", "Joe"), new("last", "Dod"), new("age", 18) });
-
-            Assert.True(db.KeyExpire("student:1111", TimeSpan.FromMilliseconds(500)));
-
-            Boolean cancelled = false;
-            Task searchTask = Task.Run(() =>
+            // try until succesfully create the key and set the TTL
+            bool ttlRefreshed = false;
+            do
             {
-                for (int i = 0; i < 100000; i++)
+                db.HashSet("student:22222", [new("firstText", "Joe"), new("lastText", "Dod"), new("ageNumeric", 18)]);
+                ttlRefreshed = db.KeyExpire("student:22222", TimeSpan.FromMilliseconds(500));
+            } while (!ttlRefreshed);
+
+            Int32 completed = 0;
+
+            Action checker = () =>
+            {
+                for (int i = 0; i < 1000000; i++)
                 {
-                    SearchResult result = ft.Search(index, new Query());
+                    SearchResult result = ft.Search(index, new());
                     List<Document> docs = result.Documents;
-                    if (docs.Count == 0 || cancelled)
+
+                    // check if doc is already dropped before search and load;
+                    // if yes then its already late and we missed the window that 
+                    // doc would show up in search result with no fields 
+                    if (docs.Count == 0)
                     {
+                        Interlocked.Increment(ref completed);
                         break;
                     }
-                    else if (docs[0].GetProperties().ToList().Count == 0)
+                    // if we get a document with no fields then we know that the key 
+                    // is going to be expired while the query is running, and we are able to catch the state
+                    // but key itself might not be expired yet
+                    else if (docs[0].GetProperties().Count() == 0)
                     {
                         droppedDocument = docs[0];
                     }
                 }
-            });
-            Task.WhenAny(searchTask, Task.Delay(1000)).GetAwaiter().GetResult();
-            Assert.True(searchTask.IsCompleted);
-            Assert.Null(searchTask.Exception);
-            cancelled = true;
-        } while (droppedDocument == null && numberOfAttempts++ < 3);
+            };
+
+            List<Task> tasks = [];
+            // try with 3 different tasks simultaneously to increase the chance of hitting it
+            for (int i = 0; i < 3; i++)
+            {
+                tasks.Add(Task.Run(checker));
+            }
+
+            Task checkTask = Task.WhenAll(tasks);
+            await Task.WhenAny(checkTask, Task.Delay(1000));
+            var keyTtl = db.KeyTimeToLive("student:22222");
+            Assert.Equal(0, keyTtl.HasValue ? keyTtl.Value.Milliseconds : 0);
+            Assert.Equal(3, completed);
+        } while (droppedDocument == null && numberOfAttempts++ < 5);
+        // we won't do an actual assert here since 
+        // it is not guaranteed that window stays open wide enough to catch it.
+        // instead we attempt 5 times.
+        // Without fix for Issue352, document load in this case fails %100 with my local test runs,, and %100 success with fixed version.
+        // The results in pipeline should be the same.
     }
 }

@@ -8,14 +8,10 @@ using NRedisStack.RedisStackCommands;
 
 namespace NRedisStack.Tests.Core;
 
-public class CoreTests : AbstractNRedisStackTest, IDisposable
+public class CoreTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
 {
-    public CoreTests(EndpointsFixture endpointsFixture) : base(endpointsFixture)
-    {
-    }
-
     // TODO: understand why this test fails on enterprise
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.1.242")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestSimpleSetInfo(string endpointId)
     {
@@ -28,7 +24,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Contains($"lib-name=TestLibraryName lib-ver=1.2.3", info);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.1.242")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestSimpleSetInfoAsync(string endpointId)
     {
@@ -41,7 +37,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Contains($"lib-name=TestLibraryName lib-ver=1.2.3", info);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.1.242")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestSetInfoDefaultValue(string endpointId)
     {
@@ -54,7 +50,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Contains($"lib-name=NRedisStack(.NET_v{Environment.Version}) lib-ver={GetNRedisStackVersion()}", info);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.1.242")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestSetInfoDefaultValueAsync(string endpointId)
     {
@@ -67,7 +63,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Contains($"lib-name=NRedisStack(.NET_v{Environment.Version}) lib-ver={GetNRedisStackVersion()}", info);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.1.242")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestSetInfoWithValue(string endpointId)
     {
@@ -80,7 +76,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Contains($"NRedisStack(MyLibraryName;v1.0.0;.NET_v{Environment.Version}) lib-ver={GetNRedisStackVersion()}", info);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.1.242")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestSetInfoWithValueAsync(string endpointId)
     {
@@ -93,7 +89,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Contains($"NRedisStack(MyLibraryName;v1.0.0;.NET_v{Environment.Version}) lib-ver={GetNRedisStackVersion()}", info);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.1.242")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestSetInfoNull(string endpointId)
     {
@@ -105,18 +101,23 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
 
         var infoAfter = db.Execute("CLIENT", "INFO").ToString();
         // Find the indices of "lib-name=" in the strings
-        int infoAfterLibNameIndex = infoAfter!.IndexOf("lib-name=");
-        int infoBeforeLibNameIndex = infoBefore!.IndexOf("lib-name=");
+        int infoAfterLibNameIndex = infoAfter.IndexOf("lib-name=");
+        int infoBeforeLibNameIndex = infoBefore.IndexOf("lib-name=");
+
+        int infoAfterLibVerIndex = infoAfter.IndexOf(" ", infoAfter!.IndexOf("lib-ver="));
+        infoAfterLibVerIndex = infoAfterLibVerIndex == -1 ? infoAfter.Length : infoAfterLibVerIndex;
+        int infoBeforeLibVerIndex = infoBefore!.IndexOf(" ", infoBefore!.IndexOf("lib-ver="));
+        infoBeforeLibVerIndex = infoBeforeLibVerIndex == -1 ? infoBefore.Length : infoBeforeLibVerIndex;
 
         // Extract the sub-strings starting from "lib-name="
-        string infoAfterLibNameToEnd = infoAfter.Substring(infoAfterLibNameIndex);
-        string infoBeforeLibNameToEnd = infoBefore.Substring(infoBeforeLibNameIndex);
+        string infoAfterLibNameToEnd = infoAfter.Substring(infoAfterLibNameIndex, infoAfterLibVerIndex - infoAfterLibNameIndex);
+        string infoBeforeLibNameToEnd = infoBefore.Substring(infoBeforeLibNameIndex, infoBeforeLibVerIndex - infoBeforeLibNameIndex);
 
         // Assert that the extracted sub-strings are equal
         Assert.Equal(infoAfterLibNameToEnd, infoBeforeLibNameToEnd);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.1.242")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestSetInfoNullAsync(string endpointId)
     {
@@ -128,18 +129,23 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
 
         var infoAfter = (await db.ExecuteAsync("CLIENT", "INFO")).ToString();
         // Find the indices of "lib-name=" in the strings
-        int infoAfterLibNameIndex = infoAfter!.IndexOf("lib-name=");
-        int infoBeforeLibNameIndex = infoBefore!.IndexOf("lib-name=");
+        int infoAfterLibNameIndex = infoAfter.IndexOf("lib-name=");
+        int infoBeforeLibNameIndex = infoBefore.IndexOf("lib-name=");
+
+        int infoAfterLibVerIndex = infoAfter.IndexOf(" ", infoAfter!.IndexOf("lib-ver="));
+        infoAfterLibVerIndex = infoAfterLibVerIndex == -1 ? infoAfter.Length : infoAfterLibVerIndex;
+        int infoBeforeLibVerIndex = infoBefore.IndexOf(" ", infoBefore!.IndexOf("lib-ver="));
+        infoBeforeLibVerIndex = infoBeforeLibVerIndex == -1 ? infoBefore.Length : infoBeforeLibVerIndex;
 
         // Extract the sub-strings starting from "lib-name="
-        string infoAfterLibNameToEnd = infoAfter.Substring(infoAfterLibNameIndex);
-        string infoBeforeLibNameToEnd = infoBefore.Substring(infoBeforeLibNameIndex);
+        string infoAfterLibNameToEnd = infoAfter.Substring(infoAfterLibNameIndex, infoAfterLibVerIndex - infoAfterLibNameIndex);
+        string infoBeforeLibNameToEnd = infoBefore.Substring(infoBeforeLibNameIndex, infoBeforeLibVerIndex - infoBeforeLibNameIndex);
 
         // Assert that the extracted sub-strings are equal
         Assert.Equal(infoAfterLibNameToEnd, infoBeforeLibNameToEnd);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestBZMPop(string endpointId)
     {
@@ -157,7 +163,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         var resultWithDefaultOrder = db.BZMPop(0, sortedSetKey, MinMaxModifier.Min, 2);
 
         Assert.NotNull(resultWithDefaultOrder);
-        Assert.Equal(sortedSetKey, resultWithDefaultOrder!.Item1);
+        Assert.Equal(sortedSetKey, resultWithDefaultOrder.Item1);
         Assert.Equal(2, resultWithDefaultOrder.Item2.Count);
         Assert.Equal("a", resultWithDefaultOrder.Item2[0].Value.ToString());
         Assert.Equal("c", resultWithDefaultOrder.Item2[1].Value.ToString());
@@ -166,12 +172,12 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         var resultWithDescendingOrder = db.BZMPop(0, sortedSetKey, MinMaxModifier.Max, 1);
 
         Assert.NotNull(resultWithDescendingOrder);
-        Assert.Equal(sortedSetKey, resultWithDescendingOrder!.Item1);
+        Assert.Equal(sortedSetKey, resultWithDescendingOrder.Item1);
         Assert.Single(resultWithDescendingOrder.Item2);
         Assert.Equal("d", resultWithDescendingOrder.Item2[0].Value.ToString());
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestBZMPopAsync(string endpointId)
     {
@@ -189,7 +195,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         var resultWithDefaultOrder = await db.BZMPopAsync(0, sortedSetKey, MinMaxModifier.Min, 2);
 
         Assert.NotNull(resultWithDefaultOrder);
-        Assert.Equal(sortedSetKey, resultWithDefaultOrder!.Item1);
+        Assert.Equal(sortedSetKey, resultWithDefaultOrder.Item1);
         Assert.Equal(2, resultWithDefaultOrder.Item2.Count);
         Assert.Equal("a", resultWithDefaultOrder.Item2[0].Value.ToString());
         Assert.Equal("c", resultWithDefaultOrder.Item2[1].Value.ToString());
@@ -198,12 +204,12 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         var resultWithDescendingOrder = await db.BZMPopAsync(0, sortedSetKey, MinMaxModifier.Max, 1);
 
         Assert.NotNull(resultWithDescendingOrder);
-        Assert.Equal(sortedSetKey, resultWithDescendingOrder!.Item1);
+        Assert.Equal(sortedSetKey, resultWithDescendingOrder.Item1);
         Assert.Single(resultWithDescendingOrder.Item2);
         Assert.Equal("d", resultWithDescendingOrder.Item2[0].Value.ToString());
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestBZMPopNull(string endpointId)
     {
@@ -215,7 +221,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestBZMPopNullAsync(string endpointId)
     {
@@ -227,7 +233,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestBZMPopMultiplexerTimeout(string endpointId)
     {
@@ -243,7 +249,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Throws<RedisTimeoutException>(() => db.BZMPop(0, "my-set", MinMaxModifier.Min));
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestBZMPopMultiplexerTimeoutAsync(string endpointId)
     {
@@ -259,7 +265,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         await Assert.ThrowsAsync<RedisTimeoutException>(async () => await db.BZMPopAsync(0, "my-set", MinMaxModifier.Min));
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestBZMPopMultipleSets(string endpointId)
     {
@@ -274,34 +280,34 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         var result = db.BZMPop(0, "set-two", MinMaxModifier.Max);
 
         Assert.NotNull(result);
-        Assert.Equal("set-two", result!.Item1);
+        Assert.Equal("set-two", result.Item1);
         Assert.Single(result.Item2);
         Assert.Equal("d", result.Item2[0].Value.ToString());
 
-        result = db.BZMPop(0, new[] { new RedisKey("set-two"), new RedisKey("set-one") }, MinMaxModifier.Min);
+        result = db.BZMPop(0, [new("set-two"), new("set-one")], MinMaxModifier.Min);
 
         Assert.NotNull(result);
-        Assert.Equal("set-two", result!.Item1);
+        Assert.Equal("set-two", result.Item1);
         Assert.Single(result.Item2);
         Assert.Equal("e", result.Item2[0].Value.ToString());
 
-        result = db.BZMPop(0, new[] { new RedisKey("set-two"), new RedisKey("set-one") }, MinMaxModifier.Max);
+        result = db.BZMPop(0, [new("set-two"), new("set-one")], MinMaxModifier.Max);
 
         Assert.NotNull(result);
-        Assert.Equal("set-one", result!.Item1);
+        Assert.Equal("set-one", result.Item1);
         Assert.Single(result.Item2);
         Assert.Equal("b", result.Item2[0].Value.ToString());
 
         result = db.BZMPop(0, "set-one", MinMaxModifier.Min, count: 2);
 
         Assert.NotNull(result);
-        Assert.Equal("set-one", result!.Item1);
+        Assert.Equal("set-one", result.Item1);
         Assert.Equal(2, result.Item2.Count);
         Assert.Equal("a", result.Item2[0].Value.ToString());
         Assert.Equal("c", result.Item2[1].Value.ToString());
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestBZMPopMultipleSetsAsync(string endpointId)
     {
@@ -316,43 +322,43 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         var result = await db.BZMPopAsync(0, "set-two", MinMaxModifier.Max);
 
         Assert.NotNull(result);
-        Assert.Equal("set-two", result!.Item1);
+        Assert.Equal("set-two", result.Item1);
         Assert.Single(result.Item2);
         Assert.Equal("d", result.Item2[0].Value.ToString());
 
-        result = await db.BZMPopAsync(0, new[] { new RedisKey("set-two"), new RedisKey("set-one") }, MinMaxModifier.Min);
+        result = await db.BZMPopAsync(0, [new("set-two"), new("set-one")], MinMaxModifier.Min);
 
         Assert.NotNull(result);
-        Assert.Equal("set-two", result!.Item1);
+        Assert.Equal("set-two", result.Item1);
         Assert.Single(result.Item2);
         Assert.Equal("e", result.Item2[0].Value.ToString());
 
-        result = await db.BZMPopAsync(0, new[] { new RedisKey("set-two"), new RedisKey("set-one") }, MinMaxModifier.Max);
+        result = await db.BZMPopAsync(0, [new("set-two"), new("set-one")], MinMaxModifier.Max);
 
         Assert.NotNull(result);
-        Assert.Equal("set-one", result!.Item1);
+        Assert.Equal("set-one", result.Item1);
         Assert.Single(result.Item2);
         Assert.Equal("b", result.Item2[0].Value.ToString());
 
         result = await db.BZMPopAsync(0, "set-one", MinMaxModifier.Min, count: 2);
 
         Assert.NotNull(result);
-        Assert.Equal("set-one", result!.Item1);
+        Assert.Equal("set-one", result.Item1);
         Assert.Equal(2, result.Item2.Count);
         Assert.Equal("a", result.Item2[0].Value.ToString());
         Assert.Equal("c", result.Item2[1].Value.ToString());
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestBZMPopNoKeysProvided(string endpointId)
     {
         var db = GetCleanDatabase(endpointId);
 
-        Assert.Throws<ArgumentException>(() => db.BZMPop(0, Array.Empty<RedisKey>(), MinMaxModifier.Min));
+        Assert.Throws<ArgumentException>(() => db.BZMPop(0, [], MinMaxModifier.Min));
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestBZMPopWithOrderEnum(string endpointId)
     {
@@ -368,7 +374,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         var resultWithDefaultOrder = db.BZMPop(0, sortedSetKey, Order.Ascending.ToMinMax());
 
         Assert.NotNull(resultWithDefaultOrder);
-        Assert.Equal(sortedSetKey, resultWithDefaultOrder!.Item1);
+        Assert.Equal(sortedSetKey, resultWithDefaultOrder.Item1);
         Assert.Single(resultWithDefaultOrder.Item2);
         Assert.Equal("a", resultWithDefaultOrder.Item2[0].Value.ToString());
 
@@ -376,12 +382,12 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         var resultWithDescendingOrder = db.BZMPop(0, sortedSetKey, Order.Descending.ToMinMax());
 
         Assert.NotNull(resultWithDescendingOrder);
-        Assert.Equal(sortedSetKey, resultWithDescendingOrder!.Item1);
+        Assert.Equal(sortedSetKey, resultWithDescendingOrder.Item1);
         Assert.Single(resultWithDescendingOrder.Item2);
         Assert.Equal("b", resultWithDescendingOrder.Item2[0].Value.ToString());
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestBZPopMin(string endpointId)
     {
@@ -395,12 +401,12 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         var result = db.BZPopMin(sortedSetKey, 0);
 
         Assert.NotNull(result);
-        Assert.Equal(sortedSetKey, result!.Item1);
+        Assert.Equal(sortedSetKey, result.Item1);
         Assert.Equal("a", result.Item2.Value.ToString());
         Assert.Equal(1.5, result.Item2.Score);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestBZPopMinAsync(string endpointId)
     {
@@ -414,12 +420,12 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         var result = await db.BZPopMinAsync(sortedSetKey, 0);
 
         Assert.NotNull(result);
-        Assert.Equal(sortedSetKey, result!.Item1);
+        Assert.Equal(sortedSetKey, result.Item1);
         Assert.Equal("a", result.Item2.Value.ToString());
         Assert.Equal(1.5, result.Item2.Score);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestBZPopMinNull(string endpointId)
     {
@@ -431,7 +437,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestBZPopMinNullAsync(string endpointId)
     {
@@ -443,7 +449,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestBZPopMinMultipleSets(string endpointId)
     {
@@ -453,20 +459,20 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.SortedSetAdd("set-one", "b", 5.1);
         db.SortedSetAdd("set-two", "e", 7.76);
 
-        var result = db.BZPopMin(new[] { new RedisKey("set-two"), new RedisKey("set-one") }, 0);
+        var result = db.BZPopMin([new("set-two"), new("set-one")], 0);
 
         Assert.NotNull(result);
-        Assert.Equal("set-two", result!.Item1);
+        Assert.Equal("set-two", result.Item1);
         Assert.Equal("e", result.Item2.Value.ToString());
 
-        result = db.BZPopMin(new[] { new RedisKey("set-two"), new RedisKey("set-one") }, 0);
+        result = db.BZPopMin([new("set-two"), new("set-one")], 0);
 
         Assert.NotNull(result);
-        Assert.Equal("set-one", result!.Item1);
+        Assert.Equal("set-one", result.Item1);
         Assert.Equal("a", result.Item2.Value.ToString());
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestBZPopMinMultipleSetsAsync(string endpointId)
     {
@@ -476,20 +482,20 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.SortedSetAdd("set-one", "b", 5.1);
         db.SortedSetAdd("set-two", "e", 7.76);
 
-        var result = await db.BZPopMinAsync(new[] { new RedisKey("set-two"), new RedisKey("set-one") }, 0);
+        var result = await db.BZPopMinAsync([new("set-two"), new("set-one")], 0);
 
         Assert.NotNull(result);
-        Assert.Equal("set-two", result!.Item1);
+        Assert.Equal("set-two", result.Item1);
         Assert.Equal("e", result.Item2.Value.ToString());
 
-        result = await db.BZPopMinAsync(new[] { new RedisKey("set-two"), new RedisKey("set-one") }, 0);
+        result = await db.BZPopMinAsync([new("set-two"), new("set-one")], 0);
 
         Assert.NotNull(result);
-        Assert.Equal("set-one", result!.Item1);
+        Assert.Equal("set-one", result.Item1);
         Assert.Equal("a", result.Item2.Value.ToString());
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestBZPopMax(string endpointId)
     {
@@ -503,12 +509,12 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         var result = db.BZPopMax(sortedSetKey, 0);
 
         Assert.NotNull(result);
-        Assert.Equal(sortedSetKey, result!.Item1);
+        Assert.Equal(sortedSetKey, result.Item1);
         Assert.Equal("b", result.Item2.Value.ToString());
         Assert.Equal(5.1, result.Item2.Score);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestBZPopMaxAsync(string endpointId)
     {
@@ -522,12 +528,12 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         var result = await db.BZPopMaxAsync(sortedSetKey, 0);
 
         Assert.NotNull(result);
-        Assert.Equal(sortedSetKey, result!.Item1);
+        Assert.Equal(sortedSetKey, result.Item1);
         Assert.Equal("b", result.Item2.Value.ToString());
         Assert.Equal(5.1, result.Item2.Score);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestBZPopMaxNull(string endpointId)
     {
@@ -539,7 +545,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestBZPopMaxNullAsync(string endpointId)
     {
@@ -551,7 +557,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestBZPopMaxMultipleSets(string endpointId)
     {
@@ -561,20 +567,20 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.SortedSetAdd("set-one", "b", 5.1);
         db.SortedSetAdd("set-two", "e", 7.76);
 
-        var result = db.BZPopMax(new[] { new RedisKey("set-two"), new RedisKey("set-one") }, 0);
+        var result = db.BZPopMax([new("set-two"), new("set-one")], 0);
 
         Assert.NotNull(result);
-        Assert.Equal("set-two", result!.Item1);
+        Assert.Equal("set-two", result.Item1);
         Assert.Equal("e", result.Item2.Value.ToString());
 
-        result = db.BZPopMax(new[] { new RedisKey("set-two"), new RedisKey("set-one") }, 0);
+        result = db.BZPopMax([new("set-two"), new("set-one")], 0);
 
         Assert.NotNull(result);
-        Assert.Equal("set-one", result!.Item1);
+        Assert.Equal("set-one", result.Item1);
         Assert.Equal("b", result.Item2.Value.ToString());
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestBZPopMaxMultipleSetsAsync(string endpointId)
     {
@@ -584,20 +590,20 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.SortedSetAdd("set-one", "b", 5.1);
         db.SortedSetAdd("set-two", "e", 7.76);
 
-        var result = await db.BZPopMaxAsync(new[] { new RedisKey("set-two"), new RedisKey("set-one") }, 0);
+        var result = await db.BZPopMaxAsync([new("set-two"), new("set-one")], 0);
 
         Assert.NotNull(result);
-        Assert.Equal("set-two", result!.Item1);
+        Assert.Equal("set-two", result.Item1);
         Assert.Equal("e", result.Item2.Value.ToString());
 
-        result = await db.BZPopMaxAsync(new[] { new RedisKey("set-two"), new RedisKey("set-one") }, 0);
+        result = await db.BZPopMaxAsync([new("set-two"), new("set-one")], 0);
 
         Assert.NotNull(result);
-        Assert.Equal("set-one", result!.Item1);
+        Assert.Equal("set-one", result.Item1);
         Assert.Equal("b", result.Item2.Value.ToString());
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestBLMPop(string endpointId)
     {
@@ -613,7 +619,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         var resultWithDefaultOrder = db.BLMPop(0, "my-list", ListSide.Left, 2);
 
         Assert.NotNull(resultWithDefaultOrder);
-        Assert.Equal("my-list", resultWithDefaultOrder!.Item1);
+        Assert.Equal("my-list", resultWithDefaultOrder.Item1);
         Assert.Equal(2, resultWithDefaultOrder.Item2.Count);
         Assert.Equal("a", resultWithDefaultOrder.Item2[0].ToString());
         Assert.Equal("b", resultWithDefaultOrder.Item2[1].ToString());
@@ -622,12 +628,12 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         var resultWithDescendingOrder = db.BLMPop(0, "my-list", ListSide.Right, 1);
 
         Assert.NotNull(resultWithDescendingOrder);
-        Assert.Equal("my-list", resultWithDescendingOrder!.Item1);
+        Assert.Equal("my-list", resultWithDescendingOrder.Item1);
         Assert.Single(resultWithDescendingOrder.Item2);
         Assert.Equal("e", resultWithDescendingOrder.Item2[0].ToString());
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestBLMPopAsync(string endpointId)
     {
@@ -643,7 +649,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         var resultWithDefaultOrder = await db.BLMPopAsync(0, "my-list", ListSide.Left, 2);
 
         Assert.NotNull(resultWithDefaultOrder);
-        Assert.Equal("my-list", resultWithDefaultOrder!.Item1);
+        Assert.Equal("my-list", resultWithDefaultOrder.Item1);
         Assert.Equal(2, resultWithDefaultOrder.Item2.Count);
         Assert.Equal("a", resultWithDefaultOrder.Item2[0].ToString());
         Assert.Equal("b", resultWithDefaultOrder.Item2[1].ToString());
@@ -652,12 +658,12 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         var resultWithDescendingOrder = await db.BLMPopAsync(0, "my-list", ListSide.Right, 1);
 
         Assert.NotNull(resultWithDescendingOrder);
-        Assert.Equal("my-list", resultWithDescendingOrder!.Item1);
+        Assert.Equal("my-list", resultWithDescendingOrder.Item1);
         Assert.Single(resultWithDescendingOrder.Item2);
         Assert.Equal("e", resultWithDescendingOrder.Item2[0].ToString());
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestBLMPopNull(string endpointId)
     {
@@ -669,7 +675,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestBLMPopNullAsync(string endpointId)
     {
@@ -681,7 +687,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestBLMPopMultipleLists(string endpointId)
     {
@@ -696,34 +702,34 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         var result = db.BLMPop(0, "list-two", ListSide.Right);
 
         Assert.NotNull(result);
-        Assert.Equal("list-two", result!.Item1);
+        Assert.Equal("list-two", result.Item1);
         Assert.Single(result.Item2);
         Assert.Equal("e", result.Item2[0].ToString());
 
-        result = db.BLMPop(0, new[] { new RedisKey("list-two"), new RedisKey("list-one") }, ListSide.Left);
+        result = db.BLMPop(0, [new("list-two"), new("list-one")], ListSide.Left);
 
         Assert.NotNull(result);
-        Assert.Equal("list-two", result!.Item1);
+        Assert.Equal("list-two", result.Item1);
         Assert.Single(result.Item2);
         Assert.Equal("d", result.Item2[0].ToString());
 
-        result = db.BLMPop(0, new[] { new RedisKey("list-two"), new RedisKey("list-one") }, ListSide.Right);
+        result = db.BLMPop(0, [new("list-two"), new("list-one")], ListSide.Right);
 
         Assert.NotNull(result);
-        Assert.Equal("list-one", result!.Item1);
+        Assert.Equal("list-one", result.Item1);
         Assert.Single(result.Item2);
         Assert.Equal("c", result.Item2[0].ToString());
 
         result = db.BLMPop(0, "list-one", ListSide.Left, count: 2);
 
         Assert.NotNull(result);
-        Assert.Equal("list-one", result!.Item1);
+        Assert.Equal("list-one", result.Item1);
         Assert.Equal(2, result.Item2.Count);
         Assert.Equal("a", result.Item2[0].ToString());
         Assert.Equal("b", result.Item2[1].ToString());
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestBLMPopMultipleListsAsync(string endpointId)
     {
@@ -738,43 +744,43 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         var result = await db.BLMPopAsync(0, "list-two", ListSide.Right);
 
         Assert.NotNull(result);
-        Assert.Equal("list-two", result!.Item1);
+        Assert.Equal("list-two", result.Item1);
         Assert.Single(result.Item2);
         Assert.Equal("e", result.Item2[0].ToString());
 
-        result = await db.BLMPopAsync(0, new[] { new RedisKey("list-two"), new RedisKey("list-one") }, ListSide.Left);
+        result = await db.BLMPopAsync(0, [new("list-two"), new("list-one")], ListSide.Left);
 
         Assert.NotNull(result);
-        Assert.Equal("list-two", result!.Item1);
+        Assert.Equal("list-two", result.Item1);
         Assert.Single(result.Item2);
         Assert.Equal("d", result.Item2[0].ToString());
 
-        result = await db.BLMPopAsync(0, new[] { new RedisKey("list-two"), new RedisKey("list-one") }, ListSide.Right);
+        result = await db.BLMPopAsync(0, [new("list-two"), new("list-one")], ListSide.Right);
 
         Assert.NotNull(result);
-        Assert.Equal("list-one", result!.Item1);
+        Assert.Equal("list-one", result.Item1);
         Assert.Single(result.Item2);
         Assert.Equal("c", result.Item2[0].ToString());
 
         result = await db.BLMPopAsync(0, "list-one", ListSide.Left, count: 2);
 
         Assert.NotNull(result);
-        Assert.Equal("list-one", result!.Item1);
+        Assert.Equal("list-one", result.Item1);
         Assert.Equal(2, result.Item2.Count);
         Assert.Equal("a", result.Item2[0].ToString());
         Assert.Equal("b", result.Item2[1].ToString());
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "7.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestBLMPopNoKeysProvided(string endpointId)
     {
         var db = GetCleanDatabase(endpointId);
 
-        Assert.Throws<ArgumentException>(() => db.BLMPop(0, Array.Empty<RedisKey>(), ListSide.Left));
+        Assert.Throws<ArgumentException>(() => db.BLMPop(0, [], ListSide.Left));
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "2.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "2.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestBLPop(string endpointId)
     {
@@ -786,11 +792,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         var result = db.BLPop("my-list", 0);
 
         Assert.NotNull(result);
-        Assert.Equal("my-list", result!.Item1);
+        Assert.Equal("my-list", result.Item1);
         Assert.Equal("a", result.Item2.ToString());
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "2.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "2.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestBLPopAsync(string endpointId)
     {
@@ -802,11 +808,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         var result = await db.BLPopAsync("my-list", 0);
 
         Assert.NotNull(result);
-        Assert.Equal("my-list", result!.Item1);
+        Assert.Equal("my-list", result.Item1);
         Assert.Equal("a", result.Item2.ToString());
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "2.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "2.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestBLPopNull(string endpointId)
     {
@@ -818,7 +824,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "2.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "2.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestBLPopNullAsync(string endpointId)
     {
@@ -830,7 +836,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "2.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "2.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestBLPopMultipleLists(string endpointId)
     {
@@ -840,20 +846,20 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.ListRightPush("list-one", "b");
         db.ListRightPush("list-two", "e");
 
-        var result = db.BLPop(new[] { new RedisKey("list-two"), new RedisKey("list-one") }, 0);
+        var result = db.BLPop([new("list-two"), new("list-one")], 0);
 
         Assert.NotNull(result);
-        Assert.Equal("list-two", result!.Item1);
+        Assert.Equal("list-two", result.Item1);
         Assert.Equal("e", result.Item2.ToString());
 
-        result = db.BLPop(new[] { new RedisKey("list-two"), new RedisKey("list-one") }, 0);
+        result = db.BLPop([new("list-two"), new("list-one")], 0);
 
         Assert.NotNull(result);
-        Assert.Equal("list-one", result!.Item1);
+        Assert.Equal("list-one", result.Item1);
         Assert.Equal("a", result.Item2.ToString());
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "2.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "2.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestBLPopMultipleListsAsync(string endpointId)
     {
@@ -863,20 +869,20 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.ListRightPush("list-one", "b");
         db.ListRightPush("list-two", "e");
 
-        var result = await db.BLPopAsync(new[] { new RedisKey("list-two"), new RedisKey("list-one") }, 0);
+        var result = await db.BLPopAsync([new("list-two"), new("list-one")], 0);
 
         Assert.NotNull(result);
-        Assert.Equal("list-two", result!.Item1);
+        Assert.Equal("list-two", result.Item1);
         Assert.Equal("e", result.Item2.ToString());
 
-        result = await db.BLPopAsync(new[] { new RedisKey("list-two"), new RedisKey("list-one") }, 0);
+        result = await db.BLPopAsync([new("list-two"), new("list-one")], 0);
 
         Assert.NotNull(result);
-        Assert.Equal("list-one", result!.Item1);
+        Assert.Equal("list-one", result.Item1);
         Assert.Equal("a", result.Item2.ToString());
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "2.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "2.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestBRPop(string endpointId)
     {
@@ -888,11 +894,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         var result = db.BRPop("my-list", 0);
 
         Assert.NotNull(result);
-        Assert.Equal("my-list", result!.Item1);
+        Assert.Equal("my-list", result.Item1);
         Assert.Equal("b", result.Item2.ToString());
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "2.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "2.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestBRPopAsync(string endpointId)
     {
@@ -904,11 +910,11 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         var result = await db.BRPopAsync("my-list", 0);
 
         Assert.NotNull(result);
-        Assert.Equal("my-list", result!.Item1);
+        Assert.Equal("my-list", result.Item1);
         Assert.Equal("b", result.Item2.ToString());
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "2.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "2.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestBRPopNull(string endpointId)
     {
@@ -920,7 +926,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "2.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "2.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestBRPopNullAsync(string endpointId)
     {
@@ -932,7 +938,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "2.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "2.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestBRPopMultipleLists(string endpointId)
     {
@@ -942,20 +948,20 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.ListRightPush("list-one", "b");
         db.ListRightPush("list-two", "e");
 
-        var result = db.BRPop(new[] { new RedisKey("list-two"), new RedisKey("list-one") }, 0);
+        var result = db.BRPop([new("list-two"), new("list-one")], 0);
 
         Assert.NotNull(result);
-        Assert.Equal("list-two", result!.Item1);
+        Assert.Equal("list-two", result.Item1);
         Assert.Equal("e", result.Item2.ToString());
 
-        result = db.BRPop(new[] { new RedisKey("list-two"), new RedisKey("list-one") }, 0);
+        result = db.BRPop([new("list-two"), new("list-one")], 0);
 
         Assert.NotNull(result);
-        Assert.Equal("list-one", result!.Item1);
+        Assert.Equal("list-one", result.Item1);
         Assert.Equal("b", result.Item2.ToString());
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "2.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "2.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestBRPopMultipleListsAsync(string endpointId)
     {
@@ -965,20 +971,20 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.ListRightPush("list-one", "b");
         db.ListRightPush("list-two", "e");
 
-        var result = await db.BRPopAsync(new[] { new RedisKey("list-two"), new RedisKey("list-one") }, 0);
+        var result = await db.BRPopAsync([new("list-two"), new("list-one")], 0);
 
         Assert.NotNull(result);
-        Assert.Equal("list-two", result!.Item1);
+        Assert.Equal("list-two", result.Item1);
         Assert.Equal("e", result.Item2.ToString());
 
-        result = await db.BRPopAsync(new[] { new RedisKey("list-two"), new RedisKey("list-one") }, 0);
+        result = await db.BRPopAsync([new("list-two"), new("list-one")], 0);
 
         Assert.NotNull(result);
-        Assert.Equal("list-one", result!.Item1);
+        Assert.Equal("list-one", result.Item1);
         Assert.Equal("b", result.Item2.ToString());
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "6.2.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "6.2.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestBLMove(string endpointId)
     {
@@ -1035,7 +1041,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("c", db.ListGetByIndex("list-two", 1));
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "6.2.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "6.2.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestBLMoveAsync(string endpointId)
     {
@@ -1092,7 +1098,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("c", db.ListGetByIndex("list-two", 1));
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "2.2.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "2.2.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestBRPopLPush(string endpointId)
     {
@@ -1113,7 +1119,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("b", db.ListLeftPop("list-two"));
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "2.2.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "2.2.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestBRPopLPushAsync(string endpointId)
     {
@@ -1134,7 +1140,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal("b", db.ListLeftPop("list-two"));
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestXRead(string endpointId)
     {
@@ -1149,7 +1155,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(result);
         Assert.Single(result);
 
-        StreamEntry streamEntry = result![0];
+        StreamEntry streamEntry = result[0];
         var lastKey = streamEntry.Id;
         Assert.Single(streamEntry.Values);
         Assert.Equal("a", streamEntry.Values[0].Name);
@@ -1160,13 +1166,13 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(result);
         Assert.Single(result);
 
-        streamEntry = result![0];
+        streamEntry = result[0];
         Assert.Single(streamEntry.Values);
         Assert.Equal("b", streamEntry.Values[0].Name);
         Assert.Equal(7, streamEntry.Values[0].Value);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestXReadAsync(string endpointId)
     {
@@ -1181,7 +1187,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(result);
         Assert.Single(result);
 
-        StreamEntry streamEntry = result![0];
+        StreamEntry streamEntry = result[0];
         var lastKey = streamEntry.Id;
         Assert.Single(streamEntry.Values);
         Assert.Equal("a", streamEntry.Values[0].Name);
@@ -1192,13 +1198,13 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(result);
         Assert.Single(result);
 
-        streamEntry = result![0];
+        streamEntry = result[0];
         Assert.Single(streamEntry.Values);
         Assert.Equal("b", streamEntry.Values[0].Name);
         Assert.Equal(7, streamEntry.Values[0].Value);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestXReadMultipleStreams(string endpointId)
     {
@@ -1209,46 +1215,46 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.StreamAdd("stream-two", "c", "foo");
         db.StreamAdd("stream-two", "d", "bar");
 
-        var result = db.XRead(new RedisKey[] { "stream-one", "stream-two" },
-            new RedisValue[] { StreamSpecialIds.AllMessagesId, StreamSpecialIds.AllMessagesId },
+        var result = db.XRead(["stream-one", "stream-two"],
+            [StreamSpecialIds.AllMessagesId, StreamSpecialIds.AllMessagesId],
             count: 1, timeoutMilliseconds: 1000);
 
         Assert.NotNull(result);
-        Assert.Equal(2, result!.Length);
+        Assert.Equal(2, result.Length);
 
-        Assert.Equal("stream-one", result![0].Key);
-        Assert.Single(result![0].Entries);
-        var lastKeyOne = result![0].Entries[0].Id;
-        Assert.Single(result![0].Entries[0].Values);
-        Assert.Equal("a", result![0].Entries[0].Values[0].Name);
-        Assert.Equal(1, result![0].Entries[0].Values[0].Value);
+        Assert.Equal("stream-one", result[0].Key);
+        Assert.Single(result[0].Entries);
+        var lastKeyOne = result[0].Entries[0].Id;
+        Assert.Single(result[0].Entries[0].Values);
+        Assert.Equal("a", result[0].Entries[0].Values[0].Name);
+        Assert.Equal(1, result[0].Entries[0].Values[0].Value);
 
-        Assert.Equal("stream-two", result![1].Key);
-        Assert.Single(result![1].Entries);
-        var lastKeyTwo = result![1].Entries[0].Id;
-        Assert.Single(result![1].Entries[0].Values);
-        Assert.Equal("c", result![1].Entries[0].Values[0].Name);
-        Assert.Equal("foo", result![1].Entries[0].Values[0].Value);
+        Assert.Equal("stream-two", result[1].Key);
+        Assert.Single(result[1].Entries);
+        var lastKeyTwo = result[1].Entries[0].Id;
+        Assert.Single(result[1].Entries[0].Values);
+        Assert.Equal("c", result[1].Entries[0].Values[0].Name);
+        Assert.Equal("foo", result[1].Entries[0].Values[0].Value);
 
-        result = db.XRead(new RedisKey[] { "stream-one", "stream-two" },
-            new RedisValue[] { lastKeyOne, lastKeyTwo },
+        result = db.XRead(["stream-one", "stream-two"],
+            [lastKeyOne, lastKeyTwo],
             count: 1, timeoutMilliseconds: 1000);
 
         Assert.NotNull(result);
-        Assert.Equal(2, result!.Length);
+        Assert.Equal(2, result.Length);
 
-        Assert.Single(result![0].Entries);
-        Assert.Single(result![0].Entries[0].Values);
-        Assert.Equal("b", result![0].Entries[0].Values[0].Name);
-        Assert.Equal(7, result![0].Entries[0].Values[0].Value);
+        Assert.Single(result[0].Entries);
+        Assert.Single(result[0].Entries[0].Values);
+        Assert.Equal("b", result[0].Entries[0].Values[0].Name);
+        Assert.Equal(7, result[0].Entries[0].Values[0].Value);
 
-        Assert.Single(result![1].Entries);
-        Assert.Single(result![1].Entries[0].Values);
-        Assert.Equal("d", result![1].Entries[0].Values[0].Name);
-        Assert.Equal("bar", result![1].Entries[0].Values[0].Value);
+        Assert.Single(result[1].Entries);
+        Assert.Single(result[1].Entries[0].Values);
+        Assert.Equal("d", result[1].Entries[0].Values[0].Name);
+        Assert.Equal("bar", result[1].Entries[0].Values[0].Value);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestXReadMultipleStreamsAsync(string endpointId)
     {
@@ -1259,44 +1265,44 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.StreamAdd("stream-two", "c", "foo");
         db.StreamAdd("stream-two", "d", "bar");
 
-        var result = await db.XReadAsync(new RedisKey[] { "stream-one", "stream-two" },
-            new RedisValue[] { StreamSpecialIds.AllMessagesId, StreamSpecialIds.AllMessagesId },
+        var result = await db.XReadAsync(["stream-one", "stream-two"],
+            [StreamSpecialIds.AllMessagesId, StreamSpecialIds.AllMessagesId],
             count: 1, timeoutMilliseconds: 1000);
 
         Assert.NotNull(result);
-        Assert.Equal(2, result!.Length);
+        Assert.Equal(2, result.Length);
 
-        Assert.Single(result![0].Entries);
-        var lastKeyOne = result![0].Entries[0].Id;
-        Assert.Single(result![0].Entries[0].Values);
-        Assert.Equal("a", result![0].Entries[0].Values[0].Name);
-        Assert.Equal(1, result![0].Entries[0].Values[0].Value);
+        Assert.Single(result[0].Entries);
+        var lastKeyOne = result[0].Entries[0].Id;
+        Assert.Single(result[0].Entries[0].Values);
+        Assert.Equal("a", result[0].Entries[0].Values[0].Name);
+        Assert.Equal(1, result[0].Entries[0].Values[0].Value);
 
-        Assert.Single(result![1].Entries);
-        var lastKeyTwo = result![1].Entries[0].Id;
-        Assert.Single(result![1].Entries[0].Values);
-        Assert.Equal("c", result![1].Entries[0].Values[0].Name);
-        Assert.Equal("foo", result![1].Entries[0].Values[0].Value);
+        Assert.Single(result[1].Entries);
+        var lastKeyTwo = result[1].Entries[0].Id;
+        Assert.Single(result[1].Entries[0].Values);
+        Assert.Equal("c", result[1].Entries[0].Values[0].Name);
+        Assert.Equal("foo", result[1].Entries[0].Values[0].Value);
 
-        result = await db.XReadAsync(new RedisKey[] { "stream-one", "stream-two" },
-            new RedisValue[] { lastKeyOne, lastKeyTwo },
+        result = await db.XReadAsync(["stream-one", "stream-two"],
+            [lastKeyOne, lastKeyTwo],
             count: 1, timeoutMilliseconds: 1000);
 
         Assert.NotNull(result);
-        Assert.Equal(2, result!.Length);
+        Assert.Equal(2, result.Length);
 
-        Assert.Single(result![0].Entries);
-        Assert.Single(result![0].Entries[0].Values);
-        Assert.Equal("b", result![0].Entries[0].Values[0].Name);
-        Assert.Equal(7, result![0].Entries[0].Values[0].Value);
+        Assert.Single(result[0].Entries);
+        Assert.Single(result[0].Entries[0].Values);
+        Assert.Equal("b", result[0].Entries[0].Values[0].Name);
+        Assert.Equal(7, result[0].Entries[0].Values[0].Value);
 
-        Assert.Single(result![1].Entries);
-        Assert.Single(result![1].Entries[0].Values);
-        Assert.Equal("d", result![1].Entries[0].Values[0].Name);
-        Assert.Equal("bar", result![1].Entries[0].Values[0].Value);
+        Assert.Single(result[1].Entries);
+        Assert.Single(result[1].Entries[0].Values);
+        Assert.Equal("d", result[1].Entries[0].Values[0].Name);
+        Assert.Equal("bar", result[1].Entries[0].Values[0].Value);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestXReadOnlyNewMessages(string endpointId)
     {
@@ -1311,7 +1317,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestXReadOnlyNewMessagesAsync(string endpointId)
     {
@@ -1326,27 +1332,27 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestXReadNoKeysProvided(string endpointId)
     {
         var db = GetCleanDatabase(endpointId);
 
-        Assert.Throws<ArgumentException>(() => db.XRead(Array.Empty<RedisKey>(),
-            new RedisValue[] { StreamSpecialIds.NewMessagesId }));
+        Assert.Throws<ArgumentException>(() => db.XRead([],
+            [StreamSpecialIds.NewMessagesId]));
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestXReadMismatchedKeysAndPositionsCountsProvided(string endpointId)
     {
         var db = GetCleanDatabase(endpointId);
 
-        Assert.Throws<ArgumentException>(() => db.XRead(new RedisKey[] { "my-stream" },
-            new RedisValue[] { StreamSpecialIds.NewMessagesId, StreamSpecialIds.NewMessagesId }));
+        Assert.Throws<ArgumentException>(() => db.XRead(["my-stream"],
+            [StreamSpecialIds.NewMessagesId, StreamSpecialIds.NewMessagesId]));
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestXReadGroup(string endpointId)
     {
@@ -1367,10 +1373,10 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(result);
         Assert.Single(result);
 
-        var consumerAIdOne = result![0].Id;
+        var consumerAIdOne = result[0].Id;
         Assert.Single(result[0].Values);
-        Assert.Equal("a", result![0].Values[0].Name);
-        Assert.Equal(1, result![0].Values[0].Value);
+        Assert.Equal("a", result[0].Values[0].Name);
+        Assert.Equal(1, result[0].Values[0].Value);
 
         result = db.XReadGroup("my-group", "consumer-b",
             "my-stream", StreamSpecialIds.UndeliveredMessagesId, count: 1, timeoutMilliseconds: 1000);
@@ -1378,10 +1384,10 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(result);
         Assert.Single(result);
 
-        var consumerBIdOne = result![0].Id;
+        var consumerBIdOne = result[0].Id;
         Assert.Single(result[0].Values);
-        Assert.Equal("b", result![0].Values[0].Name);
-        Assert.Equal(7, result![0].Values[0].Value);
+        Assert.Equal("b", result[0].Values[0].Name);
+        Assert.Equal(7, result[0].Values[0].Value);
 
         // Read another message from each consumer, don't ACK anything.
         result = db.XReadGroup("my-group", "consumer-a",
@@ -1390,10 +1396,10 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(result);
         Assert.Single(result);
 
-        var consumerAIdTwo = result![0].Id;
-        Assert.Single(result![0].Values);
-        Assert.Equal("c", result![0].Values[0].Name);
-        Assert.Equal(11, result![0].Values[0].Value);
+        var consumerAIdTwo = result[0].Id;
+        Assert.Single(result[0].Values);
+        Assert.Equal("c", result[0].Values[0].Name);
+        Assert.Equal(11, result[0].Values[0].Value);
 
         result = db.XReadGroup("my-group", "consumer-b",
             "my-stream", StreamSpecialIds.UndeliveredMessagesId, count: 1, timeoutMilliseconds: 1000);
@@ -1401,10 +1407,10 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(result);
         Assert.Single(result);
 
-        var consumerBIdTwo = result![0].Id;
-        Assert.Single(result![0].Values);
-        Assert.Equal("d", result![0].Values[0].Name);
-        Assert.Equal(12, result![0].Values[0].Value);
+        var consumerBIdTwo = result[0].Id;
+        Assert.Single(result[0].Values);
+        Assert.Equal("d", result[0].Values[0].Name);
+        Assert.Equal(12, result[0].Values[0].Value);
 
         // Since we didn't ACK anything, the pending messages can be re-read with the right ID.
         result = db.XReadGroup("my-group", "consumer-a",
@@ -1413,9 +1419,9 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(result);
         Assert.Single(result);
 
-        Assert.Single(result![0].Values);
-        Assert.Equal("a", result![0].Values[0].Name);
-        Assert.Equal(1, result![0].Values[0].Value);
+        Assert.Single(result[0].Values);
+        Assert.Equal("a", result[0].Values[0].Name);
+        Assert.Equal(1, result[0].Values[0].Value);
 
         result = db.XReadGroup("my-group", "consumer-b",
             "my-stream", StreamSpecialIds.AllMessagesId, count: 1, timeoutMilliseconds: 1000);
@@ -1423,13 +1429,13 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(result);
         Assert.Single(result);
 
-        Assert.Single(result![0].Values);
-        Assert.Equal("b", result![0].Values[0].Name);
-        Assert.Equal(7, result![0].Values[0].Value);
+        Assert.Single(result[0].Values);
+        Assert.Equal("b", result[0].Values[0].Name);
+        Assert.Equal(7, result[0].Values[0].Value);
 
         // ACK the messages.
         var ackedMessagesCount = db.StreamAcknowledge("my-stream", "my-group",
-            new[] { consumerAIdOne, consumerAIdTwo, consumerBIdOne, consumerBIdTwo });
+            [consumerAIdOne, consumerAIdTwo, consumerBIdOne, consumerBIdTwo]);
         Assert.Equal(4, ackedMessagesCount);
 
         // After ACK we don't see anything pending.
@@ -1446,7 +1452,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Empty(result);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestXReadGroupAsync(string endpointId)
     {
@@ -1467,10 +1473,10 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(result);
         Assert.Single(result);
 
-        var consumerAIdOne = result![0].Id;
+        var consumerAIdOne = result[0].Id;
         Assert.Single(result[0].Values);
-        Assert.Equal("a", result![0].Values[0].Name);
-        Assert.Equal(1, result![0].Values[0].Value);
+        Assert.Equal("a", result[0].Values[0].Name);
+        Assert.Equal(1, result[0].Values[0].Value);
 
         result = await db.XReadGroupAsync("my-group", "consumer-b",
             "my-stream", StreamSpecialIds.UndeliveredMessagesId, count: 1, timeoutMilliseconds: 1000);
@@ -1478,10 +1484,10 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(result);
         Assert.Single(result);
 
-        var consumerBIdOne = result![0].Id;
+        var consumerBIdOne = result[0].Id;
         Assert.Single(result[0].Values);
-        Assert.Equal("b", result![0].Values[0].Name);
-        Assert.Equal(7, result![0].Values[0].Value);
+        Assert.Equal("b", result[0].Values[0].Name);
+        Assert.Equal(7, result[0].Values[0].Value);
 
         // Read another message from each consumer, don't ACK anything.
         result = await db.XReadGroupAsync("my-group", "consumer-a",
@@ -1490,10 +1496,10 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(result);
         Assert.Single(result);
 
-        var consumerAIdTwo = result![0].Id;
-        Assert.Single(result![0].Values);
-        Assert.Equal("c", result![0].Values[0].Name);
-        Assert.Equal(11, result![0].Values[0].Value);
+        var consumerAIdTwo = result[0].Id;
+        Assert.Single(result[0].Values);
+        Assert.Equal("c", result[0].Values[0].Name);
+        Assert.Equal(11, result[0].Values[0].Value);
 
         result = await db.XReadGroupAsync("my-group", "consumer-b",
             "my-stream", StreamSpecialIds.UndeliveredMessagesId, count: 1, timeoutMilliseconds: 1000);
@@ -1501,10 +1507,10 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(result);
         Assert.Single(result);
 
-        var consumerBIdTwo = result![0].Id;
-        Assert.Single(result![0].Values);
-        Assert.Equal("d", result![0].Values[0].Name);
-        Assert.Equal(12, result![0].Values[0].Value);
+        var consumerBIdTwo = result[0].Id;
+        Assert.Single(result[0].Values);
+        Assert.Equal("d", result[0].Values[0].Name);
+        Assert.Equal(12, result[0].Values[0].Value);
 
         // Since we didn't ACK anything, the pending messages can be re-read with the right ID.
         result = await db.XReadGroupAsync("my-group", "consumer-a",
@@ -1513,9 +1519,9 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(result);
         Assert.Single(result);
 
-        Assert.Single(result![0].Values);
-        Assert.Equal("a", result![0].Values[0].Name);
-        Assert.Equal(1, result![0].Values[0].Value);
+        Assert.Single(result[0].Values);
+        Assert.Equal("a", result[0].Values[0].Name);
+        Assert.Equal(1, result[0].Values[0].Value);
 
         result = await db.XReadGroupAsync("my-group", "consumer-b",
             "my-stream", StreamSpecialIds.AllMessagesId, count: 1, timeoutMilliseconds: 1000);
@@ -1523,13 +1529,13 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(result);
         Assert.Single(result);
 
-        Assert.Single(result![0].Values);
-        Assert.Equal("b", result![0].Values[0].Name);
-        Assert.Equal(7, result![0].Values[0].Value);
+        Assert.Single(result[0].Values);
+        Assert.Equal("b", result[0].Values[0].Name);
+        Assert.Equal(7, result[0].Values[0].Value);
 
         // ACK the messages.
         var ackedMessagesCount = db.StreamAcknowledge("my-stream", "my-group",
-            new[] { consumerAIdOne, consumerAIdTwo, consumerBIdOne, consumerBIdTwo });
+            [consumerAIdOne, consumerAIdTwo, consumerBIdOne, consumerBIdTwo]);
         Assert.Equal(4, ackedMessagesCount);
 
         // After ACK we don't see anything pending.
@@ -1546,7 +1552,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Empty(result);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestXReadGroupNoAck(string endpointId)
     {
@@ -1567,9 +1573,9 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.NotNull(result);
         Assert.Single(result);
 
-        Assert.Single(result![0].Values);
-        Assert.Equal("a", result![0].Values[0].Name);
-        Assert.Equal(1, result![0].Values[0].Value);
+        Assert.Single(result[0].Values);
+        Assert.Equal("a", result[0].Values[0].Name);
+        Assert.Equal(1, result[0].Values[0].Value);
 
         // We don't see anything pending because of the NOACK.
         result = db.XReadGroup("my-group", "consumer-a",
@@ -1579,7 +1585,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Empty(result);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestXReadGroupMultipleStreams(string endpointId)
     {
@@ -1597,43 +1603,43 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.StreamAdd("stream-two", "d", 17);
 
         var result = db.XReadGroup("my-group", "consumer-a",
-            new RedisKey[] { "stream-one", "stream-two" },
-            new RedisValue[] { StreamSpecialIds.UndeliveredMessagesId, StreamSpecialIds.UndeliveredMessagesId },
+            ["stream-one", "stream-two"],
+            [StreamSpecialIds.UndeliveredMessagesId, StreamSpecialIds.UndeliveredMessagesId],
             count: 1, timeoutMilliseconds: 1000);
 
         Assert.NotNull(result);
-        Assert.Equal(2, result!.Length);
+        Assert.Equal(2, result.Length);
 
-        Assert.Single(result![0].Entries);
-        Assert.Single(result![0].Entries[0].Values);
-        Assert.Equal("a", result![0].Entries[0].Values[0].Name);
-        Assert.Equal(1, result![0].Entries[0].Values[0].Value);
+        Assert.Single(result[0].Entries);
+        Assert.Single(result[0].Entries[0].Values);
+        Assert.Equal("a", result[0].Entries[0].Values[0].Name);
+        Assert.Equal(1, result[0].Entries[0].Values[0].Value);
 
-        Assert.Single(result![1].Entries);
-        Assert.Single(result![1].Entries[0].Values);
-        Assert.Equal("b", result![1].Entries[0].Values[0].Name);
-        Assert.Equal(7, result![1].Entries[0].Values[0].Value);
+        Assert.Single(result[1].Entries);
+        Assert.Single(result[1].Entries[0].Values);
+        Assert.Equal("b", result[1].Entries[0].Values[0].Name);
+        Assert.Equal(7, result[1].Entries[0].Values[0].Value);
 
         result = db.XReadGroup("my-group", "consumer-b",
-            new RedisKey[] { "stream-one", "stream-two" },
-            new RedisValue[] { StreamSpecialIds.UndeliveredMessagesId, StreamSpecialIds.UndeliveredMessagesId },
+            ["stream-one", "stream-two"],
+            [StreamSpecialIds.UndeliveredMessagesId, StreamSpecialIds.UndeliveredMessagesId],
             count: 1, timeoutMilliseconds: 1000);
 
         Assert.NotNull(result);
-        Assert.Equal(2, result!.Length);
+        Assert.Equal(2, result.Length);
 
-        Assert.Single(result![0].Entries);
-        Assert.Single(result![0].Entries[0].Values);
-        Assert.Equal("c", result![0].Entries[0].Values[0].Name);
-        Assert.Equal(11, result![0].Entries[0].Values[0].Value);
+        Assert.Single(result[0].Entries);
+        Assert.Single(result[0].Entries[0].Values);
+        Assert.Equal("c", result[0].Entries[0].Values[0].Name);
+        Assert.Equal(11, result[0].Entries[0].Values[0].Value);
 
-        Assert.Single(result![1].Entries);
-        Assert.Single(result![1].Entries[0].Values);
-        Assert.Equal("d", result![1].Entries[0].Values[0].Name);
-        Assert.Equal(17, result![1].Entries[0].Values[0].Value);
+        Assert.Single(result[1].Entries);
+        Assert.Single(result[1].Entries[0].Values);
+        Assert.Equal("d", result[1].Entries[0].Values[0].Name);
+        Assert.Equal(17, result[1].Entries[0].Values[0].Value);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestXReadGroupMultipleStreamsAsync(string endpointId)
     {
@@ -1651,43 +1657,43 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         db.StreamAdd("stream-two", "d", 17);
 
         var result = await db.XReadGroupAsync("my-group", "consumer-a",
-            new RedisKey[] { "stream-one", "stream-two" },
-            new RedisValue[] { StreamSpecialIds.UndeliveredMessagesId, StreamSpecialIds.UndeliveredMessagesId },
+            ["stream-one", "stream-two"],
+            [StreamSpecialIds.UndeliveredMessagesId, StreamSpecialIds.UndeliveredMessagesId],
             count: 1, timeoutMilliseconds: 1000);
 
         Assert.NotNull(result);
-        Assert.Equal(2, result!.Length);
+        Assert.Equal(2, result.Length);
 
-        Assert.Single(result![0].Entries);
-        Assert.Single(result![0].Entries[0].Values);
-        Assert.Equal("a", result![0].Entries[0].Values[0].Name);
-        Assert.Equal(1, result![0].Entries[0].Values[0].Value);
+        Assert.Single(result[0].Entries);
+        Assert.Single(result[0].Entries[0].Values);
+        Assert.Equal("a", result[0].Entries[0].Values[0].Name);
+        Assert.Equal(1, result[0].Entries[0].Values[0].Value);
 
-        Assert.Single(result![1].Entries);
-        Assert.Single(result![1].Entries[0].Values);
-        Assert.Equal("b", result![1].Entries[0].Values[0].Name);
-        Assert.Equal(7, result![1].Entries[0].Values[0].Value);
+        Assert.Single(result[1].Entries);
+        Assert.Single(result[1].Entries[0].Values);
+        Assert.Equal("b", result[1].Entries[0].Values[0].Name);
+        Assert.Equal(7, result[1].Entries[0].Values[0].Value);
 
         result = await db.XReadGroupAsync("my-group", "consumer-b",
-            new RedisKey[] { "stream-one", "stream-two" },
-            new RedisValue[] { StreamSpecialIds.UndeliveredMessagesId, StreamSpecialIds.UndeliveredMessagesId },
+            ["stream-one", "stream-two"],
+            [StreamSpecialIds.UndeliveredMessagesId, StreamSpecialIds.UndeliveredMessagesId],
             count: 1, timeoutMilliseconds: 1000);
 
         Assert.NotNull(result);
-        Assert.Equal(2, result!.Length);
+        Assert.Equal(2, result.Length);
 
-        Assert.Single(result![0].Entries);
-        Assert.Single(result![0].Entries[0].Values);
-        Assert.Equal("c", result![0].Entries[0].Values[0].Name);
-        Assert.Equal(11, result![0].Entries[0].Values[0].Value);
+        Assert.Single(result[0].Entries);
+        Assert.Single(result[0].Entries[0].Values);
+        Assert.Equal("c", result[0].Entries[0].Values[0].Name);
+        Assert.Equal(11, result[0].Entries[0].Values[0].Value);
 
-        Assert.Single(result![1].Entries);
-        Assert.Single(result![1].Entries[0].Values);
-        Assert.Equal("d", result![1].Entries[0].Values[0].Name);
-        Assert.Equal(17, result![1].Entries[0].Values[0].Value);
+        Assert.Single(result[1].Entries);
+        Assert.Single(result[1].Entries[0].Values);
+        Assert.Equal("d", result[1].Entries[0].Values[0].Name);
+        Assert.Equal(17, result[1].Entries[0].Values[0].Value);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestXReadGroupNull(string endpointId)
     {
@@ -1703,7 +1709,7 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestXReadGroupNullAsync(string endpointId)
     {
@@ -1719,23 +1725,23 @@ public class CoreTests : AbstractNRedisStackTest, IDisposable
         Assert.Null(result);
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestXReadGroupNoKeysProvided(string endpointId)
     {
         var db = GetCleanDatabase(endpointId);
 
         Assert.Throws<ArgumentException>(() => db.XReadGroup("my-group", "consumer",
-            Array.Empty<RedisKey>(), new RedisValue[] { StreamSpecialIds.NewMessagesId }));
+            [], [StreamSpecialIds.NewMessagesId]));
     }
 
-    [SkipIfRedis(Is.Enterprise, Comparison.LessThan, "5.0.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "5.0.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestXReadGroupMismatchedKeysAndPositionsCountsProvided(string endpointId)
     {
         var db = GetCleanDatabase(endpointId);
 
         Assert.Throws<ArgumentException>(() => db.XReadGroup("my-group", "consumer",
-            new RedisKey[] { "my-stream" }, new RedisValue[] { StreamSpecialIds.NewMessagesId, StreamSpecialIds.NewMessagesId }));
+            ["my-stream"], [StreamSpecialIds.NewMessagesId, StreamSpecialIds.NewMessagesId]));
     }
 }

@@ -26,7 +26,7 @@ public class HomeJsonExample
 
     [SkippableFact]
     // REMOVE_END
-    public void run()
+    public void Run()
     {
         //REMOVE_START
         // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
@@ -41,7 +41,7 @@ public class HomeJsonExample
 
         //REMOVE_START
         // Clear any keys here before using them in tests.
-        db.KeyDelete(new RedisKey[] { "user:1", "user:2", "user:3" });
+        db.KeyDelete(["user:1", "user:2", "user:3"]);
         try { db.FT().DropIndex("idx:users"); } catch { }
         //REMOVE_END
         // HIDE_END
@@ -86,8 +86,6 @@ public class HomeJsonExample
             schema
         );
         // STEP_END
-
-        // Tests for 'make_index' step.
         // REMOVE_START
         Assert.True(indexCreated);
         // REMOVE_END
@@ -98,8 +96,6 @@ public class HomeJsonExample
         bool user2Set = db.JSON().Set("user:2", "$", user2);
         bool user3Set = db.JSON().Set("user:3", "$", user3);
         // STEP_END
-
-        // Tests for 'add_data' step.
         // REMOVE_START
         Assert.True(user1Set);
         Assert.True(user2Set);
@@ -110,7 +106,7 @@ public class HomeJsonExample
         // STEP_START query1
         SearchResult findPaulResult = db.FT().Search(
             "idx:users",
-            new Query("Paul @age:[30 40]")
+            new("Paul @age:[30 40]")
         );
         Console.WriteLine(string.Join(
             ", ",
@@ -118,8 +114,6 @@ public class HomeJsonExample
         ));
         // >>> {"name":"Paul Zamir","email":"paul.zamir@example.com", ...
         // STEP_END
-
-        // Tests for 'query1' step.
         // REMOVE_START
         Assert.Equal(
             "{\"name\":\"Paul Zamir\",\"email\":\"paul.zamir@example.com\",\"age\":35,\"city\":\"Tel Aviv\"}",
@@ -140,8 +134,6 @@ public class HomeJsonExample
         ));
         // >>> London, Tel Aviv
         // STEP_END
-
-        // Tests for 'query2' step.
         // REMOVE_START
         Assert.Equal(
             "London, Tel Aviv",
@@ -166,8 +158,6 @@ public class HomeJsonExample
         // >>> London - 1
         // >>> Tel Aviv - 2
         // STEP_END
-
-        // Tests for 'query3' step.
         // REMOVE_START
         Assert.Equal(2, resultsList.Count);
 
@@ -181,7 +171,70 @@ public class HomeJsonExample
         Assert.Equal(2, testItem["count"]);
         // REMOVE_END
 
+        // STEP_START make_hash_index
+        var hashSchema = new Schema()
+            .AddTextField("name")
+            .AddTagField("city")
+            .AddNumericField("age");
 
+        bool hashIndexCreated = db.FT().Create(
+            "hash-idx:users",
+            new FTCreateParams()
+                .On(IndexDataType.HASH)
+                .Prefix("huser:"),
+            hashSchema
+        );
+        // STEP_END
+        // REMOVE_START
+        Assert.True(hashIndexCreated);
+        // REMOVE_END
+
+        // STEP_START add_hash_data
+        db.HashSet("huser:1", [
+            new("name", "Paul John"),
+            new("email", "paul.john@example.com"),
+            new("age", 42),
+            new("city", "London")
+        ]);
+
+        db.HashSet("huser:2", [
+            new("name", "Eden Zamir"),
+            new("email", "eden.zamir@example.com"),
+            new("age", 29),
+            new("city", "Tel Aviv")
+        ]);
+
+        db.HashSet("huser:3", [
+            new("name", "Paul Zamir"),
+            new("email", "paul.zamir@example.com"),
+            new("age", 35),
+            new("city", "Tel Aviv")
+        ]);
+        // STEP_END
+
+        // STEP_START query1_hash
+        SearchResult findPaulHashResult = db.FT().Search(
+            "hash-idx:users",
+            new("Paul @age:[30 40]")
+        );
+
+        foreach (Document doc in findPaulHashResult.Documents)
+        {
+            Console.WriteLine(
+                $"Name: {doc["name"]}, email: {doc["email"]}, " +
+                $"age: {doc["age"]}, city:{doc["city"]}"
+            );
+        }
+        // >>> Name: Paul Zamir, email: paul.zamir@example.com, age: 35, ...
+        // STEP_END
+        // REMOVE_START
+        Document d = findPaulHashResult.Documents[0];
+        Assert.Equal(
+            "Name: Paul Zamir, email: paul.zamir@example.com, age: 35, city:Tel Aviv",
+            $"Name: {d["name"]}, email: {d["email"]}, " +
+                $"age: {d["age"]}, city:{d["city"]}"
+        );
+        // REMOVE_END
         // HIDE_START
     }
 }

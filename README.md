@@ -14,17 +14,15 @@ This project builds on [StackExchange.Redis](https://github.com/StackExchange/St
 
 ## How do I Redis?
 
-[Learn for free at Redis University](https://university.redis.com/)
+[Learn for free at Redis University](https://university.redis.io/academy/)
 
-[Build faster with the Redis Launchpad](https://launchpad.redis.com/)
+[Try the Redis Cloud](https://redis.io/try-free/)
 
-[Try the Redis Cloud](https://redis.com/try-free/)
+[Dive in developer tutorials](https://redis.io/learn/)
 
-[Dive in developer tutorials](https://developer.redis.com/)
+[Join the Redis community](https://redis.io/community/)
 
-[Join the Redis community](https://redis.com/community/)
-
-[Work at Redis](https://redis.com/company/careers/jobs/)
+[Work at Redis](https://redis.io/careers/jobs/)
 
 ## API
 
@@ -40,8 +38,9 @@ Each module has a command class with its own commands.
 
 The supported modules are [Search](https://redis.io/commands/?group=search), [JSON](https://redis.io/commands/?group=json), [TimeSeries](https://redis.io/commands/?group=timeseries), [Bloom Filter](https://redis.io/commands/?group=bf), [Cuckoo Filter](https://redis.io/commands/?group=cf), [T-Digest](https://redis.io/commands/?group=tdigest), [Count-min Sketch](https://redis.io/commands/?group=cms), and [Top-K](https://redis.io/commands/?group=topk).
 
-**Note:** RedisGraph support has been deprecated starting from Redis Stack version 7.2. For more information, please refer to [this blog post](https://redis.com/blog/redisgraph-eol/).
-**IMPORTANT:** NRedisStack will end the support for Graph functionalities with version 0.13.x  
+**Note:** RedisGraph support has been deprecated starting from Redis Stack version 7.2. For more information, please refer to [this blog post](https://redis.com/blog/redisgraph-eol/).<br>
+**IMPORTANT:** NRedisStack will end the support for Graph functionalities with version 0.13.x<br>
+**IMPORTANT:** Starting from version **1.0.0-beta1**, by default, the client now overrides the [server-side dialect](https://redis.io/docs/latest/develop/interact/search-and-query/advanced-concepts/dialects/) with version 2, automatically appending `DIALECT 2` to commands like **FT.AGGREGATE** and **FT.SEARCH**. Be aware that the query dialect may impact the results returned. If needed, you can revert to a different dialect version by configuring the client accordingly. Please see [release notes](https://github.com/redis/NRedisStack/releases/tag/v1.0.0-beta1).
 
 # Usage
 
@@ -57,17 +56,19 @@ dotnet add package NRedisStack
 
 ### Supported Redis versions
 
-The most recent version of this library supports Redis version [6.2](https://github.com/redis/redis/blob/6.2/00-RELEASENOTES), [7.2](https://github.com/redis/redis/blob/7.2/00-RELEASENOTES).
+The most recent version of this library supports Redis version 
+[7.2](https://github.com/redis/redis/blob/7.2/00-RELEASENOTES),
+[7.4](https://github.com/redis/redis/blob/7.4/00-RELEASENOTES),
+[8.0](https://github.com/redis/redis/blob/8.0/00-RELEASENOTES) and
+[8.2](https://github.com/redis/redis/blob/8.2/00-RELEASENOTES).
 
 ### Starting Redis
 
 Before writing any code, you'll need a Redis instance with the appropriate Redis modules. The quickest way to get this is with Docker:
 
 ```sh
-docker run -p 6379:6379 --name redis-stack redis/redis-stack:latest
+docker run -p 6379:6379 --name redis redis:latest
 ```
-
-This launches [Redis Stack](https://redis.io/docs/stack/), an extension of Redis that adds modern data structures to Redis.
 
 Now, you need to connect to Redis, exactly the same way you do it in [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis):
 ```csharp
@@ -88,7 +89,6 @@ TdigestCommands tdigest = db.TDIGEST();
 SearchCommands ft = db.FT();
 JsonCommands json = db.JSON();
 TimeSeriesCommands ts = db.TS();
-GraphCommands graph = db.GRAPH(); // If Redis version is less than 7.2 and NRedisStack version is less than 0.13.x
 ```
 Then, that variable will allow you to call all the commands of that module.
 

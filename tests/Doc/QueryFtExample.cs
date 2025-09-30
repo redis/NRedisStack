@@ -25,7 +25,7 @@ public class QueryFtExample
 
     [SkippableFact]
     // REMOVE_END
-    public void run()
+    public void Run()
     {
         //REMOVE_START
         // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection
@@ -211,7 +211,7 @@ public class QueryFtExample
         // STEP_START ft1
         SearchResult res1 = db.FT().Search(
            "idx:bicycle",
-           new Query("@description: kids")
+           new("@description: kids")
        );
         Console.WriteLine(res1);    // >>> 2
         // STEP_END
@@ -225,7 +225,7 @@ public class QueryFtExample
         // STEP_START ft2
         SearchResult res2 = db.FT().Search(
             "idx:bicycle",
-            new Query("@model: ka*")
+            new("@model: ka*")
         );
         Console.WriteLine(res2.TotalResults);   // >>> 1
         // STEP_END
@@ -239,7 +239,7 @@ public class QueryFtExample
         // STEP_START ft3
         SearchResult res3 = db.FT().Search(
             "idx:bicycle",
-            new Query("@brand: *bikes")
+            new("@brand: *bikes")
         );
         Console.WriteLine(res3.TotalResults);   // >>> 2
         // STEP_END
@@ -253,7 +253,7 @@ public class QueryFtExample
         // STEP_START ft4
         SearchResult res4 = db.FT().Search(
             "idx:bicycle",
-            new Query("%optamized%")
+            new("%optamized%")
         );
         Console.WriteLine(res4.TotalResults);   // >>> 1
         // STEP_END
@@ -267,7 +267,7 @@ public class QueryFtExample
         // STEP_START ft5
         SearchResult res5 = db.FT().Search(
             "idx:bicycle",
-            new Query("%%optamised%%")
+            new("%%optamised%%")
         );
         Console.WriteLine(res5.TotalResults);   // >>> 1
         // STEP_END
