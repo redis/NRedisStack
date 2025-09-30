@@ -178,28 +178,31 @@ public class GeoIndexExample
         // REMOVE_END
 
         // STEP_START gshape_query
-        SearchResult geomQueryResult = db.FT().Search(
-            "geomidx",
-            new Query("(-@name:(Green Square) @geom:[WITHIN $qshape])")
-                .AddParam("qshape", "POLYGON ((1 1, 1 3, 3 3, 3 1, 1 1))")
-                .Limit(0, 1)
-        );
+        if (version.Major >= 7)
+        {
+            SearchResult geomQueryResult = db.FT().Search(
+                "geomidx",
+                new Query("(-@name:(Green Square) @geom:[WITHIN $qshape])")
+                    .AddParam("qshape", "POLYGON ((1 1, 1 3, 3 3, 3 1, 1 1))")
+                    .Limit(0, 1)
+            );
 
-        Console.WriteLine(geomQueryResult.Documents.Count); // >>> 1
-        var res = string.Join(", ", geomQueryResult.Documents.Select(x => x["json"]));
+            Console.WriteLine(geomQueryResult.Documents.Count); // >>> 1
+            var res = string.Join(", ", geomQueryResult.Documents.Select(x => x["json"]));
 
-        Console.WriteLine(
-            string.Join(", ", geomQueryResult.Documents.Select(x => x["json"]))
-        );
-        // >>> [{"name":"Purple Point","geom":"POINT (2 2)"}]
+            Console.WriteLine(
+                string.Join(", ", geomQueryResult.Documents.Select(x => x["json"]))
+            );
+            // >>> {"name":"Purple Point","geom":"POINT (2 2)"}
+            // REMOVE_START
+            Assert.Single(geomQueryResult.Documents);
+            Assert.Equal(
+                "{\"name\":\"Purple Point\",\"geom\":\"POINT (2 2)\"}",
+                string.Join(", ", geomQueryResult.Documents.Select(x => x["json"]))
+            );
+            // REMOVE_END
+        }
         // STEP_END
-        // REMOVE_START
-        Assert.Single(geomQueryResult.Documents);
-        Assert.Equal(
-            "{\"name\":\"Purple Point\",\"geom\":\"POINT (2 2)\"}",
-            string.Join(", ", geomQueryResult.Documents.Select(x => x["json"]))
-        );
-        // REMOVE_END
         // HIDE_START
     }
 }
