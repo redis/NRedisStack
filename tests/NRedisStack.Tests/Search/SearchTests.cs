@@ -615,7 +615,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         db.HashSet("pupil:4444", [new("first", "Pat"), new("last", "Shu"), new("age", "21")]);
         db.HashSet("student:5555", [new("first", "Joen"), new("last", "Ko"), new("age", "20")]);
         db.HashSet("teacher:6666", [new("first", "Pat"), new("last", "Rod"), new("age", "20")]);
-        AssertIndexSize(ft, index, 5); // only pupil and student keys are indexed
+        AssertIndexSize(ft, index, 4); // only pupil and student keys are indexed
 
         var noFilters = ft.Search(index, new());
         Assert.Equal(4, noFilters.TotalResults);
@@ -647,7 +647,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         db.HashSet("pupil:4444", [new("first", "Pat"), new("last", "Shu"), new("age", "21")]);
         db.HashSet("student:5555", [new("first", "Joen"), new("last", "Ko"), new("age", "20")]);
         db.HashSet("teacher:6666", [new("first", "Pat"), new("last", "Rod"), new("age", "20")]);
-        await AssertIndexSizeAsync(ft, index, 5); // only pupil and student keys are indexed
+        await AssertIndexSizeAsync(ft, index, 4); // only pupil and student keys are indexed
 
         var noFilters = ft.Search(index, new());
         Assert.Equal(4, noFilters.TotalResults);
