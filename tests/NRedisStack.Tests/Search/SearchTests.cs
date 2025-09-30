@@ -62,29 +62,29 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     {
         Assert.Equal(expected, await DatabaseSizeAsync(db));
     }
-    
+
     private void AssertIndexSize(ISearchCommands ft, string index, int expected)
     {
-        long indexed = -1; 
+        long indexed = -1;
         // allow search time to catch up
         for (int i = 0; i < 10; i++)
         {
             indexed = ft.Info(index).NumDocs;
-            
+
             if (indexed == expected)
                 break;
         }
         Assert.Equal(expected, indexed);
     }
-    
+
     private async Task AssertIndexSizeAsync(ISearchCommandsAsync ft, string index, int expected)
     {
-        long indexed = -1; 
+        long indexed = -1;
         // allow search time to catch up
         for (int i = 0; i < 10; i++)
         {
             indexed = (await ft.InfoAsync(index)).NumDocs;
-            
+
             if (indexed == expected)
                 break;
         }
@@ -568,7 +568,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         AddDocument(db, new Document("data5").Set("name", "def").Set("subj1", 65).Set("subj2", 45));
         AddDocument(db, new Document("data6").Set("name", "ghi").Set("subj1", 70).Set("subj2", 70));
         AssertIndexSize(ft, index, 6);
-        
+
         AggregationRequest r = new AggregationRequest().Apply("(@subj1+@subj2)/2", "attemptavg")
             .GroupBy("@name", Reducers.Avg("@attemptavg").As("avgscore"))
             .Filter("@avgscore>=50")
@@ -738,7 +738,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         db.HashSet("pupil:4444", [new("first", "Pat"), new("last", "Shu"), new("age", "21")]);
         db.HashSet("student:5555", [new("first", "Joen"), new("last", "Ko"), new("age", "20")]);
         db.HashSet("teacher:6666", [new("first", "Pat"), new("last", "Rod"), new("age", "20")]);
-        
+
         AssertIndexSize(ft, index, 5); // only pupil and student keys are indexed
 
         SearchResult noFilters = ft.Search(index, new());
@@ -1652,7 +1652,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.True(ft.DropIndex(index));
 
         var ex = Record.Exception(() => { ft.Search(index, new("hello world")); });
-        
+
         Assert.NotNull(ex);
         Assert.IsType<RedisServerException>(ex);
         Assert.Contains("no such index", ex.Message, StringComparison.OrdinalIgnoreCase);
@@ -1716,7 +1716,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.True(await ft.DropIndexAsync(index));
 
         var ex = Record.Exception(() => { ft.Search(index, new("hello world")); });
-        
+
         Assert.NotNull(ex);
         Assert.IsType<RedisServerException>(ex);
         Assert.Contains("no such index", ex.Message, StringComparison.OrdinalIgnoreCase);
