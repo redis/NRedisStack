@@ -183,7 +183,6 @@ public class GeoIndexExample
             new Query("(-@name:(Green Square) @geom:[WITHIN $qshape])")
                 .AddParam("qshape", "POLYGON ((1 1, 1 3, 3 3, 3 1, 1 1))")
                 .Limit(0, 1)
-                .Dialect(4)
         );
 
         Console.WriteLine(geomQueryResult.Documents.Count); // >>> 1
@@ -197,7 +196,7 @@ public class GeoIndexExample
         // REMOVE_START
         Assert.Single(geomQueryResult.Documents);
         Assert.Equal(
-            "[{\"name\":\"Purple Point\",\"geom\":\"POINT (2 2)\"}]",
+            "{\"name\":\"Purple Point\",\"geom\":\"POINT (2 2)\"}",
             string.Join(", ", geomQueryResult.Documents.Select(x => x["json"]))
         );
         // REMOVE_END
