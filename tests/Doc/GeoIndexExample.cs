@@ -108,25 +108,30 @@ public class GeoIndexExample
         // REMOVE_END
 
         // STEP_START create_gshape_idx
-        Schema geomSchema = new Schema()
-            .AddGeoShapeField(
-                new FieldName("$.geom", "geom"),
-                Schema.GeoShapeField.CoordinateSystem.FLAT
-            )
-            .AddTextField(new FieldName("$.name", "name"));
+        Version version = muxer.GetServer("localhost:6379").Version;
+        if (version.Major >= 7)
+        {
+            Schema geomSchema = new Schema()
+                .AddGeoShapeField(
+                    new FieldName("$.geom", "geom"),
+                    Schema.GeoShapeField.CoordinateSystem.FLAT
+                )
+                .AddTextField(new FieldName("$.name", "name"));
 
-        bool geomCreateResult = db.FT().Create(
-            "geomidx",
-            new FTCreateParams()
-                .On(IndexDataType.JSON)
-                .Prefix("shape:"),
-                geomSchema
-        );
-        Console.WriteLine(geomCreateResult); // >>> True
+            bool geomCreateResult = db.FT().Create(
+                "geomidx",
+                new FTCreateParams()
+                    .On(IndexDataType.JSON)
+                    .Prefix("shape:"),
+                    geomSchema
+            );
+            // REMOVE_START
+            Assert.True(geomCreateResult);
+            // REMOVE_END
+            Console.WriteLine(geomCreateResult); // >>> True
+        }
         // STEP_END
-        // REMOVE_START
-        Assert.True(geomCreateResult);
-        // REMOVE_END
+
 
         // STEP_START add_gshape_json
         var shape1 = new
