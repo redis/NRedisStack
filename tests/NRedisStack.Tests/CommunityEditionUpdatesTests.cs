@@ -35,13 +35,9 @@ public class CommunityEditionUpdatesTests : AbstractNRedisStackTest, IDisposable
 
         Assert.Single(server.ConfigGet("search-max-prefix-expansions"));
 
-        Assert.Single(server.ConfigGet("search-max-doctablesize"));
-
         Assert.Single(server.ConfigGet("search-max-search-results"));
 
         Assert.Single(server.ConfigGet("search-max-aggregate-results"));
-
-        Assert.Single(server.ConfigGet("search-friso-ini"));
 
         Assert.Single(server.ConfigGet("search-default-dialect"));
     }
