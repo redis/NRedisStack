@@ -1,5 +1,5 @@
 // EXAMPLE: cs_home_json
-
+// BINDER_ID netsync-cs_home_json
 // STEP_START import
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
@@ -15,7 +15,6 @@ namespace Doc;
 [Collection("DocsTests")]
 // REMOVE_END
 
-// HIDE_START
 public class HomeJsonExample
 // REMOVE_START
 : AbstractNRedisStackTest, IDisposable
@@ -39,12 +38,10 @@ public class HomeJsonExample
         var db = muxer.GetDatabase();
         // STEP_END
 
-        //REMOVE_START
-        // Clear any keys here before using them in tests.
+        // STEP_START cleanup_json
         db.KeyDelete(["user:1", "user:2", "user:3"]);
         try { db.FT().DropIndex("idx:users"); } catch { }
-        //REMOVE_END
-        // HIDE_END
+        // STEP_END
 
         // STEP_START create_data
         var user1 = new
@@ -171,6 +168,11 @@ public class HomeJsonExample
         Assert.Equal(2, testItem["count"]);
         // REMOVE_END
 
+        // STEP_START cleanup_hash
+        db.KeyDelete(["huser:1", "huser:2", "huser:3"]);
+        try { db.FT().DropIndex("hash-idx:users"); } catch { }
+        // STEP_END
+
         // STEP_START make_hash_index
         var hashSchema = new Schema()
             .AddTextField("name")
@@ -235,8 +237,5 @@ public class HomeJsonExample
                 $"age: {d["age"]}, city:{d["city"]}"
         );
         // REMOVE_END
-        // HIDE_START
     }
 }
-// HIDE_END
-
