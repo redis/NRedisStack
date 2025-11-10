@@ -15,6 +15,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <InternalsVisibleTo Include="NRedisStack.Tests" />
         <PackageReference Include="StackExchange.Redis"/>
         <PackageReference Include="System.Text.Json" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net481'"/>
         <None Include="../../Redis.png" Link="Redis.png" Pack="true" PackagePath="/" Visible="false"/>
