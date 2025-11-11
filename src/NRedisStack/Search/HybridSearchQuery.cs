@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using NRedisStack.Search.Aggregation;
 
 namespace NRedisStack.Search;
@@ -54,7 +55,7 @@ public sealed partial class HybridSearchQuery
     /// </summary>
     public HybridSearchQuery ReturnFields(params string[] fields) // naming for consistency with SearchQuery
     {
-        _loadFieldOrFields = fields;
+        _loadFieldOrFields = NullIfEmpty(fields);
         return this;
     }
     
@@ -81,37 +82,71 @@ public sealed partial class HybridSearchQuery
     }
 
     private object? _groupByFieldOrFields;
-    private Reducer? _groupByReducer;
+    private object? _reducerOrReducers;
 
     /// <summary>
     /// Perform a group by operation on the results.
     /// </summary>
-    public HybridSearchQuery GroupBy(string field, Reducer? reducer = null)
+    public HybridSearchQuery GroupBy(string field)
     {
         _groupByFieldOrFields = field;
-        _groupByReducer = reducer;
         return this;
     }
 
     /// <summary>
     /// Perform a group by operation on the results.
     /// </summary>
-    public HybridSearchQuery GroupBy(string[] fields, Reducer? reducer = null)
+    public HybridSearchQuery GroupBy(params string[] fields)
     {
-        _groupByFieldOrFields = fields;
-        _groupByReducer = reducer;
+        _groupByFieldOrFields = NullIfEmpty(fields);
         return this;
     }
 
-    private string? _applyExpression, _applyAlias;
+    /// <summary>
+    /// Perform a reduce operation on the results, after grouping.
+    /// </summary>
+    public HybridSearchQuery Reduce(Reducer reducer)
+    {
+        _reducerOrReducers = reducer;
+        return this;
+    }
+
+    /// <summary>
+    /// Perform a reduce operation on the results, after grouping.
+    /// </summary>
+    public HybridSearchQuery Reduce(params Reducer[] reducers)
+    {
+        _reducerOrReducers = NullIfEmpty(reducers);
+        return this;
+    }
+
+    private static T[]? NullIfEmpty<T>(T[]? array) => array?.Length > 0 ? array : null;
+
+    private object? _applyExpression;
 
     /// <summary>
     /// Apply a field transformation expression to the results.
     /// </summary>
-    public HybridSearchQuery Apply(string expression, string alias)
+    [OverloadResolutionPriority(1)] // allow Apply(new("expr", "alias")) to resolve correctly
+    public HybridSearchQuery Apply(ApplyExpression applyExpression)
     {
-        _applyExpression = expression;
-        _applyAlias = alias;
+        if (applyExpression.Alias is null)
+        {
+            _applyExpression = applyExpression.Expression;
+        }
+        else
+        {
+            _applyExpression = applyExpression; // pay for the box
+        }
+        return this;
+    }
+
+    /// <summary>
+    /// Apply field transformation expressions to the results.
+    /// </summary>
+    public HybridSearchQuery Apply(params ApplyExpression[] applyExpression)
+    {
+        _applyExpression = NullIfEmpty(applyExpression);
         return this;
     }
 
@@ -122,7 +157,7 @@ public sealed partial class HybridSearchQuery
     /// </summary>
     public HybridSearchQuery SortBy(params SortedField[] fields)
     {
-        _sortByFieldOrFields = fields;
+        _sortByFieldOrFields = NullIfEmpty(fields);
         return this;
     }
     
@@ -131,7 +166,7 @@ public sealed partial class HybridSearchQuery
     /// </summary>
     public HybridSearchQuery SortBy(params string[] fields)
     {
-        _sortByFieldOrFields = fields;
+        _sortByFieldOrFields = NullIfEmpty(fields);
         return this;
     }
 

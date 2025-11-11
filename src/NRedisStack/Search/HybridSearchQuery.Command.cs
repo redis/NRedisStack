@@ -62,16 +62,39 @@ public sealed partial class HybridSearchQuery
                 count += 1; // single string
             }
 
-            if (_groupByReducer is not null)
+            switch (_reducerOrReducers)
             {
-                count += 3 + _groupByReducer.ArgCount();
+                case Reducer reducer:
+                    count += CountReducer(reducer);
+                    break;
+                case Reducer[] reducers:
+                    foreach (var reducer in reducers)
+                    {
+                        count += CountReducer(reducer);
+                    }
+                    break;
             }
+            static int CountReducer(Reducer reducer) => 3 + reducer.ArgCount() + (reducer.Alias is null ? 0 : 2);
         }
 
-        if (_applyExpression is not null)
+        switch (_applyExpression)
         {
-            count += 4;
+            case string expression:
+                count += CountApply(new ApplyExpression(expression));
+                break;
+            case ApplyExpression applyExpression:
+                count += CountApply(applyExpression);
+                break;
+            case ApplyExpression[] applyExpressions:
+                foreach (var applyExpression in applyExpressions)
+                {
+                    count += CountApply(applyExpression);
+                }
+                break;
         }
+
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        static int CountApply(in ApplyExpression expr) => expr.Expression is null ? 0 : (expr.Alias is null ? 2 : 4);
 
         if (_sortByFieldOrFields is not null)
         {
@@ -196,20 +219,60 @@ public sealed partial class HybridSearchQuery
                     throw new ArgumentException("Invalid group by field or fields");
             }
 
-            if (_groupByReducer is not null)
+            switch (_reducerOrReducers)
+            {
+                case Reducer reducer:
+                    AddReducer(reducer, args);
+                    break;
+                case Reducer[] reducers:
+                    foreach (var reducer in reducers)
+                    {
+                        AddReducer(reducer, args);
+                    }
+                    break;
+            }
+            static void AddReducer(Reducer reducer, List<object> args)
             {
                 args.Add("REDUCE");
-                args.Add(_groupByReducer.Name);
-                _groupByReducer.SerializeRedisArgs(args); // includes the count
+                args.Add(reducer.Name);
+                reducer.SerializeRedisArgs(args);
+                if (reducer.Alias is not null)
+                {
+                    args.Add("AS");
+                    args.Add(reducer.Alias);
+                }
             }
         }
 
-        if (_applyExpression is not null)
+        switch (_applyExpression)
         {
-            args.Add("APPLY");
-            args.Add(_applyExpression);
-            args.Add("AS");
-            args.Add(_applyAlias!);
+            case string expression:
+                AddApply(new ApplyExpression(expression), args);
+                break;
+            case ApplyExpression applyExpression:
+                AddApply(in applyExpression, args);
+                break;
+            case ApplyExpression[] applyExpressions:
+                foreach (var applyExpression in applyExpressions)
+                {
+                    AddApply(applyExpression, args);
+                }
+                break;
+        }
+
+        static void AddApply(in ApplyExpression expr, List<object> args)
+        {
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+            if (expr.Expression is not null)
+            {
+                args.Add("APPLY");
+                args.Add(expr.Expression);
+                if (expr.Alias is not null)
+                {
+                    args.Add("AS");
+                    args.Add(expr.Alias);
+                }
+            }
         }
 
         if (_sortByFieldOrFields is not null)

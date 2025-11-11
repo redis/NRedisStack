@@ -393,7 +393,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     {
         HybridSearchQuery query = new();
         query.ReturnFields([]);
-        object[] expected = [Index, "LOAD", 0];
+        object[] expected = [Index];
         Assert.Equivalent(expected, GetArgs(query));
     }
 
@@ -407,11 +407,35 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     }
 
     [Fact]
-    public void GroupBy_SingleField_WithReducer()
+    public void GroupBy_SingleField_WithReducer_NoAlias()
     {
         HybridSearchQuery query = new();
-        query.GroupBy("field1", Reducers.Count());
+        query.GroupBy("field1").Reduce(Reducers.Count().As(null!)); // workaround https://github.com/redis/NRedisStack/issues/453
         object[] expected = [Index, "GROUPBY", 1, "field1", "REDUCE", "COUNT", 0];
+        Assert.Equivalent(expected, GetArgs(query));
+    }
+
+    [Fact]
+    public void GroupBy_SingleField_WithReducer_WithAlias()
+    {
+        HybridSearchQuery query = new();
+        query.GroupBy("field1").Reduce(Reducers.Count().As("qty"));
+        object[] expected = [Index, "GROUPBY", 1, "field1", "REDUCE", "COUNT", 0, "AS", "qty"];
+        Assert.Equivalent(expected, GetArgs(query));
+    }
+
+    [Fact]
+    public void GroupBy_SingleField_WithReducers_WithAlias()
+    {
+        HybridSearchQuery query = new();
+        query.GroupBy("field1").Reduce(
+            Reducers.Min("@field2").As("min"),
+            Reducers.Max("@field2").As("max"),
+            Reducers.Count().As("qty"));
+        object[] expected = [Index, "GROUPBY", 1, "field1",
+            "REDUCE", "MIN", 1, "@field2", "AS", "min",
+            "REDUCE", "MAX", 1, "@field2", "AS", "max",
+            "REDUCE", "COUNT", 0, "AS", "qty"];
         Assert.Equivalent(expected, GetArgs(query));
     }
 
@@ -428,7 +452,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     public void GroupBy_MultipleFields_WithReducer()
     {
         HybridSearchQuery query = new();
-        query.GroupBy(["field1", "field2"], Reducers.Quantile("@field3", 0.5));
+        query.GroupBy(["field1", "field2"]).Reduce(Reducers.Quantile("@field3", 0.5));
         object[] expected = [Index, "GROUPBY", 2, "field1", "field2", "REDUCE", "QUANTILE", 2, "@field3", 0.5];
         Assert.Equivalent(expected, GetArgs(query));
     }
@@ -437,8 +461,17 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     public void Apply()
     {
         HybridSearchQuery query = new();
-        query.Apply("@field1 + @field2", "sum");
+        query.Apply(new("@field1 + @field2", "sum"));
         object[] expected = [Index, "APPLY", "@field1 + @field2", "AS", "sum"];
+        Assert.Equivalent(expected, GetArgs(query));
+    }
+
+    [Fact]
+    public void Apply_Multi()
+    {
+        HybridSearchQuery query = new();
+        query.Apply(new("@field1 + @field2", "sum"), "@field3 + @field4");
+        object[] expected = [Index, "APPLY", "@field1 + @field2", "AS", "sum", "APPLY", "@field3 + @field4"];
         Assert.Equivalent(expected, GetArgs(query));
     }
 
@@ -605,16 +638,16 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     public void MakeMeOneWithEverything()
     {
         HybridSearchQuery query = new();
-        query.Search("foo", 
+        query.Search("foo",
                 new HybridSearchQuery.QueryConfig().Scorer(Scorer.BM25StdTanh(5)).ScoreAlias("text_score_alias"))
-            .VectorSimilaritySearch("bar", new byte[] {1, 2, 3},
+            .VectorSimilaritySearch("bar", new byte[] { 1, 2, 3 },
                 new HybridSearchQuery.VectorSearchConfig()
                     .Method(HybridSearchQuery.VectorSearchMethod.NearestNeighbour(10, 100, "vector_distance_alias"))
                     .Filter("@foo:bar").ScoreAlias("vector_score_alias"))
             .Combine(HybridSearchQuery.Combiner.ReciprocalRankFusion(10, 0.5), "my_combined_alias")
             .ReturnFields("field1", "field2")
-            .GroupBy("field1", Reducers.Quantile("@field3", 0.5))
-            .Apply("@field1 + @field2", "apply_alias")
+            .GroupBy("field1").Reduce(Reducers.Quantile("@field3", 0.5).As("reducer_alias"))
+            .Apply(new("@field1 + @field2", "apply_alias"))
             .SortBy(SortedField.Asc("field1"), SortedField.Desc("field2"))
             .Filter("@field1:bar")
             .Limit(12, 54)
@@ -627,16 +660,19 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
             ["x"] = 42,
             ["y"] = "abc"
         };
-        object[] expected = [
-            Index, "SEARCH", "foo", "SCORER", "BM25STD.TANH", "BM25STD_TANH_FACTOR", 5, "YIELD_SCORE_AS", "text_score_alias", "VSIM", "bar",
+        object[] expected =
+        [
+            Index, "SEARCH", "foo", "SCORER", "BM25STD.TANH", "BM25STD_TANH_FACTOR", 5, "YIELD_SCORE_AS",
+            "text_score_alias", "VSIM", "bar",
             "AQID", "KNN", 6, "K", 10, "EF_RUNTIME", 100, "YIELD_DISTANCE_AS", "vector_distance_alias", "FILTER",
             "@foo:bar", "YIELD_SCORE_AS", "vector_score_alias", "COMBINE", "RRF", 4, "WINDOW", 10, "CONSTANT", 0.5,
             "YIELD_SCORE_AS", "my_combined_alias", "LOAD", 2, "field1", "field2", "GROUPBY", 1, "field1", "REDUCE",
-            "QUANTILE", 2, "@field3", 0.5, "APPLY", "@field1 + @field2", "AS", "apply_alias",
+            "QUANTILE", 2, "@field3", 0.5, "AS", "reducer_alias", "APPLY", "@field1 + @field2", "AS", "apply_alias",
             "SORTBY", 3, "field1", "field2", "DESC", "FILTER", "@field1:bar", "LIMIT", 12, 54,
             "PARAMS", 4, "x", 42, "y", "abc",
             "EXPLAINSCORE", "TIMEOUT",
-            "WITHCURSOR", "COUNT", 10, "MAXIDLE", 10000];
+            "WITHCURSOR", "COUNT", 10, "MAXIDLE", 10000
+        ];
 
         log.WriteLine(query.Command + " " + string.Join(" ", expected));
         log.WriteLine("vs");
