@@ -84,7 +84,7 @@ public sealed partial class HybridSearchQuery
                 case SortedField { Order: SortedField.SortOrder.ASC }:
                     count += 1;
                     break;
-                case SortedField field:
+                case SortedField:
                     count += 2;
                     break;
                 case SortedField[] fields:
