@@ -23,7 +23,7 @@
         <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
         <SuppressTfmSupportBuildErrors>true</SuppressTfmSupportBuildErrors>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-        <NoWarn>$(NoWarn);CS1591</NoWarn>
+        <NoWarn>$(NoWarn);CS1591;NRS001</NoWarn>
         <IsWindows>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::get_Windows())))</IsWindows>
     </PropertyGroup>
 

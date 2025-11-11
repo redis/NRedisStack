@@ -193,11 +193,14 @@ public sealed partial class HybridSearchQuery
         return this;
     }
     
-    private int _cursorCount;
+    private int _cursorCount = -1; // -1: no cursor; 0: default count
     private TimeSpan _cursorMaxIdle;
-    public HybridSearchQuery WithCursor(int count, TimeSpan maxIdle = default)
+
+    /// <summary>
+    /// Use a cursor for result iteration.
+    /// </summary>
+    public HybridSearchQuery WithCursor(int count = 0, TimeSpan maxIdle = default)
     {
-        if (count <= 0) throw new ArgumentOutOfRangeException(nameof(count));
         _cursorCount = count;
         _cursorMaxIdle = maxIdle;
         return this;

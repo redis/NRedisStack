@@ -1,29 +1,16 @@
 ﻿namespace NRedisStack.Search.Aggregation;
 
-public class SortedField
+public class SortedField(string fieldName, SortedField.SortOrder order = SortedField.SortOrder.ASC)
 {
-
     public enum SortOrder
     {
         ASC, DESC
     }
 
-    public string FieldName { get; }
-    public SortOrder Order { get; }
+    public string FieldName { get; } = fieldName;
+    public SortOrder Order { get; } = order;
 
-    public SortedField(String fieldName, SortOrder order = SortOrder.ASC)
-    {
-        FieldName = fieldName;
-        Order = order;
-    }
+    public static SortedField Asc(string field) => new(field, SortOrder.ASC);
 
-    public static SortedField Asc(String field)
-    {
-        return new(field, SortOrder.ASC);
-    }
-
-    public static SortedField Desc(String field)
-    {
-        return new(field, SortOrder.DESC);
-    }
+    public static SortedField Desc(string field) => new(field, SortOrder.DESC);
 }

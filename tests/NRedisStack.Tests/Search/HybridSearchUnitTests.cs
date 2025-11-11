@@ -13,7 +13,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     private readonly RedisKey _index = "myindex";
     private ref readonly RedisKey Index => ref _index;
 
-    private ICollection<object> GetArgs(HybridSearchQuery query, Dictionary<string, object>? parameters = null)
+    private ICollection<object> GetArgs(HybridSearchQuery query, IDictionary<string, object>? parameters = null)
     {
         Assert.Equal("FT.HYBRID", query.Command);
         var args = query.GetArgs(Index, parameters);
@@ -292,13 +292,14 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
 
         Assert.Equivalent(expected, GetArgs(query));
     }
-    
+
     [Theory]
     [InlineData(HybridSearchQuery.VectorSearchConfig.VectorFilterPolicy.AdHoc)]
     [InlineData(HybridSearchQuery.VectorSearchConfig.VectorFilterPolicy.Batches)]
     [InlineData(HybridSearchQuery.VectorSearchConfig.VectorFilterPolicy.Batches, 100)]
     [InlineData(HybridSearchQuery.VectorSearchConfig.VectorFilterPolicy.Acorn)]
-    public void BasicVectorSearch_WithFilter_WithPolicy(HybridSearchQuery.VectorSearchConfig.VectorFilterPolicy policy, int? batchSize = null)
+    public void BasicVectorSearch_WithFilter_WithPolicy(HybridSearchQuery.VectorSearchConfig.VectorFilterPolicy policy,
+        int? batchSize = null)
     {
         HybridSearchQuery query = new();
         var searchConfig = new HybridSearchQuery.VectorSearchConfig();
@@ -307,12 +308,14 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
 
         object[] expected =
         [
-            Index, "VSIM", "vfield", "c29tZSByYW5kb20gZGF0YSBoZXJlIQ==", @"FILTER", "@foo:bar", "POLICY", policy.ToString().ToUpper()
+            Index, "VSIM", "vfield", "c29tZSByYW5kb20gZGF0YSBoZXJlIQ==", @"FILTER", "@foo:bar", "POLICY",
+            policy.ToString().ToUpper()
         ];
         if (batchSize != null)
         {
             expected = [..expected, "BATCH_SIZE", batchSize];
         }
+
         Assert.Equivalent(expected, GetArgs(query));
     }
 
@@ -324,16 +327,17 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         object[] expected = [Index, "COMBINE", "LINEAR", 0];
         Assert.Equivalent(expected, GetArgs(query));
     }
-    
+
     [Fact]
     public void Combine_Linear_EqualSplit_WithAlias()
     {
         HybridSearchQuery query = new();
         query.Combine(HybridSearchQuery.Combiner.Linear(0.5, 0.5), "my_combined_alias");
-        object[] expected = [Index, "COMBINE", "LINEAR", 4, "ALPHA", 0.5, "BETA", 0.5, "YIELD_SCORE_AS", "my_combined_alias"];
+        object[] expected =
+            [Index, "COMBINE", "LINEAR", 4, "ALPHA", 0.5, "BETA", 0.5, "YIELD_SCORE_AS", "my_combined_alias"];
         Assert.Equivalent(expected, GetArgs(query));
     }
-    
+
     [Fact]
     public void Combine_DefaultRrf_WithAlias()
     {
@@ -362,6 +366,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         {
             expected = [..expected, "CONSTANT", constant];
         }
+
         Assert.Equivalent(expected, GetArgs(query));
     }
 
@@ -373,7 +378,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         object[] expected = [Index, "LOAD", 2, "field1", "field2"];
         Assert.Equivalent(expected, GetArgs(query));
     }
-    
+
     [Fact]
     public void LoadEmptyFields()
     {
@@ -391,7 +396,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         object[] expected = [Index, "GROUPBY", 1, "field1"];
         Assert.Equivalent(expected, GetArgs(query));
     }
-    
+
     [Fact]
     public void GroupBy_SingleField_WithReducer()
     {
@@ -400,7 +405,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         object[] expected = [Index, "GROUPBY", 1, "field1", "REDUCE", "COUNT", 0];
         Assert.Equivalent(expected, GetArgs(query));
     }
-    
+
     [Fact]
     public void GroupBy_MultipleFields()
     {
@@ -409,7 +414,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         object[] expected = [Index, "GROUPBY", 2, "field1", "field2"];
         Assert.Equivalent(expected, GetArgs(query));
     }
-    
+
     [Fact]
     public void GroupBy_MultipleFields_WithReducer()
     {
@@ -426,5 +431,206 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         query.Apply("@field1 + @field2", "sum");
         object[] expected = [Index, "APPLY", "@field1 + @field2", "AS", "sum"];
         Assert.Equivalent(expected, GetArgs(query));
+    }
+
+    [Fact]
+    public void SortBy_SingleString()
+    {
+        HybridSearchQuery query = new();
+        query.SortBy("field1");
+        object[] expected = [Index, "SORTBY", 1, "field1"];
+        Assert.Equivalent(expected, GetArgs(query));
+    }
+
+    [Fact]
+    public void SortBy_SingleSortedFieldAsc()
+    {
+        HybridSearchQuery query = new();
+        query.SortBy(SortedField.Asc("field1"));
+        object[] expected = [Index, "SORTBY", 1, "field1"];
+        Assert.Equivalent(expected, GetArgs(query));
+    }
+
+    [Fact]
+    public void SortBy_SingleSortedFieldDesc()
+    {
+        HybridSearchQuery query = new();
+        query.SortBy(SortedField.Desc("field1"));
+        object[] expected = [Index, "SORTBY", 2, "field1", "DESC"];
+        Assert.Equivalent(expected, GetArgs(query));
+    }
+
+    [Fact]
+    public void SortBy_MultiString()
+    {
+        HybridSearchQuery query = new();
+        query.SortBy("field1", "field2");
+        object[] expected = [Index, "SORTBY", 2, "field1", "field2"];
+        Assert.Equivalent(expected, GetArgs(query));
+    }
+
+    [Fact]
+    public void SortBy_MultiSortedFieldAsc()
+    {
+        HybridSearchQuery query = new();
+        query.SortBy(SortedField.Asc("field1"), SortedField.Asc("field2"));
+        object[] expected = [Index, "SORTBY", 2, "field1", "field2"];
+        Assert.Equivalent(expected, GetArgs(query));
+    }
+
+    [Fact]
+    public void SortBy_MultiSortedFieldDesc()
+    {
+        HybridSearchQuery query = new();
+        query.SortBy(SortedField.Desc("field1"), SortedField.Desc("field2"));
+        object[] expected = [Index, "SORTBY", 4, "field1", "DESC", "field2", "DESC"];
+        Assert.Equivalent(expected, GetArgs(query));
+    }
+
+    [Fact]
+    public void SortBy_MultiSortedFieldMixed()
+    {
+        HybridSearchQuery query = new();
+        query.SortBy(SortedField.Desc("field1"), SortedField.Asc("field2"));
+        object[] expected = [Index, "SORTBY", 3, "field1", "DESC", "field2"];
+        Assert.Equivalent(expected, GetArgs(query));
+    }
+
+    [Fact]
+    public void Filter()
+    {
+        HybridSearchQuery query = new();
+        query.Filter("@field1:bar");
+        object[] expected = [Index, "FILTER", "@field1:bar"];
+        Assert.Equivalent(expected, GetArgs(query));
+    }
+
+    [Fact]
+    public void Limit()
+    {
+        HybridSearchQuery query = new();
+        query.Limit(12, 54);
+        object[] expected = [Index, "LIMIT", 12, 54];
+        Assert.Equivalent(expected, GetArgs(query));
+    }
+
+    [Fact]
+    public void ExplainScoreImplicit()
+    {
+        HybridSearchQuery query = new();
+        query.ExplainScore();
+        object[] expected = [Index, "EXPLAINSCORE"];
+        Assert.Equivalent(expected, GetArgs(query));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void ExplainScoreExplicit(bool enabled)
+    {
+        HybridSearchQuery query = new();
+        query.ExplainScore(enabled);
+        object[] expected = enabled ? [Index, "EXPLAINSCORE"] : [Index];
+        Assert.Equivalent(expected, GetArgs(query));
+    }
+
+    [Fact]
+    public void TimeoutImplicit()
+    {
+        HybridSearchQuery query = new();
+        query.Timeout();
+        object[] expected = [Index, "TIMEOUT"];
+        Assert.Equivalent(expected, GetArgs(query));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void TimeoutExplicit(bool enabled)
+    {
+        HybridSearchQuery query = new();
+        query.Timeout(enabled);
+        object[] expected = enabled ? [Index, "TIMEOUT"] : [Index];
+        Assert.Equivalent(expected, GetArgs(query));
+    }
+
+    [Fact]
+    public void SimpleCursor()
+    {
+        HybridSearchQuery query = new();
+        query.WithCursor(10);
+        object[] expected = [Index, "WITHCURSOR"];
+        Assert.Equivalent(expected, GetArgs(query));
+    }
+
+
+    [Fact]
+    public void CusorWithCount()
+    {
+        HybridSearchQuery query = new();
+        query.WithCursor(15);
+        object[] expected = [Index, "WITHCURSOR", "COUNT", 15];
+        Assert.Equivalent(expected, GetArgs(query));
+    }
+
+
+    [Fact]
+    public void CursorWithMaxIdle()
+    {
+        HybridSearchQuery query = new();
+        query.WithCursor(maxIdle: TimeSpan.FromSeconds(10));
+        object[] expected = [Index, "WITHCURSOR", "MAXIDLE", 10000];
+        Assert.Equivalent(expected, GetArgs(query));
+    }
+
+    [Fact]
+    public void CursorWithCountAndMaxIdle()
+    {
+        HybridSearchQuery query = new();
+        query.WithCursor(15, maxIdle: TimeSpan.FromSeconds(10));
+        object[] expected = [Index, "WITHCURSOR", "COUNT", 15, "MAXIDLE", 10000];
+        Assert.Equivalent(expected, GetArgs(query));
+    }
+
+    [Fact]
+    public void MakeMeOneWithEverything()
+    {
+        HybridSearchQuery query = new();
+        query.Search("foo", 
+                new HybridSearchQuery.QueryConfig().Scorer(Scorer.BM25StdTanh(5)).ScoreAlias("text_score_alias"))
+            .VectorSimilaritySearch("bar", new byte[] {1, 2, 3},
+                new HybridSearchQuery.VectorSearchConfig()
+                    .Method(HybridSearchQuery.VectorSearchMethod.NearestNeighbour(10, 100, "vector_distance_alias"))
+                    .Filter("@foo:bar").ScoreAlias("vector_score_alias"))
+            .Combine(HybridSearchQuery.Combiner.ReciprocalRankFusion(10, 0.5), "my_combined_alias")
+            .Load("field1", "field2")
+            .GroupBy("field1", Reducers.Quantile("@field3", 0.5))
+            .Apply("@field1 + @field2", "apply_alias")
+            .SortBy(SortedField.Asc("field1"), SortedField.Desc("field2"))
+            .Filter("@field1:bar")
+            .Limit(12, 54)
+            .ExplainScore()
+            .Timeout()
+            .WithCursor(10, TimeSpan.FromSeconds(10));
+
+        var args = new Dictionary<string, object>
+        {
+            ["x"] = 42,
+            ["y"] = "abc"
+        };
+        object[] expected = [
+            Index, "SEARCH", "foo", "SCORER", "BM25STD.TANH", "BM25STD_TANH_FACTOR", 5, "YIELD_SCORE_AS", "text_score_alias", "VSIM", "bar",
+            "AQID", "KNN", 6, "K", 10, "EF_RUNTIME", 100, "YIELD_DISTANCE_AS", "vector_distance_alias", "FILTER",
+            "@foo:bar", "YIELD_SCORE_AS", "vector_score_alias", "COMBINE", "RRF", 4, "WINDOW", 10, "CONSTANT", 0.5,
+            "YIELD_SCORE_AS", "my_combined_alias", "LOAD", 2, "field1", "field2", "GROUPBY", 1, "field1", "REDUCE",
+            "QUANTILE", 2, "@field3", 0.5, "APPLY", "@field1 + @field2", "AS", "apply_alias",
+            "SORTBY", 3, "field1", "field2", "DESC", "FILTER", "@field1:bar", "LIMIT", 12, 54,
+            "PARAMS", 4, "x", 42, "y", "abc",
+            "EXPLAINSCORE", "TIMEOUT",
+            "WITHCURSOR", "COUNT", 10, "MAXIDLE", 10000];
+
+        log.WriteLine(query.Command + " " + string.Join(" ", expected));
+        log.WriteLine("vs");
+        Assert.Equivalent(expected, GetArgs(query, args));
     }
 }

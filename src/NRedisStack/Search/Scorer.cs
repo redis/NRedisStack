@@ -1,8 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace NRedisStack.Search;
 
 /// <summary>
 /// See https://redis.io/docs/latest/develop/ai/search-and-query/advanced-concepts/scoring/ for more details
 /// </summary>
+[Experimental(Experiments.Server_8_4, UrlFormat = Experiments.UrlFormat)]
 public abstract class Scorer
 {
     private protected Scorer()

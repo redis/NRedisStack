@@ -1,27 +1,29 @@
 using System.Buffers;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using NRedisStack.Search.Aggregation;
 using StackExchange.Redis;
 
 namespace NRedisStack.Search;
 
+[Experimental(Experiments.Server_8_4, UrlFormat = Experiments.UrlFormat)]
 public sealed partial class HybridSearchQuery
 {
     internal string Command => "FT.HYBRID";
 
-    internal ICollection<object> GetArgs(in RedisKey index, Dictionary<string, object>? parameters)
+    internal ICollection<object> GetArgs(in RedisKey index, IDictionary<string, object>? parameters)
     {
-        var count = GetOwnArgsCount();
+        var count = GetOwnArgsCount(parameters);
         var args = new List<object>(count + 1);
         args.Add(index);
-        AddOwnArgs(args);
+        AddOwnArgs(args, parameters);
         Debug.Assert(args.Count == count + 1,
             $"Arg count mismatch; check {nameof(GetOwnArgsCount)} ({count}) vs {nameof(AddOwnArgs)} ({args.Count - 1})");
         return args;
     }
 
-    internal int GetOwnArgsCount()
+    internal int GetOwnArgsCount(IDictionary<string, object>? parameters)
     {
         int count = 0; // note index is not included here
         if (_query is not null)
@@ -79,7 +81,7 @@ public sealed partial class HybridSearchQuery
                 case string[] strings:
                     count += strings.Length;
                     break;
-                case SortedField field when field.Order == SortedField.SortOrder.ASC:
+                case SortedField { Order: SortedField.SortOrder.ASC }:
                     count += 1;
                     break;
                 case SortedField field:
@@ -96,10 +98,26 @@ public sealed partial class HybridSearchQuery
             }
         }
 
+        if (_filter is not null) count += 2;
+
+        if (_pagingOffset >= 0) count += 3;
+
+        if (parameters is not null) count += (parameters.Count + 1) * 2;
+
+        if (_explainScore) count++;
+        if (_timeout) count++;
+
+        if (_cursorCount >= 0)
+        {
+            count++;
+            if (_cursorCount != 0) count += 2;
+            if (_cursorMaxIdle > TimeSpan.Zero) count += 2;
+        }
+
         return count;
     }
 
-    internal void AddOwnArgs(List<object> args)
+    internal void AddOwnArgs(List<object> args, IDictionary<string, object>? parameters)
     {
         if (_query is not null)
         {
@@ -197,7 +215,7 @@ public sealed partial class HybridSearchQuery
                     args.Add(fields.Length);
                     args.AddRange(fields);
                     break;
-                case SortedField field when field.Order == SortedField.SortOrder.ASC:
+                case SortedField { Order: SortedField.SortOrder.ASC } field:
                     args.Add(1);
                     args.Add(field.FieldName);
                     break;
@@ -223,6 +241,60 @@ public sealed partial class HybridSearchQuery
                     break;
                 default:
                     throw new ArgumentException("Invalid sort by field or fields");
+            }
+        }
+
+        if (_filter is not null)
+        {
+            args.Add("FILTER");
+            args.Add(_filter);
+        }
+
+        if (_pagingOffset >= 0)
+        {
+            args.Add("LIMIT");
+            args.Add(_pagingOffset);
+            args.Add(_pagingCount);
+        }
+
+        if (parameters is not null)
+        {
+            args.Add("PARAMS");
+            args.Add(parameters.Count * 2);
+            if (parameters is Dictionary<string, object> typed)
+            {
+                foreach (var entry in typed) // avoid allocating enumerator
+                {
+                    args.Add(entry.Key);
+                    args.Add(entry.Value);
+                }
+            }
+            else
+            {
+                foreach (var entry in parameters)
+                {
+                    args.Add(entry.Key);
+                    args.Add(entry.Value);
+                }
+            }
+        }
+
+        if (_explainScore) args.Add("EXPLAINSCORE");
+        if (_timeout) args.Add("TIMEOUT");
+
+        if (_cursorCount >= 0)
+        {
+            args.Add("WITHCURSOR");
+            if (_cursorCount != 0)
+            {
+                args.Add("COUNT");
+                args.Add(_cursorCount);
+            }
+
+            if (_cursorMaxIdle > TimeSpan.Zero)
+            {
+                args.Add("MAXIDLE");
+                args.Add((long)_cursorMaxIdle.TotalMilliseconds);
             }
         }
     }
