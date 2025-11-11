@@ -1,13 +1,9 @@
+[NRS001]NRedisStack.ISearchCommands.HybridSearch(string! indexName, NRedisStack.Search.HybridSearchQuery! query, System.Collections.Generic.IReadOnlyDictionary<string!, object!>? parameters = null) -> NRedisStack.Search.HybridSearchResult!
+[NRS001]NRedisStack.ISearchCommandsAsync.HybridSearchAsync(string! indexName, NRedisStack.Search.HybridSearchQuery! query, System.Collections.Generic.IReadOnlyDictionary<string!, object!>? parameters = null) -> System.Threading.Tasks.Task<NRedisStack.Search.HybridSearchResult!>!
+[NRS001]NRedisStack.Search.HybridSearchQuery.ReturnFields(params string![]! fields) -> NRedisStack.Search.HybridSearchQuery!
+[NRS001]NRedisStack.Search.HybridSearchQuery.ReturnFields(string! field) -> NRedisStack.Search.HybridSearchQuery!
+[NRS001]NRedisStack.Search.HybridSearchResult
 [NRS001]NRedisStack.Search.Scorer
-[NRS001]override NRedisStack.Search.Scorer.ToString() -> string!
-[NRS001]static NRedisStack.Search.Scorer.BM25Std.get -> NRedisStack.Search.Scorer!
-[NRS001]static NRedisStack.Search.Scorer.BM25StdNorm.get -> NRedisStack.Search.Scorer!
-[NRS001]static NRedisStack.Search.Scorer.BM25StdTanh(int y = 4) -> NRedisStack.Search.Scorer!
-[NRS001]static NRedisStack.Search.Scorer.DisMax.get -> NRedisStack.Search.Scorer!
-[NRS001]static NRedisStack.Search.Scorer.DocScore.get -> NRedisStack.Search.Scorer!
-[NRS001]static NRedisStack.Search.Scorer.Hamming.get -> NRedisStack.Search.Scorer!
-[NRS001]static NRedisStack.Search.Scorer.TfIdf.get -> NRedisStack.Search.Scorer!
-[NRS001]static NRedisStack.Search.Scorer.TfIdfDocNorm.get -> NRedisStack.Search.Scorer!
 [NRS001]NRedisStack.Search.HybridSearchQuery
 [NRS001]NRedisStack.Search.HybridSearchQuery.Apply(string! expression, string! alias) -> NRedisStack.Search.HybridSearchQuery!
 [NRS001]NRedisStack.Search.HybridSearchQuery.Combine(NRedisStack.Search.HybridSearchQuery.Combiner! combiner, string? scoreAlias = null) -> NRedisStack.Search.HybridSearchQuery!
@@ -20,7 +16,6 @@
 [NRS001]NRedisStack.Search.HybridSearchQuery.HybridSearchQuery() -> void
 [NRS001]NRedisStack.Search.HybridSearchQuery.Language(string! language) -> NRedisStack.Search.HybridSearchQuery!
 [NRS001]NRedisStack.Search.HybridSearchQuery.Limit(int offset, int count) -> NRedisStack.Search.HybridSearchQuery!
-[NRS001]NRedisStack.Search.HybridSearchQuery.Load(params string![]! fields) -> NRedisStack.Search.HybridSearchQuery!
 [NRS001]NRedisStack.Search.HybridSearchQuery.QueryConfig
 [NRS001]NRedisStack.Search.HybridSearchQuery.QueryConfig.QueryConfig() -> void
 [NRS001]NRedisStack.Search.HybridSearchQuery.QueryConfig.ScoreAlias(string! scoreAlias) -> NRedisStack.Search.HybridSearchQuery.QueryConfig!
@@ -44,9 +39,20 @@
 [NRS001]NRedisStack.Search.HybridSearchQuery.VectorSearchMethod
 [NRS001]NRedisStack.Search.HybridSearchQuery.VectorSimilaritySearch(string! field, System.ReadOnlyMemory<byte> data, NRedisStack.Search.HybridSearchQuery.VectorSearchConfig? config = null) -> NRedisStack.Search.HybridSearchQuery!
 [NRS001]NRedisStack.Search.HybridSearchQuery.WithCursor(int count = 0, System.TimeSpan maxIdle = default(System.TimeSpan)) -> NRedisStack.Search.HybridSearchQuery!
+[NRS001]NRedisStack.SearchCommands.HybridSearch(string! indexName, NRedisStack.Search.HybridSearchQuery! query, System.Collections.Generic.IReadOnlyDictionary<string!, object!>? parameters = null) -> NRedisStack.Search.HybridSearchResult!
+[NRS001]NRedisStack.SearchCommandsAsync.HybridSearchAsync(string! indexName, NRedisStack.Search.HybridSearchQuery! query, System.Collections.Generic.IReadOnlyDictionary<string!, object!>? parameters = null) -> System.Threading.Tasks.Task<NRedisStack.Search.HybridSearchResult!>!
 [NRS001]override NRedisStack.Search.HybridSearchQuery.Combiner.ToString() -> string!
 [NRS001]override NRedisStack.Search.HybridSearchQuery.VectorSearchMethod.ToString() -> string!
+[NRS001]override NRedisStack.Search.Scorer.ToString() -> string!
 [NRS001]static NRedisStack.Search.HybridSearchQuery.Combiner.Linear(double alpha = 0.3, double beta = 0.7) -> NRedisStack.Search.HybridSearchQuery.Combiner!
 [NRS001]static NRedisStack.Search.HybridSearchQuery.Combiner.ReciprocalRankFusion(int? window = null, double? constant = null) -> NRedisStack.Search.HybridSearchQuery.Combiner!
 [NRS001]static NRedisStack.Search.HybridSearchQuery.VectorSearchMethod.NearestNeighbour(int count = 10, int? maxTopCandidates = null, string? distanceAlias = null) -> NRedisStack.Search.HybridSearchQuery.VectorSearchMethod!
 [NRS001]static NRedisStack.Search.HybridSearchQuery.VectorSearchMethod.Range(double radius, double? epsilon = null, string? distanceAlias = null) -> NRedisStack.Search.HybridSearchQuery.VectorSearchMethod!
+[NRS001]static NRedisStack.Search.Scorer.BM25Std.get -> NRedisStack.Search.Scorer!
+[NRS001]static NRedisStack.Search.Scorer.BM25StdNorm.get -> NRedisStack.Search.Scorer!
+[NRS001]static NRedisStack.Search.Scorer.BM25StdTanh(int y = 4) -> NRedisStack.Search.Scorer!
+[NRS001]static NRedisStack.Search.Scorer.DisMax.get -> NRedisStack.Search.Scorer!
+[NRS001]static NRedisStack.Search.Scorer.DocScore.get -> NRedisStack.Search.Scorer!
+[NRS001]static NRedisStack.Search.Scorer.Hamming.get -> NRedisStack.Search.Scorer!
+[NRS001]static NRedisStack.Search.Scorer.TfIdf.get -> NRedisStack.Search.Scorer!
+[NRS001]static NRedisStack.Search.Scorer.TfIdfDocNorm.get -> NRedisStack.Search.Scorer!

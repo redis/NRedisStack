@@ -1,18 +1,16 @@
 using System.Buffers;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using NRedisStack.Search.Aggregation;
 using StackExchange.Redis;
 
 namespace NRedisStack.Search;
 
-[Experimental(Experiments.Server_8_4, UrlFormat = Experiments.UrlFormat)]
 public sealed partial class HybridSearchQuery
 {
     internal string Command => "FT.HYBRID";
 
-    internal ICollection<object> GetArgs(in RedisKey index, IDictionary<string, object>? parameters)
+    internal ICollection<object> GetArgs(in RedisKey index, IReadOnlyDictionary<string, object>? parameters)
     {
         var count = GetOwnArgsCount(parameters);
         var args = new List<object>(count + 1);
@@ -23,7 +21,7 @@ public sealed partial class HybridSearchQuery
         return args;
     }
 
-    internal int GetOwnArgsCount(IDictionary<string, object>? parameters)
+    internal int GetOwnArgsCount(IReadOnlyDictionary<string, object>? parameters)
     {
         int count = 0; // note index is not included here
         if (_query is not null)
@@ -42,9 +40,14 @@ public sealed partial class HybridSearchQuery
             if (_combineScoreAlias != null) count += 2;
         }
 
-        if (_loadFields is not null)
+        switch (_loadFieldOrFields)
         {
-            count += 2 + _loadFields.Length;
+            case string:
+                count += 3;
+                break;
+            case string[] fields:
+                count += 2 + fields.Length;
+                break;
         }
 
         if (_groupByFieldOrFields is not null)
@@ -117,7 +120,7 @@ public sealed partial class HybridSearchQuery
         return count;
     }
 
-    internal void AddOwnArgs(List<object> args, IDictionary<string, object>? parameters)
+    internal void AddOwnArgs(List<object> args, IReadOnlyDictionary<string, object>? parameters)
     {
         if (_query is not null)
         {
@@ -162,11 +165,18 @@ public sealed partial class HybridSearchQuery
             }
         }
 
-        if (_loadFields is not null)
+        switch (_loadFieldOrFields)
         {
-            args.Add("LOAD");
-            args.Add(_loadFields.Length);
-            args.AddRange(_loadFields);
+            case string field:
+                args.Add("LOAD");
+                args.Add(1);
+                args.Add(field);
+                break;
+            case string[] fields:
+                args.Add("LOAD");
+                args.Add(fields.Length);
+                args.AddRange(fields);
+                break;
         }
 
         if (_groupByFieldOrFields is not null)
@@ -296,6 +306,14 @@ public sealed partial class HybridSearchQuery
                 args.Add("MAXIDLE");
                 args.Add((long)_cursorMaxIdle.TotalMilliseconds);
             }
+        }
+    }
+
+    internal void Validate()
+    {
+        if (_query is null | _vectorField is null)
+        {
+            throw new InvalidOperationException($"Both the query ({nameof(Query)}(...)) and vector search ({nameof(VectorSimilaritySearch)}(...))) details must be set.");
         }
     }
 }

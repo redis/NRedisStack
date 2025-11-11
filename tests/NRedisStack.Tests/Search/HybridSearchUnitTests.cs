@@ -13,7 +13,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     private readonly RedisKey _index = "myindex";
     private ref readonly RedisKey Index => ref _index;
 
-    private ICollection<object> GetArgs(HybridSearchQuery query, IDictionary<string, object>? parameters = null)
+    private ICollection<object> GetArgs(HybridSearchQuery query, IReadOnlyDictionary<string, object>? parameters = null)
     {
         Assert.Equal("FT.HYBRID", query.Command);
         var args = query.GetArgs(Index, parameters);
@@ -371,10 +371,19 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     }
 
     [Fact]
+    public void LoadField()
+    {
+        HybridSearchQuery query = new();
+        query.ReturnFields("field1");
+        object[] expected = [Index, "LOAD", 1, "field1"];
+        Assert.Equivalent(expected, GetArgs(query));
+    }
+
+    [Fact]
     public void LoadFields()
     {
         HybridSearchQuery query = new();
-        query.Load("field1", "field2");
+        query.ReturnFields("field1", "field2");
         object[] expected = [Index, "LOAD", 2, "field1", "field2"];
         Assert.Equivalent(expected, GetArgs(query));
     }
@@ -383,7 +392,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     public void LoadEmptyFields()
     {
         HybridSearchQuery query = new();
-        query.Load([]);
+        query.ReturnFields([]);
         object[] expected = [Index, "LOAD", 0];
         Assert.Equivalent(expected, GetArgs(query));
     }
@@ -603,7 +612,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
                     .Method(HybridSearchQuery.VectorSearchMethod.NearestNeighbour(10, 100, "vector_distance_alias"))
                     .Filter("@foo:bar").ScoreAlias("vector_score_alias"))
             .Combine(HybridSearchQuery.Combiner.ReciprocalRankFusion(10, 0.5), "my_combined_alias")
-            .Load("field1", "field2")
+            .ReturnFields("field1", "field2")
             .GroupBy("field1", Reducers.Quantile("@field3", 0.5))
             .Apply("@field1 + @field2", "apply_alias")
             .SortBy(SortedField.Asc("field1"), SortedField.Desc("field2"))

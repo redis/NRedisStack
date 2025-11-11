@@ -1,7 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
 using NRedisStack.Search.Aggregation;
 
 namespace NRedisStack.Search;
 
+[Experimental(Experiments.Server_8_4, UrlFormat = Experiments.UrlFormat)]
 public sealed partial class HybridSearchQuery
 {
     private string? _query;
@@ -45,14 +47,23 @@ public sealed partial class HybridSearchQuery
         return this;
     }
 
-    private string[]? _loadFields;
+    private object? _loadFieldOrFields;
 
     /// <summary>
     /// Add the list of fields to return in the results.
     /// </summary>
-    public HybridSearchQuery Load(params string[] fields)
+    public HybridSearchQuery ReturnFields(params string[] fields) // naming for consistency with SearchQuery
     {
-        _loadFields = fields;
+        _loadFieldOrFields = fields;
+        return this;
+    }
+    
+    /// <summary>
+    /// Add the list of fields to return in the results.
+    /// </summary>
+    public HybridSearchQuery ReturnFields(string field) // naming for consistency with SearchQuery
+    {
+        _loadFieldOrFields = field;
         return this;
     }
 

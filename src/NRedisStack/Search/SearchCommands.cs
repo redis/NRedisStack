@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using NRedisStack.Search;
 using NRedisStack.Search.Aggregation;
 using NRedisStack.Search.DataTypes;
@@ -313,4 +314,14 @@ public class SearchCommands(IDatabase db, int? defaultDialect = 2)
     /// <inheritdoc/>
     public RedisResult[] TagVals(string indexName, string fieldName) => //TODO: consider return Set
         db.Execute(SearchCommandBuilder.TagVals(indexName, fieldName)).ToArray();
+
+
+    /// <inheritdoc/>
+    [Experimental(Experiments.Server_8_4, UrlFormat = Experiments.UrlFormat)]
+    public HybridSearchResult HybridSearch(string indexName, HybridSearchQuery query, IReadOnlyDictionary<string, object>? parameters = null)
+    {
+        query.Validate();
+        var args = query.GetArgs(indexName, parameters);
+        return HybridSearchResult.Parse(db.Execute(query.Command, args));
+    }
 }

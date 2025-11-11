@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using NRedisStack.Search;
 using NRedisStack.Search.Aggregation;
 using NRedisStack.Search.DataTypes;
@@ -344,4 +345,15 @@ public interface ISearchCommands
     /// <returns>List of TAG field values</returns>
     /// <remarks><seealso href="https://redis.io/commands/ft.tagvals"/></remarks>
     RedisResult[] TagVals(string indexName, string fieldName);
+
+    /// <summary>
+    /// Perform a hybrid search query.
+    /// </summary>
+    /// <param name="indexName">The index name.</param>
+    /// <param name="query">The query to execute.</param>
+    /// <param name="parameters">The parameters to pass to the query, if any.</param>
+    /// <returns>List of TAG field values</returns>
+    /// <remarks><seealso href="https://redis.io/commands/ft.hybrid"/></remarks>
+    [Experimental(Experiments.Server_8_4, UrlFormat = Experiments.UrlFormat)]
+    HybridSearchResult HybridSearch(string indexName, HybridSearchQuery query, IReadOnlyDictionary<string, object>? parameters = null);
 }

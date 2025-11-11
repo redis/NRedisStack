@@ -30,6 +30,7 @@ public abstract class Scorer
     /// <summary>
     /// A variation on the basic TFIDF scorer.
     /// </summary>
+    // ReSharper disable InconsistentNaming
     public static Scorer BM25Std { get; } = new SimpleScorer("BM25STD");
 
     /// <summary>
@@ -42,6 +43,7 @@ public abstract class Scorer
     /// </summary>
     /// <param name="y">used to smooth the function and the score values.</param>
     public static Scorer BM25StdTanh(int y = Bm25StdTanh.DEFAULT_Y) => Bm25StdTanh.Create(y);
+    // ReSharper restore InconsistentNaming
 
     /// <summary>
     /// A simple scorer that sums up the frequencies of matched terms. In the case of union clauses, it will give the maximum value of those matches. No other penalties or factors are applied.
