@@ -9,7 +9,7 @@ namespace NRedisStack.Tests.Search;
 public class HybridSearchUnitTests(ITestOutputHelper log)
 {
     private string Index { get; } = "myindex";
-    
+
     private ICollection<object> GetArgs(HybridSearchQuery query)
     {
         Assert.Equal("FT.HYBRID", query.Command);
@@ -49,7 +49,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         object[] expected = [Index, "SEARCH", "foo"];
         if (withAlias)
         {
-            expected = [..expected, "YIELD_SCORE_AS", "score_alias"];
+            expected = [.. expected, "YIELD_SCORE_AS", "score_alias"];
         }
 
         Assert.Equivalent(expected, GetArgs(query));
@@ -69,7 +69,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         object[] expected = [Index, "SEARCH", "foo", "SCORER", "TFIDF"];
         if (withAlias)
         {
-            expected = [..expected, "YIELD_SCORE_AS", "score_alias"];
+            expected = [.. expected, "YIELD_SCORE_AS", "score_alias"];
         }
 
         Assert.Equivalent(expected, GetArgs(query));
@@ -119,12 +119,12 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     {
         HybridSearchQuery query = new();
         query.VectorSearch("vfield", Array.Empty<float>());
-        
+
         object[] expected = [Index, "VSIM", "vfield", ""];
         Assert.Equivalent(expected, GetArgs(query));
     }
 
-    private static readonly ReadOnlyMemory<float> SomeRandomDataHere = new float[] {1, 2, 3, 4};
+    private static readonly ReadOnlyMemory<float> SomeRandomDataHere = new float[] { 1, 2, 3, 4 };
 
     private const string SomeRandomBase64 = "AACAPwAAAEAAAEBAAACAQA==";
 
@@ -156,12 +156,12 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
             [Index, "VSIM", "vField", SomeRandomBase64, "KNN", withDistanceAlias ? 4 : 2, "K", 10];
         if (withDistanceAlias)
         {
-            expected = [..expected, "YIELD_DISTANCE_AS", "my_distance_alias"];
+            expected = [.. expected, "YIELD_DISTANCE_AS", "my_distance_alias"];
         }
 
         if (withScoreAlias)
         {
-            expected = [..expected, "YIELD_SCORE_AS", "my_score_alias"];
+            expected = [.. expected, "YIELD_SCORE_AS", "my_score_alias"];
         }
 
         Assert.Equivalent(expected, GetArgs(query));
@@ -190,12 +190,12 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         ];
         if (withDistanceAlias)
         {
-            expected = [..expected, "YIELD_DISTANCE_AS", "my_distance_alias"];
+            expected = [.. expected, "YIELD_DISTANCE_AS", "my_distance_alias"];
         }
 
         if (withScoreAlias)
         {
-            expected = [..expected, "YIELD_SCORE_AS", "my_score_alias"];
+            expected = [.. expected, "YIELD_SCORE_AS", "my_score_alias"];
         }
 
         Assert.Equivalent(expected, GetArgs(query));
@@ -222,12 +222,12 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         ];
         if (withDistanceAlias)
         {
-            expected = [..expected, "YIELD_DISTANCE_AS", "my_distance_alias"];
+            expected = [.. expected, "YIELD_DISTANCE_AS", "my_distance_alias"];
         }
 
         if (withScoreAlias)
         {
-            expected = [..expected, "YIELD_SCORE_AS", "my_score_alias"];
+            expected = [.. expected, "YIELD_SCORE_AS", "my_score_alias"];
         }
 
         Assert.Equivalent(expected, GetArgs(query));
@@ -255,12 +255,12 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         ];
         if (withDistanceAlias)
         {
-            expected = [..expected, "YIELD_DISTANCE_AS", "my_distance_alias"];
+            expected = [.. expected, "YIELD_DISTANCE_AS", "my_distance_alias"];
         }
 
         if (withScoreAlias)
         {
-            expected = [..expected, "YIELD_SCORE_AS", "my_score_alias"];
+            expected = [.. expected, "YIELD_SCORE_AS", "my_score_alias"];
         }
 
         Assert.Equivalent(expected, GetArgs(query));
@@ -320,12 +320,12 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         object[] expected = [Index, "COMBINE", "RRF", (window is not null ? 2 : 0) + (constant is not null ? 2 : 0)];
         if (window is not null)
         {
-            expected = [..expected, "WINDOW", window];
+            expected = [.. expected, "WINDOW", window];
         }
 
         if (constant is not null)
         {
-            expected = [..expected, "CONSTANT", constant];
+            expected = [.. expected, "CONSTANT", constant];
         }
 
         Assert.Equivalent(expected, GetArgs(query));
