@@ -225,8 +225,9 @@ public sealed partial class HybridSearchQuery
     /// <summary>
     /// Use a cursor for result iteration.
     /// </summary>
-    public HybridSearchQuery WithCursor(int count = 0, TimeSpan maxIdle = default)
+    internal HybridSearchQuery WithCursor(int count = 0, TimeSpan maxIdle = default)
     {
+        // not currently exposed, while I figure out the API
         _cursorCount = count;
         _cursorMaxIdle = maxIdle;
         return this;
