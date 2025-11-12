@@ -9,7 +9,7 @@ public sealed partial class HybridSearchQuery
 {
     public readonly struct VectorSearchConfig(string fieldName, VectorData vectorData, VectorSearchMethod? method = null, string? filter = null, string? scoreAlias = null)
     {
-        internal bool HasValue => _vectorData.HasValue & _fieldName is not null;
+        internal bool HasValue => _vectorData is not null & _fieldName is not null;
 
         private readonly string _fieldName = fieldName;
         private readonly VectorData _vectorData = vectorData;
@@ -40,7 +40,7 @@ public sealed partial class HybridSearchQuery
         /// <summary>
         /// The vector data to search for.
         /// </summary>
-        public VectorData VectorData => _vectorData;
+        public VectorData? VectorData => _vectorData;
 
         /// <summary>
         /// Specify the vector search method.
@@ -97,7 +97,7 @@ public sealed partial class HybridSearchQuery
             int count = 0;
             if (HasValue)
             {
-                count += 2 + _vectorData.GetOwnArgsCount();
+                count += 2 + _vectorData.ArgsCount();
                 if (_method != null) count += _method.GetOwnArgsCount();
                 if (_filter != null) count += 2;
 
@@ -112,7 +112,7 @@ public sealed partial class HybridSearchQuery
             {
                 args.Add("VSIM");
                 args.Add(_fieldName);
-                _vectorData.AddOwnArgs(args);
+                _vectorData.AddArgs(args);
 
                 _method?.AddOwnArgs(args);
                 if (_filter != null)

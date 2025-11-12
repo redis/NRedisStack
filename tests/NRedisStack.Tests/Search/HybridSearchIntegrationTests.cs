@@ -50,7 +50,7 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
         Dictionary<string, object> args = new() { ["x"] = "abc" };
         var query = new HybridSearchQuery()
             .Search("*")
-            .VectorSearch("@vector1", new byte[] {1,2,3,4})
+            .VectorSearch("@vector1", new float[] {1,2,3,4})
             .Parameters(args)
             .ReturnFields("@text1");
         var result = api.FT.HybridSearch(api.Index, query);

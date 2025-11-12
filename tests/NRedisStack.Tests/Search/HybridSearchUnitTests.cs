@@ -118,14 +118,15 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     public void BasicVectorSearch()
     {
         HybridSearchQuery query = new();
-        byte[] data = [1, 2, 3];
-        query.VectorSearch("vfield", data);
+        query.VectorSearch("vfield", Array.Empty<float>());
         
-        object[] expected = [Index, "VSIM", "vfield", "AQID"];
+        object[] expected = [Index, "VSIM", "vfield", ""];
         Assert.Equivalent(expected, GetArgs(query));
     }
 
-    private static readonly ReadOnlyMemory<byte> SomeRandomDataHere = Encoding.UTF8.GetBytes("some random data here!");
+    private static readonly ReadOnlyMemory<float> SomeRandomDataHere = new float[] {1, 2, 3, 4};
+
+    private const string SomeRandomBase64 = "AACAPwAAAEAAAEBAAACAQA==";
 
     [Fact]
     public void BasicNonZeroLengthVectorSearch()
@@ -133,7 +134,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         HybridSearchQuery query = new();
         query.VectorSearch("vfield", SomeRandomDataHere);
 
-        object[] expected = [Index, "VSIM", "vfield", "c29tZSByYW5kb20gZGF0YSBoZXJlIQ=="];
+        object[] expected = [Index, "VSIM", "vfield", SomeRandomBase64];
         Assert.Equivalent(expected, GetArgs(query));
     }
 
@@ -152,7 +153,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         query.VectorSearch(searchConfig);
 
         object[] expected =
-            [Index, "VSIM", "vField", "c29tZSByYW5kb20gZGF0YSBoZXJlIQ==", "KNN", withDistanceAlias ? 4 : 2, "K", 10];
+            [Index, "VSIM", "vField", SomeRandomBase64, "KNN", withDistanceAlias ? 4 : 2, "K", 10];
         if (withDistanceAlias)
         {
             expected = [..expected, "YIELD_DISTANCE_AS", "my_distance_alias"];
@@ -184,7 +185,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
 
         object[] expected =
         [
-            Index, "VSIM", "vfield", "c29tZSByYW5kb20gZGF0YSBoZXJlIQ==", "KNN", withDistanceAlias ? 6 : 4, "K", 16,
+            Index, "VSIM", "vfield", SomeRandomBase64, "KNN", withDistanceAlias ? 6 : 4, "K", 16,
             "EF_RUNTIME", 100
         ];
         if (withDistanceAlias)
@@ -216,7 +217,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
 
         object[] expected =
         [
-            Index, "VSIM", "vfield", "c29tZSByYW5kb20gZGF0YSBoZXJlIQ==", "RANGE", withDistanceAlias ? 4 : 2, "RADIUS",
+            Index, "VSIM", "vfield", SomeRandomBase64, "RANGE", withDistanceAlias ? 4 : 2, "RADIUS",
             4.2
         ];
         if (withDistanceAlias)
@@ -249,7 +250,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
 
         object[] expected =
         [
-            Index, "VSIM", "vfield", "c29tZSByYW5kb20gZGF0YSBoZXJlIQ==", "RANGE", withDistanceAlias ? 6 : 4, "RADIUS",
+            Index, "VSIM", "vfield", SomeRandomBase64, "RANGE", withDistanceAlias ? 6 : 4, "RADIUS",
             4.2, "EPSILON", 0.06
         ];
         if (withDistanceAlias)
@@ -273,7 +274,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
 
         object[] expected =
         [
-            Index, "VSIM", "vfield", "c29tZSByYW5kb20gZGF0YSBoZXJlIQ==", "FILTER", "@foo:bar"
+            Index, "VSIM", "vfield", SomeRandomBase64, "FILTER", "@foo:bar"
         ];
 
         Assert.Equivalent(expected, GetArgs(query));
@@ -608,7 +609,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
             ["y"] = "abc"
         };
         query.Search(new("foo", Scorer.BM25StdTanh(5), "text_score_alias"))
-            .VectorSearch(new HybridSearchQuery.VectorSearchConfig("bar", new byte[] { 1, 2, 3 },
+            .VectorSearch(new HybridSearchQuery.VectorSearchConfig("bar", new float[] { 1, 2, 3 },
                     VectorSearchMethod.NearestNeighbour(10, 100, "vector_distance_alias"))
                 .WithFilter("@foo:bar").WithScoreAlias("vector_score_alias"))
             .Combine(HybridSearchQuery.Combiner.ReciprocalRankFusion(10, 0.5), "my_combined_alias")
@@ -626,7 +627,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         [
             Index, "SEARCH", "foo", "SCORER", "BM25STD.TANH", "BM25STD_TANH_FACTOR", 5, "YIELD_SCORE_AS",
             "text_score_alias", "VSIM", "bar",
-            "AQID", "KNN", 6, "K", 10, "EF_RUNTIME", 100, "YIELD_DISTANCE_AS", "vector_distance_alias", "FILTER",
+            "AACAPwAAAEAAAEBA", "KNN", 6, "K", 10, "EF_RUNTIME", 100, "YIELD_DISTANCE_AS", "vector_distance_alias", "FILTER",
             "@foo:bar", "YIELD_SCORE_AS", "vector_score_alias", "COMBINE", "RRF", 4, "WINDOW", 10, "CONSTANT", 0.5,
             "YIELD_SCORE_AS", "my_combined_alias", "LOAD", 2, "field1", "field2", "GROUPBY", 1, "field1", "REDUCE",
             "QUANTILE", 2, "@field3", 0.5, "AS", "reducer_alias", "APPLY", "@field1 + @field2", "AS", "apply_alias",

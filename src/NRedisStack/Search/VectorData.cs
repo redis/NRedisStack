@@ -5,36 +5,58 @@ using System.Runtime.InteropServices;
 namespace NRedisStack.Search;
 
 [Experimental(Experiments.Server_8_4, UrlFormat = Experiments.UrlFormat)]
-public readonly struct VectorData
+public abstract class VectorData
 {
-    // intended to allow future flexibility in how we express vectors
-    private readonly ReadOnlyMemory<byte> _data;
-    private VectorData(ReadOnlyMemory<byte> data)
+    private protected VectorData()
     {
-        _data = data;
     }
 
-    public static implicit operator VectorData(byte[] data) => new(data);
-    public static implicit operator VectorData(ReadOnlyMemory<byte> data) => new(data);
-    internal void AddOwnArgs(List<object> args)
+    /// <summary>
+    /// A vector of <see cref="Single"/> entries.
+    /// </summary>
+    public static VectorData Create(ReadOnlyMemory<float> vector) => new VectorDataSingle(vector);
+
+    /// <summary>
+    /// A pre-formatted base-64 value.
+    /// </summary>
+    public static VectorData FromBase64(string base64) => new VectorDataBase64(base64);
+
+    /// <summary>
+    /// A vector of <see cref="Single"/> entries.
+    /// </summary>
+    public static implicit operator VectorData(float[] data) => new VectorDataSingle(data);
+
+    /// <summary>
+    /// A vector of <see cref="Single"/> entries.
+    /// </summary>
+    public static implicit operator VectorData(ReadOnlyMemory<float> vector) => new VectorDataSingle(vector);
+
+    internal virtual void AddArgs(List<object> args) => args.Add(ToString() ?? "");
+    internal virtual int ArgsCount() => 1;
+
+    private sealed class VectorDataSingle(ReadOnlyMemory<float> vector) : VectorData
     {
+        public override string ToString()
+        {
+            if (!BitConverter.IsLittleEndian) ThrowBigEndian(); // we could loop and reverse each, but...how to test?
+            var bytes = MemoryMarshal.AsBytes(vector.Span);
 #if NET || NETSTANDARD2_1_OR_GREATER
-        args.Add(Convert.ToBase64String(_data.Span));
+            return Convert.ToBase64String(bytes);
 #else
-            if (MemoryMarshal.TryGetArray(_data, out ArraySegment<byte> segment))
-            {
-                args.Add(Convert.ToBase64String(segment.Array!, segment.Offset, segment.Count));
-            }
-            else
-            {
-                var span = _data.Span;
-                var oversized = ArrayPool<byte>.Shared.Rent(span.Length);
-                span.CopyTo(oversized);
-                args.Add(Convert.ToBase64String(oversized, 0, span.Length));
-                ArrayPool<byte>.Shared.Return(oversized);
-            }
+            var oversized = ArrayPool<byte>.Shared.Rent(bytes.Length);
+            bytes.CopyTo(oversized);
+            var result = Convert.ToBase64String(oversized, 0, bytes.Length);
+            ArrayPool<byte>.Shared.Return(oversized);
+            return result;
 #endif
+        }
     }
-    internal int GetOwnArgsCount() => 1;
-    internal bool HasValue => _data.Length > 0;
+
+    private sealed class VectorDataBase64(string vector) : VectorData
+    {
+        public override string ToString() => vector;
+    }
+
+    private protected static void ThrowBigEndian() =>
+        throw new PlatformNotSupportedException("Big-endian CPUs are not currently supported for this operation");
 }
