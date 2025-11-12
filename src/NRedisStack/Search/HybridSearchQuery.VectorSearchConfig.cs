@@ -1,104 +1,164 @@
+using System.Buffers;
+using System.Numerics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
 namespace NRedisStack.Search;
 
 public sealed partial class HybridSearchQuery
 {
-    public sealed class VectorSearchConfig
+    public readonly struct VectorData
     {
-        private string? _filter;
-        private VectorFilterPolicy? _filterPolicy;
-        private int? _filterBatchSize;
-
-        /// <summary>
-        /// Pre-filter for VECTOR results
-        /// </summary>
-        public VectorSearchConfig Filter(string filter, VectorFilterPolicy? policy = null, int? batchSize = null)
+        // intended to allow future flexibility in how we express vectors
+        private readonly ReadOnlyMemory<byte> _data;
+        private VectorData(ReadOnlyMemory<byte> data)
         {
-            _filter = filter;
-            _filterPolicy = policy;
-            _filterBatchSize = batchSize;
-            return this;
+            _data = data;
         }
 
-        /// <summary>
-        /// The filter policy to apply
-        /// </summary>
-        public enum VectorFilterPolicy
+        public static implicit operator VectorData(byte[] data) => new(data);
+        public static implicit operator VectorData(ReadOnlyMemory<byte> data) => new(data);
+        internal void AddOwnArgs(List<object> args)
         {
-            AdHoc,
-            Batches,
-            Acorn,
+#if NET || NETSTANDARD2_1_OR_GREATER
+            args.Add(Convert.ToBase64String(_data.Span));
+#else
+            if (MemoryMarshal.TryGetArray(_data, out ArraySegment<byte> segment))
+            {
+                args.Add(Convert.ToBase64String(segment.Array!, segment.Offset, segment.Count));
+            }
+            else
+            {
+                var span = _data.Span;
+                var oversized = ArrayPool<byte>.Shared.Rent(span.Length);
+                span.CopyTo(oversized);
+                args.Add(Convert.ToBase64String(oversized, 0, span.Length));
+                ArrayPool<byte>.Shared.Return(oversized);
+            }
+#endif
         }
+        internal int GetOwnArgsCount() => 1;
+        internal bool HasValue => _data.Length > 0;
+    }
+    public readonly struct VectorSearchConfig(string fieldName, VectorData vectorData, VectorSearchMethod? method = null, string? filter = null, string? scoreAlias = null)
+    {
+        internal bool HasValue => _vectorData.HasValue & _fieldName is not null;
 
-        private string? _scoreAlias;
+        private readonly string _fieldName = fieldName;
+        private readonly VectorData _vectorData = vectorData;
+        private readonly VectorSearchMethod? _method = method;
+        private readonly string? _filter = filter;
+        private readonly string? _scoreAlias = scoreAlias;
+
+        /// <summary>
+        /// The field name for vector search.
+        /// </summary>
+        public string FieldName => _fieldName;
+
+        /// <summary>
+        /// Vector search method configuration.
+        /// </summary>
+        public VectorSearchMethod? Method => _method;
+
+        /// <summary>
+        /// Filter expression for vector search.
+        /// </summary>
+        public string? Filter => _filter;
 
         /// <summary>
         /// Include the score in the query results.
         /// </summary>
-        public VectorSearchConfig ScoreAlias(string scoreAlias)
-        {
-            _scoreAlias = scoreAlias;
-            return this;
-        }
-
-
-        private VectorSearchMethod? _method;
+        public string? ScoreAlias => _scoreAlias;
+        
+        /// <summary>
+        /// The vector data to search for.
+        /// </summary>
+        public VectorData VectorData => _vectorData;
 
         /// <summary>
-        /// The method to use for vector search.
+        /// Specify the vector search method.
         /// </summary>
-        public VectorSearchConfig Method(VectorSearchMethod method)
+        public VectorSearchConfig WithVectorData(VectorData vectorData)
         {
-            _method = method;
-            return this;
+            var copy = this;
+            Unsafe.AsRef(in copy._vectorData) = vectorData;
+            return copy;
+        }
+
+        /// <summary>
+        /// Specify the vector search method.
+        /// </summary>
+        public VectorSearchConfig WithMethod(VectorSearchMethod? method)
+        {
+            var copy = this;
+            Unsafe.AsRef(in copy._method) = method;
+            return copy;
+        }
+
+        /// <summary>
+        /// Specify the field name for vector search.
+        /// </summary>
+        public VectorSearchConfig WithFieldName(string fieldName)
+        {
+            var copy = this;
+            Unsafe.AsRef(in copy._fieldName) = fieldName;
+            return copy;
+        }
+
+        /// <summary>
+        /// Specify the filter expression.
+        /// </summary>
+        public VectorSearchConfig WithFilter(string? filter)
+        {
+            var copy = this;
+            Unsafe.AsRef(in copy._filter) = filter;
+            return copy;
+        }
+
+        /// <summary>
+        /// Specify the score alias.
+        /// </summary>
+        public VectorSearchConfig WithScoreAlias(string? scoreAlias)
+        {
+            var copy = this;
+            Unsafe.AsRef(in copy._scoreAlias) = scoreAlias;
+            return copy;
         }
 
         internal int GetOwnArgsCount()
         {
             int count = 0;
-            if (_method != null) count += _method.GetOwnArgsCount();
-            if (_filter != null)
+            if (HasValue)
             {
-                count += 2;
-                if (_filterPolicy != null)
-                {
-                    count += 2;
-                    if (_filterBatchSize != null) count += 2;
-                }
-            }
+                count += 2 + _vectorData.GetOwnArgsCount();
+                if (_method != null) count += _method.GetOwnArgsCount();
+                if (_filter != null) count += 2;
 
-            if (_scoreAlias != null) count += 2;
+                if (_scoreAlias != null) count += 2;
+            }
             return count;
         }
 
         internal void AddOwnArgs(List<object> args)
         {
-            _method?.AddOwnArgs(args);
-            if (_filter != null)
+            if (HasValue)
             {
-                args.Add("FILTER");
-                args.Add(_filter);
-                if (_filterPolicy != null)
-                {
-                    args.Add("POLICY");
-                    args.Add(_filterPolicy switch
-                    {
-                        VectorFilterPolicy.AdHoc => "ADHOC",
-                        VectorFilterPolicy.Batches => "BATCHES",
-                        VectorFilterPolicy.Acorn => "ACORN",
-                        _ => _filterPolicy.ToString()!,
-                    });
-                    if (_filterBatchSize != null)
-                    {
-                        args.Add("BATCH_SIZE");
-                        args.Add(_filterBatchSize);
-                    }
-                }
-            }
+                args.Add("VSIM");
+                args.Add(_fieldName);
+                _vectorData.AddOwnArgs(args);
 
-            if (_scoreAlias != null)
-            {
-                args.Add("YIELD_SCORE_AS");
-                args.Add(_scoreAlias);
+                _method?.AddOwnArgs(args);
+                if (_filter != null)
+                {
+                    args.Add("FILTER");
+                    args.Add(_filter);
+                }
+
+                if (_scoreAlias != null)
+                {
+                    args.Add("YIELD_SCORE_AS");
+                    args.Add(_scoreAlias);
+                }
             }
         }
     }

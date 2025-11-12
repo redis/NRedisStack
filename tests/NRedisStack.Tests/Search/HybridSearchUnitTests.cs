@@ -1,8 +1,6 @@
-using System.Reflection;
 using System.Text;
 using NRedisStack.Search;
 using NRedisStack.Search.Aggregation;
-using StackExchange.Redis;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -10,9 +8,8 @@ namespace NRedisStack.Tests.Search;
 
 public class HybridSearchUnitTests(ITestOutputHelper log)
 {
-    private readonly RedisKey _index = "myindex";
-    private ref readonly RedisKey Index => ref _index;
-
+    private string Index { get; } = "myindex";
+    
     private ICollection<object> GetArgs(HybridSearchQuery query, IReadOnlyDictionary<string, object>? parameters = null)
     {
         Assert.Equal("FT.HYBRID", query.Command);
@@ -45,9 +42,9 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     public void BasicSearch_WithNullScorer(bool withAlias) // test: no SCORER added
     {
         HybridSearchQuery query = new();
-        HybridSearchQuery.QueryConfig queryConfig = new();
-        if (withAlias) queryConfig.ScoreAlias("score_alias");
-        query.Search("foo", queryConfig);
+        HybridSearchQuery.SearchConfig queryConfig = "foo";
+        if (withAlias) queryConfig = queryConfig.WithScoreAlias("score_alias");
+        query.Search(queryConfig);
 
         object[] expected = [Index, "SEARCH", "foo"];
         if (withAlias)
@@ -64,10 +61,10 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     public void BasicSearch_WithSimpleScorer(bool withAlias)
     {
         HybridSearchQuery query = new();
-        HybridSearchQuery.QueryConfig queryConfig = new();
-        queryConfig.Scorer(Scorer.TfIdf);
-        if (withAlias) queryConfig.ScoreAlias("score_alias");
-        query.Search("foo", queryConfig);
+        HybridSearchQuery.SearchConfig queryConfig = "foo";
+        queryConfig = queryConfig.WithScorer(Scorer.TfIdf);
+        if (withAlias) queryConfig = queryConfig.WithScoreAlias("score_alias");
+        query.Search(queryConfig);
 
         object[] expected = [Index, "SEARCH", "foo", "SCORER", "TFIDF"];
         if (withAlias)
@@ -89,8 +86,8 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     public void BasicSearch_WithKnownSimpleScorers(string scenario)
     {
         HybridSearchQuery query = new();
-        HybridSearchQuery.QueryConfig queryConfig = new();
-        queryConfig.Scorer(scenario switch
+        HybridSearchQuery.SearchConfig queryConfig = "foo";
+        queryConfig = queryConfig.WithScorer(scenario switch
         {
             "TFIDF" => Scorer.TfIdf,
             "TFIDF.DOCNORM" => Scorer.TfIdfDocNorm,
@@ -101,7 +98,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
             "HAMMING" => Scorer.Hamming,
             _ => throw new NotImplementedException(),
         });
-        query.Search("foo", queryConfig);
+        query.Search(queryConfig);
 
         object[] expected = [Index, "SEARCH", "foo", "SCORER", scenario];
         Assert.Equivalent(expected, GetArgs(query));
@@ -111,29 +108,20 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     public void BasicSearch_WithBM25StdTanh()
     {
         HybridSearchQuery query = new();
-        query.Search("foo", new HybridSearchQuery.QueryConfig().Scorer(Scorer.BM25StdTanh(5)));
+        query.Search(new("foo", scorer: Scorer.BM25StdTanh(5)));
 
         object[] expected = [Index, "SEARCH", "foo", "SCORER", "BM25STD.TANH", "BM25STD_TANH_FACTOR", 5];
         Assert.Equivalent(expected, GetArgs(query));
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public void BasicZeroLengthVectorSearch(bool withConfig)
+    [Fact]
+    public void BasicVectorSearch()
     {
         HybridSearchQuery query = new();
-        if (withConfig)
-        {
-            HybridSearchQuery.VectorSearchConfig config = new();
-            query.VectorSimilaritySearch("vfield", Array.Empty<byte>(), config);
-        }
-        else
-        {
-            query.VectorSimilaritySearch("vfield", Array.Empty<byte>());
-        }
-
-        object[] expected = [Index, "VSIM", "vfield", ""];
+        byte[] data = [1, 2, 3];
+        query.VectorSearch("vfield", data);
+        
+        object[] expected = [Index, "VSIM", "vfield", "AQID"];
         Assert.Equivalent(expected, GetArgs(query));
     }
 
@@ -143,7 +131,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     public void BasicNonZeroLengthVectorSearch()
     {
         HybridSearchQuery query = new();
-        query.VectorSimilaritySearch("vfield", SomeRandomDataHere);
+        query.VectorSearch("vfield", SomeRandomDataHere);
 
         object[] expected = [Index, "VSIM", "vfield", "c29tZSByYW5kb20gZGF0YSBoZXJlIQ=="];
         Assert.Equivalent(expected, GetArgs(query));
@@ -157,14 +145,14 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     public void BasicVectorSearch_WithKNN(bool withScoreAlias, bool withDistanceAlias)
     {
         HybridSearchQuery query = new();
-        var searchConfig = new HybridSearchQuery.VectorSearchConfig();
-        if (withScoreAlias) searchConfig.ScoreAlias("my_score_alias");
-        searchConfig.Method(HybridSearchQuery.VectorSearchMethod.NearestNeighbour(
+        var searchConfig = new HybridSearchQuery.VectorSearchConfig("vField", SomeRandomDataHere);
+        if (withScoreAlias) searchConfig = searchConfig.WithScoreAlias("my_score_alias");
+        searchConfig = searchConfig.WithMethod(HybridSearchQuery.VectorSearchMethod.NearestNeighbour(
             distanceAlias: withDistanceAlias ? "my_distance_alias" : null));
-        query.VectorSimilaritySearch("vfield", SomeRandomDataHere, searchConfig);
+        query.VectorSearch(searchConfig);
 
         object[] expected =
-            [Index, "VSIM", "vfield", "c29tZSByYW5kb20gZGF0YSBoZXJlIQ==", "KNN", withDistanceAlias ? 4 : 2, "K", 10];
+            [Index, "VSIM", "vField", "c29tZSByYW5kb20gZGF0YSBoZXJlIQ==", "KNN", withDistanceAlias ? 4 : 2, "K", 10];
         if (withDistanceAlias)
         {
             expected = [..expected, "YIELD_DISTANCE_AS", "my_distance_alias"];
@@ -186,13 +174,13 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     public void BasicVectorSearch_WithKNN_WithEF(bool withScoreAlias, bool withDistanceAlias)
     {
         HybridSearchQuery query = new();
-        var searchConfig = new HybridSearchQuery.VectorSearchConfig();
-        if (withScoreAlias) searchConfig.ScoreAlias("my_score_alias");
-        searchConfig.Method(HybridSearchQuery.VectorSearchMethod.NearestNeighbour(
+        var searchConfig = new HybridSearchQuery.VectorSearchConfig("vfield", SomeRandomDataHere);
+        if (withScoreAlias) searchConfig = searchConfig.WithScoreAlias("my_score_alias");
+        searchConfig = searchConfig.WithMethod(HybridSearchQuery.VectorSearchMethod.NearestNeighbour(
             16,
             maxTopCandidates: 100,
             distanceAlias: withDistanceAlias ? "my_distance_alias" : null));
-        query.VectorSimilaritySearch("vfield", SomeRandomDataHere, searchConfig);
+        query.VectorSearch(searchConfig);
 
         object[] expected =
         [
@@ -220,11 +208,11 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     public void BasicVectorSearch_WithRange(bool withScoreAlias, bool withDistanceAlias)
     {
         HybridSearchQuery query = new();
-        var searchConfig = new HybridSearchQuery.VectorSearchConfig();
-        if (withScoreAlias) searchConfig.ScoreAlias("my_score_alias");
-        searchConfig.Method(HybridSearchQuery.VectorSearchMethod.Range(4.2,
+        var searchConfig = new HybridSearchQuery.VectorSearchConfig("vfield", SomeRandomDataHere);
+        if (withScoreAlias) searchConfig = searchConfig.WithScoreAlias("my_score_alias");
+        searchConfig = searchConfig.WithMethod(HybridSearchQuery.VectorSearchMethod.Range(4.2,
             distanceAlias: withDistanceAlias ? "my_distance_alias" : null));
-        query.VectorSimilaritySearch("vfield", SomeRandomDataHere, searchConfig);
+        query.VectorSearch(searchConfig);
 
         object[] expected =
         [
@@ -252,12 +240,12 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     public void BasicVectorSearch_WithRange_WithEpsilon(bool withScoreAlias, bool withDistanceAlias)
     {
         HybridSearchQuery query = new();
-        var searchConfig = new HybridSearchQuery.VectorSearchConfig();
-        if (withScoreAlias) searchConfig.ScoreAlias("my_score_alias");
-        searchConfig.Method(HybridSearchQuery.VectorSearchMethod.Range(4.2,
+        HybridSearchQuery.VectorSearchConfig vsimConfig = new("vfield", SomeRandomDataHere);
+        if (withScoreAlias) vsimConfig = vsimConfig.WithScoreAlias("my_score_alias");
+        vsimConfig = vsimConfig.WithMethod(HybridSearchQuery.VectorSearchMethod.Range(4.2,
             epsilon: 0.06,
             distanceAlias: withDistanceAlias ? "my_distance_alias" : null));
-        query.VectorSimilaritySearch("vfield", SomeRandomDataHere, searchConfig);
+        query.VectorSearch(vsimConfig);
 
         object[] expected =
         [
@@ -281,40 +269,12 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     public void BasicVectorSearch_WithFilter_NoPolicy()
     {
         HybridSearchQuery query = new();
-        var searchConfig = new HybridSearchQuery.VectorSearchConfig();
-        searchConfig.Filter("@foo:bar");
-        query.VectorSimilaritySearch("vfield", SomeRandomDataHere, searchConfig);
+        query.VectorSearch(new("vfield", SomeRandomDataHere, filter: "@foo:bar"));
 
         object[] expected =
         [
-            Index, "VSIM", "vfield", "c29tZSByYW5kb20gZGF0YSBoZXJlIQ==", @"FILTER", "@foo:bar"
+            Index, "VSIM", "vfield", "c29tZSByYW5kb20gZGF0YSBoZXJlIQ==", "FILTER", "@foo:bar"
         ];
-
-        Assert.Equivalent(expected, GetArgs(query));
-    }
-
-    [Theory]
-    [InlineData(HybridSearchQuery.VectorSearchConfig.VectorFilterPolicy.AdHoc)]
-    [InlineData(HybridSearchQuery.VectorSearchConfig.VectorFilterPolicy.Batches)]
-    [InlineData(HybridSearchQuery.VectorSearchConfig.VectorFilterPolicy.Batches, 100)]
-    [InlineData(HybridSearchQuery.VectorSearchConfig.VectorFilterPolicy.Acorn)]
-    public void BasicVectorSearch_WithFilter_WithPolicy(HybridSearchQuery.VectorSearchConfig.VectorFilterPolicy policy,
-        int? batchSize = null)
-    {
-        HybridSearchQuery query = new();
-        var searchConfig = new HybridSearchQuery.VectorSearchConfig();
-        searchConfig.Filter("@foo:bar", policy, batchSize);
-        query.VectorSimilaritySearch("vfield", SomeRandomDataHere, searchConfig);
-
-        object[] expected =
-        [
-            Index, "VSIM", "vfield", "c29tZSByYW5kb20gZGF0YSBoZXJlIQ==", @"FILTER", "@foo:bar", "POLICY",
-            policy.ToString().ToUpper()
-        ];
-        if (batchSize != null)
-        {
-            expected = [..expected, "BATCH_SIZE", batchSize];
-        }
 
         Assert.Equivalent(expected, GetArgs(query));
     }
@@ -410,7 +370,8 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     public void GroupBy_SingleField_WithReducer_NoAlias()
     {
         HybridSearchQuery query = new();
-        query.GroupBy("field1").Reduce(Reducers.Count().As(null!)); // workaround https://github.com/redis/NRedisStack/issues/453
+        query.GroupBy("field1")
+            .Reduce(Reducers.Count().As(null!)); // workaround https://github.com/redis/NRedisStack/issues/453
         object[] expected = [Index, "GROUPBY", 1, "field1", "REDUCE", "COUNT", 0];
         Assert.Equivalent(expected, GetArgs(query));
     }
@@ -432,10 +393,13 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
             Reducers.Min("@field2").As("min"),
             Reducers.Max("@field2").As("max"),
             Reducers.Count().As("qty"));
-        object[] expected = [Index, "GROUPBY", 1, "field1",
+        object[] expected =
+        [
+            Index, "GROUPBY", 1, "field1",
             "REDUCE", "MIN", 1, "@field2", "AS", "min",
             "REDUCE", "MAX", 1, "@field2", "AS", "max",
-            "REDUCE", "COUNT", 0, "AS", "qty"];
+            "REDUCE", "COUNT", 0, "AS", "qty"
+        ];
         Assert.Equivalent(expected, GetArgs(query));
     }
 
@@ -638,12 +602,10 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     public void MakeMeOneWithEverything()
     {
         HybridSearchQuery query = new();
-        query.Search("foo",
-                new HybridSearchQuery.QueryConfig().Scorer(Scorer.BM25StdTanh(5)).ScoreAlias("text_score_alias"))
-            .VectorSimilaritySearch("bar", new byte[] { 1, 2, 3 },
-                new HybridSearchQuery.VectorSearchConfig()
-                    .Method(HybridSearchQuery.VectorSearchMethod.NearestNeighbour(10, 100, "vector_distance_alias"))
-                    .Filter("@foo:bar").ScoreAlias("vector_score_alias"))
+        query.Search(new("foo", Scorer.BM25StdTanh(5), "text_score_alias"))
+            .VectorSearch(new HybridSearchQuery.VectorSearchConfig("bar", new byte[] { 1, 2, 3 },
+                    HybridSearchQuery.VectorSearchMethod.NearestNeighbour(10, 100, "vector_distance_alias"))
+                .WithFilter("@foo:bar").WithScoreAlias("vector_score_alias"))
             .Combine(HybridSearchQuery.Combiner.ReciprocalRankFusion(10, 0.5), "my_combined_alias")
             .ReturnFields("field1", "field2")
             .GroupBy("field1").Reduce(Reducers.Quantile("@field3", 0.5).As("reducer_alias"))

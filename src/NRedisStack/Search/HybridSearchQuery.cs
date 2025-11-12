@@ -7,31 +7,30 @@ namespace NRedisStack.Search;
 [Experimental(Experiments.Server_8_4, UrlFormat = Experiments.UrlFormat)]
 public sealed partial class HybridSearchQuery
 {
-    private string? _query;
-    QueryConfig? _queryConfig;
+    private SearchConfig _search;
+    private VectorSearchConfig _vsim;
 
     /// <summary>
     /// Specify the textual search portion of the query.
     /// </summary>
-    public HybridSearchQuery Search(string query, QueryConfig? config = null)
+    public HybridSearchQuery Search(SearchConfig query)
     {
-        _query = query;
-        _queryConfig = config;
+        _search = query;
         return this;
     }
-
-    private string? _vectorField;
-    private ReadOnlyMemory<byte> _vectorData;
-    private VectorSearchConfig? _vectorConfig;
 
     /// <summary>
     /// Specify the vector search portion of the query.
     /// </summary>
-    public HybridSearchQuery VectorSimilaritySearch(string field, ReadOnlyMemory<byte> data, VectorSearchConfig? config = null)
+    public HybridSearchQuery VectorSearch(string fieldName, VectorData vectorData)
+        => VectorSearch(new VectorSearchConfig(fieldName, vectorData));
+
+    /// <summary>
+    /// Specify the vector search portion of the query.
+    /// </summary>
+    public HybridSearchQuery VectorSearch(VectorSearchConfig config)
     {
-        _vectorField = field;
-        _vectorData = data;
-        _vectorConfig = config;
+        _vsim = config;
         return this;
     }
 
@@ -58,26 +57,13 @@ public sealed partial class HybridSearchQuery
         _loadFieldOrFields = NullIfEmpty(fields);
         return this;
     }
-    
+
     /// <summary>
     /// Add the list of fields to return in the results.
     /// </summary>
     public HybridSearchQuery ReturnFields(string field) // naming for consistency with SearchQuery
     {
         _loadFieldOrFields = field;
-        return this;
-    }
-
-    private int _rerankTop;
-    private string? _rerankExpression;
-
-    /// <summary>
-    /// Specify the re-rank configuration.
-    /// </summary>
-    public HybridSearchQuery ReRank(int top, string expression)
-    {
-        _rerankTop = top;
-        _rerankExpression = expression;
         return this;
     }
 
@@ -122,7 +108,7 @@ public sealed partial class HybridSearchQuery
 
     private static T[]? NullIfEmpty<T>(T[]? array) => array?.Length > 0 ? array : null;
 
-    private object? _applyExpression;
+    private object? _applyExpressionOrExpressions;
 
     /// <summary>
     /// Apply a field transformation expression to the results.
@@ -132,12 +118,13 @@ public sealed partial class HybridSearchQuery
     {
         if (applyExpression.Alias is null)
         {
-            _applyExpression = applyExpression.Expression;
+            _applyExpressionOrExpressions = applyExpression.Expression;
         }
         else
         {
-            _applyExpression = applyExpression; // pay for the box
+            _applyExpressionOrExpressions = applyExpression; // pay for the box
         }
+
         return this;
     }
 
@@ -146,7 +133,7 @@ public sealed partial class HybridSearchQuery
     /// </summary>
     public HybridSearchQuery Apply(params ApplyExpression[] applyExpression)
     {
-        _applyExpression = NullIfEmpty(applyExpression);
+        _applyExpressionOrExpressions = NullIfEmpty(applyExpression);
         return this;
     }
 
@@ -160,7 +147,7 @@ public sealed partial class HybridSearchQuery
         _sortByFieldOrFields = NullIfEmpty(fields);
         return this;
     }
-    
+
     /// <summary>
     /// Sort the final results by the specified fields.
     /// </summary>
@@ -178,6 +165,7 @@ public sealed partial class HybridSearchQuery
         _sortByFieldOrFields = field;
         return this;
     }
+
     /// <summary>
     /// Sort the final results by the specified field.
     /// </summary>
@@ -199,6 +187,7 @@ public sealed partial class HybridSearchQuery
     }
 
     private int _pagingOffset = -1, _pagingCount = -1;
+
     public HybridSearchQuery Limit(int offset, int count)
     {
         if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
@@ -208,18 +197,8 @@ public sealed partial class HybridSearchQuery
         return this;
     }
 
-    private string? _language;
-    /// <summary>
-    /// The language to use for search queries. 
-    /// </summary>
-    public HybridSearchQuery Language(string language)
-    {
-        _language = language;
-        return this;
-    }
-    
     private bool _explainScore;
-    
+
     /// <summary>
     /// Include score explanations
     /// </summary>
@@ -230,6 +209,7 @@ public sealed partial class HybridSearchQuery
     }
 
     private bool _timeout;
+
     /// <summary>
     /// Apply the global timeout setting.
     /// </summary>
@@ -238,7 +218,7 @@ public sealed partial class HybridSearchQuery
         _timeout = timeout;
         return this;
     }
-    
+
     private int _cursorCount = -1; // -1: no cursor; 0: default count
     private TimeSpan _cursorMaxIdle;
 

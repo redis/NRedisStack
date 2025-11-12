@@ -10,7 +10,7 @@ public sealed partial class HybridSearchQuery
 {
     internal string Command => "FT.HYBRID";
 
-    internal ICollection<object> GetArgs(in RedisKey index, IReadOnlyDictionary<string, object>? parameters)
+    internal ICollection<object> GetArgs(string index, IReadOnlyDictionary<string, object>? parameters)
     {
         var count = GetOwnArgsCount(parameters);
         var args = new List<object>(count + 1);
@@ -23,16 +23,8 @@ public sealed partial class HybridSearchQuery
 
     internal int GetOwnArgsCount(IReadOnlyDictionary<string, object>? parameters)
     {
-        int count = 0; // note index is not included here
-        if (_query is not null)
-        {
-            count += 2 + (_queryConfig?.GetOwnArgsCount() ?? 0);
-        }
-
-        if (_vectorField is not null)
-        {
-            count += 3 + (_vectorConfig?.GetOwnArgsCount() ?? 0);
-        }
+        int count = _search.GetOwnArgsCount() + _vsim.GetOwnArgsCount(); // note index is not included here
+        
 
         if (_combiner is not null)
         {
@@ -77,7 +69,7 @@ public sealed partial class HybridSearchQuery
             static int CountReducer(Reducer reducer) => 3 + reducer.ArgCount() + (reducer.Alias is null ? 0 : 2);
         }
 
-        switch (_applyExpression)
+        switch (_applyExpressionOrExpressions)
         {
             case string expression:
                 count += CountApply(new ApplyExpression(expression));
@@ -145,36 +137,8 @@ public sealed partial class HybridSearchQuery
 
     internal void AddOwnArgs(List<object> args, IReadOnlyDictionary<string, object>? parameters)
     {
-        if (_query is not null)
-        {
-            args.Add("SEARCH");
-            args.Add(_query);
-            _queryConfig?.AddOwnArgs(args);
-        }
-
-        if (_vectorField is not null)
-        {
-            args.Add("VSIM");
-            args.Add(_vectorField);
-#if NET || NETSTANDARD2_1_OR_GREATER
-            args.Add(Convert.ToBase64String(_vectorData.Span));
-#else
-            if (MemoryMarshal.TryGetArray(_vectorData, out ArraySegment<byte> segment))
-            {
-                args.Add(Convert.ToBase64String(segment.Array!, segment.Offset, segment.Count));
-            }
-            else
-            {
-                var span = _vectorData.Span;
-                var oversized = ArrayPool<byte>.Shared.Rent(span.Length);
-                span.CopyTo(oversized);
-                args.Add(Convert.ToBase64String(oversized, 0, span.Length));
-                ArrayPool<byte>.Shared.Return(oversized);
-            }
-#endif
-
-            _vectorConfig?.AddOwnArgs(args);
-        }
+        _search.AddOwnArgs(args);
+        _vsim.AddOwnArgs(args);
 
         if (_combiner is not null)
         {
@@ -244,7 +208,7 @@ public sealed partial class HybridSearchQuery
             }
         }
 
-        switch (_applyExpression)
+        switch (_applyExpressionOrExpressions)
         {
             case string expression:
                 AddApply(new ApplyExpression(expression), args);
@@ -374,9 +338,9 @@ public sealed partial class HybridSearchQuery
 
     internal void Validate()
     {
-        if (_query is null | _vectorField is null)
+        if (!(_search.HasValue & _vsim.HasValue))
         {
-            throw new InvalidOperationException($"Both the query ({nameof(Query)}(...)) and vector search ({nameof(VectorSimilaritySearch)}(...))) details must be set.");
+            throw new InvalidOperationException($"Both the query ({nameof(Query)}(...)) and vector search ({nameof(VectorSearch)}(...))) details must be set.");
         }
     }
 }
