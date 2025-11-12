@@ -31,12 +31,16 @@ public abstract class VectorData
     /// </summary>
     public static implicit operator VectorData(ReadOnlyMemory<float> vector) => new VectorDataSingle(vector);
 
-    internal virtual void AddArgs(List<object> args) => args.Add(ToString() ?? "");
-    internal virtual int ArgsCount() => 1;
+    internal void AddBase64Args(List<object> args) => args.Add(ToBase64());
+    internal int Base64ArgsCount() => 1;
+    private protected abstract string ToBase64();
+
+    /// <inheritdoc/>
+    public override string ToString() => ToBase64();
 
     private sealed class VectorDataSingle(ReadOnlyMemory<float> vector) : VectorData
     {
-        public override string ToString()
+        private protected override string ToBase64()
         {
             if (!BitConverter.IsLittleEndian) ThrowBigEndian(); // we could loop and reverse each, but...how to test?
             var bytes = MemoryMarshal.AsBytes(vector.Span);
@@ -54,7 +58,7 @@ public abstract class VectorData
 
     private sealed class VectorDataBase64(string vector) : VectorData
     {
-        public override string ToString() => vector;
+        private protected override string ToBase64() => vector;
     }
 
     private protected static void ThrowBigEndian() =>

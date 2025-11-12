@@ -97,7 +97,7 @@ public sealed partial class HybridSearchQuery
             int count = 0;
             if (HasValue)
             {
-                count += 2 + _vectorData.ArgsCount();
+                count += 2 + _vectorData.Base64ArgsCount();
                 if (_method != null) count += _method.GetOwnArgsCount();
                 if (_filter != null) count += 2;
 
@@ -112,7 +112,7 @@ public sealed partial class HybridSearchQuery
             {
                 args.Add("VSIM");
                 args.Add(_fieldName);
-                _vectorData.AddArgs(args);
+                _vectorData.AddBase64Args(args);
 
                 _method?.AddOwnArgs(args);
                 if (_filter != null)

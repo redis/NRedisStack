@@ -67,6 +67,7 @@
 [NRS001]override NRedisStack.Search.ApplyExpression.ToString() -> string!
 [NRS001]override NRedisStack.Search.HybridSearchQuery.Combiner.ToString() -> string!
 [NRS001]override NRedisStack.Search.Scorer.ToString() -> string!
+[NRS001]override NRedisStack.Search.VectorData.ToString() -> string!
 [NRS001]override NRedisStack.Search.VectorSearchMethod.ToString() -> string!
 [NRS001]static NRedisStack.Search.ApplyExpression.implicit operator NRedisStack.Search.ApplyExpression(string! expression) -> NRedisStack.Search.ApplyExpression
 [NRS001]static NRedisStack.Search.HybridSearchQuery.Combiner.Linear(double alpha = 0.3, double beta = 0.7) -> NRedisStack.Search.HybridSearchQuery.Combiner!
