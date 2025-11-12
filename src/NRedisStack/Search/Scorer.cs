@@ -21,12 +21,12 @@ public abstract class Scorer
     /// Basic TF-IDF scoring with a few extra features,
     /// </summary>
     public static Scorer TfIdf { get; } = new SimpleScorer("TFIDF");
-    
+
     /// <summary>
     /// Identical to the default TFIDF scorer, with one important distinction: Term frequencies are normalized by the length of the document, expressed as the total number of terms.
     /// </summary>
     public static Scorer TfIdfDocNorm { get; } = new SimpleScorer("TFIDF.DOCNORM");
-    
+
     /// <summary>
     /// A variation on the basic TFIDF scorer.
     /// </summary>

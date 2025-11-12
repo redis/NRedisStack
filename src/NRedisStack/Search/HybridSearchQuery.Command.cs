@@ -24,7 +24,7 @@ public sealed partial class HybridSearchQuery
     internal int GetOwnArgsCount()
     {
         int count = _search.GetOwnArgsCount() + _vsim.GetOwnArgsCount(); // note index is not included here
-        
+
 
         if (_combiner is not null)
         {

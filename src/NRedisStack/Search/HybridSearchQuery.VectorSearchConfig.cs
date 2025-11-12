@@ -36,7 +36,7 @@ public sealed partial class HybridSearchQuery
         /// Include the score in the query results.
         /// </summary>
         public string? ScoreAlias => _scoreAlias;
-        
+
         /// <summary>
         /// The vector data to search for.
         /// </summary>

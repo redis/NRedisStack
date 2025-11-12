@@ -38,7 +38,7 @@ public sealed partial class HybridSearchQuery
             Unsafe.AsRef(in copy._scorer) = scorer;
             return copy;
         }
-        
+
         /// <summary>
         /// Specify the scorer to use for the query.
         /// </summary>
@@ -48,7 +48,7 @@ public sealed partial class HybridSearchQuery
             Unsafe.AsRef(in copy._query) = query;
             return copy;
         }
-        
+
         /// <summary>
         /// Specify the scorer to use for the query.
         /// </summary>

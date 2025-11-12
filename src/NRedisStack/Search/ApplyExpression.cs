@@ -18,6 +18,6 @@ public readonly struct ApplyExpression(string expression, string? alias = null)
     public override bool Equals(object? obj) => obj is ApplyExpression other &&
                                                 (Expression == other.Expression &&
                                                  Alias == other.Alias);
-    
+
     public static implicit operator ApplyExpression(string expression) => new(expression);
 }

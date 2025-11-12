@@ -15,7 +15,7 @@ public sealed class HybridSearchResult
         if (len > 0)
         {
             int index = 0;
-            for (int i = 0 ; i < len; i++)
+            for (int i = 0; i < len; i++)
             {
                 var key = ParseKey(result[index++]);
                 if (key is not ResultKey.Unknown)
@@ -56,7 +56,7 @@ public sealed class HybridSearchResult
             }
         }
         return obj;
-        
+
         static ResultKey ParseKey(RedisResult key)
         {
             if (!key.IsNull && key.Resp2Type is ResultType.BulkString or ResultType.SimpleString)
@@ -114,7 +114,7 @@ public sealed class HybridSearchResult
     }
 
     public long TotalResults { get; private set; } = -1; // initialize to -1 to indicate not set
-    
+
     public TimeSpan ExecutionTime { get; private set; }
 
     public string[] Warnings { get; private set; } = [];
