@@ -3,7 +3,7 @@
 services:
 
   redis:
-    image: ${CLIENT_LIBS_TEST_IMAGE:-redislabs/client-libs-test:8.4-RC1-pre.2}
+    image: ${CLIENT_LIBS_TEST_IMAGE:-redislabs/client-libs-test:8.4-GA-pre}
     container_name: redis-standalone
     environment:
       - TLS_ENABLED=yes
@@ -21,7 +21,7 @@ services:
       - all
 
   cluster:
-    image: ${CLIENT_LIBS_TEST_IMAGE:-redislabs/client-libs-test:8.4-RC1-pre.2}
+    image: ${CLIENT_LIBS_TEST_IMAGE:-redislabs/client-libs-test:8.4-GA-pre}
     container_name: redis-cluster
     environment:
       - REDIS_CLUSTER=yes
