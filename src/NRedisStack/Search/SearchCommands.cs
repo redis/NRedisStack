@@ -318,10 +318,10 @@ public class SearchCommands(IDatabase db, int? defaultDialect = 2)
 
     /// <inheritdoc/>
     [Experimental(Experiments.Server_8_4, UrlFormat = Experiments.UrlFormat)]
-    public HybridSearchResult HybridSearch(string indexName, HybridSearchQuery query, IReadOnlyDictionary<string, object>? parameters = null)
+    public HybridSearchResult HybridSearch(string indexName, HybridSearchQuery query)
     {
         query.Validate();
-        var args = query.GetArgs(indexName, parameters);
+        var args = query.GetArgs(indexName);
         return HybridSearchResult.Parse(db.Execute(query.Command, args));
     }
 }

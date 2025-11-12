@@ -232,4 +232,15 @@ public sealed partial class HybridSearchQuery
         _cursorMaxIdle = maxIdle;
         return this;
     }
+
+    private IReadOnlyDictionary<string, object>? _parameters;
+
+    /// <summary>
+    /// Supply parameters for the query.
+    /// </summary>
+    public HybridSearchQuery Parameters(IReadOnlyDictionary<string, object> parameters)
+    {
+        _parameters = parameters is { Count: 0 } ? null : parameters; // ignore empty
+        return this;
+    }
 }

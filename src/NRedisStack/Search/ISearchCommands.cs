@@ -351,9 +351,8 @@ public interface ISearchCommands
     /// </summary>
     /// <param name="indexName">The index name.</param>
     /// <param name="query">The query to execute.</param>
-    /// <param name="parameters">The parameters to pass to the query, if any.</param>
     /// <returns>List of TAG field values</returns>
     /// <remarks><seealso href="https://redis.io/commands/ft.hybrid"/></remarks>
     [Experimental(Experiments.Server_8_4, UrlFormat = Experiments.UrlFormat)]
-    HybridSearchResult HybridSearch(string indexName, HybridSearchQuery query, IReadOnlyDictionary<string, object>? parameters = null);
+    HybridSearchResult HybridSearch(string indexName, HybridSearchQuery query);
 }

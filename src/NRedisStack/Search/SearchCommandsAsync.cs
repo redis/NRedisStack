@@ -356,10 +356,10 @@ public class SearchCommandsAsync : ISearchCommandsAsync
 
     /// <inheritdoc/>
     [Experimental(Experiments.Server_8_4, UrlFormat = Experiments.UrlFormat)]
-    public async Task< HybridSearchResult> HybridSearchAsync(string indexName, HybridSearchQuery query, IReadOnlyDictionary<string, object>? parameters = null)
+    public async Task< HybridSearchResult> HybridSearchAsync(string indexName, HybridSearchQuery query)
     {
         query.Validate();
-        var args = query.GetArgs(indexName, parameters);
+        var args = query.GetArgs(indexName);
         return HybridSearchResult.Parse(await _db.ExecuteAsync(query.Command, args));
     }
 }

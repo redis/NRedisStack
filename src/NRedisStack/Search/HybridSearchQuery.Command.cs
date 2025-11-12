@@ -10,18 +10,18 @@ public sealed partial class HybridSearchQuery
 {
     internal string Command => "FT.HYBRID";
 
-    internal ICollection<object> GetArgs(string index, IReadOnlyDictionary<string, object>? parameters)
+    internal ICollection<object> GetArgs(string index)
     {
-        var count = GetOwnArgsCount(parameters);
+        var count = GetOwnArgsCount();
         var args = new List<object>(count + 1);
         args.Add(index);
-        AddOwnArgs(args, parameters);
+        AddOwnArgs(args);
         Debug.Assert(args.Count == count + 1,
             $"Arg count mismatch; check {nameof(GetOwnArgsCount)} ({count}) vs {nameof(AddOwnArgs)} ({args.Count - 1})");
         return args;
     }
 
-    internal int GetOwnArgsCount(IReadOnlyDictionary<string, object>? parameters)
+    internal int GetOwnArgsCount()
     {
         int count = _search.GetOwnArgsCount() + _vsim.GetOwnArgsCount(); // note index is not included here
         
@@ -120,7 +120,7 @@ public sealed partial class HybridSearchQuery
 
         if (_pagingOffset >= 0) count += 3;
 
-        if (parameters is not null) count += (parameters.Count + 1) * 2;
+        if (_parameters is not null) count += (_parameters.Count + 1) * 2;
 
         if (_explainScore) count++;
         if (_timeout) count++;
@@ -135,7 +135,7 @@ public sealed partial class HybridSearchQuery
         return count;
     }
 
-    internal void AddOwnArgs(List<object> args, IReadOnlyDictionary<string, object>? parameters)
+    internal void AddOwnArgs(List<object> args)
     {
         _search.AddOwnArgs(args);
         _vsim.AddOwnArgs(args);
@@ -294,11 +294,11 @@ public sealed partial class HybridSearchQuery
             args.Add(_pagingCount);
         }
 
-        if (parameters is not null)
+        if (_parameters is not null)
         {
             args.Add("PARAMS");
-            args.Add(parameters.Count * 2);
-            if (parameters is Dictionary<string, object> typed)
+            args.Add(_parameters.Count * 2);
+            if (_parameters is Dictionary<string, object> typed)
             {
                 foreach (var entry in typed) // avoid allocating enumerator
                 {
@@ -308,7 +308,7 @@ public sealed partial class HybridSearchQuery
             }
             else
             {
-                foreach (var entry in parameters)
+                foreach (var entry in _parameters)
                 {
                     args.Add(entry.Key);
                     args.Add(entry.Value);

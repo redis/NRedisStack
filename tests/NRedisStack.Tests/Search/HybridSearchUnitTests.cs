@@ -10,10 +10,10 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
 {
     private string Index { get; } = "myindex";
     
-    private ICollection<object> GetArgs(HybridSearchQuery query, IReadOnlyDictionary<string, object>? parameters = null)
+    private ICollection<object> GetArgs(HybridSearchQuery query)
     {
         Assert.Equal("FT.HYBRID", query.Command);
-        var args = query.GetArgs(Index, parameters);
+        var args = query.GetArgs(Index);
         log.WriteLine(query.Command + " " + string.Join(" ", args));
         return args;
     }
@@ -147,7 +147,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         HybridSearchQuery query = new();
         var searchConfig = new HybridSearchQuery.VectorSearchConfig("vField", SomeRandomDataHere);
         if (withScoreAlias) searchConfig = searchConfig.WithScoreAlias("my_score_alias");
-        searchConfig = searchConfig.WithMethod(HybridSearchQuery.VectorSearchMethod.NearestNeighbour(
+        searchConfig = searchConfig.WithMethod(VectorSearchMethod.NearestNeighbour(
             distanceAlias: withDistanceAlias ? "my_distance_alias" : null));
         query.VectorSearch(searchConfig);
 
@@ -176,7 +176,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         HybridSearchQuery query = new();
         var searchConfig = new HybridSearchQuery.VectorSearchConfig("vfield", SomeRandomDataHere);
         if (withScoreAlias) searchConfig = searchConfig.WithScoreAlias("my_score_alias");
-        searchConfig = searchConfig.WithMethod(HybridSearchQuery.VectorSearchMethod.NearestNeighbour(
+        searchConfig = searchConfig.WithMethod(VectorSearchMethod.NearestNeighbour(
             16,
             maxTopCandidates: 100,
             distanceAlias: withDistanceAlias ? "my_distance_alias" : null));
@@ -210,7 +210,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         HybridSearchQuery query = new();
         var searchConfig = new HybridSearchQuery.VectorSearchConfig("vfield", SomeRandomDataHere);
         if (withScoreAlias) searchConfig = searchConfig.WithScoreAlias("my_score_alias");
-        searchConfig = searchConfig.WithMethod(HybridSearchQuery.VectorSearchMethod.Range(4.2,
+        searchConfig = searchConfig.WithMethod(VectorSearchMethod.Range(4.2,
             distanceAlias: withDistanceAlias ? "my_distance_alias" : null));
         query.VectorSearch(searchConfig);
 
@@ -242,7 +242,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         HybridSearchQuery query = new();
         HybridSearchQuery.VectorSearchConfig vsimConfig = new("vfield", SomeRandomDataHere);
         if (withScoreAlias) vsimConfig = vsimConfig.WithScoreAlias("my_score_alias");
-        vsimConfig = vsimConfig.WithMethod(HybridSearchQuery.VectorSearchMethod.Range(4.2,
+        vsimConfig = vsimConfig.WithMethod(VectorSearchMethod.Range(4.2,
             epsilon: 0.06,
             distanceAlias: withDistanceAlias ? "my_distance_alias" : null));
         query.VectorSearch(vsimConfig);
@@ -602,9 +602,14 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     public void MakeMeOneWithEverything()
     {
         HybridSearchQuery query = new();
+        var args = new Dictionary<string, object>
+        {
+            ["x"] = 42,
+            ["y"] = "abc"
+        };
         query.Search(new("foo", Scorer.BM25StdTanh(5), "text_score_alias"))
             .VectorSearch(new HybridSearchQuery.VectorSearchConfig("bar", new byte[] { 1, 2, 3 },
-                    HybridSearchQuery.VectorSearchMethod.NearestNeighbour(10, 100, "vector_distance_alias"))
+                    VectorSearchMethod.NearestNeighbour(10, 100, "vector_distance_alias"))
                 .WithFilter("@foo:bar").WithScoreAlias("vector_score_alias"))
             .Combine(HybridSearchQuery.Combiner.ReciprocalRankFusion(10, 0.5), "my_combined_alias")
             .ReturnFields("field1", "field2")
@@ -615,13 +620,8 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
             .Limit(12, 54)
             .ExplainScore()
             .Timeout()
+            .Parameters(args)
             .WithCursor(10, TimeSpan.FromSeconds(10));
-
-        var args = new Dictionary<string, object>
-        {
-            ["x"] = 42,
-            ["y"] = "abc"
-        };
         object[] expected =
         [
             Index, "SEARCH", "foo", "SCORER", "BM25STD.TANH", "BM25STD_TANH_FACTOR", 5, "YIELD_SCORE_AS",
@@ -638,6 +638,6 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
 
         log.WriteLine(query.Command + " " + string.Join(" ", expected));
         log.WriteLine("vs");
-        Assert.Equivalent(expected, GetArgs(query, args));
+        Assert.Equivalent(expected, GetArgs(query));
     }
 }
