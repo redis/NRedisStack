@@ -1,7 +1,4 @@
-using System.Buffers;
-using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace NRedisStack.Search;
 
@@ -97,7 +94,7 @@ public sealed partial class HybridSearchQuery
             int count = 0;
             if (HasValue)
             {
-                count += 2 + _vectorData.Base64ArgsCount();
+                count += 3;
                 if (_method != null) count += _method.GetOwnArgsCount();
                 if (_filter != null) count += 2;
 
@@ -112,7 +109,7 @@ public sealed partial class HybridSearchQuery
             {
                 args.Add("VSIM");
                 args.Add(_fieldName);
-                _vectorData.AddBase64Args(args);
+                args.Add(_vectorData.GetSingleArg());
 
                 _method?.AddOwnArgs(args);
                 if (_filter != null)

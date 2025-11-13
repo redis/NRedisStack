@@ -4,17 +4,34 @@ using NRedisStack.Search.Aggregation;
 
 namespace NRedisStack.Search;
 
+/// <summary>
+/// Represents a hybrid search (FT.HYBRID) operation. Note that <see cref="HybridSearchQuery"/> instances can be reused for
+/// common queries, by passing the search operands as named parameters.
+/// </summary>
 [Experimental(Experiments.Server_8_4, UrlFormat = Experiments.UrlFormat)]
 public sealed partial class HybridSearchQuery
 {
+    private bool _frozen;
     private SearchConfig _search;
     private VectorSearchConfig _vsim;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private HybridSearchQuery ThrowIfFrozen() // GetArgs freezes
+    {
+        if (_frozen) Throw();
+        return this;
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        static void Throw() => throw new InvalidOperationException(
+            "By default, the query cannot be mutated after being issued (to allow safe parameterized reuse from concurrent callers). If you are using the query sequentially rather than concurrently, you can use " + nameof(AllowModification) + " to re-enable changes.");
+    }
     /// <summary>
     /// Specify the textual search portion of the query.
+    /// For a parameterized query, a search like <c>"$key"</c> will search using the parameter named <c>key</c>.
     /// </summary>
     public HybridSearchQuery Search(SearchConfig query)
     {
+        ThrowIfFrozen();
         _search = query;
         return this;
     }
@@ -30,6 +47,7 @@ public sealed partial class HybridSearchQuery
     /// </summary>
     public HybridSearchQuery VectorSearch(VectorSearchConfig config)
     {
+        ThrowIfFrozen();
         _vsim = config;
         return this;
     }
@@ -42,6 +60,7 @@ public sealed partial class HybridSearchQuery
     /// </summary>
     public HybridSearchQuery Combine(Combiner combiner, string? scoreAlias = null)
     {
+        ThrowIfFrozen();
         _combiner = combiner;
         _combineScoreAlias = scoreAlias;
         return this;
@@ -54,6 +73,7 @@ public sealed partial class HybridSearchQuery
     /// </summary>
     public HybridSearchQuery ReturnFields(params string[] fields) // naming for consistency with SearchQuery
     {
+        ThrowIfFrozen();
         _loadFieldOrFields = NullIfEmpty(fields);
         return this;
     }
@@ -63,6 +83,7 @@ public sealed partial class HybridSearchQuery
     /// </summary>
     public HybridSearchQuery ReturnFields(string field) // naming for consistency with SearchQuery
     {
+        ThrowIfFrozen();
         _loadFieldOrFields = field;
         return this;
     }
@@ -75,6 +96,7 @@ public sealed partial class HybridSearchQuery
     /// </summary>
     public HybridSearchQuery GroupBy(string field)
     {
+        ThrowIfFrozen();
         _groupByFieldOrFields = field;
         return this;
     }
@@ -84,6 +106,7 @@ public sealed partial class HybridSearchQuery
     /// </summary>
     public HybridSearchQuery GroupBy(params string[] fields)
     {
+        ThrowIfFrozen();
         _groupByFieldOrFields = NullIfEmpty(fields);
         return this;
     }
@@ -93,6 +116,7 @@ public sealed partial class HybridSearchQuery
     /// </summary>
     public HybridSearchQuery Reduce(Reducer reducer)
     {
+        ThrowIfFrozen();
         _reducerOrReducers = reducer;
         return this;
     }
@@ -102,6 +126,7 @@ public sealed partial class HybridSearchQuery
     /// </summary>
     public HybridSearchQuery Reduce(params Reducer[] reducers)
     {
+        ThrowIfFrozen();
         _reducerOrReducers = NullIfEmpty(reducers);
         return this;
     }
@@ -116,6 +141,7 @@ public sealed partial class HybridSearchQuery
     [OverloadResolutionPriority(1)] // allow Apply(new("expr", "alias")) to resolve correctly
     public HybridSearchQuery Apply(ApplyExpression applyExpression)
     {
+        ThrowIfFrozen();
         if (applyExpression.Alias is null)
         {
             _applyExpressionOrExpressions = applyExpression.Expression;
@@ -133,6 +159,7 @@ public sealed partial class HybridSearchQuery
     /// </summary>
     public HybridSearchQuery Apply(params ApplyExpression[] applyExpression)
     {
+        ThrowIfFrozen();
         _applyExpressionOrExpressions = NullIfEmpty(applyExpression);
         return this;
     }
@@ -145,6 +172,7 @@ public sealed partial class HybridSearchQuery
     /// <remarks>The default sort order is by score, unless overridden or disabled.</remarks>
     public HybridSearchQuery SortBy(params SortedField[] fields)
     {
+        ThrowIfFrozen();
         _sortByFieldOrFields = NullIfEmpty(fields);
         return this;
     }
@@ -154,6 +182,7 @@ public sealed partial class HybridSearchQuery
     /// </summary>
     public HybridSearchQuery NoSort()
     {
+        ThrowIfFrozen();
         _sortByFieldOrFields = s_NoSortSentinel;
         return this;
     }
@@ -165,6 +194,7 @@ public sealed partial class HybridSearchQuery
     /// </summary>
     public HybridSearchQuery SortBy(params string[] fields)
     {
+        ThrowIfFrozen();
         _sortByFieldOrFields = NullIfEmpty(fields);
         return this;
     }
@@ -174,6 +204,7 @@ public sealed partial class HybridSearchQuery
     /// </summary>
     public HybridSearchQuery SortBy(SortedField field)
     {
+        ThrowIfFrozen();
         _sortByFieldOrFields = field;
         return this;
     }
@@ -183,6 +214,7 @@ public sealed partial class HybridSearchQuery
     /// </summary>
     public HybridSearchQuery SortBy(string field)
     {
+        ThrowIfFrozen();
         _sortByFieldOrFields = field;
         return this;
     }
@@ -194,6 +226,7 @@ public sealed partial class HybridSearchQuery
     /// </summary>
     public HybridSearchQuery Filter(string expression)
     {
+        ThrowIfFrozen();
         _filter = expression;
         return this;
     }
@@ -202,6 +235,7 @@ public sealed partial class HybridSearchQuery
 
     public HybridSearchQuery Limit(int offset, int count)
     {
+        ThrowIfFrozen();
         if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
         if (count < 0) throw new ArgumentOutOfRangeException(nameof(count));
         _pagingOffset = offset;
@@ -216,6 +250,7 @@ public sealed partial class HybridSearchQuery
     /// </summary>
     public HybridSearchQuery ExplainScore(bool explainScore = true)
     {
+        ThrowIfFrozen();
         _explainScore = explainScore;
         return this;
     }
@@ -227,6 +262,7 @@ public sealed partial class HybridSearchQuery
     /// </summary>
     public HybridSearchQuery Timeout(bool timeout = true)
     {
+        ThrowIfFrozen();
         _timeout = timeout;
         return this;
     }
@@ -239,20 +275,22 @@ public sealed partial class HybridSearchQuery
     /// </summary>
     internal HybridSearchQuery WithCursor(int count = 0, TimeSpan maxIdle = default)
     {
+        ThrowIfFrozen();
         // not currently exposed, while I figure out the API
         _cursorCount = count;
         _cursorMaxIdle = maxIdle;
         return this;
     }
 
-    private IReadOnlyDictionary<string, object>? _parameters;
-
     /// <summary>
-    /// Supply parameters for the query.
+    /// By default, queries are frozen when issued, to allow safe re-use of prepared queries from different callers.
+    /// If you instead want to make sequential use of a query in a <i>single</i> caller, you can use this method
+    /// to re-enable modification after issuing each query.
     /// </summary>
-    public HybridSearchQuery Parameters(IReadOnlyDictionary<string, object> parameters)
+    /// <returns></returns>
+    public HybridSearchQuery AllowModification()
     {
-        _parameters = parameters is { Count: 0 } ? null : parameters; // ignore empty
+        _frozen = false;
         return this;
     }
 }

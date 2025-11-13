@@ -4,6 +4,9 @@ namespace NRedisStack.Search;
 
 public sealed partial class HybridSearchQuery
 {
+    /// <summary>
+    /// Represents a search query. For a parameterized query, a search like <c>"$key"</c> will search using the parameter named <c>key</c>.
+    /// </summary>
     public readonly struct SearchConfig(string query, Scorer? scorer = null, string? scoreAlias = null)
     {
         private readonly string _query = query;

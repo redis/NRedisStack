@@ -1,8 +1,5 @@
-using System.Buffers;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using NRedisStack.Search.Aggregation;
-using StackExchange.Redis;
 
 namespace NRedisStack.Search;
 
@@ -10,18 +7,19 @@ public sealed partial class HybridSearchQuery
 {
     internal string Command => "FT.HYBRID";
 
-    internal ICollection<object> GetArgs(string index)
+    internal ICollection<object> GetArgs(string index, IReadOnlyDictionary<string, object>? parameters)
     {
-        var count = GetOwnArgsCount();
+        _frozen = true;
+        var count = GetOwnArgsCount(parameters);
         var args = new List<object>(count + 1);
         args.Add(index);
-        AddOwnArgs(args);
+        AddOwnArgs(args, parameters);
         Debug.Assert(args.Count == count + 1,
             $"Arg count mismatch; check {nameof(GetOwnArgsCount)} ({count}) vs {nameof(AddOwnArgs)} ({args.Count - 1})");
         return args;
     }
 
-    internal int GetOwnArgsCount()
+    internal int GetOwnArgsCount(IReadOnlyDictionary<string, object>? parameters)
     {
         int count = _search.GetOwnArgsCount() + _vsim.GetOwnArgsCount(); // note index is not included here
 
@@ -119,7 +117,7 @@ public sealed partial class HybridSearchQuery
 
                         count += fields.Length;
                         break;
-                }   
+                }
             }
         }
 
@@ -127,7 +125,10 @@ public sealed partial class HybridSearchQuery
 
         if (_pagingOffset >= 0) count += 3;
 
-        if (_parameters is not null) count += (_parameters.Count + 1) * 2;
+        if (parameters is not null)
+        {
+            count += (parameters.Count + 1) * 2;
+        }
 
         if (_explainScore) count++;
         if (_timeout) count++;
@@ -142,7 +143,7 @@ public sealed partial class HybridSearchQuery
         return count;
     }
 
-    internal void AddOwnArgs(List<object> args)
+    internal void AddOwnArgs(List<object> args, IReadOnlyDictionary<string, object>? parameters)
     {
         _search.AddOwnArgs(args);
         _vsim.AddOwnArgs(args);
@@ -291,7 +292,7 @@ public sealed partial class HybridSearchQuery
                         break;
                     default:
                         throw new ArgumentException("Invalid sort by field or fields");
-                }   
+                }
             }
         }
 
@@ -308,24 +309,24 @@ public sealed partial class HybridSearchQuery
             args.Add(_pagingCount);
         }
 
-        if (_parameters is not null)
+        if (parameters is not null)
         {
             args.Add("PARAMS");
-            args.Add(_parameters.Count * 2);
-            if (_parameters is Dictionary<string, object> typed)
+            args.Add(parameters.Count * 2);
+            if (parameters is Dictionary<string, object> typed)
             {
                 foreach (var entry in typed) // avoid allocating enumerator
                 {
                     args.Add(entry.Key);
-                    args.Add(entry.Value);
+                    args.Add(entry.Value is VectorData vec ? vec.GetSingleArg() : entry.Value);
                 }
             }
             else
             {
-                foreach (var entry in _parameters)
+                foreach (var entry in parameters)
                 {
                     args.Add(entry.Key);
-                    args.Add(entry.Value);
+                    args.Add(entry.Value is VectorData vec ? vec.GetSingleArg() : entry.Value);
                 }
             }
         }
