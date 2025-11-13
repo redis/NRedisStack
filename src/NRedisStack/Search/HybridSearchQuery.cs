@@ -142,11 +142,23 @@ public sealed partial class HybridSearchQuery
     /// <summary>
     /// Sort the final results by the specified fields.
     /// </summary>
+    /// <remarks>The default sort order is by score, unless overridden or disabled.</remarks>
     public HybridSearchQuery SortBy(params SortedField[] fields)
     {
         _sortByFieldOrFields = NullIfEmpty(fields);
         return this;
     }
+
+    /// <summary>
+    /// Do not sort the final results. This disables the default sort by score.
+    /// </summary>
+    public HybridSearchQuery NoSort()
+    {
+        _sortByFieldOrFields = s_NoSortSentinel;
+        return this;
+    }
+
+    private static readonly object s_NoSortSentinel = new();
 
     /// <summary>
     /// Sort the final results by the specified fields.

@@ -441,6 +441,35 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     }
 
     [Fact]
+    public void SortBy_EmptyStrings()
+    {
+        HybridSearchQuery query = new();
+        string[] sortBy = [];
+        query.SortBy(sortBy);
+        object[] expected = [Index];
+        Assert.Equivalent(expected, GetArgs(query));
+    }
+    
+    [Fact]
+    public void SortBy_EmptySortedFields()
+    {
+        HybridSearchQuery query = new();
+        SortedField[] sortBy = [];
+        query.SortBy(sortBy);
+        object[] expected = [Index];
+        Assert.Equivalent(expected, GetArgs(query));
+    }
+    
+    [Fact]
+    public void NoSort()
+    {
+        HybridSearchQuery query = new();
+        query.NoSort();
+        object[] expected = [Index, "NOSORT"];
+        Assert.Equivalent(expected, GetArgs(query));
+    }
+
+    [Fact]
     public void SortBy_SingleString()
     {
         HybridSearchQuery query = new();

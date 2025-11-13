@@ -90,29 +90,36 @@ public sealed partial class HybridSearchQuery
 
         if (_sortByFieldOrFields is not null)
         {
-            count += 2;
-            switch (_sortByFieldOrFields)
+            if (ReferenceEquals(_sortByFieldOrFields, s_NoSortSentinel))
             {
-                case string:
-                    count += 1;
-                    break;
-                case string[] strings:
-                    count += strings.Length;
-                    break;
-                case SortedField { Order: SortedField.SortOrder.ASC }:
-                    count += 1;
-                    break;
-                case SortedField:
-                    count += 2;
-                    break;
-                case SortedField[] fields:
-                    foreach (var field in fields)
-                    {
-                        if (field.Order == SortedField.SortOrder.DESC) count++;
-                    }
+                count++;
+            }
+            else
+            {
+                count += 2;
+                switch (_sortByFieldOrFields)
+                {
+                    case string:
+                        count += 1;
+                        break;
+                    case string[] strings:
+                        count += strings.Length;
+                        break;
+                    case SortedField { Order: SortedField.SortOrder.ASC }:
+                        count += 1;
+                        break;
+                    case SortedField:
+                        count += 2;
+                        break;
+                    case SortedField[] fields:
+                        foreach (var field in fields)
+                        {
+                            if (field.Order == SortedField.SortOrder.DESC) count++;
+                        }
 
-                    count += fields.Length;
-                    break;
+                        count += fields.Length;
+                        break;
+                }   
             }
         }
 
@@ -241,43 +248,50 @@ public sealed partial class HybridSearchQuery
 
         if (_sortByFieldOrFields is not null)
         {
-            args.Add("SORTBY");
-            switch (_sortByFieldOrFields)
+            if (ReferenceEquals(_sortByFieldOrFields, s_NoSortSentinel))
             {
-                case string field:
-                    args.Add(1);
-                    args.Add(field);
-                    break;
-                case string[] fields:
-                    args.Add(fields.Length);
-                    args.AddRange(fields);
-                    break;
-                case SortedField { Order: SortedField.SortOrder.ASC } field:
-                    args.Add(1);
-                    args.Add(field.FieldName);
-                    break;
-                case SortedField field:
-                    args.Add(2);
-                    args.Add(field.FieldName);
-                    args.Add("DESC");
-                    break;
-                case SortedField[] fields:
-                    var descCount = 0;
-                    foreach (var field in fields)
-                    {
-                        if (field.Order == SortedField.SortOrder.DESC) descCount++;
-                    }
-
-                    args.Add(fields.Length + descCount);
-                    foreach (var field in fields)
-                    {
+                args.Add("NOSORT");
+            }
+            else
+            {
+                args.Add("SORTBY");
+                switch (_sortByFieldOrFields)
+                {
+                    case string field:
+                        args.Add(1);
+                        args.Add(field);
+                        break;
+                    case string[] fields:
+                        args.Add(fields.Length);
+                        args.AddRange(fields);
+                        break;
+                    case SortedField { Order: SortedField.SortOrder.ASC } field:
+                        args.Add(1);
                         args.Add(field.FieldName);
-                        if (field.Order == SortedField.SortOrder.DESC) args.Add("DESC");
-                    }
+                        break;
+                    case SortedField field:
+                        args.Add(2);
+                        args.Add(field.FieldName);
+                        args.Add("DESC");
+                        break;
+                    case SortedField[] fields:
+                        var descCount = 0;
+                        foreach (var field in fields)
+                        {
+                            if (field.Order == SortedField.SortOrder.DESC) descCount++;
+                        }
 
-                    break;
-                default:
-                    throw new ArgumentException("Invalid sort by field or fields");
+                        args.Add(fields.Length + descCount);
+                        foreach (var field in fields)
+                        {
+                            args.Add(field.FieldName);
+                            if (field.Order == SortedField.SortOrder.DESC) args.Add("DESC");
+                        }
+
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid sort by field or fields");
+                }   
             }
         }
 
