@@ -1,5 +1,7 @@
 NRedisStack.Search.Parameters
 static NRedisStack.Search.Parameters.From<T>(T obj) -> System.Collections.Generic.IReadOnlyDictionary<string!, object!>!
+[NRS001]const NRedisStack.Search.HybridSearchQuery.Fields.Key = "@__key" -> string!
+[NRS001]const NRedisStack.Search.HybridSearchQuery.Fields.Score = "@__score" -> string!
 [NRS001]NRedisStack.ISearchCommands.HybridSearch(string! indexName, NRedisStack.Search.HybridSearchQuery! query, System.Collections.Generic.IReadOnlyDictionary<string!, object!>? parameters = null) -> NRedisStack.Search.HybridSearchResult!
 [NRS001]NRedisStack.ISearchCommandsAsync.HybridSearchAsync(string! indexName, NRedisStack.Search.HybridSearchQuery! query, System.Collections.Generic.IReadOnlyDictionary<string!, object!>? parameters = null) -> System.Threading.Tasks.Task<NRedisStack.Search.HybridSearchResult!>!
 [NRS001]NRedisStack.Search.ApplyExpression
@@ -15,6 +17,7 @@ static NRedisStack.Search.Parameters.From<T>(T obj) -> System.Collections.Generi
 [NRS001]NRedisStack.Search.HybridSearchQuery.Combiner
 [NRS001]NRedisStack.Search.HybridSearchQuery.Combiner.Combiner() -> void
 [NRS001]NRedisStack.Search.HybridSearchQuery.ExplainScore(bool explainScore = true) -> NRedisStack.Search.HybridSearchQuery!
+[NRS001]NRedisStack.Search.HybridSearchQuery.Fields
 [NRS001]NRedisStack.Search.HybridSearchQuery.Filter(string! expression) -> NRedisStack.Search.HybridSearchQuery!
 [NRS001]NRedisStack.Search.HybridSearchQuery.GroupBy(params string![]! fields) -> NRedisStack.Search.HybridSearchQuery!
 [NRS001]NRedisStack.Search.HybridSearchQuery.GroupBy(string! field) -> NRedisStack.Search.HybridSearchQuery!
@@ -89,5 +92,6 @@ static NRedisStack.Search.Parameters.From<T>(T obj) -> System.Collections.Generi
 [NRS001]static NRedisStack.Search.VectorData.implicit operator NRedisStack.Search.VectorData!(string! name) -> NRedisStack.Search.VectorData!
 [NRS001]static NRedisStack.Search.VectorData.implicit operator NRedisStack.Search.VectorData!(System.ReadOnlyMemory<float> vector) -> NRedisStack.Search.VectorData!
 [NRS001]static NRedisStack.Search.VectorData.Parameter(string! name) -> NRedisStack.Search.VectorData!
+[NRS001]static NRedisStack.Search.VectorData.Raw(System.ReadOnlyMemory<byte> bytes) -> NRedisStack.Search.VectorData!
 [NRS001]static NRedisStack.Search.VectorSearchMethod.NearestNeighbour(int count = 10, int? maxTopCandidates = null, string? distanceAlias = null) -> NRedisStack.Search.VectorSearchMethod!
 [NRS001]static NRedisStack.Search.VectorSearchMethod.Range(double radius, double? epsilon = null, string? distanceAlias = null) -> NRedisStack.Search.VectorSearchMethod!

@@ -11,6 +11,24 @@ namespace NRedisStack.Search;
 [Experimental(Experiments.Server_8_4, UrlFormat = Experiments.UrlFormat)]
 public sealed partial class HybridSearchQuery
 {
+    /// <summary>
+    /// Well-known fields for use with <see cref="ReturnFields(string[])"/>
+    /// </summary>
+    public static class Fields
+    {
+        // ReSharper disable InconsistentNaming
+
+        /// <summary>
+        /// The key of the indexed item in the database.
+        /// </summary>
+        public const string Key = "@__key";
+
+        /// <summary>
+        /// The score from the query. 
+        /// </summary>
+        public const string Score = "@__score";
+        // ReSharper restore InconsistentNaming
+    }
     private bool _frozen;
     private SearchConfig _search;
     private VectorSearchConfig _vsim;
@@ -69,7 +87,7 @@ public sealed partial class HybridSearchQuery
     private object? _loadFieldOrFields;
 
     /// <summary>
-    /// Add the list of fields to return in the results.
+    /// Add the list of fields to return in the results. Well-known fields are available via <see cref="Fields"/>.
     /// </summary>
     public HybridSearchQuery ReturnFields(params string[] fields) // naming for consistency with SearchQuery
     {
@@ -79,7 +97,7 @@ public sealed partial class HybridSearchQuery
     }
 
     /// <summary>
-    /// Add the list of fields to return in the results.
+    /// Add the list of fields to return in the results. Well-known fields are available via <see cref="Fields"/>.
     /// </summary>
     public HybridSearchQuery ReturnFields(string field) // naming for consistency with SearchQuery
     {

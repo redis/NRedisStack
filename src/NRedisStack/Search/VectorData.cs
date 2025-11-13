@@ -1,6 +1,7 @@
 using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
+using StackExchange.Redis;
 
 namespace NRedisStack.Search;
 
@@ -15,6 +16,11 @@ public abstract class VectorData
     /// A vector of <see cref="Single"/> entries.
     /// </summary>
     public static VectorData Create(ReadOnlyMemory<float> vector) => new VectorDataSingle(vector);
+
+    /// <summary>
+    /// A raw vector payload.
+    /// </summary>
+    public static VectorData Raw(ReadOnlyMemory<byte> bytes) => new VectorDataRaw(bytes);
 
     /// <summary>
     /// Represent a vector as a parameter to be supplied later.
@@ -56,6 +62,11 @@ public abstract class VectorData
             return result;
 #endif
         }
+    }
+
+    private sealed class VectorDataRaw(ReadOnlyMemory<byte> bytes) : VectorData
+    {
+        internal override object GetSingleArg() => (RedisValue)bytes;
     }
 
     private sealed class VectorParameter : VectorData
