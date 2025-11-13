@@ -10,10 +10,10 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
 {
     private string Index { get; } = "myindex";
 
-    private ICollection<object> GetArgs(HybridSearchQuery query)
+    private ICollection<object> GetArgs(HybridSearchQuery query, IReadOnlyDictionary<string, object>? parameters = null)
     {
         Assert.Equal("FT.HYBRID", query.Command);
-        var args = query.GetArgs(Index);
+        var args = query.GetArgs(Index, parameters);
         log.WriteLine(query.Command + " " + string.Join(" ", args));
         return args;
     }
@@ -126,7 +126,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
 
     private static readonly ReadOnlyMemory<float> SomeRandomDataHere = new float[] { 1, 2, 3, 4 };
 
-    private const string SomeRandomBase64 = "AACAPwAAAEAAAEBAAACAQA==";
+    private const string SomeRandomVectorValue = "AACAPwAAAEAAAEBAAACAQA==";
 
     [Fact]
     public void BasicNonZeroLengthVectorSearch()
@@ -134,7 +134,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         HybridSearchQuery query = new();
         query.VectorSearch("vfield", SomeRandomDataHere);
 
-        object[] expected = [Index, "VSIM", "vfield", SomeRandomBase64];
+        object[] expected = [Index, "VSIM", "vfield", SomeRandomVectorValue];
         Assert.Equivalent(expected, GetArgs(query));
     }
 
@@ -153,7 +153,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         query.VectorSearch(searchConfig);
 
         object[] expected =
-            [Index, "VSIM", "vField", SomeRandomBase64, "KNN", withDistanceAlias ? 4 : 2, "K", 10];
+            [Index, "VSIM", "vField", SomeRandomVectorValue, "KNN", withDistanceAlias ? 4 : 2, "K", 10];
         if (withDistanceAlias)
         {
             expected = [.. expected, "YIELD_DISTANCE_AS", "my_distance_alias"];
@@ -185,7 +185,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
 
         object[] expected =
         [
-            Index, "VSIM", "vfield", SomeRandomBase64, "KNN", withDistanceAlias ? 6 : 4, "K", 16,
+            Index, "VSIM", "vfield", SomeRandomVectorValue, "KNN", withDistanceAlias ? 6 : 4, "K", 16,
             "EF_RUNTIME", 100
         ];
         if (withDistanceAlias)
@@ -217,7 +217,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
 
         object[] expected =
         [
-            Index, "VSIM", "vfield", SomeRandomBase64, "RANGE", withDistanceAlias ? 4 : 2, "RADIUS",
+            Index, "VSIM", "vfield", SomeRandomVectorValue, "RANGE", withDistanceAlias ? 4 : 2, "RADIUS",
             4.2
         ];
         if (withDistanceAlias)
@@ -250,7 +250,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
 
         object[] expected =
         [
-            Index, "VSIM", "vfield", SomeRandomBase64, "RANGE", withDistanceAlias ? 6 : 4, "RADIUS",
+            Index, "VSIM", "vfield", SomeRandomVectorValue, "RANGE", withDistanceAlias ? 6 : 4, "RADIUS",
             4.2, "EPSILON", 0.06
         ];
         if (withDistanceAlias)
@@ -274,7 +274,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
 
         object[] expected =
         [
-            Index, "VSIM", "vfield", SomeRandomBase64, "FILTER", "@foo:bar"
+            Index, "VSIM", "vfield", SomeRandomVectorValue, "FILTER", "@foo:bar"
         ];
 
         Assert.Equivalent(expected, GetArgs(query));
@@ -449,7 +449,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         object[] expected = [Index];
         Assert.Equivalent(expected, GetArgs(query));
     }
-    
+
     [Fact]
     public void SortBy_EmptySortedFields()
     {
@@ -459,7 +459,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         object[] expected = [Index];
         Assert.Equivalent(expected, GetArgs(query));
     }
-    
+
     [Fact]
     public void NoSort()
     {
@@ -629,6 +629,28 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     }
 
     [Fact]
+    public void ParameterizedQuery()
+    {
+        HybridSearchQuery query = new();
+        query.Search("$s").VectorSearch("@field", "$v");
+
+        // issue that query, with parameter values from a dictionary
+        IReadOnlyDictionary<string, object> args = new Dictionary<string, object>
+        {
+            { "s", "abc"},
+            {"v", VectorData.Create(SomeRandomDataHere) }
+        };
+        object[] expected = [Index, "SEARCH", "$s", "VSIM", "@field", "$v", "PARAMS", 4, "s", "abc", "v", SomeRandomVectorValue];
+        Assert.Equivalent(expected, GetArgs(query, args));
+
+        // issue a second query against the same "query" instance, with different parameter values, this time from an object
+        args = Parameters.From(new { s = "def", v = SomeRandomDataHere });
+        expected[8] = "def"; // update our expectations
+        expected[10] = SomeRandomVectorValue;
+        Assert.Equivalent(expected, GetArgs(query, args));
+    }
+
+    [Fact]
     public void MakeMeOneWithEverything()
     {
         HybridSearchQuery query = new();
@@ -650,7 +672,6 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
             .Limit(12, 54)
             .ExplainScore()
             .Timeout()
-            .Parameters(args)
             .WithCursor(10, TimeSpan.FromSeconds(10));
         object[] expected =
         [
@@ -668,6 +689,21 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
 
         log.WriteLine(query.Command + " " + string.Join(" ", expected));
         log.WriteLine("vs");
-        Assert.Equivalent(expected, GetArgs(query));
+        Assert.Equivalent(expected, GetArgs(query, args));
+    }
+
+    [Fact]
+    public void Freezing()
+    {
+        HybridSearchQuery query = new();
+        query.Limit(3, 4); // fine
+        query.Limit(5, 6); // fine
+
+        query.GetArgs("abc", null); // indirect freeze
+        Assert.Throws<InvalidOperationException>(() => query.Limit(7, 8));
+
+        query.AllowModification();
+        query.Limit(9, 10); // fine
+        query.Limit(11, 12); // fine
     }
 }

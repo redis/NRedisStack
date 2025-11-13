@@ -17,30 +17,32 @@ public abstract class VectorData
     public static VectorData Create(ReadOnlyMemory<float> vector) => new VectorDataSingle(vector);
 
     /// <summary>
-    /// A pre-formatted base-64 value.
+    /// Represent a vector as a parameter to be supplied later.
     /// </summary>
-    public static VectorData FromBase64(string base64) => new VectorDataBase64(base64);
+    public static VectorData Parameter(string name) => new VectorParameter(name);
 
     /// <summary>
     /// A vector of <see cref="Single"/> entries.
     /// </summary>
     public static implicit operator VectorData(float[] data) => new VectorDataSingle(data);
 
-    /// <summary>
-    /// A vector of <see cref="Single"/> entries.
-    /// </summary>
+    /// <inheritdoc cref="Create"/>
     public static implicit operator VectorData(ReadOnlyMemory<float> vector) => new VectorDataSingle(vector);
 
-    internal void AddBase64Args(List<object> args) => args.Add(ToBase64());
-    internal int Base64ArgsCount() => 1;
-    private protected abstract string ToBase64();
+    /// <inheritdoc cref="Parameter"/>
+    public static implicit operator VectorData(string name) => new VectorParameter(name);
+
+    internal abstract object GetSingleArg();
 
     /// <inheritdoc/>
-    public override string ToString() => ToBase64();
+    public override string ToString() => GetType().Name;
 
     private sealed class VectorDataSingle(ReadOnlyMemory<float> vector) : VectorData
     {
-        private protected override string ToBase64()
+        internal override object GetSingleArg() => ToBase64();
+        public override string ToString() => ToBase64();
+
+        private string ToBase64()
         {
             if (!BitConverter.IsLittleEndian) ThrowBigEndian(); // we could loop and reverse each, but...how to test?
             var bytes = MemoryMarshal.AsBytes(vector.Span);
@@ -56,9 +58,19 @@ public abstract class VectorData
         }
     }
 
-    private sealed class VectorDataBase64(string vector) : VectorData
+    private sealed class VectorParameter : VectorData
     {
-        private protected override string ToBase64() => vector;
+        private readonly string name;
+
+        public VectorParameter(string name)
+        {
+            if (string.IsNullOrEmpty(name) || name[0] != '$') Throw();
+            this.name = name;
+            static void Throw() => throw new ArgumentException("Parameter tokens must start with the character '$'.");
+        }
+
+        public override string ToString() => name;
+        internal override object GetSingleArg() => name;
     }
 
     private protected static void ThrowBigEndian() =>
