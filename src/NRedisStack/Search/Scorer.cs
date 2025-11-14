@@ -39,10 +39,10 @@ public abstract class Scorer
     public static Scorer BM25StdNorm { get; } = new SimpleScorer("BM25STD.NORM");
 
     /// <summary>
-    /// A variation of BM25STD.NORM, where the scores are normalised by the linear function tanh(x).  
+    /// A variation of BM25STD.NORM, where the scores are normalized by the linear function tanh(x).  
     /// </summary>
     /// <param name="y">used to smooth the function and the score values.</param>
-    public static Scorer BM25StdTanh(int y = Bm25StdTanh.DEFAULT_Y) => Bm25StdTanh.Create(y);
+    internal static Scorer BM25StdTanh(int y = Bm25StdTanh.DEFAULT_Y) => Bm25StdTanh.Create(y); // doesn't yet work with FT.HYBRID
     // ReSharper restore InconsistentNaming
 
     /// <summary>

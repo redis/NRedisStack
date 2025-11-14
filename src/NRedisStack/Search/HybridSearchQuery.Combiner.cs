@@ -16,7 +16,7 @@ public sealed partial class HybridSearchQuery
             => LinearCombiner.Create(alpha, beta);
 
         internal abstract int GetOwnArgsCount();
-        internal abstract void AddOwnArgs(List<object> args);
+        internal abstract void AddOwnArgs(List<object> args, int limit);
 
         private sealed class ReciprocalRankFusionCombiner : Combiner
         {
@@ -41,24 +41,21 @@ public sealed partial class HybridSearchQuery
 
             internal override int GetOwnArgsCount()
             {
-                int count = 2;
-                if (_window is not null) count += 2;
+                int count = 4;
                 if (_constant is not null) count += 2;
                 return count;
             }
 
-            internal override void AddOwnArgs(List<object> args)
+            private static readonly object BoxedDefaultWindow = 20;
+
+            internal override void AddOwnArgs(List<object> args, int limit)
             {
                 args.Add(Method);
-                int tokens = 0;
-                if (_window is not null) tokens += 2;
+                int tokens = 2;
                 if (_constant is not null) tokens += 2;
                 args.Add(tokens);
-                if (_window is not null)
-                {
-                    args.Add("WINDOW");
-                    args.Add(_window);
-                }
+                args.Add("WINDOW");
+                args.Add(_window ?? (limit > 0 ? limit : BoxedDefaultWindow));
 
                 if (_constant is not null)
                 {
@@ -92,25 +89,21 @@ public sealed partial class HybridSearchQuery
 
             public override string ToString() => $"{Method} {_alpha} {_beta}";
 
-            internal override int GetOwnArgsCount() => IsDefault ? 2 : 6;
+            internal override int GetOwnArgsCount() => 6;
 
             private bool IsDefault => ReferenceEquals(this, s_Default);
 
-            internal override void AddOwnArgs(List<object> args)
+            private static readonly object BoxedDefaultAlpha = DEFAULT_ALPHA, BoxedDefaultBeta = DEFAULT_BETA;
+
+            internal override void AddOwnArgs(List<object> args, int limit)
             {
                 args.Add(Method);
-                if (IsDefault)
-                {
-                    args.Add(0);
-                }
-                else
-                {
-                    args.Add(4);
-                    args.Add("ALPHA");
-                    args.Add(_alpha);
-                    args.Add("BETA");
-                    args.Add(_beta);
-                }
+                args.Add(4);
+                bool isDefault = ReferenceEquals(this, s_Default);
+                args.Add("ALPHA");
+                args.Add(isDefault ? BoxedDefaultAlpha : _alpha);
+                args.Add("BETA");
+                args.Add(isDefault ? BoxedDefaultBeta : _beta);
             }
         }
     }

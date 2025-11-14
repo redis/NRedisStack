@@ -131,7 +131,7 @@ public sealed partial class HybridSearchQuery
         }
 
         if (_explainScore) count++;
-        if (_timeout) count++;
+        if (_timeout > TimeSpan.Zero) count+= 2;
 
         if (_cursorCount >= 0)
         {
@@ -151,7 +151,7 @@ public sealed partial class HybridSearchQuery
         if (_combiner is not null)
         {
             args.Add("COMBINE");
-            _combiner.AddOwnArgs(args);
+            _combiner.AddOwnArgs(args, _pagingCount);
 
             if (_combineScoreAlias != null)
             {
@@ -332,7 +332,11 @@ public sealed partial class HybridSearchQuery
         }
 
         if (_explainScore) args.Add("EXPLAINSCORE");
-        if (_timeout) args.Add("TIMEOUT");
+        if (_timeout > TimeSpan.Zero)
+        {
+            args.Add("TIMEOUT");
+            args.Add((long)_timeout.TotalMilliseconds);
+        }
 
         if (_cursorCount >= 0)
         {

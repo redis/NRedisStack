@@ -13,10 +13,9 @@ static NRedisStack.Search.Parameters.From<T>(T obj) -> System.Collections.Generi
 [NRS001]NRedisStack.Search.HybridSearchQuery.AllowModification() -> NRedisStack.Search.HybridSearchQuery!
 [NRS001]NRedisStack.Search.HybridSearchQuery.Apply(NRedisStack.Search.ApplyExpression applyExpression) -> NRedisStack.Search.HybridSearchQuery!
 [NRS001]NRedisStack.Search.HybridSearchQuery.Apply(params NRedisStack.Search.ApplyExpression[]! applyExpression) -> NRedisStack.Search.HybridSearchQuery!
-[NRS001]NRedisStack.Search.HybridSearchQuery.Combine(NRedisStack.Search.HybridSearchQuery.Combiner! combiner, string? scoreAlias = null) -> NRedisStack.Search.HybridSearchQuery!
+[NRS001]NRedisStack.Search.HybridSearchQuery.Combine(NRedisStack.Search.HybridSearchQuery.Combiner! combiner) -> NRedisStack.Search.HybridSearchQuery!
 [NRS001]NRedisStack.Search.HybridSearchQuery.Combiner
 [NRS001]NRedisStack.Search.HybridSearchQuery.Combiner.Combiner() -> void
-[NRS001]NRedisStack.Search.HybridSearchQuery.ExplainScore(bool explainScore = true) -> NRedisStack.Search.HybridSearchQuery!
 [NRS001]NRedisStack.Search.HybridSearchQuery.Fields
 [NRS001]NRedisStack.Search.HybridSearchQuery.Filter(string! expression) -> NRedisStack.Search.HybridSearchQuery!
 [NRS001]NRedisStack.Search.HybridSearchQuery.GroupBy(params string![]! fields) -> NRedisStack.Search.HybridSearchQuery!
@@ -42,7 +41,7 @@ static NRedisStack.Search.Parameters.From<T>(T obj) -> System.Collections.Generi
 [NRS001]NRedisStack.Search.HybridSearchQuery.SortBy(params NRedisStack.Search.Aggregation.SortedField![]! fields) -> NRedisStack.Search.HybridSearchQuery!
 [NRS001]NRedisStack.Search.HybridSearchQuery.SortBy(params string![]! fields) -> NRedisStack.Search.HybridSearchQuery!
 [NRS001]NRedisStack.Search.HybridSearchQuery.SortBy(string! field) -> NRedisStack.Search.HybridSearchQuery!
-[NRS001]NRedisStack.Search.HybridSearchQuery.Timeout(bool timeout = true) -> NRedisStack.Search.HybridSearchQuery!
+[NRS001]NRedisStack.Search.HybridSearchQuery.Timeout(System.TimeSpan timeout) -> NRedisStack.Search.HybridSearchQuery!
 [NRS001]NRedisStack.Search.HybridSearchQuery.VectorSearch(NRedisStack.Search.HybridSearchQuery.VectorSearchConfig config) -> NRedisStack.Search.HybridSearchQuery!
 [NRS001]NRedisStack.Search.HybridSearchQuery.VectorSearch(string! fieldName, NRedisStack.Search.VectorData! vectorData) -> NRedisStack.Search.HybridSearchQuery!
 [NRS001]NRedisStack.Search.HybridSearchQuery.VectorSearchConfig
@@ -80,7 +79,6 @@ static NRedisStack.Search.Parameters.From<T>(T obj) -> System.Collections.Generi
 [NRS001]static NRedisStack.Search.HybridSearchQuery.SearchConfig.implicit operator NRedisStack.Search.HybridSearchQuery.SearchConfig(string! query) -> NRedisStack.Search.HybridSearchQuery.SearchConfig
 [NRS001]static NRedisStack.Search.Scorer.BM25Std.get -> NRedisStack.Search.Scorer!
 [NRS001]static NRedisStack.Search.Scorer.BM25StdNorm.get -> NRedisStack.Search.Scorer!
-[NRS001]static NRedisStack.Search.Scorer.BM25StdTanh(int y = 4) -> NRedisStack.Search.Scorer!
 [NRS001]static NRedisStack.Search.Scorer.DisMax.get -> NRedisStack.Search.Scorer!
 [NRS001]static NRedisStack.Search.Scorer.DocScore.get -> NRedisStack.Search.Scorer!
 [NRS001]static NRedisStack.Search.Scorer.Hamming.get -> NRedisStack.Search.Scorer!

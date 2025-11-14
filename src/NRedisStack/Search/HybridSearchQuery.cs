@@ -77,7 +77,12 @@ public sealed partial class HybridSearchQuery
     /// <summary>
     /// Configure the score fusion method (optional). If not provided, Reciprocal Rank Fusion (RRF) is used with server-side default parameters.
     /// </summary>
-    public HybridSearchQuery Combine(Combiner combiner, string? scoreAlias = null)
+    public HybridSearchQuery Combine(Combiner combiner) => Combine(combiner, null!);
+    
+    /// <summary>
+    /// Configure the score fusion method (optional). If not provided, Reciprocal Rank Fusion (RRF) is used with server-side default parameters.
+    /// </summary>
+    internal HybridSearchQuery Combine(Combiner combiner, string scoreAlias) // YIELD_SCORE_AS not yet implemented
     {
         ThrowIfFrozen();
         _combiner = combiner;
@@ -267,19 +272,19 @@ public sealed partial class HybridSearchQuery
     /// <summary>
     /// Include score explanations
     /// </summary>
-    public HybridSearchQuery ExplainScore(bool explainScore = true)
+    internal HybridSearchQuery ExplainScore(bool explainScore = true) // not yet implemented
     {
         ThrowIfFrozen();
         _explainScore = explainScore;
         return this;
     }
 
-    private bool _timeout;
+    private TimeSpan _timeout;
 
     /// <summary>
     /// Apply the global timeout setting.
     /// </summary>
-    public HybridSearchQuery Timeout(bool timeout = true)
+    public HybridSearchQuery Timeout(TimeSpan timeout)
     {
         ThrowIfFrozen();
         _timeout = timeout;

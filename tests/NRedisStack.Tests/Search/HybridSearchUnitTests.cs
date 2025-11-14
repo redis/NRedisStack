@@ -571,22 +571,11 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     }
 
     [Fact]
-    public void TimeoutImplicit()
+    public void Timeout()
     {
         HybridSearchQuery query = new();
-        query.Timeout();
-        object[] expected = [Index, "TIMEOUT"];
-        Assert.Equivalent(expected, GetArgs(query));
-    }
-
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public void TimeoutExplicit(bool enabled)
-    {
-        HybridSearchQuery query = new();
-        query.Timeout(enabled);
-        object[] expected = enabled ? [Index, "TIMEOUT"] : [Index];
+        query.Timeout(TimeSpan.FromSeconds(1));
+        object[] expected = [Index, "TIMEOUT", 1000];
         Assert.Equivalent(expected, GetArgs(query));
     }
 
@@ -671,7 +660,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
             .Filter("@field1:bar")
             .Limit(12, 54)
             .ExplainScore()
-            .Timeout()
+            .Timeout(TimeSpan.FromSeconds(1))
             .WithCursor(10, TimeSpan.FromSeconds(10));
         object[] expected =
         [
