@@ -31,6 +31,7 @@ public sealed class HybridSearchResult
                             case ResultKey.ExecutionTime:
                                 obj.ExecutionTime = TimeSpan.FromSeconds((double)value);
                                 break;
+                            /* // defer Warnings until we've seen examples
                             case ResultKey.Warnings when value.Length > 0:
                                 var warnings = new string[value.Length];
                                 for (int j = 0; j < value.Length; j++)
@@ -39,14 +40,9 @@ public sealed class HybridSearchResult
                                 }
                                 obj.Warnings = warnings;
                                 break;
+                                */
                             case ResultKey.Results when value.Length > 0:
-                                var rows = new IReadOnlyDictionary<string, object>[value.Length];
-                                for (int j = 0; j < value.Length; j++)
-                                {
-                                    rows[j] = ParseRow(value[j]);
-                                }
-
-                                obj.Results = rows;
+                                obj._rawResults = value.ToArray();
                                 break;
                         }
                     }
@@ -113,11 +109,37 @@ public sealed class HybridSearchResult
         Results,
     }
 
+    /// <summary>
+    /// The number of records matched.
+    /// </summary>
     public long TotalResults { get; private set; } = -1; // initialize to -1 to indicate not set
 
+    /// <summary>
+    /// The time taken to execute this query.
+    /// </summary>
     public TimeSpan ExecutionTime { get; private set; }
 
-    public string[] Warnings { get; private set; } = [];
+    // not exposing this until I've seen it being used
+    internal string[] Warnings { get; private set; } = [];
 
-    public IReadOnlyDictionary<string, object>[] Results { get; private set; } = [];
+    private RedisResult[] _rawResults = [];
+    private Document[]? _docResults;
+    
+    /// <summary>
+    /// Obtain the results as <see cref="Document"/> entries.
+    /// </summary>
+    public Document[] Results => _docResults ??= ParseDocResults();
+
+    private Document[] ParseDocResults()
+    {
+        var raw = _rawResults;
+        if (raw.Length == 0) return [];
+        Document[] docs = new Document[raw.Length];
+        for (int i = 0 ; i <  raw.Length ; i ++)
+        {
+            docs[i] = Document.Load(raw[i]);
+        }
+
+        return docs;
+    }
 }

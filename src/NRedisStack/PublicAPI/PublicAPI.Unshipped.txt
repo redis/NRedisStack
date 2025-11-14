@@ -60,9 +60,8 @@ static NRedisStack.Search.Parameters.From<T>(T obj) -> System.Collections.Generi
 [NRS001]NRedisStack.Search.HybridSearchQuery.VectorSearchConfig.WithVectorData(NRedisStack.Search.VectorData! vectorData) -> NRedisStack.Search.HybridSearchQuery.VectorSearchConfig
 [NRS001]NRedisStack.Search.HybridSearchResult
 [NRS001]NRedisStack.Search.HybridSearchResult.ExecutionTime.get -> System.TimeSpan
-[NRS001]NRedisStack.Search.HybridSearchResult.Results.get -> System.Collections.Generic.IReadOnlyDictionary<string!, object!>![]!
+[NRS001]NRedisStack.Search.HybridSearchResult.Results.get -> NRedisStack.Search.Document![]!
 [NRS001]NRedisStack.Search.HybridSearchResult.TotalResults.get -> long
-[NRS001]NRedisStack.Search.HybridSearchResult.Warnings.get -> string![]!
 [NRS001]NRedisStack.Search.Scorer
 [NRS001]NRedisStack.Search.VectorData
 [NRS001]NRedisStack.Search.VectorSearchMethod

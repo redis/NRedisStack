@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.Data;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -113,7 +114,17 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
         Assert.Equal(10, result.TotalResults);
         Assert.NotEqual(TimeSpan.Zero, result.ExecutionTime);
         Assert.Empty(result.Warnings);
+        Assert.Same(result.Results, result.Results); // check this is not allocating each time
         Assert.Equal(10, result.Results.Length);
+        foreach (var row in result.Results)
+        {
+            Assert.NotNull(row.Id);
+            Assert.NotEqual("", row.Id);
+            Assert.False(double.IsNaN(row.Score));
+            var text1 = (string)row["text1"]!;
+            Assert.False(string.IsNullOrWhiteSpace(text1));
+            Log($"{row.Id}, {row.Score}, {text1}");
+        }
     }
 
     private void WriteArgs(string indexName, HybridSearchQuery query, IReadOnlyDictionary<string, object>? parameters = null)
@@ -146,7 +157,7 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
                 sb.Append(arg);
             }
         }
-        log.WriteLine(sb.ToString());
+        Log(sb.ToString());
 
         ArrayPool<byte>.Shared.Return(scratch);
 

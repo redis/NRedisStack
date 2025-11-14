@@ -27,6 +27,7 @@ public sealed partial class HybridSearchQuery
         /// The score from the query. 
         /// </summary>
         public const string Score = "@__score";
+
         // ReSharper restore InconsistentNaming
     }
     private bool _frozen;
