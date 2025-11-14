@@ -140,8 +140,8 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
         [Obsolete]LinearWithScore,
         RrfNoScore,
         [Obsolete]RrfWithScore,
-        [Obsolete]FilterByTag,
-        FilterByNumber,
+        [Obsolete]PostFilterByTag,
+        PostFilterByNumber,
         LimitFirstPage,
         LimitSecondPage,
         LimitEmptyPage,
@@ -166,6 +166,8 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
         VectorWithNearestCount,
         [Obsolete]VectorWithNearestDistAlias,
         [Obsolete]VectorWithNearestMaxCandidates,
+        PreFilterByTag,
+        PreFilterByNumeric
     }
 
     private static class EnumCache<T>
@@ -233,8 +235,10 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
             Scenario.LinearWithScore => query.Combine(HybridSearchQuery.Combiner.Linear(), "lin_score"),
             Scenario.RrfNoScore => query.Combine(HybridSearchQuery.Combiner.ReciprocalRankFusion(10, 1.2)),
             Scenario.RrfWithScore => query.Combine(HybridSearchQuery.Combiner.ReciprocalRankFusion(), "rrf_score"),
-            Scenario.FilterByTag => query.Filter("@tag1:{foo}"),
-            Scenario.FilterByNumber => query.ReturnFields([..fields, "@numeric1"]).Filter("@numeric1!=0"),
+            Scenario.PreFilterByTag => query.VectorSearch(new("@vector1", VectorData.Raw(vec), filter: "@tag1:{foo}")),
+            Scenario.PreFilterByNumeric => query.VectorSearch(new("@vector1", VectorData.Raw(vec), filter: "@numeric1!=0")),
+            Scenario.PostFilterByTag => query.Filter("@tag1:{foo}"),
+            Scenario.PostFilterByNumber => query.ReturnFields([..fields, "@numeric1"]).Filter("@numeric1!=0"),
             Scenario.LimitFirstPage => query.Limit(0, 2),
             Scenario.LimitSecondPage => query.Limit(2, 2),
             Scenario.LimitEmptyPage => query.Limit(0, 0),
