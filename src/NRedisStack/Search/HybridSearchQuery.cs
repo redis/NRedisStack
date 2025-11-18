@@ -78,7 +78,7 @@ public sealed partial class HybridSearchQuery
     /// Configure the score fusion method (optional). If not provided, Reciprocal Rank Fusion (RRF) is used with server-side default parameters.
     /// </summary>
     public HybridSearchQuery Combine(Combiner combiner) => Combine(combiner, null!);
-    
+
     /// <summary>
     /// Configure the score fusion method (optional). If not provided, Reciprocal Rank Fusion (RRF) is used with server-side default parameters.
     /// </summary>

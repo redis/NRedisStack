@@ -132,7 +132,7 @@ public sealed partial class HybridSearchQuery
         }
 
         if (_explainScore) count++;
-        if (_timeout > TimeSpan.Zero) count+= 2;
+        if (_timeout > TimeSpan.Zero) count += 2;
 
         if (_cursorCount >= 0)
         {

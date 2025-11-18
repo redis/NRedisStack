@@ -124,7 +124,7 @@ public sealed class HybridSearchResult
 
     private RedisResult[] _rawResults = [];
     private Document[]? _docResults;
-    
+
     /// <summary>
     /// Obtain the results as <see cref="Document"/> entries.
     /// </summary>
@@ -135,7 +135,7 @@ public sealed class HybridSearchResult
         var raw = _rawResults;
         if (raw.Length == 0) return [];
         Document[] docs = new Document[raw.Length];
-        for (int i = 0 ; i <  raw.Length ; i ++)
+        for (int i = 0; i < raw.Length; i++)
         {
             docs[i] = Document.Load(raw[i]);
         }
