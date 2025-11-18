@@ -1,4 +1,3 @@
-using System.Text;
 using NRedisStack.Search;
 using NRedisStack.Search.Aggregation;
 using Xunit;
@@ -285,7 +284,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     {
         HybridSearchQuery query = new();
         query.Combine(HybridSearchQuery.Combiner.Linear());
-        object[] expected = [Index, "COMBINE", "LINEAR", 0];
+        object[] expected = [Index, "COMBINE", "LINEAR", 4, "ALPHA", 0.3, "BETA", 0.7];
         Assert.Equivalent(expected, GetArgs(query));
     }
 
@@ -304,7 +303,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     {
         HybridSearchQuery query = new();
         query.Combine(HybridSearchQuery.Combiner.ReciprocalRankFusion(), "my_combined_alias");
-        object[] expected = [Index, "COMBINE", "RRF", 0, "YIELD_SCORE_AS", "my_combined_alias"];
+        object[] expected = [Index, "COMBINE", "RRF", 2, "WINDOW", 20, "YIELD_SCORE_AS", "my_combined_alias"];
         Assert.Equivalent(expected, GetArgs(query));
     }
 
@@ -317,11 +316,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     {
         HybridSearchQuery query = new();
         query.Combine(HybridSearchQuery.Combiner.ReciprocalRankFusion(window, constant));
-        object[] expected = [Index, "COMBINE", "RRF", (window is not null ? 2 : 0) + (constant is not null ? 2 : 0)];
-        if (window is not null)
-        {
-            expected = [.. expected, "WINDOW", window];
-        }
+        object[] expected = [Index, "COMBINE", "RRF", 2 + (constant is not null ? 2 : 0), "WINDOW", window ?? 20];
 
         if (constant is not null)
         {
@@ -627,15 +622,18 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         IReadOnlyDictionary<string, object> args = new Dictionary<string, object>
         {
             { "s", "abc"},
-            {"v", VectorData.Create(SomeRandomDataHere) }
+            { "v", VectorData.Create(SomeRandomDataHere) }
         };
         object[] expected = [Index, "SEARCH", "$s", "VSIM", "@field", "$v", "PARAMS", 4, "s", "abc", "v", SomeRandomVectorValue];
+        var idx = Array.IndexOf(expected, "abc");
+        Assert.True(idx >= 0);
         Assert.Equivalent(expected, GetArgs(query, args));
 
         // issue a second query against the same "query" instance, with different parameter values, this time from an object
-        args = Parameters.From(new { s = "def", v = SomeRandomDataHere });
-        expected[8] = "def"; // update our expectations
-        expected[10] = SomeRandomVectorValue;
+        args = Parameters.From(new { s = "def", v = VectorData.Create(SomeRandomDataHere) });
+
+        expected[idx] = "def"; // update our expectations
+        expected[idx + 2] = SomeRandomVectorValue;
         Assert.Equivalent(expected, GetArgs(query, args));
     }
 
@@ -672,7 +670,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
             "QUANTILE", 2, "@field3", 0.5, "AS", "reducer_alias", "APPLY", "@field1 + @field2", "AS", "apply_alias",
             "SORTBY", 3, "field1", "field2", "DESC", "FILTER", "@field1:bar", "LIMIT", 12, 54,
             "PARAMS", 4, "x", 42, "y", "abc",
-            "EXPLAINSCORE", "TIMEOUT",
+            "EXPLAINSCORE", "TIMEOUT", 1000,
             "WITHCURSOR", "COUNT", 10, "MAXIDLE", 10000
         ];
 

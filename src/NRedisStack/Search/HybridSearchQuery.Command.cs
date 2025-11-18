@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using NRedisStack.Search.Aggregation;
+using StackExchange.Redis;
 
 namespace NRedisStack.Search;
 
@@ -318,7 +319,7 @@ public sealed partial class HybridSearchQuery
                 foreach (var entry in typed) // avoid allocating enumerator
                 {
                     args.Add(entry.Key);
-                    args.Add(entry.Value is VectorData vec ? vec.GetSingleArg() : entry.Value);
+                    args.Add(Wrap(entry.Value));
                 }
             }
             else
@@ -326,9 +327,17 @@ public sealed partial class HybridSearchQuery
                 foreach (var entry in parameters)
                 {
                     args.Add(entry.Key);
-                    args.Add(entry.Value is VectorData vec ? vec.GetSingleArg() : entry.Value);
+                    args.Add(Wrap(entry.Value));
                 }
             }
+
+            static object Wrap(object value)
+                => value switch
+                {
+                    VectorData vec => vec.GetSingleArg(),
+                    ReadOnlyMemory<byte> raw => (RedisValue)raw,
+                    _ => value,
+                };
         }
 
         if (_explainScore) args.Add("EXPLAINSCORE");
