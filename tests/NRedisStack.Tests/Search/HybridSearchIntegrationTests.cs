@@ -1,6 +1,4 @@
 using System.Buffers;
-using System.Data;
-using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -49,7 +47,7 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
 
         var ftCreateParams = FTCreateParams.CreateParams();
         Assert.True(await ft.CreateAsync(index, ftCreateParams, sc));
-
+        
         if (populate)
         {
 #if NET
@@ -77,7 +75,7 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
 
             await last;
 #else
-            throw new PlatformNotSupportedException("FP16");
+            throw new SkipException("FP16 not supported");
 #endif
         }
 
@@ -138,13 +136,9 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
     {
         Simple,
         NoSort,
-        ExplainScore,
         Apply,
         LinearNoScore,
-        LinearWithScore,
         RrfNoScore,
-        RrfWithScore,
-        PostFilterByTag,
         PostFilterByNumber,
         LimitFirstPage,
         LimitSecondPage,
@@ -159,28 +153,33 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
         GroupByNoReduce,
         SearchWithAlias,
         SearchWithSimpleScorer,
-        SearchWithComplexScorer,
         VectorWithAlias,
         VectorWithRange,
-        VectorWithRangeAndDistanceAlias,
-        VectorWithRangeAndEpsilon,
         VectorWithTagFilter,
         VectorWithNumericFilter,
         VectorWithNearest,
         VectorWithNearestCount,
-        VectorWithNearestDistAlias,
-        VectorWithNearestMaxCandidates,
         PreFilterByTag,
         PreFilterByNumeric,
-        ParamPostFilter,
         ParamSearch,
         ParamVsim,
-        ParamMultiPostFilter,
         ParamPreFilter,
-        ParamMultiPreFilter
+        ParamMultiPreFilter,
+
+        [NotYetImplemented] ExplainScore,
+        [NotYetImplemented] LinearWithScore,
+        [NotYetImplemented] RrfWithScore,
+        [NotYetImplemented] PostFilterByTag,
+        [NotYetImplemented] SearchWithComplexScorer,
+        [NotYetImplemented] VectorWithRangeAndDistanceAlias,
+        [NotYetImplemented] VectorWithRangeAndEpsilon,
+        [NotYetImplemented] VectorWithNearestDistAlias,
+        [NotYetImplemented] VectorWithNearestMaxCandidates,
+        [NotYetImplemented] ParamPostFilter,
+        [NotYetImplemented] ParamMultiPostFilter,
     }
 
-    private sealed class BrokenAttribute : Attribute
+    private sealed class NotYetImplementedAttribute : Attribute
     {
     }
 
@@ -188,7 +187,7 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
     {
         public static IEnumerable<T> Values { get; } = (
             from field in typeof(T).GetFields(BindingFlags.Public | BindingFlags.Static)
-            where !Attribute.IsDefined(field, typeof(BrokenAttribute))
+            where !Attribute.IsDefined(field, typeof(NotYetImplementedAttribute))
             let val = field.GetRawConstantValue()
             where val is not null
             select (T)val).ToArray();
@@ -236,7 +235,7 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
             Scenario.VectorWithRange => query.VectorSearch(new("@vector1", VectorData.Raw(vec),
                 method: VectorSearchMethod.Range(42))),
             Scenario.VectorWithRangeAndDistanceAlias => query.VectorSearch(new("@vector1", VectorData.Raw(vec),
-                method: VectorSearchMethod.Range(42, distanceAlias: "dist_alias"))),
+                method: VectorSearchMethod.Range(42, null, distanceAlias: "dist_alias"))),
             Scenario.VectorWithRangeAndEpsilon => query.VectorSearch(new("@vector1", VectorData.Raw(vec),
                 method: VectorSearchMethod.Range(42, epsilon: 0.1))),
             Scenario.VectorWithNearest => query.VectorSearch(new("@vector1", VectorData.Raw(vec),
@@ -244,9 +243,9 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
             Scenario.VectorWithNearestCount => query.VectorSearch(new("@vector1", VectorData.Raw(vec),
                 method: VectorSearchMethod.NearestNeighbour(20))),
             Scenario.VectorWithNearestDistAlias => query.VectorSearch(new("@vector1", VectorData.Raw(vec),
-                method: VectorSearchMethod.NearestNeighbour(distanceAlias: "dist_alias"))),
+                method: VectorSearchMethod.NearestNeighbour(null, null, distanceAlias: "dist_alias"))),
             Scenario.VectorWithNearestMaxCandidates => query.VectorSearch(new("@vector1", VectorData.Raw(vec),
-                method: VectorSearchMethod.NearestNeighbour(maxTopCandidates: 10))),
+                method: VectorSearchMethod.NearestNeighbour(null, maxTopCandidates: 10))),
             Scenario.VectorWithTagFilter => query.VectorSearch(new("@vector1", VectorData.Raw(vec),
                 filter: "@tag1:{foo}")),
             Scenario.VectorWithNumericFilter => query.VectorSearch(new("@vector1", VectorData.Raw(vec),

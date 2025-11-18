@@ -90,5 +90,5 @@ static NRedisStack.Search.Parameters.From<T>(T obj) -> System.Collections.Generi
 [NRS001]static NRedisStack.Search.VectorData.implicit operator NRedisStack.Search.VectorData!(System.ReadOnlyMemory<float> vector) -> NRedisStack.Search.VectorData!
 [NRS001]static NRedisStack.Search.VectorData.Parameter(string! name) -> NRedisStack.Search.VectorData!
 [NRS001]static NRedisStack.Search.VectorData.Raw(System.ReadOnlyMemory<byte> bytes) -> NRedisStack.Search.VectorData!
-[NRS001]static NRedisStack.Search.VectorSearchMethod.NearestNeighbour(int count = 10, int? maxTopCandidates = null, string? distanceAlias = null) -> NRedisStack.Search.VectorSearchMethod!
-[NRS001]static NRedisStack.Search.VectorSearchMethod.Range(double radius, double? epsilon = null, string? distanceAlias = null) -> NRedisStack.Search.VectorSearchMethod!
+[NRS001]static NRedisStack.Search.VectorSearchMethod.NearestNeighbour(int count = 10) -> NRedisStack.Search.VectorSearchMethod!
+[NRS001]static NRedisStack.Search.VectorSearchMethod.Range(double radius) -> NRedisStack.Search.VectorSearchMethod!

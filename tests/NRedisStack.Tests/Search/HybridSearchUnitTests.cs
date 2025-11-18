@@ -147,7 +147,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         HybridSearchQuery query = new();
         var searchConfig = new HybridSearchQuery.VectorSearchConfig("vField", SomeRandomDataHere);
         if (withScoreAlias) searchConfig = searchConfig.WithScoreAlias("my_score_alias");
-        searchConfig = searchConfig.WithMethod(VectorSearchMethod.NearestNeighbour(
+        searchConfig = searchConfig.WithMethod(VectorSearchMethod.NearestNeighbour(null, null,
             distanceAlias: withDistanceAlias ? "my_distance_alias" : null));
         query.VectorSearch(searchConfig);
 
@@ -210,7 +210,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         HybridSearchQuery query = new();
         var searchConfig = new HybridSearchQuery.VectorSearchConfig("vfield", SomeRandomDataHere);
         if (withScoreAlias) searchConfig = searchConfig.WithScoreAlias("my_score_alias");
-        searchConfig = searchConfig.WithMethod(VectorSearchMethod.Range(4.2,
+        searchConfig = searchConfig.WithMethod(VectorSearchMethod.Range(4.2, null,
             distanceAlias: withDistanceAlias ? "my_distance_alias" : null));
         query.VectorSearch(searchConfig);
 

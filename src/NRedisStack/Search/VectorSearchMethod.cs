@@ -17,13 +17,17 @@ public abstract class VectorSearchMethod
     /// <inheritdoc />
     public override string ToString() => Method;
 
-    public static VectorSearchMethod Range(double radius, double? epsilon = null, string? distanceAlias = null)
+    public static VectorSearchMethod Range(double radius) => RangeVectorSearchMethod.Create(radius, null, null);
+    internal static VectorSearchMethod Range(double radius, double? epsilon, string? distanceAlias = null)
         => RangeVectorSearchMethod.Create(radius, epsilon, distanceAlias);
 
     public static VectorSearchMethod NearestNeighbour(
-        int count = NearestNeighbourVectorSearchMethod.DEFAULT_NEAREST_NEIGHBOUR_COUNT, int? maxTopCandidates = null,
-        string? distanceAlias = null)
-        => NearestNeighbourVectorSearchMethod.Create(count, maxTopCandidates, distanceAlias);
+        int count = NearestNeighbourVectorSearchMethod.DEFAULT_NEAREST_NEIGHBOUR_COUNT)
+        => NearestNeighbourVectorSearchMethod.Create(count, null, null);
+
+    internal static VectorSearchMethod NearestNeighbour(
+        int? count, int? maxTopCandidates, string? distanceAlias = null)
+        => NearestNeighbourVectorSearchMethod.Create(count ?? NearestNeighbourVectorSearchMethod.DEFAULT_NEAREST_NEIGHBOUR_COUNT, maxTopCandidates, distanceAlias);
 
     private sealed class NearestNeighbourVectorSearchMethod : VectorSearchMethod
     {
