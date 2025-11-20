@@ -156,7 +156,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         byte[] blob = [];
         query.VectorSearch("vfield", VectorData.Raw(blob));
 
-        object[] expected = [Index, "VSIM", "vfield", ""];
+        object[] expected = [Index, "VSIM", "vfield", "$v", "PARAMS", 2, "v", ""];
         Assert.Equivalent(expected, GetArgs(query));
     }
 
@@ -170,7 +170,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         HybridSearchQuery query = new();
         query.VectorSearch("vfield", SomeRandomDataHere);
 
-        object[] expected = [Index, "VSIM", "vfield", SomeRandomVectorValue];
+        object[] expected = [Index, "VSIM", "vfield", "$v", "PARAMS", 2, "v", SomeRandomVectorValue];
         Assert.Equivalent(expected, GetArgs(query));
     }
 
@@ -189,7 +189,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         query.VectorSearch(searchConfig);
 
         object[] expected =
-            [Index, "VSIM", "vField", SomeRandomVectorValue, "KNN", withDistanceAlias ? 4 : 2, "K", 10];
+            [Index, "VSIM", "vField", "$v", "KNN", withDistanceAlias ? 4 : 2, "K", 10];
         if (withDistanceAlias)
         {
             expected = [.. expected, "YIELD_DISTANCE_AS", "my_distance_alias"];
@@ -200,6 +200,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
             expected = [.. expected, "YIELD_SCORE_AS", "my_score_alias"];
         }
 
+        expected = [..expected, "PARAMS", 2, "v", SomeRandomVectorValue];
         Assert.Equivalent(expected, GetArgs(query));
     }
 
@@ -221,7 +222,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
 
         object[] expected =
         [
-            Index, "VSIM", "vfield", SomeRandomVectorValue, "KNN", withDistanceAlias ? 6 : 4, "K", 16,
+            Index, "VSIM", "vfield", "$v", "KNN", withDistanceAlias ? 6 : 4, "K", 16,
             "EF_RUNTIME", 100
         ];
         if (withDistanceAlias)
@@ -233,6 +234,8 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         {
             expected = [.. expected, "YIELD_SCORE_AS", "my_score_alias"];
         }
+
+        expected = [.. expected, "PARAMS", 2, "v", SomeRandomVectorValue];
 
         Assert.Equivalent(expected, GetArgs(query));
     }
@@ -253,7 +256,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
 
         object[] expected =
         [
-            Index, "VSIM", "vfield", SomeRandomVectorValue, "RANGE", withDistanceAlias ? 4 : 2, "RADIUS",
+            Index, "VSIM", "vfield", "$v", "RANGE", withDistanceAlias ? 4 : 2, "RADIUS",
             4.2
         ];
         if (withDistanceAlias)
@@ -266,6 +269,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
             expected = [.. expected, "YIELD_SCORE_AS", "my_score_alias"];
         }
 
+        expected = [.. expected, "PARAMS", 2, "v", SomeRandomVectorValue];
         Assert.Equivalent(expected, GetArgs(query));
     }
 
@@ -286,7 +290,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
 
         object[] expected =
         [
-            Index, "VSIM", "vfield", SomeRandomVectorValue, "RANGE", withDistanceAlias ? 6 : 4, "RADIUS",
+            Index, "VSIM", "vfield", "$v", "RANGE", withDistanceAlias ? 6 : 4, "RADIUS",
             4.2, "EPSILON", 0.06
         ];
         if (withDistanceAlias)
@@ -299,6 +303,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
             expected = [.. expected, "YIELD_SCORE_AS", "my_score_alias"];
         }
 
+        expected = [.. expected, "PARAMS", 2, "v", SomeRandomVectorValue];
         Assert.Equivalent(expected, GetArgs(query));
     }
 
@@ -310,7 +315,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
 
         object[] expected =
         [
-            Index, "VSIM", "vfield", SomeRandomVectorValue, "FILTER", "@foo:bar"
+            Index, "VSIM", "vfield", "$v", "FILTER", "@foo:bar", "PARAMS", 2, "v", SomeRandomVectorValue
         ];
 
         Assert.Equivalent(expected, GetArgs(query));
@@ -702,12 +707,12 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         [
             Index, "SEARCH", "foo", "SCORER", "BM25STD.TANH", "BM25STD_TANH_FACTOR", 5, "YIELD_SCORE_AS",
             "text_score_alias", "VSIM", "bar",
-            "AACAPwAAAEAAAEBA", "KNN", 6, "K", 10, "EF_RUNTIME", 100, "YIELD_DISTANCE_AS", "vector_distance_alias", "FILTER",
+            "$v", "KNN", 6, "K", 10, "EF_RUNTIME", 100, "YIELD_DISTANCE_AS", "vector_distance_alias", "FILTER",
             "@foo:bar", "YIELD_SCORE_AS", "vector_score_alias", "COMBINE", "RRF", 4, "WINDOW", 10, "CONSTANT", 0.5,
             "YIELD_SCORE_AS", "my_combined_alias", "LOAD", 2, "field1", "field2", "GROUPBY", 1, "field1", "REDUCE",
             "QUANTILE", 2, "@field3", 0.5, "AS", "reducer_alias", "APPLY", "@field1 + @field2", "AS", "apply_alias",
             "SORTBY", 3, "field1", "field2", "DESC", "FILTER", "@field1:bar", "LIMIT", 12, 54,
-            "PARAMS", 4, "x", 42, "y", "abc",
+            "PARAMS", 6, "v", "AACAPwAAAEAAAEBA", "x", 42, "y", "abc",
             "EXPLAINSCORE", "TIMEOUT", 1000,
             "WITHCURSOR", "COUNT", 10, "MAXIDLE", 10000
         ];

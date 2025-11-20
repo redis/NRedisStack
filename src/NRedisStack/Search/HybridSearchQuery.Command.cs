@@ -24,7 +24,6 @@ public sealed partial class HybridSearchQuery
     {
         int count = _search.GetOwnArgsCount() + _vsim.GetOwnArgsCount(); // note index is not included here
 
-
         if (_combiner is not null)
         {
             count += 1 + _combiner.GetOwnArgsCount();
@@ -126,9 +125,15 @@ public sealed partial class HybridSearchQuery
 
         if (_pagingOffset >= 0) count += 3;
 
+        bool forceVsimParam = _vsim.VectorData is { ForceParameter: true };
         if (parameters is not null)
         {
             count += (parameters.Count + 1) * 2;
+            if (forceVsimParam) count += 2;
+        }
+        else if (forceVsimParam)
+        {
+            count += 4;
         }
 
         if (_explainScore) count++;
@@ -144,10 +149,25 @@ public sealed partial class HybridSearchQuery
         return count;
     }
 
+    private static string InventVectorParameterName(IReadOnlyDictionary<string, object>? parameters)
+    {
+        const string DEFAULT_NAME = "v";
+        if (parameters is null || !parameters.ContainsKey(DEFAULT_NAME)) return DEFAULT_NAME;
+        var max = parameters.Count;
+        for (int i = 0; i <= max; i++)
+        {
+            var key = $"{DEFAULT_NAME}{i}";
+            if (!parameters.ContainsKey(key)) return key;
+        }
+        // if we get here, the dictionary is lying to us
+        throw new InvalidOperationException("Unable to create parameter for vector");
+    }
+
     internal void AddOwnArgs(List<object> args, IReadOnlyDictionary<string, object>? parameters)
     {
         _search.AddOwnArgs(args);
-        _vsim.AddOwnArgs(args);
+        string? forcedVsimName = _vsim.VectorData is { ForceParameter: true } ? InventVectorParameterName(parameters) : null;
+        _vsim.AddOwnArgs(args, forcedVsimName);
 
         if (_combiner is not null)
         {
@@ -313,7 +333,14 @@ public sealed partial class HybridSearchQuery
         if (parameters is not null)
         {
             args.Add("PARAMS");
-            args.Add(parameters.Count * 2);
+            var pairs = parameters.Count;
+            if (forcedVsimName is not null) pairs++;
+            args.Add(pairs * 2);
+            if (forcedVsimName is not null)
+            {
+                args.Add(forcedVsimName);
+                args.Add(_vsim.VectorData!.AsRedisValue());
+            }
             if (parameters is Dictionary<string, object> typed)
             {
                 foreach (var entry in typed) // avoid allocating enumerator
@@ -338,6 +365,13 @@ public sealed partial class HybridSearchQuery
                     ReadOnlyMemory<byte> raw => (RedisValue)raw,
                     _ => value,
                 };
+        }
+        else if (forcedVsimName is not null)
+        {
+            args.Add("PARAMS");
+            args.Add(2);
+            args.Add(forcedVsimName);
+            args.Add(_vsim.VectorData!.AsRedisValue());
         }
 
         if (_explainScore) args.Add("EXPLAINSCORE");

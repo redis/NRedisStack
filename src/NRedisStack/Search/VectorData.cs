@@ -28,6 +28,9 @@ public abstract class VectorData<T> : VectorData, IDisposable where T : unmanage
             if (tmp is not null) ArrayPool<byte>.Shared.Return(tmp);
         }
         public override RedisValue AsRedisValue() => (RedisValue)new ReadOnlyMemory<byte>(Array,  0, byteLength);
+
+        // *always* force; in 8.4, this is not required, but this is likely to change, so: avoid the problem immediately
+        internal override bool ForceParameter => true; // byteLength != 0 && Array[0] == (byte)'$';
     }
 
     public abstract void Dispose();
@@ -102,6 +105,9 @@ public abstract class VectorData
     private sealed class VectorDataRaw(ReadOnlyMemory<byte> bytes) : VectorData
     {
         public override RedisValue AsRedisValue() => (RedisValue)bytes;
+
+        // *always* force; in 8.4, this is not required, but this is likely to change, so: avoid the problem immediately
+        internal override bool ForceParameter => true; // !bytes.IsEmpty && bytes.Span[0] == (byte)'$';
     }
 
     private sealed class VectorParameter : VectorData
@@ -122,4 +128,6 @@ public abstract class VectorData
 
     private protected static void ThrowBigEndian() =>
         throw new PlatformNotSupportedException("Big-endian CPUs are not currently supported for this operation");
+
+    internal virtual bool ForceParameter => false;
 }

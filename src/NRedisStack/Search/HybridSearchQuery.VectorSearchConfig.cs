@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using StackExchange.Redis;
 
 namespace NRedisStack.Search;
 
@@ -103,13 +104,20 @@ public sealed partial class HybridSearchQuery
             return count;
         }
 
-        internal void AddOwnArgs(List<object> args)
+        internal void AddOwnArgs(List<object> args, string? forcedParameterName)
         {
             if (HasValue)
             {
                 args.Add("VSIM");
                 args.Add(_fieldName);
-                args.Add(_vectorData.GetSingleArg());
+                if (forcedParameterName is not null)
+                {
+                    args.Add("$" + forcedParameterName);
+                }
+                else
+                {
+                    args.Add(_vectorData.GetSingleArg());
+                }
 
                 _method?.AddOwnArgs(args);
                 if (_filter != null)

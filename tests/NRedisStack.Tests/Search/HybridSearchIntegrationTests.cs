@@ -137,6 +137,8 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
     public enum Scenario
     {
         Simple,
+        ForcedDollarValue,
+        ForcedDollarValueWithParameters,
         NoSort,
         Apply,
         LinearNoScore,
@@ -232,6 +234,10 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
 
         var hash = (await api.DB.HashGetAllAsync($"{api.Index}_entry2")).ToDictionary(k => k.Name, v => v.Value);
         var vec = (byte[])hash["vector1"]!;
+        if (scenario is Scenario.ForcedDollarValue or Scenario.ForcedDollarValueWithParameters)
+        {
+            vec[0] = (byte)'$';
+        }
         var text = (string)hash["text1"]!;
         string[] fields = ["@text1", HybridSearchQuery.Fields.Key, HybridSearchQuery.Fields.Score];
         var query = new HybridSearchQuery()
@@ -242,7 +248,7 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
 #pragma warning disable CS0612
         query = scenario switch
         {
-            Scenario.Simple => query,
+            Scenario.Simple or Scenario.ForcedDollarValue => query,
             Scenario.SearchWithAlias => query.Search(new(text, scoreAlias: "score_alias")),
             Scenario.SearchWithSimpleScorer => query.Search(new(text, scorer: Scorer.TfIdf)),
             Scenario.SearchWithComplexScorer => query.Search(new(text, scorer: Scorer.BM25StdTanh(7))),
@@ -293,7 +299,7 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
             Scenario.ReduceMulti => query.GroupBy("@tag1").Reduce(Reducers.Count().As("count"),
                 Reducers.Min("@numeric1").As("min"), Reducers.Max("@numeric1").As("max")),
             Scenario.ParamVsim => query.VectorSearch("@vector1", VectorData.Parameter("$v")),
-            Scenario.ParamSearch => query.Search("$q"),
+            Scenario.ParamSearch or Scenario.ForcedDollarValueWithParameters => query.Search("$q"),
             Scenario.ParamPreFilter =>
                 query.VectorSearch(new("@vector1", VectorData.Raw(vec), filter: "@numeric1!=$n")),
             Scenario.ParamPostFilter => query.ReturnFields([.. fields, "@numeric1"]).Filter("@numeric1!=$n"),
@@ -309,7 +315,7 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
             Scenario.ParamPostFilter or Scenario.ParamPreFilter => new Dictionary<string, object>() { ["n"] = 42 },
             Scenario.ParamMultiPostFilter or Scenario.ParamMultiPreFilter => new Dictionary<string, object>()
             { ["n"] = 42, ["t"] = "foo" },
-            Scenario.ParamSearch => new Dictionary<string, object>() { ["q"] = text },
+            Scenario.ParamSearch or Scenario.ForcedDollarValueWithParameters => new Dictionary<string, object>() { ["q"] = text },
             Scenario.ParamVsim => new Dictionary<string, object>() { ["v"] = VectorData.Raw(vec) },
             _ => null,
         };
