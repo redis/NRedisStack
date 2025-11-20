@@ -160,7 +160,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         Assert.Equivalent(expected, GetArgs(query));
     }
 
-    private static readonly VectorData<float> SomeRandomDataHere = VectorData.LeaseWithValues<float>(1, 2, 3, 4 );
+    private static readonly VectorData<float> SomeRandomDataHere = VectorData.LeaseWithValues<float>(1, 2, 3, 4);
 
     private const string SomeRandomVectorValue = "AACAPwAAAEAAAEBAAACAQA==";
 
@@ -200,7 +200,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
             expected = [.. expected, "YIELD_SCORE_AS", "my_score_alias"];
         }
 
-        expected = [..expected, "PARAMS", 2, "v", SomeRandomVectorValue];
+        expected = [.. expected, "PARAMS", 2, "v", SomeRandomVectorValue];
         Assert.Equivalent(expected, GetArgs(query));
     }
 

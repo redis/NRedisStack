@@ -14,7 +14,7 @@ public abstract class VectorData<T> : VectorData, IDisposable where T : unmanage
     }
 
     public abstract Span<T> Span { get; }
-    internal sealed class VectorBytesData(int byteLength) : VectorData<T> 
+    internal sealed class VectorBytesData(int byteLength) : VectorData<T>
     {
         private byte[]? _oversized = ArrayPool<byte>.Shared.Rent(byteLength);
         public override Span<T> Span => MemoryMarshal.Cast<byte, T>(Array.AsSpan(0, byteLength));
@@ -27,7 +27,7 @@ public abstract class VectorData<T> : VectorData, IDisposable where T : unmanage
             _oversized = null;
             if (tmp is not null) ArrayPool<byte>.Shared.Return(tmp);
         }
-        public override RedisValue AsRedisValue() => (RedisValue)new ReadOnlyMemory<byte>(Array,  0, byteLength);
+        public override RedisValue AsRedisValue() => (RedisValue)new ReadOnlyMemory<byte>(Array, 0, byteLength);
 
         // *always* force; in 8.4, this is not required, but this is likely to change, so: avoid the problem immediately
         internal override bool ForceParameter => true; // byteLength != 0 && Array[0] == (byte)'$';
@@ -93,7 +93,7 @@ public abstract class VectorData
     /// <inheritdoc cref="Create"/>
     public static implicit operator VectorData(ReadOnlyMemory<float> vector) => new VectorDataSingle(vector);
 */
-    
+
     /// <inheritdoc cref="Parameter"/>
     public static implicit operator VectorData(string name) => new VectorParameter(name);
 
