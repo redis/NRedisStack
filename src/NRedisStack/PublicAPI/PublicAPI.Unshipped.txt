@@ -1,5 +1,6 @@
 NRedisStack.Search.Parameters
 static NRedisStack.Search.Parameters.From<T>(T obj) -> System.Collections.Generic.IReadOnlyDictionary<string!, object!>!
+[NRS001]abstract NRedisStack.Search.VectorData.AsRedisValue() -> StackExchange.Redis.RedisValue
 [NRS001]abstract NRedisStack.Search.VectorData<T>.Dispose() -> void
 [NRS001]abstract NRedisStack.Search.VectorData<T>.Span.get -> System.Span<T>
 [NRS001]const NRedisStack.Search.HybridSearchQuery.Fields.Key = "@__key" -> string!

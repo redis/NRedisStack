@@ -54,16 +54,14 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
         if (populate)
         {
 #if NET
-            Task last = Task.CompletedTask;
             var rand = new Random(12345);
             string[] tags = ["foo", "bar", "blap"];
+            using var vectorData = VectorData.Lease<Half>(V1DIM);
             for (int i = 0; i < 16; i++)
             {
-                byte[] vec = new byte[V1DIM * sizeof(ushort)];
-                var halves = MemoryMarshal.Cast<byte, Half>(vec);
-                for (int j = 1; j < V1DIM; j++)
+                foreach (ref Half val in vectorData.Span)
                 {
-                    halves[j] = (Half)rand.NextDouble();
+                    val = (Half)rand.NextDouble();
                 }
 
                 HashEntry[] entry =
@@ -71,12 +69,10 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
                     new("text1", $"Search entry {i}"),
                     new("tag1", tags[rand.Next(tags.Length)]),
                     new("numeric1", rand.Next(0, 32)),
-                    new("vector1", vec)
+                    new("vector1", vectorData.AsRedisValue())
                 ];
-                last = db.HashSetAsync($"{index}_entry{i}", entry);
+                await db.HashSetAsync($"{index}_entry{i}", entry);
             }
-
-            await last;
 #else
             // throw SkipException.ForSkip("FP16 not supported");
             return default;
