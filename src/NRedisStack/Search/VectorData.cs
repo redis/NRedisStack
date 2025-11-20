@@ -1,21 +1,69 @@
 using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using StackExchange.Redis;
 
 namespace NRedisStack.Search;
 
 [Experimental(Experiments.Server_8_4, UrlFormat = Experiments.UrlFormat)]
-public abstract class VectorData
+public abstract class VectorData<T> : VectorData, IDisposable where T : unmanaged
 {
     private protected VectorData()
     {
     }
 
+    public abstract Span<T> Span { get; }
+    internal sealed class VectorBytesData(int byteLength) : VectorData<T> 
+    {
+        private byte[]? _oversized = ArrayPool<byte>.Shared.Rent(byteLength);
+        public override Span<T> Span => MemoryMarshal.Cast<byte, T>(Array.AsSpan(0, byteLength));
+        internal override object GetSingleArg() => (RedisValue)new ReadOnlyMemory<byte>(Array,  0, byteLength);
+
+        private byte[] Array => _oversized ?? ThrowDisposed();
+        static byte[] ThrowDisposed() => throw new ObjectDisposedException(nameof(VectorData));
+        public override void Dispose()
+        {
+            var tmp = _oversized;
+            _oversized = null;
+            if (tmp is not null) ArrayPool<byte>.Shared.Return(tmp);
+        }
+    }
+
+    public abstract void Dispose();
+}
+
+[Experimental(Experiments.Server_8_4, UrlFormat = Experiments.UrlFormat)]
+public abstract class VectorData
+{
     /// <summary>
-    /// A vector of <see cref="Single"/> entries.
+    /// Lease a vector that can hold values of <typeparamref name="T"/>.
+    /// No quantization occurs - the data is transmitted as the raw bytes of the corresponding size.
     /// </summary>
-    public static VectorData Create(ReadOnlyMemory<float> vector) => new VectorDataSingle(vector);
+    /// <param name="dimension">The number of values to be held.</param>
+    /// <typeparam name="T">The data type to be represented</typeparam>
+    public static VectorData<T> Lease<T>(int dimension) where T : unmanaged
+    {
+        if (dimension < 0) ThrowDimension();
+        if (!BitConverter.IsLittleEndian) ThrowBigEndian();
+        return new VectorData<T>.VectorBytesData(Unsafe.SizeOf<T>() * dimension);
+
+        static void ThrowDimension() => throw new ArgumentOutOfRangeException(nameof(dimension));
+    }
+
+    /// <summary>
+    /// Lease a vector that can hold values of <typeparamref name="T"/>, copying in the supplied values.
+    /// </summary>
+    public static VectorData<T> LeaseWithValues<T>(params ReadOnlySpan<T> values) where T : unmanaged
+    {
+        var lease = Lease<T>(values.Length);
+        values.CopyTo(lease.Span);
+        return lease;
+    }
+
+    private protected VectorData()
+    {
+    }
 
     /// <summary>
     /// A raw vector payload.
@@ -27,6 +75,7 @@ public abstract class VectorData
     /// </summary>
     public static VectorData Parameter(string name) => new VectorParameter(name);
 
+    /*
     /// <summary>
     /// A vector of <see cref="Single"/> entries.
     /// </summary>
@@ -34,7 +83,8 @@ public abstract class VectorData
 
     /// <inheritdoc cref="Create"/>
     public static implicit operator VectorData(ReadOnlyMemory<float> vector) => new VectorDataSingle(vector);
-
+*/
+    
     /// <inheritdoc cref="Parameter"/>
     public static implicit operator VectorData(string name) => new VectorParameter(name);
 
@@ -42,27 +92,6 @@ public abstract class VectorData
 
     /// <inheritdoc/>
     public override string ToString() => GetType().Name;
-
-    private sealed class VectorDataSingle(ReadOnlyMemory<float> vector) : VectorData
-    {
-        internal override object GetSingleArg() => ToBase64();
-        public override string ToString() => ToBase64();
-
-        private string ToBase64()
-        {
-            if (!BitConverter.IsLittleEndian) ThrowBigEndian(); // we could loop and reverse each, but...how to test?
-            var bytes = MemoryMarshal.AsBytes(vector.Span);
-#if NET || NETSTANDARD2_1_OR_GREATER
-            return Convert.ToBase64String(bytes);
-#else
-            var oversized = ArrayPool<byte>.Shared.Rent(bytes.Length);
-            bytes.CopyTo(oversized);
-            var result = Convert.ToBase64String(oversized, 0, bytes.Length);
-            ArrayPool<byte>.Shared.Return(oversized);
-            return result;
-#endif
-        }
-    }
 
     private sealed class VectorDataRaw(ReadOnlyMemory<byte> bytes) : VectorData
     {

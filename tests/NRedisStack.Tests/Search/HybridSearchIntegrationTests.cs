@@ -92,9 +92,10 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
     {
         var api = await CreateIndexAsync(endpointId, populate: false);
         Dictionary<string, object> args = new() { ["x"] = "abc" };
+        using var vector = VectorData.LeaseWithValues<float>(1, 2, 3, 4);
         var query = new HybridSearchQuery()
             .Search("*")
-            .VectorSearch("@vector1", new float[] { 1, 2, 3, 4 })
+            .VectorSearch("@vector1", vector)
             .ReturnFields("@text1");
         var result = api.FT.HybridSearch(api.Index, query, args);
         Assert.Equal(0, result.TotalResults);

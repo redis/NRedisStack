@@ -1,5 +1,8 @@
+using System.Buffers;
+using System.Diagnostics;
 using NRedisStack.Search;
 using NRedisStack.Search.Aggregation;
+using StackExchange.Redis;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -12,7 +15,40 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     private ICollection<object> GetArgs(HybridSearchQuery query, IReadOnlyDictionary<string, object>? parameters = null)
     {
         Assert.Equal("FT.HYBRID", query.Command);
-        var args = query.GetArgs(Index, parameters);
+        var args = query.GetArgs(Index, parameters).ToArray();
+        byte[] buffer = ArrayPool<byte>.Shared.Rent(128);
+        for (int i = 0; i < args.Length; i++)
+        {
+            var val = args[i];
+            if (val is RedisValue v)
+            {
+                // force non-readable values to an ASCII-printable string
+                var bytes = v.GetByteCount();
+                if (bytes > buffer.Length)
+                {
+                    ArrayPool<byte>.Shared.Return(buffer);
+                    buffer = ArrayPool<byte>.Shared.Rent(bytes);
+                }
+
+                var span = buffer.AsSpan(0, v.CopyTo(buffer));
+                Debug.Assert(span.Length == bytes, $"expected {bytes}, wrote {span.Length}");
+                var format = false;
+                foreach (var b in span)
+                {
+                    if (b < 32 | b >= 127)
+                    {
+                        format = true;
+                        break;
+                    }
+                }
+
+                if (format) // not how resp-cli works, but: useful enough for unit tests
+                {
+                    args[i] = Convert.ToBase64String(buffer, 0, bytes);
+                }
+            }
+        }
+        ArrayPool<byte>.Shared.Return(buffer);
         log.WriteLine(query.Command + " " + string.Join(" ", args));
         return args;
     }
@@ -117,13 +153,14 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     public void BasicVectorSearch()
     {
         HybridSearchQuery query = new();
-        query.VectorSearch("vfield", Array.Empty<float>());
+        byte[] blob = [];
+        query.VectorSearch("vfield", VectorData.Raw(blob));
 
         object[] expected = [Index, "VSIM", "vfield", ""];
         Assert.Equivalent(expected, GetArgs(query));
     }
 
-    private static readonly ReadOnlyMemory<float> SomeRandomDataHere = new float[] { 1, 2, 3, 4 };
+    private static readonly VectorData<float> SomeRandomDataHere = VectorData.LeaseWithValues<float>(1, 2, 3, 4 );
 
     private const string SomeRandomVectorValue = "AACAPwAAAEAAAEBAAACAQA==";
 
@@ -622,7 +659,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         IReadOnlyDictionary<string, object> args = new Dictionary<string, object>
         {
             { "s", "abc"},
-            { "v", VectorData.Create(SomeRandomDataHere) }
+            { "v", SomeRandomDataHere }
         };
         object[] expected = [Index, "SEARCH", "$s", "VSIM", "@field", "$v", "PARAMS", 4, "s", "abc", "v", SomeRandomVectorValue];
         var idx = Array.IndexOf(expected, "abc");
@@ -630,7 +667,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         Assert.Equivalent(expected, GetArgs(query, args));
 
         // issue a second query against the same "query" instance, with different parameter values, this time from an object
-        args = Parameters.From(new { s = "def", v = VectorData.Create(SomeRandomDataHere) });
+        args = Parameters.From(new { s = "def", v = SomeRandomDataHere });
 
         expected[idx] = "def"; // update our expectations
         expected[idx + 2] = SomeRandomVectorValue;
@@ -646,8 +683,9 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
             ["x"] = 42,
             ["y"] = "abc"
         };
+        using var vector = VectorData.LeaseWithValues<float>(1, 2, 3);
         query.Search(new("foo", Scorer.BM25StdTanh(5), "text_score_alias"))
-            .VectorSearch(new HybridSearchQuery.VectorSearchConfig("bar", new float[] { 1, 2, 3 },
+            .VectorSearch(new HybridSearchQuery.VectorSearchConfig("bar", vector,
                     VectorSearchMethod.NearestNeighbour(10, 100, "vector_distance_alias"))
                 .WithFilter("@foo:bar").WithScoreAlias("vector_score_alias"))
             .Combine(HybridSearchQuery.Combiner.ReciprocalRankFusion(10, 0.5), "my_combined_alias")

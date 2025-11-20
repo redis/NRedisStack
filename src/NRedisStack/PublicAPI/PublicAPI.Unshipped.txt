@@ -1,5 +1,7 @@
 NRedisStack.Search.Parameters
 static NRedisStack.Search.Parameters.From<T>(T obj) -> System.Collections.Generic.IReadOnlyDictionary<string!, object!>!
+[NRS001]abstract NRedisStack.Search.VectorData<T>.Dispose() -> void
+[NRS001]abstract NRedisStack.Search.VectorData<T>.Span.get -> System.Span<T>
 [NRS001]const NRedisStack.Search.HybridSearchQuery.Fields.Key = "@__key" -> string!
 [NRS001]const NRedisStack.Search.HybridSearchQuery.Fields.Score = "@__score" -> string!
 [NRS001]NRedisStack.ISearchCommands.HybridSearch(string! indexName, NRedisStack.Search.HybridSearchQuery! query, System.Collections.Generic.IReadOnlyDictionary<string!, object!>? parameters = null) -> NRedisStack.Search.HybridSearchResult!
@@ -63,6 +65,7 @@ static NRedisStack.Search.Parameters.From<T>(T obj) -> System.Collections.Generi
 [NRS001]NRedisStack.Search.HybridSearchResult.TotalResults.get -> long
 [NRS001]NRedisStack.Search.Scorer
 [NRS001]NRedisStack.Search.VectorData
+[NRS001]NRedisStack.Search.VectorData<T>
 [NRS001]NRedisStack.Search.VectorSearchMethod
 [NRS001]NRedisStack.SearchCommands.HybridSearch(string! indexName, NRedisStack.Search.HybridSearchQuery! query, System.Collections.Generic.IReadOnlyDictionary<string!, object!>? parameters = null) -> NRedisStack.Search.HybridSearchResult!
 [NRS001]NRedisStack.SearchCommandsAsync.HybridSearchAsync(string! indexName, NRedisStack.Search.HybridSearchQuery! query, System.Collections.Generic.IReadOnlyDictionary<string!, object!>? parameters = null) -> System.Threading.Tasks.Task<NRedisStack.Search.HybridSearchResult!>!
@@ -84,10 +87,9 @@ static NRedisStack.Search.Parameters.From<T>(T obj) -> System.Collections.Generi
 [NRS001]static NRedisStack.Search.Scorer.Hamming.get -> NRedisStack.Search.Scorer!
 [NRS001]static NRedisStack.Search.Scorer.TfIdf.get -> NRedisStack.Search.Scorer!
 [NRS001]static NRedisStack.Search.Scorer.TfIdfDocNorm.get -> NRedisStack.Search.Scorer!
-[NRS001]static NRedisStack.Search.VectorData.Create(System.ReadOnlyMemory<float> vector) -> NRedisStack.Search.VectorData!
-[NRS001]static NRedisStack.Search.VectorData.implicit operator NRedisStack.Search.VectorData!(float[]! data) -> NRedisStack.Search.VectorData!
 [NRS001]static NRedisStack.Search.VectorData.implicit operator NRedisStack.Search.VectorData!(string! name) -> NRedisStack.Search.VectorData!
-[NRS001]static NRedisStack.Search.VectorData.implicit operator NRedisStack.Search.VectorData!(System.ReadOnlyMemory<float> vector) -> NRedisStack.Search.VectorData!
+[NRS001]static NRedisStack.Search.VectorData.Lease<T>(int dimension) -> NRedisStack.Search.VectorData<T>!
+[NRS001]static NRedisStack.Search.VectorData.LeaseWithValues<T>(params System.ReadOnlySpan<T> values) -> NRedisStack.Search.VectorData<T>!
 [NRS001]static NRedisStack.Search.VectorData.Parameter(string! name) -> NRedisStack.Search.VectorData!
 [NRS001]static NRedisStack.Search.VectorData.Raw(System.ReadOnlyMemory<byte> bytes) -> NRedisStack.Search.VectorData!
 [NRS001]static NRedisStack.Search.VectorSearchMethod.NearestNeighbour(int count = 10, int? maxCandidates = null) -> NRedisStack.Search.VectorSearchMethod!
