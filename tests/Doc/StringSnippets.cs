@@ -7,6 +7,7 @@ using NRedisStack.Tests;
 using StackExchange.Redis;
 
 namespace Doc;
+
 [Collection("DocsTests")]
 //REMOVE_END
 public class StringSnippets
