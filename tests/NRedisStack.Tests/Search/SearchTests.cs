@@ -26,6 +26,11 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         // afresh from v8, where things behave much more predictably and reasonably.
         Skip.If(endpointId == EndpointsFixture.Env.Cluster
             && EndpointsFixture.RedisVersion.Major < 8, "Ignoring cluster tests for FT.SEARCH pre Redis 8.0");
+
+        // FIXME(imalinovskyi): We should skip cluster tests until https://github.com/RediSearch/RediSearch/pull/6960
+        // is released as part of Redis v8.2.x
+        Skip.If(endpointId == EndpointsFixture.Env.Cluster
+                && EndpointsFixture.RedisVersion.Minor < 4, "Ignoring cluster tests for FT.SEARCH pre Redis 8.4");
     }
 
     private void AddDocument(IDatabase db, Document doc)
