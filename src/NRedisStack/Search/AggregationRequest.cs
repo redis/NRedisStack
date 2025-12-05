@@ -2,6 +2,7 @@
 using NRedisStack.Search.Literals;
 
 namespace NRedisStack.Search;
+
 public class AggregationRequest : IDialectAwareParam
 {
     private readonly List<object> args = []; // Check if Readonly
