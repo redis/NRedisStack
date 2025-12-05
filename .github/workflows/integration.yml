@@ -17,7 +17,7 @@ concurrency:
 
 env:
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  CURRENT_REDIS_VERSION: '8.0.2'
+  CURRENT_REDIS_VERSION: '8.2.3'
 
 jobs:
     redis_version:
@@ -37,7 +37,7 @@ jobs:
         max-parallel: 15
         fail-fast: false
         matrix:
-          redis-version: [ '8.4-GA-pre.3', '8.2.1', '${{ needs.redis_version.outputs.CURRENT }}', '7.4.1', '7.2.6', '6.2.16']
+          redis-version: [ '8.4.0', '${{ needs.redis_version.outputs.CURRENT }}', '7.4.1', '7.2.6', '6.2.16']
           dotnet-version: ['8.0', '9.0']
       env:
         ACTIONS_ALLOW_UNSECURE_COMMANDS: true
