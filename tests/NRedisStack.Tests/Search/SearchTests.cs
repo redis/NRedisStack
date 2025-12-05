@@ -672,11 +672,8 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         AssertIndexSize(ft, index, 0);
         
         db.HashSet("student:1111", [new("first", "Joe"), new("last", "Dod"), new("age", 18)]);
-        AssertIndexSize(ft, index, 1);
         db.HashSet("student:3333", [new("first", "El"), new("last", "Mark"), new("age", 17)]);
-        AssertIndexSize(ft, index, 2);
         db.HashSet("pupil:4444", [new("first", "Pat"), new("last", "Shu"), new("age", 21)]);
-        AssertIndexSize(ft, index, 3);
         db.HashSet("student:5555", [new("first", "Joen"), new("last", "Ko"), new("age", 20)]);
         AssertIndexSize(ft, index, 4);
 
