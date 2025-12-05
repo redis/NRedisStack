@@ -675,7 +675,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Schema sc = new Schema().AddTextField("first", 1.0).AddTextField("last", 1.0).AddNumericField("age");
         Assert.True(ft.Create(index, FTCreateParams.CreateParams(), sc));
         AssertIndexSize(ft, index, 0);
-        
+
         db.HashSet("student:1111", [new("first", "Joe"), new("last", "Dod"), new("age", 18)]);
         db.HashSet("student:3333", [new("first", "El"), new("last", "Mark"), new("age", 17)]);
         db.HashSet("pupil:4444", [new("first", "Pat"), new("last", "Shu"), new("age", 21)]);
