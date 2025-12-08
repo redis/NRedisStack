@@ -1,4 +1,5 @@
 namespace NRedisStack.Core;
+
 public enum SetInfoAttr
 {
     /// <summary>

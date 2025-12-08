@@ -20,6 +20,10 @@ jobs:
         run: |
           dotnet format
 
+      - name: status
+        run: |
+          git status
+
       - name: Check for modified files
         run: |
           if (git status | Select-String -Pattern 'modified') {

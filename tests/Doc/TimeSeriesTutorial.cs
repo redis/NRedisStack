@@ -15,6 +15,7 @@ using NRedisStack.RedisStackCommands;
 using NRedisStack;
 
 namespace Doc;
+
 [Collection("DocsTests")]
 // REMOVE_END
 
