@@ -7,6 +7,7 @@ using StackExchange.Redis;
 
 //REMOVE_START
 namespace Doc;
+
 [Collection("DocsTests")]
 //REMOVE_END
 public class SortedSetExample
