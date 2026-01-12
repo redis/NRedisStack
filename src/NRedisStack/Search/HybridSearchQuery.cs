@@ -8,6 +8,8 @@ namespace NRedisStack.Search;
 /// Represents a hybrid search (FT.HYBRID) operation. Note that <see cref="HybridSearchQuery"/> instances can be reused for
 /// common queries, by passing the search operands as named parameters.
 /// </summary>
+/// <remarks>This type is not thread safe, and cannot safely be mutated concurrently by multiple threads. However, once composed: a single instance
+/// can be *used* by multiple threads as a template, providing different parameter values to each invocation.</remarks>
 [Experimental(Experiments.Server_8_4, UrlFormat = Experiments.UrlFormat)]
 public sealed partial class HybridSearchQuery
 {
