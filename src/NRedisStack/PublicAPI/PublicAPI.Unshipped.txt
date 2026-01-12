@@ -78,7 +78,7 @@ static NRedisStack.Search.Parameters.From<T>(T obj) -> System.Collections.Generi
 [NRS001]override NRedisStack.Search.VectorData.ToString() -> string!
 [NRS001]override NRedisStack.Search.VectorSearchMethod.ToString() -> string!
 [NRS001]static NRedisStack.Search.ApplyExpression.implicit operator NRedisStack.Search.ApplyExpression(string! expression) -> NRedisStack.Search.ApplyExpression
-[NRS001]static NRedisStack.Search.HybridSearchQuery.Combiner.Linear(double alpha = 0.3, double beta = 0.7) -> NRedisStack.Search.HybridSearchQuery.Combiner!
+[NRS001]static NRedisStack.Search.HybridSearchQuery.Combiner.Linear(double alpha = 0.3, double beta = 0.7, int? window = null) -> NRedisStack.Search.HybridSearchQuery.Combiner!
 [NRS001]static NRedisStack.Search.HybridSearchQuery.Combiner.ReciprocalRankFusion(int? window = null, double? constant = null) -> NRedisStack.Search.HybridSearchQuery.Combiner!
 [NRS001]static NRedisStack.Search.HybridSearchQuery.SearchConfig.implicit operator NRedisStack.Search.HybridSearchQuery.SearchConfig(string! query) -> NRedisStack.Search.HybridSearchQuery.SearchConfig
 [NRS001]static NRedisStack.Search.Scorer.BM25Std.get -> NRedisStack.Search.Scorer!

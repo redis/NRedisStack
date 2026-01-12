@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace NRedisStack.Search;
 
 public sealed partial class HybridSearchQuery
@@ -12,8 +14,8 @@ public sealed partial class HybridSearchQuery
         public static Combiner ReciprocalRankFusion(int? window = null, double? constant = null)
             => ReciprocalRankFusionCombiner.Create(window, constant);
 
-        public static Combiner Linear(double alpha = LinearCombiner.DEFAULT_ALPHA, double beta = LinearCombiner.DEFAULT_BETA)
-            => LinearCombiner.Create(alpha, beta);
+        public static Combiner Linear(double alpha = LinearCombiner.DEFAULT_ALPHA, double beta = LinearCombiner.DEFAULT_BETA, int? window = null)
+            => LinearCombiner.Create(alpha, beta, window);
 
         internal abstract int GetOwnArgsCount();
         internal abstract void AddOwnArgs(List<object> args, int limit);
@@ -68,28 +70,31 @@ public sealed partial class HybridSearchQuery
         private sealed class LinearCombiner : Combiner
         {
             private readonly double _alpha, _beta;
+            private readonly int? _window;
 
-            private LinearCombiner(double alpha, double beta)
+            private LinearCombiner(double alpha, double beta, int? window)
             {
                 _alpha = alpha;
                 _beta = beta;
+                _window = window;
             }
 
             internal static LinearCombiner? s_Default;
 
-            internal static LinearCombiner Create(double alpha, double beta)
+            internal static LinearCombiner Create(double alpha, double beta, int? window = null)
                 // ReSharper disable CompareOfFloatsByEqualityOperator
-                => alpha == DEFAULT_ALPHA & beta == DEFAULT_BETA
+                => alpha == DEFAULT_ALPHA & beta == DEFAULT_BETA & window is null
                     // ReSharper restore CompareOfFloatsByEqualityOperator
-                    ? (s_Default ??= new LinearCombiner(DEFAULT_ALPHA, DEFAULT_BETA))
-                    : new(alpha, beta);
+                    ? (s_Default ??= new LinearCombiner(DEFAULT_ALPHA, DEFAULT_BETA, null))
+                    : new(alpha, beta, window);
 
             internal const double DEFAULT_ALPHA = 0.3, DEFAULT_BETA = 0.7;
+
             internal override string Method => "LINEAR";
 
-            public override string ToString() => $"{Method} {_alpha} {_beta}";
+            public override string ToString() => $"{Method} {_alpha} {_beta} {_window}";
 
-            internal override int GetOwnArgsCount() => 6;
+            internal override int GetOwnArgsCount() => _window.HasValue ? 8 : 6;
 
             private bool IsDefault => ReferenceEquals(this, s_Default);
 
@@ -98,12 +103,17 @@ public sealed partial class HybridSearchQuery
             internal override void AddOwnArgs(List<object> args, int limit)
             {
                 args.Add(Method);
-                args.Add(4);
+                args.Add(_window.HasValue ? 6 : 4);
                 bool isDefault = ReferenceEquals(this, s_Default);
                 args.Add("ALPHA");
                 args.Add(isDefault ? BoxedDefaultAlpha : _alpha);
                 args.Add("BETA");
                 args.Add(isDefault ? BoxedDefaultBeta : _beta);
+                if (_window.HasValue)
+                {
+                    args.Add("WINDOW");
+                    args.Add(_window.GetValueOrDefault());
+                }
             }
         }
     }

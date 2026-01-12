@@ -142,6 +142,7 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
         NoSort,
         Apply,
         LinearNoScore,
+        LinearWithWindow,
         RrfNoScore,
         PostFilterByNumber,
         LimitFirstPage,
@@ -277,6 +278,7 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
             Scenario.Apply => query.ReturnFields([.. fields, "@numeric1"])
                 .Apply(new("@numeric1 * 2", "x2"), new("@x2 * 3")), // non-aliased, comes back as the expression
             Scenario.LinearNoScore => query.Combine(HybridSearchQuery.Combiner.Linear(0.4, 0.6)),
+            Scenario.LinearWithWindow => query.Combine(HybridSearchQuery.Combiner.Linear(0.4, 0.6, window: 10)),
             Scenario.LinearWithScore => query.Combine(HybridSearchQuery.Combiner.Linear(), "lin_score"),
             Scenario.RrfNoScore => query.Combine(HybridSearchQuery.Combiner.ReciprocalRankFusion(10, 1.2)),
             Scenario.RrfWithScore => query.Combine(HybridSearchQuery.Combiner.ReciprocalRankFusion(), "rrf_score"),
