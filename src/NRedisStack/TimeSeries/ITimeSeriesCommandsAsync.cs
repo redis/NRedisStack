@@ -1,5 +1,5 @@
-using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;
+using NRedisStack.Literals.Enums;
 namespace NRedisStack;
 
 public interface ITimeSeriesCommandsAsync

@@ -1,6 +1,6 @@
+using NRedisStack.RedisStackCommands;
 using NRedisStack.TopK.Literals;
 using StackExchange.Redis;
-using NRedisStack.RedisStackCommands;
 
 namespace NRedisStack;
 
