@@ -329,7 +329,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         object[] expected = [Index, "COMBINE", "LINEAR", 4, "ALPHA", 0.3, "BETA", 0.7];
         Assert.Equivalent(expected, GetArgs(query));
     }
-    
+
     [Fact]
     public void Combine_DefaultLinear_Window()
     {
