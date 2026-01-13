@@ -6,6 +6,7 @@ using StackExchange.Redis;
 using NRedisStack.Tests;
 
 namespace Doc;
+
 [Collection("DocsTests")]
 // REMOVE_END
 
