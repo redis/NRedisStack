@@ -22,6 +22,7 @@ public abstract class Reducer
     //protected Reducer() : this(field: null) { }
 
     protected virtual int GetOwnArgsCount() => _field == null ? 0 : 1;
+    internal int ArgCount() => GetOwnArgsCount();
     protected virtual void AddOwnArgs(List<object> args)
     {
         if (_field != null) args.Add(_field);

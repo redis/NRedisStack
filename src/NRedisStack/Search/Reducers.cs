@@ -2,11 +2,10 @@
 
 public static class Reducers
 {
-    public static Reducer Count() => CountReducer.Instance;
+    public static Reducer Count() => new CountReducer(); // don't memoize; see https://github.com/redis/NRedisStack/issues/453
     private sealed class CountReducer : Reducer
     {
-        internal static readonly Reducer Instance = new CountReducer();
-        private CountReducer() : base(null) { }
+        internal CountReducer() : base(null) { }
         public override string Name => "COUNT";
     }
 

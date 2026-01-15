@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using NRedisStack.Search;
 using NRedisStack.Search.Aggregation;
 using NRedisStack.Search.DataTypes;
@@ -352,4 +353,13 @@ public class SearchCommandsAsync : ISearchCommandsAsync
     /// <inheritdoc/>
     public async Task<RedisResult[]> TagValsAsync(string indexName, string fieldName) => //TODO: consider return Set
         (await _db.ExecuteAsync(SearchCommandBuilder.TagVals(indexName, fieldName))).ToArray();
+
+    /// <inheritdoc/>
+    [Experimental(Experiments.Server_8_4, UrlFormat = Experiments.UrlFormat)]
+    public async Task<HybridSearchResult> HybridSearchAsync(string indexName, HybridSearchQuery query, IReadOnlyDictionary<string, object>? parameters = null)
+    {
+        query.Validate();
+        var args = query.GetArgs(indexName, parameters);
+        return HybridSearchResult.Parse(await _db.ExecuteAsync(query.Command, args));
+    }
 }

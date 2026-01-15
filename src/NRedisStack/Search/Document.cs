@@ -50,6 +50,54 @@ public class Document
         return ret;
     }
 
+    internal static Document Load(RedisResult src) // used from HybridSearch
+    {
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        if (src is null || src.IsNull || src.Length < 0) return null!;
+
+        var fields = src.ToArray();
+        string id = "";
+        double score = double.NaN;
+        var fieldCount = fields.Length / 2;
+        for (int i = 0; i < fieldCount; i++)
+        {
+            var key = fields[2 * i];
+            if (key.Resp2Type == ResultType.BulkString && !key.IsNull)
+            {
+                var blob = (byte[])key!;
+                switch (blob.Length)
+                {
+                    case 5 when "__key"u8.SequenceEqual(blob):
+                        id = fields[(2 * i) + 1].ToString();
+                        break;
+                    case 7 when "__score"u8.SequenceEqual(blob):
+                        score = (double)fields[(2 * i) + 1];
+                        break;
+                }
+            }
+        }
+        Document doc = new(id, score, null);
+        for (int i = 0; i < fieldCount; i++)
+        {
+            var key = fields[2 * i];
+            if (key.Resp2Type == ResultType.BulkString && !key.IsNull)
+            {
+                var blob = (byte[])key!;
+                switch (blob.Length)
+                {
+                    case 5 when "__key"u8.SequenceEqual(blob):
+                    case 7 when "__score"u8.SequenceEqual(blob):
+                        break; // skip, already parsed
+                    default:
+                        doc[key.ToString()] = (RedisValue)fields[(2 * i) + 1];
+                        break;
+                }
+            }
+        }
+
+        return doc;
+    }
+
     public static Document Load(string id, double score, byte[]? payload, RedisValue[]? fields, string[]? scoreExplained)
     {
         Document ret = Load(id, score, payload, fields);
