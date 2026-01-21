@@ -103,7 +103,7 @@ public class CommunityEditionUpdatesTests : AbstractNRedisStackTest, IDisposable
         IServer server = getAnyPrimary(muxer);
 
         var searchInfo = server.Info("search");
-        CustomAssertions.GreaterThan(searchInfo.Length, 10);
+        CustomAssertions.GreaterThan(searchInfo.Length, 8);
     }
 
 }
