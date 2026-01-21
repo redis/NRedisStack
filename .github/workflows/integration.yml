@@ -17,18 +17,8 @@ concurrency:
 
 env:
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  CURRENT_REDIS_VERSION: '8.2.3'
 
 jobs:
-    redis_version:
-      runs-on: ubuntu-latest
-      outputs:
-        CURRENT: ${{ env.CURRENT_REDIS_VERSION }}
-      steps:
-        - name: Compute outputs
-          run: |
-            echo "CURRENT=${{ env.CURRENT_REDIS_VERSION }}" >> $GITHUB_OUTPUT
-
     tests:
       runs-on: ubuntu-latest
       timeout-minutes: 60
@@ -37,7 +27,7 @@ jobs:
         max-parallel: 15
         fail-fast: false
         matrix:
-          redis-version: [ '8.4.0', '${{ needs.redis_version.outputs.CURRENT }}', '7.4.1', '7.2.6', '6.2.16']
+          redis-version: [ '8.6', '8.4', '8.2', '7.4', '7.2', '6.2']
           dotnet-version: ['8.0', '9.0']
       env:
         ACTIONS_ALLOW_UNSECURE_COMMANDS: true
