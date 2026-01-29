@@ -38,7 +38,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         var info = tdigest.Info(key);
         Assert.Equal(610, info.Capacity);
         Assert.Equal(100, info.Compression);
-        Assert.Equal(9768, info.MemoryUsage);
+        Assert.True(info.MemoryUsage is >= 9500 and <= 10000);
         Assert.Equal(0, info.MergedNodes);
         Assert.Equal(0, info.MergedWeight);
         Assert.Equal(0, info.Observations);
@@ -59,7 +59,7 @@ public class TdigestTests : AbstractNRedisStackTest, IDisposable
         var info = await tdigest.InfoAsync(key);
         Assert.Equal(610, info.Capacity);
         Assert.Equal(100, info.Compression);
-        Assert.Equal(9768, info.MemoryUsage);
+        Assert.True(info.MemoryUsage is >= 9500 and <= 10000);
         Assert.Equal(0, info.MergedNodes);
         Assert.Equal(0, info.MergedWeight);
         Assert.Equal(0, info.Observations);

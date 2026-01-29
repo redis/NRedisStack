@@ -1,11 +1,11 @@
 name: 'Run NRedisStack tests'
 description: 'Runs NRedisStack tests against different Redis versions and configurations'
-inputs:  
+inputs:
   dotnet-version:
     description: 'SDK version'
     required: true
   redis-version:
-    description: 'Redis version to test against'
+    description: 'Redis version to test against (MAJOR.MINOR format, e.g., "7.4", "8.0")'
     required: true
   verify-nuget-package:
     description: 'Verify Nuget package'
@@ -36,45 +36,26 @@ runs:
     - name: Setup Environment variables and run Redis
       env:
         REDIS_VERSION: ${{ inputs.redis-version }}
-        REDIS_IMAGE: "redis:${{ inputs.redis-version }}"
-        CLIENT_LIBS_TEST_IMAGE: "redislabs/client-libs-test:${{ inputs.redis-version }}"
       run: |
         set -e
-        
+
         echo "::group::Setup Environment variables and run Redis"
         dotnet_major_minor_version=$(echo "${{ inputs.dotnet-version }}" | grep -oP '^\d+\.\d+')
         echo "CLR_VERSION=net${dotnet_major_minor_version}" >> $GITHUB_ENV
 
-        redis_major_version=$(echo "$REDIS_VERSION" | grep -oP '^\d+')
-        echo "REDIS_MAJOR_VERSION=${redis_major_version}" >> $GITHUB_ENV
-        
-        if (( redis_major_version < 8 )); then
-          echo "Using redis-stack for module tests"
-        
-          # Mapping of redis version to stack version  
-          declare -A redis_stack_version_mapping=(
-            ["7.4.1"]="rs-7.4.0-v5"
-            ["7.2.6"]="rs-7.2.0-v17"
-            ["6.2.16"]="rs-6.2.6-v17"
-          )
-                  
-          if [[ -v redis_stack_version_mapping[$REDIS_VERSION] ]]; then
-            export CLIENT_LIBS_TEST_IMAGE="redislabs/client-libs-test:${redis_stack_version_mapping[$REDIS_VERSION]}"            
-          else
-            echo "Version not found in the mapping."
-            exit 1
-          fi
-                  
-          if (( redis_major_version < 7 )); then            
-            export REDIS_EXTRA_ARGS="--tls-auth-clients optional --save ''"            
-          fi           
-
-          docker compose --profile all -f tests/dockers/docker-compose.yml up -d --build
+        # Load environment variables from version-specific file
+        ENV_FILE="tests/dockers/.env.v${REDIS_VERSION}"
+        if [[ -f "$ENV_FILE" ]]; then
+          echo "Loading environment from $ENV_FILE"
+          set -a
+          source "$ENV_FILE"
+          set +a
         else
-          echo "Using redis CE for module tests"
-          export CLIENT_LIBS_TEST_IMAGE="redislabs/client-libs-test:$REDIS_VERSION"     
-          docker compose --profile all -f tests/dockers/docker-compose.yml up -d --build         
+          echo "Environment file not found: $ENV_FILE"
+          exit 1
         fi
+
+        docker compose --profile all -f tests/dockers/docker-compose.yml up -d --build
         echo "::endgroup::"
       shell: bash
 
