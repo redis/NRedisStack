@@ -18,7 +18,11 @@ public class TestRulesAsync(EndpointsFixture endpointsFixture) : AbstractNRedisS
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         await ts.CreateAsync(key);
-        var aggregations = (TsAggregation[])Enum.GetValues(typeof(TsAggregation));
+        var allAggregations = (TsAggregation[])Enum.GetValues(typeof(TsAggregation));
+        // Filter out CountNan and CountAll on Redis versions < 8.6.0 as they are not supported
+        var aggregations = EndpointsFixture.RedisVersion >= new Version("8.5.0")
+            ? allAggregations
+            : allAggregations.Where(a => a != TsAggregation.CountNan && a != TsAggregation.CountAll).ToArray();
 
         foreach (var aggregation in aggregations)
         {

@@ -19,6 +19,8 @@ internal static class AggregationExtensions
         TsAggregation.VarP => "var.p",
         TsAggregation.VarS => "var.s",
         TsAggregation.Twa => "twa",
+        TsAggregation.CountNan => "countnan",
+        TsAggregation.CountAll => "countall",
         _ => throw new ArgumentOutOfRangeException(nameof(aggregation), "Invalid aggregation type"),
     };
 
@@ -50,6 +52,8 @@ internal static class AggregationExtensions
         "VAR.P" => TsAggregation.VarP,
         "VAR.S" => TsAggregation.VarS,
         "TWA" => TsAggregation.Twa,
+        "COUNTNAN" => TsAggregation.CountNan,
+        "COUNTALL" => TsAggregation.CountAll,
         _ => throw new ArgumentOutOfRangeException(nameof(aggregation), $"Invalid aggregation type '{aggregation}'"),
     };
 }

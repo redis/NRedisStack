@@ -283,4 +283,48 @@ public class TestRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedisS
             Assert.Equal(range[i].Val, expected[i].Val);
         }
     }
+
+    [SkipIfRedisTheory(Comparison.LessThan, "8.5.0")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestRangeCountNanAggregationAsync(string endpointId)
+    {
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ts = db.TS();
+        var key = CreateKeyName();
+
+        // Create a time series and add data including NaN values
+        await ts.CreateAsync(key);
+        await ts.AddAsync(key, 10, 1.0);
+        await ts.AddAsync(key, 20, double.NaN);
+        await ts.AddAsync(key, 30, 3.0);
+        await ts.AddAsync(key, 40, double.NaN);
+        await ts.AddAsync(key, 50, 5.0);
+
+        // Test CountNan aggregation - should count NaN values
+        var range = await ts.RangeAsync(key, 0, 100, aggregation: TsAggregation.CountNan, timeBucket: 100);
+        Assert.Single(range);
+        Assert.Equal(2, range[0].Val); // 2 NaN values
+    }
+
+    [SkipIfRedisTheory(Comparison.LessThan, "8.5.0")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestRangeCountAllAggregationAsync(string endpointId)
+    {
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ts = db.TS();
+        var key = CreateKeyName();
+
+        // Create a time series and add data including NaN values
+        await ts.CreateAsync(key);
+        await ts.AddAsync(key, 10, 1.0);
+        await ts.AddAsync(key, 20, double.NaN);
+        await ts.AddAsync(key, 30, 3.0);
+        await ts.AddAsync(key, 40, double.NaN);
+        await ts.AddAsync(key, 50, 5.0);
+
+        // Test CountAll aggregation - should count all values including NaN
+        var range = await ts.RangeAsync(key, 0, 100, aggregation: TsAggregation.CountAll, timeBucket: 100);
+        Assert.Single(range);
+        Assert.Equal(5, range[0].Val); // 5 total values (3 regular + 2 NaN)
+    }
 }

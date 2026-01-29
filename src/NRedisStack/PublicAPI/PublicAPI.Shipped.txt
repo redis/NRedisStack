@@ -525,6 +525,8 @@ NRedisStack.Literals.Enums.TsAggregation.StdP = 8 -> NRedisStack.Literals.Enums.
 NRedisStack.Literals.Enums.TsAggregation.StdS = 9 -> NRedisStack.Literals.Enums.TsAggregation
 NRedisStack.Literals.Enums.TsAggregation.Sum = 1 -> NRedisStack.Literals.Enums.TsAggregation
 NRedisStack.Literals.Enums.TsAggregation.Twa = 12 -> NRedisStack.Literals.Enums.TsAggregation
+NRedisStack.Literals.Enums.TsAggregation.CountNan = 13 -> NRedisStack.Literals.Enums.TsAggregation
+NRedisStack.Literals.Enums.TsAggregation.CountAll = 14 -> NRedisStack.Literals.Enums.TsAggregation
 NRedisStack.Literals.Enums.TsAggregation.VarP = 10 -> NRedisStack.Literals.Enums.TsAggregation
 NRedisStack.Literals.Enums.TsAggregation.VarS = 11 -> NRedisStack.Literals.Enums.TsAggregation
 NRedisStack.Literals.Enums.TsBucketTimestamps
