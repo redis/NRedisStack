@@ -16,6 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{84D6210F
 		global.json = global.json
 		version.json = version.json
 		tests\dockers\docker-compose.yml = tests\dockers\docker-compose.yml
+		.github\actions\run-tests\action.yml = .github\actions\run-tests\action.yml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "docs", "docs\docs.csproj", "{4A35FC3C-69BC-4BDB-A4B2-6BFD0DF215AD}"
