@@ -73,7 +73,7 @@ public readonly struct Row : IEnumerable<KeyValuePair<string, RedisValue>>
         }
 
         void IEnumerator.Reset() => throw new NotSupportedException();
-        
+
         object IEnumerator.Current => Current;
 
         void IDisposable.Dispose() => _enumerator.Dispose();
