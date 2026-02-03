@@ -2,6 +2,7 @@ using NRedisStack.Literals;
 using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;
 using NRedisStack.Extensions;
+using StackExchange.Redis;
 
 namespace NRedisStack;
 
@@ -195,7 +196,7 @@ public static class TimeSeriesAux
         TsBucketTimestamps? bt,
         bool empty)
     {
-        var args = new List<object>() { key, fromTimeStamp.Value, toTimeStamp.Value };
+        var args = new List<object>() { (RedisKey)key, fromTimeStamp.Value, toTimeStamp.Value };
         args.AddLatest(latest);
         args.AddFilterByTs(filterByTs);
         args.AddFilterByValue(filterByValue);

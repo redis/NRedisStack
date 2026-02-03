@@ -74,4 +74,16 @@ public enum TsAggregation
     /// Time-weighted average of all values
     /// </summary>
     Twa,
+
+    /// <summary>
+    /// Count of NaN values in the aggregation bucket
+    /// </summary>
+    /// <remarks>Available since Redis 8.6.0</remarks>
+    CountNan,
+
+    /// <summary>
+    /// Count of all values (including NaN) in the aggregation bucket
+    /// </summary>
+    /// <remarks>Available since Redis 8.6.0</remarks>
+    CountAll,
 }
