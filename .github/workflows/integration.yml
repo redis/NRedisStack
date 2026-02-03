@@ -27,7 +27,7 @@ jobs:
         fail-fast: false
         matrix:
           redis-version: [ '8.6', '8.4', '8.2', '7.4', '7.2', '6.2']
-          dotnet-version: ['8.0', '9.0']
+          dotnet-version: ['8.0', '9.0', '10.0']
       env:
         ACTIONS_ALLOW_UNSECURE_COMMANDS: true
       name: Redis ${{ matrix.redis-version }}; .NET ${{ matrix.dotnet-version }};
