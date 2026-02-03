@@ -29,7 +29,7 @@ public class TopKTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(topk.Query(key, "bb", "gg", "cc"), new[] { true, false, true });
         Assert.False(topk.Query(key, "notExists"));
         // ReSharper disable once UseCollectionExpression - need to avoid span overload due to TFMs
-        Assert.Equal(topk.Count(key, "bb", "gg", "cc"), new[] {1L, 0L, 1L});
+        Assert.Equal(topk.Count(key, "bb", "gg", "cc"), new[] { 1L, 0L, 1L });
 
         var res2 = topk.List(key);
         Assert.Equal("bb", res2[0].ToString());
@@ -67,7 +67,7 @@ public class TopKTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(await topk.QueryAsync(key, "bb", "gg", "cc"), new[] { true, false, true });
         Assert.False(await topk.QueryAsync(key, "notExists"));
         // ReSharper disable once UseCollectionExpression - need to avoid span overload due to TFMs
-        Assert.Equal(await topk.CountAsync(key, "bb", "gg", "cc"), new[] {1L, 0L, 1L});
+        Assert.Equal(await topk.CountAsync(key, "bb", "gg", "cc"), new[] { 1L, 0L, 1L });
 
         var res2 = await topk.ListAsync(key);
         Assert.Equal("bb", res2[0].ToString());
