@@ -2,7 +2,7 @@
     <PropertyGroup>
         <Copyright>2022- Redis, inc.</Copyright>
         <Nullable>enable</Nullable>
-        <LangVersion>13</LangVersion>
+        <LangVersion>14</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Authors>Redis Open Source</Authors>
         <Owners>Redis OSS</Owners>

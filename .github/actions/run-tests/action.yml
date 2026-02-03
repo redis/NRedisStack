@@ -29,7 +29,7 @@ runs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: |
-          9.0.x
+          10.0.x
           ${{inputs.dotnet-version}}
         dotnet-quality: 'ga'
 
@@ -45,17 +45,13 @@ runs:
 
         # Load environment variables from version-specific file
         ENV_FILE="tests/dockers/.env.v${REDIS_VERSION}"
-        if [[ -f "$ENV_FILE" ]]; then
-          echo "Loading environment from $ENV_FILE"
-          set -a
-          source "$ENV_FILE"
-          set +a
-        else
+        if [[ ! -f "$ENV_FILE" ]]; then
           echo "Environment file not found: $ENV_FILE"
           exit 1
         fi
+        echo "Using environment file: $ENV_FILE"
 
-        docker compose --profile all -f tests/dockers/docker-compose.yml up -d --build
+        docker compose --env-file "$ENV_FILE" --profile all -f tests/dockers/docker-compose.yml up -d --build
         echo "::endgroup::"
       shell: bash
 
