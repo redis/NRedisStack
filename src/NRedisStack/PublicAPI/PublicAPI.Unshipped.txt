@@ -1,3 +1,8 @@
+NRedisStack.Search.Aggregation.Row.Enumerator
+NRedisStack.Search.Aggregation.Row.Enumerator.Current.get -> System.Collections.Generic.KeyValuePair<string!, object!>
+NRedisStack.Search.Aggregation.Row.Enumerator.Enumerator() -> void
+NRedisStack.Search.Aggregation.Row.Enumerator.MoveNext() -> bool
+NRedisStack.Search.Aggregation.Row.GetEnumerator() -> NRedisStack.Search.Aggregation.Row.Enumerator
 NRedisStack.Search.Parameters
 static NRedisStack.Search.Parameters.From<T>(T obj) -> System.Collections.Generic.IReadOnlyDictionary<string!, object!>!
 [NRS001]abstract NRedisStack.Search.VectorData.AsRedisValue() -> StackExchange.Redis.RedisValue
