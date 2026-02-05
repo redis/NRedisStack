@@ -2751,6 +2751,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         ConfigureQuery(withScores, withPayloads, withContent, query);
         var res = await ft.SearchAsync("idx", query);
         Assert.Equal(2, res.TotalResults);
+        CheckQueryResults(res, withScores, withPayloads, withContent);
     }
 
     public static IEnumerable<object[]> TestQueryParamsWithParams_Args()
