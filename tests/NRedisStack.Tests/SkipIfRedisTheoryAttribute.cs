@@ -122,7 +122,7 @@ public class TheoryAttribute(
 
         protected override ValueTask<IReadOnlyCollection<IXunitTestCase>> CreateTestCasesForTheory(ITestFrameworkDiscoveryOptions discoveryOptions, IXunitTestMethod testMethod, ITheoryAttribute theoryAttribute)
             => base.CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute).ExpandAsync();
-    }   
+    }
 }
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
@@ -219,7 +219,7 @@ internal static class XUnitExtensions
     public static RunProtocol GetRunProtocol(this ITestContext context) =>
         context.Test?.TestCase is IRunProtocolTestCase protocolTestCase
             ? protocolTestCase.Protocol : RunProtocol.Resp2;
-    
+
     public static bool IsResp3(this RunProtocol protocol) => protocol is RunProtocol.Resp3 or RunProtocol.Resp3HighIntegrity;
     public static bool IsHighIntegrity(this RunProtocol protocol) => protocol is RunProtocol.Resp2HighIntegrity or RunProtocol.Resp3HighIntegrity;
 
