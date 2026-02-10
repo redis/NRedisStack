@@ -19,7 +19,7 @@ public class AuthenticationTests : AbstractNRedisStackTest
     static readonly string field = "myField";
     static readonly string alias = "myAlias";
 
-    [SkippableFact]
+    [Fact]
     public void TestTokenBasedAuthentication()
     {
         // This is needed because we're constructing ConfigurationOptions in the test before calling GetConnection

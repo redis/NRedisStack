@@ -9,10 +9,10 @@ using NRedisStack.Search.Literals.Enums;
 using System.Runtime.InteropServices;
 using NetTopologySuite.IO;
 using NetTopologySuite.Geometries;
-using Xunit.Abstractions;
 
 namespace NRedisStack.Tests.Search;
 
+// [RunPerProtocol]
 public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper log)
     : AbstractNRedisStackTest(endpointsFixture, log), IDisposable
 {
@@ -24,12 +24,12 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         // Many of the FT.* commands are ... more awkward pre 8 when using cluster. Rather than
         // fight eventual-consistency/timing issues: grandfather the existing behaviour, and start
         // afresh from v8, where things behave much more predictably and reasonably.
-        Skip.If(endpointId == EndpointsFixture.Env.Cluster
+        Assert.SkipWhen(endpointId == EndpointsFixture.Env.Cluster
             && EndpointsFixture.RedisVersion.Major < 8, "Ignoring cluster tests for FT.SEARCH pre Redis 8.0");
 
         // FIXME(imalinovskyi): We should skip cluster tests until https://github.com/RediSearch/RediSearch/pull/6960
         // is released as part of Redis v8.2.x
-        Skip.If(endpointId == EndpointsFixture.Env.Cluster
+        Assert.SkipWhen(endpointId == EndpointsFixture.Env.Cluster
                 && !EndpointsFixture.IsEnterprise
                 && EndpointsFixture.RedisVersion.Minor < 4, "Ignoring cluster tests for FT.SEARCH pre Redis 8.4");
     }
@@ -145,7 +145,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(0, res.TotalResults);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAggregationRequestTimeout(string endpointId)
     {
@@ -168,7 +168,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(2, res.TotalResults);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAggregationRequestTimeoutAsync(string endpointId)
     {
@@ -191,7 +191,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(2, res.TotalResults);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAggregations(string endpointId)
     {
@@ -231,7 +231,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(10, r2.GetLong("sum"));
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAggregationsAsync(string endpointId)
     {
@@ -272,7 +272,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     }
 
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAggregationsLoad(string endpointId)
     {
@@ -306,7 +306,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal("world", res[0]!["t2"]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAggregationsLoadAsync(string endpointId)
     {
@@ -340,7 +340,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal("world", res[0]!["t2"]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAggregationRequestParamsDialect(string endpointId)
     {
@@ -372,7 +372,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(10, r1.GetLong("sum"));
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAggregationRequestParamsDialectAsync(string endpointId)
     {
@@ -405,7 +405,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(10, r1.GetLong("sum"));
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAggregationRequestParamsWithDefaultDialect(string endpointId)
     {
@@ -437,7 +437,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(10, r1.GetLong("sum"));
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAggregationRequestParamsWithDefaultDialectAsync(string endpointId)
     {
@@ -477,7 +477,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Throws<ArgumentOutOfRangeException>(() => db.FT(0));
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAlias(string endpointId)
     {
@@ -498,7 +498,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         }
         catch (RedisServerException rse)
         {
-            Skip.If(rse.Message.StartsWith("CROSSSLOT"), "legacy failure");
+            Assert.SkipWhen(rse.Message.StartsWith("CROSSSLOT"), "legacy failure");
             throw;
         }
 
@@ -516,7 +516,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Throws<RedisServerException>(() => ft.AliasDel("ALIAS2"));
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAliasAsync(string endpointId)
     {
@@ -537,7 +537,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         }
         catch (RedisServerException rse)
         {
-            Skip.If(rse.Message.StartsWith("CROSSSLOT"), "legacy failure");
+            Assert.SkipWhen(rse.Message.StartsWith("CROSSSLOT"), "legacy failure");
             throw;
         }
 
@@ -555,7 +555,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         await Assert.ThrowsAsync<RedisServerException>(async () => await ft.AliasDelAsync("ALIAS2"));
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestApplyAndFilterAggregations(string endpointId)
     {
@@ -602,7 +602,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
 
     private static bool IsNear(double a, double b, double epsilon = 0.1) => Math.Abs(a - b) < epsilon;
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestCreate(string endpointId)
     {
@@ -636,7 +636,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(0, res3.TotalResults);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestCreateAsync(string endpointId)
     {
@@ -665,7 +665,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(0, res3.TotalResults);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void CreateNoParams(string endpointId)
     {
@@ -696,7 +696,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(0, res3.TotalResults);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task CreateNoParamsAsync(string endpointId)
     {
@@ -726,7 +726,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(0, res3.TotalResults);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void CreateWithFieldNames(string endpointId)
     {
@@ -771,7 +771,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         RedisServerException exc = Assert.Throws<RedisServerException>(() => ft.Search(index, new("@first:Jo*")));
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task CreateWithFieldNamesAsync(string endpointId)
     {
@@ -1295,7 +1295,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.True(ft.ConfigSet("DEFAULT_DIALECT", "1"));
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestCursor(string endpointId)
     {
@@ -1351,7 +1351,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Contains("Cursor not found", ex.Message, StringComparison.OrdinalIgnoreCase);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestCursorEnumerable(string endpointId)
     {
@@ -1390,7 +1390,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(10, row.GetLong("sum"));
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestCursorAsync(string endpointId)
     {
@@ -1446,7 +1446,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Contains("Cursor not found", ex.Message, StringComparison.OrdinalIgnoreCase);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestCursorEnumerableAsync(string endpointId)
     {
@@ -1615,7 +1615,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     }
 
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestDictionary(string endpointId)
     {
@@ -1636,7 +1636,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Empty(ft.DictDump("dict"));
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestDropIndex(string endpointId)
     {
@@ -1700,7 +1700,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         return checked((int)count);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestDropIndexAsync(string endpointId)
     {
@@ -1729,7 +1729,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Contains("no such index", ex.Message, StringComparison.OrdinalIgnoreCase);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void dropIndexDD(string endpointId)
     {
@@ -1757,7 +1757,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         AssertDatabaseSize(db, 0);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task dropIndexDDAsync(string endpointId)
     {
@@ -1785,7 +1785,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         AssertDatabaseSize(db, 0);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestDictionaryAsync(string endpointId)
     {
@@ -1808,7 +1808,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
 
     readonly string explainQuery = "@f3:f3_val @f2:f2_val @f1:f1_val";
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestExplain(string endpointId)
     {
@@ -1831,7 +1831,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.False(res.Length == 0);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestExplainAsync(string endpointId)
     {
@@ -1903,7 +1903,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.False(res.Length == 0);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestExplainWithDefaultDialect(string endpointId)
     {
@@ -1921,7 +1921,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.False(res.Length == 0);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestExplainWithDefaultDialectAsync(string endpointId)
     {
@@ -1939,7 +1939,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.False(res.Length == 0);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestSynonym(string endpointId)
     {
@@ -1966,7 +1966,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(expected, dump);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestSynonymAsync(string endpointId)
     {
@@ -2006,7 +2006,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.NotEqual(ft1.GetHashCode(), ft2.GetHashCode());
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task GetTagFieldSyncAsync(string endpointId)
     {
@@ -2065,7 +2065,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal("yellow", SyncRes[i++].ToString());
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestGetTagFieldWithNonDefaultSeparatorSyncAsync(string endpointId)
     {
@@ -2199,7 +2199,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal("FT.CREATE", builedCommand.Command.ToString());
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestFilters(string endpointId)
     {
@@ -2252,7 +2252,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal("doc1", res1.Documents[0].Id);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestFiltersAsync(string endpointId)
     {
@@ -2521,7 +2521,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         }
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestLimit(string endpointId)
     {
@@ -2543,7 +2543,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal("a", res.GetResults()[0]["t1"].ToString());
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestLimitAsync(string endpointId)
     {
@@ -2616,7 +2616,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(expected.Count(), actual.Args.Length);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void VectorSimilaritySearch(string endpointId)
     {
@@ -2661,7 +2661,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal("{\"vector\":[2,2,2,2]}", jsonRes[0]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void QueryingVectorFields(string endpointId)
     {
@@ -2710,7 +2710,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.True(await ft.CreateAsync("my_index", new FTCreateParams().On(IndexDataType.JSON), schema));
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestQueryAddParam_DefaultDialect(string endpointId)
     {
@@ -2731,7 +2731,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(2, res.TotalResults);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestQueryAddParam_DefaultDialectAsync(string endpointId)
     {
@@ -2752,7 +2752,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(2, res.TotalResults);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestQueryParamsWithParams_DefaultDialect(string endpointId)
     {
@@ -2782,7 +2782,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(2, res.TotalResults);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestBasicSpellCheck(string endpointId)
     {
@@ -2804,7 +2804,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(2, reply["name"]["name2"]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestBasicSpellCheckAsync(string endpointId)
     {
@@ -2826,7 +2826,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(2, reply["name"]["name2"]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestCrossTermDictionary(string endpointId)
     {
@@ -2853,7 +2853,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
                 .ExcludeTerm("slang")));
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestCrossTermDictionaryAsync(string endpointId)
     {
@@ -2925,7 +2925,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
             await ft.SpellCheckAsync(index, "name", new FTSpellCheckParams().Dialect(0)));
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestQueryParamsWithParams_DefaultDialectAsync(string endpointId)
     {
@@ -2957,7 +2957,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
 
     readonly string key = "SugTestKey";
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAddAndGetSuggestion(string endpointId)
     {
@@ -2981,7 +2981,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Single(ft.SugGet(key, noMatch.Substring(1, 6), true, max: 5));
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAddAndGetSuggestionAsync(string endpointId)
     {
@@ -3005,7 +3005,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Single(await ft.SugGetAsync(key, noMatch.Substring(1, 6), true, max: 5));
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void AddSuggestionIncrAndGetSuggestionFuzzy(string endpointId)
     {
@@ -3021,7 +3021,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(suggestion, ft.SugGet(key, suggestion.Substring(0, 3))[0]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task AddSuggestionIncrAndGetSuggestionFuzzyAsync(string endpointId)
     {
@@ -3037,7 +3037,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(suggestion, (await ft.SugGetAsync(key, suggestion.Substring(0, 3)))[0]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void getSuggestionScores(string endpointId)
     {
@@ -3059,7 +3059,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         }
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task getSuggestionScoresAsync(string endpointId)
     {
@@ -3081,7 +3081,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         }
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void getSuggestionMax(string endpointId)
     {
@@ -3097,7 +3097,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(2, ft.SugGetWithScores(key, "COU", true, max: 2).Count);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task getSuggestionMaxAsync(string endpointId)
     {
@@ -3113,7 +3113,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(2, (await ft.SugGetWithScoresAsync(key, "COU", true, max: 2)).Count);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void getSuggestionNoHit(string endpointId)
     {
@@ -3126,7 +3126,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Empty(ft.SugGet(key, "DIF"));
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task GetSuggestionNoHitAsync(string endpointId)
     {
@@ -3139,7 +3139,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Empty((await ft.SugGetAsync(key, "DIF")));
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void GetSuggestionLengthAndDeleteSuggestion(string endpointId)
     {
@@ -3163,7 +3163,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(2L, ft.SugLen(key));
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task getSuggestionLengthAndDeleteSuggestionAsync(string endpointId)
     {
@@ -3484,7 +3484,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(["index", "AGGREGATE", "LIMITED", "QUERY", "*"], aggregate.Args);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void Issue175(string endpointId)
     {
@@ -3878,7 +3878,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     /// However, the key is still counted in the total number of results."
     /// https://redis.io/docs/latest/commands/ft.search/#:~:text=If%20a%20relevant%20key%20expires,the%20total%20number%20of%20results. 
     /// </summary>
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestDocumentLoadWithDB_Issue352(string endpointId)
     {

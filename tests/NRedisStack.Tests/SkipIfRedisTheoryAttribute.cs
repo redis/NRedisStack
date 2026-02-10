@@ -1,5 +1,7 @@
+using System.Runtime.CompilerServices;
 using Xunit;
 using Xunit.Sdk;
+using Xunit.v3;
 
 namespace NRedisStack.Tests;
 
@@ -97,44 +99,157 @@ internal readonly struct SkipIfRedisCore
     }
 }
 
+/// <summary>
+/// <para>Override for <see cref="Xunit.TheoryAttribute"/> that truncates our DisplayName down.</para>
+/// <para>
+/// Marks a test method as being a data theory. Data theories are tests which are
+/// fed various bits of data from a data source, mapping to parameters on the test
+/// method. If the data source contains multiple rows, then the test method is executed
+/// multiple times (once with each data row). Data is provided by attributes which
+/// derive from Xunit.Sdk.DataAttribute (notably, Xunit.InlineDataAttribute and Xunit.MemberDataAttribute).
+/// </para>
+/// </summary>
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-[XunitTestCaseDiscoverer("NRedisStack.Tests.SkippableTheoryDiscoverer", "NRedisStack.Tests")]
-public class SkipIfRedisTheoryAttribute : SkippableTheoryAttribute
+[XunitTestCaseDiscoverer(typeof(TheoryDiscoverer))]
+public class TheoryAttribute(
+    [CallerFilePath] string? sourceFilePath = null,
+    [CallerLineNumber] int sourceLineNumber = -1) : Xunit.TheoryAttribute(sourceFilePath, sourceLineNumber)
 {
-    private readonly SkipIfRedisCore core;
+    public class TheoryDiscoverer : Xunit.v3.TheoryDiscoverer
+    {
+        protected override ValueTask<IReadOnlyCollection<IXunitTestCase>> CreateTestCasesForDataRow(ITestFrameworkDiscoveryOptions discoveryOptions, IXunitTestMethod testMethod, ITheoryAttribute theoryAttribute, ITheoryDataRow dataRow, object?[] testMethodArguments)
+            => base.CreateTestCasesForDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow, testMethodArguments).ExpandAsync();
 
-    public SkipIfRedisTheoryAttribute(
-        Is environment,
-        Comparison comparison = Comparison.LessThan,
-        string targetVersion = "0.0.0")
-        => core = new(environment, comparison, targetVersion);
-
-    public SkipIfRedisTheoryAttribute(string targetVersion) // defaults to LessThan
-        => core = new(targetVersion);
-
-    public SkipIfRedisTheoryAttribute(Comparison comparison, string targetVersion)
-        => core = new(comparison, targetVersion);
-
-    public override string? Skip => core.Skip;
+        protected override ValueTask<IReadOnlyCollection<IXunitTestCase>> CreateTestCasesForTheory(ITestFrameworkDiscoveryOptions discoveryOptions, IXunitTestMethod testMethod, ITheoryAttribute theoryAttribute)
+            => base.CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute).ExpandAsync();
+    }   
 }
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-[XunitTestCaseDiscoverer("NRedisStack.Tests.SkippableTheoryDiscoverer", "NRedisStack.Tests")]
-public class SkipIfRedisFactAttribute : SkippableFactAttribute
+[XunitTestCaseDiscoverer(typeof(TheoryDiscoverer))]
+public class SkipIfRedisTheoryAttribute : TheoryAttribute
 {
-    private readonly SkipIfRedisCore core;
+    public SkipIfRedisTheoryAttribute(
+        Is environment,
+        Comparison comparison = Comparison.LessThan,
+        string targetVersion = "0.0.0",
+        [CallerFilePath] string? sourceFilePath = null,
+        [CallerLineNumber] int sourceLineNumber = -1) : base(sourceFilePath, sourceLineNumber)
+    {
+        SkipIfRedisCore core = new(environment, comparison, targetVersion);
+        Skip = core.Skip;
+    }
 
+    public SkipIfRedisTheoryAttribute(
+        string targetVersion,
+        [CallerFilePath] string? sourceFilePath = null,
+        [CallerLineNumber] int sourceLineNumber = -1) : base(sourceFilePath, sourceLineNumber) // defaults to LessThan
+    {
+        SkipIfRedisCore core = new(targetVersion);
+        Skip = core.Skip;
+    }
+
+    public SkipIfRedisTheoryAttribute(
+        Comparison comparison, string targetVersion,
+        [CallerFilePath] string? sourceFilePath = null,
+        [CallerLineNumber] int sourceLineNumber = -1) : base(sourceFilePath, sourceLineNumber)
+    {
+        SkipIfRedisCore core = new(comparison, targetVersion);
+        Skip = core.Skip;
+    }
+}
+
+/// <summary>
+/// <para>Override for <see cref="Xunit.FactAttribute"/> that truncates our DisplayName down.</para>
+/// <para>
+/// Attribute that is applied to a method to indicate that it is a fact that should
+/// be run by the test runner. It can also be extended to support a customized definition
+/// of a test method.
+/// </para>
+/// </summary>
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+[XunitTestCaseDiscoverer(typeof(FactDiscoverer))]
+public class FactAttribute([CallerFilePath] string? sourceFilePath = null, [CallerLineNumber] int sourceLineNumber = -1)
+    : Xunit.FactAttribute(sourceFilePath, sourceLineNumber)
+{
+    public class FactDiscoverer : Xunit.v3.FactDiscoverer
+    {
+        public override ValueTask<IReadOnlyCollection<IXunitTestCase>> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, IXunitTestMethod testMethod, IFactAttribute factAttribute)
+            => base.Discover(discoveryOptions, testMethod, factAttribute).ExpandAsync();
+    }
+}
+
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+[XunitTestCaseDiscoverer(typeof(FactDiscoverer))]
+public class SkipIfRedisFactAttribute : FactAttribute
+{
     public SkipIfRedisFactAttribute(
         Is environment,
         Comparison comparison = Comparison.LessThan,
-        string targetVersion = "0.0.0")
-        => core = new(environment, comparison, targetVersion);
+        string targetVersion = "0.0.0",
+        [CallerFilePath] string? sourceFilePath = null,
+        [CallerLineNumber] int sourceLineNumber = -1) : base(sourceFilePath, sourceLineNumber)
+    {
+        SkipIfRedisCore core = new(environment, comparison, targetVersion);
+        Skip = core.Skip;
+    }
 
-    public SkipIfRedisFactAttribute(string targetVersion) // defaults to LessThan
-        => core = new(targetVersion);
+    public SkipIfRedisFactAttribute( // defaults to LessThan
+        string targetVersion,
+        [CallerFilePath] string? sourceFilePath = null,
+        [CallerLineNumber] int sourceLineNumber = -1) : base(sourceFilePath, sourceLineNumber)
+    {
+        SkipIfRedisCore core = new(targetVersion);
+        Skip = core.Skip;
+    }
 
-    public SkipIfRedisFactAttribute(Comparison comparison, string targetVersion)
-        => core = new(comparison, targetVersion);
+    public SkipIfRedisFactAttribute(
+        Comparison comparison,
+        string targetVersion,
+        [CallerFilePath] string? sourceFilePath = null,
+        [CallerLineNumber] int sourceLineNumber = -1) : base(sourceFilePath, sourceLineNumber)
+    {
+        SkipIfRedisCore core = new(comparison, targetVersion);
+        Skip = core.Skip;
+    }
+}
 
-    public override string? Skip => core.Skip;
+internal static class XUnitExtensions
+{
+    public static RunProtocol GetRunProtocol(this ITestContext context) =>
+        context.Test?.TestCase is IRunProtocolTestCase protocolTestCase
+            ? protocolTestCase.Protocol : RunProtocol.Resp2;
+    
+    public static bool IsResp3(this RunProtocol protocol) => protocol is RunProtocol.Resp3 or RunProtocol.Resp3HighIntegrity;
+    public static bool IsHighIntegrity(this RunProtocol protocol) => protocol is RunProtocol.Resp2HighIntegrity or RunProtocol.Resp3HighIntegrity;
+
+    public static async ValueTask<IReadOnlyCollection<IXunitTestCase>> ExpandAsync(this ValueTask<IReadOnlyCollection<IXunitTestCase>> discovery)
+    {
+        static IXunitTestCase CreateTestCase(XunitTestCase tc, RunProtocol protocol) => tc switch
+        {
+            XunitDelayEnumeratedTheoryTestCase delayed => new ProtocolDelayEnumeratedTestCase(delayed, protocol),
+            _ => new ProtocolTestCase(tc, protocol),
+        };
+        var testCases = await discovery;
+        List<IXunitTestCase> result = [];
+        foreach (var testCase in testCases.OfType<XunitTestCase>())
+        {
+            var testMethod = testCase.TestMethod;
+            if ((testMethod.Method.GetCustomAttributes(typeof(RunPerProtocolAttribute), true).FirstOrDefault()
+                 ?? testMethod.TestClass.Class.GetCustomAttributes(typeof(RunPerProtocolAttribute), true).FirstOrDefault()) is RunPerProtocolAttribute rpp)
+            {
+                var protocols = rpp.Protocols;
+                if ((protocols & RunProtocol.Resp2) != 0) result.Add(CreateTestCase(testCase, RunProtocol.Resp2));
+                if ((protocols & RunProtocol.Resp3) != 0) result.Add(CreateTestCase(testCase, RunProtocol.Resp3));
+                if ((protocols & RunProtocol.Resp2HighIntegrity) != 0) result.Add(CreateTestCase(testCase, RunProtocol.Resp2HighIntegrity));
+                if ((protocols & RunProtocol.Resp3HighIntegrity) != 0) result.Add(CreateTestCase(testCase, RunProtocol.Resp3HighIntegrity));
+            }
+            else
+            {
+                // Default to RESP2 everywhere else
+                result.Add(CreateTestCase(testCase, RunProtocol.Resp2));
+            }
+        }
+        return result;
+    }
 }

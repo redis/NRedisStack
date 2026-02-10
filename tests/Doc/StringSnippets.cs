@@ -18,7 +18,7 @@ public class StringSnippets
     // REMOVE_START
     public StringSnippets(EndpointsFixture fixture) : base(fixture) { }
 
-    [SkippableFact]
+    [Fact]
     // REMOVE_END
     public void Run()
     {

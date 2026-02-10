@@ -15,7 +15,7 @@ public class CmdsSetExample
     // REMOVE_START
     public CmdsSetExample(EndpointsFixture fixture) : base(fixture) { }
 
-    [SkippableFact]
+    [Fact]
     // REMOVE_END
     public void Run()
     {

@@ -1,8 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net6.0;net8.0;net9.0;net10.0;net481</TargetFrameworks>
+        <TargetFrameworks>net8.0;net9.0;net10.0;net481</TargetFrameworks>
         <IsPackable>false</IsPackable>
         <PreserveCompilationContext>true</PreserveCompilationContext>
+        <OutputType>Exe</OutputType>
     </PropertyGroup>
 
     <ItemGroup>
@@ -26,17 +27,10 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <!-- this is the last version with net6 support -->
-        <PackageReference Include="xunit.runner.visualstudio" Condition="'$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0'" VersionOverride="3.0.2">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-            <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
         <PackageReference Include="StackExchange.Redis"/>
-        <PackageReference Include="xunit"/>
-        <PackageReference Include="xunit.assert"/>
+        <PackageReference Include="xunit.v3"/>
         <PackageReference Include="BouncyCastle.Cryptography"/>
         <PackageReference Include="Microsoft.Azure.StackExchangeRedis"/>
-        <PackageReference Include="Xunit.SkippableFact"/>
     </ItemGroup>
 
     <ItemGroup>

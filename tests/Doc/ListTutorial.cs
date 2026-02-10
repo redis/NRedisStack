@@ -20,7 +20,7 @@ public class ListExample
     // REMOVE_START
     public ListExample(EndpointsFixture fixture) : base(fixture) { }
 
-    [SkippableFact]
+    [Fact]
     // REMOVE_END
     public void Run()
     {

@@ -21,7 +21,7 @@ public class GeoTutorial
     // REMOVE_START
     public GeoTutorial(EndpointsFixture fixture) : base(fixture) { }
 
-    [SkippableFact]
+    [Fact]
     // REMOVE_END
     public void Run()
     {

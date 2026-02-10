@@ -22,7 +22,7 @@ public class BfTutorial
     // REMOVE_START
     public BfTutorial(EndpointsFixture fixture) : base(fixture) { }
 
-    [SkippableFact]
+    [Fact]
     // REMOVE_END
     public void Run()
     {
