@@ -2732,45 +2732,63 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
-    public async Task TestQueryAddParam_DefaultDialectAsync(string endpointId)
+    [MemberData(nameof(TestQueryParamsWithParams_Args))]
+    public async Task TestQueryAddParam_DefaultDialectAsync(string endpointId, bool withScores, bool withPayloads, bool withContent)
     {
         SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT(2);
 
-        var sc = new Schema().AddNumericField("numval");
-        Assert.True(await ft.CreateAsync("idx", new(), sc));
+        var sc = new Schema().AddNumericField("numval").AddTextField("sval");
+        Assert.True(await ft.CreateAsync("idx", new FTCreateParams().PayloadField("sval"), sc));
 
-        db.HashSet("1", "numval", 1);
-        db.HashSet("2", "numval", 2);
-        db.HashSet("3", "numval", 3);
+        await db.HashSetAsync("1", [new("numval", 1), new("sval", "a")]);
+        await db.HashSetAsync("2", [new("numval", 2), new("sval", "b")]);
+        await db.HashSetAsync("3", [new("numval", 3), new("sval", "c")]);
 
         await AssertIndexSizeAsync(ft, "idx", 3);
         Query query = new Query("@numval:[$min $max]").AddParam("min", 1).AddParam("max", 2);
+        ConfigureQuery(withScores, withPayloads, withContent, query);
         var res = await ft.SearchAsync("idx", query);
         Assert.Equal(2, res.TotalResults);
+        CheckQueryResults(res, withScores, withPayloads, withContent);
+    }
+
+    public static IEnumerable<object[]> TestQueryParamsWithParams_Args()
+    {
+        // for each environment, test each permutation of scores, payloads and content
+        foreach (var outer in EndpointsFixture.Env.AllEnvironments())
+        {
+            var env = outer.Single();
+            for (int i = 0; i < 8; i++)
+            {
+                yield return [env, (i & 4) != 0, (i & 2) != 0, (i & 1) != 0];
+            }
+        }
     }
 
     [SkippableTheory]
-    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
-    public void TestQueryParamsWithParams_DefaultDialect(string endpointId)
+    [MemberData(nameof(TestQueryParamsWithParams_Args))]
+    public void TestQueryParamsWithParams_DefaultDialect(string endpointId, bool withScores, bool withPayloads, bool withContent)
     {
         SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT(2);
 
         var sc = new Schema().AddNumericField("numval");
-        Assert.True(ft.Create("idx", new(), sc));
+        Assert.True(ft.Create("idx", new FTCreateParams().PayloadField("numval"), sc));
 
-        db.HashSet("1", "numval", 1);
-        db.HashSet("2", "numval", 2);
-        db.HashSet("3", "numval", 3);
+        db.HashSet("1", [new("numval", 1), new("sval", "a")]);
+        db.HashSet("2", [new("numval", 2), new("sval", "b")]);
+        db.HashSet("3", [new("numval", 3), new("sval", "c")]);
 
         AssertIndexSize(ft, "idx", 3);
         Query query = new Query("@numval:[$min $max]").AddParam("min", 1).AddParam("max", 2);
+        ConfigureQuery(withScores, withPayloads, withContent, query);
+
         var res = ft.Search("idx", query);
         Assert.Equal(2, res.TotalResults);
+        CheckQueryResults(res, withScores, withPayloads, withContent);
 
         var paramValue = new Dictionary<string, object>()
         {
@@ -2778,8 +2796,35 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
             ["max"] = 2
         };
         query = new("@numval:[$min $max]");
+        ConfigureQuery(withScores, withPayloads, withContent, query);
         res = ft.Search("idx", query.Params(paramValue));
         Assert.Equal(2, res.TotalResults);
+        CheckQueryResults(res, withScores, withPayloads, withContent);
+    }
+
+    private static void ConfigureQuery(bool withScores, bool withPayloads, bool withContent, Query query)
+    {
+        if (withScores) query.SetWithScores();
+        if (withPayloads) query.SetWithPayloads();
+        if (!withContent) query.SetNoContent();
+    }
+
+    private void CheckQueryResults(SearchResult result, bool withScores, bool withPayloads, bool withContent)
+    {
+        Assert.NotNull(result);
+        Assert.NotNull(result.Documents);
+        Assert.Equal(result.TotalResults, result.Documents.Count);
+        foreach (var doc in result.Documents)
+        {
+            _ = withScores;
+            // (we can't validate scores properly, due to calculation differences between v7 and v8)
+
+            if (withPayloads) Assert.NotNull(doc.Payload);
+            else Assert.Null(doc.Payload);
+
+            if (withContent) Assert.NotEmpty(doc._properties);
+            else Assert.Empty(doc._properties);
+        }
     }
 
     [SkippableTheory]
