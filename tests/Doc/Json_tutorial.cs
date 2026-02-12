@@ -23,7 +23,7 @@ public class JsonTutorial
     // REMOVE_START
     public JsonTutorial(EndpointsFixture fixture) : base(fixture) { }
 
-    [SkippableFact]
+    [Fact]
     // REMOVE_END
     public void Run()
     {

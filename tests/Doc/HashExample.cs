@@ -17,7 +17,7 @@ public class HashExample
     // REMOVE_START
     public HashExample(EndpointsFixture fixture) : base(fixture) { }
 
-    [SkippableFact]
+    [Fact]
     // REMOVE_END
     public void Run()
     {

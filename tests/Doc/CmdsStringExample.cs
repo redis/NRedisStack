@@ -21,7 +21,7 @@ public class CmdsStringExample
     // REMOVE_START
     public CmdsStringExample(EndpointsFixture fixture) : base(fixture) { }
 
-    [SkippableFact]
+    [Fact]
     // REMOVE_END
     public void Run()
     {

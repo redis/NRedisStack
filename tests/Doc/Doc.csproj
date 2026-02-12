@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net6.0;net7.0;net8.0;net481</TargetFrameworks>
+        <TargetFrameworks>net8.0;net10.0;net481</TargetFrameworks>
         <IsPackable>false</IsPackable>
+        <OutputType>Exe</OutputType>
 
         <!-- don't warn about obsolete APIs, or theory with no data -->
         <Nowarn>$(Nowarn);CS0612;CS0618</Nowarn>
@@ -12,13 +13,8 @@
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.NET.Test.Sdk"/>
-        <PackageReference Include="xunit"/>
+        <PackageReference Include="xunit.v3"/>
         <PackageReference Include="xunit.runner.visualstudio" Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net481'">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-            <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
-        <!-- this is the last version with net6 support -->
-        <PackageReference Include="xunit.runner.visualstudio" Condition="'$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0'" VersionOverride="3.0.2">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>

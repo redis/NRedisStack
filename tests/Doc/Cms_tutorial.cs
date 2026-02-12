@@ -23,7 +23,7 @@ public class CmsTutorial
     // REMOVE_START
     public CmsTutorial(EndpointsFixture fixture) : base(fixture) { }
 
-    [SkippableFact]
+    [Fact]
     // REMOVE_END
     public void Run()
     {

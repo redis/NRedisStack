@@ -16,7 +16,7 @@ public class PipeTransExample
     // REMOVE_START
     public PipeTransExample(EndpointsFixture fixture) : base(fixture) { }
 
-    [SkippableFact]
+    [Fact]
     // REMOVE_END
     public void Run()
     {

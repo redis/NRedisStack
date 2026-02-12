@@ -17,7 +17,7 @@ public class SetGetExample
     // REMOVE_START
     public SetGetExample(EndpointsFixture fixture) : base(fixture) { }
 
-    [SkippableFact]
+    [Fact]
     // REMOVE_END
     public void Run()
     {

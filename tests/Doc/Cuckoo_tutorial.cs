@@ -22,7 +22,7 @@ public class CuckooTutorial
     // REMOVE_START
     public CuckooTutorial(EndpointsFixture fixture) : base(fixture) { }
 
-    [SkippableFact]
+    [Fact]
     // REMOVE_END
     public void Run()
     {

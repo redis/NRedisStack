@@ -14,7 +14,7 @@ public class TransactionTests : AbstractNRedisStackTest, IDisposable
     {
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestJsonTransaction(string endpointId)
     {
