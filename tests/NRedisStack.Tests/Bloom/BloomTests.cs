@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using Xunit;
 using StackExchange.Redis;
 using NRedisStack.RedisStackCommands;
