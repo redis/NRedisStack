@@ -1,4 +1,5 @@
-﻿using StackExchange.Redis;
+﻿using System.Diagnostics;
+using StackExchange.Redis;
 
 namespace NRedisStack.Search;
 
@@ -22,64 +23,59 @@ public class SearchResult
     {
         // Calculate the step distance to walk over the results.
         // The order of results is id, score (if withScore), payLoad (if hasPayloads), fields
-        int step = 1;
-        int scoreOffset = 0;
-        int contentOffset = 1;
-        int payloadOffset = 0;
-        if (hasScores)
-        {
-            step++;
-            scoreOffset = 1;
-            contentOffset++;
-
-        }
-        if (hasContent)
-        {
-            step++;
-            if (hasPayloads)
-            {
-                payloadOffset = scoreOffset + 1;
-                step++;
-                contentOffset++;
-            }
-        }
+        int stride = 1;
+        if (hasScores) stride++;
+        if (hasPayloads) stride++;
+        if (hasContent) stride++;
 
         // the first element is always the number of results
-        TotalResults = (long)resp[0];
-        var docs = new List<Document>((resp.Length - 1) / step);
-        Documents = docs;
-        for (int i = 1; i < resp.Length; i += step)
+        if (resp is not { Length: > 0 })
         {
-            var id = resp[i].ToString();
-            double score = 1.0;
-            byte[]? payload = null;
-            RedisValue[]? fields = null;
-            string[]? scoreExplained = null;
-            if (hasScores)
+            // unexpected empty case
+            TotalResults = 0;
+            Documents = [];
+            Debug.Assert(false, "Empty result from FT.SEARCH"); // debug only, flag as a problem 
+        }
+        else
+        {
+            TotalResults = (long)resp[0];
+            int count = checked((int)(resp.Length - 1) / stride);
+            var docs = Documents = new List<Document>(count);
+            int offset = 1; // skip the first element which is the number of results
+            for (int docIndex = 0; docIndex < count; docIndex++)
             {
-                // if (shouldExplainScore)
-                // {
-                //     var scoreResult = (RedisResult[])resp[i + scoreOffset];
-                //     score = (double) scoreResult[0];
-                //     var redisResultsScoreExplained = (RedisResult[]) scoreResult[1];
-                //     scoreExplained = FlatRedisResultArray(redisResultsScoreExplained).ToArray();
-                // }
-                //else
-                //{
-                score = (double)resp[i + scoreOffset];
-                //}
-            }
-            if (hasPayloads)
-            {
-                payload = (byte[]?)resp[i + payloadOffset];
-            }
+                var id = resp[offset++].ToString();
+                double score = 1.0;
+                byte[]? payload = null;
+                RedisValue[]? fields = null;
+                string[]? scoreExplained = null;
+                if (hasScores)
+                {
+                    // if (shouldExplainScore)
+                    // {
+                    //     var scoreResult = (RedisResult[])resp[offset++];
+                    //     score = (double) scoreResult[0];
+                    //     var redisResultsScoreExplained = (RedisResult[]) scoreResult[1];
+                    //     scoreExplained = FlatRedisResultArray(redisResultsScoreExplained).ToArray();
+                    // }
+                    //else
+                    //{
+                    score = (double)resp[offset++];
+                    //}
+                }
 
-            if (hasContent)
-            {
-                fields = (RedisValue[]?)resp[i + contentOffset];
-            }
+                if (hasPayloads) // match logic from setup
+                {
+                    payload = (byte[]?)resp[offset++];
+                }
 
-            docs.Add(Document.Load(id, score, payload, fields, scoreExplained));
+                if (hasContent)
+                {
+                    fields = (RedisValue[]?)resp[offset++];
+                }
+
+                docs.Add(Document.Load(id, score, payload, fields, scoreExplained));
+            }
         }
     }
 }
