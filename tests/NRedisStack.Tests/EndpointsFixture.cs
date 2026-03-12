@@ -100,7 +100,15 @@ public class EndpointsFixture : IDisposable
             options.ConnectTimeout = 2000;
             if (shareConnection) options.AbortOnConnectFail = false;
             connection = redisEndpoints[id].CreateConnection(options);
-            if (shareConnection) shared[(id, protocol)] = connection;
+            if (shareConnection)
+            {
+                if (!shared.TryAdd((id, protocol), connection))
+                {
+                    // prefer the existing one
+                    connection.Dispose();
+                    connection = shared[(id, protocol)];
+                }
+            }
         }
 
         Assert.SkipUnless(connection.IsConnected, $"The connection with id '{id}' is not connected.");

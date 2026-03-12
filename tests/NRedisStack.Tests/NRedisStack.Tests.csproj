@@ -31,6 +31,8 @@
         <PackageReference Include="xunit.v3"/>
         <PackageReference Include="BouncyCastle.Cryptography"/>
         <PackageReference Include="Microsoft.Azure.StackExchangeRedis"/>
+        <!-- included because of a security advisory on the in-frameork version -->
+        <PackageReference Include="Microsoft.Bcl.Memory" />
     </ItemGroup>
 
     <ItemGroup>
