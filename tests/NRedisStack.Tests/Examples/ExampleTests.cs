@@ -6,7 +6,6 @@ using NRedisStack.Search.Aggregation;
 using NRedisStack.Search.Literals.Enums;
 using StackExchange.Redis;
 using Xunit;
-using Xunit.Abstractions;
 using static NRedisStack.Search.Schema;
 
 namespace NRedisStack.Tests;
@@ -18,7 +17,7 @@ public class ExampleTests(EndpointsFixture endpointsFixture, ITestOutputHelper t
 
     // private readonly string key = "EXAMPLES_TESTS";
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void HSETandSearch(string endpointId)
     {
@@ -70,7 +69,7 @@ public class ExampleTests(EndpointsFixture endpointsFixture, ITestOutputHelper t
         Assert.Equal(0, lastNameRod.TotalResults);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task AsyncExample(string endpointId)
     {
@@ -85,11 +84,11 @@ public class ExampleTests(EndpointsFixture endpointsFixture, ITestOutputHelper t
         var john = await json.GetAsync("key");
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void PipelineExample(string endpointId)
     {
-        Skip.If(true, "FIXME: JsonSet is not executed in pipeline, see https://github.com/redis/NRedisStack/issues/379");
+        Assert.Skip("FIXME: JsonSet is not executed in pipeline, see https://github.com/redis/NRedisStack/issues/379");
 
         // Pipeline can get IDatabase for pipeline
         IDatabase db = GetCleanDatabase(endpointId);
@@ -122,7 +121,7 @@ public class ExampleTests(EndpointsFixture endpointsFixture, ITestOutputHelper t
         Assert.Equal(expected, result.ToString());
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task JsonWithSearchPipeline(string endpointId)
     {
@@ -270,7 +269,7 @@ public class ExampleTests(EndpointsFixture endpointsFixture, ITestOutputHelper t
         Assert.Equal("[1200]", totalAmtOfShachar.Result.ToString());
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestJsonConvert(string endpointId)
     {
@@ -564,7 +563,7 @@ public class ExampleTests(EndpointsFixture endpointsFixture, ITestOutputHelper t
 #endif
 #endif
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void BasicJsonExamplesTest(string endpointId)
     {
@@ -819,7 +818,7 @@ public class ExampleTests(EndpointsFixture endpointsFixture, ITestOutputHelper t
         Assert.Equal("{\n\t\"arr1\":[\n\t\t\"val2\",\n\t\t\"val3\"\n\t]\n}", res.ToString());
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void AdvancedJsonExamplesTest(string endpointId)
     {
@@ -965,7 +964,7 @@ public class ExampleTests(EndpointsFixture endpointsFixture, ITestOutputHelper t
         Assert.Equal(expected, res.ToString());
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void BasicQueryOperationsTest(string endpointId)
     {
@@ -1138,7 +1137,7 @@ public class ExampleTests(EndpointsFixture endpointsFixture, ITestOutputHelper t
         Assert.Equal(expected, res[0].ToString());
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void AdvancedQueryOperationsTest(string endpointId)
     {

@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using StackExchange.Redis;
 using System.Text.Json;
 using Xunit;
@@ -83,14 +84,45 @@ public class EndpointsFixture : IDisposable
 
     public void Dispose()
     {
+        foreach (var connection in shared.Values)
+        {
+            connection.Dispose();
+        }
+        shared.Clear();
     }
 
-    public ConnectionMultiplexer GetConnectionById(ConfigurationOptions configurationOptions, string id)
+    public ConnectionMultiplexer GetConnectionById(ConfigurationOptions configurationOptions, string id, bool shareConnection)
     {
-        Skip.IfNot(redisEndpoints.ContainsKey(id), $"The connection with id '{id}' is not configured.");
+        Assert.SkipUnless(redisEndpoints.ContainsKey(id), $"The connection with id '{id}' is not configured.");
 
-        return redisEndpoints[id].CreateConnection(configurationOptions);
+        var protocol = TestContext.Current.GetRunProtocol();
+
+        if (!(shareConnection && shared.TryGetValue((id, protocol), out var connection)))
+        {
+            var options = configurationOptions.Clone(); // isolate before we start applying the protocol
+            options.Protocol = protocol.IsResp3() ? RedisProtocol.Resp3 : RedisProtocol.Resp2;
+            options.HighIntegrity = protocol.IsHighIntegrity();
+            options.ConnectTimeout = 2000;
+            if (shareConnection) options.AbortOnConnectFail = false;
+            connection = redisEndpoints[id].CreateConnection(options);
+            if (shareConnection)
+            {
+                var key = (id, protocol);
+                if (!shared.TryAdd(key, connection) && shared.TryGetValue(key, out var existing))
+                {
+                    // prefer the existing one
+                    connection.Dispose();
+                    connection = existing;
+                }
+            }
+        }
+
+        Assert.SkipUnless(connection.IsConnected, $"The connection with id '{id}' is not connected.");
+        return connection;
     }
+
+    // allow tests to share connections
+    ConcurrentDictionary<(string, RunProtocol), ConnectionMultiplexer> shared = new();
 
     public bool IsTargetConnectionExist(string id)
     {

@@ -22,7 +22,7 @@ public class TdigestTutorial
     // REMOVE_START
     public TdigestTutorial(EndpointsFixture fixture) : base(fixture) { }
 
-    [SkippableFact]
+    [Fact]
     // REMOVE_END
     public void Run()
     {

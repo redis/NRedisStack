@@ -4,7 +4,6 @@ using NRedisStack.Search;
 using NRedisStack.Search.Aggregation;
 using StackExchange.Redis;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace NRedisStack.Tests.Search;
 

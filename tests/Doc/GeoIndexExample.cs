@@ -24,7 +24,7 @@ public class GeoIndexExample
     // REMOVE_START
     public GeoIndexExample(EndpointsFixture fixture) : base(fixture) { }
 
-    [SkippableFact]
+    [Fact]
     // REMOVE_END
     public void run()
     {

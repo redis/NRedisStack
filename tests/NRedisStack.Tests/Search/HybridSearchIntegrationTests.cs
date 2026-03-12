@@ -1,18 +1,16 @@
 using System.Buffers;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
 using NRedisStack.Search.Aggregation;
 using StackExchange.Redis;
 using Xunit;
-using Xunit.Abstractions;
-using SkipException = Xunit.Sdk.SkipException;
 
 namespace NRedisStack.Tests.Search;
 
+// [RunPerProtocol]
 public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITestOutputHelper log)
     : AbstractNRedisStackTest(endpointsFixture, log), IDisposable
 {

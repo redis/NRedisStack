@@ -27,7 +27,7 @@ public class TimeSeriesTutorial
     // REMOVE_START
     public TimeSeriesTutorial(EndpointsFixture fixture) : base(fixture) { }
 
-    [SkippableFact]
+    [Fact]
     // REMOVE_END
     public void Run()
     {

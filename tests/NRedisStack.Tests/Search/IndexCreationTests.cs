@@ -4,10 +4,10 @@ using NRedisStack.Search;
 using NRedisStack.RedisStackCommands;
 using Xunit;
 using NetTopologySuite.Geometries;
-using Xunit.Abstractions;
 
 namespace NRedisStack.Tests.Search;
 
+// [RunPerProtocol]
 public class IndexCreationTests(EndpointsFixture endpointsFixture, ITestOutputHelper log)
     : AbstractNRedisStackTest(endpointsFixture, log), IDisposable
 {

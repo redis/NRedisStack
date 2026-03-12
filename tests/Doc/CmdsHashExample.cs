@@ -19,7 +19,7 @@ public class CmdsHashExample
     // REMOVE_START
     public CmdsHashExample(EndpointsFixture fixture) : base(fixture) { }
 
-    [SkippableFact]
+    [Fact]
     // REMOVE_END
     public void Run()
     {

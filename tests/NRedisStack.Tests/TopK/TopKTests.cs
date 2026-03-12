@@ -4,6 +4,7 @@ using NRedisStack.RedisStackCommands;
 
 namespace NRedisStack.Tests.TopK;
 
+[RunPerProtocol(RunProtocol.Resp2 | RunProtocol.Resp2HighIntegrity | RunProtocol.Resp3 | RunProtocol.Resp3HighIntegrity)]
 public class TopKTests : AbstractNRedisStackTest, IDisposable
 {
     private readonly string key = "TOPK_TESTS";
@@ -13,7 +14,7 @@ public class TopKTests : AbstractNRedisStackTest, IDisposable
     }
 
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void CreateTopKFilter(string endpointId)
     {
@@ -51,7 +52,7 @@ public class TopKTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2000, info.Width);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task CreateTopKFilterAsync(string endpointId)
     {
@@ -88,7 +89,7 @@ public class TopKTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(2000, info.Width);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestModulePrefixs(string endpointId)
     {

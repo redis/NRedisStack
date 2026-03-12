@@ -21,7 +21,7 @@ public class SetsExample
     // REMOVE_START
     public SetsExample(EndpointsFixture fixture) : base(fixture) { }
 
-    [SkippableFact]
+    [Fact]
     // REMOVE_END
     public void Run()
     {

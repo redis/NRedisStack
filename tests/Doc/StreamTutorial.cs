@@ -21,7 +21,7 @@ public class StreamTutorial
     // REMOVE_START
     public StreamTutorial(EndpointsFixture fixture) : base(fixture) { }
 
-    [SkippableFact]
+    [Fact]
     // REMOVE_END
     public void Run()
     {

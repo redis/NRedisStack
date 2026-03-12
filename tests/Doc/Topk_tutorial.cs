@@ -21,7 +21,7 @@ public class TopkTutorial
 {
     // REMOVE_START
 
-    [SkippableFact]
+    [Fact]
     // REMOVE_END
     public void Run()
     {

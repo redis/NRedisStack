@@ -3,7 +3,6 @@ using NRedisStack.DataTypes;
 using System.Runtime.CompilerServices;
 using StackExchange.Redis;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace NRedisStack.Tests;
 
@@ -31,20 +30,20 @@ public abstract class AbstractNRedisStackTest : IClassFixture<EndpointsFixture>,
         this.log = log;
     }
 
-    protected ConnectionMultiplexer GetConnection(string endpointId = EndpointsFixture.Env.Standalone) => EndpointsFixture.GetConnectionById(this.DefaultConnectionConfig, endpointId);
+    protected ConnectionMultiplexer GetConnection(string endpointId = EndpointsFixture.Env.Standalone, bool shareConnection = true) => EndpointsFixture.GetConnectionById(this.DefaultConnectionConfig, endpointId, shareConnection);
 
-    protected ConnectionMultiplexer GetConnection(ConfigurationOptions configurationOptions, string endpointId = EndpointsFixture.Env.Standalone) => EndpointsFixture.GetConnectionById(configurationOptions, endpointId);
+    protected ConnectionMultiplexer GetConnection(ConfigurationOptions configurationOptions, string endpointId = EndpointsFixture.Env.Standalone) => EndpointsFixture.GetConnectionById(configurationOptions, endpointId, false);
 
-    protected IDatabase GetDatabase(string endpointId = EndpointsFixture.Env.Standalone)
+    protected IDatabase GetDatabase(string endpointId = EndpointsFixture.Env.Standalone, bool shareConnection = true)
     {
-        var redis = GetConnection(endpointId);
+        var redis = GetConnection(endpointId, shareConnection);
         IDatabase db = redis.GetDatabase();
         return db;
     }
 
-    protected IDatabase GetCleanDatabase(string endpointId = EndpointsFixture.Env.Standalone)
+    protected IDatabase GetCleanDatabase(string endpointId = EndpointsFixture.Env.Standalone, bool shareConnection = true)
     {
-        var redis = GetConnection(endpointId);
+        var redis = GetConnection(endpointId, shareConnection);
 
         if (endpointId == EndpointsFixture.Env.Cluster)
         {
@@ -65,7 +64,7 @@ public abstract class AbstractNRedisStackTest : IClassFixture<EndpointsFixture>,
 
     protected void SkipIfTargetConnectionDoesNotExist(string id)
     {
-        Skip.IfNot(EndpointsFixture.IsTargetConnectionExist(id), $"The connection with id '{id}' is not configured.");
+        Assert.SkipUnless(EndpointsFixture.IsTargetConnectionExist(id), $"The connection with id '{id}' is not configured.");
     }
 
     private List<string> keyNames = [];
@@ -98,14 +97,14 @@ public abstract class AbstractNRedisStackTest : IClassFixture<EndpointsFixture>,
         return tuples;
     }
 
-    public Task InitializeAsync() => Task.CompletedTask;
+    public ValueTask InitializeAsync() => default;
 
     public void Dispose()
     {
         //Redis.GetDatabase().ExecuteBroadcast("FLUSHALL");
     }
 
-    public Task DisposeAsync() => Task.CompletedTask;
+    public ValueTask DisposeAsync() => default;
     /*{
         var redis = Redis.GetDatabase();
          await redis.KeyDeleteAsync(keyNames.Select(i => (RedisKey)i).ToArray());

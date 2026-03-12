@@ -24,7 +24,7 @@ public class QueryRangeExample
     // REMOVE_START
     public QueryRangeExample(EndpointsFixture fixture) : base(fixture) { }
 
-    [SkippableFact]
+    [Fact]
     // REMOVE_END
     public void Run()
     {

@@ -9,7 +9,7 @@ namespace NRedisStack.Tests;
 
 public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
 {
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestSetFromFile(string endpointId)
     {
@@ -37,7 +37,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Throws<FileNotFoundException>(() => commands.SetFromFile(keys[0], "$", "notExistingFile.json"));
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestSetFromDirectory(string endpointId)
     {
@@ -90,7 +90,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Directory.Delete("BaseDir", true);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestJsonSetNotExist(string endpointId)
     {
@@ -104,7 +104,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.True(commands.Set("Person:Shachar", "$", obj, When.Exists));
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestJsonSetNotExistAsync(string endpointId)
     {
@@ -132,7 +132,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.NotEqual(json1.GetHashCode(), json2.GetHashCode());
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestResp(string endpointId)
     {
@@ -158,7 +158,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         conn.GetDatabase().KeyDelete(key);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestRespAsync(string endpointId)
     {
@@ -184,7 +184,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         conn.GetDatabase().KeyDelete(key);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestStringAppend(string endpointId)
     {
@@ -212,7 +212,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal(6, simpleKeyResult[0]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestStringAppendAsync(string endpointId)
     {
@@ -240,7 +240,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal(6, simpleKeyResult[0]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void StringLength(string endpointId)
     {
@@ -265,7 +265,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal(3, simpleResult[0]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task StringLengthAsync(string endpointId)
     {
@@ -290,7 +290,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal(3, simpleResult[0]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void Toggle(string endpointId)
     {
@@ -312,7 +312,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.False(simpleResult[0]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task ToggleAsync(string endpointId)
     {
@@ -334,7 +334,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.False(simpleResult[0]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void Type(string endpointId)
     {
@@ -358,7 +358,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal(JsonType.BOOLEAN, result[0]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TypeAsync(string endpointId)
     {
@@ -382,7 +382,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal(JsonType.BOOLEAN, result[0]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void ArrayAppend(string endpointId)
     {
@@ -400,7 +400,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal(2, result[0]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task ArrayAppendAsync(string endpointId)
     {
@@ -418,7 +418,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal(2, result[0]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void ArrayIndex(string endpointId)
     {
@@ -432,7 +432,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal(-1, res[1]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task ArrayIndexAsync(string endpointId)
     {
@@ -446,7 +446,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal(-1, res[1]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void ArrayInsert(string endpointId)
     {
@@ -464,7 +464,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal(4, result[0]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task ArrayInsertAsync(string endpointId)
     {
@@ -482,7 +482,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal(4, result[0]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void ArrayLength(string endpointId)
     {
@@ -499,7 +499,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal(3, result[0]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task ArrayLengthAsync(string endpointId)
     {
@@ -516,7 +516,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal(3, result[0]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void ArrayPop(string endpointId)
     {
@@ -535,7 +535,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal("\"Ally\"", result[0].ToString());
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task ArrayPopAsync(string endpointId)
     {
@@ -554,7 +554,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal("\"Ally\"", result[0].ToString());
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void ArrayTrim(string endpointId)
     {
@@ -571,7 +571,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal(2, result[0]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task ArrayTrimAsync(string endpointId)
     {
@@ -588,7 +588,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal(2, result[0]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void Clear(string endpointId)
     {
@@ -605,7 +605,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal(1, result);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task ClearAsync(string endpointId)
     {
@@ -622,7 +622,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal(1, result);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void Del(string endpointId)
     {
@@ -639,7 +639,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal(1, result);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task DelAsync(string endpointId)
     {
@@ -656,7 +656,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal(1, result);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void Forget(string endpointId)
     {
@@ -673,7 +673,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal(1, result);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task ForgetAsync(string endpointId)
     {
@@ -690,7 +690,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal(1, result);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void Get(string endpointId)
     {
@@ -718,7 +718,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal(35, people[1]!.Age);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task GetAsync(string endpointId)
     {
@@ -867,7 +867,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal("[\"world\"]", result[1].ToString());
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void NumIncrby(string endpointId)
     {
@@ -881,7 +881,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Null(result[2]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task NumIncrbyAsync(string endpointId)
     {
@@ -895,7 +895,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Null(result[2]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void ObjectKeys(string endpointId)
     {
@@ -914,7 +914,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Contains("b", result[1]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task ObjectKeysAsync(string endpointId)
     {
@@ -933,7 +933,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Contains("b", result[1]);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void ObjectLength(string endpointId)
     {
@@ -950,7 +950,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
 
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task ObjectLengthAsync(string endpointId)
     {
@@ -967,7 +967,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
 
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMultiPathGet(string endpointId)
     {
@@ -992,7 +992,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.True(obj["$.b"]![0]!["a"]!.ToString() == "world");
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMultiPathGetAsync(string endpointId)
     {
@@ -1017,7 +1017,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.True(obj["$.b"]![0]!["a"]!.ToString() == "world");
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void Memory(string endpointId)
     {
@@ -1032,7 +1032,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal(0, res);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task MemoryAsync(string endpointId)
     {
@@ -1047,7 +1047,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal(0, res);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestSetFromFileAsync(string endpointId)
     {
@@ -1075,7 +1075,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         await Assert.ThrowsAsync<FileNotFoundException>(async () => await commands.SetFromFileAsync(keys[0], "$", "notExistingFile.json"));
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestSetFromDirectoryAsync(string endpointId)
     {
@@ -1150,7 +1150,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal("JSON.GET", getBuild2.Command);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestGetIssue198(string endpointId)
     {
@@ -1168,7 +1168,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Null(result2);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestGetIssue198_Async(string endpointId)
     {
@@ -1186,7 +1186,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Null(result2);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestSetWithSerializationOptions(string endpointId)
     {
@@ -1206,7 +1206,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal(person.Birthday, result.Birthday);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestSetWithSerializationOptionsAsync(string endpointId)
     {

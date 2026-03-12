@@ -19,7 +19,7 @@ public class HomeProbExample
     // REMOVE_START
     public HomeProbExample(EndpointsFixture fixture) : base(fixture) { }
 
-    [SkippableFact]
+    [Fact]
     // REMOVE_END
     public void Run()
     {

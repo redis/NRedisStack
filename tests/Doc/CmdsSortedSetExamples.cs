@@ -21,7 +21,7 @@ public class CmdsSortedSet
     // REMOVE_START
     public CmdsSortedSet(EndpointsFixture fixture) : base(fixture) { }
 
-    [SkippableFact]
+    [Fact]
     // REMOVE_END
     public void Run()
     {
