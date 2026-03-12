@@ -84,6 +84,11 @@ public class EndpointsFixture : IDisposable
 
     public void Dispose()
     {
+        foreach (var connection in shared.Values)
+        {
+            connection.Dispose();
+        }
+        shared.Clear();
     }
 
     public ConnectionMultiplexer GetConnectionById(ConfigurationOptions configurationOptions, string id, bool shareConnection)
@@ -102,11 +107,12 @@ public class EndpointsFixture : IDisposable
             connection = redisEndpoints[id].CreateConnection(options);
             if (shareConnection)
             {
-                if (!shared.TryAdd((id, protocol), connection))
+                var key = (id, protocol);
+                if (!shared.TryAdd(key, connection) && shared.TryGetValue(key, out var existing))
                 {
                     // prefer the existing one
                     connection.Dispose();
-                    connection = shared[(id, protocol)];
+                    connection = existing;
                 }
             }
         }
