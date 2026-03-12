@@ -110,12 +110,12 @@ internal readonly struct SkipIfRedisCore
 /// </para>
 /// </summary>
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-[XunitTestCaseDiscoverer(typeof(TheoryDiscoverer))]
+[XunitTestCaseDiscoverer(typeof(ExpandingTheoryDiscoverer))]
 public class TheoryAttribute(
     [CallerFilePath] string? sourceFilePath = null,
     [CallerLineNumber] int sourceLineNumber = -1) : Xunit.TheoryAttribute(sourceFilePath, sourceLineNumber)
 {
-    public class TheoryDiscoverer : Xunit.v3.TheoryDiscoverer
+    public class ExpandingTheoryDiscoverer : Xunit.v3.TheoryDiscoverer
     {
         protected override ValueTask<IReadOnlyCollection<IXunitTestCase>> CreateTestCasesForDataRow(ITestFrameworkDiscoveryOptions discoveryOptions, IXunitTestMethod testMethod, ITheoryAttribute theoryAttribute, ITheoryDataRow dataRow, object?[] testMethodArguments)
             => base.CreateTestCasesForDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow, testMethodArguments).ExpandAsync();
@@ -126,7 +126,7 @@ public class TheoryAttribute(
 }
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-[XunitTestCaseDiscoverer(typeof(TheoryDiscoverer))]
+[XunitTestCaseDiscoverer(typeof(ExpandingTheoryDiscoverer))]
 public class SkipIfRedisTheoryAttribute : TheoryAttribute
 {
     public SkipIfRedisTheoryAttribute(
@@ -168,11 +168,11 @@ public class SkipIfRedisTheoryAttribute : TheoryAttribute
 /// </para>
 /// </summary>
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-[XunitTestCaseDiscoverer(typeof(FactDiscoverer))]
+[XunitTestCaseDiscoverer(typeof(ExpandingFactDiscoverer))]
 public class FactAttribute([CallerFilePath] string? sourceFilePath = null, [CallerLineNumber] int sourceLineNumber = -1)
     : Xunit.FactAttribute(sourceFilePath, sourceLineNumber)
 {
-    public class FactDiscoverer : Xunit.v3.FactDiscoverer
+    public class ExpandingFactDiscoverer : Xunit.v3.FactDiscoverer
     {
         public override ValueTask<IReadOnlyCollection<IXunitTestCase>> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, IXunitTestMethod testMethod, IFactAttribute factAttribute)
             => base.Discover(discoveryOptions, testMethod, factAttribute).ExpandAsync();
@@ -180,7 +180,7 @@ public class FactAttribute([CallerFilePath] string? sourceFilePath = null, [Call
 }
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-[XunitTestCaseDiscoverer(typeof(FactDiscoverer))]
+[XunitTestCaseDiscoverer(typeof(ExpandingFactDiscoverer))]
 public class SkipIfRedisFactAttribute : FactAttribute
 {
     public SkipIfRedisFactAttribute(
