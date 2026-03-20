@@ -70,19 +70,24 @@ public class EndpointsFixture : IDisposable
     public static bool IsAtLeast(int major, int minor = 0, int build = 0, int revision = 0)
     {
         var version = RedisVersion;
-        if (version.Major > major) return true;
-        if (version.Major < major) return false;
+        // note: watch out for negative numbers (means "undefined") from parsing n-part strings 
+        var test = Math.Max(version.Major, 0);
+        if (test > major) return true;
+        if (test < major) return false;
 
         // if here, we're a match on major; test minor
-        if (version.Minor > minor) return true;
-        if (version.Minor < minor) return false;
+        test = Math.Max(version.Minor, 0); // interpret "9" as "9.0"
+        if (test > minor) return true;
+        if (test < minor) return false;
 
         // if here, we're a match on minor; test build
-        if (version.Build > build) return true;
-        if (version.Build < build) return false;
+        test = Math.Max(version.Build, 0); // interpret "9.0" as "9.0.0"
+        if (test > build) return true;
+        if (test < build) return false;
 
         // if here, we're a match on build; test revision
-        return version.Revision >= revision;
+        test = Math.Max(version.Revision, 0); // interpret "9.0.0" as "9.0.0.0"
+        return test >= revision;
     }
 
     public EndpointsFixture()
