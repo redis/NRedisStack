@@ -103,7 +103,9 @@ public class CommunityEditionUpdatesTests : AbstractNRedisStackTest, IDisposable
         IServer server = getAnyPrimary(muxer);
 
         var searchInfo = server.Info("search");
-        CustomAssertions.GreaterThan(searchInfo.Length, 8);
+        // v8.8 reduces a lot of noise around "info search" output
+        var expectCount = EndpointsFixture.IsAtLeast(8, 8) ? 3 : 8;
+        CustomAssertions.GreaterThan(searchInfo.Length, expectCount);
     }
 
 }
