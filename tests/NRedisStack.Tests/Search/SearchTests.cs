@@ -1728,7 +1728,8 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
 
         Assert.NotNull(ex);
         Assert.IsType<RedisServerException>(ex);
-        Assert.Contains("no such index", ex.Message, StringComparison.OrdinalIgnoreCase);
+        var fault = EndpointsFixture.IsAtLeast(8, 8) ? "index not found" : "no such index";
+        Assert.Contains(fault, ex.Message, StringComparison.OrdinalIgnoreCase);
     }
 
     [Theory]
