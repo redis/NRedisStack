@@ -67,6 +67,24 @@ public class EndpointsFixture : IDisposable
 
     public static Version RedisVersion = new(Environment.GetEnvironmentVariable("REDIS_VERSION") ?? "0.0.0");
 
+    public static bool IsAtLeast(int major, int minor = 0, int build = 0, int revision = 0)
+    {
+        var version = RedisVersion;
+        if (version.Major > major) return true;
+        if (version.Major < major) return false;
+
+        // if here, we're a match on major; test minor
+        if (version.Minor > minor) return true;
+        if (version.Minor < minor) return false;
+
+        // if here, we're a match on minor; test build
+        if (version.Build > build) return true;
+        if (version.Build < build) return false;
+
+        // if here, we're a match on build; test revision
+        return version.Revision >= revision;
+    }
+
     public EndpointsFixture()
     {
         if (redisEndpointsPath != null && File.Exists(redisEndpointsPath))
