@@ -3,7 +3,6 @@ using StackExchange.Redis;
 
 namespace NRedisStack.Search;
 
-[Experimental(Experiments.Server_8_4, UrlFormat = Experiments.UrlFormat)]
 public sealed class HybridSearchResult
 {
     private HybridSearchResult() { }

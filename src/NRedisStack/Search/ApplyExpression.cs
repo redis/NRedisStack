@@ -7,7 +7,6 @@ namespace NRedisStack.Search;
 /// </summary>
 /// <param name="expression">The expression to apply.</param>
 /// <param name="alias">The alias for the expression in the results.</param>
-[Experimental(Experiments.Server_8_4, UrlFormat = Experiments.UrlFormat)]
 public readonly struct ApplyExpression(string expression, string? alias = null)
 {
     public string Expression { get; } = expression;
