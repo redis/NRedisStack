@@ -1,4 +1,6 @@
-﻿using NRedisStack.Json.DataTypes;
+﻿using System.ComponentModel;
+using System.Diagnostics;
+using NRedisStack.Json.DataTypes;
 using NRedisStack.Json.Literals;
 using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
@@ -16,14 +18,41 @@ public static class JsonCommandBuilder
             : new SerializedCommand(JSON.RESP, key, path!);
     }
 
-    public static SerializedCommand Set(RedisKey key, RedisValue path, RedisValue json, When when = When.Always)
+#if DEBUG // avoid internal use
+    [Obsolete("Specify FPHA explicitly", true)]
+#endif
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static SerializedCommand Set(RedisKey key, RedisValue path, RedisValue json, When when)
+        => Set(key, path, json, when, JsonNumericArrayStorage.NotSpecified);
+
+    public static SerializedCommand Set(RedisKey key, RedisValue path, RedisValue json, When when = When.Always, JsonNumericArrayStorage fpha = JsonNumericArrayStorage.NotSpecified)
     {
-        return when switch
+        int count = 3;
+        if (when is (When.Exists or When.NotExists)) count++;
+        if (fpha != JsonNumericArrayStorage.NotSpecified) count += 2;
+        object[] args = new object[count];
+        args[0] = key;
+        args[1] = path;
+        args[2] = json;
+        int i = 3;
+        if (when is (When.Exists or When.NotExists))
         {
-            When.Exists => new(JSON.SET, key, path, json, "XX"),
-            When.NotExists => new(JSON.SET, key, path, json, "NX"),
-            _ => new(JSON.SET, key, path, json)
-        };
+            args[i++] = when == When.Exists ? "XX" : "NX";
+        }
+        if (fpha != JsonNumericArrayStorage.NotSpecified)
+        {
+            args[i++] = "FPHA";
+            args[i++] = fpha switch
+            {
+                JsonNumericArrayStorage.BF16 => "BF16",
+                JsonNumericArrayStorage.FP16 => "FP16",
+                JsonNumericArrayStorage.FP32 => "FP32",
+                JsonNumericArrayStorage.FP64 => "FP64",
+                _ => fpha.ToString(),
+            };
+        }
+        Debug.Assert(i == count, "Arg count mismatch; check {nameof(Set)}");
+        return new(JSON.SET, args);
     }
 
     public static SerializedCommand MSet(KeyPathValue[] KeyPathValueList)

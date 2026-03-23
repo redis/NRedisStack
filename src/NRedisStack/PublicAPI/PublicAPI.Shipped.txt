@@ -1,8 +1,13 @@
 #nullable enable
 abstract NRedisStack.Search.Aggregation.Reducer.Name.get -> string!
+abstract NRedisStack.Search.VectorData.AsRedisValue() -> StackExchange.Redis.RedisValue
+abstract NRedisStack.Search.VectorData<T>.Dispose() -> void
+abstract NRedisStack.Search.VectorData<T>.Span.get -> System.Span<T>
 const NRedisStack.Core.DataTypes.StreamSpecialIds.AllMessagesId = "0" -> string!
 const NRedisStack.Core.DataTypes.StreamSpecialIds.NewMessagesId = "$" -> string!
 const NRedisStack.Core.DataTypes.StreamSpecialIds.UndeliveredMessagesId = ">" -> string!
+const NRedisStack.Search.HybridSearchQuery.Fields.Key = "@__key" -> string!
+const NRedisStack.Search.HybridSearchQuery.Fields.Score = "@__score" -> string!
 NRedisStack.Auxiliary
 NRedisStack.Bloom.DataTypes.BloomInformation
 NRedisStack.Bloom.DataTypes.BloomInformation.Capacity.get -> long
@@ -154,6 +159,7 @@ NRedisStack.DataTypes.TimeSeriesTuple.Time.get -> NRedisStack.DataTypes.TimeStam
 NRedisStack.DataTypes.TimeSeriesTuple.TimeSeriesTuple(NRedisStack.DataTypes.TimeStamp time, double val) -> void
 NRedisStack.DataTypes.TimeSeriesTuple.Val.get -> double
 NRedisStack.DataTypes.TimeStamp
+NRedisStack.DataTypes.TimeStamp.Equals(NRedisStack.DataTypes.TimeStamp other) -> bool
 NRedisStack.DataTypes.TimeStamp.TimeStamp() -> void
 NRedisStack.DataTypes.TimeStamp.TimeStamp(long timestamp) -> void
 NRedisStack.DataTypes.TimeStamp.TimeStamp(string! timestamp) -> void
@@ -287,6 +293,7 @@ NRedisStack.IJsonCommandsAsync.ToggleAsync(StackExchange.Redis.RedisKey key, str
 NRedisStack.IJsonCommandsAsync.TypeAsync(StackExchange.Redis.RedisKey key, string? path = null) -> System.Threading.Tasks.Task<NRedisStack.JsonType[]!>!
 NRedisStack.ISearchCommands
 NRedisStack.ISearchCommands.Aggregate(string! index, NRedisStack.Search.AggregationRequest! query) -> NRedisStack.Search.AggregationResult!
+NRedisStack.ISearchCommands.AggregateEnumerable(string! index, NRedisStack.Search.AggregationRequest! query) -> System.Collections.Generic.IEnumerable<NRedisStack.Search.Aggregation.Row>!
 NRedisStack.ISearchCommands.AliasAdd(string! alias, string! index) -> bool
 NRedisStack.ISearchCommands.AliasDel(string! alias) -> bool
 NRedisStack.ISearchCommands.AliasUpdate(string! alias, string! index) -> bool
@@ -294,7 +301,9 @@ NRedisStack.ISearchCommands.Alter(string! index, NRedisStack.Search.Schema! sche
 NRedisStack.ISearchCommands.ConfigGet(string! option) -> System.Collections.Generic.Dictionary<string!, string!>!
 NRedisStack.ISearchCommands.ConfigSet(string! option, string! value) -> bool
 NRedisStack.ISearchCommands.Create(string! indexName, NRedisStack.Search.FTCreateParams! parameters, NRedisStack.Search.Schema! schema) -> bool
+NRedisStack.ISearchCommands.CursorDel(NRedisStack.Search.AggregationResult! result) -> bool
 NRedisStack.ISearchCommands.CursorDel(string! indexName, long cursorId) -> bool
+NRedisStack.ISearchCommands.CursorRead(NRedisStack.Search.AggregationResult! result, int? count = null) -> NRedisStack.Search.AggregationResult!
 NRedisStack.ISearchCommands.CursorRead(string! indexName, long cursorId, int? count = null) -> NRedisStack.Search.AggregationResult!
 NRedisStack.ISearchCommands.DictAdd(string! dict, params string![]! terms) -> long
 NRedisStack.ISearchCommands.DictDel(string! dict, params string![]! terms) -> long
@@ -302,6 +311,7 @@ NRedisStack.ISearchCommands.DictDump(string! dict) -> StackExchange.Redis.RedisR
 NRedisStack.ISearchCommands.DropIndex(string! indexName, bool dd = false) -> bool
 NRedisStack.ISearchCommands.Explain(string! indexName, string! query, int? dialect = null) -> string!
 NRedisStack.ISearchCommands.ExplainCli(string! indexName, string! query, int? dialect = null) -> StackExchange.Redis.RedisResult![]!
+NRedisStack.ISearchCommands.HybridSearch(string! indexName, NRedisStack.Search.HybridSearchQuery! query, System.Collections.Generic.IReadOnlyDictionary<string!, object!>? parameters = null) -> NRedisStack.Search.HybridSearchResult!
 NRedisStack.ISearchCommands.Info(StackExchange.Redis.RedisValue index) -> NRedisStack.Search.DataTypes.InfoResult!
 NRedisStack.ISearchCommands.ProfileAggregate(string! indexName, NRedisStack.Search.AggregationRequest! query, bool limited = false) -> System.Tuple<NRedisStack.Search.AggregationResult!, System.Collections.Generic.Dictionary<string!, StackExchange.Redis.RedisResult!>!>!
 NRedisStack.ISearchCommands.ProfileOnAggregate(string! indexName, NRedisStack.Search.AggregationRequest! query, bool limited = false) -> System.Tuple<NRedisStack.Search.AggregationResult!, NRedisStack.Search.ProfilingInformation!>!
@@ -320,6 +330,7 @@ NRedisStack.ISearchCommands.TagVals(string! indexName, string! fieldName) -> Sta
 NRedisStack.ISearchCommands._List() -> StackExchange.Redis.RedisResult![]!
 NRedisStack.ISearchCommandsAsync
 NRedisStack.ISearchCommandsAsync.AggregateAsync(string! index, NRedisStack.Search.AggregationRequest! query) -> System.Threading.Tasks.Task<NRedisStack.Search.AggregationResult!>!
+NRedisStack.ISearchCommandsAsync.AggregateAsyncEnumerable(string! index, NRedisStack.Search.AggregationRequest! query) -> System.Collections.Generic.IAsyncEnumerable<NRedisStack.Search.Aggregation.Row>!
 NRedisStack.ISearchCommandsAsync.AliasAddAsync(string! alias, string! index) -> System.Threading.Tasks.Task<bool>!
 NRedisStack.ISearchCommandsAsync.AliasDelAsync(string! alias) -> System.Threading.Tasks.Task<bool>!
 NRedisStack.ISearchCommandsAsync.AliasUpdateAsync(string! alias, string! index) -> System.Threading.Tasks.Task<bool>!
@@ -327,7 +338,9 @@ NRedisStack.ISearchCommandsAsync.AlterAsync(string! index, NRedisStack.Search.Sc
 NRedisStack.ISearchCommandsAsync.ConfigGetAsync(string! option) -> System.Threading.Tasks.Task<System.Collections.Generic.Dictionary<string!, string!>!>!
 NRedisStack.ISearchCommandsAsync.ConfigSetAsync(string! option, string! value) -> System.Threading.Tasks.Task<bool>!
 NRedisStack.ISearchCommandsAsync.CreateAsync(string! indexName, NRedisStack.Search.FTCreateParams! parameters, NRedisStack.Search.Schema! schema) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ISearchCommandsAsync.CursorDelAsync(NRedisStack.Search.AggregationResult! result) -> System.Threading.Tasks.Task<bool>!
 NRedisStack.ISearchCommandsAsync.CursorDelAsync(string! indexName, long cursorId) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ISearchCommandsAsync.CursorReadAsync(NRedisStack.Search.AggregationResult! result, int? count = null) -> System.Threading.Tasks.Task<NRedisStack.Search.AggregationResult!>!
 NRedisStack.ISearchCommandsAsync.CursorReadAsync(string! indexName, long cursorId, int? count = null) -> System.Threading.Tasks.Task<NRedisStack.Search.AggregationResult!>!
 NRedisStack.ISearchCommandsAsync.DictAddAsync(string! dict, params string![]! terms) -> System.Threading.Tasks.Task<long>!
 NRedisStack.ISearchCommandsAsync.DictDelAsync(string! dict, params string![]! terms) -> System.Threading.Tasks.Task<long>!
@@ -335,6 +348,7 @@ NRedisStack.ISearchCommandsAsync.DictDumpAsync(string! dict) -> System.Threading
 NRedisStack.ISearchCommandsAsync.DropIndexAsync(string! indexName, bool dd = false) -> System.Threading.Tasks.Task<bool>!
 NRedisStack.ISearchCommandsAsync.ExplainAsync(string! indexName, string! query, int? dialect = null) -> System.Threading.Tasks.Task<string!>!
 NRedisStack.ISearchCommandsAsync.ExplainCliAsync(string! indexName, string! query, int? dialect = null) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult![]!>!
+NRedisStack.ISearchCommandsAsync.HybridSearchAsync(string! indexName, NRedisStack.Search.HybridSearchQuery! query, System.Collections.Generic.IReadOnlyDictionary<string!, object!>? parameters = null) -> System.Threading.Tasks.Task<NRedisStack.Search.HybridSearchResult!>!
 NRedisStack.ISearchCommandsAsync.InfoAsync(StackExchange.Redis.RedisValue index) -> System.Threading.Tasks.Task<NRedisStack.Search.DataTypes.InfoResult!>!
 NRedisStack.ISearchCommandsAsync.ProfileAggregateAsync(string! indexName, NRedisStack.Search.AggregationRequest! query, bool limited = false) -> System.Threading.Tasks.Task<System.Tuple<NRedisStack.Search.AggregationResult!, System.Collections.Generic.Dictionary<string!, StackExchange.Redis.RedisResult!>!>!>!
 NRedisStack.ISearchCommandsAsync.ProfileOnAggregateAsync(string! indexName, NRedisStack.Search.AggregationRequest! query, bool limited = false) -> System.Threading.Tasks.Task<System.Tuple<NRedisStack.Search.AggregationResult!, NRedisStack.Search.ProfilingInformation!>!>!
@@ -464,8 +478,10 @@ NRedisStack.JsonCommands.NumIncrby(StackExchange.Redis.RedisKey key, string! pat
 NRedisStack.JsonCommands.ObjKeys(StackExchange.Redis.RedisKey key, string? path = null) -> System.Collections.Generic.IEnumerable<System.Collections.Generic.HashSet<string!>!>!
 NRedisStack.JsonCommands.ObjLen(StackExchange.Redis.RedisKey key, string? path = null) -> long?[]!
 NRedisStack.JsonCommands.Resp(StackExchange.Redis.RedisKey key, string? path = null) -> StackExchange.Redis.RedisResult![]!
-NRedisStack.JsonCommands.Set(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, object! obj, StackExchange.Redis.When when = StackExchange.Redis.When.Always, System.Text.Json.JsonSerializerOptions? serializerOptions = null) -> bool
-NRedisStack.JsonCommands.Set(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, StackExchange.Redis.RedisValue json, StackExchange.Redis.When when = StackExchange.Redis.When.Always) -> bool
+NRedisStack.JsonCommands.Set(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, object! obj, StackExchange.Redis.When when = StackExchange.Redis.When.Always, System.Text.Json.JsonSerializerOptions? serializerOptions = null, NRedisStack.JsonNumericArrayStorage fpha = NRedisStack.JsonNumericArrayStorage.NotSpecified) -> bool
+NRedisStack.JsonCommands.Set(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, object! obj, StackExchange.Redis.When when, System.Text.Json.JsonSerializerOptions? serializerOptions) -> bool
+NRedisStack.JsonCommands.Set(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, StackExchange.Redis.RedisValue json, StackExchange.Redis.When when = StackExchange.Redis.When.Always, NRedisStack.JsonNumericArrayStorage fpha = NRedisStack.JsonNumericArrayStorage.NotSpecified) -> bool
+NRedisStack.JsonCommands.Set(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, StackExchange.Redis.RedisValue json, StackExchange.Redis.When when) -> bool
 NRedisStack.JsonCommands.SetFromDirectory(StackExchange.Redis.RedisValue path, string! filesPath, StackExchange.Redis.When when = StackExchange.Redis.When.Always) -> int
 NRedisStack.JsonCommands.SetFromFile(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, string! filePath, StackExchange.Redis.When when = StackExchange.Redis.When.Always) -> bool
 NRedisStack.JsonCommands.StrAppend(StackExchange.Redis.RedisKey key, string! value, string? path = null) -> long?[]!
@@ -496,14 +512,22 @@ NRedisStack.JsonCommandsAsync.NumIncrbyAsync(StackExchange.Redis.RedisKey key, s
 NRedisStack.JsonCommandsAsync.ObjKeysAsync(StackExchange.Redis.RedisKey key, string? path = null) -> System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<System.Collections.Generic.HashSet<string!>!>!>!
 NRedisStack.JsonCommandsAsync.ObjLenAsync(StackExchange.Redis.RedisKey key, string? path = null) -> System.Threading.Tasks.Task<long?[]!>!
 NRedisStack.JsonCommandsAsync.RespAsync(StackExchange.Redis.RedisKey key, string? path = null) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult![]!>!
-NRedisStack.JsonCommandsAsync.SetAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, object! obj, StackExchange.Redis.When when = StackExchange.Redis.When.Always, System.Text.Json.JsonSerializerOptions? serializerOptions = null) -> System.Threading.Tasks.Task<bool>!
-NRedisStack.JsonCommandsAsync.SetAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, StackExchange.Redis.RedisValue json, StackExchange.Redis.When when = StackExchange.Redis.When.Always) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.JsonCommandsAsync.SetAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, object! obj, StackExchange.Redis.When when = StackExchange.Redis.When.Always, System.Text.Json.JsonSerializerOptions? serializerOptions = null, NRedisStack.JsonNumericArrayStorage fpha = NRedisStack.JsonNumericArrayStorage.NotSpecified) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.JsonCommandsAsync.SetAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, object! obj, StackExchange.Redis.When when, System.Text.Json.JsonSerializerOptions? serializerOptions) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.JsonCommandsAsync.SetAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, StackExchange.Redis.RedisValue json, StackExchange.Redis.When when = StackExchange.Redis.When.Always, NRedisStack.JsonNumericArrayStorage fpha = NRedisStack.JsonNumericArrayStorage.NotSpecified) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.JsonCommandsAsync.SetAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, StackExchange.Redis.RedisValue json, StackExchange.Redis.When when) -> System.Threading.Tasks.Task<bool>!
 NRedisStack.JsonCommandsAsync.SetFromDirectoryAsync(StackExchange.Redis.RedisValue path, string! filesPath, StackExchange.Redis.When when = StackExchange.Redis.When.Always) -> System.Threading.Tasks.Task<int>!
 NRedisStack.JsonCommandsAsync.SetFromFileAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, string! filePath, StackExchange.Redis.When when = StackExchange.Redis.When.Always) -> System.Threading.Tasks.Task<bool>!
 NRedisStack.JsonCommandsAsync.StrAppendAsync(StackExchange.Redis.RedisKey key, string! value, string? path = null) -> System.Threading.Tasks.Task<long?[]!>!
 NRedisStack.JsonCommandsAsync.StrLenAsync(StackExchange.Redis.RedisKey key, string? path = null) -> System.Threading.Tasks.Task<long?[]!>!
 NRedisStack.JsonCommandsAsync.ToggleAsync(StackExchange.Redis.RedisKey key, string? path = null) -> System.Threading.Tasks.Task<bool?[]!>!
 NRedisStack.JsonCommandsAsync.TypeAsync(StackExchange.Redis.RedisKey key, string? path = null) -> System.Threading.Tasks.Task<NRedisStack.JsonType[]!>!
+NRedisStack.JsonNumericArrayStorage
+NRedisStack.JsonNumericArrayStorage.BF16 = 1 -> NRedisStack.JsonNumericArrayStorage
+NRedisStack.JsonNumericArrayStorage.FP16 = 2 -> NRedisStack.JsonNumericArrayStorage
+NRedisStack.JsonNumericArrayStorage.FP32 = 3 -> NRedisStack.JsonNumericArrayStorage
+NRedisStack.JsonNumericArrayStorage.FP64 = 4 -> NRedisStack.JsonNumericArrayStorage
+NRedisStack.JsonNumericArrayStorage.NotSpecified = 0 -> NRedisStack.JsonNumericArrayStorage
 NRedisStack.JsonType
 NRedisStack.JsonType.ARRAY = 6 -> NRedisStack.JsonType
 NRedisStack.JsonType.BOOLEAN = 2 -> NRedisStack.JsonType
@@ -516,6 +540,8 @@ NRedisStack.JsonType.UNKNOWN = 0 -> NRedisStack.JsonType
 NRedisStack.Literals.Enums.TsAggregation
 NRedisStack.Literals.Enums.TsAggregation.Avg = 0 -> NRedisStack.Literals.Enums.TsAggregation
 NRedisStack.Literals.Enums.TsAggregation.Count = 5 -> NRedisStack.Literals.Enums.TsAggregation
+NRedisStack.Literals.Enums.TsAggregation.CountAll = 14 -> NRedisStack.Literals.Enums.TsAggregation
+NRedisStack.Literals.Enums.TsAggregation.CountNan = 13 -> NRedisStack.Literals.Enums.TsAggregation
 NRedisStack.Literals.Enums.TsAggregation.First = 6 -> NRedisStack.Literals.Enums.TsAggregation
 NRedisStack.Literals.Enums.TsAggregation.Last = 7 -> NRedisStack.Literals.Enums.TsAggregation
 NRedisStack.Literals.Enums.TsAggregation.Max = 3 -> NRedisStack.Literals.Enums.TsAggregation
@@ -525,8 +551,6 @@ NRedisStack.Literals.Enums.TsAggregation.StdP = 8 -> NRedisStack.Literals.Enums.
 NRedisStack.Literals.Enums.TsAggregation.StdS = 9 -> NRedisStack.Literals.Enums.TsAggregation
 NRedisStack.Literals.Enums.TsAggregation.Sum = 1 -> NRedisStack.Literals.Enums.TsAggregation
 NRedisStack.Literals.Enums.TsAggregation.Twa = 12 -> NRedisStack.Literals.Enums.TsAggregation
-NRedisStack.Literals.Enums.TsAggregation.CountNan = 13 -> NRedisStack.Literals.Enums.TsAggregation
-NRedisStack.Literals.Enums.TsAggregation.CountAll = 14 -> NRedisStack.Literals.Enums.TsAggregation
 NRedisStack.Literals.Enums.TsAggregation.VarP = 10 -> NRedisStack.Literals.Enums.TsAggregation
 NRedisStack.Literals.Enums.TsAggregation.VarS = 11 -> NRedisStack.Literals.Enums.TsAggregation
 NRedisStack.Literals.Enums.TsBucketTimestamps
@@ -580,8 +604,14 @@ NRedisStack.Search.Aggregation.Reducer.Reducer(string? field) -> void
 NRedisStack.Search.Aggregation.Reducers
 NRedisStack.Search.Aggregation.Row
 NRedisStack.Search.Aggregation.Row.ContainsKey(string! key) -> bool
+NRedisStack.Search.Aggregation.Row.Enumerator
+NRedisStack.Search.Aggregation.Row.Enumerator.Current.get -> System.Collections.Generic.KeyValuePair<string!, StackExchange.Redis.RedisValue>
+NRedisStack.Search.Aggregation.Row.Enumerator.Enumerator() -> void
+NRedisStack.Search.Aggregation.Row.Enumerator.MoveNext() -> bool
+NRedisStack.Search.Aggregation.Row.FieldCount() -> int
 NRedisStack.Search.Aggregation.Row.Get(string! key) -> object!
 NRedisStack.Search.Aggregation.Row.GetDouble(string! key) -> double
+NRedisStack.Search.Aggregation.Row.GetEnumerator() -> NRedisStack.Search.Aggregation.Row.Enumerator
 NRedisStack.Search.Aggregation.Row.GetLong(string! key) -> long
 NRedisStack.Search.Aggregation.Row.GetString(string! key) -> string?
 NRedisStack.Search.Aggregation.Row.Row() -> void
@@ -623,6 +653,11 @@ NRedisStack.Search.AggregationResult.GetResults() -> System.Collections.Generic.
 NRedisStack.Search.AggregationResult.GetRow(int index) -> NRedisStack.Search.Aggregation.Row
 NRedisStack.Search.AggregationResult.this[int index].get -> System.Collections.Generic.Dictionary<string!, StackExchange.Redis.RedisValue>?
 NRedisStack.Search.AggregationResult.TotalResults.get -> long
+NRedisStack.Search.ApplyExpression
+NRedisStack.Search.ApplyExpression.Alias.get -> string?
+NRedisStack.Search.ApplyExpression.ApplyExpression() -> void
+NRedisStack.Search.ApplyExpression.ApplyExpression(string! expression, string? alias = null) -> void
+NRedisStack.Search.ApplyExpression.Expression.get -> string!
 NRedisStack.Search.DataTypes.InfoResult
 NRedisStack.Search.DataTypes.InfoResult.Attributes.get -> System.Collections.Generic.Dictionary<string!, StackExchange.Redis.RedisResult!>![]!
 NRedisStack.Search.DataTypes.InfoResult.BytesPerRecordAvg.get -> double
@@ -701,9 +736,62 @@ NRedisStack.Search.FTSpellCheckParams.FTSpellCheckParams() -> void
 NRedisStack.Search.FTSpellCheckParams.GetArgs() -> System.Collections.Generic.List<object!>!
 NRedisStack.Search.FTSpellCheckParams.IncludeTerm(string! dict) -> NRedisStack.Search.FTSpellCheckParams!
 NRedisStack.Search.FTSpellCheckParams.SerializeRedisArgs() -> void
+NRedisStack.Search.HybridSearchQuery
+NRedisStack.Search.HybridSearchQuery.AllowModification() -> NRedisStack.Search.HybridSearchQuery!
+NRedisStack.Search.HybridSearchQuery.Apply(NRedisStack.Search.ApplyExpression applyExpression) -> NRedisStack.Search.HybridSearchQuery!
+NRedisStack.Search.HybridSearchQuery.Apply(params NRedisStack.Search.ApplyExpression[]! applyExpression) -> NRedisStack.Search.HybridSearchQuery!
+NRedisStack.Search.HybridSearchQuery.Combine(NRedisStack.Search.HybridSearchQuery.Combiner! combiner) -> NRedisStack.Search.HybridSearchQuery!
+NRedisStack.Search.HybridSearchQuery.Combiner
+NRedisStack.Search.HybridSearchQuery.Combiner.Combiner() -> void
+NRedisStack.Search.HybridSearchQuery.Fields
+NRedisStack.Search.HybridSearchQuery.Filter(string! expression) -> NRedisStack.Search.HybridSearchQuery!
+NRedisStack.Search.HybridSearchQuery.GroupBy(params string![]! fields) -> NRedisStack.Search.HybridSearchQuery!
+NRedisStack.Search.HybridSearchQuery.GroupBy(string! field) -> NRedisStack.Search.HybridSearchQuery!
+NRedisStack.Search.HybridSearchQuery.HybridSearchQuery() -> void
+NRedisStack.Search.HybridSearchQuery.Limit(int offset, int count) -> NRedisStack.Search.HybridSearchQuery!
+NRedisStack.Search.HybridSearchQuery.NoSort() -> NRedisStack.Search.HybridSearchQuery!
+NRedisStack.Search.HybridSearchQuery.Reduce(NRedisStack.Search.Aggregation.Reducer! reducer) -> NRedisStack.Search.HybridSearchQuery!
+NRedisStack.Search.HybridSearchQuery.Reduce(params NRedisStack.Search.Aggregation.Reducer![]! reducers) -> NRedisStack.Search.HybridSearchQuery!
+NRedisStack.Search.HybridSearchQuery.ReturnFields(params string![]! fields) -> NRedisStack.Search.HybridSearchQuery!
+NRedisStack.Search.HybridSearchQuery.ReturnFields(string! field) -> NRedisStack.Search.HybridSearchQuery!
+NRedisStack.Search.HybridSearchQuery.Search(NRedisStack.Search.HybridSearchQuery.SearchConfig query) -> NRedisStack.Search.HybridSearchQuery!
+NRedisStack.Search.HybridSearchQuery.SearchConfig
+NRedisStack.Search.HybridSearchQuery.SearchConfig.Query.get -> string!
+NRedisStack.Search.HybridSearchQuery.SearchConfig.ScoreAlias.get -> string?
+NRedisStack.Search.HybridSearchQuery.SearchConfig.Scorer.get -> NRedisStack.Search.Scorer?
+NRedisStack.Search.HybridSearchQuery.SearchConfig.SearchConfig() -> void
+NRedisStack.Search.HybridSearchQuery.SearchConfig.SearchConfig(string! query, NRedisStack.Search.Scorer? scorer = null, string? scoreAlias = null) -> void
+NRedisStack.Search.HybridSearchQuery.SearchConfig.WithQuery(string! query) -> NRedisStack.Search.HybridSearchQuery.SearchConfig
+NRedisStack.Search.HybridSearchQuery.SearchConfig.WithScoreAlias(string? alias) -> NRedisStack.Search.HybridSearchQuery.SearchConfig
+NRedisStack.Search.HybridSearchQuery.SearchConfig.WithScorer(NRedisStack.Search.Scorer? scorer) -> NRedisStack.Search.HybridSearchQuery.SearchConfig
+NRedisStack.Search.HybridSearchQuery.SortBy(NRedisStack.Search.Aggregation.SortedField! field) -> NRedisStack.Search.HybridSearchQuery!
+NRedisStack.Search.HybridSearchQuery.SortBy(params NRedisStack.Search.Aggregation.SortedField![]! fields) -> NRedisStack.Search.HybridSearchQuery!
+NRedisStack.Search.HybridSearchQuery.SortBy(params string![]! fields) -> NRedisStack.Search.HybridSearchQuery!
+NRedisStack.Search.HybridSearchQuery.SortBy(string! field) -> NRedisStack.Search.HybridSearchQuery!
+NRedisStack.Search.HybridSearchQuery.Timeout(System.TimeSpan timeout) -> NRedisStack.Search.HybridSearchQuery!
+NRedisStack.Search.HybridSearchQuery.VectorSearch(NRedisStack.Search.HybridSearchQuery.VectorSearchConfig config) -> NRedisStack.Search.HybridSearchQuery!
+NRedisStack.Search.HybridSearchQuery.VectorSearch(string! fieldName, NRedisStack.Search.VectorData! vectorData) -> NRedisStack.Search.HybridSearchQuery!
+NRedisStack.Search.HybridSearchQuery.VectorSearchConfig
+NRedisStack.Search.HybridSearchQuery.VectorSearchConfig.FieldName.get -> string!
+NRedisStack.Search.HybridSearchQuery.VectorSearchConfig.Filter.get -> string?
+NRedisStack.Search.HybridSearchQuery.VectorSearchConfig.Method.get -> NRedisStack.Search.VectorSearchMethod?
+NRedisStack.Search.HybridSearchQuery.VectorSearchConfig.ScoreAlias.get -> string?
+NRedisStack.Search.HybridSearchQuery.VectorSearchConfig.VectorData.get -> NRedisStack.Search.VectorData?
+NRedisStack.Search.HybridSearchQuery.VectorSearchConfig.VectorSearchConfig() -> void
+NRedisStack.Search.HybridSearchQuery.VectorSearchConfig.VectorSearchConfig(string! fieldName, NRedisStack.Search.VectorData! vectorData, NRedisStack.Search.VectorSearchMethod? method = null, string? filter = null, string? scoreAlias = null) -> void
+NRedisStack.Search.HybridSearchQuery.VectorSearchConfig.WithFieldName(string! fieldName) -> NRedisStack.Search.HybridSearchQuery.VectorSearchConfig
+NRedisStack.Search.HybridSearchQuery.VectorSearchConfig.WithFilter(string? filter) -> NRedisStack.Search.HybridSearchQuery.VectorSearchConfig
+NRedisStack.Search.HybridSearchQuery.VectorSearchConfig.WithMethod(NRedisStack.Search.VectorSearchMethod? method) -> NRedisStack.Search.HybridSearchQuery.VectorSearchConfig
+NRedisStack.Search.HybridSearchQuery.VectorSearchConfig.WithScoreAlias(string? scoreAlias) -> NRedisStack.Search.HybridSearchQuery.VectorSearchConfig
+NRedisStack.Search.HybridSearchQuery.VectorSearchConfig.WithVectorData(NRedisStack.Search.VectorData! vectorData) -> NRedisStack.Search.HybridSearchQuery.VectorSearchConfig
+NRedisStack.Search.HybridSearchResult
+NRedisStack.Search.HybridSearchResult.ExecutionTime.get -> System.TimeSpan
+NRedisStack.Search.HybridSearchResult.Results.get -> NRedisStack.Search.Document![]!
+NRedisStack.Search.HybridSearchResult.TotalResults.get -> long
 NRedisStack.Search.Literals.Enums.IndexDataType
 NRedisStack.Search.Literals.Enums.IndexDataType.HASH = 0 -> NRedisStack.Search.Literals.Enums.IndexDataType
 NRedisStack.Search.Literals.Enums.IndexDataType.JSON = 1 -> NRedisStack.Search.Literals.Enums.IndexDataType
+NRedisStack.Search.Parameters
 NRedisStack.Search.ProfilingInformation
 NRedisStack.Search.ProfilingInformation.Info.get -> StackExchange.Redis.RedisResult!
 NRedisStack.Search.ProfilingInformation.ProfilingInformation(StackExchange.Redis.RedisResult! info) -> void
@@ -772,12 +860,15 @@ NRedisStack.Search.Query.WithScores.get -> bool
 NRedisStack.Search.Query.WithScores.set -> void
 NRedisStack.Search.Schema
 NRedisStack.Search.Schema.AddField(NRedisStack.Search.Schema.Field! field) -> NRedisStack.Search.Schema!
+NRedisStack.Search.Schema.AddFlatVectorField(NRedisStack.Search.FieldName! name, NRedisStack.Search.Schema.VectorField.VectorType type, int dimensions, NRedisStack.Search.Schema.VectorField.VectorDistanceMetric distanceMetric, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false) -> NRedisStack.Search.Schema!
 NRedisStack.Search.Schema.AddGeoField(NRedisStack.Search.FieldName! name, bool sortable = false, bool noIndex = false, bool missingIndex = false) -> NRedisStack.Search.Schema!
 NRedisStack.Search.Schema.AddGeoField(string! name, bool sortable = false, bool noIndex = false, bool missingIndex = false) -> NRedisStack.Search.Schema!
 NRedisStack.Search.Schema.AddGeoShapeField(NRedisStack.Search.FieldName! name, NRedisStack.Search.Schema.GeoShapeField.CoordinateSystem system, bool missingIndex = false) -> NRedisStack.Search.Schema!
 NRedisStack.Search.Schema.AddGeoShapeField(string! name, NRedisStack.Search.Schema.GeoShapeField.CoordinateSystem system, bool missingIndex = false) -> NRedisStack.Search.Schema!
+NRedisStack.Search.Schema.AddHnswVectorField(NRedisStack.Search.FieldName! name, NRedisStack.Search.Schema.VectorField.VectorType type, int dimensions, NRedisStack.Search.Schema.VectorField.VectorDistanceMetric distanceMetric, int maxOutgoingConnections = 16, int maxConnectedNeighbors = 200, int maxTopCandidates = 10, double boundaryFactor = 0.01, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false) -> NRedisStack.Search.Schema!
 NRedisStack.Search.Schema.AddNumericField(NRedisStack.Search.FieldName! name, bool sortable = false, bool noIndex = false, bool missingIndex = false) -> NRedisStack.Search.Schema!
 NRedisStack.Search.Schema.AddNumericField(string! name, bool sortable = false, bool noIndex = false, bool missingIndex = false) -> NRedisStack.Search.Schema!
+NRedisStack.Search.Schema.AddSvsVanamaVectorField(NRedisStack.Search.FieldName! name, NRedisStack.Search.Schema.VectorField.VectorType type, int dimensions, NRedisStack.Search.Schema.VectorField.VectorDistanceMetric distanceMetric, NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm compressionAlgorithm = NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm.NotSpecified, int constructionWindowSize = 200, int graphMaxDegree = 32, int searchWindowSize = 10, double rangeSearchApproximationFactor = 0.01, int trainingThreshold = 0, int reducedDimensions = 0, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false) -> NRedisStack.Search.Schema!
 NRedisStack.Search.Schema.AddTagField(NRedisStack.Search.FieldName! name, bool sortable = false, bool unf = false, bool noIndex = false, string! separator = ",", bool caseSensitive = false, bool withSuffixTrie = false, bool missingIndex = false, bool emptyIndex = false) -> NRedisStack.Search.Schema!
 NRedisStack.Search.Schema.AddTagField(string! name, bool sortable = false, bool unf = false, bool noIndex = false, string! separator = ",", bool caseSensitive = false, bool withSuffixTrie = false, bool missingIndex = false, bool emptyIndex = false) -> NRedisStack.Search.Schema!
 NRedisStack.Search.Schema.AddTextField(NRedisStack.Search.FieldName! name, double weight = 1, bool sortable = false, bool unf = false, bool noStem = false, string? phonetic = null, bool noIndex = false, bool withSuffixTrie = false, bool missingIndex = false, bool emptyIndex = false) -> NRedisStack.Search.Schema!
@@ -795,6 +886,8 @@ NRedisStack.Search.Schema.FieldType.Numeric = 3 -> NRedisStack.Search.Schema.Fie
 NRedisStack.Search.Schema.FieldType.Tag = 4 -> NRedisStack.Search.Schema.FieldType
 NRedisStack.Search.Schema.FieldType.Text = 0 -> NRedisStack.Search.Schema.FieldType
 NRedisStack.Search.Schema.FieldType.Vector = 5 -> NRedisStack.Search.Schema.FieldType
+NRedisStack.Search.Schema.FlatVectorField
+NRedisStack.Search.Schema.FlatVectorField.FlatVectorField(NRedisStack.Search.FieldName! name, NRedisStack.Search.Schema.VectorField.VectorType type, int dimensions, NRedisStack.Search.Schema.VectorField.VectorDistanceMetric distanceMetric, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false) -> void
 NRedisStack.Search.Schema.GeoField
 NRedisStack.Search.Schema.GeoField.MissingIndex.get -> bool
 NRedisStack.Search.Schema.GeoField.NoIndex.get -> bool
@@ -804,11 +897,37 @@ NRedisStack.Search.Schema.GeoShapeField.CoordinateSystem
 NRedisStack.Search.Schema.GeoShapeField.CoordinateSystem.FLAT = 0 -> NRedisStack.Search.Schema.GeoShapeField.CoordinateSystem
 NRedisStack.Search.Schema.GeoShapeField.CoordinateSystem.SPHERICAL = 1 -> NRedisStack.Search.Schema.GeoShapeField.CoordinateSystem
 NRedisStack.Search.Schema.GeoShapeField.MissingIndex.get -> bool
+NRedisStack.Search.Schema.HnswVectorField
+NRedisStack.Search.Schema.HnswVectorField.BoundaryFactor.get -> double
+NRedisStack.Search.Schema.HnswVectorField.BoundaryFactor.set -> void
+NRedisStack.Search.Schema.HnswVectorField.HnswVectorField(NRedisStack.Search.FieldName! name, NRedisStack.Search.Schema.VectorField.VectorType type, int dimensions, NRedisStack.Search.Schema.VectorField.VectorDistanceMetric distanceMetric, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false) -> void
+NRedisStack.Search.Schema.HnswVectorField.MaxConnectedNeighbors.get -> int
+NRedisStack.Search.Schema.HnswVectorField.MaxConnectedNeighbors.set -> void
+NRedisStack.Search.Schema.HnswVectorField.MaxOutgoingConnections.get -> int
+NRedisStack.Search.Schema.HnswVectorField.MaxOutgoingConnections.set -> void
+NRedisStack.Search.Schema.HnswVectorField.MaxTopCandidates.get -> int
+NRedisStack.Search.Schema.HnswVectorField.MaxTopCandidates.set -> void
 NRedisStack.Search.Schema.NumericField
 NRedisStack.Search.Schema.NumericField.MissingIndex.get -> bool
 NRedisStack.Search.Schema.NumericField.NoIndex.get -> bool
 NRedisStack.Search.Schema.NumericField.Sortable.get -> bool
 NRedisStack.Search.Schema.Schema() -> void
+NRedisStack.Search.Schema.SvsVanamaVectorField
+NRedisStack.Search.Schema.SvsVanamaVectorField.CompressionAlgorithm.get -> NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm
+NRedisStack.Search.Schema.SvsVanamaVectorField.CompressionAlgorithm.set -> void
+NRedisStack.Search.Schema.SvsVanamaVectorField.ConstructionWindowSize.get -> int
+NRedisStack.Search.Schema.SvsVanamaVectorField.ConstructionWindowSize.set -> void
+NRedisStack.Search.Schema.SvsVanamaVectorField.GraphMaxDegree.get -> int
+NRedisStack.Search.Schema.SvsVanamaVectorField.GraphMaxDegree.set -> void
+NRedisStack.Search.Schema.SvsVanamaVectorField.RangeSearchApproximationFactor.get -> double
+NRedisStack.Search.Schema.SvsVanamaVectorField.RangeSearchApproximationFactor.set -> void
+NRedisStack.Search.Schema.SvsVanamaVectorField.ReducedDimensions.get -> int
+NRedisStack.Search.Schema.SvsVanamaVectorField.ReducedDimensions.set -> void
+NRedisStack.Search.Schema.SvsVanamaVectorField.SearchWindowSize.get -> int
+NRedisStack.Search.Schema.SvsVanamaVectorField.SearchWindowSize.set -> void
+NRedisStack.Search.Schema.SvsVanamaVectorField.SvsVanamaVectorField(NRedisStack.Search.FieldName! name, NRedisStack.Search.Schema.VectorField.VectorType type, int dimensions, NRedisStack.Search.Schema.VectorField.VectorDistanceMetric distanceMetric, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false) -> void
+NRedisStack.Search.Schema.SvsVanamaVectorField.TrainingThreshold.get -> int
+NRedisStack.Search.Schema.SvsVanamaVectorField.TrainingThreshold.set -> void
 NRedisStack.Search.Schema.TagField
 NRedisStack.Search.Schema.TagField.CaseSensitive.get -> bool
 NRedisStack.Search.Schema.TagField.EmptyIndex.get -> bool
@@ -833,19 +952,50 @@ NRedisStack.Search.Schema.TextField.WithSuffixTrie.get -> bool
 NRedisStack.Search.Schema.VectorField
 NRedisStack.Search.Schema.VectorField.Algorithm.get -> NRedisStack.Search.Schema.VectorField.VectorAlgo
 NRedisStack.Search.Schema.VectorField.Attributes.get -> System.Collections.Generic.Dictionary<string!, object!>?
+NRedisStack.Search.Schema.VectorField.Dimensions.get -> int
+NRedisStack.Search.Schema.VectorField.Dimensions.set -> void
+NRedisStack.Search.Schema.VectorField.DistanceMetric.get -> NRedisStack.Search.Schema.VectorField.VectorDistanceMetric
+NRedisStack.Search.Schema.VectorField.DistanceMetric.set -> void
 NRedisStack.Search.Schema.VectorField.MissingIndex.get -> bool
+NRedisStack.Search.Schema.VectorField.Type.get -> NRedisStack.Search.Schema.VectorField.VectorType
+NRedisStack.Search.Schema.VectorField.Type.set -> void
 NRedisStack.Search.Schema.VectorField.VectorAlgo
 NRedisStack.Search.Schema.VectorField.VectorAlgo.FLAT = 0 -> NRedisStack.Search.Schema.VectorField.VectorAlgo
 NRedisStack.Search.Schema.VectorField.VectorAlgo.HNSW = 1 -> NRedisStack.Search.Schema.VectorField.VectorAlgo
+NRedisStack.Search.Schema.VectorField.VectorAlgo.SVS_VAMANA = 2 -> NRedisStack.Search.Schema.VectorField.VectorAlgo
+NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm
+NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm.LeanVec4x8 = 5 -> NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm
+NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm.LeanVec8x8 = 6 -> NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm
+NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm.LVQ4 = 2 -> NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm
+NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm.LVQ4x4 = 3 -> NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm
+NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm.LVQ4x8 = 4 -> NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm
+NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm.LVQ8 = 1 -> NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm
+NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm.NotSpecified = 0 -> NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm
+NRedisStack.Search.Schema.VectorField.VectorDistanceMetric
+NRedisStack.Search.Schema.VectorField.VectorDistanceMetric.CosineDistance = 3 -> NRedisStack.Search.Schema.VectorField.VectorDistanceMetric
+NRedisStack.Search.Schema.VectorField.VectorDistanceMetric.EuclideanDistance = 1 -> NRedisStack.Search.Schema.VectorField.VectorDistanceMetric
+NRedisStack.Search.Schema.VectorField.VectorDistanceMetric.InnerProduct = 2 -> NRedisStack.Search.Schema.VectorField.VectorDistanceMetric
+NRedisStack.Search.Schema.VectorField.VectorDistanceMetric.NotSpecified = 0 -> NRedisStack.Search.Schema.VectorField.VectorDistanceMetric
 NRedisStack.Search.Schema.VectorField.VectorField(NRedisStack.Search.FieldName! name, NRedisStack.Search.Schema.VectorField.VectorAlgo algorithm, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false) -> void
 NRedisStack.Search.Schema.VectorField.VectorField(string! name, NRedisStack.Search.Schema.VectorField.VectorAlgo algorithm, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false) -> void
+NRedisStack.Search.Schema.VectorField.VectorType
+NRedisStack.Search.Schema.VectorField.VectorType.BFLOAT16 = 3 -> NRedisStack.Search.Schema.VectorField.VectorType
+NRedisStack.Search.Schema.VectorField.VectorType.FLOAT16 = 4 -> NRedisStack.Search.Schema.VectorField.VectorType
+NRedisStack.Search.Schema.VectorField.VectorType.FLOAT32 = 1 -> NRedisStack.Search.Schema.VectorField.VectorType
+NRedisStack.Search.Schema.VectorField.VectorType.FLOAT64 = 2 -> NRedisStack.Search.Schema.VectorField.VectorType
+NRedisStack.Search.Schema.VectorField.VectorType.NotSpecified = 0 -> NRedisStack.Search.Schema.VectorField.VectorType
+NRedisStack.Search.Scorer
 NRedisStack.Search.SearchResult
 NRedisStack.Search.SearchResult.Documents.get -> System.Collections.Generic.List<NRedisStack.Search.Document!>!
 NRedisStack.Search.SearchResult.ToJson() -> System.Collections.Generic.List<string!>!
 NRedisStack.Search.SearchResult.TotalResults.get -> long
+NRedisStack.Search.VectorData
+NRedisStack.Search.VectorData<T>
+NRedisStack.Search.VectorSearchMethod
 NRedisStack.SearchCommandBuilder
 NRedisStack.SearchCommands
 NRedisStack.SearchCommands.Aggregate(string! index, NRedisStack.Search.AggregationRequest! query) -> NRedisStack.Search.AggregationResult!
+NRedisStack.SearchCommands.AggregateEnumerable(string! index, NRedisStack.Search.AggregationRequest! query) -> System.Collections.Generic.IEnumerable<NRedisStack.Search.Aggregation.Row>!
 NRedisStack.SearchCommands.AliasAdd(string! alias, string! index) -> bool
 NRedisStack.SearchCommands.AliasDel(string! alias) -> bool
 NRedisStack.SearchCommands.AliasUpdate(string! alias, string! index) -> bool
@@ -854,7 +1004,9 @@ NRedisStack.SearchCommands.ConfigGet(string! option) -> System.Collections.Gener
 NRedisStack.SearchCommands.ConfigSet(string! option, string! value) -> bool
 NRedisStack.SearchCommands.Create(string! indexName, NRedisStack.Search.FTCreateParams! parameters, NRedisStack.Search.Schema! schema) -> bool
 NRedisStack.SearchCommands.Create(string! indexName, NRedisStack.Search.Schema! schema) -> bool
+NRedisStack.SearchCommands.CursorDel(NRedisStack.Search.AggregationResult! result) -> bool
 NRedisStack.SearchCommands.CursorDel(string! indexName, long cursorId) -> bool
+NRedisStack.SearchCommands.CursorRead(NRedisStack.Search.AggregationResult! result, int? count = null) -> NRedisStack.Search.AggregationResult!
 NRedisStack.SearchCommands.CursorRead(string! indexName, long cursorId, int? count = null) -> NRedisStack.Search.AggregationResult!
 NRedisStack.SearchCommands.DictAdd(string! dict, params string![]! terms) -> long
 NRedisStack.SearchCommands.DictDel(string! dict, params string![]! terms) -> long
@@ -862,6 +1014,7 @@ NRedisStack.SearchCommands.DictDump(string! dict) -> StackExchange.Redis.RedisRe
 NRedisStack.SearchCommands.DropIndex(string! indexName, bool dd = false) -> bool
 NRedisStack.SearchCommands.Explain(string! indexName, string! query, int? dialect = null) -> string!
 NRedisStack.SearchCommands.ExplainCli(string! indexName, string! query, int? dialect = null) -> StackExchange.Redis.RedisResult![]!
+NRedisStack.SearchCommands.HybridSearch(string! indexName, NRedisStack.Search.HybridSearchQuery! query, System.Collections.Generic.IReadOnlyDictionary<string!, object!>? parameters = null) -> NRedisStack.Search.HybridSearchResult!
 NRedisStack.SearchCommands.Info(StackExchange.Redis.RedisValue index) -> NRedisStack.Search.DataTypes.InfoResult!
 NRedisStack.SearchCommands.ProfileAggregate(string! indexName, NRedisStack.Search.AggregationRequest! query, bool limited = false) -> System.Tuple<NRedisStack.Search.AggregationResult!, System.Collections.Generic.Dictionary<string!, StackExchange.Redis.RedisResult!>!>!
 NRedisStack.SearchCommands.ProfileOnAggregate(string! indexName, NRedisStack.Search.AggregationRequest! query, bool limited = false) -> System.Tuple<NRedisStack.Search.AggregationResult!, NRedisStack.Search.ProfilingInformation!>!
@@ -881,6 +1034,7 @@ NRedisStack.SearchCommands.TagVals(string! indexName, string! fieldName) -> Stac
 NRedisStack.SearchCommands._List() -> StackExchange.Redis.RedisResult![]!
 NRedisStack.SearchCommandsAsync
 NRedisStack.SearchCommandsAsync.AggregateAsync(string! index, NRedisStack.Search.AggregationRequest! query) -> System.Threading.Tasks.Task<NRedisStack.Search.AggregationResult!>!
+NRedisStack.SearchCommandsAsync.AggregateAsyncEnumerable(string! index, NRedisStack.Search.AggregationRequest! query) -> System.Collections.Generic.IAsyncEnumerable<NRedisStack.Search.Aggregation.Row>!
 NRedisStack.SearchCommandsAsync.AliasAddAsync(string! alias, string! index) -> System.Threading.Tasks.Task<bool>!
 NRedisStack.SearchCommandsAsync.AliasDelAsync(string! alias) -> System.Threading.Tasks.Task<bool>!
 NRedisStack.SearchCommandsAsync.AliasUpdateAsync(string! alias, string! index) -> System.Threading.Tasks.Task<bool>!
@@ -889,7 +1043,9 @@ NRedisStack.SearchCommandsAsync.ConfigGetAsync(string! option) -> System.Threadi
 NRedisStack.SearchCommandsAsync.ConfigSetAsync(string! option, string! value) -> System.Threading.Tasks.Task<bool>!
 NRedisStack.SearchCommandsAsync.CreateAsync(string! indexName, NRedisStack.Search.FTCreateParams! parameters, NRedisStack.Search.Schema! schema) -> System.Threading.Tasks.Task<bool>!
 NRedisStack.SearchCommandsAsync.CreateAsync(string! indexName, NRedisStack.Search.Schema! schema) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.SearchCommandsAsync.CursorDelAsync(NRedisStack.Search.AggregationResult! result) -> System.Threading.Tasks.Task<bool>!
 NRedisStack.SearchCommandsAsync.CursorDelAsync(string! indexName, long cursorId) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.SearchCommandsAsync.CursorReadAsync(NRedisStack.Search.AggregationResult! result, int? count = null) -> System.Threading.Tasks.Task<NRedisStack.Search.AggregationResult!>!
 NRedisStack.SearchCommandsAsync.CursorReadAsync(string! indexName, long cursorId, int? count = null) -> System.Threading.Tasks.Task<NRedisStack.Search.AggregationResult!>!
 NRedisStack.SearchCommandsAsync.defaultDialect -> int?
 NRedisStack.SearchCommandsAsync.DictAddAsync(string! dict, params string![]! terms) -> System.Threading.Tasks.Task<long>!
@@ -898,6 +1054,7 @@ NRedisStack.SearchCommandsAsync.DictDumpAsync(string! dict) -> System.Threading.
 NRedisStack.SearchCommandsAsync.DropIndexAsync(string! indexName, bool dd = false) -> System.Threading.Tasks.Task<bool>!
 NRedisStack.SearchCommandsAsync.ExplainAsync(string! indexName, string! query, int? dialect = null) -> System.Threading.Tasks.Task<string!>!
 NRedisStack.SearchCommandsAsync.ExplainCliAsync(string! indexName, string! query, int? dialect = null) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult![]!>!
+NRedisStack.SearchCommandsAsync.HybridSearchAsync(string! indexName, NRedisStack.Search.HybridSearchQuery! query, System.Collections.Generic.IReadOnlyDictionary<string!, object!>? parameters = null) -> System.Threading.Tasks.Task<NRedisStack.Search.HybridSearchResult!>!
 NRedisStack.SearchCommandsAsync.InfoAsync(StackExchange.Redis.RedisValue index) -> System.Threading.Tasks.Task<NRedisStack.Search.DataTypes.InfoResult!>!
 NRedisStack.SearchCommandsAsync.ProfileAggregateAsync(string! indexName, NRedisStack.Search.AggregationRequest! query, bool limited = false) -> System.Threading.Tasks.Task<System.Tuple<NRedisStack.Search.AggregationResult!, System.Collections.Generic.Dictionary<string!, StackExchange.Redis.RedisResult!>!>!>!
 NRedisStack.SearchCommandsAsync.ProfileOnAggregateAsync(string! indexName, NRedisStack.Search.AggregationRequest! query, bool limited = false) -> System.Threading.Tasks.Task<System.Tuple<NRedisStack.Search.AggregationResult!, NRedisStack.Search.ProfilingInformation!>!>!
@@ -1098,6 +1255,14 @@ override NRedisStack.DataTypes.TimeSeriesRule.GetHashCode() -> int
 override NRedisStack.DataTypes.TimeSeriesTuple.Equals(object? obj) -> bool
 override NRedisStack.DataTypes.TimeSeriesTuple.GetHashCode() -> int
 override NRedisStack.DataTypes.TimeStamp.GetHashCode() -> int
+override NRedisStack.RedisStackCommands.SerializedCommand.ToString() -> string!
+override NRedisStack.Search.ApplyExpression.Equals(object? obj) -> bool
+override NRedisStack.Search.ApplyExpression.GetHashCode() -> int
+override NRedisStack.Search.ApplyExpression.ToString() -> string!
+override NRedisStack.Search.HybridSearchQuery.Combiner.ToString() -> string!
+override NRedisStack.Search.Scorer.ToString() -> string!
+override NRedisStack.Search.VectorData.ToString() -> string!
+override NRedisStack.Search.VectorSearchMethod.ToString() -> string!
 static NRedisStack.Auxiliary.AssembleNonNullArguments(params object?[]! arguments) -> object![]!
 static NRedisStack.Auxiliary.Execute(this StackExchange.Redis.IDatabase! db, NRedisStack.RedisStackCommands.SerializedCommand! command) -> StackExchange.Redis.RedisResult!
 static NRedisStack.Auxiliary.ExecuteAsync(this StackExchange.Redis.IDatabaseAsync! db, NRedisStack.RedisStackCommands.SerializedCommand! command) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult!>!
@@ -1198,6 +1363,8 @@ static NRedisStack.DataTypes.TimeStamp.implicit operator NRedisStack.DataTypes.T
 static NRedisStack.DataTypes.TimeStamp.implicit operator NRedisStack.DataTypes.TimeStamp(System.DateTime dateTime) -> NRedisStack.DataTypes.TimeStamp
 static NRedisStack.DataTypes.TimeStamp.implicit operator string?(NRedisStack.DataTypes.TimeStamp ts) -> string?
 static NRedisStack.DataTypes.TimeStamp.implicit operator System.DateTime(NRedisStack.DataTypes.TimeStamp timeStamp) -> System.DateTime
+static NRedisStack.DataTypes.TimeStamp.operator !=(NRedisStack.DataTypes.TimeStamp left, NRedisStack.DataTypes.TimeStamp right) -> bool
+static NRedisStack.DataTypes.TimeStamp.operator ==(NRedisStack.DataTypes.TimeStamp left, NRedisStack.DataTypes.TimeStamp right) -> bool
 static NRedisStack.JsonCommandBuilder.ArrAppend(StackExchange.Redis.RedisKey key, string? path = null, params object![]! values) -> NRedisStack.RedisStackCommands.SerializedCommand!
 static NRedisStack.JsonCommandBuilder.ArrIndex(StackExchange.Redis.RedisKey key, string! path, object! value, long? start = null, long? stop = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
 static NRedisStack.JsonCommandBuilder.ArrInsert(StackExchange.Redis.RedisKey key, string! path, long index, params object![]! values) -> NRedisStack.RedisStackCommands.SerializedCommand!
@@ -1217,7 +1384,8 @@ static NRedisStack.JsonCommandBuilder.NumIncrby(StackExchange.Redis.RedisKey key
 static NRedisStack.JsonCommandBuilder.ObjKeys(StackExchange.Redis.RedisKey key, string? path = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
 static NRedisStack.JsonCommandBuilder.ObjLen(StackExchange.Redis.RedisKey key, string? path = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
 static NRedisStack.JsonCommandBuilder.Resp(StackExchange.Redis.RedisKey key, string? path = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
-static NRedisStack.JsonCommandBuilder.Set(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, StackExchange.Redis.RedisValue json, StackExchange.Redis.When when = StackExchange.Redis.When.Always) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.JsonCommandBuilder.Set(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, StackExchange.Redis.RedisValue json, StackExchange.Redis.When when = StackExchange.Redis.When.Always, NRedisStack.JsonNumericArrayStorage fpha = NRedisStack.JsonNumericArrayStorage.NotSpecified) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.JsonCommandBuilder.Set(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue path, StackExchange.Redis.RedisValue json, StackExchange.Redis.When when) -> NRedisStack.RedisStackCommands.SerializedCommand!
 static NRedisStack.JsonCommandBuilder.StrAppend(StackExchange.Redis.RedisKey key, string! value, string? path = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
 static NRedisStack.JsonCommandBuilder.StrLen(StackExchange.Redis.RedisKey key, string? path = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
 static NRedisStack.JsonCommandBuilder.Toggle(StackExchange.Redis.RedisKey key, string? path = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
@@ -1245,10 +1413,30 @@ static NRedisStack.Search.Aggregation.Reducers.Sum(string! field) -> NRedisStack
 static NRedisStack.Search.Aggregation.Reducers.ToList(string! field) -> NRedisStack.Search.Aggregation.Reducer!
 static NRedisStack.Search.Aggregation.SortedField.Asc(string! field) -> NRedisStack.Search.Aggregation.SortedField!
 static NRedisStack.Search.Aggregation.SortedField.Desc(string! field) -> NRedisStack.Search.Aggregation.SortedField!
+static NRedisStack.Search.ApplyExpression.implicit operator NRedisStack.Search.ApplyExpression(string! expression) -> NRedisStack.Search.ApplyExpression
 static NRedisStack.Search.Document.Load(string! id, double score, byte[]? payload, StackExchange.Redis.RedisValue[]? fields) -> NRedisStack.Search.Document!
 static NRedisStack.Search.Document.Load(string! id, double score, byte[]? payload, StackExchange.Redis.RedisValue[]? fields, string![]? scoreExplained) -> NRedisStack.Search.Document!
+static NRedisStack.Search.FieldName.implicit operator NRedisStack.Search.FieldName!(string! name) -> NRedisStack.Search.FieldName!
 static NRedisStack.Search.FieldName.Of(string! name) -> NRedisStack.Search.FieldName!
 static NRedisStack.Search.FTCreateParams.CreateParams() -> NRedisStack.Search.FTCreateParams!
+static NRedisStack.Search.HybridSearchQuery.Combiner.Linear(double alpha = 0.3, double beta = 0.7, int? window = null) -> NRedisStack.Search.HybridSearchQuery.Combiner!
+static NRedisStack.Search.HybridSearchQuery.Combiner.ReciprocalRankFusion(int? window = null, double? constant = null) -> NRedisStack.Search.HybridSearchQuery.Combiner!
+static NRedisStack.Search.HybridSearchQuery.SearchConfig.implicit operator NRedisStack.Search.HybridSearchQuery.SearchConfig(string! query) -> NRedisStack.Search.HybridSearchQuery.SearchConfig
+static NRedisStack.Search.Parameters.From<T>(T obj) -> System.Collections.Generic.IReadOnlyDictionary<string!, object!>!
+static NRedisStack.Search.Scorer.BM25Std.get -> NRedisStack.Search.Scorer!
+static NRedisStack.Search.Scorer.BM25StdNorm.get -> NRedisStack.Search.Scorer!
+static NRedisStack.Search.Scorer.DisMax.get -> NRedisStack.Search.Scorer!
+static NRedisStack.Search.Scorer.DocScore.get -> NRedisStack.Search.Scorer!
+static NRedisStack.Search.Scorer.Hamming.get -> NRedisStack.Search.Scorer!
+static NRedisStack.Search.Scorer.TfIdf.get -> NRedisStack.Search.Scorer!
+static NRedisStack.Search.Scorer.TfIdfDocNorm.get -> NRedisStack.Search.Scorer!
+static NRedisStack.Search.VectorData.implicit operator NRedisStack.Search.VectorData!(string! name) -> NRedisStack.Search.VectorData!
+static NRedisStack.Search.VectorData.Lease<T>(int dimension) -> NRedisStack.Search.VectorData<T>!
+static NRedisStack.Search.VectorData.LeaseWithValues<T>(params System.ReadOnlySpan<T> values) -> NRedisStack.Search.VectorData<T>!
+static NRedisStack.Search.VectorData.Parameter(string! name) -> NRedisStack.Search.VectorData!
+static NRedisStack.Search.VectorData.Raw(System.ReadOnlyMemory<byte> bytes) -> NRedisStack.Search.VectorData!
+static NRedisStack.Search.VectorSearchMethod.NearestNeighbour(int count = 10, int? maxCandidates = null) -> NRedisStack.Search.VectorSearchMethod!
+static NRedisStack.Search.VectorSearchMethod.Range(double radius, double? epsilon = null) -> NRedisStack.Search.VectorSearchMethod!
 static NRedisStack.SearchCommandBuilder.Aggregate(string! index, NRedisStack.Search.AggregationRequest! query) -> NRedisStack.RedisStackCommands.SerializedCommand!
 static NRedisStack.SearchCommandBuilder.AliasAdd(string! alias, string! index) -> NRedisStack.RedisStackCommands.SerializedCommand!
 static NRedisStack.SearchCommandBuilder.AliasDel(string! alias) -> NRedisStack.RedisStackCommands.SerializedCommand!
@@ -1352,79 +1540,5 @@ static readonly NRedisStack.Search.Query.GeoFilter.METERS -> string!
 static readonly NRedisStack.Search.Query.GeoFilter.MILES -> string!
 virtual NRedisStack.Search.Aggregation.Reducer.AddOwnArgs(System.Collections.Generic.List<object!>! args) -> void
 virtual NRedisStack.Search.Aggregation.Reducer.GetOwnArgsCount() -> int
-NRedisStack.Search.Schema.AddFlatVectorField(NRedisStack.Search.FieldName! name, NRedisStack.Search.Schema.VectorField.VectorType type, int dimensions, NRedisStack.Search.Schema.VectorField.VectorDistanceMetric distanceMetric, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false) -> NRedisStack.Search.Schema!
-NRedisStack.Search.Schema.AddHnswVectorField(NRedisStack.Search.FieldName! name, NRedisStack.Search.Schema.VectorField.VectorType type, int dimensions, NRedisStack.Search.Schema.VectorField.VectorDistanceMetric distanceMetric, int maxOutgoingConnections = 16, int maxConnectedNeighbors = 200, int maxTopCandidates = 10, double boundaryFactor = 0.01, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false) -> NRedisStack.Search.Schema!
-NRedisStack.Search.Schema.AddSvsVanamaVectorField(NRedisStack.Search.FieldName! name, NRedisStack.Search.Schema.VectorField.VectorType type, int dimensions, NRedisStack.Search.Schema.VectorField.VectorDistanceMetric distanceMetric, NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm compressionAlgorithm = NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm.NotSpecified, int constructionWindowSize = 200, int graphMaxDegree = 32, int searchWindowSize = 10, double rangeSearchApproximationFactor = 0.01, int trainingThreshold = 0, int reducedDimensions = 0, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false) -> NRedisStack.Search.Schema!
-NRedisStack.Search.Schema.FlatVectorField
-NRedisStack.Search.Schema.FlatVectorField.FlatVectorField(NRedisStack.Search.FieldName! name, NRedisStack.Search.Schema.VectorField.VectorType type, int dimensions, NRedisStack.Search.Schema.VectorField.VectorDistanceMetric distanceMetric, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false) -> void
-NRedisStack.Search.Schema.HnswVectorField
-NRedisStack.Search.Schema.HnswVectorField.BoundaryFactor.get -> double
-NRedisStack.Search.Schema.HnswVectorField.BoundaryFactor.set -> void
-NRedisStack.Search.Schema.HnswVectorField.HnswVectorField(NRedisStack.Search.FieldName! name, NRedisStack.Search.Schema.VectorField.VectorType type, int dimensions, NRedisStack.Search.Schema.VectorField.VectorDistanceMetric distanceMetric, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false) -> void
-NRedisStack.Search.Schema.HnswVectorField.MaxConnectedNeighbors.get -> int
-NRedisStack.Search.Schema.HnswVectorField.MaxConnectedNeighbors.set -> void
-NRedisStack.Search.Schema.HnswVectorField.MaxOutgoingConnections.get -> int
-NRedisStack.Search.Schema.HnswVectorField.MaxOutgoingConnections.set -> void
-NRedisStack.Search.Schema.HnswVectorField.MaxTopCandidates.get -> int
-NRedisStack.Search.Schema.HnswVectorField.MaxTopCandidates.set -> void
-NRedisStack.Search.Schema.SvsVanamaVectorField
-NRedisStack.Search.Schema.SvsVanamaVectorField.CompressionAlgorithm.get -> NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm
-NRedisStack.Search.Schema.SvsVanamaVectorField.CompressionAlgorithm.set -> void
-NRedisStack.Search.Schema.SvsVanamaVectorField.ConstructionWindowSize.get -> int
-NRedisStack.Search.Schema.SvsVanamaVectorField.ConstructionWindowSize.set -> void
-NRedisStack.Search.Schema.SvsVanamaVectorField.GraphMaxDegree.get -> int
-NRedisStack.Search.Schema.SvsVanamaVectorField.GraphMaxDegree.set -> void
-NRedisStack.Search.Schema.SvsVanamaVectorField.RangeSearchApproximationFactor.get -> double
-NRedisStack.Search.Schema.SvsVanamaVectorField.RangeSearchApproximationFactor.set -> void
-NRedisStack.Search.Schema.SvsVanamaVectorField.ReducedDimensions.get -> int
-NRedisStack.Search.Schema.SvsVanamaVectorField.ReducedDimensions.set -> void
-NRedisStack.Search.Schema.SvsVanamaVectorField.SearchWindowSize.get -> int
-NRedisStack.Search.Schema.SvsVanamaVectorField.SearchWindowSize.set -> void
-NRedisStack.Search.Schema.SvsVanamaVectorField.SvsVanamaVectorField(NRedisStack.Search.FieldName! name, NRedisStack.Search.Schema.VectorField.VectorType type, int dimensions, NRedisStack.Search.Schema.VectorField.VectorDistanceMetric distanceMetric, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false) -> void
-NRedisStack.Search.Schema.SvsVanamaVectorField.TrainingThreshold.get -> int
-NRedisStack.Search.Schema.SvsVanamaVectorField.TrainingThreshold.set -> void
-NRedisStack.Search.Schema.VectorField.Dimensions.get -> int
-NRedisStack.Search.Schema.VectorField.Dimensions.set -> void
-NRedisStack.Search.Schema.VectorField.DistanceMetric.get -> NRedisStack.Search.Schema.VectorField.VectorDistanceMetric
-NRedisStack.Search.Schema.VectorField.DistanceMetric.set -> void
-NRedisStack.Search.Schema.VectorField.Type.get -> NRedisStack.Search.Schema.VectorField.VectorType
-NRedisStack.Search.Schema.VectorField.Type.set -> void
-NRedisStack.Search.Schema.VectorField.VectorAlgo.SVS_VAMANA = 2 -> NRedisStack.Search.Schema.VectorField.VectorAlgo
-NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm
-NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm.LeanVec4x8 = 5 -> NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm
-NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm.LeanVec8x8 = 6 -> NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm
-NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm.LVQ4 = 2 -> NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm
-NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm.LVQ4x4 = 3 -> NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm
-NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm.LVQ4x8 = 4 -> NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm
-NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm.LVQ8 = 1 -> NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm
-NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm.NotSpecified = 0 -> NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm
-NRedisStack.Search.Schema.VectorField.VectorDistanceMetric
-NRedisStack.Search.Schema.VectorField.VectorDistanceMetric.CosineDistance = 3 -> NRedisStack.Search.Schema.VectorField.VectorDistanceMetric
-NRedisStack.Search.Schema.VectorField.VectorDistanceMetric.EuclideanDistance = 1 -> NRedisStack.Search.Schema.VectorField.VectorDistanceMetric
-NRedisStack.Search.Schema.VectorField.VectorDistanceMetric.InnerProduct = 2 -> NRedisStack.Search.Schema.VectorField.VectorDistanceMetric
-NRedisStack.Search.Schema.VectorField.VectorDistanceMetric.NotSpecified = 0 -> NRedisStack.Search.Schema.VectorField.VectorDistanceMetric
-NRedisStack.Search.Schema.VectorField.VectorType
-NRedisStack.Search.Schema.VectorField.VectorType.BFLOAT16 = 3 -> NRedisStack.Search.Schema.VectorField.VectorType
-NRedisStack.Search.Schema.VectorField.VectorType.FLOAT16 = 4 -> NRedisStack.Search.Schema.VectorField.VectorType
-NRedisStack.Search.Schema.VectorField.VectorType.FLOAT32 = 1 -> NRedisStack.Search.Schema.VectorField.VectorType
-NRedisStack.Search.Schema.VectorField.VectorType.FLOAT64 = 2 -> NRedisStack.Search.Schema.VectorField.VectorType
-NRedisStack.Search.Schema.VectorField.VectorType.NotSpecified = 0 -> NRedisStack.Search.Schema.VectorField.VectorType
-override NRedisStack.RedisStackCommands.SerializedCommand.ToString() -> string!
-static NRedisStack.Search.FieldName.implicit operator NRedisStack.Search.FieldName!(string! name) -> NRedisStack.Search.FieldName!
-~override NRedisStack.DataTypes.TimeStamp.ToString() -> string
 ~override NRedisStack.DataTypes.TimeStamp.Equals(object obj) -> bool
-NRedisStack.DataTypes.TimeStamp.Equals(NRedisStack.DataTypes.TimeStamp other) -> bool
-static NRedisStack.DataTypes.TimeStamp.operator ==(NRedisStack.DataTypes.TimeStamp left, NRedisStack.DataTypes.TimeStamp right) -> bool
-static NRedisStack.DataTypes.TimeStamp.operator !=(NRedisStack.DataTypes.TimeStamp left, NRedisStack.DataTypes.TimeStamp right) -> bool
-NRedisStack.ISearchCommands.AggregateEnumerable(string! index, NRedisStack.Search.AggregationRequest! query) -> System.Collections.Generic.IEnumerable<NRedisStack.Search.Aggregation.Row>!
-NRedisStack.ISearchCommands.CursorDel(NRedisStack.Search.AggregationResult! result) -> bool
-NRedisStack.ISearchCommands.CursorRead(NRedisStack.Search.AggregationResult! result, int? count = null) -> NRedisStack.Search.AggregationResult!
-NRedisStack.ISearchCommandsAsync.AggregateAsyncEnumerable(string! index, NRedisStack.Search.AggregationRequest! query) -> System.Collections.Generic.IAsyncEnumerable<NRedisStack.Search.Aggregation.Row>!
-NRedisStack.ISearchCommandsAsync.CursorDelAsync(NRedisStack.Search.AggregationResult! result) -> System.Threading.Tasks.Task<bool>!
-NRedisStack.ISearchCommandsAsync.CursorReadAsync(NRedisStack.Search.AggregationResult! result, int? count = null) -> System.Threading.Tasks.Task<NRedisStack.Search.AggregationResult!>!
-NRedisStack.SearchCommands.AggregateEnumerable(string! index, NRedisStack.Search.AggregationRequest! query) -> System.Collections.Generic.IEnumerable<NRedisStack.Search.Aggregation.Row>!
-NRedisStack.SearchCommands.CursorDel(NRedisStack.Search.AggregationResult! result) -> bool
-NRedisStack.SearchCommands.CursorRead(NRedisStack.Search.AggregationResult! result, int? count = null) -> NRedisStack.Search.AggregationResult!
-NRedisStack.SearchCommandsAsync.AggregateAsyncEnumerable(string! index, NRedisStack.Search.AggregationRequest! query) -> System.Collections.Generic.IAsyncEnumerable<NRedisStack.Search.Aggregation.Row>!
-NRedisStack.SearchCommandsAsync.CursorDelAsync(NRedisStack.Search.AggregationResult! result) -> System.Threading.Tasks.Task<bool>!
-NRedisStack.SearchCommandsAsync.CursorReadAsync(NRedisStack.Search.AggregationResult! result, int? count = null) -> System.Threading.Tasks.Task<NRedisStack.Search.AggregationResult!>!
+~override NRedisStack.DataTypes.TimeStamp.ToString() -> string

@@ -1,9 +1,17 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization.Metadata;
+using System.Threading.Tasks;
 using Xunit;
 using StackExchange.Redis;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Json.DataTypes;
+using NRedisStack.Tests.Search;
+using Xunit.Sdk;
 
 namespace NRedisStack.Tests;
 
@@ -118,6 +126,43 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.False(await commands.SetAsync("Person:Shachar", "$", obj, When.NotExists));
         Assert.True(await commands.SetAsync("Person:Shachar", "$", obj, When.Exists));
     }
+
+    public static IEnumerable<object[]> FphaTestData()
+        => HybridSearchIntegrationTests.CrossJoin<JsonNumericArrayStorage>(EndpointsFixture.Env.AllEnvironments);
+
+    [Theory]
+    [MemberData(nameof(FphaTestData))]
+    public void TestJsonSetFpha(string endpointId, JsonNumericArrayStorage fpha)
+    {
+        Assert.SkipUnless(fpha is not JsonNumericArrayStorage.NotSpecified || EndpointsFixture.IsAtLeast(8, 8), "FPHA is not supported");
+        var db = GetCleanDatabase(endpointId);
+
+        double[] original = [1.0, 2.0, 3.0];
+        var obj = new { numbers = original };
+        Assert.True(db.JSON().Set("obj", "$", obj, fpha: fpha));
+        var actual = (string)db.JSON().Get("obj")!;
+
+        var numbers = TemplatedDeserialize(obj, actual)?.numbers;
+        Assert.Equal(original, numbers);
+    }
+
+    [Theory]
+    [MemberData(nameof(FphaTestData))]
+    public async Task TestJsonSetFphaAsync(string endpointId, JsonNumericArrayStorage fpha)
+    {
+        Assert.SkipUnless(fpha is not JsonNumericArrayStorage.NotSpecified|| EndpointsFixture.IsAtLeast(8, 8), "FPHA is not supported");
+        var db = GetCleanDatabase(endpointId);
+
+        double[] original = [1.0, 2.0, 3.0];
+        var obj = new { numbers = original };
+        Assert.True(await db.JSON().SetAsync("obj", "$", obj, fpha: fpha));
+        var actual = (string)(await db.JSON().GetAsync("obj"))!;
+
+        var numbers = TemplatedDeserialize(obj, actual)?.numbers;
+        Assert.Equal(original, numbers);
+    }
+
+    private static T? TemplatedDeserialize<T>(T template, string json) => JsonSerializer.Deserialize<T>(json);
 
     [Fact]
     public void TestModulePrefixs()

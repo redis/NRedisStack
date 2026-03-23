@@ -317,7 +317,6 @@ public class SearchCommands(IDatabase db, int? defaultDialect = 2)
 
 
     /// <inheritdoc/>
-    [Experimental(Experiments.Server_8_4, UrlFormat = Experiments.UrlFormat)]
     public HybridSearchResult HybridSearch(string indexName, HybridSearchQuery query, IReadOnlyDictionary<string, object>? parameters = null)
     {
         query.Validate();

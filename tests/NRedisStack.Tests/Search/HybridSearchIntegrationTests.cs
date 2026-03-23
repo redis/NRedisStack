@@ -204,7 +204,7 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
 
     }
 
-    private static IEnumerable<object[]> CrossJoin<T>(Func<IEnumerable<object[]>> environments)
+    internal static IEnumerable<object[]> CrossJoin<T>(Func<IEnumerable<object[]>> environments)
         where T : unmanaged, Enum
     {
         foreach (var arr in environments())

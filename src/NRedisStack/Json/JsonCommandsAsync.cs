@@ -1,4 +1,5 @@
-﻿using NRedisStack.Json.DataTypes;
+﻿using System.ComponentModel;
+using NRedisStack.Json.DataTypes;
 using StackExchange.Redis;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -126,16 +127,26 @@ public class JsonCommandsAsync(IDatabaseAsync db) : IJsonCommandsAsync
     }
 
     /// <inheritdoc/>
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public Task<bool> SetAsync(RedisKey key, RedisValue path, object obj, When when, JsonSerializerOptions? serializerOptions)
+        => SetAsync(key, path, obj, when, serializerOptions, JsonNumericArrayStorage.NotSpecified);
+
+    /// <inheritdoc/>
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public Task<bool> SetAsync(RedisKey key, RedisValue path, RedisValue json, When when)
+        => SetAsync(key, path, json, when, JsonNumericArrayStorage.NotSpecified);
+
+    /// <inheritdoc/>
     public Task<bool> SetAsync(RedisKey key, RedisValue path, object obj, When when = When.Always,
-        JsonSerializerOptions? serializerOptions = default)
+        JsonSerializerOptions? serializerOptions = default, JsonNumericArrayStorage fpha = JsonNumericArrayStorage.NotSpecified)
     {
         string json = JsonSerializer.Serialize(obj, options: serializerOptions);
-        return SetAsync(key, path, json, when);
+        return SetAsync(key, path, json, when, fpha);
     }
 
-    public async Task<bool> SetAsync(RedisKey key, RedisValue path, RedisValue json, When when = When.Always)
+    public async Task<bool> SetAsync(RedisKey key, RedisValue path, RedisValue json, When when = When.Always, JsonNumericArrayStorage fpha = JsonNumericArrayStorage.NotSpecified)
     {
-        return (await db.ExecuteAsync(JsonCommandBuilder.Set(key, path, json, when))).OKtoBoolean();
+        return (await db.ExecuteAsync(JsonCommandBuilder.Set(key, path, json, when, fpha))).OKtoBoolean();
     }
 
     public async Task<bool> MSetAsync(KeyPathValue[] KeyPathValueList)

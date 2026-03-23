@@ -5,9 +5,6 @@ namespace NRedisStack
     internal static class Experiments
     {
         public const string UrlFormat = "https://redis.github.io/NRedisStack/exp/";
-
-        // ReSharper disable once InconsistentNaming
-        public const string Server_8_4 = "NRS001";
     }
 }
 
