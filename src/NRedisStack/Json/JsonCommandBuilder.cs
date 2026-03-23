@@ -51,7 +51,7 @@ public static class JsonCommandBuilder
                 _ => fpha.ToString(),
             };
         }
-        Debug.Assert(i == count, "Arg count mismatch; check {nameof(Set)}");
+        Debug.Assert(i == count, $"Arg count mismatch; check {nameof(JsonCommandBuilder)}.{nameof(Set)}");
         return new(JSON.SET, args);
     }
 
