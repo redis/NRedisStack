@@ -150,7 +150,7 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
     [MemberData(nameof(FphaTestData))]
     public async Task TestJsonSetFphaAsync(string endpointId, JsonNumericArrayStorage fpha)
     {
-        Assert.SkipUnless(fpha is JsonNumericArrayStorage.NotSpecified|| EndpointsFixture.IsAtLeast(8, 8), "FPHA is not supported");
+        Assert.SkipUnless(fpha is JsonNumericArrayStorage.NotSpecified || EndpointsFixture.IsAtLeast(8, 8), "FPHA is not supported");
         var db = GetCleanDatabase(endpointId);
 
         double[] original = [1.0, 2.0, 3.0];
