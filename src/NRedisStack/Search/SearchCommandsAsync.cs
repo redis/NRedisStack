@@ -355,7 +355,6 @@ public class SearchCommandsAsync : ISearchCommandsAsync
         (await _db.ExecuteAsync(SearchCommandBuilder.TagVals(indexName, fieldName))).ToArray();
 
     /// <inheritdoc/>
-    [Experimental(Experiments.Server_8_4, UrlFormat = Experiments.UrlFormat)]
     public async Task<HybridSearchResult> HybridSearchAsync(string indexName, HybridSearchQuery query, IReadOnlyDictionary<string, object>? parameters = null)
     {
         query.Validate();

@@ -2,7 +2,6 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace NRedisStack.Search;
 
-[Experimental(Experiments.Server_8_4, UrlFormat = Experiments.UrlFormat)]
 public abstract class VectorSearchMethod
 {
     private protected VectorSearchMethod()

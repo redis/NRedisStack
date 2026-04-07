@@ -10,7 +10,6 @@ namespace NRedisStack.Search;
 /// </summary>
 /// <remarks>This type is not thread safe, and cannot safely be mutated concurrently by multiple threads. However, once composed: a single instance
 /// can be *used* by multiple threads as a template, providing different parameter values to each invocation.</remarks>
-[Experimental(Experiments.Server_8_4, UrlFormat = Experiments.UrlFormat)]
 public sealed partial class HybridSearchQuery
 {
     /// <summary>

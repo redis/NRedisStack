@@ -349,6 +349,5 @@ public interface ISearchCommandsAsync
     Task<RedisResult[]> TagValsAsync(string indexName, string fieldName);
 
     /// <inheritdoc cref="ISearchCommands.HybridSearch"/>
-    [Experimental(Experiments.Server_8_4, UrlFormat = Experiments.UrlFormat)]
     Task<HybridSearchResult> HybridSearchAsync(string indexName, HybridSearchQuery query, IReadOnlyDictionary<string, object>? parameters = null);
 }

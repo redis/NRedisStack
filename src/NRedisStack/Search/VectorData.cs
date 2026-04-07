@@ -6,7 +6,6 @@ using StackExchange.Redis;
 
 namespace NRedisStack.Search;
 
-[Experimental(Experiments.Server_8_4, UrlFormat = Experiments.UrlFormat)]
 public abstract class VectorData<T> : VectorData, IDisposable where T : unmanaged
 {
     private protected VectorData()
@@ -36,7 +35,6 @@ public abstract class VectorData<T> : VectorData, IDisposable where T : unmanage
     public abstract void Dispose();
 }
 
-[Experimental(Experiments.Server_8_4, UrlFormat = Experiments.UrlFormat)]
 public abstract class VectorData
 {
     /// <summary>

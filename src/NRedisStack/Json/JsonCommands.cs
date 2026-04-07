@@ -1,4 +1,5 @@
-﻿using NRedisStack.Json.DataTypes;
+﻿using System.ComponentModel;
+using NRedisStack.Json.DataTypes;
 using StackExchange.Redis;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -21,18 +22,27 @@ public class JsonCommands(IDatabase db) : JsonCommandsAsync(db), IJsonCommands
     }
 
     /// <inheritdoc/>
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public bool Set(RedisKey key, RedisValue path, object obj, When when, JsonSerializerOptions? serializerOptions)
+        => Set(key, path, JsonSerializer.Serialize(obj, serializerOptions), when, JsonNumericArrayStorage.NotSpecified);
+
+    /// <inheritdoc/>
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public bool Set(RedisKey key, RedisValue path, RedisValue json, When when)
+        => Set(key, path, json, when, JsonNumericArrayStorage.NotSpecified);
+
+    /// <inheritdoc/>
     public bool Set(RedisKey key, RedisValue path, object obj, When when = When.Always,
-        JsonSerializerOptions? serializerOptions = default)
+        JsonSerializerOptions? serializerOptions = default, JsonNumericArrayStorage fpha = JsonNumericArrayStorage.NotSpecified)
     {
         string json = JsonSerializer.Serialize(obj, options: serializerOptions);
-        return Set(key, path, json, when);
+        return Set(key, path, json, when, fpha);
     }
 
     /// <inheritdoc/>
-    public bool Set(RedisKey key, RedisValue path, RedisValue json, When when = When.Always)
-    {
-        return db.Execute(JsonCommandBuilder.Set(key, path, json, when)).OKtoBoolean();
-    }
+    public bool Set(RedisKey key, RedisValue path, RedisValue json, When when = When.Always, JsonNumericArrayStorage fpha = JsonNumericArrayStorage.NotSpecified)
+        => db.Execute(JsonCommandBuilder.Set(key, path, json, when, fpha)).OKtoBoolean();
+
 
     /// <inheritdoc/>
     public bool MSet(KeyPathValue[] KeyPathValueList)
