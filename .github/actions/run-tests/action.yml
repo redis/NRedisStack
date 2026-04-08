@@ -3,65 +3,111 @@ description: 'Runs NRedisStack tests against different Redis versions and config
 inputs:
   dotnet-version:
     description: 'SDK version'
-    required: true
+    default: '10.0'
+    required: false
+  dotnet-quality:
+    description: 'SDK quality'
+    default: 'ga'
+    required: false
   redis-version:
     description: 'Redis version to test against (MAJOR.MINOR format, e.g., "7.4", "8.0")'
-    required: true
+    required: false
+    default: ''
   verify-nuget-package:
     description: 'Verify Nuget package'
     required: false
     default: 'false'
-  REDIS_CA_PEM:
-    description: 'Redis CA PEM'
-    required: true
-  REDIS_USER_CRT:
-    description: 'Redis User CRT'
-    required: true
-  REDIS_USER_PRIVATE_KEY:
-    description: 'Redis User Private Key'
-    required: true
+  client-libs-test-image-tag:
+    description: 'Tag of the client libs test image to use'
+    required: false
+    default: ''
+  client-libs-test-image:
+    description: 'Custom client libs test image name to use'
+    required: false
+    default: 'redislabs/client-libs-test'
+  # repository and ref are required for correct checkout when using action
+  # externally (e.g.: in redis-developer/redis-oss-release-automation)
+  repository:
+    description: 'Git repository to checkout'
+    required: false
+    default: ''
+  ref:
+    description: 'Git ref to checkout'
+    required: false
+    default: ''
+  upload-coverage:
+    description: 'Whether to upload coverage reports to Codecov'
+    required: false
+    default: 'true'
+  codecov-token:
+    description: 'Codecov token for uploading coverage'
+    required: false
+    default: ''
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v4
-    
+    - uses: actions/checkout@v6
+      with:
+        repository: ${{ inputs.repository }}
+        ref: ${{ inputs.ref }}
+
     - name: Install .NET Core
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: |
-          10.0.x
           ${{inputs.dotnet-version}}
-        dotnet-quality: 'ga'
+        dotnet-quality: '${{inputs.dotnet-quality}}'
 
     - name: Setup Environment variables and run Redis
       env:
         REDIS_VERSION: ${{ inputs.redis-version }}
+        INPUT_DOTNET_VERSION: ${{ inputs.dotnet-version }}
+        INPUT_CLIENT_LIBS_TEST_IMAGE_TAG: ${{ inputs.client-libs-test-image-tag }}
+        INPUT_CLIENT_LIBS_TEST_IMAGE: ${{ inputs.client-libs-test-image }}
       run: |
         set -e
 
         echo "::group::Setup Environment variables and run Redis"
-        dotnet_major_minor_version=$(echo "${{ inputs.dotnet-version }}" | grep -oP '^\d+\.\d+')
-        echo "CLR_VERSION=net${dotnet_major_minor_version}" >> $GITHUB_ENV
+        dotnet_major_minor_version=$(echo "$INPUT_DOTNET_VERSION" | grep -oP '^\d+\.\d+')
+        echo "CLR_VERSION=net${dotnet_major_minor_version}" | tee -a $GITHUB_ENV
 
-        # Load environment variables from version-specific file
-        ENV_FILE="tests/dockers/.env.v${REDIS_VERSION}"
-        if [[ ! -f "$ENV_FILE" ]]; then
-          echo "Environment file not found: $ENV_FILE"
+        compose_args=()
+        if [ -n "$INPUT_CLIENT_LIBS_TEST_IMAGE_TAG" ]; then
+          if [ -z "$INPUT_CLIENT_LIBS_TEST_IMAGE" ]; then
+            echo "Error: client-libs-test-image is required when client-libs-test-image-tag is set"
+            exit 1
+          fi
+          # CLIENT_LIBS_TEST_IMAGE is used by docker compose, note: it is full image url
+          export CLIENT_LIBS_TEST_IMAGE="$INPUT_CLIENT_LIBS_TEST_IMAGE:$INPUT_CLIENT_LIBS_TEST_IMAGE_TAG"
+          echo "CLIENT_LIBS_TEST_IMAGE=${CLIENT_LIBS_TEST_IMAGE}" >> $GITHUB_ENV
+          echo "Using custom client libs test image: ${CLIENT_LIBS_TEST_IMAGE}"
+        elif [ -n "${REDIS_VERSION}" ]; then
+          # Load environment variables from version-specific file
+          ENV_FILE="tests/dockers/.env.v${REDIS_VERSION}"
+          if [[ ! -f "$ENV_FILE" ]]; then
+            echo "Environment file not found: $ENV_FILE"
+            exit 1
+          fi
+          echo "Using environment file: $ENV_FILE"
+          compose_args=(--env-file "$ENV_FILE")
+        else
+          echo "Error: redis-version or client-libs-test-image-tag input is required"
           exit 1
         fi
-        echo "Using environment file: $ENV_FILE"
 
-        docker compose --env-file "$ENV_FILE" --profile all -f tests/dockers/docker-compose.yml up -d --build
+        docker compose "${compose_args[@]}" --profile all -f tests/dockers/docker-compose.yml up -d --quiet-pull --wait
         echo "::endgroup::"
       shell: bash
 
     # Make sure only the desired dotnet version is set both as target and as active SDK.
     - name: Tweak target frameworks
+      env:
+        INPUT_DOTNET_VERSION: ${{ inputs.dotnet-version }}
       shell: bash
       run: |
         find . -name '*.csproj' | xargs -I {} sed -E -i "s|<TargetFrameworks(.*)>.*</TargetFrameworks>|<TargetFramework\1>${CLR_VERSION}</TargetFramework>|" {}
         find . -name '*.csproj' | xargs cat
-        jq -n --arg version ${{inputs.dotnet-version}} '{"sdk":{"version":$version,"rollForward":"latestMinor"}}' > global.json
+        jq -n --arg version "$INPUT_DOTNET_VERSION" '{"sdk":{"version":$version,"rollForward":"latestMinor"}}' > global.json
     - name: Check .NET version
       shell: bash
       run: dotnet --version
@@ -85,22 +131,26 @@ runs:
         REDIS_VERSION: ${{ inputs.redis-version }}
       run: |
         echo "::group::Run tests"
-        echo "${{inputs.REDIS_CA_PEM}}" > tests/NRedisStack.Tests/bin/Debug/${CLR_VERSION}/redis_ca.pem
-        echo "${{inputs.REDIS_USER_CRT}}" > tests/NRedisStack.Tests/bin/Debug/${CLR_VERSION}/redis_user.crt
-        echo "${{inputs.REDIS_USER_PRIVATE_KEY}}" > tests/NRedisStack.Tests/bin/Debug/${CLR_VERSION}/redis_user_private.key
         REDIS_VERSION=$(echo "$REDIS_VERSION" | cut -d'-' -f1)
-        echo $REDIS_VERSION
+        if [ -n "${CLIENT_LIBS_TEST_IMAGE}" ]; then
+          # Redis version is usually set to 255.255.255 for custom images to reflect it is the latest available version.
+          echo "Image ${CLIENT_LIBS_TEST_IMAGE} (Redis version: ${REDIS_VERSION:-unstable})"
+        else
+          echo "Redis version: ${REDIS_VERSION}"
+        fi
         dotnet test -f ${CLR_VERSION} --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover -p:BuildInParallel=false tests/Test.proj --logger GitHubActions
         echo "::endgroup::"
     - name: Codecov
-      uses: codecov/codecov-action@v4
+      if: inputs.upload-coverage != 'false'
+      uses: codecov/codecov-action@v6
       with:
         verbose: true
+        token: ${{ inputs.codecov-token }}
     - name: Build
       shell: bash
       run: dotnet pack -c Release
 
-    - name: Test against Nuget package from local source      
+    - name: Test against Nuget package from local source
       if: inputs.verify-nuget-package == 'true'
       working-directory: PackageVerification
       shell: bash

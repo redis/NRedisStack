@@ -1,4 +1,5 @@
 name: Integration Tests
+run-name: "Integration Tests${{ github.event.inputs.client-libs-test-image-tag != '' && format(' using image: {0}', github.event.inputs.client-libs-test-image-tag) || '' }}"
 
 on:
   push:
@@ -10,16 +11,25 @@ on:
   pull_request:
   schedule:
     - cron: "0 1 * * *"
+  workflow_dispatch:
+    inputs:
+      client-libs-test-image-tag:
+        description: 'Tag of the client libs test image to use'
+        required: false
+        default: ''
+      redis-version:
+        description: 'Redis version hint for the actual version installed in the custom image'
+        required: false
+        default: '255.255.255'
 
 concurrency:
   group: ${{ github.event.pull_request.number || github.ref }}-integration
   cancel-in-progress: true
 
-env:
-  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
 jobs:
     tests:
+      if: github.event.inputs.client-libs-test-image-tag == ''
       runs-on: ubuntu-latest
       timeout-minutes: 60
       strategy:
@@ -28,22 +38,34 @@ jobs:
         matrix:
           redis-version: [ '8.8', '8.6', '8.4', '8.2', '7.4', '7.2', '6.2']
           dotnet-version: ['8.0', '9.0', '10.0']
-      env:
-        ACTIONS_ALLOW_UNSECURE_COMMANDS: true
       name: Redis ${{ matrix.redis-version }}; .NET ${{ matrix.dotnet-version }};
       steps:
-        - uses: actions/checkout@v4
+        - uses: actions/checkout@v6
         - name: Run tests
           uses: ./.github/actions/run-tests
           with:
-              dotnet-version: ${{ matrix.dotnet-version }}              
+              dotnet-version: ${{ matrix.dotnet-version }}
               redis-version: ${{ matrix.redis-version }}
-              REDIS_CA_PEM: ${{ secrets.REDIS_CA_PEM }}
-              REDIS_USER_CRT: ${{ secrets.REDIS_USER_CRT }}
-              REDIS_USER_PRIVATE_KEY: ${{ secrets.REDIS_USER_PRIVATE_KEY }}
+              upload-coverage: 'true'
+              codecov-token: ${{ secrets.CODECOV_TOKEN }}
+
+    tests_custom_image:
+      if: github.event.inputs.client-libs-test-image-tag != ''
+      runs-on: ubuntu-latest
+      timeout-minutes: 60
+      name: Custom image
+      steps:
+        - uses: actions/checkout@v6
+        - name: Run tests
+          uses: ./.github/actions/run-tests
+          with:
+              client-libs-test-image-tag: ${{ github.event.inputs.client-libs-test-image-tag }}
+              redis-version: ${{ github.event.inputs.redis-version }}
+              upload-coverage: 'false'
 
     build_and_test_windows:
       name: Windows Test ${{matrix.redis-stack-version}}
+      if: github.event.inputs.client-libs-test-image-tag == ''
       runs-on: windows-latest
       strategy:
         fail-fast: false
@@ -55,8 +77,8 @@ jobs:
         PASSWORD: ${{ secrets.PASSWORD }}
         ENDPOINT: ${{ secrets.ENDPOINT }}
       steps:
-        - uses: actions/checkout@v3
-        - uses: Vampire/setup-wsl@v2
+        - uses: actions/checkout@v6
+        - uses: Vampire/setup-wsl@v6
           with:
             distribution: Ubuntu-22.04
         - name: Install Redis
@@ -77,14 +99,14 @@ jobs:
             echo "${{secrets.REDIS_CA_PEM}}" > ${TARGET_DIR}/redis_ca.pem
             echo "${{secrets.REDIS_USER_CRT}}" > ${TARGET_DIR}/redis_user.crt
             echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > ${TARGET_DIR}redis_user_private.key
-            
-            # We need to remove the cluster endpoint from the endpoints.json file 
+
+            # We need to remove the cluster endpoint from the endpoints.json file
             # because we run only standalone redis-stack-server.
             jq 'del(.cluster)' tests/dockers/endpoints.json > standalone_only.json
             rm tests/dockers/endpoints.json && cp standalone_only.json tests/dockers/endpoints.json
             cp -f standalone_only.json ${TARGET_DIR}/endpoints.json
             cat tests/dockers/endpoints.json
-            cat ${TARGET_DIR}/endpoints.json            
+            cat ${TARGET_DIR}/endpoints.json
         - name: Run redis-server
           shell: wsl-bash {0}
           run: |
