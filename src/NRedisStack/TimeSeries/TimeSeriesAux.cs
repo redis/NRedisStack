@@ -78,7 +78,7 @@ public static class TimeSeriesAux
     [OverloadResolutionPriority(1)]
     public static void AddAggregation(this IList<object> args, TsAggregations aggregation, long? timeBucket)
     {
-        if (aggregation.Length > 0)
+        if (!aggregation.IsEmpty)
         {
             args.Add(TimeSeriesArgs.AGGREGATION);
             args.Add(GetAggregationArgs(aggregation));
