@@ -18,8 +18,21 @@ public readonly struct TsAggregations : IEquatable<TsAggregations>
 
     public TsAggregations(params TsAggregation[] aggregations)
     {
-        _aggregation = default;
-        _aggregations = aggregations ?? throw new ArgumentNullException(nameof(aggregations));
+        if (aggregations is null or { Length: 0 })
+        {
+            _aggregation = default;
+            _aggregations = null;
+        }
+        else if (aggregations.Length == 1)
+        {
+            _aggregation = Encode(aggregations[0]);
+            _aggregations = null;
+        }
+        else
+        {
+            _aggregation = default;
+            _aggregations = aggregations;
+        }
     }
 
     public bool IsEmpty => _aggregations is null && (int)_aggregation == 0;
