@@ -3,6 +3,8 @@ using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;
 using NRedisStack.Extensions;
 using StackExchange.Redis;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace NRedisStack;
 
@@ -40,15 +42,19 @@ public static class TimeSeriesAux
         }
     }
 
+    [OverloadResolutionPriority(1)]
     public static void AddAggregation(this IList<object> args, TimeStamp? align,
-        TsAggregation? aggregation,
+        TsAggregations aggregation,
         long? timeBucket,
         TsBucketTimestamps? bt,
         bool empty)
     {
-        if (aggregation == null && (align != null || timeBucket != null || bt != null || empty))
+        if (aggregation.IsEmpty)
         {
-            throw new ArgumentException("align, timeBucket, BucketTimestamps or empty cannot be defined without Aggregation");
+            if (align != null || timeBucket != null || bt != null || empty)
+            {
+                throw new ArgumentException("align, timeBucket, BucketTimestamps or empty cannot be defined without Aggregation");
+            }
         }
         else
         {
@@ -59,12 +65,23 @@ public static class TimeSeriesAux
         }
     }
 
-    public static void AddAggregation(this IList<object> args, TsAggregation? aggregation, long? timeBucket)
+    [Obsolete]
+    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [OverloadResolutionPriority(-1)]
+    public static void AddAggregation(this IList<object> args, TimeStamp? align,
+        TsAggregation? aggregation,
+        long? timeBucket,
+        TsBucketTimestamps? bt,
+        bool empty) => args.AddAggregation(align, (TsAggregations)aggregation, timeBucket, bt, empty);
+
+    [OverloadResolutionPriority(1)]
+    public static void AddAggregation(this IList<object> args, TsAggregations aggregation, long? timeBucket)
     {
-        if (aggregation != null)
+        if (aggregation.Length > 0)
         {
             args.Add(TimeSeriesArgs.AGGREGATION);
-            args.Add(aggregation.Value.AsArg());
+            args.Add(GetAggregationArgs(aggregation));
             if (!timeBucket.HasValue)
             {
                 throw new ArgumentException("RANGE Aggregation should have timeBucket value");
@@ -72,6 +89,13 @@ public static class TimeSeriesAux
             args.Add(timeBucket.Value);
         }
     }
+
+    [Obsolete]
+    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [OverloadResolutionPriority(-1)]
+    public static void AddAggregation(this IList<object> args, TsAggregation? aggregation, long? timeBucket) =>
+        args.AddAggregation((TsAggregations)aggregation, timeBucket);
 
     public static void AddFilters(this List<object> args, IReadOnlyCollection<string> filter)
     {
@@ -183,6 +207,7 @@ public static class TimeSeriesAux
         return args;
     }
 
+    [OverloadResolutionPriority(1)]
     public static List<object> BuildRangeArgs(string key,
         TimeStamp fromTimeStamp,
         TimeStamp toTimeStamp,
@@ -191,7 +216,7 @@ public static class TimeSeriesAux
         (long, long)? filterByValue,
         long? count,
         TimeStamp? align,
-        TsAggregation? aggregation,
+        TsAggregations aggregation,
         long? timeBucket,
         TsBucketTimestamps? bt,
         bool empty)
@@ -205,7 +230,24 @@ public static class TimeSeriesAux
         return args;
     }
 
+    [Obsolete]
+    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [OverloadResolutionPriority(-1)]
+    public static List<object> BuildRangeArgs(string key,
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        bool latest,
+        IReadOnlyCollection<TimeStamp>? filterByTs,
+        (long, long)? filterByValue,
+        long? count,
+        TimeStamp? align,
+        TsAggregation? aggregation,
+        long? timeBucket,
+        TsBucketTimestamps? bt,
+        bool empty) => BuildRangeArgs(key, fromTimeStamp, toTimeStamp, latest, filterByTs, filterByValue, count, align, (TsAggregations)aggregation, timeBucket, bt, empty);
 
+    [OverloadResolutionPriority(1)]
     public static List<object> BuildMultiRangeArgs(TimeStamp fromTimeStamp,
         TimeStamp toTimeStamp,
         IReadOnlyCollection<string> filter,
@@ -216,7 +258,7 @@ public static class TimeSeriesAux
         IReadOnlyCollection<string>? selectLabels,
         long? count,
         TimeStamp? align,
-        TsAggregation? aggregation,
+        TsAggregations aggregation,
         long? timeBucket,
         TsBucketTimestamps? bt,
         bool empty,
@@ -232,5 +274,36 @@ public static class TimeSeriesAux
         args.AddFilters(filter);
         args.AddGroupby(groupbyTuple);
         return args;
+    }
+
+    [Obsolete]
+    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [OverloadResolutionPriority(-1)]
+    public static List<object> BuildMultiRangeArgs(TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        IReadOnlyCollection<string> filter,
+        bool latest,
+        IReadOnlyCollection<TimeStamp>? filterByTs,
+        (long, long)? filterByValue,
+        bool? withLabels,
+        IReadOnlyCollection<string>? selectLabels,
+        long? count,
+        TimeStamp? align,
+        TsAggregation? aggregation,
+        long? timeBucket,
+        TsBucketTimestamps? bt,
+        bool empty,
+        (string, TsReduce)? groupbyTuple) =>
+        BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, latest, filterByTs, filterByValue, withLabels, selectLabels, count, align, (TsAggregations)aggregation, timeBucket, bt, empty, groupbyTuple);
+
+    private static string GetAggregationArgs(TsAggregations aggregations)
+    {
+        if (aggregations.Length == 1)
+        {
+            return aggregations[0].AsArg();
+        }
+
+        return string.Join(",", Enumerable.Range(0, aggregations.Length).Select(i => aggregations[i].AsArg()));
     }
 }

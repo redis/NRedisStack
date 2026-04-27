@@ -11,7 +11,7 @@ public class TestMRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
 {
     private readonly string[] _keys = ["MRANGE_TESTS_1", "MRANGE_TESTS_2"];
 
-    private List<TimeSeriesTuple> CreateData(ITimeSeriesCommands ts, int timeBucket, string[]? keys = null)
+    private List<TimeSeriesTuple> CreateData(ITimeSeriesCommands ts, int timeBucket, string[]? keys = null, bool addSecondPointPerBucket = false)
     {
         keys ??= _keys;
         var tuples = new List<TimeSeriesTuple>();
@@ -22,6 +22,10 @@ public class TestMRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
             foreach (var key in keys)
             {
                 ts.Add(key, timeStamp, i);
+                if (addSecondPointPerBucket)
+                {
+                    ts.Add(key, i * timeBucket + 1, 2 * i);
+                }
             }
             tuples.Add(new(timeStamp, i));
         }
@@ -167,6 +171,73 @@ public class TestMRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
             Assert.Equal(_keys[i], results[i].key);
             Assert.Empty(results[i].labels);
             Assert.Equal(tuples, results[i].values);
+        }
+    }
+
+    [SkipIfRedisTheory(Is.Enterprise)]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestMRangeMultiAggregation(string endpointId)
+    {
+        var keys = CreateKeyNames(2);
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ts = db.TS();
+        TimeSeriesLabel label = new(keys[0], "MultiAggregation");
+        var labels = new List<TimeSeriesLabel> { label };
+        foreach (string key in keys)
+        {
+            ts.Create(key, labels: labels);
+        }
+
+        var tuples = CreateData(ts, 50, keys);
+        var results = ts.MRange("-", "+", new List<string> { $"{keys[0]}=MultiAggregation" }, aggregation: new TsAggregations(TsAggregation.Min, TsAggregation.Avg, TsAggregation.Max, TsAggregation.Count), timeBucket: 50);
+        Assert.Equal(keys.Length, results.Count);
+        for (int i = 0; i < results.Count; i++)
+        {
+            Assert.Equal(keys[i], results[i].key);
+            Assert.Empty(results[i].labels);
+            Assert.Equal(tuples.Count, results[i].values.Count);
+            for (int j = 0; j < results[i].values.Count; j++)
+            {
+                Assert.Equal(tuples[j].Time, results[i].values[j].Time);
+                Assert.Equal(tuples[j].Val, results[i].values[j][0]);
+                Assert.Equal(tuples[j].Val, results[i].values[j][1]);
+                Assert.Equal(tuples[j].Val, results[i].values[j][2]);
+                Assert.Equal(1, results[i].values[j][3]);
+            }
+        }
+    }
+
+    [SkipIfRedisTheory(Is.Enterprise)]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestMRangeMultiAggregationWithMultiplePointsPerBucket(string endpointId)
+    {
+        var keys = CreateKeyNames(2);
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ts = db.TS();
+        TimeSeriesLabel label = new(keys[0], "MultiAggregationMultiple");
+        var labels = new List<TimeSeriesLabel> { label };
+        foreach (string key in keys)
+        {
+            ts.Create(key, labels: labels);
+        }
+
+        var tuples = CreateData(ts, 50, keys, addSecondPointPerBucket: true);
+        var results = ts.MRange("-", "+", new List<string> { $"{keys[0]}=MultiAggregationMultiple" }, aggregation: new TsAggregations(TsAggregation.Min, TsAggregation.Avg, TsAggregation.Max, TsAggregation.Count), timeBucket: 50);
+        Assert.Equal(keys.Length, results.Count);
+        for (int i = 0; i < results.Count; i++)
+        {
+            Assert.Equal(keys[i], results[i].key);
+            Assert.Empty(results[i].labels);
+            Assert.Equal(tuples.Count, results[i].values.Count);
+            for (int j = 0; j < results[i].values.Count; j++)
+            {
+                var expected = tuples[j].Val;
+                Assert.Equal(tuples[j].Time, results[i].values[j].Time);
+                Assert.Equal(expected, results[i].values[j][0]);
+                Assert.Equal(expected * 1.5, results[i].values[j][1]);
+                Assert.Equal(expected * 2, results[i].values[j][2]);
+                Assert.Equal(2, results[i].values[j][3]);
+            }
         }
     }
 

@@ -9,15 +9,19 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI;
 
 public class TestRange(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
 {
-    private readonly string key = "RANGE_TESTS";
+    private readonly string key = Guid.NewGuid().ToString("N");
 
-    private List<TimeSeriesTuple> CreateData(ITimeSeriesCommands ts, int timeBucket)
+    private List<TimeSeriesTuple> CreateData(ITimeSeriesCommands ts, int timeBucket, bool addSecondPointPerBucket = false)
     {
         var tuples = new List<TimeSeriesTuple>();
         for (int i = 0; i < 10; i++)
         {
             TimeStamp timeStamp = ts.Add(key, i * timeBucket, i);
             tuples.Add(new(timeStamp, i));
+            if (addSecondPointPerBucket)
+            {
+                ts.Add(key, (i * timeBucket) + 1, 2 * i);
+            }
         }
         return tuples;
     }
@@ -47,6 +51,45 @@ public class TestRange(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         var ts = db.TS();
         var tuples = CreateData(ts, 50);
         Assert.Equal(tuples, ts.Range(key, "-", "+", aggregation: TsAggregation.Min, timeBucket: 50));
+    }
+
+    [Fact]
+    public void TestRangeMultiAggregation()
+    {
+        IDatabase db = GetCleanDatabase();
+        var ts = db.TS();
+        var tuples = CreateData(ts, 50);
+        var res = ts.Range(key, "-", "+", aggregation: new TsAggregations(TsAggregation.Min, TsAggregation.Avg, TsAggregation.Max, TsAggregation.Count), timeBucket: 50);
+
+        Assert.Equal(tuples.Count, res.Count);
+        for (int i = 0; i < res.Count; i++)
+        {
+            Assert.Equal(tuples[i].Time, res[i].Time);
+            Assert.Equal(tuples[i].Val, res[i][0]);
+            Assert.Equal(tuples[i].Val, res[i][1]);
+            Assert.Equal(tuples[i].Val, res[i][2]);
+            Assert.Equal(1, res[i][3]);
+        }
+    }
+
+    [Fact]
+    public void TestRangeMultiAggregationWithMultiplePointsPerBucket()
+    {
+        IDatabase db = GetCleanDatabase();
+        var ts = db.TS();
+        var tuples = CreateData(ts, 50, addSecondPointPerBucket: true);
+        var res = ts.Range(key, "-", "+", aggregation: new TsAggregations(TsAggregation.Min, TsAggregation.Avg, TsAggregation.Max, TsAggregation.Count), timeBucket: 50);
+
+        Assert.Equal(tuples.Count, res.Count);
+        for (int i = 0; i < res.Count; i++)
+        {
+            var expected = tuples[i].Val;
+            Assert.Equal(tuples[i].Time, res[i].Time);
+            Assert.Equal(expected, res[i][0]);
+            Assert.Equal(expected * 1.5, res[i][1]);
+            Assert.Equal(expected * 2, res[i][2]);
+            Assert.Equal(2, res[i][3]);
+        }
     }
 
     [Fact]

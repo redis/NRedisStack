@@ -8,13 +8,17 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI;
 
 public class TestRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture)
 {
-    private List<TimeSeriesTuple> CreateData(ITimeSeriesCommands ts, string key, int timeBucket)
+    private List<TimeSeriesTuple> CreateData(ITimeSeriesCommands ts, string key, int timeBucket, bool addSecondPointPerBucket = false)
     {
         var tuples = new List<TimeSeriesTuple>();
         for (var i = 0; i < 10; i++)
         {
             var timeStamp = ts.Add(key, i * timeBucket, i);
             tuples.Add(new(timeStamp, i));
+            if (addSecondPointPerBucket)
+            {
+                ts.Add(key, (i * timeBucket) + 1, 2 * i);
+            }
         }
         return tuples;
     }
@@ -50,6 +54,49 @@ public class TestRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSta
         var ts = db.TS();
         var tuples = CreateData(ts, key, 50);
         Assert.Equal(ReverseData(tuples), ts.RevRange(key, "-", "+", aggregation: TsAggregation.Min, timeBucket: 50));
+    }
+
+    [SkipIfRedisTheory(Is.Enterprise)]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestRevRangeMultiAggregation(string endpointId)
+    {
+        var key = CreateKeyName();
+        var db = GetCleanDatabase(endpointId);
+        var ts = db.TS();
+        var tuples = ReverseData(CreateData(ts, key, 50));
+        var res = ts.RevRange(key, "-", "+", aggregation: new TsAggregations(TsAggregation.Min, TsAggregation.Avg, TsAggregation.Max, TsAggregation.Count), timeBucket: 50);
+
+        Assert.Equal(tuples.Count, res.Count);
+        for (int i = 0; i < res.Count; i++)
+        {
+            Assert.Equal(tuples[i].Time, res[i].Time);
+            Assert.Equal(tuples[i].Val, res[i][0]);
+            Assert.Equal(tuples[i].Val, res[i][1]);
+            Assert.Equal(tuples[i].Val, res[i][2]);
+            Assert.Equal(1, res[i][3]);
+        }
+    }
+
+    [SkipIfRedisTheory(Is.Enterprise)]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestRevRangeMultiAggregationWithMultiplePointsPerBucket(string endpointId)
+    {
+        var key = CreateKeyName();
+        var db = GetCleanDatabase(endpointId);
+        var ts = db.TS();
+        var tuples = ReverseData(CreateData(ts, key, 50, addSecondPointPerBucket: true));
+        var res = ts.RevRange(key, "-", "+", aggregation: new TsAggregations(TsAggregation.Min, TsAggregation.Avg, TsAggregation.Max, TsAggregation.Count), timeBucket: 50);
+
+        Assert.Equal(tuples.Count, res.Count);
+        for (int i = 0; i < res.Count; i++)
+        {
+            var expected = tuples[i].Val;
+            Assert.Equal(tuples[i].Time, res[i].Time);
+            Assert.Equal(expected, res[i][0]);
+            Assert.Equal(expected * 1.5, res[i][1]);
+            Assert.Equal(expected * 2, res[i][2]);
+            Assert.Equal(2, res[i][3]);
+        }
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]

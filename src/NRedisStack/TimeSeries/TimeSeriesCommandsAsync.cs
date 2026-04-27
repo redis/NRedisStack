@@ -1,6 +1,8 @@
 using StackExchange.Redis;
 using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 namespace NRedisStack;
 
 public class TimeSeriesCommandsAsync : ITimeSeriesCommandsAsync
@@ -126,6 +128,31 @@ public class TimeSeriesCommandsAsync : ITimeSeriesCommandsAsync
     }
 
     /// <inheritdoc/>
+    [OverloadResolutionPriority(1)]
+    public async Task<IReadOnlyList<TimeSeriesTuple>> RangeAsync(string key,
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        bool latest = false,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (long, long)? filterByValue = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        bool empty = false)
+    {
+        return (await _db.ExecuteAsync(TimeSeriesCommandsBuilder.Range(key, fromTimeStamp, toTimeStamp,
+            latest, filterByTs, filterByValue,
+            count, align, aggregation, timeBucket,
+            bt, empty))).ToTimeSeriesTupleArray();
+    }
+
+    /// <inheritdoc/>
+    [Obsolete]
+    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [OverloadResolutionPriority(-1)]
     public async Task<IReadOnlyList<TimeSeriesTuple>> RangeAsync(string key,
         TimeStamp fromTimeStamp,
         TimeStamp toTimeStamp,
@@ -139,13 +166,35 @@ public class TimeSeriesCommandsAsync : ITimeSeriesCommandsAsync
         TsBucketTimestamps? bt = null,
         bool empty = false)
     {
-        return (await _db.ExecuteAsync(TimeSeriesCommandsBuilder.Range(key, fromTimeStamp, toTimeStamp,
+        return await RangeAsync(key, fromTimeStamp, toTimeStamp, latest, filterByTs, filterByValue, count, align, (TsAggregations)aggregation, timeBucket, bt, empty);
+    }
+
+    /// <inheritdoc/>
+    [OverloadResolutionPriority(1)]
+    public async Task<IReadOnlyList<TimeSeriesTuple>> RevRangeAsync(string key,
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        bool latest = false,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (long, long)? filterByValue = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        bool empty = false)
+    {
+        return (await _db.ExecuteAsync(TimeSeriesCommandsBuilder.RevRange(key, fromTimeStamp, toTimeStamp,
             latest, filterByTs, filterByValue,
             count, align, aggregation, timeBucket,
             bt, empty))).ToTimeSeriesTupleArray();
     }
 
     /// <inheritdoc/>
+    [Obsolete]
+    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [OverloadResolutionPriority(-1)]
     public async Task<IReadOnlyList<TimeSeriesTuple>> RevRangeAsync(string key,
         TimeStamp fromTimeStamp,
         TimeStamp toTimeStamp,
@@ -159,13 +208,40 @@ public class TimeSeriesCommandsAsync : ITimeSeriesCommandsAsync
         TsBucketTimestamps? bt = null,
         bool empty = false)
     {
-        return (await _db.ExecuteAsync(TimeSeriesCommandsBuilder.RevRange(key, fromTimeStamp, toTimeStamp,
-            latest, filterByTs, filterByValue,
-            count, align, aggregation, timeBucket,
-            bt, empty))).ToTimeSeriesTupleArray();
+        return await RevRangeAsync(key, fromTimeStamp, toTimeStamp, latest, filterByTs, filterByValue, count, align, (TsAggregations)aggregation, timeBucket, bt, empty);
     }
 
     /// <inheritdoc/>
+    [OverloadResolutionPriority(1)]
+    public async Task<IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)>> MRangeAsync(
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        IReadOnlyCollection<string> filter,
+        bool latest = false,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (long, long)? filterByValue = null,
+        bool? withLabels = null,
+        IReadOnlyCollection<string>? selectLabels = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        bool empty = false,
+        (string, TsReduce)? groupbyTuple = null)
+    {
+        return (await _db.ExecuteAsync(TimeSeriesCommandsBuilder.MRange(fromTimeStamp, toTimeStamp, filter,
+            latest, filterByTs, filterByValue,
+            withLabels, selectLabels, count, align,
+            aggregation, timeBucket, bt, empty,
+            groupbyTuple))).ParseMRangeResponse();
+    }
+
+    /// <inheritdoc/>
+    [Obsolete]
+    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [OverloadResolutionPriority(-1)]
     public async Task<IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)>> MRangeAsync(
         TimeStamp fromTimeStamp,
         TimeStamp toTimeStamp,
@@ -183,7 +259,29 @@ public class TimeSeriesCommandsAsync : ITimeSeriesCommandsAsync
         bool empty = false,
         (string, TsReduce)? groupbyTuple = null)
     {
-        return (await _db.ExecuteAsync(TimeSeriesCommandsBuilder.MRange(fromTimeStamp, toTimeStamp, filter,
+        return await MRangeAsync(fromTimeStamp, toTimeStamp, filter, latest, filterByTs, filterByValue, withLabels, selectLabels, count, align, (TsAggregations)aggregation, timeBucket, bt, empty, groupbyTuple);
+    }
+
+    /// <inheritdoc/>
+    [OverloadResolutionPriority(1)]
+    public async Task<IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)>> MRevRangeAsync(
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        IReadOnlyCollection<string> filter,
+        bool latest = false,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (long, long)? filterByValue = null,
+        bool? withLabels = null,
+        IReadOnlyCollection<string>? selectLabels = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        bool empty = false,
+        (string, TsReduce)? groupbyTuple = null)
+    {
+        return (await _db.ExecuteAsync(TimeSeriesCommandsBuilder.MRevRange(fromTimeStamp, toTimeStamp, filter,
             latest, filterByTs, filterByValue,
             withLabels, selectLabels, count, align,
             aggregation, timeBucket, bt, empty,
@@ -191,6 +289,10 @@ public class TimeSeriesCommandsAsync : ITimeSeriesCommandsAsync
     }
 
     /// <inheritdoc/>
+    [Obsolete]
+    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [OverloadResolutionPriority(-1)]
     public async Task<IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)>> MRevRangeAsync(
         TimeStamp fromTimeStamp,
         TimeStamp toTimeStamp,
@@ -208,11 +310,7 @@ public class TimeSeriesCommandsAsync : ITimeSeriesCommandsAsync
         bool empty = false,
         (string, TsReduce)? groupbyTuple = null)
     {
-        return (await _db.ExecuteAsync(TimeSeriesCommandsBuilder.MRevRange(fromTimeStamp, toTimeStamp, filter,
-            latest, filterByTs, filterByValue,
-            withLabels, selectLabels, count, align,
-            aggregation, timeBucket, bt, empty,
-            groupbyTuple))).ParseMRangeResponse();
+        return await MRevRangeAsync(fromTimeStamp, toTimeStamp, filter, latest, filterByTs, filterByValue, withLabels, selectLabels, count, align, (TsAggregations)aggregation, timeBucket, bt, empty, groupbyTuple);
     }
 
     #endregion
