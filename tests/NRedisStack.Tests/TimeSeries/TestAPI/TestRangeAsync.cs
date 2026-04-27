@@ -54,7 +54,7 @@ public class TestRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedisS
         Assert.Equal(tuples, await ts.RangeAsync(key, "-", "+", aggregation: TsAggregation.Min, timeBucket: 50));
     }
 
-    [Fact]
+    [SkipIfRedisFact(Comparison.LessThan, "8.8.0")]
     public async Task TestRangeMultiAggregation()
     {
         var key = $"{CreateKeyName()}:{Guid.NewGuid():N}";
@@ -74,7 +74,7 @@ public class TestRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedisS
         }
     }
 
-    [Fact]
+    [SkipIfRedisFact(Comparison.LessThan, "8.8.0")]
     public async Task TestRangeMultiAggregationWithMultiplePointsPerBucket()
     {
         var key = $"{CreateKeyName()}:{Guid.NewGuid():N}";

@@ -56,7 +56,7 @@ public class TestRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSta
         Assert.Equal(ReverseData(tuples), ts.RevRange(key, "-", "+", aggregation: TsAggregation.Min, timeBucket: 50));
     }
 
-    [SkipIfRedisTheory(Is.Enterprise)]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.8.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestRevRangeMultiAggregation(string endpointId)
     {
@@ -77,7 +77,7 @@ public class TestRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSta
         }
     }
 
-    [SkipIfRedisTheory(Is.Enterprise)]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.8.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestRevRangeMultiAggregationWithMultiplePointsPerBucket(string endpointId)
     {

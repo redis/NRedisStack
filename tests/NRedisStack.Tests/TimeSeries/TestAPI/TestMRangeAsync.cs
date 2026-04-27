@@ -183,7 +183,7 @@ public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
         }
     }
 
-    [SkipIfRedisTheory(Is.Enterprise)]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.8.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMRangeMultiAggregation(string endpointId)
     {
@@ -216,7 +216,7 @@ public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
         }
     }
 
-    [SkipIfRedisTheory(Is.Enterprise)]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.8.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMRangeMultiAggregationWithMultiplePointsPerBucket(string endpointId)
     {

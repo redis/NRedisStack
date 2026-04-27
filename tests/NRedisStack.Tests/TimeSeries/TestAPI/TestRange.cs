@@ -53,7 +53,7 @@ public class TestRange(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         Assert.Equal(tuples, ts.Range(key, "-", "+", aggregation: TsAggregation.Min, timeBucket: 50));
     }
 
-    [Fact]
+    [SkipIfRedisFact(Comparison.LessThan, "8.8.0")]
     public void TestRangeMultiAggregation()
     {
         IDatabase db = GetCleanDatabase();
@@ -72,7 +72,7 @@ public class TestRange(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         }
     }
 
-    [Fact]
+    [SkipIfRedisFact(Comparison.LessThan, "8.8.0")]
     public void TestRangeMultiAggregationWithMultiplePointsPerBucket()
     {
         IDatabase db = GetCleanDatabase();
