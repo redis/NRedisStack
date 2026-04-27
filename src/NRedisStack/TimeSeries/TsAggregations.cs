@@ -24,11 +24,11 @@ public readonly struct TsAggregations : IEquatable<TsAggregations>
 
     public bool IsEmpty => _aggregations is null && (int)_aggregation == 0;
 
-    public int Length => _aggregations?.Length ?? (HasSingle ? 1 : 0);
+    public int Length => _aggregations?.Length ?? (IsEmpty ? 0 : 1);
 
     public TsAggregation this[int index] => _aggregations is not null
         ? _aggregations[index]
-        : index == 0 && HasSingle
+        : index == 0 && !IsEmpty
             ? Decode(_aggregation)
             : throw new IndexOutOfRangeException();
 
@@ -71,8 +71,6 @@ public readonly struct TsAggregations : IEquatable<TsAggregations>
         : default;
 
     public static implicit operator TsAggregations(TsAggregation[] aggregations) => new(aggregations);
-
-    private bool HasSingle => _aggregations is null && (int)_aggregation != 0;
 
     private int GetSequenceHashCode()
     {
