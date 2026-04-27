@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Diagnostics.CodeAnalysis;
 
 namespace NRedisStack.DataTypes;
 
@@ -53,13 +54,18 @@ public class TimeSeriesTuple(TimeStamp time, double val)
     /// When used in a multi-aggregate query, fetch the corresponding aggregate value.
     /// </summary>
     /// <param name="index">The index of the aggregate (relative to the requested aggregates).</param>
-    public virtual double this[int index] => index is 0 ? Val : Array.Empty<double>()[0]; // for consistent error
+    public virtual double this[int index]
+    {
+        [Experimental(Experiments.Server_8_8, UrlFormat = Experiments.UrlFormat)]
+        get => index is 0 ? Val : Array.Empty<double>()[0]; // for consistent error
+    }
 
     /// <summary>
     /// Create a <see cref="TimeSeriesTuple"/> from a timestamp and a set of values.
     /// </summary>
     /// <remarks>When a single value is supplied, this is identical to the normal constructor; otherwise,
     /// the individual values are accessible via the indexer.</remarks>
+    [Experimental(Experiments.Server_8_8, UrlFormat = Experiments.UrlFormat)]
     public static TimeSeriesTuple Create(TimeStamp time, ReadOnlyMemory<double> val)
         => val.Length switch
         {
@@ -73,7 +79,10 @@ public class TimeSeriesTuple(TimeStamp time, double val)
         : TimeSeriesTuple(time, values.Span[0])
     {
         // this is the main point of this class: to provide access to the other values by overriding the indexer
-        public override double this[int index] => values.Span[index];
+        public override double this[int index]
+        {
+            get => values.Span[index];
+        }
 
         /// <inheritdoc/>
         public override string ToString()
