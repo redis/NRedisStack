@@ -2,6 +2,7 @@
 NRedisStack.TsAggregations
 NRedisStack.TsAggregations.TsAggregations() -> void
 NRedisStack.TsAggregations.Equals(NRedisStack.TsAggregations other) -> bool
+override NRedisStack.DataTypes.TimeStamp.ToString() -> string!
 override NRedisStack.TsAggregations.Equals(object? obj) -> bool
 override NRedisStack.TsAggregations.GetHashCode() -> int
 NRedisStack.TsAggregations.IsEmpty.get -> bool

@@ -9,8 +9,8 @@ public readonly record struct TimeStamp
     internal static TimeStamp Minus => new(WellKnownTimestamp.Minus);
     internal static TimeStamp Plus => new(WellKnownTimestamp.Plus);
     internal static TimeStamp Star => new(WellKnownTimestamp.Star);
-    
-    
+
+
     private enum WellKnownTimestamp : byte
     {
         None,
