@@ -104,7 +104,7 @@ public class CommunityEditionUpdatesTests : AbstractNRedisStackTest, IDisposable
 
         var searchInfo = server.Info("search");
         // v8.8 reduces a lot of noise around "info search" output
-        var expectCount = EndpointsFixture.IsAtLeast(8, 8) ? 2 : 8;
+        var expectCount = EndpointsFixture.IsAtLeast(ServerVersion.Redis_8_8) ? 2 : 8;
         CustomAssertions.GreaterThan(searchInfo.Length, expectCount);
     }
 
