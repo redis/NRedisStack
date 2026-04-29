@@ -67,6 +67,9 @@ public class EndpointsFixture : IDisposable
 
     public static Version RedisVersion = new(Environment.GetEnvironmentVariable("REDIS_VERSION") ?? "0.0.0");
 
+    public static bool IsAtLeast(Version version)
+        => IsAtLeast(version.Major, version.Minor, version.Build, version.Revision);
+
     public static bool IsAtLeast(int major, int minor = 0, int build = 0, int revision = 0)
     {
         var version = RedisVersion;

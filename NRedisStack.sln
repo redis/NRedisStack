@@ -15,12 +15,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{84D6210F
 		Directory.Packages.props = Directory.Packages.props
 		global.json = global.json
 		version.json = version.json
-		tests\dockers\docker-compose.yml = tests\dockers\docker-compose.yml
 		.github\actions\run-tests\action.yml = .github\actions\run-tests\action.yml
 		.github\workflows\integration.yml = .github\workflows\integration.yml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "docs", "docs\docs.csproj", "{4A35FC3C-69BC-4BDB-A4B2-6BFD0DF215AD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ci", ".github\ci.csproj", "{7524BE44-2B46-454F-80B5-BF131927D948}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dockers", "tests\dockers\dockers.csproj", "{7675B578-9759-4860-B9DC-31FECA809A42}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,5 +50,17 @@ Global
 		{4A35FC3C-69BC-4BDB-A4B2-6BFD0DF215AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4A35FC3C-69BC-4BDB-A4B2-6BFD0DF215AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4A35FC3C-69BC-4BDB-A4B2-6BFD0DF215AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7524BE44-2B46-454F-80B5-BF131927D948}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7524BE44-2B46-454F-80B5-BF131927D948}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7524BE44-2B46-454F-80B5-BF131927D948}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7524BE44-2B46-454F-80B5-BF131927D948}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7675B578-9759-4860-B9DC-31FECA809A42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7675B578-9759-4860-B9DC-31FECA809A42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7675B578-9759-4860-B9DC-31FECA809A42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7675B578-9759-4860-B9DC-31FECA809A42}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7524BE44-2B46-454F-80B5-BF131927D948} = {84D6210F-9A65-427A-965F-57E7B76424AB}
+		{7675B578-9759-4860-B9DC-31FECA809A42} = {84D6210F-9A65-427A-965F-57E7B76424AB}
 	EndGlobalSection
 EndGlobal
