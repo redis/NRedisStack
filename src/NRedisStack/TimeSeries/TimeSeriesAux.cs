@@ -1,10 +1,13 @@
+using System.Buffers;
 using NRedisStack.Literals;
 using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;
 using NRedisStack.Extensions;
 using StackExchange.Redis;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace NRedisStack;
 
@@ -299,11 +302,22 @@ public static class TimeSeriesAux
 
     private static string GetAggregationArgs(TsAggregations aggregations)
     {
-        if (aggregations.Length == 1)
+        switch (aggregations.Length)
         {
-            return aggregations[0].AsArg();
+            case 0: return "";
+            case 1: return aggregations[0].AsArg();
+            case 2: return $"{aggregations[0].AsArg()},{aggregations[1].AsArg()}";
+            case 3: return $"{aggregations[0].AsArg()},{aggregations[1].AsArg()},{aggregations[2].AsArg()}";
+            case 4: return $"{aggregations[0].AsArg()},{aggregations[1].AsArg()},{aggregations[2].AsArg()},{aggregations[3].AsArg()}";
+            case 5: return $"{aggregations[0].AsArg()},{aggregations[1].AsArg()},{aggregations[2].AsArg()},{aggregations[3].AsArg()},{aggregations[4].AsArg()}";
+            default:
+                var sb = new StringBuilder();
+                for (int i = 0; i < aggregations.Length; i++)
+                {
+                    if (i != 0) sb.Append(',');
+                    sb.Append(aggregations[i].AsArg());
+                }
+                return sb.ToString();
         }
-
-        return string.Join(",", Enumerable.Range(0, aggregations.Length).Select(i => aggregations[i].AsArg()));
     }
 }
