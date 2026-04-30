@@ -3,7 +3,11 @@
 services:
 
   redis:
+<<<<<<< marc/multi_agg
     image: ${CLIENT_LIBS_TEST_IMAGE:-redislabs/client-libs-test:unstable-24805570909-debian}
+=======
+    image: ${CLIENT_LIBS_TEST_IMAGE:-redislabs/client-libs-test:8.8-m03}
+>>>>>>> master
     container_name: redis-standalone
     environment:
       - TLS_ENABLED=yes
@@ -21,7 +25,11 @@ services:
       - all
 
   cluster:
+<<<<<<< marc/multi_agg
     image: ${CLIENT_LIBS_TEST_IMAGE:-redislabs/client-libs-test:unstable-24805570909-debian}
+=======
+    image: ${CLIENT_LIBS_TEST_IMAGE:-redislabs/client-libs-test:8.8-m03}
+>>>>>>> master
     container_name: redis-cluster
     environment:
       - REDIS_CLUSTER=yes
