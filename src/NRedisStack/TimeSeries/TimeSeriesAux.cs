@@ -311,7 +311,7 @@ public static class TimeSeriesAux
             case 4: return $"{aggregations[0].AsArg()},{aggregations[1].AsArg()},{aggregations[2].AsArg()},{aggregations[3].AsArg()}";
             case 5: return $"{aggregations[0].AsArg()},{aggregations[1].AsArg()},{aggregations[2].AsArg()},{aggregations[3].AsArg()},{aggregations[4].AsArg()}";
             default:
-                var sb = new StringBuilder();
+                var sb = new StringBuilder(aggregations.Length * (AggregationExtensions.MaxArgLen + 1) - 1); // over-estimate capacity including commas 
                 for (int i = 0; i < aggregations.Length; i++)
                 {
                     if (i != 0) sb.Append(',');
