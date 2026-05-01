@@ -17,7 +17,7 @@
     <PackageVersion Include="BouncyCastle.Cryptography" Version="2.6.1" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="coverlet.msbuild" Version="6.0.4" />
-    <PackageVersion Include="dotenv.net" Version="4.0.0" />
+    <PackageVersion Include="dotenv.net" Version="4.0.2" />
     <PackageVersion Include="GitHubActionsTestLogger" Version="2.4.1" />
     <PackageVersion Include="Microsoft.Azure.StackExchangeRedis" Version="3.2.1" />
     <PackageVersion Include="Microsoft.Bcl.Memory" Version="10.0.4" />
