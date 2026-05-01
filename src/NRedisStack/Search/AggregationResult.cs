@@ -72,8 +72,8 @@ public class AggregationResult
             var record = new Dictionary<string, object>();
             for (int i = 0; i + 1 < map.Length; i += 2)
             {
-                var key = (string)map[i++]!;
-                var val = map[i++];
+                var key = (string)map[i]!;
+                var val = map[i+1];
                 switch (key)
                 {
                     case "values" when val.Resp3Type is ResultType.Array:
