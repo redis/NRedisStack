@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;
 using NRedisStack.Extensions;
@@ -150,15 +151,28 @@ internal static class ResponseParser
 
     public static IReadOnlyList<TimeSeriesLabel> ToLabelArray(this RedisResult result)
     {
-        RedisResult[] redisResults = (RedisResult[])result!;
-        var list = new List<TimeSeriesLabel>(redisResults.Length);
-        if (redisResults.Length == 0) return list;
-        Array.ForEach(redisResults, labelResult =>
+        if (result.Resp3Type is ResultType.Map) // RESP3; single map
         {
-            var labelTuple = (RedisResult[])labelResult!;
-            list.Add(new(labelTuple[0].ToString(), labelTuple[1].ToString()));
-        });
-        return list;
+            var dict = ((RedisResult[])result!);
+            var list = new List<TimeSeriesLabel>(dict.Length / 2);
+            for (int i = 0; i < dict.Length; i += 2)
+            {
+                list.Add(new(dict[i].ToString(), dict[i + 1].ToString()));
+            }
+            return list;
+        }
+        else // jagged/nested array pairs
+        {
+            RedisResult[] redisResults = (RedisResult[])result!;
+            var list = new List<TimeSeriesLabel>(redisResults.Length);
+            if (redisResults.Length == 0) return list;
+            Array.ForEach(redisResults, labelResult =>
+            {
+                var labelTuple = (RedisResult[])labelResult!;
+                list.Add(new(labelTuple[0].ToString(), labelTuple[1].ToString()));
+            });
+            return list;
+        }
     }
 
     // public static IReadOnlyList<TimeSeriesCunck> ToCunckArray(this RedisResult result)
@@ -177,16 +191,36 @@ internal static class ResponseParser
     public static IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, TimeSeriesTuple value)> ParseMGetResponse(this RedisResult result)
     {
         var redisResults = (RedisResult[])result!;
-        var list = new List<(string key, IReadOnlyList<TimeSeriesLabel> labels, TimeSeriesTuple values)>(redisResults.Length);
-        if (redisResults.Length == 0) return list;
-        Array.ForEach(redisResults, MRangeValue =>
+        List<(string key, IReadOnlyList<TimeSeriesLabel> labels, TimeSeriesTuple values)> list;
+        if (redisResults.Length is 0)
         {
-            var MRangeTuple = (RedisResult[])MRangeValue!;
-            string key = MRangeTuple[0].ToString();
-            IReadOnlyList<TimeSeriesLabel> labels = ToLabelArray(MRangeTuple[1]);
-            TimeSeriesTuple? value = ToTimeSeriesTuple(MRangeTuple[2]);
-            list.Add((key, labels, value));
-        });
+            list = new(0);
+        }
+        else if (result.Resp3Type is ResultType.Map) // RESP3, map
+        {
+            list = new(redisResults.Length / 2);
+            for (int i = 0; i < redisResults.Length; i += 2)
+            {
+                string key = redisResults[i].ToString();
+                var pair = (RedisResult[])redisResults[i + 1]!;
+                var labels = ToLabelArray(pair[0]);
+                TimeSeriesTuple? value = ToTimeSeriesTuple(pair[1]);
+                list.Add((key, labels, value));
+            }
+        }
+        else // jagged
+        {
+            list = new(redisResults.Length);
+            for (int i = 0; i < redisResults.Length; i++)
+            {
+                var triple = (RedisResult[])redisResults[i]!;
+                string key = triple[0].ToString();
+                IReadOnlyList<TimeSeriesLabel> labels = ToLabelArray(triple[1]);
+                TimeSeriesTuple? value = ToTimeSeriesTuple(triple[2]);
+                list.Add((key, labels, value));
+            }
+        }
+
         return list;
     }
 
@@ -206,21 +240,39 @@ internal static class ResponseParser
         return list;
     }
 
-    public static TimeSeriesRule ToRule(this RedisResult result)
+    public static TimeSeriesRule ToRule(this RedisResult key, ReadOnlySpan<RedisResult> values)
     {
-        var redisResults = (RedisResult[])result!;
-        string destKey = redisResults[0].ToString();
-        long bucketTime = (long)redisResults[1];
-        var aggregation = AggregationExtensions.AsAggregation(redisResults[2].ToString());
+        string destKey = key.ToString();
+        long bucketTime = (long)values[1];
+        var aggregation = AggregationExtensions.AsAggregation(values[2].ToString());
         return new(destKey, bucketTime, aggregation);
     }
 
     public static IReadOnlyList<TimeSeriesRule> ToRuleArray(this RedisResult result)
     {
         var redisResults = (RedisResult[])result!;
-        var list = new List<TimeSeriesRule>();
-        if (redisResults.Length == 0) return list;
-        Array.ForEach(redisResults, rule => list.Add(ToRule(rule)));
+        List<TimeSeriesRule> list;
+        if (redisResults.Length == 0)
+        {
+            list = new(0);
+        }
+        else if (result.Resp3Type is ResultType.Map) // RESP3
+        {
+            list = new(redisResults.Length / 2);
+            for (int i = 0; i + 1 < redisResults.Length; i += 2)
+            {
+                list.Add(ToRule(redisResults[i], redisResults.AsSpan(i + 1)));
+            }
+        }
+        else
+        {
+            list = new List<TimeSeriesRule>(redisResults.Length);
+            foreach (var rule in redisResults)
+            {
+                var values = (RedisResult[])rule!;
+                list.Add(ToRule(values[0], values.AsSpan(1)));
+            }
+        }
         return list;
     }
 
@@ -443,55 +495,62 @@ internal static class ResponseParser
         for (int i = 0; i < redisResults.Length; ++i)
         {
             string label = redisResults[i++].ToString();
-            switch (label)
+            try
             {
-                case "totalSamples":
-                    totalSamples = (long)redisResults[i];
-                    break;
-                case "memoryUsage":
-                    memoryUsage = (long)redisResults[i];
-                    break;
-                case "retentionTime":
-                    retentionTime = (long)redisResults[i];
-                    break;
-                case "chunkCount":
-                    chunkCount = (long)redisResults[i];
-                    break;
-                case "chunkSize":
-                    chunkSize = (long)redisResults[i];
-                    break;
-                // case "maxSamplesPerChunk":
-                //     // If the property name is maxSamplesPerChunk then this is an old
-                //     // version of RedisTimeSeries and we used the number of samples before ( now Bytes )
-                //     chunkSize = chunkSize * 16;
-                //     break;
-                case "firstTimestamp":
-                    firstTimestamp = ToTimeStamp(redisResults[i]);
-                    break;
-                case "lastTimestamp":
-                    lastTimestamp = ToTimeStamp(redisResults[i]);
-                    break;
-                case "labels":
-                    labels = ToLabelArray(redisResults[i]);
-                    break;
-                case "sourceKey":
-                    sourceKey = redisResults[i].ToString();
-                    break;
-                case "rules":
-                    rules = ToRuleArray(redisResults[i]);
-                    break;
-                case "duplicatePolicy":
-                    // Avalible for > v1.4
-                    duplicatePolicy = ToPolicy(redisResults[i]);
-                    break;
-                case "keySelfName":
-                    // Avalible for > v1.4
-                    keySelfName = redisResults[i].ToString();
-                    break;
-                case "Chunks":
-                    // Avalible for > v1.4
-                    chunks = ToTimeSeriesChunkArray(redisResults[i]);
-                    break;
+                switch (label)
+                {
+                    case "totalSamples":
+                        totalSamples = (long)redisResults[i];
+                        break;
+                    case "memoryUsage":
+                        memoryUsage = (long)redisResults[i];
+                        break;
+                    case "retentionTime":
+                        retentionTime = (long)redisResults[i];
+                        break;
+                    case "chunkCount":
+                        chunkCount = (long)redisResults[i];
+                        break;
+                    case "chunkSize":
+                        chunkSize = (long)redisResults[i];
+                        break;
+                    // case "maxSamplesPerChunk":
+                    //     // If the property name is maxSamplesPerChunk then this is an old
+                    //     // version of RedisTimeSeries and we used the number of samples before ( now Bytes )
+                    //     chunkSize = chunkSize * 16;
+                    //     break;
+                    case "firstTimestamp":
+                        firstTimestamp = ToTimeStamp(redisResults[i]);
+                        break;
+                    case "lastTimestamp":
+                        lastTimestamp = ToTimeStamp(redisResults[i]);
+                        break;
+                    case "labels":
+                        labels = ToLabelArray(redisResults[i]);
+                        break;
+                    case "sourceKey":
+                        sourceKey = redisResults[i].ToString();
+                        break;
+                    case "rules":
+                        rules = ToRuleArray(redisResults[i]);
+                        break;
+                    case "duplicatePolicy":
+                        // Avalible for > v1.4
+                        duplicatePolicy = ToPolicy(redisResults[i]);
+                        break;
+                    case "keySelfName":
+                        // Avalible for > v1.4
+                        keySelfName = redisResults[i].ToString();
+                        break;
+                    case "Chunks":
+                        // Avalible for > v1.4
+                        chunks = ToTimeSeriesChunkArray(redisResults[i]);
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException($"{e.GetType().Name} parsing '{label}': {e.Message}", e);
             }
         }
 
@@ -704,7 +763,7 @@ internal static class ResponseParser
 
     public static SearchResult ToSearchResult(this RedisResult result, Query q)
     {
-        return new((RedisResult[])result!, !q.NoContent, q.WithScores, q.WithPayloads/*, q.ExplainScore*/);
+        return new(result, !q.NoContent, q.WithScores, q.WithPayloads/*, q.ExplainScore*/);
     }
 
     public static Tuple<AggregationResult, Dictionary<string, RedisResult>> ToProfileAggregateResult(this RedisResult result, AggregationRequest q)
@@ -848,13 +907,27 @@ internal static class ResponseParser
         }
 
         var resultArray = (RedisResult[])result!;
-        RedisStreamEntries[] redisStreamEntries = new RedisStreamEntries[resultArray.Length];
-        for (int i = 0; i < resultArray.Length; i++)
+        RedisStreamEntries[] redisStreamEntries;
+        if (result.Resp3Type is ResultType.Map) // RESP3
         {
-            RedisResult[] streamResultArray = (RedisResult[])resultArray[i]!;
-            RedisKey streamKey = streamResultArray[0].ToRedisKey();
-            StreamEntry[] streamEntries = ParseStreamEntries(streamResultArray[1].ToArray());
-            redisStreamEntries[i] = new(streamKey, streamEntries);
+            redisStreamEntries = new RedisStreamEntries[resultArray.Length / 2];
+            for (int i = 0; i + 1 < resultArray.Length; i+= 2)
+            {
+                RedisKey streamKey = resultArray[i].ToRedisKey();
+                StreamEntry[] streamEntries = ParseStreamEntries((RedisResult[])resultArray[i + 1]!);
+                redisStreamEntries[i / 2] = new(streamKey, streamEntries);
+            }
+        }
+        else
+        {
+            redisStreamEntries = new RedisStreamEntries[resultArray.Length];
+            for (int i = 0; i < resultArray.Length; i++)
+            {
+                RedisResult[] streamResultArray = (RedisResult[])resultArray[i]!;
+                RedisKey streamKey = streamResultArray[0].ToRedisKey();
+                StreamEntry[] streamEntries = ParseStreamEntries(streamResultArray[1].ToArray());
+                redisStreamEntries[i] = new(streamKey, streamEntries);
+            }
         }
 
         return redisStreamEntries;
@@ -889,5 +962,41 @@ internal static class ResponseParser
         }
 
         return nameValueEntries;
+    }
+
+    internal static T[] ParseSearchResultsMap<T>(RedisResult result, Func<string[], RedisResult[], T> reader, out long totalResults)
+    {
+        // common code for parsing a map with attributes, results, total_results
+        var arr = (RedisResult[])result!;
+        string[] attributes = [];
+        T[] results = [];
+        totalResults = 0;
+        for (int i = 0; i + 1 < arr.Length; i += 2)
+        {
+            var key = (string)arr[i]!;
+            var value = arr[i + 1];
+            switch (key)
+            {
+                // we're relying on this coming back before "results"; if this ever starts failing, I guess
+                // we can just move this to a separate pass
+                case "attributes" when value.Resp3Type is ResultType.Array:
+                    attributes = Array.ConvertAll((RedisResult[])value!, x => (string)x!);
+                    break;
+                case "total_results" when value.Resp3Type is ResultType.Integer:
+                    totalResults = (long)arr[i + 1]!;
+                    break;
+                case "results" when value.Resp3Type is ResultType.Array:
+                    var rawResults = (RedisResult[])value!;
+                    results = new T[rawResults.Length];
+                    for (int j = 0; j < rawResults.Length; j++)
+                    {
+                        results[j] = rawResults[j].Resp3Type is ResultType.Map
+                            ? reader(attributes, (RedisResult[])rawResults[j]!)
+                            : default(T)!;
+                    }
+                    break;
+            }
+        }
+        return results;
     }
 }

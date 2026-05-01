@@ -246,8 +246,17 @@ internal static class XUnitExtensions
             }
             else
             {
-                // Default to RESP2 everywhere else
-                result.Add(CreateTestCase(testCase, RunProtocol.Resp2));
+                // Default to RESP2+RESP3 for integration tests (defined as things inheriting from AbstractNRedisStackTest),
+                // RESP3 only for unit tests (but by definition: they shouldn't matter)
+                if (testCase.TestMethod.TestClass.Class.IsSubclassOf(typeof(AbstractNRedisStackTest)))
+                {
+                    result.Add(CreateTestCase(testCase, RunProtocol.Resp2));
+                    result.Add(CreateTestCase(testCase, RunProtocol.Resp3));
+                }
+                else
+                {
+                    result.Add(CreateTestCase(testCase, RunProtocol.Resp3));
+                }
             }
         }
         return result;
