@@ -762,27 +762,65 @@ internal static class ResponseParser
 
     public static Dictionary<string, Dictionary<string, double>> ToFtSpellCheckResult(this RedisResult result)
     {
-        var rawTerms = (RedisResult[])result!;
-        var returnTerms = new Dictionary<string, Dictionary<string, double>>(rawTerms.Length);
-        foreach (var term in rawTerms)
+        var outerArr = (RedisResult[])result!;
+        if (result.Resp3Type is ResultType.Map)
         {
-            var rawElements = (RedisResult[])term!;
-
-            string termValue = rawElements[1].ToString();
-
-            var list = (RedisResult[])rawElements[2]!;
-            Dictionary<string, double> entries = new(list.Length);
-            foreach (var entry in list)
+            // RESP3 has different nesting, and the score/suggestionj are inverted
+            for (int i = 0; i + 1 < outerArr.Length; i += 2)
             {
-                var entryElements = (RedisResult[])entry!;
-                string suggestion = entryElements[1].ToString();
-                double score = (double)entryElements[0];
-                entries.Add(suggestion, score);
+                if (outerArr[i].ToString() == "results" && outerArr[i + 1] is { Resp3Type: ResultType.Map } results)
+                {
+                    var innerArr = (RedisResult[])results!;
+                    var returnTerms = new Dictionary<string, Dictionary<string, double>>(innerArr.Length / 2);
+                    for (int j = 0; j < innerArr.Length; j += 2)
+                    {
+                        var term = innerArr[j].ToString();
+                        var suggestions = (RedisResult[])innerArr[j + 1]!;
+                        var entries = new Dictionary<string, double>(suggestions.Length);
+                        foreach (var entry in suggestions)
+                        {
+                            if (entry.Resp3Type is ResultType.Map)
+                            {
+                                for (int k = 0; k + 1 < entry.Length; k += 2)
+                                {
+                                    var suggestion = entry[k].ToString();
+                                    var score = (double)entry[k + 1];
+                                    entries.Add(suggestion, score);
+                                }
+                            }
+                        }
+                        returnTerms.Add(term, entries);
+                    }
+                    return returnTerms; // we can skip any other elements
+                }
             }
-            returnTerms.Add(termValue, entries);
-        }
 
-        return returnTerms;
+            return []; // didn't find any results
+        }
+        else
+        {
+            var returnTerms = new Dictionary<string, Dictionary<string, double>>(outerArr.Length);
+            foreach (var term in outerArr)
+            {
+                var rawElements = (RedisResult[])term!;
+
+                string termValue = rawElements[1].ToString();
+
+                var list = (RedisResult[])rawElements[2]!;
+                Dictionary<string, double> entries = new(list.Length);
+                foreach (var entry in list)
+                {
+                    var entryElements = (RedisResult[])entry!;
+                    string suggestion = entryElements[1].ToString();
+                    double score = (double)entryElements[0];
+                    entries.Add(suggestion, score);
+                }
+
+                returnTerms.Add(termValue, entries);
+            }
+
+            return returnTerms;
+        }
     }
 
     public static List<Tuple<string, double>> ToStringDoubleTupleList(this RedisResult result) // TODO: consider create class Suggestion instead of List<Tuple<string, double>>
