@@ -38,9 +38,9 @@ public class SearchResult
                     byte[]? payload = null;
                     RedisValue[]? fields = null;
                     string[]? scoreExplained = null;
-                    for (int i = 0; i + 1 < attributes.Length; i += 2)
+                    for (int i = 0; i + 1 < values.Length; i += 2)
                     {
-                        var key = attributes[i].ToString();
+                        var key = values[i].ToString();
                         var value = values[i + 1];
                         switch (key)
                         {

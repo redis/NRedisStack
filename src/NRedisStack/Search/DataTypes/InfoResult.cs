@@ -109,18 +109,34 @@ public class InfoResult
         {
             var dict = new Dictionary<string, RedisResult>();
 
+            bool isMap = values[i].Resp3Type is ResultType.Map;
             IEnumerable<RedisResult> enumerable = (RedisResult[])values[i]!;
             IEnumerator<RedisResult> results = enumerable.GetEnumerator();
             while (results.MoveNext())
             {
                 string attribute = (string)results.Current!;
                 // if its boolean attributes add itself to the dictionary and continue
-                if (booleanAttributes.Contains(attribute))
+                if (attribute is "flags" && isMap)
                 {
+                    results.MoveNext();
+                    if (results.Current.Resp3Type is ResultType.Array)
+                    {
+                        // RESP3 adds the flags (think "boolean attributes") a single array of strings;
+                        // spoof the RESP2 behaviour for consistency
+                        foreach (var flag in (RedisResult[])results.Current!)
+                        {
+                            dict.Add((string)flag!, results.Current);
+                        }
+                    }
+                }
+                else if (!isMap && booleanAttributes.Contains(attribute))
+                {
+                    // boolean attributes are added as themselves in RESP2
                     dict.Add(attribute, results.Current);
                 }
                 else
-                {//if its not a boolean attribute, add the next item as value to the dictionary
+                {
+                    //if its not a flag or boolean attribute, add the next item as value to the dictionary
                     results.MoveNext(); ;
                     dict.Add(attribute, results.Current);
                 }
