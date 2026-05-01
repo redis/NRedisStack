@@ -306,7 +306,7 @@ internal static class ResponseParser
                 var sb = new StringBuilder();
                 for (int i = 0; i < value.Length; i++)
                 {
-                    if (i != 0) sb.Append(", ");
+                    if (i != 0) sb.Append(',');
                     sb.Append(value[i]);
                 }
                 return sb.ToString();
