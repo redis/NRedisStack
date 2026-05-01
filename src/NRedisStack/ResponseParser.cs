@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text;
 using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;
 using NRedisStack.Extensions;
@@ -149,7 +150,7 @@ internal static class ResponseParser
         return list;
     }
 
-    public static IReadOnlyList<TimeSeriesLabel> ToLabelArray(this RedisResult result)
+    public static List<TimeSeriesLabel> ToLabelArray(this RedisResult result)
     {
         if (result.Resp3Type is ResultType.Map) // RESP3; single map
         {
@@ -227,17 +228,89 @@ internal static class ResponseParser
     public static IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)> ParseMRangeResponse(this RedisResult result)
     {
         var redisResults = (RedisResult[])result!;
-        var list = new List<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)>(redisResults.Length);
-        if (redisResults.Length == 0) return list;
-        Array.ForEach(redisResults, MRangeValue =>
+        List<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)> list;
+        if (redisResults.Length is 0)
         {
-            var MRangeTuple = (RedisResult[])MRangeValue!;
-            string key = MRangeTuple[0].ToString();
-            IReadOnlyList<TimeSeriesLabel> labels = ToLabelArray(MRangeTuple[1]);
-            IReadOnlyList<TimeSeriesTuple> values = ToTimeSeriesTupleArray(MRangeTuple[2]);
-            list.Add((key, labels, values));
-        });
+            list = [];
+        }
+        else if (result.Resp3Type is ResultType.Map) // RESP3
+        {
+            // jagged array of [key, [labels, [aggregators, ] [groupings, ] values]]
+            list = new(redisResults.Length / 2);
+            for (int i = 0; i < redisResults.Length; i += 2)
+            {
+                string key = redisResults[i].ToString();
+                var tuple = (RedisResult[])redisResults[i + 1]!;
+                var labels = ToLabelArray(tuple[0]);
+                // we choose to spoof RESP2-style labels from the additional RESP3 metadata, for consistency
+                for (int j = 1; j < tuple.Length - 1; j++)
+                {
+                    if (tuple[j].Resp3Type is ResultType.Map)
+                    {
+                        var map = (RedisResult[])tuple[j]!;
+                        for (int k = 0; k + 1 < map.Length; k += 2)
+                        {
+                            var metadataKey = map[k].ToString();
+                            var value = map[k + 1];
+                            switch (metadataKey)
+                            {
+                                case "group":
+                                    labels.Add(new("group", CommaDelimit(value)));
+                                    break;
+                                case "reducers" when value.Resp3Type is ResultType.Array:
+                                    labels.Add(new("__reducer__", CommaDelimit(value)));
+                                    break;
+                                case "sources" when value.Resp3Type is ResultType.Array:
+                                    labels.Add(new("__source__", CommaDelimit(value)));
+                                    break;
+                            }
+                        }
+                    }
+                }
+                // take values from the array
+                var values = ToTimeSeriesTupleArray(tuple[tuple.Length - 1]);
+                list.Add((key, labels, values));
+            }
+        }
+        else
+        {
+            // jagged array of [key, labels, values], where each value is [timestamp, value]
+            list = new(redisResults.Length);
+            for (int i = 0; i < redisResults.Length; i++)
+            {
+                var tuple = (RedisResult[])redisResults[i]!;
+                string key = tuple[0].ToString();
+                IReadOnlyList<TimeSeriesLabel> labels = ToLabelArray(tuple[1]);
+                IReadOnlyList<TimeSeriesTuple> values = ToTimeSeriesTupleArray(tuple[2]);
+                list.Add((key, labels, values));
+            }
+        }
+
         return list;
+    }
+
+    private static string CommaDelimit(RedisResult value)
+    {
+        if (value.IsNull) return null!;
+        if (value.Length < 0) return value.ToString();
+        switch (value.Length)
+        {
+            case 0: return "";
+            case 1: return $"{value[0]}";
+            case 2: return $"{value[0]},{value[1]}";
+            case 3: return $"{value[0]},{value[1]},{value[2]}";
+            case 4: return $"{value[0]},{value[1]},{value[2]},{value[3]}";
+            case 5: return $"{value[0]},{value[1]},{value[2]},{value[3]},{value[4]}";
+            case 6: return $"{value[0]},{value[1]},{value[2]},{value[3]},{value[4]},{value[5]}";
+            default:
+                var sb = new StringBuilder();
+                for (int i = 0; i < value.Length; i++)
+                {
+                    if (i != 0) sb.Append(", ");
+                    sb.Append(value[i]);
+                }
+                return sb.ToString();
+        }
     }
 
     public static TimeSeriesRule ToRule(this RedisResult key, ReadOnlySpan<RedisResult> values)
