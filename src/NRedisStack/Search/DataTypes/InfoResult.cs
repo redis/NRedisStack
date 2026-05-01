@@ -125,7 +125,7 @@ public class InfoResult
                         // spoof the RESP2 behaviour for consistency
                         foreach (var flag in (RedisResult[])results.Current!)
                         {
-                            dict.Add((string)flag!, results.Current);
+                            dict.Add((string)flag!, flag);
                         }
                     }
                 }
