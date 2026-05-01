@@ -316,8 +316,8 @@ internal static class ResponseParser
     public static TimeSeriesRule ToRule(this RedisResult key, ReadOnlySpan<RedisResult> values)
     {
         string destKey = key.ToString();
-        long bucketTime = (long)values[1];
-        var aggregation = AggregationExtensions.AsAggregation(values[2].ToString());
+        long bucketTime = (long)values[0];
+        var aggregation = AggregationExtensions.AsAggregation(values[1].ToString());
         return new(destKey, bucketTime, aggregation);
     }
 
@@ -334,7 +334,7 @@ internal static class ResponseParser
             list = new(redisResults.Length / 2);
             for (int i = 0; i + 1 < redisResults.Length; i += 2)
             {
-                list.Add(ToRule(redisResults[i], redisResults.AsSpan(i + 1)));
+                list.Add(ToRule(redisResults[i], redisResults[i + 1].ToArray()));
             }
         }
         else
