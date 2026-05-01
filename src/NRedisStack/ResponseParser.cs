@@ -911,7 +911,7 @@ internal static class ResponseParser
         if (result.Resp3Type is ResultType.Map) // RESP3
         {
             redisStreamEntries = new RedisStreamEntries[resultArray.Length / 2];
-            for (int i = 0; i + 1 < resultArray.Length; i+= 2)
+            for (int i = 0; i + 1 < resultArray.Length; i += 2)
             {
                 RedisKey streamKey = resultArray[i].ToRedisKey();
                 StreamEntry[] streamEntries = ParseStreamEntries((RedisResult[])resultArray[i + 1]!);
