@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text;
+using System.Text.Json;
 using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;
 using NRedisStack.Extensions;
@@ -1071,5 +1072,48 @@ internal static class ResponseParser
             }
         }
         return results;
+    }
+
+    internal static JsonType[] ParseJsonTypeArray(RedisResult result)
+    {
+        // RESP3 adds a layer of wrapping
+        return result is { Resp3Type: ResultType.Array, Length: 1 } && result[0].Resp3Type is ResultType.Array
+            ? ParseArray(result[0]) : ParseArray(result);
+
+#if NET // modern .NET; not NS or NETFX
+        static JsonType ParseType(RedisResult x) => Enum.Parse<JsonType>(x.ToString(), ignoreCase: true);
+#else
+        static JsonType ParseType(RedisResult x) => (JsonType)Enum.Parse(typeof(JsonType), x.ToString(), ignoreCase: true);
+#endif
+        static JsonType[] ParseArray(RedisResult result) // flexible, handles single values and arrays
+        {
+            switch (result.Resp2Type)
+            {
+                case ResultType.Array:
+                    return Array.ConvertAll((RedisResult[])result!, ParseType);
+                case ResultType.BulkString:
+                    return [ParseType(result)];
+                default:
+                    return [];
+            }
+        }
+    }
+
+    public static double?[] ParseJsonDoubleArray(RedisResult res)
+    {
+        if (res.IsNull) return null!;
+        if (res.Resp3Type is ResultType.Array)
+        {
+            // in RESP3, sent as an array of numbers
+            if (res.Length == 0) return [];
+            double?[] ret = new double?[res.Length];
+            for (int i = 0; i < res.Length; i++)
+            {
+                ret[i] = res[i].IsNull ? null : (double)res[i];
+            }
+            return ret;
+        }
+        // in RESP2: sent as a JSON stringified array
+        return JsonSerializer.Deserialize<double?[]>(res.ToString())!;
     }
 }

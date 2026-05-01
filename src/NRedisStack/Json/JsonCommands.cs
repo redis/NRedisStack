@@ -131,15 +131,7 @@ public class JsonCommands(IDatabase db) : JsonCommandsAsync(db), IJsonCommands
     public JsonType[] Type(RedisKey key, string? path = null)
     {
         RedisResult result = db.Execute(JsonCommandBuilder.Type(key, path));
-
-        return result.Resp2Type switch
-        {
-            ResultType.Array => ((RedisResult[])result!)
-                .Select(x => (JsonType)Enum.Parse(typeof(JsonType), x.ToString().ToUpper()))
-                .ToArray(),
-            ResultType.BulkString => [(JsonType)Enum.Parse(typeof(JsonType), result.ToString().ToUpper())],
-            _ => []
-        };
+        return ResponseParser.ParseJsonTypeArray(result);
     }
 
     public long DebugMemory(string key, string? path = null)
@@ -250,7 +242,7 @@ public class JsonCommands(IDatabase db) : JsonCommandsAsync(db), IJsonCommands
     public double?[] NumIncrby(RedisKey key, string path, double value)
     {
         var res = db.Execute(JsonCommandBuilder.NumIncrby(key, path, value));
-        return JsonSerializer.Deserialize<double?[]>(res.ToString())!;
+        return ResponseParser.ParseJsonDoubleArray(res);
     }
 
     /// <inheritdoc/>
