@@ -195,7 +195,7 @@ public class SkipIfRedisFactAttribute : FactAttribute
         Skip = Core.Skip;
     }
 
-    internal SkipIfRedisCore Core { get; } 
+    internal SkipIfRedisCore Core { get; }
 
     public SkipIfRedisFactAttribute( // defaults to LessThan
         string targetVersion,
