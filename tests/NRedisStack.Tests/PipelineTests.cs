@@ -20,6 +20,7 @@ public class PipelineTests : AbstractNRedisStackTest, IDisposable
     public void TestModulesPipeline(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
+        AssertVersion(db);
         var pipeline = new Pipeline(db);
 
         _ = pipeline.Bf.ReserveAsync("bf-key", 0.001, 100);

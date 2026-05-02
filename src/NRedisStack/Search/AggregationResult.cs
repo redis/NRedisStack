@@ -1,4 +1,5 @@
-﻿using NRedisStack.Search.Aggregation;
+﻿using System.Diagnostics;
+using NRedisStack.Search.Aggregation;
 using StackExchange.Redis;
 
 namespace NRedisStack.Search;
@@ -29,34 +30,71 @@ public class AggregationResult
     internal AggregationResult(RedisResult result, long cursorId = -1)
     {
         var arr = (RedisResult[])result!;
-
-        //  this statement below is not true as explained in the document https://redis.io/docs/latest/commands/ft.aggregate/#return
-        // // the first element is always the number of results
-        // TotalResults = (long)arr[0];
-
-        _results = new Dictionary<string, object>[arr.Length - 1];
-        for (int i = 1; i < arr.Length; i++)
+        Dictionary<string, object>[]? results = null;
+        if (result.Resp3Type is ResultType.Map)
         {
-            var raw = (RedisResult[])arr[i]!;
-            var cur = new Dictionary<string, object>();
-            for (int j = 0; j < raw.Length;)
+            results = ResponseParser.ParseSearchResultsMap(result, ParseRecordFromMap, out long totalResults);
+            TotalResults = totalResults;
+        }
+        else
+        {
+            //  this statement below is not true as explained in the document https://redis.io/docs/latest/commands/ft.aggregate/#return
+            // // the first element is always the number of results
+            // TotalResults = (long)arr[0];
+
+            results = new Dictionary<string, object>[arr.Length - 1];
+            for (int i = 1; i < arr.Length; i++)
             {
-                var key = (string)raw[j++]!;
-                var val = raw[j++];
-                if (val.Resp2Type == ResultType.Array)
+                var raw = (RedisResult[])arr[i]!;
+                var cur = new Dictionary<string, object>();
+                for (int j = 0; j < raw.Length;)
                 {
-                    cur.Add(key, ConvertMultiBulkToObject((RedisResult[])val!));
+                    var key = (string)raw[j++]!;
+                    var val = raw[j++];
+                    cur.Add(key, ParseFieldValue(val));
                 }
-                else
+
+                results[i - 1] = cur;
+            }
+            TotalResults = results.Length;
+        }
+        CursorId = cursorId;
+        _results = results ?? []; // if we didn't get results, make an empty array
+
+        static object ParseFieldValue(RedisResult val) => val.Resp2Type switch
+        {
+            ResultType.Array => ConvertMultiBulkToObject((RedisResult[])val!),
+            _ => (RedisValue)val
+        };
+
+        static Dictionary<string, object> ParseRecordFromMap(string[] attributes, RedisResult[] map)
+        {
+            var record = new Dictionary<string, object>();
+            for (int i = 0; i + 1 < map.Length; i += 2)
+            {
+                var key = (string)map[i]!;
+                var val = map[i + 1];
+                switch (key)
                 {
-                    cur.Add(key, (RedisValue)val);
+                    case "values" when val.Resp3Type is ResultType.Array:
+                        var values = (RedisResult[])val!;
+                        for (int j = 0; j < values.Length && j < attributes.Length; j++)
+                        {
+                            record.Add(attributes[j], ParseFieldValue(values[j]));
+                        }
+                        break;
+                    case "extra_attributes" when val.Resp3Type is ResultType.Map:
+                        var extraAttributes = (RedisResult[])val!;
+                        for (int j = 0; j + 1 < extraAttributes.Length; j += 2)
+                        {
+                            record.Add((string)extraAttributes[j]!, ParseFieldValue(extraAttributes[j + 1]));
+                        }
+                        break;
+
                 }
             }
-
-            _results[i - 1] = cur;
+            return record;
         }
-        TotalResults = _results.Length;
-        CursorId = cursorId;
     }
 
     /// <summary>
@@ -68,7 +106,7 @@ public class AggregationResult
     /// </summary>
     /// <param name="multiBulkArray"></param>
     /// <returns>object</returns>
-    private object ConvertMultiBulkToObject(IEnumerable<RedisResult> multiBulkArray)
+    private static object ConvertMultiBulkToObject(IEnumerable<RedisResult> multiBulkArray)
     {
         return multiBulkArray.Select(item => item.Resp2Type == ResultType.Array
                 ? ConvertMultiBulkToObject((RedisResult[])item!)

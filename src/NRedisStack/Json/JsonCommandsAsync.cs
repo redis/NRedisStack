@@ -101,7 +101,7 @@ public class JsonCommandsAsync(IDatabaseAsync db) : IJsonCommandsAsync
     public async Task<double?[]> NumIncrbyAsync(RedisKey key, string path, double value)
     {
         var res = await db.ExecuteAsync(JsonCommandBuilder.NumIncrby(key, path, value));
-        return JsonSerializer.Deserialize<double?[]>(res.ToString())!;
+        return ResponseParser.ParseJsonDoubleArray(res);
     }
 
     public async Task<IEnumerable<HashSet<string>>> ObjKeysAsync(RedisKey key, string? path = null)
@@ -231,18 +231,7 @@ public class JsonCommandsAsync(IDatabaseAsync db) : IJsonCommandsAsync
     public async Task<JsonType[]> TypeAsync(RedisKey key, string? path = null)
     {
         RedisResult result = await db.ExecuteAsync(JsonCommandBuilder.Type(key, path));
-
-        if (result.Resp2Type == ResultType.Array)
-        {
-            return ((RedisResult[])result!).Select(x => (JsonType)Enum.Parse(typeof(JsonType), x.ToString().ToUpper())).ToArray();
-        }
-
-        if (result.Resp2Type == ResultType.BulkString)
-        {
-            return [(JsonType)Enum.Parse(typeof(JsonType), result.ToString().ToUpper())];
-        }
-
-        return [];
+        return ResponseParser.ParseJsonTypeArray(result);
     }
 
     public async Task<long> DebugMemoryAsync(string key, string? path = null)

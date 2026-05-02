@@ -3,10 +3,9 @@ using Xunit;
 
 namespace NRedisStack.Tests;
 
-public class CommunityEditionUpdatesTests : AbstractNRedisStackTest, IDisposable
+public class CommunityEditionUpdatesTests(EndpointsFixture endpointsFixture, ITestOutputHelper log)
+    : AbstractNRedisStackTest(endpointsFixture, log), IDisposable
 {
-    public CommunityEditionUpdatesTests(EndpointsFixture endpointsFixture) : base(endpointsFixture) { }
-
     private IServer getAnyPrimary(IConnectionMultiplexer muxer)
     {
         foreach (var endpoint in muxer.GetEndPoints())
@@ -104,6 +103,7 @@ public class CommunityEditionUpdatesTests : AbstractNRedisStackTest, IDisposable
 
         var searchInfo = server.Info("search");
         // v8.8 reduces a lot of noise around "info search" output
+        Log($"Detected version: {EndpointsFixture.RedisVersion}");
         var expectCount = EndpointsFixture.IsAtLeast(ServerVersion.Redis_8_8) ? 2 : 8;
         CustomAssertions.GreaterThan(searchInfo.Length, expectCount);
     }

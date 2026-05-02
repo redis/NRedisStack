@@ -39,6 +39,7 @@ public class TransactionTests : AbstractNRedisStackTest, IDisposable
     public void TestModulesTransaction(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
+        AssertVersion(db);
         var tran = new Transaction(db);
 
         _ = tran.Bf.ReserveAsync("bf-key", 0.001, 100);

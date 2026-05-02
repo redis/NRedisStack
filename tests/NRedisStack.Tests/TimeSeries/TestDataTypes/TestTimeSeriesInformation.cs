@@ -9,14 +9,15 @@ using NRedisStack.Tests;
 
 namespace NRedisTimeSeries.Test.TestDataTypes;
 
-public class TestInformation(EndpointsFixture endpointsFixture)
-    : AbstractNRedisStackTest(endpointsFixture)
+public class TestInformation(EndpointsFixture endpointsFixture, ITestOutputHelper log)
+    : AbstractNRedisStackTest(endpointsFixture, log)
 {
     [SkipIfRedisFact(Comparison.GreaterThanOrEqual, "7.9.240")]
     public void TestInformationSync()
     {
         string key = CreateKeyName();
         IDatabase db = GetCleanDatabase();
+        AssertVersion(db);
         var ts = db.TS();
         ts.Add(key, "*", 1.1);
         ts.Add(key, "*", 1.3, duplicatePolicy: TsDuplicatePolicy.LAST);
@@ -42,6 +43,7 @@ public class TestInformation(EndpointsFixture endpointsFixture)
     {
         string key = CreateKeyName();
         IDatabase db = GetCleanDatabase();
+        AssertVersion(db);
         var ts = db.TS();
         await ts.AddAsync(key, "*", 1.1);
         await ts.AddAsync(key, "*", 1.3, duplicatePolicy: TsDuplicatePolicy.LAST);

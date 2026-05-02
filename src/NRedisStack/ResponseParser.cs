@@ -1,3 +1,6 @@
+using System.Diagnostics;
+using System.Text;
+using System.Text.Json;
 using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;
 using NRedisStack.Extensions;
@@ -148,17 +151,30 @@ internal static class ResponseParser
         return list;
     }
 
-    public static IReadOnlyList<TimeSeriesLabel> ToLabelArray(this RedisResult result)
+    public static List<TimeSeriesLabel> ToLabelArray(this RedisResult result)
     {
-        RedisResult[] redisResults = (RedisResult[])result!;
-        var list = new List<TimeSeriesLabel>(redisResults.Length);
-        if (redisResults.Length == 0) return list;
-        Array.ForEach(redisResults, labelResult =>
+        if (result.Resp3Type is ResultType.Map) // RESP3; single map
         {
-            var labelTuple = (RedisResult[])labelResult!;
-            list.Add(new(labelTuple[0].ToString(), labelTuple[1].ToString()));
-        });
-        return list;
+            var dict = ((RedisResult[])result!);
+            var list = new List<TimeSeriesLabel>(dict.Length / 2);
+            for (int i = 0; i < dict.Length; i += 2)
+            {
+                list.Add(new(dict[i].ToString(), dict[i + 1].ToString()));
+            }
+            return list;
+        }
+        else // jagged/nested array pairs
+        {
+            RedisResult[] redisResults = (RedisResult[])result!;
+            var list = new List<TimeSeriesLabel>(redisResults.Length);
+            if (redisResults.Length == 0) return list;
+            Array.ForEach(redisResults, labelResult =>
+            {
+                var labelTuple = (RedisResult[])labelResult!;
+                list.Add(new(labelTuple[0].ToString(), labelTuple[1].ToString()));
+            });
+            return list;
+        }
     }
 
     // public static IReadOnlyList<TimeSeriesCunck> ToCunckArray(this RedisResult result)
@@ -177,50 +193,160 @@ internal static class ResponseParser
     public static IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, TimeSeriesTuple value)> ParseMGetResponse(this RedisResult result)
     {
         var redisResults = (RedisResult[])result!;
-        var list = new List<(string key, IReadOnlyList<TimeSeriesLabel> labels, TimeSeriesTuple values)>(redisResults.Length);
-        if (redisResults.Length == 0) return list;
-        Array.ForEach(redisResults, MRangeValue =>
+        List<(string key, IReadOnlyList<TimeSeriesLabel> labels, TimeSeriesTuple values)> list;
+        if (redisResults.Length is 0)
         {
-            var MRangeTuple = (RedisResult[])MRangeValue!;
-            string key = MRangeTuple[0].ToString();
-            IReadOnlyList<TimeSeriesLabel> labels = ToLabelArray(MRangeTuple[1]);
-            TimeSeriesTuple? value = ToTimeSeriesTuple(MRangeTuple[2]);
-            list.Add((key, labels, value));
-        });
+            list = new(0);
+        }
+        else if (result.Resp3Type is ResultType.Map) // RESP3, map
+        {
+            list = new(redisResults.Length / 2);
+            for (int i = 0; i < redisResults.Length; i += 2)
+            {
+                string key = redisResults[i].ToString();
+                var pair = (RedisResult[])redisResults[i + 1]!;
+                var labels = ToLabelArray(pair[0]);
+                TimeSeriesTuple? value = ToTimeSeriesTuple(pair[1]);
+                list.Add((key, labels, value));
+            }
+        }
+        else // jagged
+        {
+            list = new(redisResults.Length);
+            for (int i = 0; i < redisResults.Length; i++)
+            {
+                var triple = (RedisResult[])redisResults[i]!;
+                string key = triple[0].ToString();
+                IReadOnlyList<TimeSeriesLabel> labels = ToLabelArray(triple[1]);
+                TimeSeriesTuple? value = ToTimeSeriesTuple(triple[2]);
+                list.Add((key, labels, value));
+            }
+        }
+
         return list;
     }
 
     public static IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)> ParseMRangeResponse(this RedisResult result)
     {
         var redisResults = (RedisResult[])result!;
-        var list = new List<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)>(redisResults.Length);
-        if (redisResults.Length == 0) return list;
-        Array.ForEach(redisResults, MRangeValue =>
+        List<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)> list;
+        if (redisResults.Length is 0)
         {
-            var MRangeTuple = (RedisResult[])MRangeValue!;
-            string key = MRangeTuple[0].ToString();
-            IReadOnlyList<TimeSeriesLabel> labels = ToLabelArray(MRangeTuple[1]);
-            IReadOnlyList<TimeSeriesTuple> values = ToTimeSeriesTupleArray(MRangeTuple[2]);
-            list.Add((key, labels, values));
-        });
+            list = [];
+        }
+        else if (result.Resp3Type is ResultType.Map) // RESP3
+        {
+            // jagged array of [key, [labels, [aggregators, ] [groupings, ] values]]
+            list = new(redisResults.Length / 2);
+            for (int i = 0; i < redisResults.Length; i += 2)
+            {
+                string key = redisResults[i].ToString();
+                var tuple = (RedisResult[])redisResults[i + 1]!;
+                var labels = ToLabelArray(tuple[0]);
+                // we choose to spoof RESP2-style labels from the additional RESP3 metadata, for consistency
+                for (int j = 1; j < tuple.Length - 1; j++)
+                {
+                    if (tuple[j].Resp3Type is ResultType.Map)
+                    {
+                        var map = (RedisResult[])tuple[j]!;
+                        for (int k = 0; k + 1 < map.Length; k += 2)
+                        {
+                            var metadataKey = map[k].ToString();
+                            var value = map[k + 1];
+                            switch (metadataKey)
+                            {
+                                case "group":
+                                    labels.Add(new("group", CommaDelimit(value)));
+                                    break;
+                                case "reducers" when value.Resp3Type is ResultType.Array:
+                                    labels.Add(new("__reducer__", CommaDelimit(value)));
+                                    break;
+                                case "sources" when value.Resp3Type is ResultType.Array:
+                                    labels.Add(new("__source__", CommaDelimit(value)));
+                                    break;
+                            }
+                        }
+                    }
+                }
+                // take values from the array
+                var values = ToTimeSeriesTupleArray(tuple[tuple.Length - 1]);
+                list.Add((key, labels, values));
+            }
+        }
+        else
+        {
+            // jagged array of [key, labels, values], where each value is [timestamp, value]
+            list = new(redisResults.Length);
+            for (int i = 0; i < redisResults.Length; i++)
+            {
+                var tuple = (RedisResult[])redisResults[i]!;
+                string key = tuple[0].ToString();
+                IReadOnlyList<TimeSeriesLabel> labels = ToLabelArray(tuple[1]);
+                IReadOnlyList<TimeSeriesTuple> values = ToTimeSeriesTupleArray(tuple[2]);
+                list.Add((key, labels, values));
+            }
+        }
+
         return list;
     }
 
-    public static TimeSeriesRule ToRule(this RedisResult result)
+    private static string CommaDelimit(RedisResult value)
     {
-        var redisResults = (RedisResult[])result!;
-        string destKey = redisResults[0].ToString();
-        long bucketTime = (long)redisResults[1];
-        var aggregation = AggregationExtensions.AsAggregation(redisResults[2].ToString());
+        if (value.IsNull) return null!;
+        if (value.Length < 0) return value.ToString();
+        switch (value.Length)
+        {
+            case 0: return "";
+            case 1: return $"{value[0]}";
+            case 2: return $"{value[0]},{value[1]}";
+            case 3: return $"{value[0]},{value[1]},{value[2]}";
+            case 4: return $"{value[0]},{value[1]},{value[2]},{value[3]}";
+            case 5: return $"{value[0]},{value[1]},{value[2]},{value[3]},{value[4]}";
+            case 6: return $"{value[0]},{value[1]},{value[2]},{value[3]},{value[4]},{value[5]}";
+            default:
+                var sb = new StringBuilder();
+                for (int i = 0; i < value.Length; i++)
+                {
+                    if (i != 0) sb.Append(',');
+                    sb.Append(value[i]);
+                }
+                return sb.ToString();
+        }
+    }
+
+    public static TimeSeriesRule ToRule(this RedisResult key, ReadOnlySpan<RedisResult> values)
+    {
+        string destKey = key.ToString();
+        long bucketTime = (long)values[0];
+        var aggregation = AggregationExtensions.AsAggregation(values[1].ToString());
         return new(destKey, bucketTime, aggregation);
     }
 
     public static IReadOnlyList<TimeSeriesRule> ToRuleArray(this RedisResult result)
     {
         var redisResults = (RedisResult[])result!;
-        var list = new List<TimeSeriesRule>();
-        if (redisResults.Length == 0) return list;
-        Array.ForEach(redisResults, rule => list.Add(ToRule(rule)));
+        List<TimeSeriesRule> list;
+        if (redisResults.Length == 0)
+        {
+            list = new(0);
+        }
+        else if (result.Resp3Type is ResultType.Map) // RESP3
+        {
+            list = new(redisResults.Length / 2);
+            for (int i = 0; i + 1 < redisResults.Length; i += 2)
+            {
+                list.Add(ToRule(redisResults[i], redisResults[i + 1].ToArray()));
+            }
+        }
+        else
+        {
+            list = new List<TimeSeriesRule>(redisResults.Length);
+            foreach (var rule in redisResults)
+            {
+                var values = (RedisResult[])rule!;
+                list.Add(ToRule(values[0], values.AsSpan(1)));
+            }
+        }
         return list;
     }
 
@@ -443,55 +569,62 @@ internal static class ResponseParser
         for (int i = 0; i < redisResults.Length; ++i)
         {
             string label = redisResults[i++].ToString();
-            switch (label)
+            try
             {
-                case "totalSamples":
-                    totalSamples = (long)redisResults[i];
-                    break;
-                case "memoryUsage":
-                    memoryUsage = (long)redisResults[i];
-                    break;
-                case "retentionTime":
-                    retentionTime = (long)redisResults[i];
-                    break;
-                case "chunkCount":
-                    chunkCount = (long)redisResults[i];
-                    break;
-                case "chunkSize":
-                    chunkSize = (long)redisResults[i];
-                    break;
-                // case "maxSamplesPerChunk":
-                //     // If the property name is maxSamplesPerChunk then this is an old
-                //     // version of RedisTimeSeries and we used the number of samples before ( now Bytes )
-                //     chunkSize = chunkSize * 16;
-                //     break;
-                case "firstTimestamp":
-                    firstTimestamp = ToTimeStamp(redisResults[i]);
-                    break;
-                case "lastTimestamp":
-                    lastTimestamp = ToTimeStamp(redisResults[i]);
-                    break;
-                case "labels":
-                    labels = ToLabelArray(redisResults[i]);
-                    break;
-                case "sourceKey":
-                    sourceKey = redisResults[i].ToString();
-                    break;
-                case "rules":
-                    rules = ToRuleArray(redisResults[i]);
-                    break;
-                case "duplicatePolicy":
-                    // Avalible for > v1.4
-                    duplicatePolicy = ToPolicy(redisResults[i]);
-                    break;
-                case "keySelfName":
-                    // Avalible for > v1.4
-                    keySelfName = redisResults[i].ToString();
-                    break;
-                case "Chunks":
-                    // Avalible for > v1.4
-                    chunks = ToTimeSeriesChunkArray(redisResults[i]);
-                    break;
+                switch (label)
+                {
+                    case "totalSamples":
+                        totalSamples = (long)redisResults[i];
+                        break;
+                    case "memoryUsage":
+                        memoryUsage = (long)redisResults[i];
+                        break;
+                    case "retentionTime":
+                        retentionTime = (long)redisResults[i];
+                        break;
+                    case "chunkCount":
+                        chunkCount = (long)redisResults[i];
+                        break;
+                    case "chunkSize":
+                        chunkSize = (long)redisResults[i];
+                        break;
+                    // case "maxSamplesPerChunk":
+                    //     // If the property name is maxSamplesPerChunk then this is an old
+                    //     // version of RedisTimeSeries and we used the number of samples before ( now Bytes )
+                    //     chunkSize = chunkSize * 16;
+                    //     break;
+                    case "firstTimestamp":
+                        firstTimestamp = ToTimeStamp(redisResults[i]);
+                        break;
+                    case "lastTimestamp":
+                        lastTimestamp = ToTimeStamp(redisResults[i]);
+                        break;
+                    case "labels":
+                        labels = ToLabelArray(redisResults[i]);
+                        break;
+                    case "sourceKey":
+                        sourceKey = redisResults[i].ToString();
+                        break;
+                    case "rules":
+                        rules = ToRuleArray(redisResults[i]);
+                        break;
+                    case "duplicatePolicy":
+                        // Avalible for > v1.4
+                        duplicatePolicy = ToPolicy(redisResults[i]);
+                        break;
+                    case "keySelfName":
+                        // Avalible for > v1.4
+                        keySelfName = redisResults[i].ToString();
+                        break;
+                    case "Chunks":
+                        // Avalible for > v1.4
+                        chunks = ToTimeSeriesChunkArray(redisResults[i]);
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException($"{e.GetType().Name} parsing '{label}': {e.Message}", e);
             }
         }
 
@@ -517,12 +650,29 @@ internal static class ResponseParser
 
     public static Dictionary<string, string> ToConfigDictionary(this RedisResult value)
     {
-        var res = (RedisResult[])value!;
-        var dict = new Dictionary<string, string>();
-        foreach (var pair in res)
+        Dictionary<string, string> dict;
+        if (value.Length is 0)
         {
-            var arr = (RedisResult[])pair!;
-            dict.Add(arr[0].ToString(), arr[1].ToString());
+            dict = new(0);
+        }
+        else if (value.Resp3Type is ResultType.Map)
+        {
+            // RESP3: map
+            dict = new(value.Length / 2);
+            for (int i = 0; i + 1 < value.Length; i += 2)
+            {
+                dict.Add(value[i].ToString(), value[i + 1].ToString());
+            }
+        }
+        else
+        {
+            // RESP2: jagged; [ [key, value] ]
+            dict = new(value.Length);
+            for (int i = 0; i < value.Length; i++)
+            {
+                var inner = value[i];
+                dict.Add(inner[0].ToString(), inner[1].ToString());
+            }
         }
         return dict;
     }
@@ -629,27 +779,65 @@ internal static class ResponseParser
 
     public static Dictionary<string, Dictionary<string, double>> ToFtSpellCheckResult(this RedisResult result)
     {
-        var rawTerms = (RedisResult[])result!;
-        var returnTerms = new Dictionary<string, Dictionary<string, double>>(rawTerms.Length);
-        foreach (var term in rawTerms)
+        var outerArr = (RedisResult[])result!;
+        if (result.Resp3Type is ResultType.Map)
         {
-            var rawElements = (RedisResult[])term!;
-
-            string termValue = rawElements[1].ToString();
-
-            var list = (RedisResult[])rawElements[2]!;
-            Dictionary<string, double> entries = new(list.Length);
-            foreach (var entry in list)
+            // RESP3 has different nesting, and the score/suggestionj are inverted
+            for (int i = 0; i + 1 < outerArr.Length; i += 2)
             {
-                var entryElements = (RedisResult[])entry!;
-                string suggestion = entryElements[1].ToString();
-                double score = (double)entryElements[0];
-                entries.Add(suggestion, score);
+                if (outerArr[i].ToString() == "results" && outerArr[i + 1] is { Resp3Type: ResultType.Map } results)
+                {
+                    var innerArr = (RedisResult[])results!;
+                    var returnTerms = new Dictionary<string, Dictionary<string, double>>(innerArr.Length / 2);
+                    for (int j = 0; j < innerArr.Length; j += 2)
+                    {
+                        var term = innerArr[j].ToString();
+                        var suggestions = (RedisResult[])innerArr[j + 1]!;
+                        var entries = new Dictionary<string, double>(suggestions.Length);
+                        foreach (var entry in suggestions)
+                        {
+                            if (entry.Resp3Type is ResultType.Map)
+                            {
+                                for (int k = 0; k + 1 < entry.Length; k += 2)
+                                {
+                                    var suggestion = entry[k].ToString();
+                                    var score = (double)entry[k + 1];
+                                    entries.Add(suggestion, score);
+                                }
+                            }
+                        }
+                        returnTerms.Add(term, entries);
+                    }
+                    return returnTerms; // we can skip any other elements
+                }
             }
-            returnTerms.Add(termValue, entries);
-        }
 
-        return returnTerms;
+            return []; // didn't find any results
+        }
+        else
+        {
+            var returnTerms = new Dictionary<string, Dictionary<string, double>>(outerArr.Length);
+            foreach (var term in outerArr)
+            {
+                var rawElements = (RedisResult[])term!;
+
+                string termValue = rawElements[1].ToString();
+
+                var list = (RedisResult[])rawElements[2]!;
+                Dictionary<string, double> entries = new(list.Length);
+                foreach (var entry in list)
+                {
+                    var entryElements = (RedisResult[])entry!;
+                    string suggestion = entryElements[1].ToString();
+                    double score = (double)entryElements[0];
+                    entries.Add(suggestion, score);
+                }
+
+                returnTerms.Add(termValue, entries);
+            }
+
+            return returnTerms;
+        }
     }
 
     public static List<Tuple<string, double>> ToStringDoubleTupleList(this RedisResult result) // TODO: consider create class Suggestion instead of List<Tuple<string, double>>
@@ -687,10 +875,31 @@ internal static class ResponseParser
     public static Tuple<SearchResult, Dictionary<string, RedisResult>> ToProfileSearchResult(this RedisResult result, Query q)
     {
         var results = (RedisResult[])result!;
-
-        var searchResult = results[0].ToSearchResult(q);
-        var profile = results[1].ToStringRedisResultDictionary();
-        return new(searchResult, profile);
+        SearchResult? searchResult = null;
+        Dictionary<string, RedisResult>? profile = null;
+        if (result.Resp3Type is ResultType.Map)
+        {
+            // RESP3: keyed sections map
+            for (int i = 0; i + 1 < results.Length; i += 2)
+            {
+                switch (results[i].ToString())
+                {
+                    case "Results":
+                        searchResult = results[i + 1].ToSearchResult(q);
+                        break;
+                    case "Profile":
+                        profile = results[i + 1].ToStringRedisResultDictionary();
+                        break;
+                }
+            }
+        }
+        else
+        {
+            // RESP2: ordered array
+            searchResult = results[0].ToSearchResult(q);
+            profile = results[1].ToStringRedisResultDictionary();
+        }
+        return new(searchResult!, profile!);
     }
 
     public static Tuple<SearchResult, ProfilingInformation> ParseProfileSearchResult(this RedisResult result, Query q)
@@ -704,7 +913,7 @@ internal static class ResponseParser
 
     public static SearchResult ToSearchResult(this RedisResult result, Query q)
     {
-        return new((RedisResult[])result!, !q.NoContent, q.WithScores, q.WithPayloads/*, q.ExplainScore*/);
+        return new(result, !q.NoContent, q.WithScores, q.WithPayloads/*, q.ExplainScore*/);
     }
 
     public static Tuple<AggregationResult, Dictionary<string, RedisResult>> ToProfileAggregateResult(this RedisResult result, AggregationRequest q)
@@ -848,13 +1057,27 @@ internal static class ResponseParser
         }
 
         var resultArray = (RedisResult[])result!;
-        RedisStreamEntries[] redisStreamEntries = new RedisStreamEntries[resultArray.Length];
-        for (int i = 0; i < resultArray.Length; i++)
+        RedisStreamEntries[] redisStreamEntries;
+        if (result.Resp3Type is ResultType.Map) // RESP3
         {
-            RedisResult[] streamResultArray = (RedisResult[])resultArray[i]!;
-            RedisKey streamKey = streamResultArray[0].ToRedisKey();
-            StreamEntry[] streamEntries = ParseStreamEntries(streamResultArray[1].ToArray());
-            redisStreamEntries[i] = new(streamKey, streamEntries);
+            redisStreamEntries = new RedisStreamEntries[resultArray.Length / 2];
+            for (int i = 0; i + 1 < resultArray.Length; i += 2)
+            {
+                RedisKey streamKey = resultArray[i].ToRedisKey();
+                StreamEntry[] streamEntries = ParseStreamEntries((RedisResult[])resultArray[i + 1]!);
+                redisStreamEntries[i / 2] = new(streamKey, streamEntries);
+            }
+        }
+        else
+        {
+            redisStreamEntries = new RedisStreamEntries[resultArray.Length];
+            for (int i = 0; i < resultArray.Length; i++)
+            {
+                RedisResult[] streamResultArray = (RedisResult[])resultArray[i]!;
+                RedisKey streamKey = streamResultArray[0].ToRedisKey();
+                StreamEntry[] streamEntries = ParseStreamEntries(streamResultArray[1].ToArray());
+                redisStreamEntries[i] = new(streamKey, streamEntries);
+            }
         }
 
         return redisStreamEntries;
@@ -889,5 +1112,84 @@ internal static class ResponseParser
         }
 
         return nameValueEntries;
+    }
+
+    internal static T[] ParseSearchResultsMap<T>(RedisResult result, Func<string[], RedisResult[], T> reader, out long totalResults)
+    {
+        // common code for parsing a map with attributes, results, total_results
+        var arr = (RedisResult[])result!;
+        string[] attributes = [];
+        T[] results = [];
+        totalResults = 0;
+        for (int i = 0; i + 1 < arr.Length; i += 2)
+        {
+            var key = (string)arr[i]!;
+            var value = arr[i + 1];
+            switch (key)
+            {
+                // we're relying on this coming back before "results"; if this ever starts failing, I guess
+                // we can just move this to a separate pass
+                case "attributes" when value.Resp3Type is ResultType.Array:
+                    attributes = Array.ConvertAll((RedisResult[])value!, x => (string)x!);
+                    break;
+                case "total_results" when value.Resp3Type is ResultType.Integer:
+                    totalResults = (long)arr[i + 1]!;
+                    break;
+                case "results" when value.Resp3Type is ResultType.Array:
+                    var rawResults = (RedisResult[])value!;
+                    results = new T[rawResults.Length];
+                    for (int j = 0; j < rawResults.Length; j++)
+                    {
+                        results[j] = rawResults[j].Resp3Type is ResultType.Map
+                            ? reader(attributes, (RedisResult[])rawResults[j]!)
+                            : default(T)!;
+                    }
+                    break;
+            }
+        }
+        return results;
+    }
+
+    internal static JsonType[] ParseJsonTypeArray(RedisResult result)
+    {
+        // RESP3 adds a layer of wrapping
+        return result is { Resp3Type: ResultType.Array, Length: 1 } && result[0].Resp3Type is ResultType.Array
+            ? ParseArray(result[0]) : ParseArray(result);
+
+#if NET // modern .NET; not NS or NETFX
+        static JsonType ParseType(RedisResult x) => Enum.Parse<JsonType>(x.ToString(), ignoreCase: true);
+#else
+        static JsonType ParseType(RedisResult x) => (JsonType)Enum.Parse(typeof(JsonType), x.ToString(), ignoreCase: true);
+#endif
+        static JsonType[] ParseArray(RedisResult result) // flexible, handles single values and arrays
+        {
+            switch (result.Resp2Type)
+            {
+                case ResultType.Array:
+                    return Array.ConvertAll((RedisResult[])result!, ParseType);
+                case ResultType.BulkString:
+                    return [ParseType(result)];
+                default:
+                    return [];
+            }
+        }
+    }
+
+    public static double?[] ParseJsonDoubleArray(RedisResult res)
+    {
+        if (res.IsNull) return null!;
+        if (res.Resp3Type is ResultType.Array)
+        {
+            // in RESP3, sent as an array of numbers
+            if (res.Length == 0) return [];
+            double?[] ret = new double?[res.Length];
+            for (int i = 0; i < res.Length; i++)
+            {
+                ret[i] = res[i].IsNull ? null : (double)res[i];
+            }
+            return ret;
+        }
+        // in RESP2: sent as a JSON stringified array
+        return JsonSerializer.Deserialize<double?[]>(res.ToString())!;
     }
 }
