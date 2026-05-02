@@ -1194,6 +1194,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     public void TestConfig(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
+        AssertVersion(db);
         var ft = db.FT();
         Assert.True(ft.ConfigSet("TIMEOUT", "100"));
         Dictionary<string, string> configMap = ft.ConfigGet("*");
@@ -1206,6 +1207,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     public async Task TestConfigAsnyc(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
+        AssertVersion(db);
         var ft = db.FT();
         Assert.True(await ft.ConfigSetAsync("TIMEOUT", "100"));
         Dictionary<string, string> configMap = await ft.ConfigGetAsync("*");
@@ -1218,6 +1220,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     public void configOnTimeout(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
+        AssertVersion(db);
         var ft = db.FT();
         Assert.True(ft.ConfigSet("ON_TIMEOUT", "fail"));
         Assert.Equal("fail", ft.ConfigGet("ON_TIMEOUT")["ON_TIMEOUT"]);
@@ -1237,6 +1240,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     public async Task configOnTimeoutAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
+        AssertVersion(db);
         var ft = db.FT();
         Assert.True(await ft.ConfigSetAsync("ON_TIMEOUT", "fail"));
         Assert.Equal("fail", (await ft.ConfigGetAsync("ON_TIMEOUT"))["ON_TIMEOUT"]);
@@ -1256,6 +1260,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     public void TestDialectConfig(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
+        AssertVersion(db);
         var ft = db.FT();
         // confirm default
         var result = ft.ConfigGet("DEFAULT_DIALECT");
@@ -1279,6 +1284,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     public async Task TestDialectConfigAsync(string endpointId)
     {
         IDatabase db = GetCleanDatabase(endpointId);
+        AssertVersion(db);
         var ft = db.FT();
         // confirm default
         var result = await ft.ConfigGetAsync("DEFAULT_DIALECT");
@@ -3288,6 +3294,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     {
         SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
+        AssertVersion(db);
         var ft = db.FT();
 
         Schema sc = new Schema().AddTextField("t1", 1.0).AddTextField("t2", 1.0);
@@ -3309,6 +3316,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     {
         SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
+        AssertVersion(db);
         var ft = db.FT();
 
         Schema sc = new Schema().AddTextField("t1", 1.0).AddTextField("t2", 1.0);
@@ -3402,6 +3410,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     {
         SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
+        AssertVersion(db);
         var ft = db.FT();
 
         ft.Create(index, new Schema().AddTextField("t")); // Calling FT.CREATR without FTCreateParams
@@ -3433,6 +3442,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     {
         SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
+        AssertVersion(db);
         var ft = db.FT();
 
         await ft.CreateAsync(index, new Schema().AddTextField("t")); // Calling FT.CREATR without FTCreateParams

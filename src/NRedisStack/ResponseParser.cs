@@ -875,10 +875,31 @@ internal static class ResponseParser
     public static Tuple<SearchResult, Dictionary<string, RedisResult>> ToProfileSearchResult(this RedisResult result, Query q)
     {
         var results = (RedisResult[])result!;
-
-        var searchResult = results[0].ToSearchResult(q);
-        var profile = results[1].ToStringRedisResultDictionary();
-        return new(searchResult, profile);
+        SearchResult? searchResult = null;
+        Dictionary<string, RedisResult>? profile = null;
+        if (result.Resp3Type is ResultType.Map)
+        {
+            // RESP3: keyed sections map
+            for (int i = 0; i + 1 < results.Length; i += 2)
+            {
+                switch (results[i].ToString())
+                {
+                    case "Results":
+                        results[i + 1].ToSearchResult(q);
+                        break;
+                    case "Profile": 
+                        profile = results[i + 1].ToStringRedisResultDictionary();
+                        break;
+                }
+            }
+        }
+        else
+        {
+            // RESP2: ordered array
+            searchResult = results[0].ToSearchResult(q);
+            profile = results[1].ToStringRedisResultDictionary();
+        }
+        return new(searchResult!, profile!);
     }
 
     public static Tuple<SearchResult, ProfilingInformation> ParseProfileSearchResult(this RedisResult result, Query q)
