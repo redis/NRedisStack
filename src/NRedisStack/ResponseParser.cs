@@ -650,12 +650,29 @@ internal static class ResponseParser
 
     public static Dictionary<string, string> ToConfigDictionary(this RedisResult value)
     {
-        var res = (RedisResult[])value!;
-        var dict = new Dictionary<string, string>();
-        foreach (var pair in res)
+        Dictionary<string, string> dict;
+        if (value.Length is 0)
         {
-            var arr = (RedisResult[])pair!;
-            dict.Add(arr[0].ToString(), arr[1].ToString());
+            dict = new(0);
+        }
+        else if (value.Resp3Type is ResultType.Map)
+        {
+            // RESP3: map
+            dict = new(value.Length / 2);
+            for (int i = 0; i + 1 < value.Length; i += 2)
+            {
+                dict.Add(value[i].ToString(), value[i + 1].ToString());
+            }
+        }
+        else
+        {
+            // RESP2: jagged; [ [key, value] ]
+            dict = new(value.Length);
+            for (int i = 0 ; i < value.Length ; i += 2)
+            {
+                var inner = value[i];
+                dict.Add(inner[0].ToString(), inner[1].ToString());
+            }
         }
         return dict;
     }
