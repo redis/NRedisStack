@@ -1,5 +1,7 @@
 using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 namespace NRedisStack;
 
 public interface ITimeSeriesCommandsAsync
@@ -160,6 +162,20 @@ public interface ITimeSeriesCommandsAsync
     Task<IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, TimeSeriesTuple value)>> MGetAsync(IReadOnlyCollection<string> filter, bool latest = false,
         bool? withLabels = null, IReadOnlyCollection<string>? selectedLabels = null);
 
+    [OverloadResolutionPriority(1)]
+    Task<IReadOnlyList<TimeSeriesTuple>> RangeAsync(string key,
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        bool latest = false,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (long, long)? filterByValue = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        bool empty = false);
+
     /// <summary>
     /// Query a range.
     /// </summary>
@@ -180,6 +196,10 @@ public interface ITimeSeriesCommandsAsync
     /// <param name="empty">Optional: when specified, reports aggregations also for empty buckets</param>
     /// <returns>A list of TimeSeriesTuple</returns>
     /// <remarks><seealso href="https://redis.io/commands/ts.range"/></remarks>
+    [Obsolete]
+    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [OverloadResolutionPriority(-1)]
     Task<IReadOnlyList<TimeSeriesTuple>> RangeAsync(string key,
         TimeStamp fromTimeStamp,
         TimeStamp toTimeStamp,
@@ -189,6 +209,20 @@ public interface ITimeSeriesCommandsAsync
         long? count = null,
         TimeStamp? align = null,
         TsAggregation? aggregation = null,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        bool empty = false);
+
+    [OverloadResolutionPriority(1)]
+    Task<IReadOnlyList<TimeSeriesTuple>> RevRangeAsync(string key,
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        bool latest = false,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (long, long)? filterByValue = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
         long? timeBucket = null,
         TsBucketTimestamps? bt = null,
         bool empty = false);
@@ -213,6 +247,10 @@ public interface ITimeSeriesCommandsAsync
     /// <param name="empty">Optional: when specified, reports aggregations also for empty buckets</param>
     /// <returns>A list of TimeSeriesTuple</returns>
     /// <remarks><seealso href="https://redis.io/commands/ts.revrange"/></remarks>
+    [Obsolete]
+    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [OverloadResolutionPriority(-1)]
     Task<IReadOnlyList<TimeSeriesTuple>> RevRangeAsync(string key,
         TimeStamp fromTimeStamp,
         TimeStamp toTimeStamp,
@@ -225,6 +263,24 @@ public interface ITimeSeriesCommandsAsync
         long? timeBucket = null,
         TsBucketTimestamps? bt = null,
         bool empty = false);
+
+    [OverloadResolutionPriority(1)]
+    Task<IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)>> MRangeAsync(
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        IReadOnlyCollection<string> filter,
+        bool latest = false,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (long, long)? filterByValue = null,
+        bool? withLabels = null,
+        IReadOnlyCollection<string>? selectLabels = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        bool empty = false,
+        (string, TsReduce)? groupbyTuple = null);
 
     /// <summary>
     /// Query a timestamp range across multiple time-series by filters.
@@ -249,6 +305,10 @@ public interface ITimeSeriesCommandsAsync
     /// <param name="groupbyTuple">Optional: Grouping by fields the results, and applying reducer functions on each group.</param>
     /// <returns>A list of (key, labels, values) tuples. Each tuple contains the key name, its labels and the values which satisfies the given range and filters.</returns>
     /// <remarks><seealso href="https://redis.io/commands/ts.mrange"/></remarks>
+    [Obsolete]
+    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [OverloadResolutionPriority(-1)]
     Task<IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)>> MRangeAsync(
         TimeStamp fromTimeStamp,
         TimeStamp toTimeStamp,
@@ -261,6 +321,24 @@ public interface ITimeSeriesCommandsAsync
         long? count = null,
         TimeStamp? align = null,
         TsAggregation? aggregation = null,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        bool empty = false,
+        (string, TsReduce)? groupbyTuple = null);
+
+    [OverloadResolutionPriority(1)]
+    Task<IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)>> MRevRangeAsync(
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        IReadOnlyCollection<string> filter,
+        bool latest = false,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (long, long)? filterByValue = null,
+        bool? withLabels = null,
+        IReadOnlyCollection<string>? selectLabels = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
         long? timeBucket = null,
         TsBucketTimestamps? bt = null,
         bool empty = false,
@@ -289,6 +367,10 @@ public interface ITimeSeriesCommandsAsync
     /// <param name="groupbyTuple">Optional: Grouping by fields the results, and applying reducer functions on each group.</param>
     /// <returns>A list of (key, labels, values) tuples. Each tuple contains the key name, its labels and the values which satisfies the given range and filters.</returns>
     /// <remarks><seealso href="https://redis.io/commands/ts.mrevrange"/></remarks>
+    [Obsolete]
+    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [OverloadResolutionPriority(-1)]
     Task<IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)>> MRevRangeAsync(
         TimeStamp fromTimeStamp,
         TimeStamp toTimeStamp,
