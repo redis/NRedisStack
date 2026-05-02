@@ -668,7 +668,7 @@ internal static class ResponseParser
         {
             // RESP2: jagged; [ [key, value] ]
             dict = new(value.Length);
-            for (int i = 0 ; i < value.Length ; i += 2)
+            for (int i = 0; i < value.Length; i += 2)
             {
                 var inner = value[i];
                 dict.Add(inner[0].ToString(), inner[1].ToString());
@@ -887,7 +887,7 @@ internal static class ResponseParser
                     case "Results":
                         results[i + 1].ToSearchResult(q);
                         break;
-                    case "Profile": 
+                    case "Profile":
                         profile = results[i + 1].ToStringRedisResultDictionary();
                         break;
                 }
