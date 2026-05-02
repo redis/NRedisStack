@@ -11,10 +11,16 @@ public abstract class AbstractNRedisStackTest : IClassFixture<EndpointsFixture>,
     private protected EndpointsFixture EndpointsFixture { get; }
     private readonly ITestOutputHelper? log;
 
-    protected void Log(string message)
+    protected void Log(string message, bool demand = true)
     {
-        if (log is null) throw new InvalidOperationException("Log is not initialized");
-        log.WriteLine(message);
+        if (log is null)
+        {
+            if (demand) throw new InvalidOperationException("Log is not initialized");
+        }
+        else
+        {
+            log.WriteLine(message);
+        }
     }
 
     protected readonly ConfigurationOptions DefaultConnectionConfig = new()
@@ -28,6 +34,30 @@ public abstract class AbstractNRedisStackTest : IClassFixture<EndpointsFixture>,
     {
         this.EndpointsFixture = endpointsFixture;
         this.log = log;
+    }
+
+    protected void AssertVersion(IDatabase db, [CallerMemberName] string testName = "")
+    {
+        // this is used to reapply "Skip" logic after auto-discovery of the server version is possible
+        var attributes = GetType().GetMethod(testName)?.GetCustomAttributes(true) ?? [];
+        Version? version = null;
+        foreach (var attribute in attributes)
+        {
+            SkipIfRedisCore? core = attribute switch
+            {
+                SkipIfRedisFactAttribute fact => fact.Core,
+                SkipIfRedisTheoryAttribute theory => theory.Core,
+                _ => null,
+            };
+            if (core is { } defined)
+            {
+                // get the actual redis version and use that to recheck
+                version ??= db.Multiplexer.GetServer((RedisKey)"any key").Version;
+                Log($"Validating with detected server version: {version}", demand: false);
+                var skip = defined.GetSkip(version);
+                Assert.SkipWhen(skip is not null, skip ?? "");
+            }
+        }
     }
 
     protected ConnectionMultiplexer GetConnection(string endpointId = EndpointsFixture.Env.Standalone, bool shareConnection = true) => EndpointsFixture.GetConnectionById(this.DefaultConnectionConfig, endpointId, shareConnection);
