@@ -122,9 +122,9 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         db.Execute("FLUSHALL");
 
         var obj = new Person { Name = "Shachar", Age = 23 };
-        Assert.True(await commands.SetAsync("Person:Shachar", "$", obj, When.NotExists));
-        Assert.False(await commands.SetAsync("Person:Shachar", "$", obj, When.NotExists));
-        Assert.True(await commands.SetAsync("Person:Shachar", "$", obj, When.Exists));
+        Assert.True(await commands.SetAsync("Person:Shachar", "$", obj, When.NotExists), "First set should succeed");
+        Assert.False(await commands.SetAsync("Person:Shachar", "$", obj, When.NotExists), "Second set should fail");
+        Assert.True(await commands.SetAsync("Person:Shachar", "$", obj, When.Exists), "Third set should succeed");
     }
 
     public static IEnumerable<object[]> FphaTestData()
