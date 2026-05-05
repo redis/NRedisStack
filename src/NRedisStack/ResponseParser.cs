@@ -994,6 +994,12 @@ internal static class ResponseParser
     public static Tuple<AggregationResult, ProfilingInformation> ParseProfileAggregateResult(this RedisResult result,
         AggregationRequest q)
     {
+        if (result.TryGetMapMember("profile", out var v7Profile)) // v7 RESP3 style
+        {
+            // v7 RESP3; results and profile intermingled in root
+            var aggregate = result.ToAggregationResult(q);
+            return new(aggregate, new(v7Profile));
+        }
         var pair = result.FromArrayOrMap("Results", "Profile");
         var aggregateResult = pair.Value0.ToAggregationResult(q);
         var profile = new ProfilingInformation(pair.Value1);
