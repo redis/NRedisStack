@@ -902,7 +902,7 @@ internal static class ResponseParser
         else // RESP2
         {
             var res = (RedisResult[])value!;
-            dict = new (value.Length);
+            dict = new(value.Length);
             for (int i = 0; i < res.Length; i++)
             {
                 var arr = value[i];
