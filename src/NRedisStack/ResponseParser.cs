@@ -19,6 +19,7 @@ internal static class ResponseParser
 {
     public static bool OKtoBoolean(this RedisResult result)
     {
+        if (result.IsNull) return false;
         return result.ToString() == "OK";
     }
 
@@ -964,8 +965,8 @@ internal static class ResponseParser
                     if (key == key0) value0 = result[i + 1];
                     if (key == key1) value1 = result[i + 1];
                 }
-                if (value0 is null) return Throw($"Missing key '{key0}' in map.");
-                if (value1 is null) return Throw($"Missing key '{key1}' in map.");
+                if (value0 is null) return Throw($"Missing key '{key0}' in map; available keys: {GetKeys(result)}");
+                if (value1 is null) return Throw($"Missing key '{key1}' in map; available keys: {GetKeys(result)}");
                 return new(value0, value1);
             case ResultType.Array when result.Length >= 2:
                 // RESP2 flat array
@@ -974,6 +975,20 @@ internal static class ResponseParser
 
         return Throw($"Invalid RESP type ({result.Resp3Type}) or length ({result.Length}).");
         static RedisResultPair Throw(string message) => throw new InvalidOperationException(message);
+        static string GetKeys(RedisResult result)
+        {
+            var len = result.Length / 2;
+            if (len < 0) return $"(type: {result.Resp3Type}, length: {result.Length})";
+            return len switch
+            {
+                0 => "",
+                1 => $"{result[0]}",
+                2 => $"{result[0]}, {result[2]}",
+                3 => $"{result[0]}, {result[2]}, {result[4]}",
+                4 => $"{result[0]}, {result[2]}, {result[4]}, {result[6]}",
+                _ => $"{result[0]}, {result[2]}, {result[4]}, {result[6]}... ({len})"
+            };
+        }
     }
 
     public static AggregationResult ToAggregationResult(this RedisResult result, AggregationRequest query)
