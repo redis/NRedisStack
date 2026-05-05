@@ -161,6 +161,7 @@ internal static class ResponseParser
             {
                 list.Add(new(dict[i].ToString(), dict[i + 1].ToString()));
             }
+
             return list;
         }
         else // jagged/nested array pairs
@@ -190,7 +191,8 @@ internal static class ResponseParser
     //     return list;
     // }
 
-    public static IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, TimeSeriesTuple value)> ParseMGetResponse(this RedisResult result)
+    public static IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, TimeSeriesTuple value)>
+        ParseMGetResponse(this RedisResult result)
     {
         var redisResults = (RedisResult[])result!;
         List<(string key, IReadOnlyList<TimeSeriesLabel> labels, TimeSeriesTuple values)> list;
@@ -226,7 +228,9 @@ internal static class ResponseParser
         return list;
     }
 
-    public static IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)> ParseMRangeResponse(this RedisResult result)
+    public static
+        IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)>
+        ParseMRangeResponse(this RedisResult result)
     {
         var redisResults = (RedisResult[])result!;
         List<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)> list;
@@ -268,6 +272,7 @@ internal static class ResponseParser
                         }
                     }
                 }
+
                 // take values from the array
                 var values = ToTimeSeriesTupleArray(tuple[tuple.Length - 1]);
                 list.Add((key, labels, values));
@@ -310,6 +315,7 @@ internal static class ResponseParser
                     if (i != 0) sb.Append(',');
                     sb.Append(value[i]);
                 }
+
                 return sb.ToString();
         }
     }
@@ -347,6 +353,7 @@ internal static class ResponseParser
                 list.Add(ToRule(values[0], values.AsSpan(1)));
             }
         }
+
         return list;
     }
 
@@ -361,7 +368,9 @@ internal static class ResponseParser
         return DuplicatePolicyExtensions.AsPolicy(policyStatus.ToUpper());
     }
 
-    public static BloomInformation ToBloomInfo(this RedisResult result) //TODO: Think about a different implementation, because if the output of BF.INFO changes or even just the names of the labels then the parsing will not work
+    public static BloomInformation
+        ToBloomInfo(
+            this RedisResult result) //TODO: Think about a different implementation, because if the output of BF.INFO changes or even just the names of the labels then the parsing will not work
     {
         long capacity, size, numberOfFilters, numberOfItemsInserted, expansionRate;
         capacity = size = numberOfFilters = numberOfItemsInserted = expansionRate = -1;
@@ -394,10 +403,18 @@ internal static class ResponseParser
         return new(capacity, size, numberOfFilters, numberOfItemsInserted, expansionRate);
     }
 
-    public static CuckooInformation ToCuckooInfo(this RedisResult result) //TODO: Think about a different implementation, because if the output of BF.INFO changes or even just the names of the labels then the parsing will not work
+    public static CuckooInformation
+        ToCuckooInfo(
+            this RedisResult result) //TODO: Think about a different implementation, because if the output of BF.INFO changes or even just the names of the labels then the parsing will not work
     {
-        long size, numberOfBuckets, numberOfFilters, numberOfItemsInserted,
-            numberOfItemsDeleted, bucketSize, expansionRate, maxIterations;
+        long size,
+            numberOfBuckets,
+            numberOfFilters,
+            numberOfItemsInserted,
+            numberOfItemsDeleted,
+            bucketSize,
+            expansionRate,
+            maxIterations;
 
         size = numberOfBuckets = numberOfFilters =
             numberOfItemsInserted = numberOfItemsDeleted =
@@ -442,7 +459,8 @@ internal static class ResponseParser
             numberOfItemsDeleted, bucketSize, expansionRate, maxIterations);
     }
 
-    public static CmsInformation ToCmsInfo(this RedisResult result) //TODO: Think about a different implementation, because if the output of CMS.INFO changes or even just the names of the labels then the parsing will not work
+    public static CmsInformation
+        ToCmsInfo(this RedisResult result) //TODO: Think about a different implementation, because if the output of CMS.INFO changes or even just the names of the labels then the parsing will not work
     {
         long width, depth, count;
 
@@ -471,7 +489,8 @@ internal static class ResponseParser
         return new(width, depth, count);
     }
 
-    public static TopKInformation ToTopKInfo(this RedisResult result) //TODO: Think about a different implementation, because if the output of CMS.INFO changes or even just the names of the labels then the parsing will not work
+    public static TopKInformation
+        ToTopKInfo(this RedisResult result) //TODO: Think about a different implementation, because if the output of CMS.INFO changes or even just the names of the labels then the parsing will not work
     {
         long k, width, depth;
         double decay;
@@ -505,7 +524,9 @@ internal static class ResponseParser
         return new(k, width, depth, decay);
     }
 
-    public static TdigestInformation ToTdigestInfo(this RedisResult result) //TODO: Think about a different implementation, because if the output of CMS.INFO changes or even just the names of the labels then the parsing will not work
+    public static TdigestInformation
+        ToTdigestInfo(
+            this RedisResult result) //TODO: Think about a different implementation, because if the output of CMS.INFO changes or even just the names of the labels then the parsing will not work
     {
         long compression, capacity, mergedNodes, unmergedNodes, totalCompressions, memoryUsage;
         double mergedWeight, unmergedWeight, observations;
@@ -629,7 +650,8 @@ internal static class ResponseParser
         }
 
         return new(totalSamples, memoryUsage, firstTimestamp,
-            lastTimestamp, retentionTime, chunkCount, chunkSize, labels, sourceKey, rules, duplicatePolicy, keySelfName, chunks);
+            lastTimestamp, retentionTime, chunkCount, chunkSize, labels, sourceKey, rules, duplicatePolicy, keySelfName,
+            chunks);
     }
 
     // TODO: check if this is needed
@@ -674,6 +696,7 @@ internal static class ResponseParser
                 dict.Add(inner[0].ToString(), inner[1].ToString());
             }
         }
+
         return dict;
     }
 
@@ -771,6 +794,7 @@ internal static class ResponseParser
                     set.Add(item.ToString());
                 }
             }
+
             sets.Add(set);
         }
 
@@ -806,8 +830,10 @@ internal static class ResponseParser
                                 }
                             }
                         }
+
                         returnTerms.Add(term, entries);
                     }
+
                     return returnTerms; // we can skip any other elements
                 }
             }
@@ -840,7 +866,9 @@ internal static class ResponseParser
         }
     }
 
-    public static List<Tuple<string, double>> ToStringDoubleTupleList(this RedisResult result) // TODO: consider create class Suggestion instead of List<Tuple<string, double>>
+    public static List<Tuple<string, double>>
+        ToStringDoubleTupleList(
+            this RedisResult result) // TODO: consider create class Suggestion instead of List<Tuple<string, double>>
     {
         var results = (RedisResult[])result!;
         var list = new List<Tuple<string, double>>(results.Length / 2);
@@ -850,6 +878,7 @@ internal static class ResponseParser
             var score = (double)results[i + 1];
             list.Add(new(suggestion, score));
         }
+
         return list;
     }
 
@@ -869,67 +898,82 @@ internal static class ResponseParser
                 dict.Add(arr[0].ToString(), null!);
             }
         }
+
         return dict;
     }
 
-    public static Tuple<SearchResult, Dictionary<string, RedisResult>> ToProfileSearchResult(this RedisResult result, Query q)
+    public static Tuple<SearchResult, Dictionary<string, RedisResult>> ToProfileSearchResult(this RedisResult result,
+        Query q)
     {
-        var results = (RedisResult[])result!;
-        SearchResult? searchResult = null;
-        Dictionary<string, RedisResult>? profile = null;
-        if (result.Resp3Type is ResultType.Map)
-        {
-            // RESP3: keyed sections map
-            for (int i = 0; i + 1 < results.Length; i += 2)
-            {
-                switch (results[i].ToString())
-                {
-                    case "Results":
-                        searchResult = results[i + 1].ToSearchResult(q);
-                        break;
-                    case "Profile":
-                        profile = results[i + 1].ToStringRedisResultDictionary();
-                        break;
-                }
-            }
-        }
-        else
-        {
-            // RESP2: ordered array
-            searchResult = results[0].ToSearchResult(q);
-            profile = results[1].ToStringRedisResultDictionary();
-        }
-        return new(searchResult!, profile!);
+        var pair = result.FromArrayOrMap("Results", "Profile");
+        var searchResult = pair.Value0.ToSearchResult(q);
+        var profile = pair.Value1.ToStringRedisResultDictionary();
+        return new(searchResult, profile);
     }
 
     public static Tuple<SearchResult, ProfilingInformation> ParseProfileSearchResult(this RedisResult result, Query q)
     {
-        var results = (RedisResult[])result!;
-
-        var searchResult = results[0].ToSearchResult(q);
-        var profile = new ProfilingInformation(results[1]);
+        var pair = result.FromArrayOrMap("Results", "Profile");
+        var searchResult = pair.Value0.ToSearchResult(q);
+        var profile = new ProfilingInformation(pair.Value1);
         return new(searchResult, profile);
     }
 
     public static SearchResult ToSearchResult(this RedisResult result, Query q)
     {
-        return new(result, !q.NoContent, q.WithScores, q.WithPayloads/*, q.ExplainScore*/);
+        return new(result, !q.NoContent, q.WithScores, q.WithPayloads /*, q.ExplainScore*/);
     }
 
-    public static Tuple<AggregationResult, Dictionary<string, RedisResult>> ToProfileAggregateResult(this RedisResult result, AggregationRequest q)
+    public static Tuple<AggregationResult, Dictionary<string, RedisResult>> ToProfileAggregateResult(
+        this RedisResult result, AggregationRequest q)
     {
-        var results = (RedisResult[])result!;
-        var aggregateResult = results[0].ToAggregationResult(q);
-        var profile = results[1].ToStringRedisResultDictionary();
+        var pair = result.FromArrayOrMap("Results", "Profile");
+        var aggregateResult = pair.Value0.ToAggregationResult(q);
+        var profile = pair.Value1.ToStringRedisResultDictionary();
         return new(aggregateResult, profile);
     }
 
-    public static Tuple<AggregationResult, ProfilingInformation> ParseProfileAggregateResult(this RedisResult result, AggregationRequest q)
+    public static Tuple<AggregationResult, ProfilingInformation> ParseProfileAggregateResult(this RedisResult result,
+        AggregationRequest q)
     {
-        var results = (RedisResult[])result!;
-        var aggregateResult = results[0].ToAggregationResult(q);
-        var profile = new ProfilingInformation(results[1]);
+        var pair = result.FromArrayOrMap("Results", "Profile");
+        var aggregateResult = pair.Value0.ToAggregationResult(q);
+        var profile = new ProfilingInformation(pair.Value1);
         return new(aggregateResult, profile);
+    }
+
+    private readonly struct RedisResultPair(RedisResult value0, RedisResult value1)
+    {
+        // ReSharper disable InconsistentNaming - we want raw public fields in this internal struct
+        public readonly RedisResult Value0 = value0;
+        public readonly RedisResult Value1 = value1;
+        // ReSharper restore InconsistentNaming
+    }
+
+    private static RedisResultPair FromArrayOrMap(this RedisResult result, string key0, string key1)
+    {
+        // interpret a RESP2 array directly, or a RESP3 map by key lookup
+        switch (result.Resp3Type)
+        {
+            case ResultType.Map when result.Length >= 4:
+                // RESP3 keyed map
+                RedisResult? value0 = null, value1 = null;
+                for (int i = 0; i + 1 < result.Length; i += 2)
+                {
+                    var key = result[i].ToString();
+                    if (key == key0) value0 = result[i + 1];
+                    if (key == key1) value1 = result[i + 1];
+                }
+                if (value0 is null) return Throw($"Missing key '{key0}' in map.");
+                if (value1 is null) return Throw($"Missing key '{key1}' in map.");
+                return new(value0, value1);
+            case ResultType.Array when result.Length >= 2:
+                // RESP2 flat array
+                return new(result[0], result[1]);
+        }
+
+        return Throw($"Invalid RESP type ({result.Resp3Type}) or length ({result.Length}).");
+        static RedisResultPair Throw(string message) => throw new InvalidOperationException(message);
     }
 
     public static AggregationResult ToAggregationResult(this RedisResult result, AggregationRequest query)

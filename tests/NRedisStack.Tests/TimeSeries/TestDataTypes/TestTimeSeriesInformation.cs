@@ -7,7 +7,7 @@ using NRedisStack.RedisStackCommands;
 using NRedisStack.Tests;
 
 
-namespace NRedisTimeSeries.Test.TestDataTypes;
+namespace NRedisStack.Tests.TimeSeries.TestDataTypes;
 
 public class TestInformation(EndpointsFixture endpointsFixture, ITestOutputHelper log)
     : AbstractNRedisStackTest(endpointsFixture, log)

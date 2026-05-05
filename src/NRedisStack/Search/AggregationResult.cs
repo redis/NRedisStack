@@ -34,7 +34,7 @@ public class AggregationResult
         if (result.Resp3Type is ResultType.Map)
         {
             results = ResponseParser.ParseSearchResultsMap(result, ParseRecordFromMap, out long totalResults);
-            TotalResults = totalResults;
+            // TotalResults = totalResults; // we ignore this in RESP3 mode for consistent API behaviour
         }
         else
         {
@@ -56,8 +56,8 @@ public class AggregationResult
 
                 results[i - 1] = cur;
             }
-            TotalResults = results.Length;
         }
+        TotalResults = results.Length;
         CursorId = cursorId;
         _results = results ?? []; // if we didn't get results, make an empty array
 
