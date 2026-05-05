@@ -978,6 +978,13 @@ internal static class ResponseParser
     public static Tuple<AggregationResult, Dictionary<string, RedisResult>> ToProfileAggregateResult(
         this RedisResult result, AggregationRequest q)
     {
+        if (result.TryGetMapMember("profile", out var v7Profile)) // v7 RESP3 style
+        {
+            // v7 RESP3; results and profile intermingled in root
+            var aggregate = result.ToAggregationResult(q);
+            return new(aggregate, v7Profile.ToStringRedisResultDictionary());
+        }
+
         var pair = result.FromArrayOrMap("Results", "Profile");
         var aggregateResult = pair.Value0.ToAggregationResult(q);
         var profile = pair.Value1.ToStringRedisResultDictionary();
