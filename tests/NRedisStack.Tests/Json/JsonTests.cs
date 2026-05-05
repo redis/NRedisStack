@@ -121,10 +121,11 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         var commands = new JsonCommands(db);
         db.Execute("FLUSHALL");
 
+        RedisKey key = $"{Guid.NewGuid()}/Person:Shachar";
         var obj = new Person { Name = "Shachar", Age = 23 };
-        Assert.True(await commands.SetAsync("Person:Shachar", "$", obj, When.NotExists), "First set should succeed");
-        Assert.False(await commands.SetAsync("Person:Shachar", "$", obj, When.NotExists), "Second set should fail");
-        Assert.True(await commands.SetAsync("Person:Shachar", "$", obj, When.Exists), "Third set should succeed");
+        Assert.True(await commands.SetAsync(key, "$", obj, When.NotExists), "First set should succeed");
+        Assert.False(await commands.SetAsync(key, "$", obj, When.NotExists), "Second set should fail");
+        Assert.True(await commands.SetAsync(key, "$", obj, When.Exists), "Third set should succeed");
     }
 
     public static IEnumerable<object[]> FphaTestData()
