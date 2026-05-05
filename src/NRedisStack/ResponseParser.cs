@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
 using NRedisStack.Literals.Enums;
@@ -885,27 +886,52 @@ internal static class ResponseParser
 
     public static Dictionary<string, RedisResult> ToStringRedisResultDictionary(this RedisResult value)
     {
-        var res = (RedisResult[])value!;
-        var dict = new Dictionary<string, RedisResult>();
-        foreach (var pair in res)
+        Dictionary<string, RedisResult> dict;
+        if (value.Length <= 0)
         {
-            var arr = (RedisResult[])pair!;
-            if (arr.Length > 1)
+            dict = new(0);
+        }
+        else if (value.Resp3Type is ResultType.Map) // RESP3
+        {
+            dict = new(value.Length / 2);
+            for (int i = 0; i + 1 < value.Length; i += 2)
             {
-                dict.Add(arr[0].ToString(), arr[1]);
-            }
-            else
-            {
-                dict.Add(arr[0].ToString(), null!);
+                dict.Add(value[i].ToString(), value[i + 1]);
             }
         }
-
+        else // RESP2
+        {
+            var res = (RedisResult[])value!;
+            dict = new (value.Length);
+            for (int i = 0; i < res.Length; i++)
+            {
+                var arr = value[i];
+                if (arr.IsNull)
+                {
+                    // nothing
+                }
+                else if (arr.Length > 1)
+                {
+                    dict.Add(arr[0].ToString(), arr[1]);
+                }
+                else
+                {
+                    dict.Add(arr[0].ToString(), null!);
+                }
+            }
+        }
         return dict;
     }
 
     public static Tuple<SearchResult, Dictionary<string, RedisResult>> ToProfileSearchResult(this RedisResult result,
         Query q)
     {
+        if (result.TryGetMapMember("profile", out var v7Profile)) // v7 RESP3 style
+        {
+            // v7 RESP3; results and profile intermingled in root
+            var search = result.ToSearchResult(q);
+            return new(search, v7Profile.ToStringRedisResultDictionary());
+        }
         var pair = result.FromArrayOrMap("Results", "Profile");
         var searchResult = pair.Value0.ToSearchResult(q);
         var profile = pair.Value1.ToStringRedisResultDictionary();
@@ -914,10 +940,34 @@ internal static class ResponseParser
 
     public static Tuple<SearchResult, ProfilingInformation> ParseProfileSearchResult(this RedisResult result, Query q)
     {
+        if (result.TryGetMapMember("profile", out var v7Profile)) // v7 RESP3 style
+        {
+            // v7 RESP3; results and profile intermingled in root
+            var search = result.ToSearchResult(q);
+            return new(search, new ProfilingInformation(v7Profile));
+        }
         var pair = result.FromArrayOrMap("Results", "Profile");
         var searchResult = pair.Value0.ToSearchResult(q);
         var profile = new ProfilingInformation(pair.Value1);
         return new(searchResult, profile);
+    }
+
+    internal static bool TryGetMapMember(this RedisResult parent, string key, out RedisResult child)
+    {
+        if (parent is { Resp3Type: ResultType.Map, Length: > 0 })
+        {
+            for (int i = 0; i + 1 < parent.Length; i += 2)
+            {
+                if (parent[i].ToString() == key)
+                {
+                    child = parent[i + 1];
+                    return true;
+                }
+            }
+        }
+
+        child = null!;
+        return false;
     }
 
     public static SearchResult ToSearchResult(this RedisResult result, Query q)
@@ -986,6 +1036,8 @@ internal static class ResponseParser
                 2 => $"{result[0]}, {result[2]}",
                 3 => $"{result[0]}, {result[2]}, {result[4]}",
                 4 => $"{result[0]}, {result[2]}, {result[4]}, {result[6]}",
+                5 => $"{result[0]}, {result[2]}, {result[4]}, {result[6]}, {result[8]}",
+                6 => $"{result[0]}, {result[2]}, {result[4]}, {result[6]}, {result[8]}, {result[10]}",
                 _ => $"{result[0]}, {result[2]}, {result[4]}, {result[6]}... ({len})"
             };
         }
