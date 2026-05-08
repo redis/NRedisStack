@@ -675,7 +675,7 @@ internal static class ResponseParser
     public static Dictionary<string, string> ToConfigDictionary(this RedisResult value)
     {
         Dictionary<string, string> dict;
-        if (value.Length is 0)
+        if (value.Length <= 0) // includes null/scalar
         {
             dict = new(0);
         }
