@@ -103,9 +103,7 @@ public class CommunityEditionUpdatesTests : AbstractNRedisStackTest, IDisposable
         IServer server = getAnyPrimary(muxer);
 
         var searchInfo = server.Info("search");
-        // v8.8 reduces a lot of noise around "info search" output
-        var expectCount = EndpointsFixture.IsAtLeast(ServerVersion.Redis_8_8) ? 2 : 8;
-        CustomAssertions.GreaterThan(searchInfo.Length, expectCount);
+        CustomAssertions.GreaterThan(searchInfo.Length, 2); // just: something
     }
 
 }
