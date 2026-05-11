@@ -3,10 +3,9 @@ using Xunit;
 
 namespace NRedisStack.Tests;
 
-public class CommunityEditionUpdatesTests : AbstractNRedisStackTest, IDisposable
+public class CommunityEditionUpdatesTests(EndpointsFixture endpointsFixture, ITestOutputHelper log)
+    : AbstractNRedisStackTest(endpointsFixture, log), IDisposable
 {
-    public CommunityEditionUpdatesTests(EndpointsFixture endpointsFixture) : base(endpointsFixture) { }
-
     private IServer getAnyPrimary(IConnectionMultiplexer muxer)
     {
         foreach (var endpoint in muxer.GetEndPoints())

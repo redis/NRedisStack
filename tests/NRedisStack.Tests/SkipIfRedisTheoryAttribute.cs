@@ -44,58 +44,57 @@ internal readonly struct SkipIfRedisCore
         _targetVersion = targetVersion;
     }
 
-    public string? Skip
+    public string? Skip => GetSkip(EndpointsFixture.RedisVersion);
+
+    public string? GetSkip(Version redisVersion)
     {
-        get
+        string skipReason = "";
+        bool skipped = false;
+
+        foreach (var environment in _environments)
         {
-            string skipReason = "";
-            bool skipped = false;
-
-            foreach (var environment in _environments)
+            switch (environment)
             {
-                switch (environment)
-                {
-                    case Is.Enterprise:
-                        if (EndpointsFixture.IsEnterprise)
-                        {
-                            skipReason = skipReason + " Redis Enterprise environment.";
-                            skipped = true;
-                        }
-
-                        break;
-                }
-            }
-
-            var targetVersion = new Version(_targetVersion);
-            int comparisonResult = EndpointsFixture.RedisVersion.CompareTo(targetVersion);
-
-            switch (_comparison)
-            {
-                case Comparison.LessThan:
-                    if (comparisonResult < 0)
+                case Is.Enterprise:
+                    if (EndpointsFixture.IsEnterprise)
                     {
-                        skipReason = skipReason +
-                                     $" Redis server version ({EndpointsFixture.RedisVersion}) is less than {_targetVersion}.";
-                        skipped = true;
-                    }
-
-                    break;
-                case Comparison.GreaterThanOrEqual:
-                    if (comparisonResult >= 0)
-                    {
-                        skipReason = skipReason +
-                                     $" Redis server version ({EndpointsFixture.RedisVersion}) is greater than or equal to {_targetVersion}.";
+                        skipReason = skipReason + " Redis Enterprise environment.";
                         skipped = true;
                     }
 
                     break;
             }
-
-
-            if (skipped)
-                return "Test skipped, because:" + skipReason;
-            return null;
         }
+
+        var targetVersion = new Version(_targetVersion);
+        int comparisonResult = redisVersion.CompareTo(targetVersion);
+
+        switch (_comparison)
+        {
+            case Comparison.LessThan:
+                if (comparisonResult < 0)
+                {
+                    skipReason = skipReason +
+                                 $" Redis server version ({redisVersion}) is less than {_targetVersion}.";
+                    skipped = true;
+                }
+
+                break;
+            case Comparison.GreaterThanOrEqual:
+                if (comparisonResult >= 0)
+                {
+                    skipReason = skipReason +
+                                 $" Redis server version ({redisVersion}) is greater than or equal to {_targetVersion}.";
+                    skipped = true;
+                }
+
+                break;
+        }
+
+
+        if (skipped)
+            return "Test skipped, because:" + skipReason;
+        return null;
     }
 }
 
@@ -129,6 +128,8 @@ public class TheoryAttribute(
 [XunitTestCaseDiscoverer(typeof(ExpandingTheoryDiscoverer))]
 public class SkipIfRedisTheoryAttribute : TheoryAttribute
 {
+    internal SkipIfRedisCore Core { get; }
+
     public SkipIfRedisTheoryAttribute(
         Is environment,
         Comparison comparison = Comparison.LessThan,
@@ -136,8 +137,8 @@ public class SkipIfRedisTheoryAttribute : TheoryAttribute
         [CallerFilePath] string? sourceFilePath = null,
         [CallerLineNumber] int sourceLineNumber = -1) : base(sourceFilePath, sourceLineNumber)
     {
-        SkipIfRedisCore core = new(environment, comparison, targetVersion);
-        Skip = core.Skip;
+        Core = new(environment, comparison, targetVersion);
+        Skip = Core.Skip;
     }
 
     public SkipIfRedisTheoryAttribute(
@@ -145,8 +146,8 @@ public class SkipIfRedisTheoryAttribute : TheoryAttribute
         [CallerFilePath] string? sourceFilePath = null,
         [CallerLineNumber] int sourceLineNumber = -1) : base(sourceFilePath, sourceLineNumber) // defaults to LessThan
     {
-        SkipIfRedisCore core = new(targetVersion);
-        Skip = core.Skip;
+        Core = new(targetVersion);
+        Skip = Core.Skip;
     }
 
     public SkipIfRedisTheoryAttribute(
@@ -154,8 +155,8 @@ public class SkipIfRedisTheoryAttribute : TheoryAttribute
         [CallerFilePath] string? sourceFilePath = null,
         [CallerLineNumber] int sourceLineNumber = -1) : base(sourceFilePath, sourceLineNumber)
     {
-        SkipIfRedisCore core = new(comparison, targetVersion);
-        Skip = core.Skip;
+        Core = new(comparison, targetVersion);
+        Skip = Core.Skip;
     }
 }
 
@@ -190,17 +191,19 @@ public class SkipIfRedisFactAttribute : FactAttribute
         [CallerFilePath] string? sourceFilePath = null,
         [CallerLineNumber] int sourceLineNumber = -1) : base(sourceFilePath, sourceLineNumber)
     {
-        SkipIfRedisCore core = new(environment, comparison, targetVersion);
-        Skip = core.Skip;
+        Core = new(environment, comparison, targetVersion);
+        Skip = Core.Skip;
     }
+
+    internal SkipIfRedisCore Core { get; }
 
     public SkipIfRedisFactAttribute( // defaults to LessThan
         string targetVersion,
         [CallerFilePath] string? sourceFilePath = null,
         [CallerLineNumber] int sourceLineNumber = -1) : base(sourceFilePath, sourceLineNumber)
     {
-        SkipIfRedisCore core = new(targetVersion);
-        Skip = core.Skip;
+        Core = new(targetVersion);
+        Skip = Core.Skip;
     }
 
     public SkipIfRedisFactAttribute(
@@ -209,8 +212,8 @@ public class SkipIfRedisFactAttribute : FactAttribute
         [CallerFilePath] string? sourceFilePath = null,
         [CallerLineNumber] int sourceLineNumber = -1) : base(sourceFilePath, sourceLineNumber)
     {
-        SkipIfRedisCore core = new(comparison, targetVersion);
-        Skip = core.Skip;
+        Core = new(comparison, targetVersion);
+        Skip = Core.Skip;
     }
 }
 
@@ -246,8 +249,17 @@ internal static class XUnitExtensions
             }
             else
             {
-                // Default to RESP2 everywhere else
-                result.Add(CreateTestCase(testCase, RunProtocol.Resp2));
+                // Default to RESP2+RESP3 for integration tests (defined as things inheriting from AbstractNRedisStackTest),
+                // RESP3 only for unit tests (but by definition: they shouldn't matter)
+                if (testCase.TestMethod.TestClass.Class.IsSubclassOf(typeof(AbstractNRedisStackTest)))
+                {
+                    result.Add(CreateTestCase(testCase, RunProtocol.Resp2));
+                    result.Add(CreateTestCase(testCase, RunProtocol.Resp3));
+                }
+                else
+                {
+                    result.Add(CreateTestCase(testCase, RunProtocol.Resp3));
+                }
             }
         }
         return result;

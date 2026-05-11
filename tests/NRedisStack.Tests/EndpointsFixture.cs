@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using StackExchange.Redis;
 using System.Text.Json;
 using Xunit;
@@ -133,6 +134,21 @@ public class EndpointsFixture : IDisposable
             connection = redisEndpoints[id].CreateConnection(options);
             if (shareConnection)
             {
+                if (shared.Count is 0)
+                {
+                    try
+                    {
+                        // infer version from the first shared connection
+                        var server = connection.GetServer((RedisKey)"any key");
+                        server.Ping();
+                        RedisVersion = server.Version;
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex.Message);
+                    }
+                }
+
                 var key = (id, protocol);
                 if (!shared.TryAdd(key, connection) && shared.TryGetValue(key, out var existing))
                 {

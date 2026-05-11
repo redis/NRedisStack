@@ -1,6 +1,6 @@
 ﻿using NRedisStack.DataTypes;
 using Xunit;
-namespace NRedisTimeSeries.Test;
+namespace NRedisStack.Tests.TimeSeries.TestDataTypes;
 
 public class TestTimeStamp
 {

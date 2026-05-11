@@ -2,7 +2,7 @@
 using NRedisStack.DataTypes;
 using Xunit;
 
-namespace NRedisTimeSeries.Test.TestDataTypes;
+namespace NRedisStack.Tests.TimeSeries.TestDataTypes;
 
 public class TestTimeSeriesRule
 {
