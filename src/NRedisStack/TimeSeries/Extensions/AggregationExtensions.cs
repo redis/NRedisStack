@@ -24,6 +24,8 @@ internal static class AggregationExtensions
         _ => throw new ArgumentOutOfRangeException(nameof(aggregation), "Invalid aggregation type"),
     };
 
+    public const int MaxArgLen = 8; // countnan/countall
+
     public static TsAggregation AsAggregation(string aggregation) => aggregation switch
     {
         /*"avg" => TsAggregation.Avg,
