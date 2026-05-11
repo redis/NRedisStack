@@ -2,6 +2,8 @@ using NRedisStack.Literals;
 using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace NRedisStack;
 
@@ -121,6 +123,7 @@ public static class TimeSeriesCommandsBuilder
         return new(TS.MGET, args);
     }
 
+    [OverloadResolutionPriority(1)]
     public static SerializedCommand Range(string key,
         TimeStamp fromTimeStamp,
         TimeStamp toTimeStamp,
@@ -129,7 +132,7 @@ public static class TimeSeriesCommandsBuilder
         (long, long)? filterByValue = null,
         long? count = null,
         TimeStamp? align = null,
-        TsAggregation? aggregation = null,
+        TsAggregations aggregation = default,
         long? timeBucket = null,
         TsBucketTimestamps? bt = null,
         bool empty = false)
@@ -141,7 +144,11 @@ public static class TimeSeriesCommandsBuilder
         return new(TS.RANGE, args);
     }
 
-    public static SerializedCommand RevRange(string key,
+    [Obsolete]
+    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [OverloadResolutionPriority(-1)]
+    public static SerializedCommand Range(string key,
         TimeStamp fromTimeStamp,
         TimeStamp toTimeStamp,
         bool latest = false,
@@ -150,6 +157,21 @@ public static class TimeSeriesCommandsBuilder
         long? count = null,
         TimeStamp? align = null,
         TsAggregation? aggregation = null,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        bool empty = false) =>
+        Range(key, fromTimeStamp, toTimeStamp, latest, filterByTs, filterByValue, count, align, (TsAggregations)aggregation, timeBucket, bt, empty);
+
+    [OverloadResolutionPriority(1)]
+    public static SerializedCommand RevRange(string key,
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        bool latest = false,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (long, long)? filterByValue = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
         long? timeBucket = null,
         TsBucketTimestamps? bt = null,
         bool empty = false)
@@ -161,6 +183,52 @@ public static class TimeSeriesCommandsBuilder
         return new(TS.REVRANGE, args);
     }
 
+    [Obsolete]
+    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [OverloadResolutionPriority(-1)]
+    public static SerializedCommand RevRange(string key,
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        bool latest = false,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (long, long)? filterByValue = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregation? aggregation = null,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        bool empty = false) =>
+        RevRange(key, fromTimeStamp, toTimeStamp, latest, filterByTs, filterByValue, count, align, (TsAggregations)aggregation, timeBucket, bt, empty);
+
+    [OverloadResolutionPriority(1)]
+    public static SerializedCommand MRange(
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        IReadOnlyCollection<string> filter,
+        bool latest = false,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (long, long)? filterByValue = null,
+        bool? withLabels = null,
+        IReadOnlyCollection<string>? selectLabels = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        bool empty = false,
+        (string, TsReduce)? groupbyTuple = null)
+    {
+        var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, latest, filterByTs,
+            filterByValue, withLabels, selectLabels, count,
+            align, aggregation, timeBucket, bt, empty, groupbyTuple);
+        return new(TS.MRANGE, args);
+    }
+
+    [Obsolete]
+    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [OverloadResolutionPriority(-1)]
     public static SerializedCommand MRange(
         TimeStamp fromTimeStamp,
         TimeStamp toTimeStamp,
@@ -176,14 +244,37 @@ public static class TimeSeriesCommandsBuilder
         long? timeBucket = null,
         TsBucketTimestamps? bt = null,
         bool empty = false,
+        (string, TsReduce)? groupbyTuple = null) =>
+        MRange(fromTimeStamp, toTimeStamp, filter, latest, filterByTs, filterByValue, withLabels, selectLabels, count, align, (TsAggregations)aggregation, timeBucket, bt, empty, groupbyTuple);
+
+    [OverloadResolutionPriority(1)]
+    public static SerializedCommand MRevRange(
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        IReadOnlyCollection<string> filter,
+        bool latest = false,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (long, long)? filterByValue = null,
+        bool? withLabels = null,
+        IReadOnlyCollection<string>? selectLabels = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        bool empty = false,
         (string, TsReduce)? groupbyTuple = null)
     {
         var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, latest, filterByTs,
             filterByValue, withLabels, selectLabels, count,
             align, aggregation, timeBucket, bt, empty, groupbyTuple);
-        return new(TS.MRANGE, args);
+        return new(TS.MREVRANGE, args);
     }
 
+    [Obsolete]
+    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [OverloadResolutionPriority(-1)]
     public static SerializedCommand MRevRange(
         TimeStamp fromTimeStamp,
         TimeStamp toTimeStamp,
@@ -199,13 +290,8 @@ public static class TimeSeriesCommandsBuilder
         long? timeBucket = null,
         TsBucketTimestamps? bt = null,
         bool empty = false,
-        (string, TsReduce)? groupbyTuple = null)
-    {
-        var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, latest, filterByTs,
-            filterByValue, withLabels, selectLabels, count,
-            align, aggregation, timeBucket, bt, empty, groupbyTuple);
-        return new(TS.MREVRANGE, args);
-    }
+        (string, TsReduce)? groupbyTuple = null) =>
+        MRevRange(fromTimeStamp, toTimeStamp, filter, latest, filterByTs, filterByValue, withLabels, selectLabels, count, align, (TsAggregations)aggregation, timeBucket, bt, empty, groupbyTuple);
 
     #endregion
 

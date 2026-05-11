@@ -106,8 +106,23 @@ internal static class ResponseParser
     public static TimeSeriesTuple ToTimeSeriesTuple(this RedisResult result)
     {
         RedisResult[] redisResults = result.ToArray();
-        if (redisResults.Length == 0) return null!;
-        return new(ToTimeStamp(redisResults[0]), (double)redisResults[1]);
+        switch (redisResults.Length)
+        {
+            case 0:
+                return null!;
+            case 1:
+                return TimeSeriesTuple.Create(ToTimeStamp(redisResults[0]), Array.Empty<double>());
+            case 2:
+                return new(ToTimeStamp(redisResults[0]), (double)redisResults[1]);
+        }
+
+        var values = new double[redisResults.Length - 1];
+        for (int i = 1; i < redisResults.Length; i++)
+        {
+            values[i - 1] = redisResults[i].ToDouble();
+        }
+
+        return TimeSeriesTuple.Create(ToTimeStamp(redisResults[0]), values);
     }
 
     public static Tuple<long, byte[]> ToScanDumpTuple(this RedisResult result)

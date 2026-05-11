@@ -4,6 +4,7 @@ namespace NRedisStack
     // where SomeFeature has the next label, for example "NRS042", and /docs/exp/NRS042.md exists
     internal static class Experiments
     {
+        public const string Server_8_8 = "NRS002";
         public const string UrlFormat = "https://redis.github.io/NRedisStack/exp/";
     }
 }

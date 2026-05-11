@@ -1541,4 +1541,3 @@ static readonly NRedisStack.Search.Query.GeoFilter.MILES -> string!
 virtual NRedisStack.Search.Aggregation.Reducer.AddOwnArgs(System.Collections.Generic.List<object!>! args) -> void
 virtual NRedisStack.Search.Aggregation.Reducer.GetOwnArgsCount() -> int
 ~override NRedisStack.DataTypes.TimeStamp.Equals(object obj) -> bool
-~override NRedisStack.DataTypes.TimeStamp.ToString() -> string
