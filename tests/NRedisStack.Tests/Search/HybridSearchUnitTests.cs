@@ -205,7 +205,7 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
 
         if (withShardRatio)
         {
-            expected = [.. expected, "SHARD_K_RATIO", "0.5"];
+            expected = [.. expected, "SHARD_K_RATIO", 0.5];
         }
 
         if (withScoreAlias)
