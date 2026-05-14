@@ -203,7 +203,7 @@ public class SkipIfRedisFactAttribute : FactAttribute
         bool deferVersionCheck = false) : base(sourceFilePath, sourceLineNumber)
     {
         Core = new(environment, comparison, targetVersion);
-        if (deferVersionCheck) Skip = Core.Skip;
+        if (!deferVersionCheck) Skip = Core.Skip;
     }
 
     internal SkipIfRedisCore Core { get; }
@@ -215,7 +215,7 @@ public class SkipIfRedisFactAttribute : FactAttribute
         bool deferVersionCheck = false) : base(sourceFilePath, sourceLineNumber)
     {
         Core = new(targetVersion);
-        if (deferVersionCheck) Skip = Core.Skip;
+        if (!deferVersionCheck) Skip = Core.Skip;
     }
 
     public SkipIfRedisFactAttribute(
@@ -226,7 +226,7 @@ public class SkipIfRedisFactAttribute : FactAttribute
         bool deferVersionCheck = false) : base(sourceFilePath, sourceLineNumber)
     {
         Core = new(comparison, targetVersion);
-        if (deferVersionCheck) Skip = Core.Skip;
+        if (!deferVersionCheck) Skip = Core.Skip;
     }
 }
 
