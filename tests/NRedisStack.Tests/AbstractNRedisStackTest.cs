@@ -36,11 +36,20 @@ public abstract class AbstractNRedisStackTest : IClassFixture<EndpointsFixture>,
         this.log = log;
     }
 
-    protected void AssertVersion(IDatabase db, [CallerMemberName] string testName = "")
+    protected void AssertVersion(IDatabase db, [CallerMemberName] string testName = "", string? overrideVersion = null)
     {
+        Version? version = null;
+        if (overrideVersion is not null)
+        {
+            // ignore the attribs; apply "at least the override"
+            version ??= db.Multiplexer.GetServer((RedisKey)"any key").Version;
+            Log($"Validating with detected server version: {version}", demand: false);
+            var skip = new SkipIfRedisCore(Comparison.LessThan, overrideVersion).GetSkip(version);
+            Assert.SkipWhen(skip is not null, skip ?? "");
+            return;
+        }
         // this is used to reapply "Skip" logic after auto-discovery of the server version is possible
         var attributes = GetType().GetMethod(testName)?.GetCustomAttributes(true) ?? [];
-        Version? version = null;
         foreach (var attribute in attributes)
         {
             SkipIfRedisCore? core = attribute switch

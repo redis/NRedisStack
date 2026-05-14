@@ -26,10 +26,11 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
     private const int V1DIM = 5;
 
     private async Task<Api> CreateIndexAsync(string endpointId, [CallerMemberName] string caller = "",
-        bool populate = true)
+        bool populate = true, string? overrideVersion = null)
     {
         var index = $"ix_{caller}";
         var db = GetCleanDatabase(endpointId);
+        AssertVersion(db, caller, overrideVersion);
         // ReSharper disable once RedundantArgumentDefaultValue
         var ft = db.FT(2);
 
@@ -80,7 +81,7 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
         return new(ft, index, db);
     }
 
-    [SkipIfRedisTheory(Comparison.LessThan, "8.3.224")]
+    [SkipIfRedisTheory(Comparison.LessThan, "8.3.224", deferVersionCheck: true)]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestSetup(string endpointId)
     {
@@ -98,7 +99,7 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
         Assert.Empty(result.Results);
     }
 
-    [SkipIfRedisTheory(Comparison.LessThan, "8.3.224")]
+    [SkipIfRedisTheory(Comparison.LessThan, "8.3.224", deferVersionCheck: true)]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestSearch(string endpointId)
     {
@@ -162,6 +163,8 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
         VectorWithNumericFilter,
         VectorWithNearest,
         VectorWithNearestCount,
+        VectorWithNearestWithRatio,
+        VectorWithNearestCountWithRatio,
         PreFilterByTag,
         PreFilterByNumeric,
         ParamSearch,
@@ -170,6 +173,7 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
         ParamMultiPreFilter,
         VectorWithRangeAndEpsilon,
         VectorWithNearestMaxCandidates,
+        VectorWithNearestMaxCandidatesWithRatio,
 
         [NotYetImplemented] ExplainScore,
         [NotYetImplemented] LinearWithScore,
@@ -178,6 +182,7 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
         [NotYetImplemented] SearchWithComplexScorer,
         [NotYetImplemented] VectorWithRangeAndDistanceAlias,
         [NotYetImplemented] VectorWithNearestDistAlias,
+        [NotYetImplemented] VectorWithNearestDistAliasWithRatio,
         [NotYetImplemented] ParamPostFilter,
         [NotYetImplemented] ParamMultiPostFilter,
     }
@@ -219,7 +224,7 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
     public static IEnumerable<object[]> AllEnvironments_Scenarios() =>
         CrossJoin<Scenario>(EndpointsFixture.Env.AllEnvironments);
 
-    [SkipIfRedisTheory(Comparison.LessThan, "8.3.224")]
+    [SkipIfRedisTheory(Comparison.LessThan, "8.3.224", deferVersionCheck: true)]
     [MemberData(nameof(AllEnvironments_Scenarios))]
     public async Task TestSearchScenarios(string endpointId, Scenario scenario)
     {
@@ -228,7 +233,16 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
             // throw SkipException.ForSkip("Not expected to work right now");
             return;
         }
-        var api = await CreateIndexAsync(endpointId, populate: true);
+
+        string? overrideVersion = scenario switch
+        {
+            Scenario.VectorWithNearestMaxCandidatesWithRatio
+                or Scenario.VectorWithNearestCountWithRatio
+                or Scenario.VectorWithNearestWithRatio
+                or Scenario.VectorWithNearestDistAliasWithRatio => "8.6.1",
+            _ => null,
+        };
+        var api = await CreateIndexAsync(endpointId, populate: true, overrideVersion: overrideVersion);
         if (api.IsNull) return;
 
         var hash = (await api.DB.HashGetAllAsync($"{api.Index}_entry2")).ToDictionary(k => k.Name, v => v.Value);
@@ -261,12 +275,20 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
                 method: VectorSearchMethod.Range(42, epsilon: 0.1))),
             Scenario.VectorWithNearest => query.VectorSearch(new("@vector1", VectorData.Raw(vec),
                 method: VectorSearchMethod.NearestNeighbour())),
+            Scenario.VectorWithNearestWithRatio => query.VectorSearch(new("@vector1", VectorData.Raw(vec),
+                method: VectorSearchMethod.NearestNeighbour(shardRatio: 0.5))),
             Scenario.VectorWithNearestCount => query.VectorSearch(new("@vector1", VectorData.Raw(vec),
                 method: VectorSearchMethod.NearestNeighbour(20))),
+            Scenario.VectorWithNearestCountWithRatio => query.VectorSearch(new("@vector1", VectorData.Raw(vec),
+                method: VectorSearchMethod.NearestNeighbour(20, shardRatio: 0.5))),
             Scenario.VectorWithNearestDistAlias => query.VectorSearch(new("@vector1", VectorData.Raw(vec),
                 method: VectorSearchMethod.NearestNeighbour(null, null, distanceAlias: "dist_alias"))),
+            Scenario.VectorWithNearestDistAliasWithRatio => query.VectorSearch(new("@vector1", VectorData.Raw(vec),
+                method: VectorSearchMethod.NearestNeighbour(null, null, distanceAlias: "dist_alias", shardRatio: 0.5))),
             Scenario.VectorWithNearestMaxCandidates => query.VectorSearch(new("@vector1", VectorData.Raw(vec),
                 method: VectorSearchMethod.NearestNeighbour(null, maxTopCandidates: 10))),
+            Scenario.VectorWithNearestMaxCandidatesWithRatio => query.VectorSearch(new("@vector1", VectorData.Raw(vec),
+                method: VectorSearchMethod.NearestNeighbour(null, maxTopCandidates: 10, shardRatio: 0.5))),
             Scenario.VectorWithTagFilter => query.VectorSearch(new("@vector1", VectorData.Raw(vec),
                 filter: "@tag1:{foo}")),
             Scenario.VectorWithNumericFilter => query.VectorSearch(new("@vector1", VectorData.Raw(vec),
