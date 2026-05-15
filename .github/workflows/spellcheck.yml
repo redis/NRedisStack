@@ -7,6 +7,9 @@ concurrency:
   group: ${{ github.event.pull_request.number || github.ref }}-spellcheck
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   check-spelling:
     runs-on: ubuntu-latest
