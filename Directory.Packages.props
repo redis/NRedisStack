@@ -15,8 +15,8 @@
     <PackageVersion Include="StackExchange.Redis" Version="2.12.14" />
     <!-- tests, etc -->
     <PackageVersion Include="BouncyCastle.Cryptography" Version="2.6.2" />
-    <PackageVersion Include="coverlet.collector" Version="10.0.0" />
-    <PackageVersion Include="coverlet.msbuild" Version="10.0.0" />
+    <PackageVersion Include="coverlet.collector" Version="10.0.1" />
+    <PackageVersion Include="coverlet.msbuild" Version="10.0.1" />
     <PackageVersion Include="dotenv.net" Version="4.0.2" />
     <!-- there seem to be bumps in GHATL 3.x making it not work with the test SDK -->
     <PackageVersion Include="GitHubActionsTestLogger" Version="2.4.1" />
