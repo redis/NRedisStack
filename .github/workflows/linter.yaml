@@ -6,6 +6,9 @@ concurrency:
   group: ${{ github.event.pull_request.number || github.ref }}-linter
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   dotnet-format:
     runs-on: windows-latest
