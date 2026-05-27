@@ -128,6 +128,9 @@ public class TheoryAttribute(
 [XunitTestCaseDiscoverer(typeof(ExpandingTheoryDiscoverer))]
 public class SkipIfRedisTheoryAttribute : TheoryAttribute
 {
+    // historically, this tests against an env arg; however, the AssertVersion(db)
+    // method can be used to check against the actual discovered/declared server version;
+    // to avoid xunit using the env check (because you're using AssertVersion), add deferVersionCheck: true
     internal SkipIfRedisCore Core { get; }
 
     public SkipIfRedisTheoryAttribute(
@@ -135,28 +138,31 @@ public class SkipIfRedisTheoryAttribute : TheoryAttribute
         Comparison comparison = Comparison.LessThan,
         string targetVersion = "0.0.0",
         [CallerFilePath] string? sourceFilePath = null,
-        [CallerLineNumber] int sourceLineNumber = -1) : base(sourceFilePath, sourceLineNumber)
+        [CallerLineNumber] int sourceLineNumber = -1,
+        bool deferVersionCheck = false) : base(sourceFilePath, sourceLineNumber)
     {
         Core = new(environment, comparison, targetVersion);
-        Skip = Core.Skip;
+        if (!deferVersionCheck) Skip = Core.Skip;
     }
 
     public SkipIfRedisTheoryAttribute(
         string targetVersion,
         [CallerFilePath] string? sourceFilePath = null,
-        [CallerLineNumber] int sourceLineNumber = -1) : base(sourceFilePath, sourceLineNumber) // defaults to LessThan
+        [CallerLineNumber] int sourceLineNumber = -1,
+        bool deferVersionCheck = false) : base(sourceFilePath, sourceLineNumber) // defaults to LessThan
     {
         Core = new(targetVersion);
-        Skip = Core.Skip;
+        if (!deferVersionCheck) Skip = Core.Skip;
     }
 
     public SkipIfRedisTheoryAttribute(
         Comparison comparison, string targetVersion,
         [CallerFilePath] string? sourceFilePath = null,
-        [CallerLineNumber] int sourceLineNumber = -1) : base(sourceFilePath, sourceLineNumber)
+        [CallerLineNumber] int sourceLineNumber = -1,
+        bool deferVersionCheck = false) : base(sourceFilePath, sourceLineNumber)
     {
         Core = new(comparison, targetVersion);
-        Skip = Core.Skip;
+        if (!deferVersionCheck) Skip = Core.Skip;
     }
 }
 
@@ -184,15 +190,20 @@ public class FactAttribute([CallerFilePath] string? sourceFilePath = null, [Call
 [XunitTestCaseDiscoverer(typeof(ExpandingFactDiscoverer))]
 public class SkipIfRedisFactAttribute : FactAttribute
 {
+    // historically, this tests against an env arg; however, the AssertVersion(db)
+    // method can be used to check against the actual discovered/declared server version;
+    // to avoid xunit using the env check (because you're using AssertVersion), add deferVersionCheck: true
+
     public SkipIfRedisFactAttribute(
         Is environment,
         Comparison comparison = Comparison.LessThan,
         string targetVersion = "0.0.0",
         [CallerFilePath] string? sourceFilePath = null,
-        [CallerLineNumber] int sourceLineNumber = -1) : base(sourceFilePath, sourceLineNumber)
+        [CallerLineNumber] int sourceLineNumber = -1,
+        bool deferVersionCheck = false) : base(sourceFilePath, sourceLineNumber)
     {
         Core = new(environment, comparison, targetVersion);
-        Skip = Core.Skip;
+        if (!deferVersionCheck) Skip = Core.Skip;
     }
 
     internal SkipIfRedisCore Core { get; }
@@ -200,20 +211,22 @@ public class SkipIfRedisFactAttribute : FactAttribute
     public SkipIfRedisFactAttribute( // defaults to LessThan
         string targetVersion,
         [CallerFilePath] string? sourceFilePath = null,
-        [CallerLineNumber] int sourceLineNumber = -1) : base(sourceFilePath, sourceLineNumber)
+        [CallerLineNumber] int sourceLineNumber = -1,
+        bool deferVersionCheck = false) : base(sourceFilePath, sourceLineNumber)
     {
         Core = new(targetVersion);
-        Skip = Core.Skip;
+        if (!deferVersionCheck) Skip = Core.Skip;
     }
 
     public SkipIfRedisFactAttribute(
         Comparison comparison,
         string targetVersion,
         [CallerFilePath] string? sourceFilePath = null,
-        [CallerLineNumber] int sourceLineNumber = -1) : base(sourceFilePath, sourceLineNumber)
+        [CallerLineNumber] int sourceLineNumber = -1,
+        bool deferVersionCheck = false) : base(sourceFilePath, sourceLineNumber)
     {
         Core = new(comparison, targetVersion);
-        Skip = Core.Skip;
+        if (!deferVersionCheck) Skip = Core.Skip;
     }
 }
 

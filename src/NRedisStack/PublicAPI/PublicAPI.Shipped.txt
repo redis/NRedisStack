@@ -1435,7 +1435,7 @@ static NRedisStack.Search.VectorData.Lease<T>(int dimension) -> NRedisStack.Sear
 static NRedisStack.Search.VectorData.LeaseWithValues<T>(params System.ReadOnlySpan<T> values) -> NRedisStack.Search.VectorData<T>!
 static NRedisStack.Search.VectorData.Parameter(string! name) -> NRedisStack.Search.VectorData!
 static NRedisStack.Search.VectorData.Raw(System.ReadOnlyMemory<byte> bytes) -> NRedisStack.Search.VectorData!
-static NRedisStack.Search.VectorSearchMethod.NearestNeighbour(int count = 10, int? maxCandidates = null) -> NRedisStack.Search.VectorSearchMethod!
+static NRedisStack.Search.VectorSearchMethod.NearestNeighbour(int count, int? maxCandidates) -> NRedisStack.Search.VectorSearchMethod!
 static NRedisStack.Search.VectorSearchMethod.Range(double radius, double? epsilon = null) -> NRedisStack.Search.VectorSearchMethod!
 static NRedisStack.SearchCommandBuilder.Aggregate(string! index, NRedisStack.Search.AggregationRequest! query) -> NRedisStack.RedisStackCommands.SerializedCommand!
 static NRedisStack.SearchCommandBuilder.AliasAdd(string! alias, string! index) -> NRedisStack.RedisStackCommands.SerializedCommand!

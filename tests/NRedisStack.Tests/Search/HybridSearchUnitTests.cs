@@ -174,24 +174,38 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
     }
 
     [Theory]
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
-    public void BasicVectorSearch_WithKNN(bool withScoreAlias, bool withDistanceAlias)
+    [InlineData(false, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(true, false, false)]
+    [InlineData(true, true, false)]
+    [InlineData(false, false, true)]
+    [InlineData(false, true, true)]
+    [InlineData(true, false, true)]
+    [InlineData(true, true, true)]
+    public void BasicVectorSearch_WithKNN(bool withScoreAlias, bool withDistanceAlias, bool withShardRatio)
     {
         HybridSearchQuery query = new();
         var searchConfig = new HybridSearchQuery.VectorSearchConfig("vField", SomeRandomDataHere);
         if (withScoreAlias) searchConfig = searchConfig.WithScoreAlias("my_score_alias");
-        searchConfig = searchConfig.WithMethod(VectorSearchMethod.NearestNeighbour(null, null,
-            distanceAlias: withDistanceAlias ? "my_distance_alias" : null));
+        var method = withShardRatio
+            ? VectorSearchMethod.NearestNeighbour(null, null, distanceAlias: withDistanceAlias ? "my_distance_alias" : null, shardRatio: 0.5)
+            : VectorSearchMethod.NearestNeighbour(null, null, distanceAlias: withDistanceAlias ? "my_distance_alias" : null);
+        searchConfig = searchConfig.WithMethod(method);
         query.VectorSearch(searchConfig);
 
+        var knnCount = 2;
+        if (withDistanceAlias) knnCount += 2;
+        if (withShardRatio) knnCount += 2;
         object[] expected =
-            [Index, "VSIM", "vField", "$v", "KNN", withDistanceAlias ? 4 : 2, "K", 10];
+            [Index, "VSIM", "vField", "$v", "KNN", knnCount, "K", 10];
         if (withDistanceAlias)
         {
             expected = [.. expected, "YIELD_DISTANCE_AS", "my_distance_alias"];
+        }
+
+        if (withShardRatio)
+        {
+            expected = [.. expected, "SHARD_K_RATIO", 0.5];
         }
 
         if (withScoreAlias)
@@ -200,7 +214,10 @@ public class HybridSearchUnitTests(ITestOutputHelper log)
         }
 
         expected = [.. expected, "PARAMS", 2, "v", SomeRandomVectorValue];
-        Assert.Equivalent(expected, GetArgs(query));
+        var args = GetArgs(query);
+        log?.WriteLine($"expected: {string.Join(" ", expected)}");
+        log?.WriteLine($"actual:   {string.Join(" ", args)}");
+        Assert.Equivalent(expected, args);
     }
 
     [Theory]

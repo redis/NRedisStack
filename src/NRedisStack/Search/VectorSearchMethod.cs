@@ -21,29 +21,30 @@ public abstract class VectorSearchMethod
         => RangeVectorSearchMethod.Create(radius, epsilon, distanceAlias);
 
     public static VectorSearchMethod NearestNeighbour(
-        int count = NearestNeighbourVectorSearchMethod.DEFAULT_NEAREST_NEIGHBOUR_COUNT, int? maxCandidates = null)
-        => NearestNeighbourVectorSearchMethod.Create(count, maxCandidates, null);
+        int count, int? maxCandidates) // retained for binary compat
+        => NearestNeighbourVectorSearchMethod.Create(count, maxCandidates, null, null);
 
-    internal static VectorSearchMethod NearestNeighbour(
-        int? count, int? maxTopCandidates, string? distanceAlias = null)
-        => NearestNeighbourVectorSearchMethod.Create(count ?? NearestNeighbourVectorSearchMethod.DEFAULT_NEAREST_NEIGHBOUR_COUNT, maxTopCandidates, distanceAlias);
+    public static VectorSearchMethod NearestNeighbour(
+        int? count = NearestNeighbourVectorSearchMethod.DEFAULT_NEAREST_NEIGHBOUR_COUNT, int? maxTopCandidates = null, string? distanceAlias = null, double? shardRatio = null)
+        => NearestNeighbourVectorSearchMethod.Create(count ?? NearestNeighbourVectorSearchMethod.DEFAULT_NEAREST_NEIGHBOUR_COUNT, maxTopCandidates, distanceAlias, shardRatio);
 
     private sealed class NearestNeighbourVectorSearchMethod : VectorSearchMethod
     {
         private static NearestNeighbourVectorSearchMethod? s_Default;
 
         internal static NearestNeighbourVectorSearchMethod Create(int count, int? maxTopCandidates,
-            string? distanceAlias)
-            => count == DEFAULT_NEAREST_NEIGHBOUR_COUNT & maxTopCandidates == null & distanceAlias == null
-                ? (s_Default ??= new NearestNeighbourVectorSearchMethod(DEFAULT_NEAREST_NEIGHBOUR_COUNT, null, null))
-                : new(count, maxTopCandidates, distanceAlias);
+            string? distanceAlias, double? shardRatio)
+            => count == DEFAULT_NEAREST_NEIGHBOUR_COUNT & maxTopCandidates == null & distanceAlias == null & !shardRatio.HasValue
+                ? (s_Default ??= new NearestNeighbourVectorSearchMethod(DEFAULT_NEAREST_NEIGHBOUR_COUNT, null, null, null))
+                : new(count, maxTopCandidates, distanceAlias, shardRatio);
 
         private NearestNeighbourVectorSearchMethod(int nearestNeighbourCount, int? maxTopCandidates,
-            string? distanceAlias)
+            string? distanceAlias, double? shardRatio)
         {
             NearestNeighbourCount = nearestNeighbourCount;
             MaxTopCandidates = maxTopCandidates;
             DistanceAlias = distanceAlias;
+            ShardRatio = shardRatio;
         }
 
         internal const int DEFAULT_NEAREST_NEIGHBOUR_COUNT = 10;
@@ -65,11 +66,18 @@ public abstract class VectorSearchMethod
         /// </summary>
         public string? DistanceAlias { get; }
 
+        /// <summary>
+        /// Limits the number of documents processed per shard. Only relevant for cluster scenarios. This corresponds
+        /// to the "SHARD_K_RATIO" parameter.
+        /// </summary>
+        public double? ShardRatio { get; }
+
         internal override int GetOwnArgsCount()
         {
             int count = 4;
-            if (MaxTopCandidates != null) count += 2;
+            if (MaxTopCandidates.HasValue) count += 2;
             if (DistanceAlias != null) count += 2;
+            if (ShardRatio.HasValue) count += 2;
             return count;
         }
 
@@ -77,21 +85,27 @@ public abstract class VectorSearchMethod
         {
             args.Add(Method);
             int tokens = 2;
-            if (MaxTopCandidates != null) tokens += 2;
+            if (MaxTopCandidates.HasValue) tokens += 2;
             if (DistanceAlias != null) tokens += 2;
+            if (ShardRatio.HasValue) tokens += 2;
             args.Add(tokens);
             args.Add("K");
             args.Add(NearestNeighbourCount);
-            if (MaxTopCandidates != null)
+            if (MaxTopCandidates.HasValue)
             {
                 args.Add("EF_RUNTIME");
-                args.Add(MaxTopCandidates);
+                args.Add(MaxTopCandidates.GetValueOrDefault());
             }
-
             if (DistanceAlias != null)
             {
                 args.Add("YIELD_DISTANCE_AS");
                 args.Add(DistanceAlias);
+            }
+
+            if (ShardRatio.HasValue)
+            {
+                args.Add("SHARD_K_RATIO");
+                args.Add(ShardRatio.GetValueOrDefault());
             }
         }
     }
