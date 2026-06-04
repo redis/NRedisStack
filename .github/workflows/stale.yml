@@ -17,7 +17,7 @@ jobs:
     steps:
       # First step: Handle regular issues (excluding needs-information)
       - name: Mark regular issues as stale
-        uses: actions/stale@v9
+        uses: actions/stale@v10
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           # Default stale policy
@@ -50,7 +50,7 @@ jobs:
           exempt-pr-labels: 'no-stale'
       # Second step: Handle waiting-for-feedback issues with accelerated timeline
       - name: Mark waiting-for-feedback issues as stale
-        uses: actions/stale@v9
+        uses: actions/stale@v10
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           # Accelerated timeline for waiting-for-feedback
