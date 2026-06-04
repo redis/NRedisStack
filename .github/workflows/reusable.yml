@@ -32,10 +32,10 @@ jobs:
           PASSWORD: ${{ secrets.PASSWORD }}
           ENDPOINT: ${{ secrets.ENDPOINT }}
         steps:
-          - uses: actions/checkout@v3
+          - uses: actions/checkout@v6
 
           - name: .NET Core 8
-            uses: actions/setup-dotnet@v3
+            uses: actions/setup-dotnet@v5
             with:
               dotnet-version: |
                 6
@@ -75,7 +75,7 @@ jobs:
               echo "${{secrets.REDIS_USER_PRIVATE_KEY}}" > tests/NRedisStack.Tests/bin/Debug/${{inputs.clr_version}}/redis_user_private.key
               dotnet test -f ${{inputs.clr_version}} --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover -p:BuildInParallel=false tests/Test.proj --logger GitHubActions
           - name: Codecov
-            uses: codecov/codecov-action@v3
+            uses: codecov/codecov-action@v6
             with:
               token: ${{secrets.CODECOV_TOKEN}}
               verbose: true
