@@ -128,6 +128,7 @@ public class EndpointsFixture : IDisposable
         {
             var options = configurationOptions.Clone(); // isolate before we start applying the protocol
             options.Protocol = protocol.IsResp3() ? RedisProtocol.Resp3 : RedisProtocol.Resp2;
+            options.AllowAdmin = true; // from 3.0, Execute[Async] does a better job of recognizing admin commands
             options.HighIntegrity = protocol.IsHighIntegrity();
             options.ConnectTimeout = 2000;
             if (shareConnection) options.AbortOnConnectFail = false;
