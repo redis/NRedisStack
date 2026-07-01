@@ -9,22 +9,24 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI;
 
 public class TestRules(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture), IDisposable
 {
-    private readonly string srcKey = "RULES_TEST_SRC";
+    // Hash-tag ({rules}) so src/dest co-locate on one slot; otherwise a clustered
+    // Redis Enterprise DB returns CROSSSLOT before the intended key-existence error.
+    private readonly string srcKey = "{rules}RULES_TEST_SRC";
 
     private readonly Dictionary<TsAggregation, string> destKeys = new()
     {
-        { TsAggregation.Avg, "RULES_DEST_" + TsAggregation.Avg },
-        { TsAggregation.Count, "RULES_DEST_" + TsAggregation.Count },
-        { TsAggregation.First, "RULES_DEST_" + TsAggregation.First },
-        { TsAggregation.Last, "RULES_DEST_" + TsAggregation.Last },
-        { TsAggregation.Max, "RULES_DEST_" + TsAggregation.Max },
-        { TsAggregation.Min, "RULES_DEST_" + TsAggregation.Min },
-        { TsAggregation.Range, "RULES_DEST_" + TsAggregation.Range },
-        { TsAggregation.StdP, "RULES_DEST_" + TsAggregation.StdP },
-        { TsAggregation.StdS, "RULES_DEST_" + TsAggregation.StdS },
-        { TsAggregation.Sum, "RULES_DEST_" + TsAggregation.Sum },
-        { TsAggregation.VarP, "RULES_DEST_" + TsAggregation.VarP },
-        { TsAggregation.VarS, "RULES_DEST_" + TsAggregation.VarS }
+        { TsAggregation.Avg, "{rules}RULES_DEST_" + TsAggregation.Avg },
+        { TsAggregation.Count, "{rules}RULES_DEST_" + TsAggregation.Count },
+        { TsAggregation.First, "{rules}RULES_DEST_" + TsAggregation.First },
+        { TsAggregation.Last, "{rules}RULES_DEST_" + TsAggregation.Last },
+        { TsAggregation.Max, "{rules}RULES_DEST_" + TsAggregation.Max },
+        { TsAggregation.Min, "{rules}RULES_DEST_" + TsAggregation.Min },
+        { TsAggregation.Range, "{rules}RULES_DEST_" + TsAggregation.Range },
+        { TsAggregation.StdP, "{rules}RULES_DEST_" + TsAggregation.StdP },
+        { TsAggregation.StdS, "{rules}RULES_DEST_" + TsAggregation.StdS },
+        { TsAggregation.Sum, "{rules}RULES_DEST_" + TsAggregation.Sum },
+        { TsAggregation.VarP, "{rules}RULES_DEST_" + TsAggregation.VarP },
+        { TsAggregation.VarS, "{rules}RULES_DEST_" + TsAggregation.VarS }
     };
 
     [SkipIfRedisTheory(Is.Enterprise)]
@@ -66,7 +68,7 @@ public class TestRules(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
     {
         IDatabase db = GetCleanDatabase();
         var ts = db.TS();
-        string destKey = "RULES_DEST_" + TsAggregation.Avg;
+        string destKey = "{rules}RULES_DEST_" + TsAggregation.Avg;
         ts.Create(destKey);
         TimeSeriesRule rule = new(destKey, 50, TsAggregation.Avg);
         var ex = Assert.Throws<RedisServerException>(() => ts.CreateRule(srcKey, rule));
@@ -80,7 +82,7 @@ public class TestRules(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
     {
         IDatabase db = GetCleanDatabase();
         var ts = db.TS();
-        string destKey = "RULES_DEST_" + TsAggregation.Avg;
+        string destKey = "{rules}RULES_DEST_" + TsAggregation.Avg;
         ts.Create(srcKey);
         TimeSeriesRule rule = new(destKey, 50, TsAggregation.Avg);
         var ex = Assert.Throws<RedisServerException>(() => ts.CreateRule(srcKey, rule));
@@ -95,21 +97,21 @@ public class TestRules(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
     {
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
-        ts.Create("ts1");
-        ts.Create("ts2");
-        ts.Create("ts3");
+        ts.Create("{align}ts1");
+        ts.Create("{align}ts2");
+        ts.Create("{align}ts3");
 
-        TimeSeriesRule rule1 = new("ts2", 10, TsAggregation.Count);
-        ts.CreateRule("ts1", rule1, 0);
+        TimeSeriesRule rule1 = new("{align}ts2", 10, TsAggregation.Count);
+        ts.CreateRule("{align}ts1", rule1, 0);
 
-        TimeSeriesRule rule2 = new("ts3", 10, TsAggregation.Count);
-        ts.CreateRule("ts1", rule2, 1);
+        TimeSeriesRule rule2 = new("{align}ts3", 10, TsAggregation.Count);
+        ts.CreateRule("{align}ts1", rule2, 1);
 
-        ts.Add("ts1", 1, 1);
-        ts.Add("ts1", 10, 3);
-        ts.Add("ts1", 21, 7);
+        ts.Add("{align}ts1", 1, 1);
+        ts.Add("{align}ts1", 10, 3);
+        ts.Add("{align}ts1", 21, 7);
 
-        Assert.Equal(2, ts.Range("ts2", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10).Count);
-        Assert.Single(ts.Range("ts3", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10));
+        Assert.Equal(2, ts.Range("{align}ts2", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10).Count);
+        Assert.Single(ts.Range("{align}ts3", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10));
     }
 }

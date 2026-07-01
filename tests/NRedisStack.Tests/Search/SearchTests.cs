@@ -1669,8 +1669,11 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
 
         Assert.NotNull(ex);
         Assert.IsType<RedisServerException>(ex);
-        var fault = EndpointsFixture.IsAtLeast(ServerVersion.Redis_8_8) ? "index not found" : "no such index";
-        Assert.Contains(fault, ex.Message, StringComparison.OrdinalIgnoreCase);
+        // Accept both module wordings: older "no such index", newer "index not found".
+        Assert.True(
+            ex.Message.Contains("no such index", StringComparison.OrdinalIgnoreCase)
+            || ex.Message.Contains("index not found", StringComparison.OrdinalIgnoreCase),
+            ex.Message);
     }
 
     private int DatabaseSize(IDatabase db) => DatabaseSize(db, out _);
@@ -1734,8 +1737,11 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
 
         Assert.NotNull(ex);
         Assert.IsType<RedisServerException>(ex);
-        var fault = EndpointsFixture.IsAtLeast(ServerVersion.Redis_8_8) ? "index not found" : "no such index";
-        Assert.Contains(fault, ex.Message, StringComparison.OrdinalIgnoreCase);
+        // Accept both module wordings: older "no such index", newer "index not found".
+        Assert.True(
+            ex.Message.Contains("no such index", StringComparison.OrdinalIgnoreCase)
+            || ex.Message.Contains("index not found", StringComparison.OrdinalIgnoreCase),
+            ex.Message);
     }
 
     [Theory]
@@ -2850,7 +2856,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         db.HashSet("doc1", [new("name", "name2"), new("body", "body2")]);
         db.HashSet("doc1", [new("name", "name2"), new("body", "name2")]);
 
-        AssertDatabaseSize(db, 1);
+        AssertIndexSize(ft, index, 1);
         var reply = ft.SpellCheck(index, "name");
         Assert.Single(reply.Keys);
         Assert.Equal("name", reply.Keys.First());
