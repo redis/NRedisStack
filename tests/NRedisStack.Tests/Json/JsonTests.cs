@@ -1073,7 +1073,8 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
 
         commands.Set(key, "$", new { a = "hello", b = new { a = "world" } });
         var res = commands.DebugMemory(key);
-        Assert.True(res > 20);
+        // Newer JSON modules report a smaller size; only assert a real positive size.
+        Assert.True(res > 0);
         res = commands.DebugMemory("non-existent key");
         Assert.Equal(0, res);
     }
@@ -1088,7 +1089,8 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
 
         await commands.SetAsync(key, "$", new { a = "hello", b = new { a = "world" } });
         var res = await commands.DebugMemoryAsync(key);
-        Assert.True(res > 20);
+        // Newer JSON modules report a smaller size; only assert a real positive size.
+        Assert.True(res > 0);
         res = await commands.DebugMemoryAsync("non-existent key");
         Assert.Equal(0, res);
     }
