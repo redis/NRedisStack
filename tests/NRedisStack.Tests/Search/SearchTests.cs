@@ -124,7 +124,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
 
         // is the command we build correct? assert the exact wire command.
         var command = SearchCommandBuilder.Search(index, query);
-        log.WriteLine($"resp3={isResp3}; command: {command.Command} {string.Join(" ", command.Args)}");
+        Log($"resp3={isResp3}; command: {command.Command} {string.Join(" ", command.Args)}");
         Assert.Equal("FT.SEARCH", command.Command);
         var expectedArgs = new object[] { index, "*", "SORTBY", "count", "ASC", "LIMIT", 20, 10 };
         Assert.Equal(expectedArgs.Length, command.Args.Length);
@@ -135,15 +135,15 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
 
         // run that exact command manually and inspect the raw reply from the wire.
         var raw = db.Execute(command);
-        log.WriteLine($"raw reply: Resp2Type={raw.Resp2Type}, Resp3Type={raw.Resp3Type}, Length={raw.Length}");
+        Log($"raw reply: Resp2Type={raw.Resp2Type}, Resp3Type={raw.Resp3Type}, Length={raw.Length}");
         int rawDocCount = CountRawSearchDocs(raw, out long rawTotal);
-        log.WriteLine($"raw total_results={rawTotal}, raw document count={rawDocCount}");
+        Log($"raw total_results={rawTotal}, raw document count={rawDocCount}");
         Assert.Equal(total, rawTotal);
         Assert.Equal(10, rawDocCount);
 
         // use the library API
         var results = ft.Search(index, query);
-        log.WriteLine($"typed TotalResults={results.TotalResults}, typed Documents.Count={results.Documents.Count}");
+        Log($"typed TotalResults={results.TotalResults}, typed Documents.Count={results.Documents.Count}");
         Assert.Equal(total, results.TotalResults);
         Assert.Equal(10, results.Documents.Count);
     }
@@ -973,7 +973,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
             Assert.Equal(102, info.NumTerms);
             Assert.True(info.NumRecords >= 200);
             Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
-            log.WriteLine($"{nameof(info.VectorIndexSzMebibytes)}: {info.VectorIndexSzMebibytes}"); // version-dependent
+            Log($"{nameof(info.VectorIndexSzMebibytes)}: {info.VectorIndexSzMebibytes}"); // version-dependent
             Assert.Equal(208, info.TotalInvertedIndexBlocks);
             Assert.True(info.OffsetVectorsSzMebibytes < 1);
             Assert.True(info.DocTableSizeMebibytes < 1);
@@ -1061,7 +1061,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
             Assert.Equal(102, info.NumTerms);
             Assert.True(info.NumRecords >= 200);
             Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
-            log.WriteLine($"{nameof(info.VectorIndexSzMebibytes)}: {info.VectorIndexSzMebibytes}"); // version-dependent
+            Log($"{nameof(info.VectorIndexSzMebibytes)}: {info.VectorIndexSzMebibytes}"); // version-dependent
             Assert.Equal(208, info.TotalInvertedIndexBlocks);
             Assert.True(info.OffsetVectorsSzMebibytes < 1);
             Assert.True(info.DocTableSizeMebibytes < 1);
@@ -1139,7 +1139,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
             Assert.Equal(102, info.NumTerms);
             Assert.True(info.NumRecords >= 200);
             Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
-            log.WriteLine($"{nameof(info.VectorIndexSzMebibytes)}: {info.VectorIndexSzMebibytes}"); // version-dependent
+            Log($"{nameof(info.VectorIndexSzMebibytes)}: {info.VectorIndexSzMebibytes}"); // version-dependent
             Assert.Equal(208, info.TotalInvertedIndexBlocks);
             Assert.True(info.OffsetVectorsSzMebibytes < 1);
             Assert.True(info.DocTableSizeMebibytes < 1);
@@ -1251,7 +1251,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
             Assert.Equal(102, info.NumTerms);
             Assert.True(info.NumRecords >= 200);
             Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
-            log.WriteLine($"{nameof(info.VectorIndexSzMebibytes)}: {info.VectorIndexSzMebibytes}"); // version-dependent
+            Log($"{nameof(info.VectorIndexSzMebibytes)}: {info.VectorIndexSzMebibytes}"); // version-dependent
             Assert.Equal(208, info.TotalInvertedIndexBlocks);
             Assert.True(info.OffsetVectorsSzMebibytes < 1);
             Assert.True(info.DocTableSizeMebibytes < 1);
