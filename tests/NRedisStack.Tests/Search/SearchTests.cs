@@ -119,11 +119,65 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
 
         AssertIndexSize(ft, index, total);
 
+        bool isResp3 = TestContext.Current.GetRunProtocol().IsResp3();
         var query = new Query("*").SetNoContent(false).SetSortBy("count", ascending: true).Limit(20, 10);
-        var results = ft.Search(index, query);
 
+        // is the command we build correct? assert the exact wire command.
+        var command = SearchCommandBuilder.Search(index, query);
+        log.WriteLine($"resp3={isResp3}; command: {command.Command} {string.Join(" ", command.Args)}");
+        Assert.Equal("FT.SEARCH", command.Command);
+        var expectedArgs = new object[] { index, "*", "SORTBY", "count", "ASC", "LIMIT", 20, 10 };
+        Assert.Equal(expectedArgs.Length, command.Args.Length);
+        for (int i = 0; i < expectedArgs.Length; i++)
+        {
+            Assert.Equal(expectedArgs[i].ToString(), command.Args[i].ToString());
+        }
+
+        // run that exact command manually and inspect the raw reply from the wire.
+        var raw = db.Execute(command);
+        log.WriteLine($"raw reply: Resp2Type={raw.Resp2Type}, Resp3Type={raw.Resp3Type}, Length={raw.Length}");
+        int rawDocCount = CountRawSearchDocs(raw, out long rawTotal);
+        log.WriteLine($"raw total_results={rawTotal}, raw document count={rawDocCount}");
+        Assert.Equal(total, rawTotal);
+        Assert.Equal(10, rawDocCount);
+
+        // use the library API
+        var results = ft.Search(index, query);
+        log.WriteLine($"typed TotalResults={results.TotalResults}, typed Documents.Count={results.Documents.Count}");
         Assert.Equal(total, results.TotalResults);
         Assert.Equal(10, results.Documents.Count);
+    }
+
+    // Counts the documents in a raw FT.SEARCH reply. Layout is decided by the *actual* reply shape
+    // (the same thing SearchResult branches on), not by the connection protocol: an older server can
+    // reply with a flat array even on a RESP3 connection, and that mismatch is exactly what we want to see.
+    //   RESP3 map:  { attributes, format, results: [...], total_results, warning }
+    //   RESP2 array: [total, id, fields, id, fields, ...]
+    private static int CountRawSearchDocs(RedisResult raw, out long totalResults)
+    {
+        totalResults = -1;
+        var arr = (RedisResult[])raw!;
+        if (raw.Resp3Type is ResultType.Map)
+        {
+            int count = -1;
+            for (int i = 0; i + 1 < arr.Length; i += 2)
+            {
+                switch (arr[i].ToString())
+                {
+                    case "results":
+                        count = arr[i + 1].Length;
+                        break;
+                    case "total_results":
+                        totalResults = (long)arr[i + 1];
+                        break;
+                }
+            }
+            return count;
+        }
+
+        // RESP2: first element is the total; remaining elements are (id, fields) pairs (content, no scores/payloads).
+        totalResults = (long)arr[0];
+        return (arr.Length - 1) / 2;
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
