@@ -98,6 +98,40 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(expected, indexed);
     }
 
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestSearchLimitOffset(string endpointId)
+    {
+        SkipClusterPre8(endpointId);
+
+        // Cluster + RESP3 ignores the LIMIT offset server-side: FT.SEARCH returns the window
+        // [0, offset+count) instead of [offset, offset+count). This is a RediSearch module bug,
+        // not a client bug (the raw wire reply already contains the wrong documents); skip until fixed.
+        // https://github.com/RediSearch/RediSearch/issues/10369
+        Assert.SkipWhen(endpointId == EndpointsFixture.Env.Cluster && TestContext.Current.GetRunProtocol().IsResp3(),
+            "RediSearch#10369: FT.SEARCH on cluster+RESP3 ignores the LIMIT offset");
+
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ft = db.FT();
+        Schema sc = new();
+        sc.AddNumericField("count", sortable: true);
+        ft.Create(index, FTCreateParams.CreateParams(), sc);
+
+        const int total = 30;
+        for (int i = 0; i < total; i++)
+        {
+            AddDocument(db, new Document($"data{i:D2}").Set("count", i));
+        }
+
+        AssertIndexSize(ft, index, total);
+
+        var query = new Query("*").SetNoContent(false).SetSortBy("count", ascending: true).Limit(20, 10);
+        var results = ft.Search(index, query);
+
+        Assert.Equal(total, results.TotalResults);
+        Assert.Equal(10, results.Documents.Count);
+    }
+
     [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAggregationRequestVerbatim(string endpointId)
@@ -891,7 +925,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
             Assert.Equal(102, info.NumTerms);
             Assert.True(info.NumRecords >= 200);
             Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
-            log.WriteLine($"{nameof(info.VectorIndexSzMebibytes)}: {info.VectorIndexSzMebibytes}"); // version-dependent
+            Log($"{nameof(info.VectorIndexSzMebibytes)}: {info.VectorIndexSzMebibytes}"); // version-dependent
             Assert.Equal(208, info.TotalInvertedIndexBlocks);
             Assert.True(info.OffsetVectorsSzMebibytes < 1);
             Assert.True(info.DocTableSizeMebibytes < 1);
@@ -979,7 +1013,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
             Assert.Equal(102, info.NumTerms);
             Assert.True(info.NumRecords >= 200);
             Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
-            log.WriteLine($"{nameof(info.VectorIndexSzMebibytes)}: {info.VectorIndexSzMebibytes}"); // version-dependent
+            Log($"{nameof(info.VectorIndexSzMebibytes)}: {info.VectorIndexSzMebibytes}"); // version-dependent
             Assert.Equal(208, info.TotalInvertedIndexBlocks);
             Assert.True(info.OffsetVectorsSzMebibytes < 1);
             Assert.True(info.DocTableSizeMebibytes < 1);
@@ -1057,7 +1091,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
             Assert.Equal(102, info.NumTerms);
             Assert.True(info.NumRecords >= 200);
             Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
-            log.WriteLine($"{nameof(info.VectorIndexSzMebibytes)}: {info.VectorIndexSzMebibytes}"); // version-dependent
+            Log($"{nameof(info.VectorIndexSzMebibytes)}: {info.VectorIndexSzMebibytes}"); // version-dependent
             Assert.Equal(208, info.TotalInvertedIndexBlocks);
             Assert.True(info.OffsetVectorsSzMebibytes < 1);
             Assert.True(info.DocTableSizeMebibytes < 1);
@@ -1169,7 +1203,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
             Assert.Equal(102, info.NumTerms);
             Assert.True(info.NumRecords >= 200);
             Assert.True(info.InvertedSzMebibytes < 1); // TODO: check this line and all the <1 lines
-            log.WriteLine($"{nameof(info.VectorIndexSzMebibytes)}: {info.VectorIndexSzMebibytes}"); // version-dependent
+            Log($"{nameof(info.VectorIndexSzMebibytes)}: {info.VectorIndexSzMebibytes}"); // version-dependent
             Assert.Equal(208, info.TotalInvertedIndexBlocks);
             Assert.True(info.OffsetVectorsSzMebibytes < 1);
             Assert.True(info.DocTableSizeMebibytes < 1);
