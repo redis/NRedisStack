@@ -98,6 +98,34 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(expected, indexed);
     }
 
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestSearchLimitOffset(string endpointId)
+    {
+        // Regression test for Query.Limit(offset, count): the number of returned documents
+        // should equal 'count', regardless of RESP2/RESP3 (these run as separate test cases).
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ft = db.FT();
+        Schema sc = new();
+        sc.AddNumericField("count", sortable: true);
+        ft.Create(index, FTCreateParams.CreateParams(), sc);
+
+        const int total = 30;
+        for (int i = 0; i < total; i++)
+        {
+            AddDocument(db, new Document($"data{i:D2}").Set("count", i));
+        }
+
+        AssertIndexSize(ft, index, total);
+
+        var query = new Query("*").SetNoContent(false).SetSortBy("count", ascending: true).Limit(20, 10);
+        var results = ft.Search(index, query);
+
+        Assert.Equal(total, results.TotalResults);
+        Assert.Equal(10, results.Documents.Count);
+    }
+
     [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAggregationRequestVerbatim(string endpointId)
