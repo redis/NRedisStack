@@ -432,4 +432,75 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
             sb.Append('"');
         }
     }
+
+    // Number of documents indexed by the on-timeout test. Enough that the hybrid query cannot
+    // complete within the 1ms per-query timeout, so the on-timeout policy is guaranteed to kick in.
+    private const int TimeoutDocCount = 1_000;
+
+    // Sets the global search-on-timeout policy on every primary. On a cluster the policy must be
+    // present on all shards (and the coordinator) for the timeout behaviour to be consistent.
+    private static void SetSearchOnTimeout(IConnectionMultiplexer muxer, string value)
+    {
+        foreach (var endpoint in muxer.GetEndPoints())
+        {
+            var server = muxer.GetServer(endpoint);
+            if (!server.IsReplica)
+            {
+                server.ConfigSet("search-on-timeout", value);
+            }
+        }
+    }
+
+    // FT.HYBRID counterpart of the FT.SEARCH/FT.AGGREGATE on-timeout tests: under the `return`
+    // policy a timed-out query must return (possibly partial) results plus a warning rather than
+    // failing. FT.HYBRID reports warnings on both RESP2 and RESP3, so no protocol skip is needed.
+    // See CAE-3003.
+    [SkipIfRedisTheory(Comparison.LessThan, "8.9.0", deferVersionCheck: true)]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestHybridOnTimeoutReturnPopulatesWarnings(string endpointId)
+    {
+#if NET
+        var api = await CreateIndexAsync(endpointId, populate: false);
+        if (api.IsNull) return;
+
+        // Bulk-load with fire-and-forget so many documents load quickly, then Ping to make sure all
+        // writes have been processed (and therefore indexed) before we query.
+        var rand = new Random(12345);
+        using var vectorData = VectorData.Lease<Half>(V1DIM);
+        for (int i = 0; i < TimeoutDocCount; i++)
+        {
+            foreach (ref Half val in vectorData.Span)
+            {
+                val = (Half)rand.NextDouble();
+            }
+
+            HashEntry[] entry =
+            [
+                new("text1", $"hello world {i}"),
+                new("vector1", vectorData.AsRedisValue())
+            ];
+            api.DB.HashSet($"{api.Index}_e{i}", entry, flags: CommandFlags.FireAndForget);
+        }
+
+        api.DB.Ping();
+
+        // Ensure the RETURN policy is active on every primary. A stored vector guarantees the query
+        // vector matches the field type/dimension.
+        SetSearchOnTimeout(api.DB.Multiplexer, "return");
+
+        var hash = (await api.DB.HashGetAllAsync($"{api.Index}_e0")).ToDictionary(k => k.Name, v => v.Value);
+        var vec = (byte[])hash["vector1"]!;
+        var query = new HybridSearchQuery()
+            .Search("hello world")
+            .VectorSearch("@vector1", VectorData.Raw(vec))
+            .Timeout(TimeSpan.FromMilliseconds(1));
+
+        var result = api.FT.HybridSearch(api.Index, query);
+        Assert.NotNull(result);
+        Assert.NotEmpty(result.Warnings);
+        Assert.Contains(result.Warnings, w => w.ToLowerInvariant().Contains("timeout"));
+#else
+        await Task.CompletedTask;
+#endif
+    }
 }

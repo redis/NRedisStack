@@ -14,6 +14,13 @@ public class SearchResult
     public List<Document> Documents { get; }
 
     /// <summary>
+    /// Warnings reported by the server for this query (for example when a query times out under the
+    /// <c>return</c>/<c>return-strict</c> on-timeout policy and partial results are returned).
+    /// Only populated on RESP3; on RESP2 FT.SEARCH does not carry warnings and this list is empty.
+    /// </summary>
+    public List<string> Warnings { get; } = [];
+
+    /// <summary>
     /// Converts the documents to a list of json strings. only works on a json documents index.
     /// </summary>
     public List<string> ToJson() => Documents.Select(x => x["json"].ToString())
@@ -61,6 +68,7 @@ public class SearchResult
                     return Document.Load(id, score, payload, fields, scoreExplained);
                 }, out long totalResults));
             TotalResults = totalResults;
+            Warnings = ResponseParser.ParseWarnings(root);
         }
         else // RESP2
         {

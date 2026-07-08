@@ -30,16 +30,14 @@ public sealed class HybridSearchResult
                             case ResultKey.ExecutionTime:
                                 obj.ExecutionTime = TimeSpan.FromSeconds((double)value);
                                 break;
-                            /* // defer Warnings until we've seen examples
                             case ResultKey.Warnings when value.Length > 0:
-                                var warnings = new string[value.Length];
+                                var warnings = new List<string>(value.Length);
                                 for (int j = 0; j < value.Length; j++)
                                 {
-                                    warnings[j] = value[j].ToString();
+                                    warnings.Add(value[j].ToString());
                                 }
                                 obj.Warnings = warnings;
                                 break;
-                                */
                             case ResultKey.Results when value.Length > 0:
                                 obj._rawResults = value.ToArray();
                                 break;
@@ -118,8 +116,12 @@ public sealed class HybridSearchResult
     /// </summary>
     public TimeSpan ExecutionTime { get; private set; }
 
-    // not exposing this until I've seen it being used
-    internal string[] Warnings { get; private set; } = [];
+    /// <summary>
+    /// Warnings reported by the server for this query (for example a timeout warning under the
+    /// <c>return</c>/<c>return-strict</c> on-timeout policy). FT.HYBRID reports warnings on both
+    /// RESP2 and RESP3.
+    /// </summary>
+    public List<string> Warnings { get; private set; } = [];
 
     private RedisResult[] _rawResults = [];
     private Document[]? _docResults;

@@ -27,6 +27,13 @@ public class AggregationResult
 
     public long CursorId { get; }
 
+    /// <summary>
+    /// Warnings reported by the server for this query (for example when a query times out under the
+    /// <c>return</c>/<c>return-strict</c> on-timeout policy and partial results are returned).
+    /// Only populated on RESP3; on RESP2 FT.AGGREGATE does not carry warnings and this list is empty.
+    /// </summary>
+    public List<string> Warnings { get; } = [];
+
     internal AggregationResult(RedisResult result, long cursorId = -1)
     {
         var arr = (RedisResult[])result!;
@@ -35,6 +42,7 @@ public class AggregationResult
         {
             results = ResponseParser.ParseSearchResultsMap(result, ParseRecordFromMap, out long totalResults);
             // TotalResults = totalResults; // we ignore this in RESP3 mode for consistent API behaviour
+            Warnings = ResponseParser.ParseWarnings(result);
         }
         else
         {
