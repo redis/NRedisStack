@@ -4,6 +4,7 @@ using StackExchange.Redis;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
 using static NRedisStack.Tests.CustomAssertions;
+using static NRedisStack.Tests.Search.SearchTestUtils;
 using static NRedisStack.Search.Schema;
 using NRedisStack.Search.Aggregation;
 using NRedisStack.Search.Literals.Enums;
@@ -4025,21 +4026,6 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     // on-timeout policy is guaranteed to kick in.
     private const int TimeoutDocCount = 10_000;
 
-    // Sets the global search-on-timeout policy on every primary. On a cluster the policy must be
-    // present on all shards (and the coordinator) for the timeout behaviour to be consistent, so we
-    // broadcast rather than target a single node.
-    private static void SetSearchOnTimeout(IConnectionMultiplexer muxer, string value)
-    {
-        foreach (var endpoint in muxer.GetEndPoints())
-        {
-            var server = muxer.GetServer(endpoint);
-            if (!server.IsReplica)
-            {
-                server.ConfigSet("search-on-timeout", value);
-            }
-        }
-    }
-
     private void PopulateTimeoutIndex(IDatabase db, SearchCommands ft)
     {
         Schema sc = new();
@@ -4047,7 +4033,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         sc.AddNumericField("n", sortable: true);
         ft.Create(index, FTCreateParams.CreateParams(), sc);
 
-        // Bulk-load with fire-and-forget so 1k documents load quickly, then Ping to make sure all
+        // Bulk-load with fire-and-forget documents quickly, then Ping to make sure all
         // writes have been processed before we wait for indexing.
         for (int i = 0; i < TimeoutDocCount; i++)
         {

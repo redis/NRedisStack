@@ -8,6 +8,7 @@ using NRedisStack.Search.Aggregation;
 using StackExchange.Redis;
 using Xunit;
 using static NRedisStack.Tests.CustomAssertions;
+using static NRedisStack.Tests.Search.SearchTestUtils;
 
 namespace NRedisStack.Tests.Search;
 
@@ -437,20 +438,6 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
     // Number of documents indexed by the on-timeout test. Enough that the hybrid query cannot
     // complete within the 1ms per-query timeout, so the on-timeout policy is guaranteed to kick in.
     private const int TimeoutDocCount = 10_000;
-
-    // Sets the global search-on-timeout policy on every primary. On a cluster the policy must be
-    // present on all shards (and the coordinator) for the timeout behaviour to be consistent.
-    private static void SetSearchOnTimeout(IConnectionMultiplexer muxer, string value)
-    {
-        foreach (var endpoint in muxer.GetEndPoints())
-        {
-            var server = muxer.GetServer(endpoint);
-            if (!server.IsReplica)
-            {
-                server.ConfigSet("search-on-timeout", value);
-            }
-        }
-    }
 
     // FT.HYBRID counterpart of the FT.SEARCH/FT.AGGREGATE on-timeout tests: under the `return`
     // policy a timed-out query must return (possibly partial) results plus a warning rather than
