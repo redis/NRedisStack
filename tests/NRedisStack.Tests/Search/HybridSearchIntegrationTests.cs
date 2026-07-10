@@ -436,7 +436,7 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
 
     // Number of documents indexed by the on-timeout test. Enough that the hybrid query cannot
     // complete within the 1ms per-query timeout, so the on-timeout policy is guaranteed to kick in.
-    private const int TimeoutDocCount = 1_000;
+    private const int TimeoutDocCount = 10_000;
 
     // Sets the global search-on-timeout policy on every primary. On a cluster the policy must be
     // present on all shards (and the coordinator) for the timeout behaviour to be consistent.
