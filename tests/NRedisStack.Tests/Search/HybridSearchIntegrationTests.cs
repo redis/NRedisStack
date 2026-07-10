@@ -7,6 +7,7 @@ using NRedisStack.Search;
 using NRedisStack.Search.Aggregation;
 using StackExchange.Redis;
 using Xunit;
+using static NRedisStack.Tests.CustomAssertions;
 
 namespace NRedisStack.Tests.Search;
 
@@ -459,12 +460,11 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestHybridOnTimeoutReturnPopulatesWarnings(string endpointId)
     {
-#if NET
         var api = await CreateIndexAsync(endpointId, populate: false);
         if (api.IsNull) return;
-
-        // Bulk-load with fire-and-forget so many documents load quickly, then Ping to make sure all
-        // writes have been processed (and therefore indexed) before we query.
+#if NET
+        // Bulk-load with fire-and-forget so many documents load quickly, then Ping so all writes
+        // have been processed before we wait for indexing.
         var rand = new Random(12345);
         using var vectorData = VectorData.Lease<Half>(V1DIM);
         for (int i = 0; i < TimeoutDocCount; i++)
@@ -484,6 +484,8 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
 
         api.DB.Ping();
 
+        AssertIndexSize(api.FT, api.Index, TimeoutDocCount);
+
         // Ensure the RETURN policy is active on every primary. A stored vector guarantees the query
         // vector matches the field type/dimension.
         SetSearchOnTimeout(api.DB.Multiplexer, "return");
@@ -492,7 +494,14 @@ public class HybridSearchIntegrationTests(EndpointsFixture endpointsFixture, ITe
         var vec = (byte[])hash["vector1"]!;
         var query = new HybridSearchQuery()
             .Search("hello world")
-            .VectorSearch("@vector1", VectorData.Raw(vec))
+            .VectorSearch(new("@vector1", VectorData.Raw(vec),
+                method: VectorSearchMethod.NearestNeighbour(TimeoutDocCount)))
+            .Combine(HybridSearchQuery.Combiner.Linear(0.5, 0.5, window: TimeoutDocCount))
+            .ReturnFields("@text1")
+            .Apply(new("format(\"%s%s%s\",@text1,@text1,@text1)", "a"), new("format(\"%s%s%s\",@a,@a,@a)", "a"),
+                new("format(\"%s%s%s\",@a,@a,@a)", "a"), new("format(\"%s%s%s\",@a,@a,@a)", "a"),
+                new("format(\"%s%s%s\",@a,@a,@a)", "a"))
+            .SortBy(SortedField.Desc("@a"))
             .Timeout(TimeSpan.FromMilliseconds(1));
 
         var result = api.FT.HybridSearch(api.Index, query);

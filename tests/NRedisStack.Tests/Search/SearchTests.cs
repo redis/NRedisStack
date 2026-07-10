@@ -3,6 +3,7 @@ using Xunit;
 using StackExchange.Redis;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
+using static NRedisStack.Tests.CustomAssertions;
 using static NRedisStack.Search.Schema;
 using NRedisStack.Search.Aggregation;
 using NRedisStack.Search.Literals.Enums;
@@ -68,34 +69,6 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     private async Task AssertDatabaseSizeAsync(IDatabase db, int expected)
     {
         Assert.Equal(expected, await DatabaseSizeAsync(db));
-    }
-
-    private void AssertIndexSize(ISearchCommands ft, string index, int expected)
-    {
-        long indexed = -1;
-        // allow search time to catch up
-        for (int i = 0; i < 10; i++)
-        {
-            indexed = ft.Info(index).NumDocs;
-
-            if (indexed == expected)
-                break;
-        }
-        Assert.Equal(expected, indexed);
-    }
-
-    private async Task AssertIndexSizeAsync(ISearchCommandsAsync ft, string index, int expected)
-    {
-        long indexed = -1;
-        // allow search time to catch up
-        for (int i = 0; i < 10; i++)
-        {
-            indexed = (await ft.InfoAsync(index)).NumDocs;
-
-            if (indexed == expected)
-                break;
-        }
-        Assert.Equal(expected, indexed);
     }
 
     [Theory]
@@ -4075,7 +4048,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         ft.Create(index, FTCreateParams.CreateParams(), sc);
 
         // Bulk-load with fire-and-forget so 1k documents load quickly, then Ping to make sure all
-        // writes have been processed (and therefore indexed) before we query.
+        // writes have been processed before we wait for indexing.
         for (int i = 0; i < TimeoutDocCount; i++)
         {
             db.HashSet($"tdoc:{i}",
@@ -4084,6 +4057,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         }
 
         db.Ping();
+        AssertIndexSize(ft, index, TimeoutDocCount);
     }
 
     // A query heavy enough that it cannot finish within a 1ms timeout: it matches every document and
@@ -4141,10 +4115,19 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Contains(result.Warnings, w => w.ToLowerInvariant().Contains("timeout"));
     }
 
-    // A heavy FT.AGGREGATE that cannot finish within a 1ms timeout: it matches every document and
-    // sorts the whole index.
+    // A heavy FT.AGGREGATE that cannot finish within a 1ms timeout. A plain sort over the numeric
+    // field is optimized away (partial-range/skip-sorter), so instead we force the "no optimization"
+    // path documented for FT.AGGREGATE: score every document (ADDSCORES) and SORTBY @__score, load
+    // the text field (an HMGET per document) and blow it up with repeated string formatting. This
+    // costs tens of ms over ~1k documents, well beyond the 1ms budget on any hardware.
     private static AggregationRequest TimingOutAggregation() =>
-        new AggregationRequest("hello world").SortBy(SortedField.Desc("@n")).Timeout(1);
+        new AggregationRequest("hello world").AddScores().Load(FieldName.Of("@title"))
+            .Apply("format(\"%s%s%s\",@title,@title,@title)", "a")
+            .Apply("format(\"%s%s%s\",@a,@a,@a)", "a")
+            .Apply("format(\"%s%s%s\",@a,@a,@a)", "a")
+            .Apply("format(\"%s%s%s\",@a,@a,@a)", "a")
+            .Apply("format(\"%s%s%s\",@a,@a,@a)", "a")
+            .SortBy(SortedField.Desc("@__score")).Timeout(1);
 
     // FT.AGGREGATE counterpart of TestSearchOnTimeoutFailReturnsError. See CAE-3003.
     [SkipIfRedisTheory(Comparison.LessThan, "8.9.0")]
