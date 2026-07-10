@@ -3,6 +3,8 @@ using Xunit;
 using StackExchange.Redis;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
+using static NRedisStack.Tests.CustomAssertions;
+using static NRedisStack.Tests.Search.SearchTestUtils;
 using static NRedisStack.Search.Schema;
 using NRedisStack.Search.Aggregation;
 using NRedisStack.Search.Literals.Enums;
@@ -68,34 +70,6 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     private async Task AssertDatabaseSizeAsync(IDatabase db, int expected)
     {
         Assert.Equal(expected, await DatabaseSizeAsync(db));
-    }
-
-    private void AssertIndexSize(ISearchCommands ft, string index, int expected)
-    {
-        long indexed = -1;
-        // allow search time to catch up
-        for (int i = 0; i < 10; i++)
-        {
-            indexed = ft.Info(index).NumDocs;
-
-            if (indexed == expected)
-                break;
-        }
-        Assert.Equal(expected, indexed);
-    }
-
-    private async Task AssertIndexSizeAsync(ISearchCommandsAsync ft, string index, int expected)
-    {
-        long indexed = -1;
-        // allow search time to catch up
-        for (int i = 0; i < 10; i++)
-        {
-            indexed = (await ft.InfoAsync(index)).NumDocs;
-
-            if (indexed == expected)
-                break;
-        }
-        Assert.Equal(expected, indexed);
     }
 
     [Theory]
@@ -4045,5 +4019,143 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         // instead we attempt 5 times.
         // Without fix for Issue352, document load in this case fails %100 with my local test runs,, and %100 success with fixed version.
         // The results in pipeline should be the same.
+    }
+
+    // Number of documents indexed by the on-timeout tests. Large enough that scanning, scoring and
+    // sorting them cannot complete within the 1ms per-query timeout, so the query engine's
+    // on-timeout policy is guaranteed to kick in.
+    private const int TimeoutDocCount = 10_000;
+
+    private void PopulateTimeoutIndex(IDatabase db, SearchCommands ft)
+    {
+        Schema sc = new();
+        sc.AddTextField("title");
+        sc.AddNumericField("n", sortable: true);
+        ft.Create(index, FTCreateParams.CreateParams(), sc);
+
+        // Bulk-load with fire-and-forget documents quickly, then Ping to make sure all
+        // writes have been processed before we wait for indexing.
+        for (int i = 0; i < TimeoutDocCount; i++)
+        {
+            db.HashSet($"tdoc:{i}",
+                new HashEntry[] { new("title", $"hello world {i}"), new("n", i) },
+                flags: CommandFlags.FireAndForget);
+        }
+
+        db.Ping();
+        AssertIndexSize(ft, index, TimeoutDocCount);
+    }
+
+    // A query heavy enough that it cannot finish within a 1ms timeout: it matches every document and
+    // forces a full scan, scoring and sort over the whole index.
+    private static Query TimingOutQuery() =>
+        new Query("hello world").SetWithScores().SetSortBy("n", ascending: false).Limit(0, TimeoutDocCount).Timeout(1);
+
+    // With the `fail` on-timeout policy the server returns an error on a timed-out search instead of
+    // partial results. The client must surface that error (as a RedisServerException) rather than
+    // swallowing it into an empty/partial result, and it must not be automatically retried.
+    // See CAE-3003 (initiative RED-132340: "Timeout guardrails").
+    [SkipIfRedisTheory(Comparison.LessThan, "8.9.0")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestSearchOnTimeoutFailReturnsError(string endpointId)
+    {
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ft = db.FT();
+        PopulateTimeoutIndex(db, ft);
+
+        // Use the unified CONFIG SET (search-on-timeout); it is a global server setting.
+        SetSearchOnTimeout(db.Multiplexer, "fail");
+        try
+        {
+            var ex = Assert.Throws<RedisServerException>(() => ft.Search(index, TimingOutQuery()));
+            Assert.Contains("timeout", ex.Message.ToLowerInvariant());
+        }
+        finally
+        {
+            // Restore the default policy so we don't leak the FAIL setting into other tests.
+            SetSearchOnTimeout(db.Multiplexer, "return");
+        }
+    }
+
+    // With the `return` on-timeout policy the server returns a (possibly partial) result together
+    // with a warning instead of failing. The query must not throw, and the timeout must be reported
+    // via SearchResult.Warnings. Warnings are only carried on RESP3 for FT.SEARCH. See CAE-3003.
+    [SkipIfRedisTheory(Comparison.LessThan, "8.9.0")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestSearchOnTimeoutReturnPopulatesWarnings(string endpointId)
+    {
+        SkipClusterPre8(endpointId);
+        Assert.SkipUnless(TestContext.Current.GetRunProtocol().IsResp3(),
+            "FT.SEARCH warnings are only returned on RESP3");
+
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ft = db.FT();
+        PopulateTimeoutIndex(db, ft);
+
+        SetSearchOnTimeout(db.Multiplexer, "return");
+
+        var result = ft.Search(index, TimingOutQuery());
+        Assert.NotNull(result);
+        Assert.NotEmpty(result.Warnings);
+        Assert.Contains(result.Warnings, w => w.ToLowerInvariant().Contains("timeout"));
+    }
+
+    // A heavy FT.AGGREGATE that cannot finish within a 1ms timeout. A plain sort over the numeric
+    // field is optimized away (partial-range/skip-sorter), so instead we force the "no optimization"
+    // path documented for FT.AGGREGATE: score every document (ADDSCORES) and SORTBY @__score, load
+    // the text field (an HMGET per document) and blow it up with repeated string formatting. This
+    // costs tens of ms over ~1k documents, well beyond the 1ms budget on any hardware.
+    private static AggregationRequest TimingOutAggregation() =>
+        new AggregationRequest("hello world").AddScores().Load(FieldName.Of("@title"))
+            .Apply("format(\"%s%s%s\",@title,@title,@title)", "a")
+            .Apply("format(\"%s%s%s\",@a,@a,@a)", "a")
+            .Apply("format(\"%s%s%s\",@a,@a,@a)", "a")
+            .Apply("format(\"%s%s%s\",@a,@a,@a)", "a")
+            .Apply("format(\"%s%s%s\",@a,@a,@a)", "a")
+            .SortBy(SortedField.Desc("@__score")).Timeout(1);
+
+    // FT.AGGREGATE counterpart of TestSearchOnTimeoutFailReturnsError. See CAE-3003.
+    [SkipIfRedisTheory(Comparison.LessThan, "8.9.0")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestAggregateOnTimeoutFailReturnsError(string endpointId)
+    {
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ft = db.FT();
+        PopulateTimeoutIndex(db, ft);
+
+        SetSearchOnTimeout(db.Multiplexer, "fail");
+        try
+        {
+            var ex = Assert.Throws<RedisServerException>(() => ft.Aggregate(index, TimingOutAggregation()));
+            Assert.Contains("timeout", ex.Message.ToLowerInvariant());
+        }
+        finally
+        {
+            SetSearchOnTimeout(db.Multiplexer, "return");
+        }
+    }
+
+    // FT.AGGREGATE counterpart of TestSearchOnTimeoutReturnPopulatesWarnings. FT.AGGREGATE warnings
+    // are only carried on RESP3. See CAE-3003.
+    [SkipIfRedisTheory(Comparison.LessThan, "8.9.0")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestAggregateOnTimeoutReturnPopulatesWarnings(string endpointId)
+    {
+        SkipClusterPre8(endpointId);
+        Assert.SkipUnless(TestContext.Current.GetRunProtocol().IsResp3(),
+            "FT.AGGREGATE warnings are only returned on RESP3");
+
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ft = db.FT();
+        PopulateTimeoutIndex(db, ft);
+
+        SetSearchOnTimeout(db.Multiplexer, "return");
+
+        var result = ft.Aggregate(index, TimingOutAggregation());
+        Assert.NotNull(result);
+        Assert.NotEmpty(result.Warnings);
+        Assert.Contains(result.Warnings, w => w.ToLowerInvariant().Contains("timeout"));
     }
 }
