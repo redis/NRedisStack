@@ -46,3 +46,4 @@ NRedisStack.TimeSeriesCommandsAsync.RevRangeAsync(string! key, NRedisStack.DataT
 NRedisStack.Search.SearchResult.Warnings.get -> System.Collections.Generic.List<string!>!
 NRedisStack.Search.AggregationResult.Warnings.get -> System.Collections.Generic.List<string!>!
 NRedisStack.Search.HybridSearchResult.Warnings.get -> System.Collections.Generic.List<string!>!
+NRedisStack.Search.AggregationRequest.AddScores() -> NRedisStack.Search.AggregationRequest!

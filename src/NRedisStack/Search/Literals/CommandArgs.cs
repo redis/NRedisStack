@@ -2,6 +2,7 @@ namespace NRedisStack.Search.Literals;
 
 internal class SearchArgs
 {
+    public const string ADDSCORES = "ADDSCORES";
     public const string AGGREGATE = "AGGREGATE";
     public const string APPLY = "APPLY";
     public const string AS = "AS";

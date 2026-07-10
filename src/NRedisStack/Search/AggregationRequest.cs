@@ -24,6 +24,17 @@ public class AggregationRequest : IDialectAwareParam
         return this;
     }
 
+    /// <summary>
+    /// Exposes the full-text score values to the aggregation pipeline via the <c>ADDSCORES</c> option.
+    /// The score of each result is then available as the <c>@__score</c> field, e.g. for use in
+    /// <c>SORTBY</c> or <c>APPLY</c>.
+    /// </summary>
+    public AggregationRequest AddScores()
+    {
+        args.Add(SearchArgs.ADDSCORES);
+        return this;
+    }
+
     public AggregationRequest Load(params FieldName[] fields)
     {
         if (fields.Length > 0)
