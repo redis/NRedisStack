@@ -30,9 +30,9 @@ public class AggregationResult
     /// <summary>
     /// Warnings reported by the server for this query (for example when a query times out under the
     /// <c>return</c>/<c>return-strict</c> on-timeout policy and partial results are returned).
-    /// Only populated on RESP3; on RESP2 FT.AGGREGATE does not carry warnings and this list is empty.
+    /// Only populated on RESP3; on RESP2 FT.AGGREGATE does not carry warnings and this array is empty.
     /// </summary>
-    public List<string> Warnings { get; } = [];
+    public string[] Warnings { get; } = [];
 
     internal AggregationResult(RedisResult result, long cursorId = -1)
     {

@@ -1291,7 +1291,7 @@ internal static class ResponseParser
 
     // Extracts the top-level "warning" field from a RESP3 FT.SEARCH / FT.AGGREGATE reply map.
     // Warnings sit alongside "results"/"total_results" as a (possibly empty) array of strings.
-    internal static List<string> ParseWarnings(RedisResult root)
+    internal static string[] ParseWarnings(RedisResult root)
     {
         var arr = (RedisResult[])root!;
         for (int i = 0; i + 1 < arr.Length; i += 2)
@@ -1299,10 +1299,15 @@ internal static class ResponseParser
             if ((string)arr[i]! == "warning" && arr[i + 1].Resp3Type is ResultType.Array)
             {
                 var raw = (RedisResult[])arr[i + 1]!;
-                var warnings = new List<string>(raw.Length);
-                foreach (var warning in raw)
+                if (raw.Length == 0)
                 {
-                    warnings.Add(warning.ToString());
+                    return [];
+                }
+
+                var warnings = new string[raw.Length];
+                for (int j = 0; j < raw.Length; j++)
+                {
+                    warnings[j] = raw[j].ToString();
                 }
 
                 return warnings;
