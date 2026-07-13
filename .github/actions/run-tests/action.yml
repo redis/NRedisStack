@@ -140,6 +140,16 @@ runs:
         fi
         dotnet test -f ${CLR_VERSION} --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover -p:BuildInParallel=false tests/Test.proj --logger GitHubActions
         echo "::endgroup::"
+    - name: Upload Redis logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: redis-logs-${{ inputs.redis-version || inputs.client-libs-test-image-tag }}-dotnet${{ inputs.dotnet-version }}
+        path: |
+          tests/dockers/cluster/node-*/redis.log
+          tests/dockers/cluster/node-*/nodes.conf
+          tests/dockers/standalone/node-*/redis.log
+        if-no-files-found: warn
     - name: Codecov
       if: inputs.upload-coverage != 'false'
       uses: codecov/codecov-action@v6
