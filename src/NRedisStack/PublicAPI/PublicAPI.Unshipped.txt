@@ -47,3 +47,8 @@ NRedisStack.Search.SearchResult.Warnings.get -> string![]!
 NRedisStack.Search.AggregationResult.Warnings.get -> string![]!
 NRedisStack.Search.HybridSearchResult.Warnings.get -> string![]!
 NRedisStack.Search.AggregationRequest.AddScores() -> NRedisStack.Search.AggregationRequest!
+NRedisStack.ISearchCommands.AliasList(string! index) -> StackExchange.Redis.RedisResult![]!
+NRedisStack.ISearchCommandsAsync.AliasListAsync(string! index) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult![]!>!
+NRedisStack.SearchCommands.AliasList(string! index) -> StackExchange.Redis.RedisResult![]!
+NRedisStack.SearchCommandsAsync.AliasListAsync(string! index) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult![]!>!
+static NRedisStack.SearchCommandBuilder.AliasList(string! index) -> NRedisStack.RedisStackCommands.SerializedCommand!
