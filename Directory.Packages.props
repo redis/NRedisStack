@@ -3,7 +3,7 @@
     <!-- core build -->
     <PackageVersion Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageVersion Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" />
-    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.300" />
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.301" />
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.7.115" />
     <PackageVersion Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="5.6.0">
       <PrivateAssets>all</PrivateAssets>
@@ -11,7 +11,7 @@
     </PackageVersion>
     <!-- primary library -->
     <PackageVersion Include="NetTopologySuite" Version="2.6.0" />
-    <PackageVersion Include="System.Text.Json" Version="10.0.9" />
+    <PackageVersion Include="System.Text.Json" Version="10.0.10" />
     <PackageVersion Include="StackExchange.Redis" Version="3.0.17" />
     <!-- tests, etc -->
     <PackageVersion Include="BouncyCastle.Cryptography" Version="2.6.2" />
@@ -21,8 +21,8 @@
     <!-- there seem to be bumps in GHATL 3.x making it not work with the test SDK -->
     <PackageVersion Include="GitHubActionsTestLogger" Version="2.4.1" />
     <PackageVersion Include="Microsoft.Azure.StackExchangeRedis" Version="3.3.1" />
-    <PackageVersion Include="Microsoft.Bcl.Memory" Version="10.0.9" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.7.0" />
+    <PackageVersion Include="Microsoft.Bcl.Memory" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
     <PackageVersion Include="Validation" Version="2.6.68" />
     <PackageVersion Include="xunit.v3" Version="3.2.2" />
     <PackageVersion Include="xunit.v3.runner.console" Version="3.0.0" />
