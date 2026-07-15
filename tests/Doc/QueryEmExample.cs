@@ -210,6 +210,13 @@ public class QueryEmExample
         }
         // HIDE_END
 
+        // REMOVE_START
+        // JSON indexing is asynchronous; wait for the background indexer to catch
+        // up before querying, otherwise searches can intermittently return fewer
+        // results than expected (especially under CI load). Removed from docs.
+        Thread.Sleep(2000);
+        // REMOVE_END
+
 
         // STEP_START em1
         SearchResult res1 = db.FT().Search(
@@ -259,6 +266,10 @@ public class QueryEmExample
         db.FT().Create("idx:email", emailParams, emailSchema);
 
         db.JSON().Set("key:1", "$", "{\"email\": \"test@redis.com\"}");
+
+        // REMOVE_START
+        Thread.Sleep(2000); // wait for async indexing (removed from docs)
+        // REMOVE_END
 
 
         SearchResult res4 = db.FT().Search(
