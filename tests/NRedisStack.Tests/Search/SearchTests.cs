@@ -240,6 +240,81 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(10, r2.GetLong("sum"));
     }
 
+    [SkipIfRedisTheory(Comparison.LessThan, "8.7.0")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestAggregationCollectReducer(string endpointId)
+    {
+        SkipClusterPre8(endpointId);
+        var redis = GetConnection(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ft = db.FT();
+
+        // COLLECT is gated behind unstable features. In a cluster the coordinator fans the query out to every shard,
+        // so the flag must be enabled on all nodes rather than only the one this connection happens to route to.
+        try
+        {
+            foreach (var endPoint in redis.GetEndPoints())
+            {
+                var server = redis.GetServer(endPoint);
+                if (!server.IsConnected) continue;
+                server.Execute("CONFIG", "SET", "search-enable-unstable-features", "yes");
+            }
+        }
+        catch (RedisException ex)
+        {
+            Assert.Skip($"search-enable-unstable-features is not configurable on this Redis build: {ex.Message}");
+        }
+
+        Schema sc = new();
+        sc.AddTagField("color");
+        sc.AddTagField("fruit");
+        sc.AddNumericField("sweetness", true);
+        ft.Create(index, FTCreateParams.CreateParams(), sc);
+
+        AddDocument(db, new Document("fruit:1").Set("color", "yellow").Set("fruit", "apple").Set("sweetness", 6));
+        AddDocument(db, new Document("fruit:2").Set("color", "yellow").Set("fruit", "banana").Set("sweetness", 5));
+        AddDocument(db, new Document("fruit:3").Set("color", "yellow").Set("fruit", "lemon").Set("sweetness", 2));
+        AddDocument(db, new Document("fruit:4").Set("color", "red").Set("fruit", "cherry").Set("sweetness", 7));
+
+        var request = new AggregationRequest("*").GroupBy("@color", Reducers.Collect()
+            .Fields("fruit", "sweetness")
+            .SortBy(SortedField.Desc("sweetness"))
+            .Limit(0, 2)
+            .As("top"));
+
+        AggregationResult res;
+        try
+        {
+            res = ft.Aggregate(index, request);
+        }
+        catch (RedisException ex)
+        {
+            Assert.Skip($"FT.AGGREGATE REDUCE COLLECT not supported by this Redis Search build: {ex.Message}");
+            return;
+        }
+
+        object? yellowTop = null;
+        for (int i = 0; i < res.TotalResults; i++)
+        {
+            var row = res.GetRow(i);
+            if (row.GetString("color") == "yellow")
+            {
+                yellowTop = row.Get("top");
+            }
+        }
+
+        Assert.NotNull(yellowTop);
+        Assert.IsAssignableFrom<System.Collections.IEnumerable>(yellowTop);
+        int entryCount = 0;
+        foreach (var _ in (System.Collections.IEnumerable)yellowTop!)
+        {
+            entryCount++;
+        }
+
+        // LIMIT 0 2 caps the yellow group at 2 entries; SORTBY @sweetness DESC keeps apple (6) and banana (5).
+        Assert.Equal(2, entryCount);
+    }
+
     [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAggregationsAsync(string endpointId)
