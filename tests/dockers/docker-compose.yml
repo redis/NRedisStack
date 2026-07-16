@@ -16,6 +16,13 @@ services:
       - 6666:6666 # TLS port
     volumes:
       - "./standalone:/redis/work"
+    healthcheck:
+      # gate `up --wait` on the server actually accepting commands
+      test: ["CMD-SHELL", "redis-cli -p 6379 PING | grep -q PONG"]
+      interval: 1s
+      timeout: 5s
+      retries: 30
+      start_period: 1s
     profiles:
       - standalone
       - all
@@ -36,6 +43,16 @@ services:
       - "27379-27384:27379-27384"
     volumes:
       - "./cluster:/redis/work"
+    healthcheck:
+      # gate `up --wait` on the cluster being fully formed (all 16384 slots
+      # assigned). Without this the container reports "running" while
+      # redis-cli --cluster create is still assigning slots, so tests connect
+      # to a half-formed cluster and cache a stale slot map -> spurious -MOVED.
+      test: ["CMD-SHELL", "redis-cli -p 16379 CLUSTER INFO | grep -q cluster_state:ok"]
+      interval: 1s
+      timeout: 5s
+      retries: 60
+      start_period: 2s
     profiles:
       - cluster
       - all
