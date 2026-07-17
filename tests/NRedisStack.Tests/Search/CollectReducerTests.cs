@@ -87,4 +87,26 @@ public class CollectReducerTests
         Assert.Throws<InvalidOperationException>(
             () => new AggregationRequest("*").GroupBy("@color", Reducers.Collect().As("top")));
     }
+
+    [Fact]
+    public void CollectRejectsMutationAfterAttachingToGroupBy()
+    {
+        // GroupBy serializes the reducer eagerly, so builder calls made afterwards could never
+        // reach the wire; they must throw rather than be silently dropped.
+        var collect = Reducers.Collect().Fields("fruit");
+        var request = new AggregationRequest("*").GroupBy("@color", collect);
+
+        Assert.Throws<InvalidOperationException>(() => collect.Fields("sweetness"));
+        Assert.Throws<InvalidOperationException>(() => collect.SortByDesc("sweetness"));
+        Assert.Throws<InvalidOperationException>(() => collect.Limit(0, 2));
+
+        // The serialized request is unchanged by the rejected calls.
+        object[] expected =
+        [
+            "*", "GROUPBY", 1, "@color",
+            "REDUCE", "COLLECT", 3,
+            "FIELDS", 1, "@fruit"
+        ];
+        Assert.Equal(expected, request.GetArgs());
+    }
 }

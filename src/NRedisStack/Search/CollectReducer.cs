@@ -21,6 +21,11 @@ namespace NRedisStack.Search.Aggregation;
 /// <c>COLLECT</c> stage; it does not implicitly fetch the full document.
 /// </para>
 /// <para>
+/// Configure the reducer fully before attaching it to a <c>GROUPBY</c>: <see cref="AggregationRequest.GroupBy(string, Reducer[])"/>
+/// serializes the reducer immediately, so builder calls made after that point cannot reach the wire and throw
+/// <see cref="InvalidOperationException"/>.
+/// </para>
+/// <para>
 /// <b>Experimental.</b> Both the underlying Redis Search feature and this API may change. <c>COLLECT</c> is gated behind
 /// <c>search-enable-unstable-features</c>; enable it on the server (for example via
 /// <c>CONFIG SET search-enable-unstable-features yes</c>) before issuing aggregations that use this reducer, otherwise the
@@ -35,6 +40,7 @@ public sealed class CollectReducer : Reducer
     private readonly List<SortedField> _sortFields = new List<SortedField>();
     private int? _limitOffset;
     private int? _limitCount;
+    private bool _serialized;
 
     internal CollectReducer() : base(null) { }
 
@@ -47,6 +53,7 @@ public sealed class CollectReducer : Reducer
     /// </summary>
     public CollectReducer Fields(params string[] fields)
     {
+        EnsureMutable();
         if (_allFields)
             throw new InvalidOperationException("REDUCE COLLECT cannot mix FIELDS * with explicit field names");
         _fields.AddRange(fields);
@@ -60,6 +67,7 @@ public sealed class CollectReducer : Reducer
     /// </summary>
     public CollectReducer FieldsAll()
     {
+        EnsureMutable();
         if (_fields.Count > 0)
             throw new InvalidOperationException("REDUCE COLLECT cannot mix FIELDS * with explicit field names");
         _allFields = true;
@@ -71,23 +79,16 @@ public sealed class CollectReducer : Reducer
     /// </summary>
     public CollectReducer SortBy(params SortedField[] fields)
     {
+        EnsureMutable();
         _sortFields.AddRange(fields);
         return this;
     }
 
     /// <summary>Convenience for <c>SortBy(SortedField.Asc(field))</c>.</summary>
-    public CollectReducer SortByAsc(string field)
-    {
-        _sortFields.Add(SortedField.Asc(field));
-        return this;
-    }
+    public CollectReducer SortByAsc(string field) => SortBy(SortedField.Asc(field));
 
     /// <summary>Convenience for <c>SortBy(SortedField.Desc(field))</c>.</summary>
-    public CollectReducer SortByDesc(string field)
-    {
-        _sortFields.Add(SortedField.Desc(field));
-        return this;
-    }
+    public CollectReducer SortByDesc(string field) => SortBy(SortedField.Desc(field));
 
     /// <summary>Bound the output per group to the first <paramref name="count"/> entries (offset 0).</summary>
     public CollectReducer Limit(int count) => Limit(0, count);
@@ -95,6 +96,7 @@ public sealed class CollectReducer : Reducer
     /// <summary>Bound the output per group to <paramref name="count"/> entries starting at <paramref name="offset"/>.</summary>
     public CollectReducer Limit(int offset, int count)
     {
+        EnsureMutable();
         if (offset < 0 || count < 0)
             throw new ArgumentException("LIMIT offset and count must be non-negative");
         _limitOffset = offset;
@@ -118,6 +120,10 @@ public sealed class CollectReducer : Reducer
 
     protected override void AddOwnArgs(List<object> args)
     {
+        // GroupBy serializes the reducer eagerly; once the tokens are emitted, later builder
+        // calls could never reach the wire, so reject them instead of silently ignoring them.
+        _serialized = true;
+
         args.Add(SearchArgs.FIELDS);
         if (_allFields)
         {
@@ -147,6 +153,14 @@ public sealed class CollectReducer : Reducer
             args.Add(_limitOffset.Value);
             args.Add(_limitCount!.Value);
         }
+    }
+
+    private void EnsureMutable()
+    {
+        if (_serialized)
+            throw new InvalidOperationException(
+                "REDUCE COLLECT cannot be modified after it has been serialized into an aggregation request; " +
+                "configure Fields/SortBy/Limit before passing the reducer to GroupBy");
     }
 
     private static string WithAtPrefix(string name) => name.StartsWith("@") ? name : "@" + name;

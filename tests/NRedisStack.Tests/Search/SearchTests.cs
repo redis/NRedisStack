@@ -282,16 +282,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
             .Limit(0, 2)
             .As("top"));
 
-        AggregationResult res;
-        try
-        {
-            res = ft.Aggregate(index, request);
-        }
-        catch (RedisException ex)
-        {
-            Assert.Skip($"FT.AGGREGATE REDUCE COLLECT not supported by this Redis Search build: {ex.Message}");
-            return;
-        }
+        AggregationResult res = ft.Aggregate(index, request);
 
         object? yellowTop = null;
         for (int i = 0; i < res.TotalResults; i++)
