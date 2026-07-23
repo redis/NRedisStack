@@ -581,4 +581,55 @@ public class TestMRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
         Assert.Equal(compactedTsKey, results[0].key);
         Assert.Empty(results[0].values);
     }
+
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.10.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestMRangeExcludeEmpty(string endpointId)
+    {
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ts = db.TS();
+        var label = new TimeSeriesLabel("key", "MRangeExcludeEmpty");
+        string withData = _keys[0], emptyKey = _keys[1];
+        ts.Create(withData, labels: [label]);
+        ts.Create(emptyKey, labels: [label]);
+        ts.Add(withData, 100, 1.0);
+
+        var filter = new[] { "key=MRangeExcludeEmpty" };
+
+        // Without the flag, the empty series is still reported (with no samples).
+        var all = ts.MRange("-", "+", filter);
+        Assert.Equal(2, all.Count);
+        Assert.Contains(all, r => r.key == emptyKey && r.values.Count == 0);
+
+        // With EXCLUDEEMPTY, the series that produced no samples is dropped from the reply.
+        var pruned = ts.MRange("-", "+", filter, flags: TimeSeriesRangeFlags.ExcludeEmpty);
+        Assert.Single(pruned);
+        Assert.Equal(withData, pruned[0].key);
+
+        // EXCLUDEEMPTY composes with WITHLABELS.
+        var withLabels = ts.MRange("-", "+", filter,
+            flags: TimeSeriesRangeFlags.ExcludeEmpty | TimeSeriesRangeFlags.WithLabels);
+        Assert.Single(withLabels);
+        Assert.Equal(withData, withLabels[0].key);
+        Assert.Equal([label], withLabels[0].labels);
+    }
+
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.10.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestMRangeExcludeEmptyRejectsGroupBy(string endpointId)
+    {
+        // EXCLUDEEMPTY is mutually exclusive with GROUPBY. The client performs no local validation;
+        // the server error must propagate unchanged.
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ts = db.TS();
+        var label = new TimeSeriesLabel("key", "MRangeExcludeEmptyGroupBy");
+        ts.Create(_keys[0], labels: [label]);
+        ts.Add(_keys[0], 100, 1.0);
+
+        var ex = Assert.Throws<RedisServerException>(() => ts.MRange("-", "+",
+            ["key=MRangeExcludeEmptyGroupBy"],
+            flags: TimeSeriesRangeFlags.ExcludeEmpty,
+            groupbyTuple: ("key", TsReduce.Sum)));
+        Assert.Contains("EXCLUDEEMPTY", ex.Message);
+    }
 }

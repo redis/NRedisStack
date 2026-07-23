@@ -264,6 +264,40 @@ public interface ITimeSeriesCommandsAsync
         TsBucketTimestamps? bt = null,
         bool empty = false);
 
+    /// <summary>
+    /// Query a timestamp range across multiple time-series by filters.
+    /// </summary>
+    /// <param name="fromTimeStamp"> Start timestamp for the range query. - can be used to express the minimum possible timestamp.</param>
+    /// <param name="toTimeStamp">End timestamp for range query, + can be used to express the maximum possible timestamp.</param>
+    /// <param name="filter">A sequence of filters</param>
+    /// <param name="flags">Optional: combination of <see cref="TimeSeriesRangeFlags"/> modifiers (LATEST, EMPTY, WITHLABELS, EXCLUDEEMPTY).</param>
+    /// <param name="filterByTs">Optional: List of timestamps to filter the result by specific timestamps</param>
+    /// <param name="filterByValue">Optional: Filter result by value using minimum and maximum</param>
+    /// <param name="selectLabels">Optional: Include in the reply only a subset of the key-value pair labels of a series. Cannot be combined with <see cref="TimeSeriesRangeFlags.WithLabels"/>.</param>
+    /// <param name="count">Optional: Maximum number of returned results per time-series.</param>
+    /// <param name="align">Optional: Timestamp for alignment control for aggregation.</param>
+    /// <param name="aggregation">Optional: Aggregation type</param>
+    /// <param name="timeBucket">Optional: Time bucket for aggregation in milliseconds</param>
+    /// <param name="bt">Optional: controls how bucket timestamps are reported.</param>
+    /// <param name="groupbyTuple">Optional: Grouping by fields the results, and applying reducer functions on each group.</param>
+    /// <returns>A list of (key, labels, values) tuples. Each tuple contains the key name, its labels and the values which satisfies the given range and filters.</returns>
+    /// <remarks><seealso href="https://redis.io/commands/ts.mrange"/></remarks>
+    [OverloadResolutionPriority(2)]
+    Task<IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)>> MRangeAsync(
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        IReadOnlyCollection<string> filter,
+        TimeSeriesRangeFlags flags = TimeSeriesRangeFlags.None,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (long, long)? filterByValue = null,
+        IReadOnlyCollection<string>? selectLabels = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        (string, TsReduce)? groupbyTuple = null);
+
     [OverloadResolutionPriority(1)]
     Task<IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)>> MRangeAsync(
         TimeStamp fromTimeStamp,
@@ -324,6 +358,40 @@ public interface ITimeSeriesCommandsAsync
         long? timeBucket = null,
         TsBucketTimestamps? bt = null,
         bool empty = false,
+        (string, TsReduce)? groupbyTuple = null);
+
+    /// <summary>
+    /// Query a timestamp range in reverse order across multiple time-series by filters.
+    /// </summary>
+    /// <param name="fromTimeStamp"> Start timestamp for the range query. - can be used to express the minimum possible timestamp.</param>
+    /// <param name="toTimeStamp">End timestamp for range query, + can be used to express the maximum possible timestamp.</param>
+    /// <param name="filter">A sequence of filters</param>
+    /// <param name="flags">Optional: combination of <see cref="TimeSeriesRangeFlags"/> modifiers (LATEST, EMPTY, WITHLABELS, EXCLUDEEMPTY).</param>
+    /// <param name="filterByTs">Optional: List of timestamps to filter the result by specific timestamps</param>
+    /// <param name="filterByValue">Optional: Filter result by value using minimum and maximum</param>
+    /// <param name="selectLabels">Optional: Include in the reply only a subset of the key-value pair labels of a series. Cannot be combined with <see cref="TimeSeriesRangeFlags.WithLabels"/>.</param>
+    /// <param name="count">Optional: Maximum number of returned results per time-series.</param>
+    /// <param name="align">Optional: Timestamp for alignment control for aggregation.</param>
+    /// <param name="aggregation">Optional: Aggregation type</param>
+    /// <param name="timeBucket">Optional: Time bucket for aggregation in milliseconds</param>
+    /// <param name="bt">Optional: controls how bucket timestamps are reported.</param>
+    /// <param name="groupbyTuple">Optional: Grouping by fields the results, and applying reducer functions on each group.</param>
+    /// <returns>A list of (key, labels, values) tuples. Each tuple contains the key name, its labels and the values which satisfies the given range and filters.</returns>
+    /// <remarks><seealso href="https://redis.io/commands/ts.mrevrange"/></remarks>
+    [OverloadResolutionPriority(2)]
+    Task<IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)>> MRevRangeAsync(
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        IReadOnlyCollection<string> filter,
+        TimeSeriesRangeFlags flags = TimeSeriesRangeFlags.None,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (long, long)? filterByValue = null,
+        IReadOnlyCollection<string>? selectLabels = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
         (string, TsReduce)? groupbyTuple = null);
 
     [OverloadResolutionPriority(1)]

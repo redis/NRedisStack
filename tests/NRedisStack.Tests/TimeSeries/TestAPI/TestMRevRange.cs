@@ -384,4 +384,29 @@ public class TestMRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSt
             Assert.Equal(ReverseData(tuples.GetRange(0, 1)), results[i].values);
         }
     }
+
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.10.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestMRevRangeExcludeEmpty(string endpointId)
+    {
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ts = db.TS();
+        var keys = CreateKeyNames(2);
+        var label = new TimeSeriesLabel("key", "MRevRangeExcludeEmpty");
+        ts.Create(keys[0], labels: [label]);
+        ts.Create(keys[1], labels: [label]);
+        ts.Add(keys[0], 100, 1.0);
+
+        var filter = new[] { "key=MRevRangeExcludeEmpty" };
+
+        // Without the flag, the empty series is still reported (with no samples).
+        var all = ts.MRevRange("-", "+", filter);
+        Assert.Equal(2, all.Count);
+        Assert.Contains(all, r => r.key == keys[1] && r.values.Count == 0);
+
+        // With EXCLUDEEMPTY, the series that produced no samples is dropped from the reply.
+        var pruned = ts.MRevRange("-", "+", filter, flags: TimeSeriesRangeFlags.ExcludeEmpty);
+        Assert.Single(pruned);
+        Assert.Equal(keys[0], pruned[0].key);
+    }
 }

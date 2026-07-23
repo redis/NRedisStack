@@ -5,6 +5,7 @@ namespace NRedisStack
     internal static class Experiments
     {
         public const string Server_8_8 = "NRS002";
+        public const string Server_8_10 = "NRS003";
         public const string UrlFormat = "https://redis.github.io/NRedisStack/exp/";
     }
 }

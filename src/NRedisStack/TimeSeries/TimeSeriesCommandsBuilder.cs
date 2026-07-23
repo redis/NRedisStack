@@ -201,6 +201,27 @@ public static class TimeSeriesCommandsBuilder
         bool empty = false) =>
         RevRange(key, fromTimeStamp, toTimeStamp, latest, filterByTs, filterByValue, count, align, (TsAggregations)aggregation, timeBucket, bt, empty);
 
+    [OverloadResolutionPriority(2)]
+    public static SerializedCommand MRange(
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        IReadOnlyCollection<string> filter,
+        TimeSeriesRangeFlags flags = TimeSeriesRangeFlags.None,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (long, long)? filterByValue = null,
+        IReadOnlyCollection<string>? selectLabels = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        (string, TsReduce)? groupbyTuple = null)
+    {
+        var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, flags, filterByTs,
+            filterByValue, selectLabels, count, align, aggregation, timeBucket, bt, groupbyTuple);
+        return new(TS.MRANGE, args);
+    }
+
     [OverloadResolutionPriority(1)]
     public static SerializedCommand MRange(
         TimeStamp fromTimeStamp,
@@ -219,10 +240,8 @@ public static class TimeSeriesCommandsBuilder
         bool empty = false,
         (string, TsReduce)? groupbyTuple = null)
     {
-        var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, latest, filterByTs,
-            filterByValue, withLabels, selectLabels, count,
-            align, aggregation, timeBucket, bt, empty, groupbyTuple);
-        return new(TS.MRANGE, args);
+        return MRange(fromTimeStamp, toTimeStamp, filter, TimeSeriesAux.ToRangeFlags(latest, withLabels, empty),
+            filterByTs, filterByValue, selectLabels, count, align, aggregation, timeBucket, bt, groupbyTuple);
     }
 
     [Obsolete]
@@ -247,6 +266,27 @@ public static class TimeSeriesCommandsBuilder
         (string, TsReduce)? groupbyTuple = null) =>
         MRange(fromTimeStamp, toTimeStamp, filter, latest, filterByTs, filterByValue, withLabels, selectLabels, count, align, (TsAggregations)aggregation, timeBucket, bt, empty, groupbyTuple);
 
+    [OverloadResolutionPriority(2)]
+    public static SerializedCommand MRevRange(
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        IReadOnlyCollection<string> filter,
+        TimeSeriesRangeFlags flags = TimeSeriesRangeFlags.None,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (long, long)? filterByValue = null,
+        IReadOnlyCollection<string>? selectLabels = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        (string, TsReduce)? groupbyTuple = null)
+    {
+        var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, flags, filterByTs,
+            filterByValue, selectLabels, count, align, aggregation, timeBucket, bt, groupbyTuple);
+        return new(TS.MREVRANGE, args);
+    }
+
     [OverloadResolutionPriority(1)]
     public static SerializedCommand MRevRange(
         TimeStamp fromTimeStamp,
@@ -265,10 +305,8 @@ public static class TimeSeriesCommandsBuilder
         bool empty = false,
         (string, TsReduce)? groupbyTuple = null)
     {
-        var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, latest, filterByTs,
-            filterByValue, withLabels, selectLabels, count,
-            align, aggregation, timeBucket, bt, empty, groupbyTuple);
-        return new(TS.MREVRANGE, args);
+        return MRevRange(fromTimeStamp, toTimeStamp, filter, TimeSeriesAux.ToRangeFlags(latest, withLabels, empty),
+            filterByTs, filterByValue, selectLabels, count, align, aggregation, timeBucket, bt, groupbyTuple);
     }
 
     [Obsolete]

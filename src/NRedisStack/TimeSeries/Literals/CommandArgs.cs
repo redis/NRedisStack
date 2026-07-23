@@ -24,5 +24,6 @@ internal class TimeSeriesArgs
     public const string DEBUG = "DEBUG";
     public const string BUCKETTIMESTAMP = "BUCKETTIMESTAMP";
     public const string EMPTY = "EMPTY";
+    public const string EXCLUDEEMPTY = "EXCLUDEEMPTY";
     public const String IGNORE = "IGNORE";
 }

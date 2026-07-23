@@ -389,4 +389,29 @@ public class TestMRevRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRe
             Assert.Equal(ReverseData(tuples.GetRange(0, 1)), results[i].values);
         }
     }
+
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.10.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestMRevRangeExcludeEmpty(string endpointId)
+    {
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ts = db.TS();
+        var keys = CreateKeyNames(2);
+        var label = new TimeSeriesLabel("key", "MRevRangeExcludeEmptyAsync");
+        await ts.CreateAsync(keys[0], labels: [label]);
+        await ts.CreateAsync(keys[1], labels: [label]);
+        await ts.AddAsync(keys[0], 100, 1.0);
+
+        var filter = new[] { "key=MRevRangeExcludeEmptyAsync" };
+
+        // Without the flag, the empty series is still reported (with no samples).
+        var all = await ts.MRevRangeAsync("-", "+", filter);
+        Assert.Equal(2, all.Count);
+        Assert.Contains(all, r => r.key == keys[1] && r.values.Count == 0);
+
+        // With EXCLUDEEMPTY, the series that produced no samples is dropped from the reply.
+        var pruned = await ts.MRevRangeAsync("-", "+", filter, flags: TimeSeriesRangeFlags.ExcludeEmpty);
+        Assert.Single(pruned);
+        Assert.Equal(keys[0], pruned[0].key);
+    }
 }
