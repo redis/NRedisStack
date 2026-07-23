@@ -26,5 +26,6 @@ internal class TimeSeriesArgs
     public const string EMPTY = "EMPTY";
     public const string EXCLUDEEMPTY = "EXCLUDEEMPTY";
     public const string VALUES = "VALUES";
+    public const string MAX_COUNT = "MAX_COUNT";
     public const String IGNORE = "IGNORE";
 }

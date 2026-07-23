@@ -413,5 +413,19 @@ public static class TimeSeriesCommandsBuilder
         return new(TS.NREVRANGE, args);
     }
 
+    // Note: the server's BLOCK group is intentionally not exposed - blocking does not compose with the
+    // SE.Redis multiplexer - so this only ever builds the immediate-return form.
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    public static SerializedCommand Read(string key, TimeStamp timestamp, long? maxCount = null)
+    {
+        var args = new List<object> { key, timestamp.Value };
+        if (maxCount.HasValue)
+        {
+            args.Add(TimeSeriesArgs.MAX_COUNT);
+            args.Add(maxCount.Value);
+        }
+        return new(TS.READ, args);
+    }
+
     #endregion
 }

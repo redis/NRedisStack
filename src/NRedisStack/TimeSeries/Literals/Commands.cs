@@ -22,4 +22,5 @@ internal class TS
     public const string QUERYLABELS = "TS.QUERYLABELS";
     public const string NRANGE = "TS.NRANGE";
     public const string NREVRANGE = "TS.NREVRANGE";
+    public const string READ = "TS.READ";
 }

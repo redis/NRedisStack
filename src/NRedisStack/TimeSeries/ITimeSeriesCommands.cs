@@ -564,5 +564,32 @@ public interface ITimeSeriesCommands
         long? timeBucket = null,
         TsBucketTimestamps? bt = null);
 
+    /// <summary>
+    /// Read a batch of samples from <paramref name="key"/> with timestamp at or after <paramref name="timestamp"/>,
+    /// in ascending timestamp order, returning immediately with whatever qualifies.
+    /// </summary>
+    /// <param name="key">Key name for the time-series.</param>
+    /// <param name="timestamp">Lower bound (inclusive); a non-negative integer, or the sentinels - (earliest)
+    /// or + (latest existing sample). Sent to the server as-is.</param>
+    /// <param name="maxCount">Optional: return at most this many samples.</param>
+    /// <returns>The qualifying samples in ascending timestamp order; an empty list is a valid, successful reply.</returns>
+    /// <remarks>The server's BLOCK (wait-for-samples) mode is intentionally not exposed, as blocking does not
+    /// compose with the SE.Redis multiplexer. <seealso href="https://redis.io/commands/ts.read"/></remarks>
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    IReadOnlyList<TimeSeriesTuple> Read(string key, TimeStamp timestamp, long? maxCount = null);
+
+    /// <summary>
+    /// Enumerate all samples of <paramref name="key"/> from <paramref name="fromTimeStamp"/> onward in ascending
+    /// timestamp order, transparently paging through the series with repeated <see cref="Read"/> calls (each
+    /// advancing the cursor past the last returned sample) so the caller does not manage cursor state.
+    /// </summary>
+    /// <param name="key">Key name for the time-series.</param>
+    /// <param name="fromTimeStamp">Lower bound (inclusive) to start from; a non-negative integer or the - / + sentinels.</param>
+    /// <param name="batchSize">Optional: page size (per underlying <c>MAX_COUNT</c>); when omitted, everything is read in one call.</param>
+    /// <returns>A lazy sequence of samples; enumeration ends when a non-full page is reached.</returns>
+    /// <remarks><seealso href="https://redis.io/commands/ts.read"/></remarks>
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    IEnumerable<TimeSeriesTuple> ReadEnumerable(string key, TimeStamp fromTimeStamp, long? batchSize = null);
+
     #endregion
 }

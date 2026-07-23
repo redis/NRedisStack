@@ -425,5 +425,29 @@ public class TimeSeriesCommands : TimeSeriesCommandsAsync, ITimeSeriesCommands
             filterByValue, count, align, aggregations, timeBucket, bt)).ToTimeSeriesPivotRowArray();
     }
 
+    /// <inheritdoc/>
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    public IReadOnlyList<TimeSeriesTuple> Read(string key, TimeStamp timestamp, long? maxCount = null)
+    {
+        return _db.Execute(TimeSeriesCommandsBuilder.Read(key, timestamp, maxCount)).ToTimeSeriesTupleArray();
+    }
+
+    /// <inheritdoc/>
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    public IEnumerable<TimeSeriesTuple> ReadEnumerable(string key, TimeStamp fromTimeStamp, long? batchSize = null)
+    {
+        TimeStamp cursor = fromTimeStamp;
+        while (true)
+        {
+            var batch = Read(key, cursor, batchSize);
+            if (batch.Count == 0) yield break;
+            foreach (var tuple in batch) yield return tuple;
+            // stop when the page is not full (drained); otherwise advance the cursor past the last sample.
+            if (batchSize is not { } size || batch.Count < size) yield break;
+            long last = batch[batch.Count - 1].Time;
+            cursor = last + 1;
+        }
+    }
+
     #endregion
 }

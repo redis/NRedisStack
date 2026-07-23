@@ -431,5 +431,31 @@ public class TimeSeriesCommandsAsync : ITimeSeriesCommandsAsync
             filterByTs, filterByValue, count, align, aggregations, timeBucket, bt))).ToTimeSeriesPivotRowArray();
     }
 
+    /// <inheritdoc/>
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    public async Task<IReadOnlyList<TimeSeriesTuple>> ReadAsync(string key, TimeStamp timestamp, long? maxCount = null)
+    {
+        return (await _db.ExecuteAsync(TimeSeriesCommandsBuilder.Read(key, timestamp, maxCount))).ToTimeSeriesTupleArray();
+    }
+
+    /// <inheritdoc/>
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    public async IAsyncEnumerable<TimeSeriesTuple> ReadAsyncEnumerable(string key, TimeStamp fromTimeStamp,
+        long? batchSize = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        TimeStamp cursor = fromTimeStamp;
+        while (true)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var batch = await ReadAsync(key, cursor, batchSize);
+            if (batch.Count == 0) yield break;
+            foreach (var tuple in batch) yield return tuple;
+            // stop when the page is not full (drained); otherwise advance the cursor past the last sample.
+            if (batchSize is not { } size || batch.Count < size) yield break;
+            long last = batch[batch.Count - 1].Time;
+            cursor = last + 1;
+        }
+    }
+
     #endregion
 }
