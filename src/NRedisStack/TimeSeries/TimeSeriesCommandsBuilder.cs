@@ -375,5 +375,43 @@ public static class TimeSeriesCommandsBuilder
         }
     }
 
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    public static SerializedCommand NRange(
+        IReadOnlyList<string> keys,
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        TimeSeriesRangeFlags flags = TimeSeriesRangeFlags.None,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (long, long)? filterByValue = null,
+        long? count = null,
+        TimeStamp? align = null,
+        IReadOnlyList<TsAggregation>? aggregations = null,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null)
+    {
+        var args = TimeSeriesAux.BuildNRangeArgs(keys, fromTimeStamp, toTimeStamp, flags, filterByTs,
+            filterByValue, count, align, aggregations, timeBucket, bt);
+        return new(TS.NRANGE, args);
+    }
+
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    public static SerializedCommand NRevRange(
+        IReadOnlyList<string> keys,
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        TimeSeriesRangeFlags flags = TimeSeriesRangeFlags.None,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (long, long)? filterByValue = null,
+        long? count = null,
+        TimeStamp? align = null,
+        IReadOnlyList<TsAggregation>? aggregations = null,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null)
+    {
+        var args = TimeSeriesAux.BuildNRangeArgs(keys, fromTimeStamp, toTimeStamp, flags, filterByTs,
+            filterByValue, count, align, aggregations, timeBucket, bt);
+        return new(TS.NREVRANGE, args);
+    }
+
     #endregion
 }

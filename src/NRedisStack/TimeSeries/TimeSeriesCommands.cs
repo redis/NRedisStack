@@ -387,5 +387,43 @@ public class TimeSeriesCommands : TimeSeriesCommandsAsync, ITimeSeriesCommands
         return _db.Execute(TimeSeriesCommandsBuilder.QueryLabelValues(label, filter)).ToStringList();
     }
 
+    /// <inheritdoc/>
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    public IReadOnlyList<TimeSeriesPivotRow> NRange(
+        IReadOnlyList<string> keys,
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        TimeSeriesRangeFlags flags = TimeSeriesRangeFlags.None,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (long, long)? filterByValue = null,
+        long? count = null,
+        TimeStamp? align = null,
+        IReadOnlyList<TsAggregation>? aggregations = null,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null)
+    {
+        return _db.Execute(TimeSeriesCommandsBuilder.NRange(keys, fromTimeStamp, toTimeStamp, flags, filterByTs,
+            filterByValue, count, align, aggregations, timeBucket, bt)).ToTimeSeriesPivotRowArray();
+    }
+
+    /// <inheritdoc/>
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    public IReadOnlyList<TimeSeriesPivotRow> NRevRange(
+        IReadOnlyList<string> keys,
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        TimeSeriesRangeFlags flags = TimeSeriesRangeFlags.None,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (long, long)? filterByValue = null,
+        long? count = null,
+        TimeStamp? align = null,
+        IReadOnlyList<TsAggregation>? aggregations = null,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null)
+    {
+        return _db.Execute(TimeSeriesCommandsBuilder.NRevRange(keys, fromTimeStamp, toTimeStamp, flags, filterByTs,
+            filterByValue, count, align, aggregations, timeBucket, bt)).ToTimeSeriesPivotRowArray();
+    }
+
     #endregion
 }

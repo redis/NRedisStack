@@ -333,6 +333,54 @@ public static class TimeSeriesAux
         (string, TsReduce)? groupbyTuple) =>
         BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, latest, filterByTs, filterByValue, withLabels, selectLabels, count, align, (TsAggregations)aggregation, timeBucket, bt, empty, groupbyTuple);
 
+    /// <summary>
+    /// Builds the argument list shared by <c>TS.NRANGE</c> / <c>TS.NREVRANGE</c>: <c>numkeys key [key ...]
+    /// fromTimestamp toTimestamp</c> followed by the optional range modifiers.
+    /// </summary>
+    /// <remarks>
+    /// No client-side validation is performed: the flag/option compatibility rules for these commands are
+    /// inconsistent server-side, so arguments are emitted verbatim and the server enforces its own rules and
+    /// reports its own errors. The one exception is structural wire order - <c>EMPTY</c> is emitted at the tail
+    /// of the <c>AGGREGATION</c> clause because the server rejects it anywhere else - and the per-key aggregator
+    /// count is left for the server to validate against numkeys.
+    /// </remarks>
+    public static List<object> BuildNRangeArgs(
+        IReadOnlyList<string> keys,
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        TimeSeriesRangeFlags flags,
+        IReadOnlyCollection<TimeStamp>? filterByTs,
+        (long, long)? filterByValue,
+        long? count,
+        TimeStamp? align,
+        IReadOnlyList<TsAggregation>? aggregations,
+        long? timeBucket,
+        TsBucketTimestamps? bt)
+    {
+        var args = new List<object>(keys.Count + 4) { keys.Count };
+        foreach (var key in keys) args.Add(key);
+        args.Add(fromTimeStamp.Value);
+        args.Add(toTimeStamp.Value);
+
+        if ((flags & TimeSeriesRangeFlags.Latest) != 0) args.Add(TimeSeriesArgs.LATEST);
+        if ((flags & TimeSeriesRangeFlags.WithLabels) != 0) args.Add(TimeSeriesArgs.WITHLABELS);
+        if ((flags & TimeSeriesRangeFlags.ExcludeEmpty) != 0) args.Add(TimeSeriesArgs.EXCLUDEEMPTY);
+        args.AddFilterByTs(filterByTs);
+        args.AddFilterByValue(filterByValue);
+        args.AddCount(count);
+        if (aggregations is { Count: > 0 })
+        {
+            args.AddAlign(align);
+            args.Add(TimeSeriesArgs.AGGREGATION);
+            foreach (var aggregation in aggregations) args.Add(aggregation.AsArg());
+            if (timeBucket.HasValue) args.Add(timeBucket.Value);
+            args.AddBucketTimestamp(bt);
+            // EMPTY must follow the AGGREGATION clause; the server rejects it in an earlier position.
+            if ((flags & TimeSeriesRangeFlags.Empty) != 0) args.Add(TimeSeriesArgs.EMPTY);
+        }
+        return args;
+    }
+
     private static string GetAggregationArgs(TsAggregations aggregations)
     {
         switch (aggregations.Length)

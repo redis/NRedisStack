@@ -500,5 +500,68 @@ public interface ITimeSeriesCommandsAsync
     [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
     Task<IReadOnlyList<string>> QueryLabelValuesAsync(string label, IReadOnlyCollection<string>? filter = null);
 
+    /// <summary>
+    /// Query a timestamp range across multiple time-series by key, returning a pivot (outer-join-by-timestamp)
+    /// result: one row per distinct timestamp, with one value per key in <paramref name="keys"/> order.
+    /// </summary>
+    /// <param name="keys">The keys to query; column order in each row follows this order, and duplicates are preserved.</param>
+    /// <param name="fromTimeStamp">Start timestamp for the range query; - can be used for the minimum possible timestamp.</param>
+    /// <param name="toTimeStamp">End timestamp for the range query; + can be used for the maximum possible timestamp.</param>
+    /// <param name="flags">Optional: range modifiers (see <see cref="TimeSeriesRangeFlags"/>). Compatibility is
+    /// enforced by the server, not the client.</param>
+    /// <param name="filterByTs">Optional: list of timestamps to filter the result by specific timestamps.</param>
+    /// <param name="filterByValue">Optional: filter result by value using minimum and maximum.</param>
+    /// <param name="count">Optional: maximum number of pivot rows to return.</param>
+    /// <param name="align">Optional: timestamp for alignment control for aggregation.</param>
+    /// <param name="aggregations">Optional: one aggregator per key (in key order) for aggregation mode.</param>
+    /// <param name="timeBucket">Optional: time bucket for aggregation in milliseconds.</param>
+    /// <param name="bt">Optional: controls how bucket timestamps are reported.</param>
+    /// <returns>The pivot rows; missing cells are <see cref="double.NaN"/>. May be empty.</returns>
+    /// <remarks><seealso href="https://redis.io/commands/ts.nrange"/></remarks>
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    Task<IReadOnlyList<TimeSeriesPivotRow>> NRangeAsync(
+        IReadOnlyList<string> keys,
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        TimeSeriesRangeFlags flags = TimeSeriesRangeFlags.None,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (long, long)? filterByValue = null,
+        long? count = null,
+        TimeStamp? align = null,
+        IReadOnlyList<TsAggregation>? aggregations = null,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null);
+
+    /// <summary>
+    /// As <see cref="NRangeAsync"/>, but pivot rows are returned in reverse (decreasing) timestamp order.
+    /// </summary>
+    /// <param name="keys">The keys to query; column order in each row follows this order, and duplicates are preserved.</param>
+    /// <param name="fromTimeStamp">Start timestamp for the range query; - can be used for the minimum possible timestamp.</param>
+    /// <param name="toTimeStamp">End timestamp for the range query; + can be used for the maximum possible timestamp.</param>
+    /// <param name="flags">Optional: range modifiers (see <see cref="TimeSeriesRangeFlags"/>). Compatibility is
+    /// enforced by the server, not the client.</param>
+    /// <param name="filterByTs">Optional: list of timestamps to filter the result by specific timestamps.</param>
+    /// <param name="filterByValue">Optional: filter result by value using minimum and maximum.</param>
+    /// <param name="count">Optional: maximum number of pivot rows to return.</param>
+    /// <param name="align">Optional: timestamp for alignment control for aggregation.</param>
+    /// <param name="aggregations">Optional: one aggregator per key (in key order) for aggregation mode.</param>
+    /// <param name="timeBucket">Optional: time bucket for aggregation in milliseconds.</param>
+    /// <param name="bt">Optional: controls how bucket timestamps are reported.</param>
+    /// <returns>The pivot rows in reverse timestamp order; missing cells are <see cref="double.NaN"/>. May be empty.</returns>
+    /// <remarks><seealso href="https://redis.io/commands/ts.nrevrange"/></remarks>
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    Task<IReadOnlyList<TimeSeriesPivotRow>> NRevRangeAsync(
+        IReadOnlyList<string> keys,
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        TimeSeriesRangeFlags flags = TimeSeriesRangeFlags.None,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (long, long)? filterByValue = null,
+        long? count = null,
+        TimeStamp? align = null,
+        IReadOnlyList<TsAggregation>? aggregations = null,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null);
+
     #endregion
 }
