@@ -513,7 +513,10 @@ public interface ITimeSeriesCommandsAsync
     /// <param name="filterByValue">Optional: filter result by value using minimum and maximum.</param>
     /// <param name="count">Optional: maximum number of pivot rows to return.</param>
     /// <param name="align">Optional: timestamp for alignment control for aggregation.</param>
-    /// <param name="aggregations">Optional: one aggregator per key (in key order) for aggregation mode.</param>
+    /// <param name="aggregations">Optional: one aggregator group per key (in key order) for aggregation mode.
+    /// Each group is a <see cref="TsAggregations"/> and may hold multiple aggregators, yielding multiple value
+    /// columns for that key; a single <see cref="TsAggregation"/> converts implicitly to a one-aggregator group.
+    /// The number of groups must equal the number of keys.</param>
     /// <param name="timeBucket">Optional: time bucket for aggregation in milliseconds.</param>
     /// <param name="bt">Optional: controls how bucket timestamps are reported.</param>
     /// <returns>The pivot rows; missing cells are <see cref="double.NaN"/>. May be empty.</returns>
@@ -528,7 +531,7 @@ public interface ITimeSeriesCommandsAsync
         (long, long)? filterByValue = null,
         long? count = null,
         TimeStamp? align = null,
-        IReadOnlyList<TsAggregation>? aggregations = null,
+        IReadOnlyList<TsAggregations>? aggregations = null,
         long? timeBucket = null,
         TsBucketTimestamps? bt = null);
 
@@ -544,7 +547,10 @@ public interface ITimeSeriesCommandsAsync
     /// <param name="filterByValue">Optional: filter result by value using minimum and maximum.</param>
     /// <param name="count">Optional: maximum number of pivot rows to return.</param>
     /// <param name="align">Optional: timestamp for alignment control for aggregation.</param>
-    /// <param name="aggregations">Optional: one aggregator per key (in key order) for aggregation mode.</param>
+    /// <param name="aggregations">Optional: one aggregator group per key (in key order) for aggregation mode.
+    /// Each group is a <see cref="TsAggregations"/> and may hold multiple aggregators, yielding multiple value
+    /// columns for that key; a single <see cref="TsAggregation"/> converts implicitly to a one-aggregator group.
+    /// The number of groups must equal the number of keys.</param>
     /// <param name="timeBucket">Optional: time bucket for aggregation in milliseconds.</param>
     /// <param name="bt">Optional: controls how bucket timestamps are reported.</param>
     /// <returns>The pivot rows in reverse timestamp order; missing cells are <see cref="double.NaN"/>. May be empty.</returns>
@@ -559,7 +565,7 @@ public interface ITimeSeriesCommandsAsync
         (long, long)? filterByValue = null,
         long? count = null,
         TimeStamp? align = null,
-        IReadOnlyList<TsAggregation>? aggregations = null,
+        IReadOnlyList<TsAggregations>? aggregations = null,
         long? timeBucket = null,
         TsBucketTimestamps? bt = null);
 

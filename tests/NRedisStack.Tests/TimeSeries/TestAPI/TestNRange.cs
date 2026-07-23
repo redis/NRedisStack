@@ -99,6 +99,30 @@ public class TestNRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.10.0")]
     [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestNRangeMultipleAggregatorsPerKey(string endpointId)
+    {
+        // A key may request several aggregators (comma-joined server-side), contributing multiple value
+        // columns; total columns == sum of aggregators across keys, not numkeys.
+        var db = GetCleanDatabase(endpointId);
+        var ts = db.TS();
+        var keys = CreateKeyNames(2);
+        ts.Add(keys[0], 1000, 10); ts.Add(keys[0], 2000, 20);   // avg => 15, sum => 30
+        ts.Add(keys[1], 1000, 4); ts.Add(keys[1], 2000, 6);     // max => 6
+
+        // key[0] gets two aggregators, key[1] gets one (implicitly widened from TsAggregation).
+        var rows = ts.NRange(keys, "-", "+",
+            aggregations: [new TsAggregations(TsAggregation.Avg, TsAggregation.Sum), TsAggregation.Max],
+            timeBucket: 100000);
+
+        Assert.Single(rows);
+        Assert.Equal(3, rows[0].Values.Count);                  // 2 (key[0]) + 1 (key[1]), not numkeys
+        Assert.Equal(15, rows[0].Values[0]);                    // key[0] avg
+        Assert.Equal(30, rows[0].Values[1]);                    // key[0] sum
+        Assert.Equal(6, rows[0].Values[2]);                     // key[1] max
+    }
+
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.10.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
     public void TestNRangeAggregatorCountMismatchIsServerError(string endpointId)
     {
         // The client does not validate aggregator-vs-key count; the server rejects the mismatch (R.9).

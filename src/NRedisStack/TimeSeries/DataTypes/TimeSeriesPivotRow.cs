@@ -27,10 +27,12 @@ public readonly struct TimeSeriesPivotRow
     public TimeStamp Timestamp { get; }
 
     /// <summary>
-    /// One value per input key, in input-key order (<c>Values.Count == numkeys</c>). A cell is
-    /// <see cref="double.NaN"/> when the corresponding key has no raw sample at the row timestamp, or no data
-    /// for the row's aggregation bucket (indistinguishable from a stored NaN) - matching how <c>TS.RANGE</c>
-    /// surfaces missing values.
+    /// The row values, one per requested aggregator, laid out in key order then aggregator order within each
+    /// key. With a single aggregator per key this is one value per key (<c>Values.Count == numkeys</c>); when a
+    /// key requests multiple aggregators, that key contributes multiple consecutive columns, so
+    /// <c>Values.Count</c> is the total aggregator count across all keys. A cell is <see cref="double.NaN"/>
+    /// when the corresponding key has no raw sample at the row timestamp, or no data for the row's aggregation
+    /// bucket (indistinguishable from a stored NaN) - matching how <c>TS.RANGE</c> surfaces missing values.
     /// </summary>
     /// <remarks>Never <see langword="null"/>; a <c>default(TimeSeriesPivotRow)</c> reports an empty list.</remarks>
     public IReadOnlyList<double> Values => _values ?? Array.Empty<double>();

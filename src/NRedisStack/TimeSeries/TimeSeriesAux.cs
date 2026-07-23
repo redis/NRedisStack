@@ -353,7 +353,7 @@ public static class TimeSeriesAux
         (long, long)? filterByValue,
         long? count,
         TimeStamp? align,
-        IReadOnlyList<TsAggregation>? aggregations,
+        IReadOnlyList<TsAggregations>? aggregations,
         long? timeBucket,
         TsBucketTimestamps? bt)
     {
@@ -372,7 +372,9 @@ public static class TimeSeriesAux
         {
             args.AddAlign(align);
             args.Add(TimeSeriesArgs.AGGREGATION);
-            foreach (var aggregation in aggregations) args.Add(aggregation.AsArg());
+            // one comma-joined aggregator group per key (group count must equal numkeys, enforced server-side);
+            // each group may itself hold multiple aggregators, producing multiple value columns for that key.
+            foreach (var group in aggregations) args.Add(GetAggregationArgs(group));
             if (timeBucket.HasValue) args.Add(timeBucket.Value);
             args.AddBucketTimestamp(bt);
             // EMPTY must follow the AGGREGATION clause; the server rejects it in an earlier position.

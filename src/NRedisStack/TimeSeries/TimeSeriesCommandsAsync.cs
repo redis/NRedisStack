@@ -404,7 +404,7 @@ public class TimeSeriesCommandsAsync : ITimeSeriesCommandsAsync
         (long, long)? filterByValue = null,
         long? count = null,
         TimeStamp? align = null,
-        IReadOnlyList<TsAggregation>? aggregations = null,
+        IReadOnlyList<TsAggregations>? aggregations = null,
         long? timeBucket = null,
         TsBucketTimestamps? bt = null)
     {
@@ -423,7 +423,7 @@ public class TimeSeriesCommandsAsync : ITimeSeriesCommandsAsync
         (long, long)? filterByValue = null,
         long? count = null,
         TimeStamp? align = null,
-        IReadOnlyList<TsAggregation>? aggregations = null,
+        IReadOnlyList<TsAggregations>? aggregations = null,
         long? timeBucket = null,
         TsBucketTimestamps? bt = null)
     {
