@@ -88,6 +88,12 @@ public class SearchCommands(IDatabase db, int? defaultDialect = 2)
     }
 
     /// <inheritdoc/>
+    public RedisResult[] AliasList(string index)
+    {
+        return db.Execute(SearchCommandBuilder.AliasList(index)).ToArray();
+    }
+
+    /// <inheritdoc/>
     public bool Alter(string index, Schema schema, bool skipInitialScan = false)
     {
         return db.Execute(SearchCommandBuilder.Alter(index, schema, skipInitialScan)).OKtoBoolean();

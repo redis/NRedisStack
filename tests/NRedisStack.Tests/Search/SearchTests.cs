@@ -37,6 +37,34 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
                 && EndpointsFixture.RedisVersion.Minor < 4, "Ignoring cluster tests for FT.SEARCH pre Redis 8.4");
     }
 
+    // Legacy cluster servers reject alias commands wholesale with CROSSSLOT; the first
+    // FT.ALIASADD acts as an environment probe, so skip the test when it fails that way.
+    private static void AliasAddOrSkipOnCrossSlot(SearchCommands ft, string alias, string index)
+    {
+        try
+        {
+            Assert.True(ft.AliasAdd(alias, index));
+        }
+        catch (RedisServerException rse)
+        {
+            Assert.SkipWhen(rse.Message.StartsWith("CROSSSLOT"), "legacy failure");
+            throw;
+        }
+    }
+
+    private static async Task AliasAddOrSkipOnCrossSlotAsync(SearchCommands ft, string alias, string index)
+    {
+        try
+        {
+            Assert.True(await ft.AliasAddAsync(alias, index));
+        }
+        catch (RedisServerException rse)
+        {
+            Assert.SkipWhen(rse.Message.StartsWith("CROSSSLOT"), "legacy failure");
+            throw;
+        }
+    }
+
     private void AddDocument(IDatabase db, Document doc)
     {
         var hash = doc.GetProperties()
@@ -502,15 +530,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         doc.Add("field1", "value");
         AddDocument(db, "doc1", doc);
 
-        try
-        {
-            Assert.True(ft.AliasAdd("ALIAS1", index));
-        }
-        catch (RedisServerException rse)
-        {
-            Assert.SkipWhen(rse.Message.StartsWith("CROSSSLOT"), "legacy failure");
-            throw;
-        }
+        AliasAddOrSkipOnCrossSlot(ft, "ALIAS1", index);
 
         SearchResult res1 = ft.Search("ALIAS1", new Query("*").ReturnFields("field1"));
         Assert.Equal(1, res1.TotalResults);
@@ -541,15 +561,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         doc.Add("field1", "value");
         AddDocument(db, "doc1", doc);
 
-        try
-        {
-            Assert.True(await ft.AliasAddAsync("ALIAS1", index));
-        }
-        catch (RedisServerException rse)
-        {
-            Assert.SkipWhen(rse.Message.StartsWith("CROSSSLOT"), "legacy failure");
-            throw;
-        }
+        await AliasAddOrSkipOnCrossSlotAsync(ft, "ALIAS1", index);
 
         SearchResult res1 = ft.Search("ALIAS1", new Query("*").ReturnFields("field1"));
         Assert.Equal(1, res1.TotalResults);
@@ -563,6 +575,58 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         await Assert.ThrowsAsync<RedisServerException>(async () => await ft.AliasDelAsync("ALIAS3"));
         Assert.True(await ft.AliasDelAsync("ALIAS2"));
         await Assert.ThrowsAsync<RedisServerException>(async () => await ft.AliasDelAsync("ALIAS2"));
+    }
+
+    [SkipIfRedisTheory(Comparison.LessThan, "8.10.0")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestAliasList(string endpointId)
+    {
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ft = db.FT();
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams(), new Schema().AddTextField("field1")));
+
+        // Ordering is not part of the contract, so compare sorted.
+        string[] Aliases() => ft.AliasList(index).Select(a => a.ToString()).OrderBy(a => a).ToArray();
+
+        // An existing index with no aliases returns an empty collection, not an error.
+        Assert.Empty(ft.AliasList(index));
+
+        AliasAddOrSkipOnCrossSlot(ft, "ALIAS1", index);
+        Assert.Equal(new[] { "ALIAS1" }, Aliases());
+
+        Assert.True(ft.AliasAdd("ALIAS2", index));
+        Assert.Equal(new[] { "ALIAS1", "ALIAS2" }, Aliases());
+
+        Assert.True(ft.AliasDel("ALIAS1"));
+        Assert.Equal(new[] { "ALIAS2" }, Aliases());
+
+        // A non-existent index propagates the server error unchanged.
+        Assert.Throws<RedisServerException>(() => ft.AliasList("nonexisting-index"));
+    }
+
+    [SkipIfRedisTheory(Comparison.LessThan, "8.10.0")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestAliasListAsync(string endpointId)
+    {
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ft = db.FT();
+        Assert.True(ft.Create(index, FTCreateParams.CreateParams(), new Schema().AddTextField("field1")));
+
+        // Ordering is not part of the contract, so compare sorted.
+        async Task<string[]> Aliases() => (await ft.AliasListAsync(index)).Select(a => a.ToString()).OrderBy(a => a).ToArray();
+
+        Assert.Empty(await ft.AliasListAsync(index));
+
+        await AliasAddOrSkipOnCrossSlotAsync(ft, "ALIAS1", index);
+        Assert.Equal(new[] { "ALIAS1" }, await Aliases());
+
+        Assert.True(await ft.AliasAddAsync("ALIAS2", index));
+        Assert.Equal(new[] { "ALIAS1", "ALIAS2" }, await Aliases());
+
+        Assert.True(await ft.AliasDelAsync("ALIAS1"));
+        Assert.Equal(new[] { "ALIAS2" }, await Aliases());
+
+        await Assert.ThrowsAsync<RedisServerException>(async () => await ft.AliasListAsync("nonexisting-index"));
     }
 
     [Theory]

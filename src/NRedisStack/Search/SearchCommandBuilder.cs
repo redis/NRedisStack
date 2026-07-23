@@ -33,6 +33,11 @@ public static class SearchCommandBuilder
     {
         return new(FT.ALIASUPDATE, alias, index);
     }
+
+    public static SerializedCommand AliasList(string index)
+    {
+        return new(FT.ALIASLIST, index);
+    }
     public static SerializedCommand Alter(string index, Schema schema, bool skipInitialScan = false)
     {
         List<object> args = [index];

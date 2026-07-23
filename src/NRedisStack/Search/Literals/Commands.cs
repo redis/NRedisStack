@@ -7,6 +7,7 @@ internal class FT
     public const string ALIASADD = "FT.ALIASADD";
     public const string ALIASDEL = "FT.ALIASDEL";
     public const string ALIASUPDATE = "FT.ALIASUPDATE";
+    public const string ALIASLIST = "FT.ALIASLIST";
     public const string ALTER = "FT.ALTER";
     public const string CONFIG = "FT.CONFIG";
     public const string CREATE = "FT.CREATE";
