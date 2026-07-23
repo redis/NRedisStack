@@ -2,6 +2,7 @@ using StackExchange.Redis;
 using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 namespace NRedisStack;
 
@@ -370,6 +371,20 @@ public class TimeSeriesCommands : TimeSeriesCommandsAsync, ITimeSeriesCommands
     public IReadOnlyList<string> QueryIndex(IReadOnlyCollection<string> filter)
     {
         return _db.Execute(TimeSeriesCommandsBuilder.QueryIndex(filter)).ToStringList();
+    }
+
+    /// <inheritdoc/>
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    public IReadOnlyList<string> QueryLabelNames(IReadOnlyCollection<string>? filter = null)
+    {
+        return _db.Execute(TimeSeriesCommandsBuilder.QueryLabelNames(filter)).ToStringList();
+    }
+
+    /// <inheritdoc/>
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    public IReadOnlyList<string> QueryLabelValues(string label, IReadOnlyCollection<string>? filter = null)
+    {
+        return _db.Execute(TimeSeriesCommandsBuilder.QueryLabelValues(label, filter)).ToStringList();
     }
 
     #endregion

@@ -3,6 +3,7 @@ using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace NRedisStack;
@@ -345,6 +346,33 @@ public static class TimeSeriesCommandsBuilder
     {
         var args = new List<object>(filter);
         return new(TS.QUERYINDEX, args);
+    }
+
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    public static SerializedCommand QueryLabelNames(IReadOnlyCollection<string>? filter = null)
+    {
+        var args = new List<object> { TimeSeriesArgs.LABELS };
+        AddQueryLabelsFilter(args, filter);
+        return new(TS.QUERYLABELS, args);
+    }
+
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    public static SerializedCommand QueryLabelValues(string label, IReadOnlyCollection<string>? filter = null)
+    {
+        var args = new List<object> { TimeSeriesArgs.VALUES, label };
+        AddQueryLabelsFilter(args, filter);
+        return new(TS.QUERYLABELS, args);
+    }
+
+    // FILTER is optional for TS.QUERYLABELS (omitting it queries all indexed series); an empty collection is
+    // treated the same as "no filter" so we never emit a bare FILTER keyword (which the server rejects).
+    private static void AddQueryLabelsFilter(List<object> args, IReadOnlyCollection<string>? filter)
+    {
+        if (filter is { Count: > 0 })
+        {
+            args.Add(TimeSeriesArgs.FILTER);
+            foreach (var f in filter) args.Add(f);
+        }
     }
 
     #endregion

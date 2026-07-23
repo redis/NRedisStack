@@ -1,6 +1,7 @@
 using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 namespace NRedisStack;
 
@@ -477,6 +478,28 @@ public interface ITimeSeriesCommands
     /// <returns>A list of keys with labels matching the filters.</returns>
     /// <remarks><seealso href="https://redis.io/commands/ts.queryindex"/></remarks>
     IReadOnlyList<string> QueryIndex(IReadOnlyCollection<string> filter);
+
+    /// <summary>
+    /// Get the unique set of all label names across the time series matching the (optional) filter.
+    /// </summary>
+    /// <param name="filter">Optional: a sequence of label filter expressions (the same language as
+    /// <see cref="QueryIndex"/> / MRANGE / MGET). When omitted or empty, all indexed series are queried.</param>
+    /// <returns>The distinct label names; the collection is unordered and may be empty.</returns>
+    /// <remarks><seealso href="https://redis.io/commands/ts.querylabels"/></remarks>
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    IReadOnlyList<string> QueryLabelNames(IReadOnlyCollection<string>? filter = null);
+
+    /// <summary>
+    /// Get the unique set of all values assigned to <paramref name="label"/> across the time series matching
+    /// the (optional) filter.
+    /// </summary>
+    /// <param name="label">The label name whose values are returned.</param>
+    /// <param name="filter">Optional: a sequence of label filter expressions (the same language as
+    /// <see cref="QueryIndex"/> / MRANGE / MGET). When omitted or empty, all indexed series are queried.</param>
+    /// <returns>The distinct values of <paramref name="label"/>; the collection is unordered and may be empty.</returns>
+    /// <remarks><seealso href="https://redis.io/commands/ts.querylabels"/></remarks>
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    IReadOnlyList<string> QueryLabelValues(string label, IReadOnlyCollection<string>? filter = null);
 
     #endregion
 }
