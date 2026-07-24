@@ -20,6 +20,24 @@ jobs:
       - name: Check .NET runtimes
         run: dotnet --list-runtimes
 
+      - name: Verify public API is shipped
+        run: |
+          # A release must not carry unshipped public API: every
+          # PublicAPI.Unshipped.txt should be empty apart from '#' lines
+          # (e.g. '#nullable enable') and blank lines. Otherwise the
+          # shipped/unshipped state was not promoted before release.
+          status=0
+          while IFS= read -r -d '' f; do
+            leftover=$(grep -vE '^[[:space:]]*(#.*)?$' "$f" || true)
+            if [ -n "$leftover" ]; then
+              echo "::error file=$f::Unshipped public API present; promote to PublicAPI.Shipped.txt before releasing"
+              echo "--- $f ---"
+              printf '%s\n' "$leftover"
+              status=1
+            fi
+          done < <(find . -name PublicAPI.Unshipped.txt -print0)
+          exit $status
+
       - name: get version from tag
         id: get_version
         run: |
