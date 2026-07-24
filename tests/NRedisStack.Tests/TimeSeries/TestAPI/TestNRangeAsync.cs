@@ -77,4 +77,25 @@ public class TestNRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
         Assert.Equal(10, rows[0].Values[1]);
         Assert.Equal(100, rows[0].Values[2]);
     }
+
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.10.0")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestNRangeFilterByFractionalValueAsync(string endpointId)
+    {
+        SkipClusterPre8(endpointId);
+        // FILTER_BY_VALUE bounds are compared as doubles server-side; the public surface must accept a
+        // fractional (double, double) band, not just integer limits.
+        var db = GetCleanDatabase(endpointId);
+        var ts = db.TS();
+        var keys = CreateKeyNames(1);
+        await ts.AddAsync(keys[0], 10000, 0.1);
+        await ts.AddAsync(keys[0], 20000, 0.5);
+        await ts.AddAsync(keys[0], 30000, 0.9);
+
+        var rows = await ts.NRangeAsync(keys, "-", "+", filterByValue: (0.25, 0.75));
+
+        Assert.Single(rows);                                    // only the 0.5 sample falls in (0.25, 0.75)
+        Assert.Equal(20000, Ts(rows[0].Timestamp));
+        Assert.Equal(0.5, rows[0].Values[0]);
+    }
 }

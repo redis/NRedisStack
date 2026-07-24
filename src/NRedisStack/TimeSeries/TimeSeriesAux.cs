@@ -135,6 +135,16 @@ public static class TimeSeriesAux
         }
     }
 
+    public static void AddFilterByValue(this List<object> args, (double, double)? filter)
+    {
+        if (filter != null)
+        {
+            args.Add(TimeSeriesArgs.FILTER_BY_VALUE);
+            args.Add(filter.Value.Item1);
+            args.Add(filter.Value.Item2);
+        }
+    }
+
     public static void AddWithLabels(this IList<object> args, bool? withLabels, IReadOnlyCollection<string>? selectLabels = null)
     {
         // WITHLABELS is only emitted when withLabels == true; when it is false it is a no-op, so only the
@@ -218,7 +228,7 @@ public static class TimeSeriesAux
         TimeStamp toTimeStamp,
         bool latest,
         IReadOnlyCollection<TimeStamp>? filterByTs,
-        (long, long)? filterByValue,
+        (double, double)? filterByValue,
         long? count,
         TimeStamp? align,
         TsAggregations aggregation,
@@ -258,7 +268,7 @@ public static class TimeSeriesAux
         IReadOnlyCollection<string> filter,
         TimeSeriesRangeFlags flags,
         IReadOnlyCollection<TimeStamp>? filterByTs,
-        (long, long)? filterByValue,
+        (double, double)? filterByValue,
         IReadOnlyCollection<string>? selectLabels,
         long? count,
         TimeStamp? align,
@@ -299,7 +309,7 @@ public static class TimeSeriesAux
         IReadOnlyCollection<string> filter,
         bool latest,
         IReadOnlyCollection<TimeStamp>? filterByTs,
-        (long, long)? filterByValue,
+        (double, double)? filterByValue,
         bool? withLabels,
         IReadOnlyCollection<string>? selectLabels,
         long? count,
@@ -352,7 +362,7 @@ public static class TimeSeriesAux
         TimeStamp toTimeStamp,
         TimeSeriesRangeFlags flags,
         IReadOnlyCollection<TimeStamp>? filterByTs,
-        (long, long)? filterByValue,
+        (double, double)? filterByValue,
         long? count,
         TimeStamp? align,
         IReadOnlyList<TsAggregations>? aggregations,
