@@ -12,9 +12,10 @@ public class TestMGet(EndpointsFixture endpointsFixture) : AbstractNRedisStackTe
     private readonly string[] keys = ["MGET_TESTS_1", "MGET_TESTS_2"];
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMGetQuery(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
 
@@ -28,6 +29,7 @@ public class TestMGet(EndpointsFixture endpointsFixture) : AbstractNRedisStackTe
         TimeStamp ts2 = ts.Add(keys[1], "*", 2.2, labels: labels2);
         TimeSeriesTuple tuple2 = new(ts2, 2.2);
         var results = ts.MGet(new List<string> { "MGET_TESTS_1=value" });
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Equal(2, results.Count);
         Assert.Equal(keys[0], results[0].key);
         Assert.Equal(tuple1, results[0].value);
@@ -39,9 +41,10 @@ public class TestMGet(EndpointsFixture endpointsFixture) : AbstractNRedisStackTe
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMGetQueryWithLabels(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
 
@@ -56,6 +59,7 @@ public class TestMGet(EndpointsFixture endpointsFixture) : AbstractNRedisStackTe
         TimeSeriesTuple tuple2 = new(ts2, 2.2);
 
         var results = ts.MGet(new List<string> { "MGET_TESTS_1=value" }, withLabels: true);
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Equal(2, results.Count);
         Assert.Equal(keys[0], results[0].key);
         Assert.Equal(tuple1, results[0].value);
@@ -66,9 +70,10 @@ public class TestMGet(EndpointsFixture endpointsFixture) : AbstractNRedisStackTe
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMGetQuerySelectedLabels(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
 
@@ -83,6 +88,7 @@ public class TestMGet(EndpointsFixture endpointsFixture) : AbstractNRedisStackTe
         TimeSeriesTuple tuple2 = new(ts2, 2.2);
 
         var results = ts.MGet(new List<string> { "MGET_TESTS_1=value" }, selectedLabels: new List<string> { "MGET_TESTS_1" });
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Equal(2, results.Count);
         Assert.Equal(keys[0], results[0].key);
         Assert.Equal(tuple1, results[0].value);

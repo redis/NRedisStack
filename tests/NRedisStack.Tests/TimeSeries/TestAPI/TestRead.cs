@@ -1,5 +1,4 @@
 #pragma  warning disable CS0618, CS0612 // allow testing obsolete methods
-using System.Linq;
 using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
 using Xunit;
@@ -18,9 +17,10 @@ public class TestRead(EndpointsFixture endpointsFixture) : AbstractNRedisStackTe
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.10.0")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestReadBatch(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         var key = Seed(ts, CreateKeyName());
@@ -38,9 +38,10 @@ public class TestRead(EndpointsFixture endpointsFixture) : AbstractNRedisStackTe
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.10.0")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestReadEnumerablePagesThrough(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         var key = Seed(ts, CreateKeyName());

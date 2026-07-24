@@ -11,9 +11,10 @@ public class TestNRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     private static long Ts(TimeStamp t) => (long)t.Value;
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.10.0")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestNRangeOuterJoin(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         var keys = CreateKeyNames(3);
@@ -39,9 +40,10 @@ public class TestNRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.10.0")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestNRevRangeOrderAndCount(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         var keys = CreateKeyNames(2);
@@ -60,9 +62,10 @@ public class TestNRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.10.0")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestNRangeEmpty(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         var keys = CreateKeyNames(2);
@@ -74,9 +77,10 @@ public class TestNRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.10.0")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestNRangeAggregationPerKey(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         var keys = CreateKeyNames(3);
@@ -98,9 +102,10 @@ public class TestNRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.10.0")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestNRangeMultipleAggregatorsPerKey(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         // A key may request several aggregators (comma-joined server-side), contributing multiple value
         // columns; total columns == sum of aggregators across keys, not numkeys.
         var db = GetCleanDatabase(endpointId);
@@ -122,9 +127,10 @@ public class TestNRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.10.0")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestNRangeAggregatorCountMismatchIsServerError(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         // The client does not validate aggregator-vs-key count; the server rejects the mismatch (R.9).
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -133,5 +139,21 @@ public class TestNRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
 
         Assert.Throws<StackExchange.Redis.RedisServerException>(() => ts.NRange(keys, "-", "+",
             aggregations: [TsAggregation.Avg], timeBucket: 100000));
+    }
+
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.10.0")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestNRangeAggregationOptionsRequireAggregators(string endpointId)
+    {
+        SkipClusterPre8(endpointId);
+        // aggregation-clause options have no wire representation without an aggregator; supplying them without
+        // one is local misuse and throws (mirrors TS.RANGE) rather than being silently dropped.
+        var db = GetCleanDatabase(endpointId);
+        var ts = db.TS();
+        var keys = CreateKeyNames(2);
+
+        Assert.Throws<ArgumentException>(() => ts.NRange(keys, "-", "+", timeBucket: 1000));
+        Assert.Throws<ArgumentException>(() => ts.NRange(keys, "-", "+", flags: TimeSeriesRangeFlags.Empty));
+        Assert.Throws<ArgumentException>(() => ts.NRange(keys, "-", "+", align: 0));
     }
 }

@@ -69,6 +69,28 @@ public abstract class AbstractNRedisStackTest : IClassFixture<EndpointsFixture>,
         }
     }
 
+    // Cluster behaviour for the module commands is awkward / eventually-consistent pre Redis 8; grandfather the
+    // existing behaviour by skipping cluster tests below v8, and exercise cluster from v8 onward.
+    protected static void SkipClusterPre8(string endpointId)
+    {
+        Assert.SkipWhen(endpointId == EndpointsFixture.Env.Cluster
+            && EndpointsFixture.RedisVersion.Major < 8, "Ignoring cluster tests pre Redis 8.0");
+    }
+
+    // The keyless TS.* filter commands (MGET/MRANGE/QUERYINDEX/...) fan out cluster-wide and return the full
+    // result set, but in a shard-aggregation order that need not match the input order. These helpers compare
+    // order-insensitively so the tests are valid on both standalone and cluster.
+    protected static void AssertKeysUnordered(IEnumerable<string> expected, IEnumerable<string> actual)
+        => Assert.Equal(expected.OrderBy(x => x, StringComparer.Ordinal), actual.OrderBy(x => x, StringComparer.Ordinal));
+
+    // Validates a GROUPBY reducer's "__source__" label, whose comma-separated members are in server order.
+    protected static void AssertSourceLabel(TimeSeriesLabel actual, params string[] expectedSources)
+    {
+        Assert.Equal("__source__", actual.Key);
+        Assert.Equal(expectedSources.OrderBy(x => x, StringComparer.Ordinal),
+                     actual.Value.Split(',').OrderBy(x => x, StringComparer.Ordinal));
+    }
+
     protected ConnectionMultiplexer GetConnection(string endpointId = EndpointsFixture.Env.Standalone, bool shareConnection = true) => EndpointsFixture.GetConnectionById(this.DefaultConnectionConfig, endpointId, shareConnection);
 
     protected ConnectionMultiplexer GetConnection(ConfigurationOptions configurationOptions, string endpointId = EndpointsFixture.Env.Standalone) => EndpointsFixture.GetConnectionById(configurationOptions, endpointId, false);
@@ -117,7 +139,9 @@ public abstract class AbstractNRedisStackTest : IClassFixture<EndpointsFixture>,
         var newKeys = new string[count];
         for (var i = 0; i < count; i++)
         {
-            newKeys[i] = $"{GetType().Name}:{memberName}:{i}";
+            // wrap the shared prefix in a hash tag so all keys from one call land in the same cluster slot
+            // (multi-key commands require it); transparent on standalone.
+            newKeys[i] = $"{{{GetType().Name}:{memberName}}}:{i}";
         }
 
         keyNames.AddRange(newKeys);

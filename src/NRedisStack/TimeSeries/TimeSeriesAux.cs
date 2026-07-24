@@ -178,7 +178,7 @@ public static class TimeSeriesAux
 
     public static void AddRule(this IList<object> args, TimeSeriesRule rule)
     {
-        args.Add(rule.DestKey);
+        args.Add((RedisKey)rule.DestKey);
         args.Add(TimeSeriesArgs.AGGREGATION);
         args.Add(rule.Aggregation.AsArg());
         args.Add(rule.TimeBucket);
@@ -187,7 +187,7 @@ public static class TimeSeriesAux
     public static List<object> BuildTsDelArgs(string key, TimeStamp fromTimeStamp, TimeStamp toTimeStamp)
     {
         var args = new List<object>
-            {key, fromTimeStamp.Value, toTimeStamp.Value};
+            {(RedisKey)key, fromTimeStamp.Value, toTimeStamp.Value};
         return args;
     }
 
@@ -196,7 +196,7 @@ public static class TimeSeriesAux
         var args = new List<object>();
         foreach (var tuple in sequence)
         {
-            args.Add(tuple.key);
+            args.Add((RedisKey)tuple.key);
             args.Add(tuple.timestamp.Value);
             args.Add(tuple.value);
         }
@@ -338,11 +338,13 @@ public static class TimeSeriesAux
     /// fromTimestamp toTimestamp</c> followed by the optional range modifiers.
     /// </summary>
     /// <remarks>
-    /// No client-side validation is performed: the flag/option compatibility rules for these commands are
-    /// inconsistent server-side, so arguments are emitted verbatim and the server enforces its own rules and
-    /// reports its own errors. The one exception is structural wire order - <c>EMPTY</c> is emitted at the tail
-    /// of the <c>AGGREGATION</c> clause because the server rejects it anywhere else - and the per-key aggregator
-    /// count is left for the server to validate against numkeys.
+    /// Flag/option compatibility is largely left to the server (its rules are inconsistent, so arguments are
+    /// emitted verbatim and it reports its own errors); the per-key aggregator count is likewise validated
+    /// server-side against numkeys. Two client-side exceptions: <c>EMPTY</c> is emitted at the tail of the
+    /// <c>AGGREGATION</c> clause (the server rejects it elsewhere), and - mirroring TS.RANGE - the
+    /// aggregation-clause options (<c>align</c> / <c>timeBucket</c> / <c>BUCKETTIMESTAMP</c> / <c>EMPTY</c>)
+    /// throw when supplied without an aggregator, since they have no wire representation without one and would
+    /// otherwise be silently dropped.
     /// </remarks>
     public static List<object> BuildNRangeArgs(
         IReadOnlyList<string> keys,
@@ -358,7 +360,7 @@ public static class TimeSeriesAux
         TsBucketTimestamps? bt)
     {
         var args = new List<object>(keys.Count + 4) { keys.Count };
-        foreach (var key in keys) args.Add(key);
+        foreach (var key in keys) args.Add((RedisKey)key);
         args.Add(fromTimeStamp.Value);
         args.Add(toTimeStamp.Value);
 
@@ -379,6 +381,13 @@ public static class TimeSeriesAux
             args.AddBucketTimestamp(bt);
             // EMPTY must follow the AGGREGATION clause; the server rejects it in an earlier position.
             if ((flags & TimeSeriesRangeFlags.Empty) != 0) args.Add(TimeSeriesArgs.EMPTY);
+        }
+        else if (align != null || timeBucket != null || bt != null || (flags & TimeSeriesRangeFlags.Empty) != 0)
+        {
+            // mirror TS.RANGE: these are aggregation-clause options with no wire representation (and no meaning)
+            // without an aggregator. Emitting nothing would silently drop them and the server would never see
+            // the mistake, so reject the local misuse instead.
+            throw new ArgumentException("align, timeBucket, BucketTimestamps or empty cannot be defined without Aggregation");
         }
         return args;
     }

@@ -16,9 +16,10 @@ public class TestQueryLabelsAsync(EndpointsFixture endpointsFixture) : AbstractN
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.10.0")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestQueryLabelNamesAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         var keys = CreateKeyNames(3);
@@ -37,9 +38,10 @@ public class TestQueryLabelsAsync(EndpointsFixture endpointsFixture) : AbstractN
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.10.0")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestQueryLabelValuesAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         var keys = CreateKeyNames(3);

@@ -31,9 +31,10 @@ public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestSimpleMRange(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -46,6 +47,7 @@ public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
 
         var tuples = await CreateData(ts, keys, 50);
         var results = ts.MRange("-", "+", new List<string> { $"{keys[0]}=value" });
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Equal(keys.Length, results.Count);
         for (var i = 0; i < results.Count; i++)
         {
@@ -56,9 +58,10 @@ public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMRangeWithLabels(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -71,6 +74,7 @@ public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
 
         var tuples = await CreateData(ts, keys, 50);
         var results = await ts.MRangeAsync("-", "+", new List<string> { $"{keys[0]}=value" }, withLabels: true);
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Equal(keys.Length, results.Count);
         for (var i = 0; i < results.Count; i++)
         {
@@ -81,9 +85,10 @@ public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMRangeSelectLabels(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -105,6 +110,7 @@ public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
         Assert.Equal("withLabels and selectLabels cannot be specified together.", ex.Message);
 
         var results = await ts.MRangeAsync("-", "+", new List<string> { $"{keys[0]}=value" }, selectLabels: new List<string> { "team" });
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Equal(keys.Length, results.Count);
         for (int i = 0; i < results.Count; i++)
         {
@@ -115,9 +121,10 @@ public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMRangeFilter(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -126,6 +133,7 @@ public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
         await ts.CreateAsync(keys[0], labels: labels);
         var tuples = await CreateData(ts, keys, 50);
         var results = await ts.MRangeAsync("-", "+", new List<string> { $"{keys[0]}=value" });
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Single(results);
         Assert.Equal(keys[0], results[0].key);
         Assert.Empty(results[0].labels);
@@ -133,9 +141,10 @@ public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMRangeCount(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -149,6 +158,7 @@ public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
         var tuples = await CreateData(ts, keys, 50);
         var count = 5L;
         var results = await ts.MRangeAsync("-", "+", new List<string> { $"{keys[0]}=value" }, count: count);
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Equal(keys.Length, results.Count);
         for (var i = 0; i < results.Count; i++)
         {
@@ -159,9 +169,10 @@ public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMRangeAggregation(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -174,6 +185,7 @@ public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
 
         var tuples = await CreateData(ts, keys, 50);
         var results = await ts.MRangeAsync("-", "+", new List<string> { $"{keys[0]}=value" }, aggregation: TsAggregation.Min, timeBucket: 50);
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Equal(keys.Length, results.Count);
         for (var i = 0; i < results.Count; i++)
         {
@@ -184,9 +196,10 @@ public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.8.0")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMRangeMultiAggregation(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2).Select(x => $"{x}:{Guid.NewGuid():N}").ToArray();
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -199,6 +212,7 @@ public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
 
         var tuples = await CreateData(ts, keys, 50);
         var results = await ts.MRangeAsync("-", "+", new List<string> { $"{keys[0]}=MultiAggregation" }, aggregation: new TsAggregations(TsAggregation.Min, TsAggregation.Avg, TsAggregation.Max, TsAggregation.Count), timeBucket: 50);
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Equal(keys.Length, results.Count);
         for (int i = 0; i < results.Count; i++)
         {
@@ -217,9 +231,10 @@ public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.8.0")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMRangeMultiAggregationWithMultiplePointsPerBucket(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2).Select(x => $"{x}:{Guid.NewGuid():N}").ToArray();
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -232,6 +247,7 @@ public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
 
         var tuples = await CreateData(ts, keys, 50, addSecondPointPerBucket: true);
         var results = await ts.MRangeAsync("-", "+", new List<string> { $"{keys[0]}=MultiAggregationMultiple" }, aggregation: new TsAggregations(TsAggregation.Min, TsAggregation.Avg, TsAggregation.Max, TsAggregation.Count), timeBucket: 50);
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Equal(keys.Length, results.Count);
         for (int i = 0; i < results.Count; i++)
         {
@@ -251,9 +267,10 @@ public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMRangeAlign(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -267,17 +284,20 @@ public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
             new(100,1)
         };
         var results = await ts.MRangeAsync(0, "+", new List<string> { $"{keys[0]}=value" }, align: "-", aggregation: TsAggregation.Count, timeBucket: 10, count: 3);
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Single(results);
         Assert.Equal(keys[0], results[0].key);
         Assert.Equal(expected, results[0].values);
         results = await ts.MRangeAsync(0, 500, new List<string> { $"{keys[0]}=value" }, align: "+", aggregation: TsAggregation.Count, timeBucket: 10, count: 1);
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Equal(expected[0], results[0].values[0]);
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMissingFilter(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -294,9 +314,10 @@ public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMissingTimeBucket(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -318,9 +339,10 @@ public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMRangeGroupby(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -333,6 +355,7 @@ public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
 
         var tuples = await CreateData(ts, keys, 50);
         var results = await ts.MRangeAsync("-", "+", new List<string> { $"{keys[0]}=value" }, withLabels: true, groupbyTuple: ("group", TsReduce.Min));
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Equal(keys.Length, results.Count);
         for (int i = 0; i < results.Count; i++)
         {
@@ -345,9 +368,10 @@ public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMRangeReduce(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -359,11 +383,12 @@ public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
 
         var tuples = await CreateData(ts, keys, 50);
         var results = await ts.MRangeAsync("-", "+", new List<string> { $"{keys[0]}=value" }, withLabels: true, groupbyTuple: (keys[0], TsReduce.Sum));
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Single(results);
         Assert.Equal($"{keys[0]}=value", results[0].key);
         Assert.Equal(new(keys[0], "value"), results[0].labels[0]);
         Assert.Equal(new("__reducer__", "sum"), results[0].labels[1]);
-        Assert.Equal(new("__source__", string.Join(",", keys)), results[0].labels[2]);
+        AssertSourceLabel(results[0].labels[2], keys);
         for (int i = 0; i < results[0].values.Count; i++)
         {
             Assert.Equal(tuples[i].Val * 2, results[0].values[i].Val);
@@ -371,9 +396,10 @@ public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMRangeFilterBy(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -386,12 +412,14 @@ public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
 
         var tuples = await CreateData(ts, keys, 50);
         var results = await ts.MRangeAsync("-", "+", new List<string> { $"{keys[0]}=value" }, filterByValue: (0, 2));
+        results = results.OrderBy(r => r.key).ToList();
         for (int i = 0; i < results.Count; i++)
         {
             Assert.Equal(tuples.GetRange(0, 3), results[i].values);
         }
 
         results = await ts.MRangeAsync("-", "+", new List<string> { $"{keys[0]}=value" }, filterByTs: new List<TimeStamp> { 0 }, filterByValue: (0, 2));
+        results = results.OrderBy(r => r.key).ToList();
         for (int i = 0; i < results.Count; i++)
         {
             Assert.Equal(tuples.GetRange(0, 1), results[i].values);
@@ -399,9 +427,10 @@ public class TestMRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.10.0")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMRangeExcludeEmpty(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         var keys = CreateKeyNames(2);

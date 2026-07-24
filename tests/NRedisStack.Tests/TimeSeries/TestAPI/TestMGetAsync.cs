@@ -8,9 +8,10 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI;
 public class TestMGetAsync(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture)
 {
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMGetQuery(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -26,6 +27,7 @@ public class TestMGetAsync(EndpointsFixture endpointsFixture) : AbstractNRedisSt
         var tuple2 = new TimeSeriesTuple(ts2, 2.2);
 
         var results = await ts.MGetAsync(new List<string> { $"{keys[0]}=value" });
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Equal(2, results.Count);
         Assert.Equal(keys[0], results[0].key);
         Assert.Equal(tuple1, results[0].value);
@@ -36,9 +38,10 @@ public class TestMGetAsync(EndpointsFixture endpointsFixture) : AbstractNRedisSt
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMGetQueryWithLabels(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -54,6 +57,7 @@ public class TestMGetAsync(EndpointsFixture endpointsFixture) : AbstractNRedisSt
         var tuple2 = new TimeSeriesTuple(ts2, 2.2);
 
         var results = await ts.MGetAsync(new List<string> { $"{keys[0]}=value" }, withLabels: true);
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Equal(2, results.Count);
         Assert.Equal(keys[0], results[0].key);
         Assert.Equal(tuple1, results[0].value);
@@ -64,9 +68,10 @@ public class TestMGetAsync(EndpointsFixture endpointsFixture) : AbstractNRedisSt
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMGetQuerySelectedLabelsAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -82,6 +87,7 @@ public class TestMGetAsync(EndpointsFixture endpointsFixture) : AbstractNRedisSt
         TimeSeriesTuple tuple2 = new(ts2, 2.2);
 
         var results = await ts.MGetAsync(new List<string> { "MGET_TESTS_1=value" }, selectedLabels: new List<string> { "MGET_TESTS_1" });
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Equal(2, results.Count);
         Assert.Equal(keys[0], results[0].key);
         Assert.Equal(tuple1, results[0].value);

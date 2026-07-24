@@ -30,9 +30,10 @@ public class TestMRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSt
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestSimpleMRevRange(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -45,6 +46,7 @@ public class TestMRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSt
 
         var tuples = CreateData(ts, keys, 50);
         var results = ts.MRevRange("-", "+", new List<string> { $"{keys[0]}=value" });
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Equal(keys.Length, results.Count);
         for (var i = 0; i < results.Count; i++)
         {
@@ -55,9 +57,10 @@ public class TestMRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSt
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRevRangeWithLabels(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -70,6 +73,7 @@ public class TestMRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSt
 
         var tuples = CreateData(ts, keys, 50);
         var results = ts.MRevRange("-", "+", new List<string> { $"{keys[0]}=value" }, withLabels: true);
+        results = results.OrderBy(r => r.key).ToList();
 
         Assert.Equal(keys.Length, results.Count);
         for (var i = 0; i < results.Count; i++)
@@ -81,9 +85,10 @@ public class TestMRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSt
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRevRangeSelectLabels(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -96,6 +101,7 @@ public class TestMRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSt
 
         var tuples = CreateData(ts, keys, 50);
         var results = ts.MRevRange("-", "+", new List<string> { "key=MRangeSelectLabels" }, selectLabels: new List<string> { "team" });
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Equal(keys.Length, results.Count);
         for (int i = 0; i < results.Count; i++)
         {
@@ -106,9 +112,10 @@ public class TestMRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSt
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRevRangeFilter(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -117,6 +124,7 @@ public class TestMRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSt
         ts.Create(keys[0], labels: labels);
         var tuples = CreateData(ts, keys, 50);
         var results = ts.MRevRange("-", "+", new List<string> { $"{keys[0]}=value" });
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Single(results);
         Assert.Equal(keys[0], results[0].key);
         Assert.Empty(results[0].labels);
@@ -124,9 +132,10 @@ public class TestMRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSt
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRevRangeCount(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -140,6 +149,7 @@ public class TestMRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSt
         var tuples = CreateData(ts, keys, 50);
         var count = 5L;
         var results = ts.MRevRange("-", "+", new List<string> { $"{keys[0]}=value" }, count: count);
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Equal(keys.Length, results.Count);
         for (var i = 0; i < results.Count; i++)
         {
@@ -150,9 +160,10 @@ public class TestMRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSt
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRevRangeAggregation(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -165,6 +176,7 @@ public class TestMRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSt
 
         var tuples = CreateData(ts, keys, 50);
         var results = ts.MRevRange("-", "+", new List<string> { $"{keys[0]}=value" }, aggregation: TsAggregation.Min, timeBucket: 50);
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Equal(keys.Length, results.Count);
         for (var i = 0; i < results.Count; i++)
         {
@@ -175,9 +187,10 @@ public class TestMRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSt
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.8.0")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRevRangeMultiAggregation(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -190,6 +203,7 @@ public class TestMRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSt
 
         var tuples = ReverseData(CreateData(ts, keys, 50));
         var results = ts.MRevRange("-", "+", new List<string> { $"{keys[0]}=MultiAggregation" }, aggregation: new TsAggregations(TsAggregation.Min, TsAggregation.Avg, TsAggregation.Max, TsAggregation.Count), timeBucket: 50);
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Equal(keys.Length, results.Count);
         for (int i = 0; i < results.Count; i++)
         {
@@ -208,9 +222,10 @@ public class TestMRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSt
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.8.0")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRevRangeMultiAggregationWithMultiplePointsPerBucket(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -223,6 +238,7 @@ public class TestMRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSt
 
         var tuples = ReverseData(CreateData(ts, keys, 50, addSecondPointPerBucket: true));
         var results = ts.MRevRange("-", "+", new List<string> { $"{keys[0]}=MultiAggregationMultiple" }, aggregation: new TsAggregations(TsAggregation.Min, TsAggregation.Avg, TsAggregation.Max, TsAggregation.Count), timeBucket: 50);
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Equal(keys.Length, results.Count);
         for (int i = 0; i < results.Count; i++)
         {
@@ -242,9 +258,10 @@ public class TestMRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSt
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRevRangeAlign(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -258,17 +275,20 @@ public class TestMRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSt
             new(350,1)
         };
         var results = ts.MRevRange(0, "+", new List<string> { $"{keys[0]}=value" }, align: "-", aggregation: TsAggregation.Count, timeBucket: 10, count: 3);
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Single(results);
         Assert.Equal(keys[0], results[0].key);
         Assert.Equal(expected, results[0].values);
         results = ts.MRevRange(0, 500, new List<string> { $"{keys[0]}=value" }, align: "+", aggregation: TsAggregation.Count, timeBucket: 10, count: 1);
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Equal(expected[0], results[0].values[0]);
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMissingFilter(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -285,9 +305,10 @@ public class TestMRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSt
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMissingTimeBucket(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -304,9 +325,10 @@ public class TestMRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSt
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRevRangeGroupby(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -319,6 +341,7 @@ public class TestMRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSt
 
         var tuples = CreateData(ts, keys, 50);
         var results = ts.MRevRange("-", "+", new List<string> { $"{keys[0]}=value" }, withLabels: true, groupbyTuple: ("group", TsReduce.Min));
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Equal(keys.Length, results.Count);
         for (var i = 0; i < results.Count; i++)
         {
@@ -331,9 +354,10 @@ public class TestMRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSt
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRevRangeReduce(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -345,6 +369,7 @@ public class TestMRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSt
 
         var tuples = CreateData(ts, keys, 50);
         var results = ts.MRevRange("-", "+", new List<string> { $"{keys[0]}=value" }, withLabels: true, groupbyTuple: (keys[0], TsReduce.Sum));
+        results = results.OrderBy(r => r.key).ToList();
         Assert.Single(results);
         Assert.Equal($"{keys[0]}=value", results[0].key);
         Assert.Equal(new(keys[0], "value"), results[0].labels[0]);
@@ -358,9 +383,10 @@ public class TestMRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSt
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRevRangeFilterBy(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -373,12 +399,14 @@ public class TestMRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSt
 
         var tuples = CreateData(ts, keys, 50);
         var results = ts.MRevRange("-", "+", new List<string> { "key=MRangeFilterBy" }, filterByValue: (0, 2));
+        results = results.OrderBy(r => r.key).ToList();
         for (int i = 0; i < results.Count; i++)
         {
             Assert.Equal(ReverseData(tuples.GetRange(0, 3)), results[i].values);
         }
 
         results = ts.MRevRange("-", "+", new List<string> { "key=MRangeFilterBy" }, filterByTs: new List<TimeStamp> { 0 }, filterByValue: (0, 2));
+        results = results.OrderBy(r => r.key).ToList();
         for (int i = 0; i < results.Count; i++)
         {
             Assert.Equal(ReverseData(tuples.GetRange(0, 1)), results[i].values);
@@ -386,9 +414,10 @@ public class TestMRevRange(EndpointsFixture endpointsFixture) : AbstractNRedisSt
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.10.0")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRevRangeExcludeEmpty(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         var keys = CreateKeyNames(2);

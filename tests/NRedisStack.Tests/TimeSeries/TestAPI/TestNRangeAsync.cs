@@ -11,9 +11,10 @@ public class TestNRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
     private static long Ts(TimeStamp t) => (long)t.Value;
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.10.0")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestNRangeOuterJoinAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         var keys = CreateKeyNames(3);
@@ -35,9 +36,10 @@ public class TestNRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.10.0")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestNRevRangeAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         var keys = CreateKeyNames(2);
@@ -55,9 +57,10 @@ public class TestNRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.10.0")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestNRangeAggregationPerKeyAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         var keys = CreateKeyNames(3);

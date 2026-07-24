@@ -2,6 +2,7 @@ using NRedisStack.Literals;
 using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
+using StackExchange.Redis;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -95,7 +96,7 @@ public static class TimeSeriesCommandsBuilder
 
     public static SerializedCommand CreateRule(string sourceKey, TimeSeriesRule rule, long alignTimestamp = 0)
     {
-        var args = new List<object> { sourceKey };
+        var args = new List<object> { (RedisKey)sourceKey };
         args.AddRule(rule);
         args.Add(alignTimestamp);
         return new(TS.CREATERULE, args);
@@ -103,7 +104,7 @@ public static class TimeSeriesCommandsBuilder
 
     public static SerializedCommand DeleteRule(string sourceKey, string destKey)
     {
-        var args = new List<object> { sourceKey, destKey };
+        var args = new List<object> { (RedisKey)sourceKey, (RedisKey)destKey };
         return new(TS.DELETERULE, args);
     }
 
@@ -113,8 +114,8 @@ public static class TimeSeriesCommandsBuilder
 
     public static SerializedCommand Get(string key, bool latest = false)
     {
-        return (latest) ? new(TS.GET, key, TimeSeriesArgs.LATEST)
-            : new SerializedCommand(TS.GET, key);
+        return (latest) ? new(TS.GET, (RedisKey)key, TimeSeriesArgs.LATEST)
+            : new SerializedCommand(TS.GET, (RedisKey)key);
     }
 
     public static SerializedCommand MGet(IReadOnlyCollection<string> filter, bool latest = false,
@@ -338,8 +339,8 @@ public static class TimeSeriesCommandsBuilder
 
     public static SerializedCommand Info(string key, bool debug = false)
     {
-        return (debug) ? new(TS.INFO, key, TimeSeriesArgs.DEBUG)
-            : new SerializedCommand(TS.INFO, key);
+        return (debug) ? new(TS.INFO, (RedisKey)key, TimeSeriesArgs.DEBUG)
+            : new SerializedCommand(TS.INFO, (RedisKey)key);
     }
 
     public static SerializedCommand QueryIndex(IReadOnlyCollection<string> filter)
@@ -418,7 +419,7 @@ public static class TimeSeriesCommandsBuilder
     [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
     public static SerializedCommand Read(string key, TimeStamp timestamp, long? maxCount = null)
     {
-        var args = new List<object> { key, timestamp.Value };
+        var args = new List<object> { (RedisKey)key, timestamp.Value };
         if (maxCount.HasValue)
         {
             args.Add(TimeSeriesArgs.MAX_COUNT);
