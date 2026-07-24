@@ -2,6 +2,7 @@ using StackExchange.Redis;
 using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 namespace NRedisStack;
 
@@ -128,7 +129,7 @@ public class TimeSeriesCommands : TimeSeriesCommandsAsync, ITimeSeriesCommands
         TimeStamp toTimeStamp,
         bool latest = false,
         IReadOnlyCollection<TimeStamp>? filterByTs = null,
-        (long, long)? filterByValue = null,
+        (double, double)? filterByValue = null,
         long? count = null,
         TimeStamp? align = null,
         TsAggregations aggregation = default,
@@ -170,7 +171,7 @@ public class TimeSeriesCommands : TimeSeriesCommandsAsync, ITimeSeriesCommands
         TimeStamp toTimeStamp,
         bool latest = false,
         IReadOnlyCollection<TimeStamp>? filterByTs = null,
-        (long, long)? filterByValue = null,
+        (double, double)? filterByValue = null,
         long? count = null,
         TimeStamp? align = null,
         TsAggregations aggregation = default,
@@ -206,6 +207,30 @@ public class TimeSeriesCommands : TimeSeriesCommandsAsync, ITimeSeriesCommands
     }
 
     /// <inheritdoc/>
+    [OverloadResolutionPriority(2)]
+    public IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)> MRange(
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        IReadOnlyCollection<string> filter,
+        TimeSeriesRangeFlags flags = TimeSeriesRangeFlags.None,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (double, double)? filterByValue = null,
+        IReadOnlyCollection<string>? selectLabels = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        (string, TsReduce)? groupbyTuple = null)
+    {
+        return _db.Execute(TimeSeriesCommandsBuilder.MRange(fromTimeStamp, toTimeStamp, filter,
+            flags, filterByTs, filterByValue,
+            selectLabels, count, align,
+            aggregation, timeBucket, bt,
+            groupbyTuple)).ParseMRangeResponse();
+    }
+
+    /// <inheritdoc/>
     [OverloadResolutionPriority(1)]
     public IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)> MRange(
         TimeStamp fromTimeStamp,
@@ -213,7 +238,7 @@ public class TimeSeriesCommands : TimeSeriesCommandsAsync, ITimeSeriesCommands
         IReadOnlyCollection<string> filter,
         bool latest = false,
         IReadOnlyCollection<TimeStamp>? filterByTs = null,
-        (long, long)? filterByValue = null,
+        (double, double)? filterByValue = null,
         bool? withLabels = null,
         IReadOnlyCollection<string>? selectLabels = null,
         long? count = null,
@@ -257,6 +282,30 @@ public class TimeSeriesCommands : TimeSeriesCommandsAsync, ITimeSeriesCommands
     }
 
     /// <inheritdoc/>
+    [OverloadResolutionPriority(2)]
+    public IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)> MRevRange(
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        IReadOnlyCollection<string> filter,
+        TimeSeriesRangeFlags flags = TimeSeriesRangeFlags.None,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (double, double)? filterByValue = null,
+        IReadOnlyCollection<string>? selectLabels = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        (string, TsReduce)? groupbyTuple = null)
+    {
+        return _db.Execute(TimeSeriesCommandsBuilder.MRevRange(fromTimeStamp, toTimeStamp, filter,
+            flags, filterByTs, filterByValue,
+            selectLabels, count, align,
+            aggregation, timeBucket, bt,
+            groupbyTuple)).ParseMRangeResponse();
+    }
+
+    /// <inheritdoc/>
     [OverloadResolutionPriority(1)]
     public IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)> MRevRange(
         TimeStamp fromTimeStamp,
@@ -264,7 +313,7 @@ public class TimeSeriesCommands : TimeSeriesCommandsAsync, ITimeSeriesCommands
         IReadOnlyCollection<string> filter,
         bool latest = false,
         IReadOnlyCollection<TimeStamp>? filterByTs = null,
-        (long, long)? filterByValue = null,
+        (double, double)? filterByValue = null,
         bool? withLabels = null,
         IReadOnlyCollection<string>? selectLabels = null,
         long? count = null,
@@ -322,6 +371,82 @@ public class TimeSeriesCommands : TimeSeriesCommandsAsync, ITimeSeriesCommands
     public IReadOnlyList<string> QueryIndex(IReadOnlyCollection<string> filter)
     {
         return _db.Execute(TimeSeriesCommandsBuilder.QueryIndex(filter)).ToStringList();
+    }
+
+    /// <inheritdoc/>
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    public IReadOnlyList<string> QueryLabelNames(IReadOnlyCollection<string>? filter = null)
+    {
+        return _db.Execute(TimeSeriesCommandsBuilder.QueryLabelNames(filter)).ToStringList();
+    }
+
+    /// <inheritdoc/>
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    public IReadOnlyList<string> QueryLabelValues(string label, IReadOnlyCollection<string>? filter = null)
+    {
+        return _db.Execute(TimeSeriesCommandsBuilder.QueryLabelValues(label, filter)).ToStringList();
+    }
+
+    /// <inheritdoc/>
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    public IReadOnlyList<TimeSeriesPivotRow> NRange(
+        IReadOnlyList<string> keys,
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        TimeSeriesRangeFlags flags = TimeSeriesRangeFlags.None,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (double, double)? filterByValue = null,
+        long? count = null,
+        TimeStamp? align = null,
+        IReadOnlyList<TsAggregations>? aggregations = null,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null)
+    {
+        return _db.Execute(TimeSeriesCommandsBuilder.NRange(keys, fromTimeStamp, toTimeStamp, flags, filterByTs,
+            filterByValue, count, align, aggregations, timeBucket, bt)).ToTimeSeriesPivotRowArray();
+    }
+
+    /// <inheritdoc/>
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    public IReadOnlyList<TimeSeriesPivotRow> NRevRange(
+        IReadOnlyList<string> keys,
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        TimeSeriesRangeFlags flags = TimeSeriesRangeFlags.None,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (double, double)? filterByValue = null,
+        long? count = null,
+        TimeStamp? align = null,
+        IReadOnlyList<TsAggregations>? aggregations = null,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null)
+    {
+        return _db.Execute(TimeSeriesCommandsBuilder.NRevRange(keys, fromTimeStamp, toTimeStamp, flags, filterByTs,
+            filterByValue, count, align, aggregations, timeBucket, bt)).ToTimeSeriesPivotRowArray();
+    }
+
+    /// <inheritdoc/>
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    public IReadOnlyList<TimeSeriesTuple> Read(string key, TimeStamp timestamp, long? maxCount = null)
+    {
+        return _db.Execute(TimeSeriesCommandsBuilder.Read(key, timestamp, maxCount)).ToTimeSeriesTupleArray();
+    }
+
+    /// <inheritdoc/>
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    public IEnumerable<TimeSeriesTuple> ReadEnumerable(string key, TimeStamp fromTimeStamp, long? batchSize = null)
+    {
+        TimeStamp cursor = fromTimeStamp;
+        while (true)
+        {
+            var batch = Read(key, cursor, batchSize);
+            if (batch.Count == 0) yield break;
+            foreach (var tuple in batch) yield return tuple;
+            // stop when the page is not full (drained); otherwise advance the cursor past the last sample.
+            if (batchSize is not { } size || batch.Count < size) yield break;
+            long last = batch[batch.Count - 1].Time;
+            cursor = last + 1;
+        }
     }
 
     #endregion

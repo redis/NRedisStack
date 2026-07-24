@@ -66,8 +66,11 @@ internal readonly struct SkipIfRedisCore
             }
         }
 
-        var targetVersion = new Version(_targetVersion);
-        int comparisonResult = redisVersion.CompareTo(targetVersion);
+        // Normalize so an unspecified component (e.g. "8.10", where Build/Revision are -1) compares equal to the
+        // same version with explicit zeros ("8.10.0"). Without this, the CI matrix value "8.10" would sort below
+        // a target of "8.10.0" and skip features introduced in that version on their own matrix entry.
+        var targetVersion = Normalize(new Version(_targetVersion));
+        int comparisonResult = Normalize(redisVersion).CompareTo(targetVersion);
 
         switch (_comparison)
         {
@@ -96,6 +99,10 @@ internal readonly struct SkipIfRedisCore
             return "Test skipped, because:" + skipReason;
         return null;
     }
+
+    // Treats unspecified version components (-1) as 0, so "8.10" and "8.10.0" compare as equal.
+    private static Version Normalize(Version v) =>
+        new(Math.Max(v.Major, 0), Math.Max(v.Minor, 0), Math.Max(v.Build, 0), Math.Max(v.Revision, 0));
 }
 
 /// <summary>

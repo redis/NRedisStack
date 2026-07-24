@@ -1,6 +1,7 @@
 using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 namespace NRedisStack;
 
@@ -169,7 +170,7 @@ public interface ITimeSeriesCommands
         TimeStamp toTimeStamp,
         bool latest = false,
         IReadOnlyCollection<TimeStamp>? filterByTs = null,
-        (long, long)? filterByValue = null,
+        (double, double)? filterByValue = null,
         long? count = null,
         TimeStamp? align = null,
         TsAggregations aggregation = default,
@@ -220,7 +221,7 @@ public interface ITimeSeriesCommands
         TimeStamp toTimeStamp,
         bool latest = false,
         IReadOnlyCollection<TimeStamp>? filterByTs = null,
-        (long, long)? filterByValue = null,
+        (double, double)? filterByValue = null,
         long? count = null,
         TimeStamp? align = null,
         TsAggregations aggregation = default,
@@ -265,6 +266,40 @@ public interface ITimeSeriesCommands
         TsBucketTimestamps? bt = null,
         bool empty = false);
 
+    /// <summary>
+    /// Query a timestamp range across multiple time-series by filters.
+    /// </summary>
+    /// <param name="fromTimeStamp"> Start timestamp for the range query. - can be used to express the minimum possible timestamp.</param>
+    /// <param name="toTimeStamp">End timestamp for range query, + can be used to express the maximum possible timestamp.</param>
+    /// <param name="filter">A sequence of filters</param>
+    /// <param name="flags">Optional: combination of <see cref="TimeSeriesRangeFlags"/> modifiers (LATEST, EMPTY, WITHLABELS, EXCLUDEEMPTY).</param>
+    /// <param name="filterByTs">Optional: List of timestamps to filter the result by specific timestamps</param>
+    /// <param name="filterByValue">Optional: Filter result by value using minimum and maximum</param>
+    /// <param name="selectLabels">Optional: Include in the reply only a subset of the key-value pair labels of a series. Cannot be combined with <see cref="TimeSeriesRangeFlags.WithLabels"/>.</param>
+    /// <param name="count">Optional: Maximum number of returned results per time-series.</param>
+    /// <param name="align">Optional: Timestamp for alignment control for aggregation.</param>
+    /// <param name="aggregation">Optional: Aggregation type</param>
+    /// <param name="timeBucket">Optional: Time bucket for aggregation in milliseconds</param>
+    /// <param name="bt">Optional: controls how bucket timestamps are reported.</param>
+    /// <param name="groupbyTuple">Optional: Grouping by fields the results, and applying reducer functions on each group.</param>
+    /// <returns>A list of (key, labels, values) tuples. Each tuple contains the key name, its labels and the values which satisfies the given range and filters.</returns>
+    /// <remarks><seealso href="https://redis.io/commands/ts.mrange"/></remarks>
+    [OverloadResolutionPriority(2)]
+    IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)> MRange(
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        IReadOnlyCollection<string> filter,
+        TimeSeriesRangeFlags flags = TimeSeriesRangeFlags.None,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (double, double)? filterByValue = null,
+        IReadOnlyCollection<string>? selectLabels = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        (string, TsReduce)? groupbyTuple = null);
+
     [OverloadResolutionPriority(1)]
     IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)> MRange(
         TimeStamp fromTimeStamp,
@@ -272,7 +307,7 @@ public interface ITimeSeriesCommands
         IReadOnlyCollection<string> filter,
         bool latest = false,
         IReadOnlyCollection<TimeStamp>? filterByTs = null,
-        (long, long)? filterByValue = null,
+        (double, double)? filterByValue = null,
         bool? withLabels = null,
         IReadOnlyCollection<string>? selectLabels = null,
         long? count = null,
@@ -327,6 +362,40 @@ public interface ITimeSeriesCommands
         bool empty = false,
         (string, TsReduce)? groupbyTuple = null);
 
+    /// <summary>
+    /// Query a timestamp range in reverse order across multiple time-series by filters.
+    /// </summary>
+    /// <param name="fromTimeStamp"> Start timestamp for the range query. - can be used to express the minimum possible timestamp.</param>
+    /// <param name="toTimeStamp">End timestamp for range query, + can be used to express the maximum possible timestamp.</param>
+    /// <param name="filter">A sequence of filters</param>
+    /// <param name="flags">Optional: combination of <see cref="TimeSeriesRangeFlags"/> modifiers (LATEST, EMPTY, WITHLABELS, EXCLUDEEMPTY).</param>
+    /// <param name="filterByTs">Optional: List of timestamps to filter the result by specific timestamps</param>
+    /// <param name="filterByValue">Optional: Filter result by value using minimum and maximum</param>
+    /// <param name="selectLabels">Optional: Include in the reply only a subset of the key-value pair labels of a series. Cannot be combined with <see cref="TimeSeriesRangeFlags.WithLabels"/>.</param>
+    /// <param name="count">Optional: Maximum number of returned results per time-series.</param>
+    /// <param name="align">Optional: Timestamp for alignment control for aggregation.</param>
+    /// <param name="aggregation">Optional: Aggregation type</param>
+    /// <param name="timeBucket">Optional: Time bucket for aggregation in milliseconds</param>
+    /// <param name="bt">Optional: controls how bucket timestamps are reported.</param>
+    /// <param name="groupbyTuple">Optional: Grouping by fields the results, and applying reducer functions on each group.</param>
+    /// <returns>A list of (key, labels, values) tuples. Each tuple contains the key name, its labels and the values which satisfies the given range and filters.</returns>
+    /// <remarks><seealso href="https://redis.io/commands/ts.mrevrange"/></remarks>
+    [OverloadResolutionPriority(2)]
+    IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)> MRevRange(
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        IReadOnlyCollection<string> filter,
+        TimeSeriesRangeFlags flags = TimeSeriesRangeFlags.None,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (double, double)? filterByValue = null,
+        IReadOnlyCollection<string>? selectLabels = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        (string, TsReduce)? groupbyTuple = null);
+
     [OverloadResolutionPriority(1)]
     IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)> MRevRange(
         TimeStamp fromTimeStamp,
@@ -334,7 +403,7 @@ public interface ITimeSeriesCommands
         IReadOnlyCollection<string> filter,
         bool latest = false,
         IReadOnlyCollection<TimeStamp>? filterByTs = null,
-        (long, long)? filterByValue = null,
+        (double, double)? filterByValue = null,
         bool? withLabels = null,
         IReadOnlyCollection<string>? selectLabels = null,
         long? count = null,
@@ -409,6 +478,124 @@ public interface ITimeSeriesCommands
     /// <returns>A list of keys with labels matching the filters.</returns>
     /// <remarks><seealso href="https://redis.io/commands/ts.queryindex"/></remarks>
     IReadOnlyList<string> QueryIndex(IReadOnlyCollection<string> filter);
+
+    /// <summary>
+    /// Get the unique set of all label names across the time series matching the (optional) filter.
+    /// </summary>
+    /// <param name="filter">Optional: a sequence of label filter expressions (the same language as
+    /// <see cref="QueryIndex"/> / MRANGE / MGET). When omitted or empty, all indexed series are queried.</param>
+    /// <returns>The distinct label names; the collection is unordered and may be empty.</returns>
+    /// <remarks><seealso href="https://redis.io/commands/ts.querylabels"/></remarks>
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    IReadOnlyList<string> QueryLabelNames(IReadOnlyCollection<string>? filter = null);
+
+    /// <summary>
+    /// Get the unique set of all values assigned to <paramref name="label"/> across the time series matching
+    /// the (optional) filter.
+    /// </summary>
+    /// <param name="label">The label name whose values are returned.</param>
+    /// <param name="filter">Optional: a sequence of label filter expressions (the same language as
+    /// <see cref="QueryIndex"/> / MRANGE / MGET). When omitted or empty, all indexed series are queried.</param>
+    /// <returns>The distinct values of <paramref name="label"/>; the collection is unordered and may be empty.</returns>
+    /// <remarks><seealso href="https://redis.io/commands/ts.querylabels"/></remarks>
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    IReadOnlyList<string> QueryLabelValues(string label, IReadOnlyCollection<string>? filter = null);
+
+    /// <summary>
+    /// Query a timestamp range across multiple time-series by key, returning a pivot (outer-join-by-timestamp)
+    /// result: one row per distinct timestamp, with one value per key in <paramref name="keys"/> order.
+    /// </summary>
+    /// <param name="keys">The keys to query; column order in each row follows this order, and duplicates are preserved.</param>
+    /// <param name="fromTimeStamp">Start timestamp for the range query; - can be used for the minimum possible timestamp.</param>
+    /// <param name="toTimeStamp">End timestamp for the range query; + can be used for the maximum possible timestamp.</param>
+    /// <param name="flags">Optional: range modifiers (see <see cref="TimeSeriesRangeFlags"/>). Compatibility is
+    /// enforced by the server, not the client.</param>
+    /// <param name="filterByTs">Optional: list of timestamps to filter the result by specific timestamps.</param>
+    /// <param name="filterByValue">Optional: filter result by value using minimum and maximum.</param>
+    /// <param name="count">Optional: maximum number of pivot rows to return.</param>
+    /// <param name="align">Optional: timestamp for alignment control for aggregation.</param>
+    /// <param name="aggregations">Optional: one aggregator group per key (in key order) for aggregation mode.
+    /// Each group is a <see cref="TsAggregations"/> and may hold multiple aggregators, yielding multiple value
+    /// columns for that key; a single <see cref="TsAggregation"/> converts implicitly to a one-aggregator group.
+    /// The number of groups must equal the number of keys.</param>
+    /// <param name="timeBucket">Optional: time bucket for aggregation in milliseconds.</param>
+    /// <param name="bt">Optional: controls how bucket timestamps are reported.</param>
+    /// <returns>The pivot rows; missing cells are <see cref="double.NaN"/>. May be empty.</returns>
+    /// <remarks><seealso href="https://redis.io/commands/ts.nrange"/></remarks>
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    IReadOnlyList<TimeSeriesPivotRow> NRange(
+        IReadOnlyList<string> keys,
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        TimeSeriesRangeFlags flags = TimeSeriesRangeFlags.None,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (double, double)? filterByValue = null,
+        long? count = null,
+        TimeStamp? align = null,
+        IReadOnlyList<TsAggregations>? aggregations = null,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null);
+
+    /// <summary>
+    /// As <see cref="NRange"/>, but pivot rows are returned in reverse (decreasing) timestamp order.
+    /// </summary>
+    /// <param name="keys">The keys to query; column order in each row follows this order, and duplicates are preserved.</param>
+    /// <param name="fromTimeStamp">Start timestamp for the range query; - can be used for the minimum possible timestamp.</param>
+    /// <param name="toTimeStamp">End timestamp for the range query; + can be used for the maximum possible timestamp.</param>
+    /// <param name="flags">Optional: range modifiers (see <see cref="TimeSeriesRangeFlags"/>). Compatibility is
+    /// enforced by the server, not the client.</param>
+    /// <param name="filterByTs">Optional: list of timestamps to filter the result by specific timestamps.</param>
+    /// <param name="filterByValue">Optional: filter result by value using minimum and maximum.</param>
+    /// <param name="count">Optional: maximum number of pivot rows to return.</param>
+    /// <param name="align">Optional: timestamp for alignment control for aggregation.</param>
+    /// <param name="aggregations">Optional: one aggregator group per key (in key order) for aggregation mode.
+    /// Each group is a <see cref="TsAggregations"/> and may hold multiple aggregators, yielding multiple value
+    /// columns for that key; a single <see cref="TsAggregation"/> converts implicitly to a one-aggregator group.
+    /// The number of groups must equal the number of keys.</param>
+    /// <param name="timeBucket">Optional: time bucket for aggregation in milliseconds.</param>
+    /// <param name="bt">Optional: controls how bucket timestamps are reported.</param>
+    /// <returns>The pivot rows in reverse timestamp order; missing cells are <see cref="double.NaN"/>. May be empty.</returns>
+    /// <remarks><seealso href="https://redis.io/commands/ts.nrevrange"/></remarks>
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    IReadOnlyList<TimeSeriesPivotRow> NRevRange(
+        IReadOnlyList<string> keys,
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        TimeSeriesRangeFlags flags = TimeSeriesRangeFlags.None,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (double, double)? filterByValue = null,
+        long? count = null,
+        TimeStamp? align = null,
+        IReadOnlyList<TsAggregations>? aggregations = null,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null);
+
+    /// <summary>
+    /// Read a batch of samples from <paramref name="key"/> with timestamp at or after <paramref name="timestamp"/>,
+    /// in ascending timestamp order, returning immediately with whatever qualifies.
+    /// </summary>
+    /// <param name="key">Key name for the time-series.</param>
+    /// <param name="timestamp">Lower bound (inclusive); a non-negative integer, or the sentinels - (earliest)
+    /// or + (latest existing sample). Sent to the server as-is.</param>
+    /// <param name="maxCount">Optional: return at most this many samples.</param>
+    /// <returns>The qualifying samples in ascending timestamp order; an empty list is a valid, successful reply.</returns>
+    /// <remarks>The server's BLOCK (wait-for-samples) mode is intentionally not exposed, as blocking does not
+    /// compose with the SE.Redis multiplexer. <seealso href="https://redis.io/commands/ts.read"/></remarks>
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    IReadOnlyList<TimeSeriesTuple> Read(string key, TimeStamp timestamp, long? maxCount = null);
+
+    /// <summary>
+    /// Enumerate all samples of <paramref name="key"/> from <paramref name="fromTimeStamp"/> onward in ascending
+    /// timestamp order, transparently paging through the series with repeated <see cref="Read"/> calls (each
+    /// advancing the cursor past the last returned sample) so the caller does not manage cursor state.
+    /// </summary>
+    /// <param name="key">Key name for the time-series.</param>
+    /// <param name="fromTimeStamp">Lower bound (inclusive) to start from; a non-negative integer or the - / + sentinels.</param>
+    /// <param name="batchSize">Optional: page size (per underlying <c>MAX_COUNT</c>); when omitted, everything is read in one call.</param>
+    /// <returns>A lazy sequence of samples; enumeration ends when a non-full page is reached.</returns>
+    /// <remarks><seealso href="https://redis.io/commands/ts.read"/></remarks>
+    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
+    IEnumerable<TimeSeriesTuple> ReadEnumerable(string key, TimeStamp fromTimeStamp, long? batchSize = null);
 
     #endregion
 }

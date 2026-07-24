@@ -135,14 +135,26 @@ public static class TimeSeriesAux
         }
     }
 
+    public static void AddFilterByValue(this List<object> args, (double, double)? filter)
+    {
+        if (filter != null)
+        {
+            args.Add(TimeSeriesArgs.FILTER_BY_VALUE);
+            args.Add(filter.Value.Item1);
+            args.Add(filter.Value.Item2);
+        }
+    }
+
     public static void AddWithLabels(this IList<object> args, bool? withLabels, IReadOnlyCollection<string>? selectLabels = null)
     {
-        if (withLabels.HasValue && selectLabels != null)
+        // WITHLABELS is only emitted when withLabels == true; when it is false it is a no-op, so only the
+        // actively-requested case conflicts with an explicit selectLabels set.
+        if (withLabels == true && selectLabels != null)
         {
             throw new ArgumentException("withLabels and selectLabels cannot be specified together.");
         }
 
-        if (withLabels.HasValue && withLabels.Value)
+        if (withLabels == true)
         {
             args.Add(TimeSeriesArgs.WITHLABELS);
         }
@@ -176,7 +188,7 @@ public static class TimeSeriesAux
 
     public static void AddRule(this IList<object> args, TimeSeriesRule rule)
     {
-        args.Add(rule.DestKey);
+        args.Add((RedisKey)rule.DestKey);
         args.Add(TimeSeriesArgs.AGGREGATION);
         args.Add(rule.Aggregation.AsArg());
         args.Add(rule.TimeBucket);
@@ -185,7 +197,7 @@ public static class TimeSeriesAux
     public static List<object> BuildTsDelArgs(string key, TimeStamp fromTimeStamp, TimeStamp toTimeStamp)
     {
         var args = new List<object>
-            {key, fromTimeStamp.Value, toTimeStamp.Value};
+            {(RedisKey)key, fromTimeStamp.Value, toTimeStamp.Value};
         return args;
     }
 
@@ -194,7 +206,7 @@ public static class TimeSeriesAux
         var args = new List<object>();
         foreach (var tuple in sequence)
         {
-            args.Add(tuple.key);
+            args.Add((RedisKey)tuple.key);
             args.Add(tuple.timestamp.Value);
             args.Add(tuple.value);
         }
@@ -216,7 +228,7 @@ public static class TimeSeriesAux
         TimeStamp toTimeStamp,
         bool latest,
         IReadOnlyCollection<TimeStamp>? filterByTs,
-        (long, long)? filterByValue,
+        (double, double)? filterByValue,
         long? count,
         TimeStamp? align,
         TsAggregations aggregation,
@@ -250,13 +262,54 @@ public static class TimeSeriesAux
         TsBucketTimestamps? bt,
         bool empty) => BuildRangeArgs(key, fromTimeStamp, toTimeStamp, latest, filterByTs, filterByValue, count, align, (TsAggregations)aggregation, timeBucket, bt, empty);
 
+    [OverloadResolutionPriority(2)]
+    public static List<object> BuildMultiRangeArgs(TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        IReadOnlyCollection<string> filter,
+        TimeSeriesRangeFlags flags,
+        IReadOnlyCollection<TimeStamp>? filterByTs,
+        (double, double)? filterByValue,
+        IReadOnlyCollection<string>? selectLabels,
+        long? count,
+        TimeStamp? align,
+        TsAggregations aggregation,
+        long? timeBucket,
+        TsBucketTimestamps? bt,
+        (string, TsReduce)? groupbyTuple)
+    {
+        var args = new List<object>() { fromTimeStamp.Value, toTimeStamp.Value };
+        args.AddLatest((flags & TimeSeriesRangeFlags.Latest) != 0);
+        args.AddFilterByTs(filterByTs);
+        args.AddFilterByValue(filterByValue);
+        // withLabels is passed as true only when the flag is set, otherwise null (never false) so that
+        // supplying selectLabels does not trip the WITHLABELS/SELECTED_LABELS mutual-exclusion check.
+        args.AddWithLabels((flags & TimeSeriesRangeFlags.WithLabels) != 0 ? true : null, selectLabels);
+        args.AddCount(count);
+        args.AddAggregation(align, aggregation, timeBucket, bt, (flags & TimeSeriesRangeFlags.Empty) != 0);
+        // EXCLUDEEMPTY must precede FILTER: the FILTER argument list is variadic and would otherwise
+        // consume the EXCLUDEEMPTY token as a filter expression.
+        if ((flags & TimeSeriesRangeFlags.ExcludeEmpty) != 0) args.Add(TimeSeriesArgs.EXCLUDEEMPTY);
+        args.AddFilters(filter);
+        args.AddGroupby(groupbyTuple);
+        return args;
+    }
+
+    internal static TimeSeriesRangeFlags ToRangeFlags(bool latest, bool? withLabels, bool empty)
+    {
+        var flags = TimeSeriesRangeFlags.None;
+        if (latest) flags |= TimeSeriesRangeFlags.Latest;
+        if (empty) flags |= TimeSeriesRangeFlags.Empty;
+        if (withLabels == true) flags |= TimeSeriesRangeFlags.WithLabels;
+        return flags;
+    }
+
     [OverloadResolutionPriority(1)]
     public static List<object> BuildMultiRangeArgs(TimeStamp fromTimeStamp,
         TimeStamp toTimeStamp,
         IReadOnlyCollection<string> filter,
         bool latest,
         IReadOnlyCollection<TimeStamp>? filterByTs,
-        (long, long)? filterByValue,
+        (double, double)? filterByValue,
         bool? withLabels,
         IReadOnlyCollection<string>? selectLabels,
         long? count,
@@ -265,19 +318,9 @@ public static class TimeSeriesAux
         long? timeBucket,
         TsBucketTimestamps? bt,
         bool empty,
-        (string, TsReduce)? groupbyTuple)
-    {
-        var args = new List<object>() { fromTimeStamp.Value, toTimeStamp.Value };
-        args.AddLatest(latest);
-        args.AddFilterByTs(filterByTs);
-        args.AddFilterByValue(filterByValue);
-        args.AddWithLabels(withLabels, selectLabels);
-        args.AddCount(count);
-        args.AddAggregation(align, aggregation, timeBucket, bt, empty);
-        args.AddFilters(filter);
-        args.AddGroupby(groupbyTuple);
-        return args;
-    }
+        (string, TsReduce)? groupbyTuple) =>
+        BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, ToRangeFlags(latest, withLabels, empty),
+            filterByTs, filterByValue, selectLabels, count, align, aggregation, timeBucket, bt, groupbyTuple);
 
     [Obsolete]
     [Browsable(false)]
@@ -299,6 +342,65 @@ public static class TimeSeriesAux
         bool empty,
         (string, TsReduce)? groupbyTuple) =>
         BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, latest, filterByTs, filterByValue, withLabels, selectLabels, count, align, (TsAggregations)aggregation, timeBucket, bt, empty, groupbyTuple);
+
+    /// <summary>
+    /// Builds the argument list shared by <c>TS.NRANGE</c> / <c>TS.NREVRANGE</c>: <c>numkeys key [key ...]
+    /// fromTimestamp toTimestamp</c> followed by the optional range modifiers.
+    /// </summary>
+    /// <remarks>
+    /// Flag/option compatibility is largely left to the server (its rules are inconsistent, so arguments are
+    /// emitted verbatim and it reports its own errors); the per-key aggregator count is likewise validated
+    /// server-side against numkeys. Two client-side exceptions: <c>EMPTY</c> is emitted at the tail of the
+    /// <c>AGGREGATION</c> clause (the server rejects it elsewhere), and - mirroring TS.RANGE - the
+    /// aggregation-clause options (<c>align</c> / <c>timeBucket</c> / <c>BUCKETTIMESTAMP</c> / <c>EMPTY</c>)
+    /// throw when supplied without an aggregator, since they have no wire representation without one and would
+    /// otherwise be silently dropped.
+    /// </remarks>
+    public static List<object> BuildNRangeArgs(
+        IReadOnlyList<string> keys,
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        TimeSeriesRangeFlags flags,
+        IReadOnlyCollection<TimeStamp>? filterByTs,
+        (double, double)? filterByValue,
+        long? count,
+        TimeStamp? align,
+        IReadOnlyList<TsAggregations>? aggregations,
+        long? timeBucket,
+        TsBucketTimestamps? bt)
+    {
+        var args = new List<object>(keys.Count + 4) { keys.Count };
+        foreach (var key in keys) args.Add((RedisKey)key);
+        args.Add(fromTimeStamp.Value);
+        args.Add(toTimeStamp.Value);
+
+        if ((flags & TimeSeriesRangeFlags.Latest) != 0) args.Add(TimeSeriesArgs.LATEST);
+        if ((flags & TimeSeriesRangeFlags.WithLabels) != 0) args.Add(TimeSeriesArgs.WITHLABELS);
+        if ((flags & TimeSeriesRangeFlags.ExcludeEmpty) != 0) args.Add(TimeSeriesArgs.EXCLUDEEMPTY);
+        args.AddFilterByTs(filterByTs);
+        args.AddFilterByValue(filterByValue);
+        args.AddCount(count);
+        if (aggregations is { Count: > 0 })
+        {
+            args.AddAlign(align);
+            args.Add(TimeSeriesArgs.AGGREGATION);
+            // one comma-joined aggregator group per key (group count must equal numkeys, enforced server-side);
+            // each group may itself hold multiple aggregators, producing multiple value columns for that key.
+            foreach (var group in aggregations) args.Add(GetAggregationArgs(group));
+            if (timeBucket.HasValue) args.Add(timeBucket.Value);
+            args.AddBucketTimestamp(bt);
+            // EMPTY must follow the AGGREGATION clause; the server rejects it in an earlier position.
+            if ((flags & TimeSeriesRangeFlags.Empty) != 0) args.Add(TimeSeriesArgs.EMPTY);
+        }
+        else if (align != null || timeBucket != null || bt != null || (flags & TimeSeriesRangeFlags.Empty) != 0)
+        {
+            // mirror TS.RANGE: these are aggregation-clause options with no wire representation (and no meaning)
+            // without an aggregator. Emitting nothing would silently drop them and the server would never see
+            // the mistake, so reject the local misuse instead.
+            throw new ArgumentException("align, timeBucket, BucketTimestamps or empty cannot be defined without Aggregation");
+        }
+        return args;
+    }
 
     private static string GetAggregationArgs(TsAggregations aggregations)
     {

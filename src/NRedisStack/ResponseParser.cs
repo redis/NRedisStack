@@ -168,6 +168,20 @@ internal static class ResponseParser
         return list;
     }
 
+    public static IReadOnlyList<TimeSeriesPivotRow> ToTimeSeriesPivotRowArray(this RedisResult result)
+    {
+        RedisResult[] rows = (RedisResult[])result!;
+        var list = new List<TimeSeriesPivotRow>(rows.Length);
+        foreach (var row in rows)
+        {
+            // each row is [timestamp, [value_0, value_1, ... value_n]]; values use the same NaN-aware
+            // double parsing as TS.RANGE so missing samples/buckets surface as double.NaN, not null.
+            RedisResult[] pair = (RedisResult[])row!;
+            list.Add(new TimeSeriesPivotRow(ToTimeStamp(pair[0]), pair[1].ToDoubleArray()));
+        }
+        return list;
+    }
+
     public static List<TimeSeriesLabel> ToLabelArray(this RedisResult result)
     {
         if (result.Resp3Type is ResultType.Map) // RESP3; single map

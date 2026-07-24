@@ -10,9 +10,10 @@ public class TestQueryIndex(EndpointsFixture endpointsFixture) : AbstractNRedisS
     private readonly string[] keys = ["QUERYINDEX_TESTS_1", "QUERYINDEX_TESTS_2"];
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestTSQueryIndex(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         var label1 = new TimeSeriesLabel("QUERYINDEX_TESTS_1", "value");
@@ -22,7 +23,7 @@ public class TestQueryIndex(EndpointsFixture endpointsFixture) : AbstractNRedisS
 
         ts.Create(keys[0], labels: labels1);
         ts.Create(keys[1], labels: labels2);
-        Assert.Equal(keys, ts.QueryIndex(new List<string> { "QUERYINDEX_TESTS_1=value" }));
+        AssertKeysUnordered(keys, ts.QueryIndex(new List<string> { "QUERYINDEX_TESTS_1=value" }));
         Assert.Equal(new List<string> { keys[0] }, ts.QueryIndex(new List<string> { "QUERYINDEX_TESTS_2=value2" }));
     }
 }
