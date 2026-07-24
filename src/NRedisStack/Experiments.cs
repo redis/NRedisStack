@@ -1,12 +1,17 @@
 namespace NRedisStack
 {
     // [Experimental(Experiments.SomeFeature, UrlFormat = Experiments.UrlFormat)]
-    // where SomeFeature has the next label, for example "NRS042", and /docs/exp/NRS042.md exists
+    // where SomeFeature has the next label, for example "NRS042", and /docs/exp/NRS042.md exists.
+    //
+    // Retired diagnostic ids (features graduated out of [Experimental]; the /docs/exp/ entries are kept
+    // for history). Do not reuse these ids:
+    //   NRS001 - Redis 8.4 hybrid search
+    //   NRS002 - Redis 8.8 multi-aggregate time-series
     internal static class Experiments
     {
-        public const string Server_8_8 = "NRS002";
         public const string Server_8_10 = "NRS003";
-        public const string UrlFormat = "https://redis.github.io/NRedisStack/exp/";
+        // {0} is substituted with the diagnostic id, e.g. NRS042 -> https://redis.github.io/NRedisStack/exp/NRS042
+        public const string UrlFormat = "https://redis.github.io/NRedisStack/exp/{0}";
     }
 }
 
