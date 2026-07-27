@@ -77,6 +77,19 @@ public abstract class AbstractNRedisStackTest : IClassFixture<EndpointsFixture>,
             && EndpointsFixture.RedisVersion.Major < 8, "Ignoring cluster tests pre Redis 8.0");
     }
 
+    // The keyless TS.* filter/label commands (MRANGE/MREVRANGE/MGET/QUERYINDEX/QUERYLABELNAMES/QUERYLABELVALUES)
+    // select by FILTER and carry no key, so the client cannot route them to a specific shard - they land on an
+    // arbitrary primary. Server-side cluster-wide gather for these was only added in Redis 8.10; before that they
+    // execute shard-locally and return only the series that happen to live on the node the command reached (so on
+    // cluster the result is non-deterministic, usually empty -> flaky "Expected N, Actual 0"). Gate these on
+    // cluster to 8.10+. Keyed commands route by RedisKey and are exercised from 8.0 via SkipClusterPre8.
+    protected static void SkipClusterFanoutPre8_10(string endpointId)
+    {
+        Assert.SkipWhen(endpointId == EndpointsFixture.Env.Cluster
+            && EndpointsFixture.RedisVersion < new Version(8, 10),
+            "Cluster-wide gather for keyless TS.* FILTER commands requires Redis 8.10+");
+    }
+
     // The keyless TS.* filter commands (MGET/MRANGE/QUERYINDEX/...) fan out cluster-wide and return the full
     // result set, but in a shard-aggregation order that need not match the input order. These helpers compare
     // order-insensitively so the tests are valid on both standalone and cluster.

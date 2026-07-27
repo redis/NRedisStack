@@ -36,7 +36,7 @@ public class TestMRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestSimpleMRange(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         TimeSeriesLabel label = new("MRANGEkey", "MRANGEvalue");
@@ -61,7 +61,7 @@ public class TestMRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRangeWithLabels(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         TimeSeriesLabel label = new("key", "MRangeWithLabels");
@@ -87,7 +87,7 @@ public class TestMRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRangeSelectLabels(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         TimeSeriesLabel label1 = new("key", "MRangeSelectLabels");
@@ -118,7 +118,7 @@ public class TestMRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRangeFilter(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         TimeSeriesLabel label = new("key", "MRangeFilter");
@@ -137,7 +137,7 @@ public class TestMRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRangeCount(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         TimeSeriesLabel label = new("key", "MRangeCount");
@@ -164,7 +164,7 @@ public class TestMRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRangeAggregation(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         TimeSeriesLabel label = new("key", "MRangeAggregation");
@@ -190,7 +190,7 @@ public class TestMRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRangeMultiAggregation(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         var keys = CreateKeyNames(2);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -225,7 +225,7 @@ public class TestMRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRangeMultiAggregationWithMultiplePointsPerBucket(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         var keys = CreateKeyNames(2);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -261,7 +261,7 @@ public class TestMRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRangeAlign(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         TimeSeriesLabel label = new("key", "MRangeAlign");
@@ -321,7 +321,7 @@ public class TestMRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRangeGroupby(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         for (int i = 0; i < _keys.Length; i++)
@@ -349,7 +349,7 @@ public class TestMRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRangeReduceSum(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         foreach (var key in _keys)
@@ -376,7 +376,7 @@ public class TestMRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRangeReduceAvg(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         foreach (var key in _keys)
@@ -403,7 +403,7 @@ public class TestMRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRangeReduceRange(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         foreach (var key in _keys)
@@ -430,7 +430,7 @@ public class TestMRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRangeReduceCount(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         foreach (var key in _keys)
@@ -457,7 +457,7 @@ public class TestMRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRangeReduceStdP(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         foreach (var key in _keys)
@@ -484,7 +484,7 @@ public class TestMRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRangeReduceStdS(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         foreach (var key in _keys)
@@ -511,7 +511,7 @@ public class TestMRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRangeReduceVarP(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         foreach (var key in _keys)
@@ -538,7 +538,7 @@ public class TestMRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRangeReduceVarS(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         foreach (var key in _keys)
@@ -565,7 +565,7 @@ public class TestMRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRangeFilterBy(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         TimeSeriesLabel label = new("key", "MRangeFilterBy");
@@ -595,7 +595,7 @@ public class TestMRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRangeLatest(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         var label = new TimeSeriesLabel("key", "MRangeLatest");
@@ -629,7 +629,7 @@ public class TestMRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRangeExcludeEmpty(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         var label = new TimeSeriesLabel("key", "MRangeExcludeEmpty");
@@ -662,7 +662,7 @@ public class TestMRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMRangeExcludeEmptyRejectsGroupBy(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         // EXCLUDEEMPTY is mutually exclusive with GROUPBY. The client performs no local validation;
         // the server error must propagate unchanged.
         IDatabase db = GetCleanDatabase(endpointId);

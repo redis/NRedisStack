@@ -11,7 +11,7 @@ public class TestMGetAsync(EndpointsFixture endpointsFixture) : AbstractNRedisSt
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMGetQuery(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -41,7 +41,7 @@ public class TestMGetAsync(EndpointsFixture endpointsFixture) : AbstractNRedisSt
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMGetQueryWithLabels(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -71,7 +71,7 @@ public class TestMGetAsync(EndpointsFixture endpointsFixture) : AbstractNRedisSt
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMGetQuerySelectedLabelsAsync(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();

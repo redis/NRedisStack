@@ -19,7 +19,7 @@ public class TestQueryLabelsAsync(EndpointsFixture endpointsFixture) : AbstractN
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestQueryLabelNamesAsync(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         var keys = CreateKeyNames(3);
@@ -41,7 +41,7 @@ public class TestQueryLabelsAsync(EndpointsFixture endpointsFixture) : AbstractN
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestQueryLabelValuesAsync(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         var keys = CreateKeyNames(3);

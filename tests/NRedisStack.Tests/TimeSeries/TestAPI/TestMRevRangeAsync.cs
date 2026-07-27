@@ -34,7 +34,7 @@ public class TestMRevRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRe
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestSimpleMRevRange(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -61,7 +61,7 @@ public class TestMRevRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRe
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMRevRangeWithLabels(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -88,7 +88,7 @@ public class TestMRevRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRe
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMRevRangeSelectLabels(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         var keys = CreateKeyNames(2);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -115,7 +115,7 @@ public class TestMRevRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRe
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMRevRangeFilter(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -135,7 +135,7 @@ public class TestMRevRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRe
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMRevRangeCount(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -163,7 +163,7 @@ public class TestMRevRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRe
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMRangeAggregation(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -190,7 +190,7 @@ public class TestMRevRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRe
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMRevRangeMultiAggregation(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         var keys = CreateKeyNames(2).Select(x => $"{x}:{Guid.NewGuid():N}").ToArray();
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -225,7 +225,7 @@ public class TestMRevRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRe
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMRevRangeMultiAggregationWithMultiplePointsPerBucket(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         var keys = CreateKeyNames(2).Select(x => $"{x}:{Guid.NewGuid():N}").ToArray();
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -261,7 +261,7 @@ public class TestMRevRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRe
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMRevRangeAlign(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -288,7 +288,7 @@ public class TestMRevRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRe
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMissingFilter(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -308,7 +308,7 @@ public class TestMRevRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRe
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMissingTimeBucket(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -333,7 +333,7 @@ public class TestMRevRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRe
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMRevRangeGroupby(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -362,7 +362,7 @@ public class TestMRevRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRe
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMRevRangeReduce(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -391,7 +391,7 @@ public class TestMRevRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRe
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMRevRangeFilterBy(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -422,7 +422,7 @@ public class TestMRevRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRe
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMRevRangeExcludeEmpty(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         var keys = CreateKeyNames(2);

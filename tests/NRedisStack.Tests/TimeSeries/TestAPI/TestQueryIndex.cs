@@ -13,7 +13,7 @@ public class TestQueryIndex(EndpointsFixture endpointsFixture) : AbstractNRedisS
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestTSQueryIndex(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         var label1 = new TimeSeriesLabel("QUERYINDEX_TESTS_1", "value");

@@ -15,7 +15,7 @@ public class TestMGet(EndpointsFixture endpointsFixture) : AbstractNRedisStackTe
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMGetQuery(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
 
@@ -44,7 +44,7 @@ public class TestMGet(EndpointsFixture endpointsFixture) : AbstractNRedisStackTe
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMGetQueryWithLabels(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
 
@@ -73,7 +73,7 @@ public class TestMGet(EndpointsFixture endpointsFixture) : AbstractNRedisStackTe
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestMGetQuerySelectedLabels(string endpointId)
     {
-        SkipClusterPre8(endpointId);
+        SkipClusterFanoutPre8_10(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
 
