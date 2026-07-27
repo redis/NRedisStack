@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using System.Diagnostics.CodeAnalysis;
 
 namespace NRedisStack.DataTypes;
 
@@ -56,7 +55,6 @@ public class TimeSeriesTuple(TimeStamp time, double val)
     /// <param name="index">The index of the aggregate (relative to the requested aggregates).</param>
     public virtual double this[int index]
     {
-        [Experimental(Experiments.Server_8_8, UrlFormat = Experiments.UrlFormat)]
         get => index is 0 ? Val : Array.Empty<double>()[0]; // for consistent error
     }
 
@@ -65,7 +63,6 @@ public class TimeSeriesTuple(TimeStamp time, double val)
     /// </summary>
     /// <remarks>When a single value is supplied, this is identical to the normal constructor; otherwise,
     /// the individual values are accessible via the indexer.</remarks>
-    [Experimental(Experiments.Server_8_8, UrlFormat = Experiments.UrlFormat)]
     public static TimeSeriesTuple Create(TimeStamp time, ReadOnlyMemory<double> val)
         => val.Length switch
         {

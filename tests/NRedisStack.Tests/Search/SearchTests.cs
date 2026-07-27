@@ -78,12 +78,13 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     {
         SkipClusterPre8(endpointId);
 
-        // Cluster + RESP3 ignores the LIMIT offset server-side: FT.SEARCH returns the window
+        // RESP3 ignores the LIMIT offset server-side: FT.SEARCH returns the window
         // [0, offset+count) instead of [offset, offset+count). This is a RediSearch module bug,
-        // not a client bug (the raw wire reply already contains the wrong documents); skip until fixed.
+        // not a client bug (the raw wire reply already contains the wrong documents). It reproduces
+        // on both cluster and standalone Redis Enterprise databases, so skip both until fixed.
         // https://github.com/RediSearch/RediSearch/issues/10369
-        Assert.SkipWhen(endpointId == EndpointsFixture.Env.Cluster && TestContext.Current.GetRunProtocol().IsResp3(),
-            "RediSearch#10369: FT.SEARCH on cluster+RESP3 ignores the LIMIT offset");
+        Assert.SkipWhen(TestContext.Current.GetRunProtocol().IsResp3(),
+            "RediSearch#10369: FT.SEARCH on RESP3 ignores the LIMIT offset (cluster and standalone)");
 
         IDatabase db = GetCleanDatabase(endpointId);
         var ft = db.FT();
