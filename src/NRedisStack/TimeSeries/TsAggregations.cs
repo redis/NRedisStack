@@ -1,5 +1,4 @@
 using NRedisStack.Literals.Enums;
-using System.Diagnostics.CodeAnalysis;
 
 namespace NRedisStack;
 
@@ -17,7 +16,6 @@ public readonly struct TsAggregations : IEquatable<TsAggregations>
         _aggregations = null;
     }
 
-    [Experimental(Experiments.Server_8_8, UrlFormat = Experiments.UrlFormat)]
     public TsAggregations(params TsAggregation[] aggregations)
     {
         if (aggregations is null or { Length: 0 })
@@ -85,7 +83,6 @@ public readonly struct TsAggregations : IEquatable<TsAggregations>
         ? new(aggregation.Value)
         : default;
 
-    [Experimental(Experiments.Server_8_8, UrlFormat = Experiments.UrlFormat)]
     public static implicit operator TsAggregations(TsAggregation[] aggregations) => new(aggregations);
 
     private int GetSequenceHashCode()
