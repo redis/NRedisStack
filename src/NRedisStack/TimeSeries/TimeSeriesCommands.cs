@@ -445,6 +445,9 @@ public class TimeSeriesCommands : TimeSeriesCommandsAsync, ITimeSeriesCommands
             // stop when the page is not full (drained); otherwise advance the cursor past the last sample.
             if (batchSize is not { } size || batch.Count < size) yield break;
             long last = batch[batch.Count - 1].Time;
+            // a full page ending at the max timestamp is drained: nothing can exist beyond it, and last + 1
+            // would overflow to a negative cursor and issue an invalid TS.READ. Terminate cleanly instead.
+            if (last == long.MaxValue) yield break;
             cursor = last + 1;
         }
     }
