@@ -10,10 +10,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI;
 public class TestRulesAsync(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture)
 {
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
     public async Task TestRulesAdditionDeletion(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var key = CreateKeyName();
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -57,9 +58,10 @@ public class TestRulesAsync(EndpointsFixture endpointsFixture) : AbstractNRedisS
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestNonExistingSrc(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var key = CreateKeyName();
         var aggKey = $"{key}:{TsAggregation.Avg}";
         var db = GetCleanDatabase(endpointId);
@@ -76,9 +78,10 @@ public class TestRulesAsync(EndpointsFixture endpointsFixture) : AbstractNRedisS
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestNonExisitingDestinaion(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var key = CreateKeyName();
         var aggKey = $"{key}:{TsAggregation.Avg}";
         var db = GetCleanDatabase(endpointId);
@@ -93,26 +96,27 @@ public class TestRulesAsync(EndpointsFixture endpointsFixture) : AbstractNRedisS
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAlignTimestampAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
-        await ts.CreateAsync("ts1");
-        await ts.CreateAsync("ts2");
-        await ts.CreateAsync("ts3");
+        await ts.CreateAsync("{ts}ts1");
+        await ts.CreateAsync("{ts}ts2");
+        await ts.CreateAsync("{ts}ts3");
 
-        TimeSeriesRule rule1 = new("ts2", 10, TsAggregation.Count);
-        await ts.CreateRuleAsync("ts1", rule1, 0);
+        TimeSeriesRule rule1 = new("{ts}ts2", 10, TsAggregation.Count);
+        await ts.CreateRuleAsync("{ts}ts1", rule1, 0);
 
-        TimeSeriesRule rule2 = new("ts3", 10, TsAggregation.Count);
-        await ts.CreateRuleAsync("ts1", rule2, 1);
+        TimeSeriesRule rule2 = new("{ts}ts3", 10, TsAggregation.Count);
+        await ts.CreateRuleAsync("{ts}ts1", rule2, 1);
 
-        await ts.AddAsync("ts1", 1, 1);
-        await ts.AddAsync("ts1", 10, 3);
-        await ts.AddAsync("ts1", 21, 7);
+        await ts.AddAsync("{ts}ts1", 1, 1);
+        await ts.AddAsync("{ts}ts1", 10, 3);
+        await ts.AddAsync("{ts}ts1", 21, 7);
 
-        Assert.Equal(2, (await ts.RangeAsync("ts2", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10)).Count);
-        Assert.Single((await ts.RangeAsync("ts3", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10)));
+        Assert.Equal(2, (await ts.RangeAsync("{ts}ts2", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10)).Count);
+        Assert.Single((await ts.RangeAsync("{ts}ts3", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10)));
     }
 }

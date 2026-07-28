@@ -21,7 +21,8 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     // private readonly string key = "SEARCH_TESTS";
     private readonly string index = "TEST_INDEX";
 
-    private static void SkipClusterPre8(string endpointId)
+    // hides the base helper with additional FT.SEARCH-specific cluster skips
+    private new static void SkipClusterPre8(string endpointId)
     {
         // Many of the FT.* commands are ... more awkward pre 8 when using cluster. Rather than
         // fight eventual-consistency/timing issues: grandfather the existing behaviour, and start

@@ -2,6 +2,7 @@ using NRedisStack.Literals;
 using NRedisStack.Literals.Enums;
 using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
+using StackExchange.Redis;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
@@ -94,7 +95,7 @@ public static class TimeSeriesCommandsBuilder
 
     public static SerializedCommand CreateRule(string sourceKey, TimeSeriesRule rule, long alignTimestamp = 0)
     {
-        var args = new List<object> { sourceKey };
+        var args = new List<object> { (RedisKey)sourceKey };
         args.AddRule(rule);
         args.Add(alignTimestamp);
         return new(TS.CREATERULE, args);
@@ -102,7 +103,7 @@ public static class TimeSeriesCommandsBuilder
 
     public static SerializedCommand DeleteRule(string sourceKey, string destKey)
     {
-        var args = new List<object> { sourceKey, destKey };
+        var args = new List<object> { (RedisKey)sourceKey, (RedisKey)destKey };
         return new(TS.DELETERULE, args);
     }
 
@@ -112,8 +113,8 @@ public static class TimeSeriesCommandsBuilder
 
     public static SerializedCommand Get(string key, bool latest = false)
     {
-        return (latest) ? new(TS.GET, key, TimeSeriesArgs.LATEST)
-            : new SerializedCommand(TS.GET, key);
+        return (latest) ? new(TS.GET, (RedisKey)key, TimeSeriesArgs.LATEST)
+            : new SerializedCommand(TS.GET, (RedisKey)key);
     }
 
     public static SerializedCommand MGet(IReadOnlyCollection<string> filter, bool latest = false,
@@ -129,7 +130,7 @@ public static class TimeSeriesCommandsBuilder
         TimeStamp toTimeStamp,
         bool latest = false,
         IReadOnlyCollection<TimeStamp>? filterByTs = null,
-        (long, long)? filterByValue = null,
+        (double, double)? filterByValue = null,
         long? count = null,
         TimeStamp? align = null,
         TsAggregations aggregation = default,
@@ -143,6 +144,26 @@ public static class TimeSeriesCommandsBuilder
 
         return new(TS.RANGE, args);
     }
+
+    // retained for binary compatibility with 1.4.0-1.6.0 (filterByValue was (long, long)); de-prioritised
+    // and hidden so the (double, double) overload always wins overload resolution for new callers.
+    [Obsolete]
+    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [OverloadResolutionPriority(-1)]
+    public static SerializedCommand Range(string key,
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        bool latest = false,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (long, long)? filterByValue = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        bool empty = false) =>
+        Range(key, fromTimeStamp, toTimeStamp, latest, filterByTs, filterByValue, count, align, aggregation, timeBucket, bt, empty);
 
     [Obsolete]
     [Browsable(false)]
@@ -168,7 +189,7 @@ public static class TimeSeriesCommandsBuilder
         TimeStamp toTimeStamp,
         bool latest = false,
         IReadOnlyCollection<TimeStamp>? filterByTs = null,
-        (long, long)? filterByValue = null,
+        (double, double)? filterByValue = null,
         long? count = null,
         TimeStamp? align = null,
         TsAggregations aggregation = default,
@@ -182,6 +203,26 @@ public static class TimeSeriesCommandsBuilder
 
         return new(TS.REVRANGE, args);
     }
+
+    // retained for binary compatibility with 1.4.0-1.6.0 (filterByValue was (long, long)); de-prioritised
+    // and hidden so the (double, double) overload always wins overload resolution for new callers.
+    [Obsolete]
+    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [OverloadResolutionPriority(-1)]
+    public static SerializedCommand RevRange(string key,
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        bool latest = false,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (long, long)? filterByValue = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        bool empty = false) =>
+        RevRange(key, fromTimeStamp, toTimeStamp, latest, filterByTs, filterByValue, count, align, aggregation, timeBucket, bt, empty);
 
     [Obsolete]
     [Browsable(false)]
@@ -201,7 +242,55 @@ public static class TimeSeriesCommandsBuilder
         bool empty = false) =>
         RevRange(key, fromTimeStamp, toTimeStamp, latest, filterByTs, filterByValue, count, align, (TsAggregations)aggregation, timeBucket, bt, empty);
 
+    [OverloadResolutionPriority(2)]
+    public static SerializedCommand MRange(
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        IReadOnlyCollection<string> filter,
+        TimeSeriesRangeFlags flags = TimeSeriesRangeFlags.None,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (double, double)? filterByValue = null,
+        IReadOnlyCollection<string>? selectLabels = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        (string, TsReduce)? groupbyTuple = null)
+    {
+        var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, flags, filterByTs,
+            filterByValue, selectLabels, count, align, aggregation, timeBucket, bt, groupbyTuple);
+        return new(TS.MRANGE, args);
+    }
+
     [OverloadResolutionPriority(1)]
+    public static SerializedCommand MRange(
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        IReadOnlyCollection<string> filter,
+        bool latest = false,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (double, double)? filterByValue = null,
+        bool? withLabels = null,
+        IReadOnlyCollection<string>? selectLabels = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        bool empty = false,
+        (string, TsReduce)? groupbyTuple = null)
+    {
+        return MRange(fromTimeStamp, toTimeStamp, filter, TimeSeriesAux.ToRangeFlags(latest, withLabels, empty),
+            filterByTs, filterByValue, selectLabels, count, align, aggregation, timeBucket, bt, groupbyTuple);
+    }
+
+    // retained for binary compatibility with 1.4.0-1.6.0 (filterByValue was (long, long)); de-prioritised
+    // and hidden so the (double, double) overload always wins overload resolution for new callers.
+    [Obsolete]
+    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [OverloadResolutionPriority(-1)]
     public static SerializedCommand MRange(
         TimeStamp fromTimeStamp,
         TimeStamp toTimeStamp,
@@ -217,13 +306,8 @@ public static class TimeSeriesCommandsBuilder
         long? timeBucket = null,
         TsBucketTimestamps? bt = null,
         bool empty = false,
-        (string, TsReduce)? groupbyTuple = null)
-    {
-        var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, latest, filterByTs,
-            filterByValue, withLabels, selectLabels, count,
-            align, aggregation, timeBucket, bt, empty, groupbyTuple);
-        return new(TS.MRANGE, args);
-    }
+        (string, TsReduce)? groupbyTuple = null) =>
+        MRange(fromTimeStamp, toTimeStamp, filter, latest, filterByTs, filterByValue, withLabels, selectLabels, count, align, aggregation, timeBucket, bt, empty, groupbyTuple);
 
     [Obsolete]
     [Browsable(false)]
@@ -247,7 +331,55 @@ public static class TimeSeriesCommandsBuilder
         (string, TsReduce)? groupbyTuple = null) =>
         MRange(fromTimeStamp, toTimeStamp, filter, latest, filterByTs, filterByValue, withLabels, selectLabels, count, align, (TsAggregations)aggregation, timeBucket, bt, empty, groupbyTuple);
 
+    [OverloadResolutionPriority(2)]
+    public static SerializedCommand MRevRange(
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        IReadOnlyCollection<string> filter,
+        TimeSeriesRangeFlags flags = TimeSeriesRangeFlags.None,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (double, double)? filterByValue = null,
+        IReadOnlyCollection<string>? selectLabels = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        (string, TsReduce)? groupbyTuple = null)
+    {
+        var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, flags, filterByTs,
+            filterByValue, selectLabels, count, align, aggregation, timeBucket, bt, groupbyTuple);
+        return new(TS.MREVRANGE, args);
+    }
+
     [OverloadResolutionPriority(1)]
+    public static SerializedCommand MRevRange(
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        IReadOnlyCollection<string> filter,
+        bool latest = false,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (double, double)? filterByValue = null,
+        bool? withLabels = null,
+        IReadOnlyCollection<string>? selectLabels = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        bool empty = false,
+        (string, TsReduce)? groupbyTuple = null)
+    {
+        return MRevRange(fromTimeStamp, toTimeStamp, filter, TimeSeriesAux.ToRangeFlags(latest, withLabels, empty),
+            filterByTs, filterByValue, selectLabels, count, align, aggregation, timeBucket, bt, groupbyTuple);
+    }
+
+    // retained for binary compatibility with 1.4.0-1.6.0 (filterByValue was (long, long)); de-prioritised
+    // and hidden so the (double, double) overload always wins overload resolution for new callers.
+    [Obsolete]
+    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [OverloadResolutionPriority(-1)]
     public static SerializedCommand MRevRange(
         TimeStamp fromTimeStamp,
         TimeStamp toTimeStamp,
@@ -263,13 +395,8 @@ public static class TimeSeriesCommandsBuilder
         long? timeBucket = null,
         TsBucketTimestamps? bt = null,
         bool empty = false,
-        (string, TsReduce)? groupbyTuple = null)
-    {
-        var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, latest, filterByTs,
-            filterByValue, withLabels, selectLabels, count,
-            align, aggregation, timeBucket, bt, empty, groupbyTuple);
-        return new(TS.MREVRANGE, args);
-    }
+        (string, TsReduce)? groupbyTuple = null) =>
+        MRevRange(fromTimeStamp, toTimeStamp, filter, latest, filterByTs, filterByValue, withLabels, selectLabels, count, align, aggregation, timeBucket, bt, empty, groupbyTuple);
 
     [Obsolete]
     [Browsable(false)]
@@ -299,14 +426,88 @@ public static class TimeSeriesCommandsBuilder
 
     public static SerializedCommand Info(string key, bool debug = false)
     {
-        return (debug) ? new(TS.INFO, key, TimeSeriesArgs.DEBUG)
-            : new SerializedCommand(TS.INFO, key);
+        return (debug) ? new(TS.INFO, (RedisKey)key, TimeSeriesArgs.DEBUG)
+            : new SerializedCommand(TS.INFO, (RedisKey)key);
     }
 
     public static SerializedCommand QueryIndex(IReadOnlyCollection<string> filter)
     {
         var args = new List<object>(filter);
         return new(TS.QUERYINDEX, args);
+    }
+
+    public static SerializedCommand QueryLabelNames(IReadOnlyCollection<string>? filter = null)
+    {
+        var args = new List<object> { TimeSeriesArgs.LABELS };
+        AddQueryLabelsFilter(args, filter);
+        return new(TS.QUERYLABELS, args);
+    }
+
+    public static SerializedCommand QueryLabelValues(string label, IReadOnlyCollection<string>? filter = null)
+    {
+        var args = new List<object> { TimeSeriesArgs.VALUES, label };
+        AddQueryLabelsFilter(args, filter);
+        return new(TS.QUERYLABELS, args);
+    }
+
+    // FILTER is optional for TS.QUERYLABELS (omitting it queries all indexed series); an empty collection is
+    // treated the same as "no filter" so we never emit a bare FILTER keyword (which the server rejects).
+    private static void AddQueryLabelsFilter(List<object> args, IReadOnlyCollection<string>? filter)
+    {
+        if (filter is { Count: > 0 })
+        {
+            args.Add(TimeSeriesArgs.FILTER);
+            foreach (var f in filter) args.Add(f);
+        }
+    }
+
+    public static SerializedCommand NRange(
+        IReadOnlyList<string> keys,
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        TimeSeriesRangeFlags flags = TimeSeriesRangeFlags.None,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (double, double)? filterByValue = null,
+        long? count = null,
+        TimeStamp? align = null,
+        IReadOnlyList<TsAggregations>? aggregations = null,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null)
+    {
+        var args = TimeSeriesAux.BuildNRangeArgs(keys, fromTimeStamp, toTimeStamp, flags, filterByTs,
+            filterByValue, count, align, aggregations, timeBucket, bt);
+        return new(TS.NRANGE, args);
+    }
+
+    public static SerializedCommand NRevRange(
+        IReadOnlyList<string> keys,
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        TimeSeriesRangeFlags flags = TimeSeriesRangeFlags.None,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (double, double)? filterByValue = null,
+        long? count = null,
+        TimeStamp? align = null,
+        IReadOnlyList<TsAggregations>? aggregations = null,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null)
+    {
+        var args = TimeSeriesAux.BuildNRangeArgs(keys, fromTimeStamp, toTimeStamp, flags, filterByTs,
+            filterByValue, count, align, aggregations, timeBucket, bt);
+        return new(TS.NREVRANGE, args);
+    }
+
+    // Note: the server's BLOCK group is intentionally not exposed - blocking does not compose with the
+    // SE.Redis multiplexer - so this only ever builds the immediate-return form.
+    public static SerializedCommand Read(string key, TimeStamp timestamp, long? maxCount = null)
+    {
+        var args = new List<object> { (RedisKey)key, timestamp.Value };
+        if (maxCount.HasValue)
+        {
+            args.Add(TimeSeriesArgs.MAX_COUNT);
+            args.Add(maxCount.Value);
+        }
+        return new(TS.READ, args);
     }
 
     #endregion

@@ -30,10 +30,11 @@ public class TestRules(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
     };
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
     public void TestRulesAdditionDeletion(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         ts.Create(srcKey);
@@ -92,9 +93,10 @@ public class TestRules(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAlignTimestamp(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
         ts.Create("{align}ts1");
