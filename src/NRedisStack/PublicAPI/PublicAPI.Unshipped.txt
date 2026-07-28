@@ -1,1 +1,11 @@
 #nullable enable
+NRedisStack.Search.Aggregation.CollectReducer
+override NRedisStack.Search.Aggregation.CollectReducer.Name.get -> string!
+NRedisStack.Search.Aggregation.CollectReducer.Fields(params string![]! fields) -> NRedisStack.Search.Aggregation.CollectReducer!
+NRedisStack.Search.Aggregation.CollectReducer.FieldsAll() -> NRedisStack.Search.Aggregation.CollectReducer!
+NRedisStack.Search.Aggregation.CollectReducer.SortBy(params NRedisStack.Search.Aggregation.SortedField![]! fields) -> NRedisStack.Search.Aggregation.CollectReducer!
+NRedisStack.Search.Aggregation.CollectReducer.SortByAsc(string! field) -> NRedisStack.Search.Aggregation.CollectReducer!
+NRedisStack.Search.Aggregation.CollectReducer.SortByDesc(string! field) -> NRedisStack.Search.Aggregation.CollectReducer!
+NRedisStack.Search.Aggregation.CollectReducer.Limit(int count) -> NRedisStack.Search.Aggregation.CollectReducer!
+NRedisStack.Search.Aggregation.CollectReducer.Limit(int offset, int count) -> NRedisStack.Search.Aggregation.CollectReducer!
+static NRedisStack.Search.Aggregation.Reducers.Collect() -> NRedisStack.Search.Aggregation.CollectReducer!
