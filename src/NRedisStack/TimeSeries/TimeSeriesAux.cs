@@ -387,7 +387,13 @@ public static class TimeSeriesAux
             // one comma-joined aggregator group per key (group count must equal numkeys, enforced server-side);
             // each group may itself hold multiple aggregators, producing multiple value columns for that key.
             foreach (var group in aggregations) args.Add(GetAggregationArgs(group));
-            if (timeBucket.HasValue) args.Add(timeBucket.Value);
+            // mirror TS.RANGE: the bucket-duration operand is required after AGGREGATION; omitting it would
+            // serialize a malformed command the server rejects with an arity error, so reject it locally.
+            if (!timeBucket.HasValue)
+            {
+                throw new ArgumentException("NRANGE Aggregation should have timeBucket value");
+            }
+            args.Add(timeBucket.Value);
             args.AddBucketTimestamp(bt);
             // EMPTY must follow the AGGREGATION clause; the server rejects it in an earlier position.
             if ((flags & TimeSeriesRangeFlags.Empty) != 0) args.Add(TimeSeriesArgs.EMPTY);

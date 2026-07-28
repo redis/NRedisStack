@@ -177,4 +177,21 @@ public class TestNRange(EndpointsFixture endpointsFixture) : AbstractNRedisStack
         Assert.Throws<ArgumentException>(() => ts.NRange(keys, "-", "+", flags: TimeSeriesRangeFlags.Empty));
         Assert.Throws<ArgumentException>(() => ts.NRange(keys, "-", "+", align: 0));
     }
+
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.10.0")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestNRangeAggregationRequiresTimeBucket(string endpointId)
+    {
+        SkipClusterPre8(endpointId);
+        // AGGREGATION requires a bucket-duration operand; omitting it would serialize a malformed command, so
+        // supplying aggregators without a timeBucket is local misuse and throws (mirrors TS.RANGE).
+        var db = GetCleanDatabase(endpointId);
+        var ts = db.TS();
+        var keys = CreateKeyNames(2);
+
+        Assert.Throws<ArgumentException>(() => ts.NRange(keys, "-", "+",
+            aggregations: [TsAggregation.Avg, TsAggregation.Sum]));
+        Assert.Throws<ArgumentException>(() => ts.NRevRange(keys, "-", "+",
+            aggregations: [TsAggregation.Avg, TsAggregation.Sum]));
+    }
 }
