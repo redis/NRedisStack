@@ -9,3 +9,9 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
+    ignore:
+      # GHATL 3.x is built against Microsoft.Testing.Platform 2.0 (MTP v2), but
+      # our test stack (xunit.v3 3.x) is still on MTP v1 (pins MTP 1.9.1), so 3.x
+      # fails to build. Revisit once we move to xunit.v3 4.x / MTP v2.
+      - dependency-name: "GitHubActionsTestLogger"
+        versions: [">=3.0.0"]
