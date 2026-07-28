@@ -130,6 +130,12 @@ public class SearchCommandsAsync : ISearchCommandsAsync
     }
 
     /// <inheritdoc/>
+    public async Task<RedisResult[]> AliasListAsync(string index)
+    {
+        return (await _db.ExecuteAsync(SearchCommandBuilder.AliasList(index))).ToArray();
+    }
+
+    /// <inheritdoc/>
     public async Task<bool> AlterAsync(string index, Schema schema, bool skipInitialScan = false)
     {
         return (await _db.ExecuteAsync(SearchCommandBuilder.Alter(index, schema, skipInitialScan))).OKtoBoolean();
