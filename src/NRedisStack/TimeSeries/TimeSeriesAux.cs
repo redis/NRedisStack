@@ -245,6 +245,25 @@ public static class TimeSeriesAux
         return args;
     }
 
+    // retained for binary compatibility with 1.4.0-1.6.0 (filterByValue was (long, long)); de-prioritised
+    // and hidden so the (double, double) overload always wins overload resolution for new callers.
+    [Obsolete]
+    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [OverloadResolutionPriority(-1)]
+    public static List<object> BuildRangeArgs(string key,
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        bool latest,
+        IReadOnlyCollection<TimeStamp>? filterByTs,
+        (long, long)? filterByValue,
+        long? count,
+        TimeStamp? align,
+        TsAggregations aggregation,
+        long? timeBucket,
+        TsBucketTimestamps? bt,
+        bool empty) => BuildRangeArgs(key, fromTimeStamp, toTimeStamp, latest, filterByTs, filterByValue, count, align, aggregation, timeBucket, bt, empty);
+
     [Obsolete]
     [Browsable(false)]
     [EditorBrowsable(EditorBrowsableState.Never)]
@@ -321,6 +340,29 @@ public static class TimeSeriesAux
         (string, TsReduce)? groupbyTuple) =>
         BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, ToRangeFlags(latest, withLabels, empty),
             filterByTs, filterByValue, selectLabels, count, align, aggregation, timeBucket, bt, groupbyTuple);
+
+    // retained for binary compatibility with 1.4.0-1.6.0 (filterByValue was (long, long)); de-prioritised
+    // and hidden so the (double, double) overload always wins overload resolution for new callers.
+    [Obsolete]
+    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [OverloadResolutionPriority(-1)]
+    public static List<object> BuildMultiRangeArgs(TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        IReadOnlyCollection<string> filter,
+        bool latest,
+        IReadOnlyCollection<TimeStamp>? filterByTs,
+        (long, long)? filterByValue,
+        bool? withLabels,
+        IReadOnlyCollection<string>? selectLabels,
+        long? count,
+        TimeStamp? align,
+        TsAggregations aggregation,
+        long? timeBucket,
+        TsBucketTimestamps? bt,
+        bool empty,
+        (string, TsReduce)? groupbyTuple) =>
+        BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, latest, filterByTs, filterByValue, withLabels, selectLabels, count, align, aggregation, timeBucket, bt, empty, groupbyTuple);
 
     [Obsolete]
     [Browsable(false)]

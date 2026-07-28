@@ -150,6 +150,29 @@ public class TimeSeriesCommandsAsync : ITimeSeriesCommandsAsync
     }
 
     /// <inheritdoc/>
+    // retained for binary compatibility with 1.4.0-1.6.0 (filterByValue was (long, long)); de-prioritised
+    // and hidden so the (double, double) overload always wins overload resolution for new callers.
+    [Obsolete]
+    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [OverloadResolutionPriority(-1)]
+    public async Task<IReadOnlyList<TimeSeriesTuple>> RangeAsync(string key,
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        bool latest = false,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (long, long)? filterByValue = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        bool empty = false)
+    {
+        return await RangeAsync(key, fromTimeStamp, toTimeStamp, latest, filterByTs, filterByValue, count, align, aggregation, timeBucket, bt, empty);
+    }
+
+    /// <inheritdoc/>
     [Obsolete]
     [Browsable(false)]
     [EditorBrowsable(EditorBrowsableState.Never)]
@@ -189,6 +212,29 @@ public class TimeSeriesCommandsAsync : ITimeSeriesCommandsAsync
             latest, filterByTs, filterByValue,
             count, align, aggregation, timeBucket,
             bt, empty))).ToTimeSeriesTupleArray();
+    }
+
+    /// <inheritdoc/>
+    // retained for binary compatibility with 1.4.0-1.6.0 (filterByValue was (long, long)); de-prioritised
+    // and hidden so the (double, double) overload always wins overload resolution for new callers.
+    [Obsolete]
+    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [OverloadResolutionPriority(-1)]
+    public async Task<IReadOnlyList<TimeSeriesTuple>> RevRangeAsync(string key,
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        bool latest = false,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (long, long)? filterByValue = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        bool empty = false)
+    {
+        return await RevRangeAsync(key, fromTimeStamp, toTimeStamp, latest, filterByTs, filterByValue, count, align, aggregation, timeBucket, bt, empty);
     }
 
     /// <inheritdoc/>
@@ -260,6 +306,33 @@ public class TimeSeriesCommandsAsync : ITimeSeriesCommandsAsync
             withLabels, selectLabels, count, align,
             aggregation, timeBucket, bt, empty,
             groupbyTuple))).ParseMRangeResponse();
+    }
+
+    /// <inheritdoc/>
+    // retained for binary compatibility with 1.4.0-1.6.0 (filterByValue was (long, long)); de-prioritised
+    // and hidden so the (double, double) overload always wins overload resolution for new callers.
+    [Obsolete]
+    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [OverloadResolutionPriority(-1)]
+    public async Task<IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)>> MRangeAsync(
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        IReadOnlyCollection<string> filter,
+        bool latest = false,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (long, long)? filterByValue = null,
+        bool? withLabels = null,
+        IReadOnlyCollection<string>? selectLabels = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        bool empty = false,
+        (string, TsReduce)? groupbyTuple = null)
+    {
+        return await MRangeAsync(fromTimeStamp, toTimeStamp, filter, latest, filterByTs, filterByValue, withLabels, selectLabels, count, align, aggregation, timeBucket, bt, empty, groupbyTuple);
     }
 
     /// <inheritdoc/>
@@ -335,6 +408,33 @@ public class TimeSeriesCommandsAsync : ITimeSeriesCommandsAsync
             withLabels, selectLabels, count, align,
             aggregation, timeBucket, bt, empty,
             groupbyTuple))).ParseMRangeResponse();
+    }
+
+    /// <inheritdoc/>
+    // retained for binary compatibility with 1.4.0-1.6.0 (filterByValue was (long, long)); de-prioritised
+    // and hidden so the (double, double) overload always wins overload resolution for new callers.
+    [Obsolete]
+    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [OverloadResolutionPriority(-1)]
+    public async Task<IReadOnlyList<(string key, IReadOnlyList<TimeSeriesLabel> labels, IReadOnlyList<TimeSeriesTuple> values)>> MRevRangeAsync(
+        TimeStamp fromTimeStamp,
+        TimeStamp toTimeStamp,
+        IReadOnlyCollection<string> filter,
+        bool latest = false,
+        IReadOnlyCollection<TimeStamp>? filterByTs = null,
+        (long, long)? filterByValue = null,
+        bool? withLabels = null,
+        IReadOnlyCollection<string>? selectLabels = null,
+        long? count = null,
+        TimeStamp? align = null,
+        TsAggregations aggregation = default,
+        long? timeBucket = null,
+        TsBucketTimestamps? bt = null,
+        bool empty = false,
+        (string, TsReduce)? groupbyTuple = null)
+    {
+        return await MRevRangeAsync(fromTimeStamp, toTimeStamp, filter, latest, filterByTs, filterByValue, withLabels, selectLabels, count, align, aggregation, timeBucket, bt, empty, groupbyTuple);
     }
 
     /// <inheritdoc/>

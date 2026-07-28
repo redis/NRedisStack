@@ -4,6 +4,11 @@
         <IsPackable>false</IsPackable>
         <PreserveCompilationContext>true</PreserveCompilationContext>
         <OutputType>Exe</OutputType>
+        <!-- Treat use-of-[Obsolete] as an error so ObsoleteOverloadResolutionGuard.cs is a real compile-time
+             test: if an integer tuple like (42, 42) ever binds to a retained [Obsolete] (long, long) overload
+             instead of the current (double, double) API, the build fails. Existing tests that deliberately
+             exercise obsolete members opt in per-file with `#pragma warning disable CS0612, CS0618`. -->
+        <WarningsAsErrors>$(WarningsAsErrors);CS0612;CS0618</WarningsAsErrors>
     </PropertyGroup>
 
     <ItemGroup>
