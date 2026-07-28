@@ -1,4 +1,9 @@
 #nullable enable
+NRedisStack.ISearchCommands.AliasList(string! index) -> StackExchange.Redis.RedisResult![]!
+NRedisStack.ISearchCommandsAsync.AliasListAsync(string! index) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult![]!>!
+NRedisStack.SearchCommands.AliasList(string! index) -> StackExchange.Redis.RedisResult![]!
+NRedisStack.SearchCommandsAsync.AliasListAsync(string! index) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult![]!>!
+static NRedisStack.SearchCommandBuilder.AliasList(string! index) -> NRedisStack.RedisStackCommands.SerializedCommand!
 NRedisStack.Search.Aggregation.CollectReducer
 override NRedisStack.Search.Aggregation.CollectReducer.Name.get -> string!
 NRedisStack.Search.Aggregation.CollectReducer.Fields(params string![]! fields) -> NRedisStack.Search.Aggregation.CollectReducer!
