@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 
 namespace NRedisStack.Literals.Enums;
 
@@ -43,6 +42,5 @@ public enum TimeSeriesRangeFlags
     /// so combining this flag with a group-by results in the server error being propagated unchanged.
     /// </para>
     /// </summary>
-    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
     ExcludeEmpty = 1 << 3,
 }

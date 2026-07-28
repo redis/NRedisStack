@@ -4,7 +4,6 @@ using NRedisStack.DataTypes;
 using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace NRedisStack;
@@ -437,7 +436,6 @@ public static class TimeSeriesCommandsBuilder
         return new(TS.QUERYINDEX, args);
     }
 
-    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
     public static SerializedCommand QueryLabelNames(IReadOnlyCollection<string>? filter = null)
     {
         var args = new List<object> { TimeSeriesArgs.LABELS };
@@ -445,7 +443,6 @@ public static class TimeSeriesCommandsBuilder
         return new(TS.QUERYLABELS, args);
     }
 
-    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
     public static SerializedCommand QueryLabelValues(string label, IReadOnlyCollection<string>? filter = null)
     {
         var args = new List<object> { TimeSeriesArgs.VALUES, label };
@@ -464,7 +461,6 @@ public static class TimeSeriesCommandsBuilder
         }
     }
 
-    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
     public static SerializedCommand NRange(
         IReadOnlyList<string> keys,
         TimeStamp fromTimeStamp,
@@ -483,7 +479,6 @@ public static class TimeSeriesCommandsBuilder
         return new(TS.NRANGE, args);
     }
 
-    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
     public static SerializedCommand NRevRange(
         IReadOnlyList<string> keys,
         TimeStamp fromTimeStamp,
@@ -504,7 +499,6 @@ public static class TimeSeriesCommandsBuilder
 
     // Note: the server's BLOCK group is intentionally not exposed - blocking does not compose with the
     // SE.Redis multiplexer - so this only ever builds the immediate-return form.
-    [Experimental(Experiments.Server_8_10, UrlFormat = Experiments.UrlFormat)]
     public static SerializedCommand Read(string key, TimeStamp timestamp, long? maxCount = null)
     {
         var args = new List<object> { (RedisKey)key, timestamp.Value };
