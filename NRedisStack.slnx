@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/Build/">
+    <File Path=".github/actions/run-tests/action.yml" />
+    <File Path=".github/workflows/integration.yml" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="version.json" />
+    <Project Path=".github/ci.csproj" />
+    <Project Path="tests/dockers/dockers.csproj" />
+  </Folder>
+  <Project Path="docs/docs.csproj" />
+  <Project Path="src/NRedisStack/NRedisStack.csproj" />
+  <Project Path="tests/Doc/Doc.csproj" />
+  <Project Path="tests/NRedisStack.Tests/NRedisStack.Tests.csproj" />
+</Solution>

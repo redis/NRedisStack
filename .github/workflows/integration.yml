@@ -84,6 +84,12 @@ jobs:
         ENDPOINT: ${{ secrets.ENDPOINT }}
       steps:
         - uses: actions/checkout@v6
+        # Pinned explicitly rather than relying on whatever the runner image
+        # ships: discovering the .slnx solution needs an SDK >= 9.0.200.
+        - name: Set up .NET 10
+          uses: actions/setup-dotnet@v5
+          with:
+            dotnet-version: 10
         - uses: Vampire/setup-wsl@v6
           with:
             distribution: Ubuntu-22.04

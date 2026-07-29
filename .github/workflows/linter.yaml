@@ -13,11 +13,15 @@ jobs:
   dotnet-format:
     runs-on: windows-latest
     steps:
-      - name: Install dotnet-format
-        run: dotnet tool install -g dotnet-format
-
       - name: Checkout repo
         uses: actions/checkout@v6
+
+      # The SDK's built-in `dotnet format` is used rather than the legacy
+      # standalone dotnet-format tool, which cannot discover a .slnx solution.
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10
 
       - name: lint
         run: |

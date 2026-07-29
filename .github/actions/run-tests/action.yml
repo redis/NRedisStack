@@ -2,12 +2,20 @@ name: 'Run NRedisStack tests'
 description: 'Runs NRedisStack tests against different Redis versions and configurations'
 inputs:
   dotnet-version:
-    description: 'SDK version'
+    description: 'Target .NET version to build and run the tests against, i.e. "8.0" for net8.0'
     default: '10.0'
     required: false
   dotnet-quality:
     description: 'SDK quality'
     default: 'ga'
+    required: false
+  build-sdk-version:
+    description: >
+      SDK version used to drive restore/build/pack, independent of the target
+      version above. Solution discovery of the .slnx needs an SDK >= 9.0.200,
+      so this must stay ahead of the oldest targeted version. Bump this when
+      the matrix starts targeting something newer than the SDK can build.
+    default: '10.0'
     required: false
   redis-version:
     description: 'Redis version to test against (MAJOR.MINOR format, e.g., "7.4", "8.0")'
@@ -51,10 +59,13 @@ runs:
         repository: ${{ inputs.repository }}
         ref: ${{ inputs.ref }}
 
+    # We always build with build-sdk-version, but the target version is installed
+    # too so its runtime is present for `dotnet test -f <target>`.
     - name: Install .NET Core
       uses: actions/setup-dotnet@v5
       with:
         dotnet-version: |
+          ${{inputs.build-sdk-version}}
           ${{inputs.dotnet-version}}
         dotnet-quality: '${{inputs.dotnet-quality}}'
 
@@ -99,15 +110,16 @@ runs:
         echo "::endgroup::"
       shell: bash
 
-    # Make sure only the desired dotnet version is set both as target and as active SDK.
+    # Narrow every project to the single target framework under test, and pin the
+    # active SDK to the build SDK (not the target version - the two are decoupled).
     - name: Tweak target frameworks
       env:
-        INPUT_DOTNET_VERSION: ${{ inputs.dotnet-version }}
+        INPUT_BUILD_SDK_VERSION: ${{ inputs.build-sdk-version }}
       shell: bash
       run: |
         find . -name '*.csproj' | xargs -I {} sed -E -i "s|<TargetFrameworks(.*)>.*</TargetFrameworks>|<TargetFramework\1>${CLR_VERSION}</TargetFramework>|" {}
         find . -name '*.csproj' | xargs cat
-        jq -n --arg version "$INPUT_DOTNET_VERSION" '{"sdk":{"version":$version,"rollForward":"latestMinor"}}' > global.json
+        jq -n --arg version "$INPUT_BUILD_SDK_VERSION" '{"sdk":{"version":$version,"rollForward":"latestMinor"}}' > global.json
     - name: Check .NET version
       shell: bash
       run: dotnet --version
