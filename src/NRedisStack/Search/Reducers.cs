@@ -78,6 +78,22 @@ public static class Reducers
 
     public static Reducer ToList(string field) => new SingleFieldReducer("TOLIST", field);
 
+    /// <summary>
+    /// REDUCE COLLECT — gather per-document projections within a GROUPBY group and return them as an array of per-entry maps
+    /// under the reducer alias, optionally sorted and bounded.
+    /// <para>
+    /// Configure the projected fields via <see cref="CollectReducer.Fields"/> or <see cref="CollectReducer.FieldsAll"/>, then
+    /// optionally chain <see cref="CollectReducer.SortBy"/> and <see cref="CollectReducer.Limit(int, int)"/> before calling
+    /// <see cref="Reducer.As(string)"/>.
+    /// </para>
+    /// <para>
+    /// <b>Experimental.</b> Both the underlying Redis Search feature and this API may change. Before issuing COLLECT queries the
+    /// server must be configured with <c>CONFIG SET search-enable-unstable-features yes</c>.
+    /// </para>
+    /// </summary>
+    /// <seealso cref="CollectReducer"/>
+    public static CollectReducer Collect() => new CollectReducer();
+
     public static Reducer RandomSample(string field, int size) => new RandomSampleReducer(field, size);
 
     private sealed class RandomSampleReducer : Reducer

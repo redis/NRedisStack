@@ -19,4 +19,8 @@ internal class TS
     public const string MGET = "TS.MGET";
     public const string INFO = "TS.INFO";
     public const string QUERYINDEX = "TS.QUERYINDEX";
+    public const string QUERYLABELS = "TS.QUERYLABELS";
+    public const string NRANGE = "TS.NRANGE";
+    public const string NREVRANGE = "TS.NREVRANGE";
+    public const string READ = "TS.READ";
 }

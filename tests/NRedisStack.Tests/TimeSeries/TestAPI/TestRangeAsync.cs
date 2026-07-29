@@ -168,56 +168,58 @@ public class TestRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRedisS
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestLatestAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
-        await ts.CreateAsync("ts1");
-        await ts.CreateAsync("ts2");
-        await ts.CreateRuleAsync("ts1", new("ts2", 10, TsAggregation.Sum));
-        await ts.AddAsync("ts1", 1, 1);
-        await ts.AddAsync("ts1", 2, 3);
-        await ts.AddAsync("ts1", 11, 7);
-        await ts.AddAsync("ts1", 13, 1);
-        var range = await ts.RangeAsync("ts1", 0, 20);
+        await ts.CreateAsync("{ts}ts1");
+        await ts.CreateAsync("{ts}ts2");
+        await ts.CreateRuleAsync("{ts}ts1", new("{ts}ts2", 10, TsAggregation.Sum));
+        await ts.AddAsync("{ts}ts1", 1, 1);
+        await ts.AddAsync("{ts}ts1", 2, 3);
+        await ts.AddAsync("{ts}ts1", 11, 7);
+        await ts.AddAsync("{ts}ts1", 13, 1);
+        var range = await ts.RangeAsync("{ts}ts1", 0, 20);
         Assert.Equal(4, range.Count);
 
         var compact = new TimeSeriesTuple(0, 4);
         var latest = new TimeSeriesTuple(10, 8);
 
         // get
-        Assert.Equal(compact, await ts.GetAsync("ts2"));
+        Assert.Equal(compact, await ts.GetAsync("{ts}ts2"));
 
-        Assert.Equal(latest, await ts.GetAsync("ts2", true));
+        Assert.Equal(latest, await ts.GetAsync("{ts}ts2", true));
 
         // range
-        Assert.Equal(new List<TimeSeriesTuple>() { compact }, await ts.RangeAsync("ts2", 0, 10));
+        Assert.Equal(new List<TimeSeriesTuple>() { compact }, await ts.RangeAsync("{ts}ts2", 0, 10));
 
-        Assert.Equal(new List<TimeSeriesTuple>() { compact, latest }, await ts.RangeAsync("ts2", 0, 10, true));
+        Assert.Equal(new List<TimeSeriesTuple>() { compact, latest }, await ts.RangeAsync("{ts}ts2", 0, 10, true));
 
         // revrange
-        Assert.Equal(new List<TimeSeriesTuple>() { compact }, await ts.RevRangeAsync("ts2", 0, 10));
+        Assert.Equal(new List<TimeSeriesTuple>() { compact }, await ts.RevRangeAsync("{ts}ts2", 0, 10));
 
-        Assert.Equal(new List<TimeSeriesTuple>() { latest, compact }, await ts.RevRangeAsync("ts2", 0, 10, true));
+        Assert.Equal(new List<TimeSeriesTuple>() { latest, compact }, await ts.RevRangeAsync("{ts}ts2", 0, 10, true));
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAlignTimestampAsync(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
-        ts.Create("ts1");
-        ts.Create("ts2");
-        ts.Create("ts3");
-        ts.CreateRule("ts1", new("ts2", 10, TsAggregation.Count), 0);
-        ts.CreateRule("ts1", new("ts3", 10, TsAggregation.Count), 1);
-        ts.Add("ts1", 1, 1);
-        ts.Add("ts1", 10, 3);
-        ts.Add("ts1", 21, 7);
-        Assert.Equal(2, (await ts.RangeAsync("ts2", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10)).Count);
-        Assert.Single((await ts.RangeAsync("ts3", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10)));
+        ts.Create("{ts}ts1");
+        ts.Create("{ts}ts2");
+        ts.Create("{ts}ts3");
+        ts.CreateRule("{ts}ts1", new("{ts}ts2", 10, TsAggregation.Count), 0);
+        ts.CreateRule("{ts}ts1", new("{ts}ts3", 10, TsAggregation.Count), 1);
+        ts.Add("{ts}ts1", 1, 1);
+        ts.Add("{ts}ts1", 10, 3);
+        ts.Add("{ts}ts1", 21, 7);
+        Assert.Equal(2, (await ts.RangeAsync("{ts}ts2", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10)).Count);
+        Assert.Single((await ts.RangeAsync("{ts}ts3", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10)));
     }
 
     [Fact]

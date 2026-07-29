@@ -63,6 +63,14 @@ public interface ISearchCommands
     bool AliasUpdate(string alias, string index);
 
     /// <summary>
+    /// List all aliases associated with the given index.
+    /// </summary>
+    /// <param name="index">The index name. The index must be created using FT.CREATE; an alias name is not accepted.</param>
+    /// <returns>Array with the alias names associated with the index (unordered; empty when the index has no aliases).</returns>
+    /// <remarks><seealso href="https://redis.io/commands/ft.aliaslist"/></remarks>
+    RedisResult[] AliasList(string index);
+
+    /// <summary>
     /// Add a new attribute to the index
     /// </summary>
     /// <param name="index">The index name.</param>

@@ -24,9 +24,10 @@ public class TestRevRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRed
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestSimpleRevRange(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var key = CreateKeyName();
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -35,9 +36,10 @@ public class TestRevRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRed
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestRevRangeCount(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var key = CreateKeyName();
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -46,9 +48,10 @@ public class TestRevRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRed
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestRevRangeAggregation(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var key = CreateKeyName();
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -57,9 +60,10 @@ public class TestRevRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRed
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.8.0")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestRevRangeMultiAggregation(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var key = $"{CreateKeyName()}:{Guid.NewGuid():N}";
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -78,9 +82,10 @@ public class TestRevRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRed
     }
 
     [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.8.0")]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestRevRangeMultiAggregationWithMultiplePointsPerBucket(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var key = $"{CreateKeyName()}:{Guid.NewGuid():N}";
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -100,9 +105,10 @@ public class TestRevRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRed
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestRevRangeAlign(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var key = CreateKeyName();
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -142,9 +148,10 @@ public class TestRevRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRed
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestMissingTimeBucket(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var key = CreateKeyName();
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -154,9 +161,10 @@ public class TestRevRangeAsync(EndpointsFixture endpointsFixture) : AbstractNRed
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestFilterBy(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var key = CreateKeyName();
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();

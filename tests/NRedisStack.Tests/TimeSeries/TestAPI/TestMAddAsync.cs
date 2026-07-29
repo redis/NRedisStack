@@ -10,10 +10,11 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI;
 public class TestMAddAsync(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture)
 {
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     [Obsolete]
     public async Task TestStarMADD(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
 
         IDatabase db = GetCleanDatabase(endpointId);
@@ -43,9 +44,10 @@ public class TestMAddAsync(EndpointsFixture endpointsFixture) : AbstractNRedisSt
 
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestSuccessfulMAdd(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();
@@ -73,9 +75,10 @@ public class TestMAddAsync(EndpointsFixture endpointsFixture) : AbstractNRedisSt
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestOverrideMAdd(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         var keys = CreateKeyNames(2);
         var db = GetCleanDatabase(endpointId);
         var ts = db.TS();

@@ -162,56 +162,58 @@ public class TestRange(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void latest(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
-        ts.Create("ts1");
-        ts.Create("ts2");
-        ts.CreateRule("ts1", new("ts2", 10, TsAggregation.Sum));
-        ts.Add("ts1", 1, 1);
-        ts.Add("ts1", 2, 3);
-        ts.Add("ts1", 11, 7);
-        ts.Add("ts1", 13, 1);
-        var range = ts.Range("ts1", 0, 20);
+        ts.Create("{ts}ts1");
+        ts.Create("{ts}ts2");
+        ts.CreateRule("{ts}ts1", new("{ts}ts2", 10, TsAggregation.Sum));
+        ts.Add("{ts}ts1", 1, 1);
+        ts.Add("{ts}ts1", 2, 3);
+        ts.Add("{ts}ts1", 11, 7);
+        ts.Add("{ts}ts1", 13, 1);
+        var range = ts.Range("{ts}ts1", 0, 20);
         Assert.Equal(4, range.Count);
 
         var compact = new TimeSeriesTuple(0, 4);
         var latest = new TimeSeriesTuple(10, 8);
 
         // get
-        Assert.Equal(compact, ts.Get("ts2"));
+        Assert.Equal(compact, ts.Get("{ts}ts2"));
 
-        Assert.Equal(latest, ts.Get("ts2", true));
+        Assert.Equal(latest, ts.Get("{ts}ts2", true));
 
         // range
-        Assert.Equal(new List<TimeSeriesTuple>() { compact }, ts.Range("ts2", 0, 10));
+        Assert.Equal(new List<TimeSeriesTuple>() { compact }, ts.Range("{ts}ts2", 0, 10));
 
-        Assert.Equal(new List<TimeSeriesTuple>() { compact, latest }, ts.Range("ts2", 0, 10, true));
+        Assert.Equal(new List<TimeSeriesTuple>() { compact, latest }, ts.Range("{ts}ts2", 0, 10, true));
 
         // revrange
-        Assert.Equal(new List<TimeSeriesTuple>() { compact }, ts.RevRange("ts2", 0, 10));
+        Assert.Equal(new List<TimeSeriesTuple>() { compact }, ts.RevRange("{ts}ts2", 0, 10));
 
-        Assert.Equal(new List<TimeSeriesTuple>() { latest, compact }, ts.RevRange("ts2", 0, 10, true));
+        Assert.Equal(new List<TimeSeriesTuple>() { latest, compact }, ts.RevRange("{ts}ts2", 0, 10, true));
     }
 
     [SkipIfRedisTheory(Is.Enterprise)]
-    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAlignTimestamp(string endpointId)
     {
+        SkipClusterPre8(endpointId);
         IDatabase db = GetCleanDatabase(endpointId);
         var ts = db.TS();
-        ts.Create("ts1");
-        ts.Create("ts2");
-        ts.Create("ts3");
-        ts.CreateRule("ts1", new("ts2", 10, TsAggregation.Count), 0);
-        ts.CreateRule("ts1", new("ts3", 10, TsAggregation.Count), 1);
-        ts.Add("ts1", 1, 1);
-        ts.Add("ts1", 10, 3);
-        ts.Add("ts1", 21, 7);
-        Assert.Equal(2, ts.Range("ts2", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10).Count);
-        Assert.Single(ts.Range("ts3", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10));
+        ts.Create("{ts}ts1");
+        ts.Create("{ts}ts2");
+        ts.Create("{ts}ts3");
+        ts.CreateRule("{ts}ts1", new("{ts}ts2", 10, TsAggregation.Count), 0);
+        ts.CreateRule("{ts}ts1", new("{ts}ts3", 10, TsAggregation.Count), 1);
+        ts.Add("{ts}ts1", 1, 1);
+        ts.Add("{ts}ts1", 10, 3);
+        ts.Add("{ts}ts1", 21, 7);
+        Assert.Equal(2, ts.Range("{ts}ts2", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10).Count);
+        Assert.Single(ts.Range("{ts}ts3", "-", "+", aggregation: TsAggregation.Count, timeBucket: 10));
     }
 
     [Fact]
