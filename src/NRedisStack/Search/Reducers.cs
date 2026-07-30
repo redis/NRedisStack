@@ -1,4 +1,6 @@
-﻿namespace NRedisStack.Search.Aggregation;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NRedisStack.Search.Aggregation;
 
 public static class Reducers
 {
@@ -92,6 +94,7 @@ public static class Reducers
     /// </para>
     /// </summary>
     /// <seealso cref="CollectReducer"/>
+    [Experimental(Experiments.SearchCollect, UrlFormat = Experiments.UrlFormat)]
     public static CollectReducer Collect() => new CollectReducer();
 
     public static Reducer RandomSample(string field, int size) => new RandomSampleReducer(field, size);

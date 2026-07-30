@@ -1,4 +1,5 @@
-﻿using NRedisStack.Search.Literals;
+﻿using System.Diagnostics.CodeAnalysis;
+using NRedisStack.Search.Literals;
 
 namespace NRedisStack.Search.Aggregation;
 
@@ -33,6 +34,7 @@ namespace NRedisStack.Search.Aggregation;
 /// </para>
 /// </summary>
 /// <seealso cref="Reducers.Collect()"/>
+[Experimental(Experiments.SearchCollect, UrlFormat = Experiments.UrlFormat)]
 public sealed class CollectReducer : Reducer
 {
     private bool _allFields = false;

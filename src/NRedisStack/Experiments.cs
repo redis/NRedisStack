@@ -9,6 +9,8 @@ namespace NRedisStack
     //   NRS002 - Redis 8.8 multi-aggregate time-series
     internal static class Experiments
     {
+        public const string SearchCollect = "NRS003";
+
         // {0} is substituted with the diagnostic id, e.g. NRS042 -> https://redis.github.io/NRedisStack/exp/NRS042
         public const string UrlFormat = "https://redis.github.io/NRedisStack/exp/{0}";
     }
