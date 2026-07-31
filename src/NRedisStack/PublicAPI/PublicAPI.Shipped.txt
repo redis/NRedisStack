@@ -591,6 +591,9 @@ NRedisStack.RedisStackCommands.ModulePrefixes
 NRedisStack.RedisStackCommands.SerializedCommand
 NRedisStack.RedisStackCommands.SerializedCommand.Args.get -> object![]!
 NRedisStack.RedisStackCommands.SerializedCommand.Command.get -> string!
+NRedisStack.RedisStackCommands.SerializedCommand.CommandCategory.get -> StackExchange.Redis.CommandFlags
+NRedisStack.RedisStackCommands.SerializedCommand.SerializedCommand(StackExchange.Redis.CommandFlags category, string! command, params object![]! args) -> void
+NRedisStack.RedisStackCommands.SerializedCommand.SerializedCommand(StackExchange.Redis.CommandFlags category, string! command, System.Collections.Generic.ICollection<object!>! args) -> void
 NRedisStack.RedisStackCommands.SerializedCommand.SerializedCommand(string! command, params object![]! args) -> void
 NRedisStack.RedisStackCommands.SerializedCommand.SerializedCommand(string! command, System.Collections.Generic.ICollection<object!>! args) -> void
 NRedisStack.Search.Aggregation.Group
@@ -1267,7 +1270,9 @@ static NRedisStack.Auxiliary.AssembleNonNullArguments(params object?[]! argument
 static NRedisStack.Auxiliary.Execute(this StackExchange.Redis.IDatabase! db, NRedisStack.RedisStackCommands.SerializedCommand! command) -> StackExchange.Redis.RedisResult!
 static NRedisStack.Auxiliary.ExecuteAsync(this StackExchange.Redis.IDatabaseAsync! db, NRedisStack.RedisStackCommands.SerializedCommand! command) -> System.Threading.Tasks.Task<StackExchange.Redis.RedisResult!>!
 static NRedisStack.Auxiliary.ExecuteBroadcast(this StackExchange.Redis.IDatabase! db, NRedisStack.RedisStackCommands.SerializedCommand! command) -> System.Collections.Generic.List<StackExchange.Redis.RedisResult!>!
+static NRedisStack.Auxiliary.ExecuteBroadcast(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.CommandFlags category, string! command) -> System.Collections.Generic.List<StackExchange.Redis.RedisResult!>!
 static NRedisStack.Auxiliary.ExecuteBroadcast(this StackExchange.Redis.IDatabase! db, string! command) -> System.Collections.Generic.List<StackExchange.Redis.RedisResult!>!
+static NRedisStack.Auxiliary.ExecuteBroadcastAsync(this StackExchange.Redis.IDatabaseAsync! db, StackExchange.Redis.CommandFlags category, string! command) -> System.Threading.Tasks.Task<System.Collections.Generic.List<StackExchange.Redis.RedisResult!>!>!
 static NRedisStack.Auxiliary.ExecuteBroadcastAsync(this StackExchange.Redis.IDatabaseAsync! db, string! command) -> System.Threading.Tasks.Task<System.Collections.Generic.List<StackExchange.Redis.RedisResult!>!>!
 static NRedisStack.Auxiliary.GetDatabase(this StackExchange.Redis.ConnectionMultiplexer! redis, string? LibraryName) -> StackExchange.Redis.IDatabase!
 static NRedisStack.Auxiliary.GetNRedisStackVersion() -> string!

@@ -1,6 +1,1 @@
 #nullable enable
-NRedisStack.RedisStackCommands.SerializedCommand.CommandCategory.get -> StackExchange.Redis.CommandFlags
-NRedisStack.RedisStackCommands.SerializedCommand.SerializedCommand(StackExchange.Redis.CommandFlags category, string! command, System.Collections.Generic.ICollection<object!>! args) -> void
-NRedisStack.RedisStackCommands.SerializedCommand.SerializedCommand(StackExchange.Redis.CommandFlags category, string! command, params object![]! args) -> void
-static NRedisStack.Auxiliary.ExecuteBroadcast(this StackExchange.Redis.IDatabase! db, StackExchange.Redis.CommandFlags category, string! command) -> System.Collections.Generic.List<StackExchange.Redis.RedisResult!>!
-static NRedisStack.Auxiliary.ExecuteBroadcastAsync(this StackExchange.Redis.IDatabaseAsync! db, StackExchange.Redis.CommandFlags category, string! command) -> System.Threading.Tasks.Task<System.Collections.Generic.List<StackExchange.Redis.RedisResult!>!>!
