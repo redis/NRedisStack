@@ -14,7 +14,7 @@
     <PackageVersion Include="System.Text.Json" Version="10.0.10" />
     <PackageVersion Include="StackExchange.Redis" Version="3.0.25" />
     <!-- tests, etc -->
-    <PackageVersion Include="BouncyCastle.Cryptography" Version="2.6.2" />
+    <PackageVersion Include="BouncyCastle.Cryptography" Version="2.7.0" />
     <PackageVersion Include="coverlet.collector" Version="10.0.1" />
     <PackageVersion Include="coverlet.msbuild" Version="10.0.1" />
     <PackageVersion Include="dotenv.net" Version="4.0.2" />
