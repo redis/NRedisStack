@@ -39,6 +39,11 @@ public readonly record struct TimeStamp
         _ => _value.ToString(),
     };
 
+    /// <summary>
+    /// Whether this is the server-assigned "*" timestamp, rather than an explicit instant.
+    /// </summary>
+    internal bool IsStar => _constant == WellKnownTimestamp.Star;
+
     private readonly WellKnownTimestamp _constant;
     private readonly long _value;
 

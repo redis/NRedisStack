@@ -45,26 +45,21 @@ public static class TimeSeriesCommandsBuilder
         long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
     {
         var parameters = new TsAddParams(timestamp, value, retentionTime, labels, uncompressed, chunkSizeBytes, duplicatePolicy);
-        return new(AddCategory, TS.ADD, parameters.ToArray(key));
+        return new(parameters.Category, TS.ADD, parameters.ToArray(key));
     }
 
     public static SerializedCommand Add(string key, TsAddParams parameters)
     {
-        return new(AddCategory, TS.ADD, parameters.ToArray(key));
+        return new(parameters.Category, TS.ADD, parameters.ToArray(key));
     }
 
-    // TS.ADD spans three rungs depending on how it is called: an explicit timestamp under the default
-    // BLOCK policy is rejected on replay (WriteChecked), under LAST it overwrites (WriteLastWins), but an
-    // auto-assigned timestamp ("*") appends a second sample and DUPLICATE_POLICY SUM adds the value
-    // again - both cumulative. TsAddParams has already flattened to an argument list by the time we get
-    // here, so the overload taking it cannot tell which case applies; rather than have two overloads of
-    // the same operation disagree, both take the most side-effecting reading.
-    private const CommandFlags AddCategory = CommandCategories.WriteAccumulating;
-
+    // TS.MADD has no per-sample ON_DUPLICATE, so the effective duplicate policy is always whatever each
+    // series was created with - server-side state we cannot see, and possibly SUM. Unlike TS.ADD there is
+    // therefore no call shape we can narrow this to; see TsAddParams.ResolveCategory.
     public static SerializedCommand MAdd(IReadOnlyCollection<(string key, TimeStamp timestamp, double value)> sequence)
     {
         var args = TimeSeriesAux.BuildTsMaddArgs(sequence);
-        return new(AddCategory, TS.MADD, args);
+        return new(CommandCategories.WriteAccumulating, TS.MADD, args);
     }
 
     [Obsolete()]

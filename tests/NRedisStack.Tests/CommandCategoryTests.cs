@@ -1,3 +1,5 @@
+using NRedisStack.DataTypes;
+using NRedisStack.Literals.Enums;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
 using StackExchange.Redis;
@@ -95,7 +97,42 @@ public class CommandCategoryTests
             CommandCategories.WriteLastWins | CommandCategories.ServerSpecific,
             SearchCommandBuilder.CursorDel("idx", 1)
         },
+
+        // TS.ADD: only an explicit, non-SUM ON_DUPLICATE makes a replay provably idempotent
+        { "TS.ADD ON_DUPLICATE LAST", CommandCategories.WriteLastWins, TsAdd(1L, TsDuplicatePolicy.LAST) },
+        { "TS.ADD ON_DUPLICATE FIRST", CommandCategories.WriteLastWins, TsAdd(1L, TsDuplicatePolicy.FIRST) },
+        { "TS.ADD ON_DUPLICATE MIN", CommandCategories.WriteLastWins, TsAdd(1L, TsDuplicatePolicy.MIN) },
+        { "TS.ADD ON_DUPLICATE MAX", CommandCategories.WriteLastWins, TsAdd(1L, TsDuplicatePolicy.MAX) },
+
+        // SUM adds the value again
+        { "TS.ADD ON_DUPLICATE SUM", CommandCategories.WriteAccumulating, TsAdd(1L, TsDuplicatePolicy.SUM) },
+
+        // BLOCK errors on a duplicate, so replaying a write whose reply was merely lost would surface a
+        // spurious error rather than succeeding idempotently - worse for the caller than not retrying
+        { "TS.ADD ON_DUPLICATE BLOCK", CommandCategories.WriteAccumulating, TsAdd(1L, TsDuplicatePolicy.BLOCK) },
+
+        // no ON_DUPLICATE: the series' stored DUPLICATE_POLICY governs, and it may be SUM
+        { "TS.ADD no ON_DUPLICATE", CommandCategories.WriteAccumulating, TsAdd(1L, policy: null) },
+
+        // "*" appends a new sample on every attempt, whatever the policy says
+        { "TS.ADD * ON_DUPLICATE LAST", CommandCategories.WriteAccumulating, TsAdd("*", TsDuplicatePolicy.LAST) },
+
+        // TS.MADD has no per-sample ON_DUPLICATE, so it can never be narrowed
+        {
+            "TS.MADD",
+            CommandCategories.WriteAccumulating,
+            TimeSeriesCommandsBuilder.MAdd([("k", new TimeStamp(1L), 1d)])
+        },
     };
+
+    // goes via TsAddParamsBuilder, i.e. the path that flattens to an argument list before the command
+    // builder sees it - the reason the category has to be resolved and carried on TsAddParams
+    private static SerializedCommand TsAdd(TimeStamp timestamp, TsDuplicatePolicy? policy)
+    {
+        var builder = new TsAddParamsBuilder().AddTimestamp(timestamp).AddValue(1d);
+        if (policy is { } p) builder = builder.AddOnDuplicate(p);
+        return TimeSeriesCommandsBuilder.Add("k", builder.build());
+    }
 
     [Theory]
     [MemberData(nameof(ArgumentDependentCases))]
