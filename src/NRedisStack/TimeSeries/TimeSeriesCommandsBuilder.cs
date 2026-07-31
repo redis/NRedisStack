@@ -16,12 +16,12 @@ public static class TimeSeriesCommandsBuilder
     public static SerializedCommand Create(string key, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
     {
         var parameters = new TsCreateParams(retentionTime, labels, uncompressed, chunkSizeBytes, duplicatePolicy);
-        return new(TS.CREATE, parameters.ToArray(key));
+        return new(CommandCategories.WriteAccumulating, TS.CREATE, parameters.ToArray(key));
     }
 
     public static SerializedCommand Create(string key, TsCreateParams parameters)
     {
-        return new(TS.CREATE, parameters.ToArray(key));
+        return new(CommandCategories.WriteAccumulating, TS.CREATE, parameters.ToArray(key));
     }
 
     #endregion
@@ -31,12 +31,12 @@ public static class TimeSeriesCommandsBuilder
     public static SerializedCommand Alter(string key, long? retentionTime = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null)
     {
         var parameters = new TsAlterParams(retentionTime, chunkSizeBytes, duplicatePolicy, labels);
-        return new(TS.ALTER, parameters.ToArray(key));
+        return new(CommandCategories.WriteLastWins, TS.ALTER, parameters.ToArray(key));
     }
 
     public static SerializedCommand Alter(string key, TsAlterParams parameters)
     {
-        return new(TS.ALTER, parameters.ToArray(key));
+        return new(CommandCategories.WriteLastWins, TS.ALTER, parameters.ToArray(key));
     }
 
     [Obsolete()]
@@ -45,48 +45,51 @@ public static class TimeSeriesCommandsBuilder
         long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
     {
         var parameters = new TsAddParams(timestamp, value, retentionTime, labels, uncompressed, chunkSizeBytes, duplicatePolicy);
-        return new(TS.ADD, parameters.ToArray(key));
+        return new(parameters.Category, TS.ADD, parameters.ToArray(key));
     }
 
     public static SerializedCommand Add(string key, TsAddParams parameters)
     {
-        return new(TS.ADD, parameters.ToArray(key));
+        return new(parameters.Category, TS.ADD, parameters.ToArray(key));
     }
 
+    // TS.MADD has no per-sample ON_DUPLICATE, so the effective duplicate policy is always whatever each
+    // series was created with - server-side state we cannot see, and possibly SUM. Unlike TS.ADD there is
+    // therefore no call shape we can narrow this to; see TsAddParams.ResolveCategory.
     public static SerializedCommand MAdd(IReadOnlyCollection<(string key, TimeStamp timestamp, double value)> sequence)
     {
         var args = TimeSeriesAux.BuildTsMaddArgs(sequence);
-        return new(TS.MADD, args);
+        return new(CommandCategories.WriteAccumulating, TS.MADD, args);
     }
 
     [Obsolete()]
     public static SerializedCommand IncrBy(string key, double value, TimeStamp? timestamp = null, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null)
     {
         var parameters = new TsIncrByParams(value, timestamp, retentionTime, labels, uncompressed, chunkSizeBytes);
-        return new(TS.INCRBY, parameters.ToArray(key));
+        return new(CommandCategories.WriteAccumulating, TS.INCRBY, parameters.ToArray(key));
     }
 
     public static SerializedCommand IncrBy(string key, TsIncrByParams parameters)
     {
-        return new(TS.INCRBY, parameters.ToArray(key));
+        return new(CommandCategories.WriteAccumulating, TS.INCRBY, parameters.ToArray(key));
     }
 
     [Obsolete()]
     public static SerializedCommand DecrBy(string key, double value, TimeStamp? timestamp = null, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null)
     {
         var parameters = new TsDecrByParams(value, timestamp, retentionTime, labels, uncompressed, chunkSizeBytes);
-        return new(TS.DECRBY, parameters.ToArray(key));
+        return new(CommandCategories.WriteAccumulating, TS.DECRBY, parameters.ToArray(key));
     }
 
     public static SerializedCommand DecrBy(string key, TsDecrByParams parameters)
     {
-        return new(TS.DECRBY, parameters.ToArray(key));
+        return new(CommandCategories.WriteAccumulating, TS.DECRBY, parameters.ToArray(key));
     }
 
     public static SerializedCommand Del(string key, TimeStamp fromTimeStamp, TimeStamp toTimeStamp)
     {
         var args = TimeSeriesAux.BuildTsDelArgs(key, fromTimeStamp, toTimeStamp);
-        return new(TS.DEL, args);
+        return new(CommandCategories.WriteLastWins, TS.DEL, args);
     }
 
     #endregion
@@ -98,13 +101,13 @@ public static class TimeSeriesCommandsBuilder
         var args = new List<object> { (RedisKey)sourceKey };
         args.AddRule(rule);
         args.Add(alignTimestamp);
-        return new(TS.CREATERULE, args);
+        return new(CommandCategories.WriteAccumulating, TS.CREATERULE, args);
     }
 
     public static SerializedCommand DeleteRule(string sourceKey, string destKey)
     {
         var args = new List<object> { (RedisKey)sourceKey, (RedisKey)destKey };
-        return new(TS.DELETERULE, args);
+        return new(CommandCategories.WriteAccumulating, TS.DELETERULE, args);
     }
 
     #endregion
@@ -113,15 +116,15 @@ public static class TimeSeriesCommandsBuilder
 
     public static SerializedCommand Get(string key, bool latest = false)
     {
-        return (latest) ? new(TS.GET, (RedisKey)key, TimeSeriesArgs.LATEST)
-            : new SerializedCommand(TS.GET, (RedisKey)key);
+        return (latest) ? new(CommandCategories.ReadOnly, TS.GET, (RedisKey)key, TimeSeriesArgs.LATEST)
+            : new SerializedCommand(CommandCategories.ReadOnly, TS.GET, (RedisKey)key);
     }
 
     public static SerializedCommand MGet(IReadOnlyCollection<string> filter, bool latest = false,
         bool? withLabels = null, IReadOnlyCollection<string>? selectedLabels = null)
     {
         var args = TimeSeriesAux.BuildTsMgetArgs(latest, filter, withLabels, selectedLabels);
-        return new(TS.MGET, args);
+        return new(CommandCategories.ReadOnly, TS.MGET, args);
     }
 
     [OverloadResolutionPriority(1)]
@@ -142,7 +145,7 @@ public static class TimeSeriesCommandsBuilder
             latest, filterByTs, filterByValue, count, align,
             aggregation, timeBucket, bt, empty);
 
-        return new(TS.RANGE, args);
+        return new(CommandCategories.ReadOnly, TS.RANGE, args);
     }
 
     // retained for binary compatibility with 1.4.0-1.6.0 (filterByValue was (long, long)); de-prioritised
@@ -201,7 +204,7 @@ public static class TimeSeriesCommandsBuilder
             latest, filterByTs, filterByValue, count, align,
             aggregation, timeBucket, bt, empty);
 
-        return new(TS.REVRANGE, args);
+        return new(CommandCategories.ReadOnly, TS.REVRANGE, args);
     }
 
     // retained for binary compatibility with 1.4.0-1.6.0 (filterByValue was (long, long)); de-prioritised
@@ -260,7 +263,7 @@ public static class TimeSeriesCommandsBuilder
     {
         var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, flags, filterByTs,
             filterByValue, selectLabels, count, align, aggregation, timeBucket, bt, groupbyTuple);
-        return new(TS.MRANGE, args);
+        return new(CommandCategories.ReadOnly, TS.MRANGE, args);
     }
 
     [OverloadResolutionPriority(1)]
@@ -349,7 +352,7 @@ public static class TimeSeriesCommandsBuilder
     {
         var args = TimeSeriesAux.BuildMultiRangeArgs(fromTimeStamp, toTimeStamp, filter, flags, filterByTs,
             filterByValue, selectLabels, count, align, aggregation, timeBucket, bt, groupbyTuple);
-        return new(TS.MREVRANGE, args);
+        return new(CommandCategories.ReadOnly, TS.MREVRANGE, args);
     }
 
     [OverloadResolutionPriority(1)]
@@ -426,28 +429,28 @@ public static class TimeSeriesCommandsBuilder
 
     public static SerializedCommand Info(string key, bool debug = false)
     {
-        return (debug) ? new(TS.INFO, (RedisKey)key, TimeSeriesArgs.DEBUG)
-            : new SerializedCommand(TS.INFO, (RedisKey)key);
+        return (debug) ? new(CommandCategories.ReadOnly, TS.INFO, (RedisKey)key, TimeSeriesArgs.DEBUG)
+            : new SerializedCommand(CommandCategories.ReadOnly, TS.INFO, (RedisKey)key);
     }
 
     public static SerializedCommand QueryIndex(IReadOnlyCollection<string> filter)
     {
         var args = new List<object>(filter);
-        return new(TS.QUERYINDEX, args);
+        return new(CommandCategories.ReadOnly, TS.QUERYINDEX, args);
     }
 
     public static SerializedCommand QueryLabelNames(IReadOnlyCollection<string>? filter = null)
     {
         var args = new List<object> { TimeSeriesArgs.LABELS };
         AddQueryLabelsFilter(args, filter);
-        return new(TS.QUERYLABELS, args);
+        return new(CommandCategories.ReadOnly, TS.QUERYLABELS, args);
     }
 
     public static SerializedCommand QueryLabelValues(string label, IReadOnlyCollection<string>? filter = null)
     {
         var args = new List<object> { TimeSeriesArgs.VALUES, label };
         AddQueryLabelsFilter(args, filter);
-        return new(TS.QUERYLABELS, args);
+        return new(CommandCategories.ReadOnly, TS.QUERYLABELS, args);
     }
 
     // FILTER is optional for TS.QUERYLABELS (omitting it queries all indexed series); an empty collection is
@@ -476,7 +479,7 @@ public static class TimeSeriesCommandsBuilder
     {
         var args = TimeSeriesAux.BuildNRangeArgs(keys, fromTimeStamp, toTimeStamp, flags, filterByTs,
             filterByValue, count, align, aggregations, timeBucket, bt);
-        return new(TS.NRANGE, args);
+        return new(CommandCategories.ReadOnly, TS.NRANGE, args);
     }
 
     public static SerializedCommand NRevRange(
@@ -494,7 +497,7 @@ public static class TimeSeriesCommandsBuilder
     {
         var args = TimeSeriesAux.BuildNRangeArgs(keys, fromTimeStamp, toTimeStamp, flags, filterByTs,
             filterByValue, count, align, aggregations, timeBucket, bt);
-        return new(TS.NREVRANGE, args);
+        return new(CommandCategories.ReadOnly, TS.NREVRANGE, args);
     }
 
     // Note: the server's BLOCK group is intentionally not exposed - blocking does not compose with the
@@ -507,7 +510,7 @@ public static class TimeSeriesCommandsBuilder
             args.Add(TimeSeriesArgs.MAX_COUNT);
             args.Add(maxCount.Value);
         }
-        return new(TS.READ, args);
+        return new(CommandCategories.ReadOnly, TS.READ, args);
     }
 
     #endregion

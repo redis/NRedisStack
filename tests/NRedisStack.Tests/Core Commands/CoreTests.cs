@@ -44,7 +44,7 @@ public class CoreTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         ResetInfoDefaults(); // demonstrate first connection
         IDatabase db = GetCleanDatabase(endpointId);
 
-        db.Execute(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
+        db.Execute(new SerializedCommand(CommandCategories.Always, "PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
         var info = db.Execute("CLIENT", "INFO").ToString();
         Assert.Contains($"lib-name=NRedisStack(.NET_v{Environment.Version}) lib-ver={GetNRedisStackVersion()}", info);
@@ -57,7 +57,7 @@ public class CoreTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         ResetInfoDefaults(); // demonstrate first connection
         IDatabase db = GetCleanDatabase(endpointId);
 
-        await db.ExecuteAsync(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
+        await db.ExecuteAsync(new SerializedCommand(CommandCategories.Always, "PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
         var info = (await db.ExecuteAsync("CLIENT", "INFO")).ToString();
         Assert.Contains($"lib-name=NRedisStack(.NET_v{Environment.Version}) lib-ver={GetNRedisStackVersion()}", info);
@@ -70,7 +70,7 @@ public class CoreTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         ResetInfoDefaults(); // demonstrate first connection
         var db = GetConnection(endpointId).GetDatabase("MyLibraryName;v1.0.0");
 
-        db.Execute(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
+        db.Execute(new SerializedCommand(CommandCategories.Always, "PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
         var info = db.Execute("CLIENT", "INFO").ToString();
         Assert.Contains($"NRedisStack(MyLibraryName;v1.0.0;.NET_v{Environment.Version}) lib-ver={GetNRedisStackVersion()}", info);
@@ -83,7 +83,7 @@ public class CoreTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         ResetInfoDefaults(); // demonstrate first connection
         var db = GetConnection(endpointId).GetDatabase("MyLibraryName;v1.0.0");
 
-        await db.ExecuteAsync(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
+        await db.ExecuteAsync(new SerializedCommand(CommandCategories.Always, "PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
         var info = (await db.ExecuteAsync("CLIENT", "INFO")).ToString();
         Assert.Contains($"NRedisStack(MyLibraryName;v1.0.0;.NET_v{Environment.Version}) lib-ver={GetNRedisStackVersion()}", info);
@@ -97,7 +97,7 @@ public class CoreTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         var db = GetConnection(endpointId).GetDatabase(null);
 
         var infoBefore = db.Execute("CLIENT", "INFO").ToString();
-        db.Execute(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
+        db.Execute(new SerializedCommand(CommandCategories.Always, "PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
         var infoAfter = db.Execute("CLIENT", "INFO").ToString();
         // Find the indices of "lib-name=" in the strings
@@ -125,7 +125,7 @@ public class CoreTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         var db = GetConnection(endpointId).GetDatabase(null);
 
         var infoBefore = (await db.ExecuteAsync("CLIENT", "INFO")).ToString();
-        await db.ExecuteAsync(new SerializedCommand("PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
+        await db.ExecuteAsync(new SerializedCommand(CommandCategories.Always, "PING")); // only the extension method of Execute (which is used for all the commands of Redis Stack) will set the library name and version.
 
         var infoAfter = (await db.ExecuteAsync("CLIENT", "INFO")).ToString();
         // Find the indices of "lib-name=" in the strings

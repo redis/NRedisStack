@@ -7,7 +7,7 @@ public class TimeSeriesHelper
 {
     public static RedisResult getInfo(IDatabase db, string key, out int j, out int k)
     {
-        var cmd = new SerializedCommand("TS.INFO", (RedisKey)key);
+        var cmd = new SerializedCommand(CommandCategories.ReadOnly, "TS.INFO", (RedisKey)key);
         RedisResult info = db.Execute(cmd);
 
         j = -1;

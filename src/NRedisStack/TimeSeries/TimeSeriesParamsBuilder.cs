@@ -190,7 +190,7 @@ public class TsAddParamsBuilder : TsBaseParamsBuilder<TsAddParamsBuilder>
         args.AddUncompressed(uncompressed);
         args.AddOnDuplicate(duplicatePolicy);
         args.AddIgnoreValues(ignoreMaxTimeDiff, ignoreMaxValDiff);
-        return new(args);
+        return new(args, TsAddParams.ResolveCategory(timestamp.Value, duplicatePolicy));
     }
 
     public new TsAddParamsBuilder AddValue(double value) => base.AddValue(value);

@@ -12,7 +12,7 @@ public static class TopKCommandBuilder
             throw new ArgumentOutOfRangeException(nameof(items));
 
         var args = Auxiliary.MergeArgs(key, items);
-        return new(TOPK.ADD, args);
+        return new(CommandCategories.WriteAccumulating, TOPK.ADD, args);
     }
 
     public static SerializedCommand Count(RedisKey key, params RedisValue[] items)
@@ -21,7 +21,7 @@ public static class TopKCommandBuilder
             throw new ArgumentOutOfRangeException(nameof(items));
 
         var args = Auxiliary.MergeArgs(key, items);
-        return new(TOPK.COUNT, args);
+        return new(CommandCategories.ReadOnly, TOPK.COUNT, args);
     }
 
     public static SerializedCommand IncrBy(RedisKey key, params Tuple<RedisValue, long>[] itemIncrements)
@@ -35,18 +35,18 @@ public static class TopKCommandBuilder
             args.Add(pair.Item1);
             args.Add(pair.Item2);
         }
-        return new(TOPK.INCRBY, args);
+        return new(CommandCategories.WriteAccumulating, TOPK.INCRBY, args);
     }
 
     public static SerializedCommand Info(RedisKey key)
     {
-        return new(TOPK.INFO, key);
+        return new(CommandCategories.ReadOnly, TOPK.INFO, key);
     }
 
     public static SerializedCommand List(RedisKey key, bool withcount = false)
     {
-        return (withcount) ? new(TOPK.LIST, key, "WITHCOUNT")
-            : new SerializedCommand(TOPK.LIST, key);
+        return (withcount) ? new(CommandCategories.ReadOnly, TOPK.LIST, key, "WITHCOUNT")
+            : new SerializedCommand(CommandCategories.ReadOnly, TOPK.LIST, key);
     }
 
     public static SerializedCommand Query(RedisKey key, params RedisValue[] items)
@@ -56,11 +56,11 @@ public static class TopKCommandBuilder
 
         var args = Auxiliary.MergeArgs(key, items);
 
-        return new(TOPK.QUERY, args);
+        return new(CommandCategories.ReadOnly, TOPK.QUERY, args);
     }
 
     public static SerializedCommand Reserve(RedisKey key, long topk, long width = 7, long depth = 8, double decay = 0.9)
     {
-        return new(TOPK.RESERVE, key, topk, width, depth, decay);
+        return new(CommandCategories.WriteAccumulating, TOPK.RESERVE, key, topk, width, depth, decay);
     }
 }

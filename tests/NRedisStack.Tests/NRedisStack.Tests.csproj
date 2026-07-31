@@ -9,6 +9,10 @@
              instead of the current (double, double) API, the build fails. Existing tests that deliberately
              exercise obsolete members opt in per-file with `#pragma warning disable CS0612, CS0618`. -->
         <WarningsAsErrors>$(WarningsAsErrors);CS0612;CS0618</WarningsAsErrors>
+
+        <!-- CommandCategoryTests asserts our cast-from-int categories still line up with the named
+             StackExchange.Redis members; those are [Experimental] under SER007 -->
+        <NoWarn>$(NoWarn);SER007</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
@@ -32,7 +36,10 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="StackExchange.Redis"/>
+        <!-- deliberately ahead of the library's floor: NRedisStack still builds against 3.0.x (where the
+             retry-category bits are simply masked off), but the tests need the named CommandRetry* members
+             in order to verify our cast-from-int values against them -->
+        <PackageReference Include="StackExchange.Redis" VersionOverride="3.1.0"/>
         <PackageReference Include="xunit.v3"/>
         <PackageReference Include="BouncyCastle.Cryptography"/>
         <PackageReference Include="Microsoft.Azure.StackExchangeRedis"/>
