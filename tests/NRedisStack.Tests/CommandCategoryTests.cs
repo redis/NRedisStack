@@ -50,6 +50,31 @@ public class CommandCategoryTests
         Assert.Equal(CommandCategories.ReadOnly, command.CommandCategory);
     }
 
+    // a category that names no rung is almost certainly a mistake, and silently accepting it would mean
+    // "never retry" dressed up as a declaration
+    [Theory]
+    [InlineData(CommandFlags.None)]
+    [InlineData(CommandFlags.FireAndForget)]              // real flag, wrong parameter
+    [InlineData(CommandFlags.DemandReplica)]
+    [InlineData(CommandCategories.ServerSpecific)]        // sticky bit, but no rung
+    public void ConstructingWithNoCategoryThrows(CommandFlags category)
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(
+            () => new SerializedCommand(category, "FT.SEARCH", "idx", "*"));
+        Assert.Throws<ArgumentOutOfRangeException>(
+            () => new SerializedCommand(category, "FT.SEARCH", new List<object> { "idx", "*" }));
+    }
+
+    [Fact]
+    public void ARungPlusServerSpecificIsAccepted()
+    {
+        var command = new SerializedCommand(
+            CommandCategories.ReadOnly | CommandCategories.ServerSpecific, "BF.SCANDUMP", "k", 0);
+        Assert.Equal(CommandCategories.ReadOnly | CommandCategories.ServerSpecific, command.CommandCategory);
+    }
+
+    // the obsolete ctors must keep working and keep meaning "uncategorized", or every existing caller
+    // would go from a compile-time warning to a runtime exception
     [Fact]
     public void UncategorizedCommandsReportNone()
     {
@@ -73,30 +98,69 @@ public class CommandCategoryTests
         { "FT.SUGADD", CommandCategories.WriteLastWins, SearchCommandBuilder.SugAdd("k", "s", 1d) },
         { "FT.SUGADD INCR", CommandCategories.WriteAccumulating, SearchCommandBuilder.SugAdd("k", "s", 1d, increment: true) },
 
-        // a cursored aggregate leaves state on the serving node, so it must not fail over
+        // A cursored aggregate allocates cursor state, so every replay leaks another cursor. Never rather
+        // than a high rung: ServerSpecific only stops failover, and any rung below Never can be re-enabled
+        // by a caller raising MaxCommandRetryCategory.
         { "FT.AGGREGATE", CommandCategories.ReadOnly, SearchCommandBuilder.Aggregate("idx", new AggregationRequest("*")) },
         {
             "FT.AGGREGATE WITHCURSOR",
-            CommandCategories.ReadOnly | CommandCategories.ServerSpecific,
+            CommandCategories.Never,
             SearchCommandBuilder.Aggregate("idx", new AggregationRequest("*").Cursor(10))
+        },
+        { "FT.PROFILE SEARCH", CommandCategories.ReadOnly, SearchCommandBuilder.ProfileSearch("idx", new Query("*")) },
+        {
+            "FT.PROFILE AGGREGATE",
+            CommandCategories.ReadOnly,
+            SearchCommandBuilder.ProfileAggregate("idx", new AggregationRequest("*"))
+        },
+        {
+            // must match FT.AGGREGATE WITHCURSOR: profiling still allocates the cursor
+            "FT.PROFILE AGGREGATE WITHCURSOR",
+            CommandCategories.Never,
+            SearchCommandBuilder.ProfileAggregate("idx", new AggregationRequest("*").Cursor(10))
         },
 
         // reading a cursor advances it, so a replay skips a page rather than repeating one
         {
             "FT.CURSOR READ",
-            CommandCategories.WriteAccumulating | CommandCategories.ServerSpecific,
+            CommandCategories.Never,
             SearchCommandBuilder.CursorRead("idx", 1)
         },
         {
             "FT.CURSOR READ COUNT",
-            CommandCategories.WriteAccumulating | CommandCategories.ServerSpecific,
+            CommandCategories.Never,
             SearchCommandBuilder.CursorRead("idx", 1, 10)
         },
         {
+            // RediSearch errors on a repeat delete rather than treating it as an OK no-op, so a replay
+            // reports failure for cleanup that succeeded
             "FT.CURSOR DEL",
-            CommandCategories.WriteLastWins | CommandCategories.ServerSpecific,
+            CommandCategories.Never,
             SearchCommandBuilder.CursorDel("idx", 1)
         },
+
+        // Module DDL leaves state correct on replay but *errors* ("Index already exists", "Index not
+        // found"), so it must sit above the default ceiling or a lost reply gets replayed by default and
+        // reports failure for something that succeeded. Verified against a live server; see
+        // CommandCategories.WriteAccumulating.
+        {
+            "FT.CREATE",
+            CommandCategories.WriteAccumulating,
+            SearchCommandBuilder.Create("idx", new FTCreateParams(), new Schema().AddTextField("n"))
+        },
+        { "FT.DROPINDEX", CommandCategories.WriteAccumulating, SearchCommandBuilder.DropIndex("idx") },
+        { "FT.ALIASADD", CommandCategories.WriteAccumulating, SearchCommandBuilder.AliasAdd("al", "idx") },
+        { "FT.ALIASDEL", CommandCategories.WriteAccumulating, SearchCommandBuilder.AliasDel("al") },
+        { "BF.RESERVE", CommandCategories.WriteAccumulating, BloomCommandBuilder.Reserve("k", 0.01, 100) },
+        { "TS.CREATE", CommandCategories.WriteAccumulating, TimeSeriesCommandsBuilder.Create("k", new TsCreateParamsBuilder().build()) },
+
+        // by contrast, the true SETNX analogues return 0 rather than erroring, so they stay put
+        { "BF.ADD", CommandCategories.WriteChecked, BloomCommandBuilder.Add("k", "item") },
+        { "CF.ADDNX", CommandCategories.WriteChecked, CuckooCommandBuilder.AddNX("k", "item") },
+
+        // ...and the deletes that report 0 rather than erroring stay idempotent overwrites
+        { "FT.DICTDEL", CommandCategories.WriteLastWins, SearchCommandBuilder.DictDel("d", "term") },
+        { "FT.SUGDEL", CommandCategories.WriteLastWins, SearchCommandBuilder.SugDel("k", "s") },
 
         // TS.ADD: only an explicit, non-SUM ON_DUPLICATE makes a replay provably idempotent
         { "TS.ADD ON_DUPLICATE LAST", CommandCategories.WriteLastWins, TsAdd(1L, TsDuplicatePolicy.LAST) },

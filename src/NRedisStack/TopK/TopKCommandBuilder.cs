@@ -61,6 +61,6 @@ public static class TopKCommandBuilder
 
     public static SerializedCommand Reserve(RedisKey key, long topk, long width = 7, long depth = 8, double decay = 0.9)
     {
-        return new(CommandCategories.WriteChecked, TOPK.RESERVE, key, topk, width, depth, decay);
+        return new(CommandCategories.WriteAccumulating, TOPK.RESERVE, key, topk, width, depth, decay);
     }
 }

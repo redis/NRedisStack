@@ -34,12 +34,12 @@ public static class CmsCommandBuilder
 
     public static SerializedCommand InitByDim(RedisKey key, long width, long depth)
     {
-        return new(CommandCategories.WriteChecked, CMS.INITBYDIM, key, width, depth);
+        return new(CommandCategories.WriteAccumulating, CMS.INITBYDIM, key, width, depth);
     }
 
     public static SerializedCommand InitByProb(RedisKey key, double error, double probability)
     {
-        return new(CommandCategories.WriteChecked, CMS.INITBYPROB, key, error, probability);
+        return new(CommandCategories.WriteAccumulating, CMS.INITBYPROB, key, error, probability);
     }
 
     public static SerializedCommand Merge(RedisValue destination, long numKeys, RedisValue[] source,

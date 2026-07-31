@@ -16,12 +16,12 @@ public static class TimeSeriesCommandsBuilder
     public static SerializedCommand Create(string key, long? retentionTime = null, IReadOnlyCollection<TimeSeriesLabel>? labels = null, bool? uncompressed = null, long? chunkSizeBytes = null, TsDuplicatePolicy? duplicatePolicy = null)
     {
         var parameters = new TsCreateParams(retentionTime, labels, uncompressed, chunkSizeBytes, duplicatePolicy);
-        return new(CommandCategories.WriteChecked, TS.CREATE, parameters.ToArray(key));
+        return new(CommandCategories.WriteAccumulating, TS.CREATE, parameters.ToArray(key));
     }
 
     public static SerializedCommand Create(string key, TsCreateParams parameters)
     {
-        return new(CommandCategories.WriteChecked, TS.CREATE, parameters.ToArray(key));
+        return new(CommandCategories.WriteAccumulating, TS.CREATE, parameters.ToArray(key));
     }
 
     #endregion
@@ -101,13 +101,13 @@ public static class TimeSeriesCommandsBuilder
         var args = new List<object> { (RedisKey)sourceKey };
         args.AddRule(rule);
         args.Add(alignTimestamp);
-        return new(CommandCategories.WriteChecked, TS.CREATERULE, args);
+        return new(CommandCategories.WriteAccumulating, TS.CREATERULE, args);
     }
 
     public static SerializedCommand DeleteRule(string sourceKey, string destKey)
     {
         var args = new List<object> { (RedisKey)sourceKey, (RedisKey)destKey };
-        return new(CommandCategories.WriteLastWins, TS.DELETERULE, args);
+        return new(CommandCategories.WriteAccumulating, TS.DELETERULE, args);
     }
 
     #endregion

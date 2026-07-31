@@ -27,7 +27,7 @@ public static class TdigestCommandBuilder
 
     public static SerializedCommand Create(RedisKey key, long compression = 100)
     {
-        return new(CommandCategories.WriteChecked, TDIGEST.CREATE, key, TdigestArgs.COMPRESSION, compression);
+        return new(CommandCategories.WriteAccumulating, TDIGEST.CREATE, key, TdigestArgs.COMPRESSION, compression);
     }
 
     public static SerializedCommand Info(RedisKey key)

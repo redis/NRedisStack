@@ -84,7 +84,7 @@ public static class Auxiliary
     }
 
     public static List<RedisResult> ExecuteBroadcast(this IDatabase db, string command)
-        => db.ExecuteBroadcast(CommandFlags.None, command);
+        => db.ExecuteBroadcast(SerializedCommand.Uncategorized(command));
 
     public static List<RedisResult> ExecuteBroadcast(this IDatabase db, CommandFlags category, string command)
         => db.ExecuteBroadcast(new SerializedCommand(category, command));
@@ -111,7 +111,7 @@ public static class Auxiliary
     }
 
     public static async Task<List<RedisResult>> ExecuteBroadcastAsync(this IDatabaseAsync db, string command)
-        => await db.ExecuteBroadcastAsync(CommandFlags.None, command);
+        => await db.ExecuteBroadcastAsync(SerializedCommand.Uncategorized(command));
 
     public static async Task<List<RedisResult>> ExecuteBroadcastAsync(this IDatabaseAsync db, CommandFlags category, string command)
         => await db.ExecuteBroadcastAsync(new SerializedCommand(category, command));

@@ -37,12 +37,30 @@ internal static class CommandCategories
     internal const CommandFlags WriteLastWins = (CommandFlags)(16 << 13);
 
     /// <summary>Cumulative write; a replay double-applies and changes the result.</summary>
+    /// <remarks>
+    /// Also carries a second, less obvious class of command: one whose replay leaves state *correct* but
+    /// returns an error, because the server rejects the repeat ("Index already exists", "key already
+    /// exists", "compaction rule does not exist"). Most module DDL behaves this way. That is not literally
+    /// cumulative, but the ladder has no rung for "idempotent, yet errors on replay", and the alternatives
+    /// are worse: <see cref="WriteChecked"/> and <see cref="WriteLastWins"/> both sit at or below the
+    /// default policy ceiling, so a lost reply would be replayed *by default* and report failure for an
+    /// operation that actually succeeded. Sitting here keeps that closed unless the caller deliberately
+    /// raises the ceiling, while still allowing the known-never-sent replay (see <see cref="Never"/>),
+    /// which is the case that matters for riding out <c>-LOADING</c> during setup.
+    /// </remarks>
     internal const CommandFlags WriteAccumulating = (CommandFlags)(20 << 13);
 
     /// <summary>Server administration, e.g. <c>FT.CONFIG SET</c>.</summary>
     internal const CommandFlags ServerAdmin = (CommandFlags)(24 << 13);
 
     /// <summary>Never replay, under any policy.</summary>
+    /// <remarks>
+    /// The only category a retry policy cannot override. StackExchange.Redis tests for it before both the
+    /// <c>MaxCommandRetryCategory</c> comparison and the known-never-sent (<c>NotApplied</c>) bypass, so
+    /// unlike the rungs below it this holds even when a caller raises the ceiling - which they may do as
+    /// far as <c>Never</c> itself. Use it where a replay would corrupt state or report a spurious error
+    /// even though the original attempt succeeded, and where forgoing retry entirely is the lesser cost.
+    /// </remarks>
     internal const CommandFlags Never = (CommandFlags)(31 << 13);
 
     /// <summary>
@@ -58,9 +76,16 @@ internal static class CommandCategories
     internal const CommandFlags ServerSpecific = (CommandFlags)(1 << 18);
 
     /// <summary>
+    /// The rung bits (13-17): the severity ladder on its own, without <see cref="ServerSpecific"/>. A
+    /// category is only meaningful if it names a rung, since <see cref="ServerSpecific"/> alone leaves
+    /// StackExchange.Redis to substitute a default rung.
+    /// </summary>
+    internal const CommandFlags LadderMask = Never;
+
+    /// <summary>
     /// The bits a caller-supplied category may occupy: the retry-category region (13-17) plus
     /// <see cref="ServerSpecific"/> (18). Anything else is masked off before dispatch, so a stray
     /// <c>FireAndForget</c> or replica preference cannot leak in through the category parameter.
     /// </summary>
-    internal const CommandFlags Mask = Never | ServerSpecific;
+    internal const CommandFlags Mask = LadderMask | ServerSpecific;
 }

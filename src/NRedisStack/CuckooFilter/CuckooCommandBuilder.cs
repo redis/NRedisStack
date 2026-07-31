@@ -134,7 +134,7 @@ public static class CuckooCommandBuilder
             args.Add(expansion);
         }
 
-        return new(CommandCategories.WriteChecked, CF.RESERVE, args);
+        return new(CommandCategories.WriteAccumulating, CF.RESERVE, args);
     }
 
     public static SerializedCommand ScanDump(RedisKey key, long iterator)

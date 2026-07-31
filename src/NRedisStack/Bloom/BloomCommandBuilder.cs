@@ -80,7 +80,7 @@ public static class BloomCommandBuilder
             args.Add(BloomArgs.NONSCALING);
         }
 
-        return new(CommandCategories.WriteChecked, BF.RESERVE, args);
+        return new(CommandCategories.WriteAccumulating, BF.RESERVE, args);
     }
 
     public static SerializedCommand ScanDump(RedisKey key, long iterator)
