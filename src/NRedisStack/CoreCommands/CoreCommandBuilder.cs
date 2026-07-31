@@ -17,7 +17,8 @@ public static class CoreCommandBuilder
             _ => throw new ArgumentOutOfRangeException(nameof(attr)),
         };
 
-        return new(RedisCoreCommands.CLIENT, RedisCoreCommands.SETINFO, attrValue, value);
+        // as SE.Redis categorizes CLIENT: connection-scoped, and scoped to *this* connection's server
+        return new(CommandCategories.Connection | CommandCategories.ServerSpecific, RedisCoreCommands.CLIENT, RedisCoreCommands.SETINFO, attrValue, value);
     }
 
     public static SerializedCommand BZMPop(double timeout, RedisKey[] keys, MinMaxModifier minMaxModifier, long? count)
@@ -43,7 +44,7 @@ public static class CoreCommandBuilder
             args.Add(count);
         }
 
-        return new(RedisCoreCommands.BZMPOP, args);
+        return new(CommandCategories.WriteAccumulating, RedisCoreCommands.BZMPOP, args);
     }
 
     public static SerializedCommand BZPopMin(RedisKey[] keys, double timeout)
@@ -78,7 +79,7 @@ public static class CoreCommandBuilder
             args.Add(count);
         }
 
-        return new(RedisCoreCommands.BLMPOP, args);
+        return new(CommandCategories.WriteAccumulating, RedisCoreCommands.BLMPOP, args);
     }
 
     public static SerializedCommand BLPop(RedisKey[] keys, double timeout)
@@ -102,7 +103,7 @@ public static class CoreCommandBuilder
             timeout
         ];
 
-        return new(RedisCoreCommands.BLMOVE, args);
+        return new(CommandCategories.WriteAccumulating, RedisCoreCommands.BLMOVE, args);
     }
 
     public static SerializedCommand BRPopLPush(RedisKey source, RedisKey destination, double timeout)
@@ -114,7 +115,7 @@ public static class CoreCommandBuilder
             timeout
         ];
 
-        return new(RedisCoreCommands.BRPOPLPUSH, args);
+        return new(CommandCategories.WriteAccumulating, RedisCoreCommands.BRPOPLPUSH, args);
     }
 
     public static SerializedCommand XRead(RedisKey[] keys, RedisValue[] positions, int? count, int? timeoutMilliseconds)
@@ -147,7 +148,7 @@ public static class CoreCommandBuilder
         args.AddRange(keys.Cast<object>());
         args.AddRange(positions.Cast<object>());
 
-        return new(RedisCoreCommands.XREAD, args);
+        return new(CommandCategories.ReadOnly, RedisCoreCommands.XREAD, args);
     }
 
     public static SerializedCommand XReadGroup(RedisValue groupName, RedisValue consumerName, RedisKey[] keys, RedisValue[] positions, int? count, int? timeoutMilliseconds, bool? noAcknowledge)
@@ -190,7 +191,7 @@ public static class CoreCommandBuilder
         args.AddRange(keys.Cast<object>());
         args.AddRange(positions.Cast<object>());
 
-        return new(RedisCoreCommands.XREADGROUP, args);
+        return new(CommandCategories.WriteAccumulating, RedisCoreCommands.XREADGROUP, args);
     }
 
     private static SerializedCommand BlockingCommandWithKeysAndTimeout(String command, RedisKey[] keys, double timeout)
@@ -204,6 +205,7 @@ public static class CoreCommandBuilder
         args.AddRange(keys.Cast<object>());
         args.Add(timeout);
 
-        return new(command, args);
+        // destructive reads: a replay pops a further element, and the popped one is already lost
+        return new(CommandCategories.WriteAccumulating, command, args);
     }
 }

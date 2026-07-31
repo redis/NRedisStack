@@ -15,34 +15,34 @@ public static class TdigestCommandBuilder
             args[i + 1] = values[i];
         }
 
-        return new(TDIGEST.ADD, args);
+        return new(CommandCategories.WriteAccumulating, TDIGEST.ADD, args);
     }
 
     public static SerializedCommand CDF(RedisKey key, params double[] values)
     {
         var args = new List<object>(values.Length + 1) { key };
         foreach (var value in values) args.Add(value);
-        return new(TDIGEST.CDF, args);
+        return new(CommandCategories.ReadOnly, TDIGEST.CDF, args);
     }
 
     public static SerializedCommand Create(RedisKey key, long compression = 100)
     {
-        return new(TDIGEST.CREATE, key, TdigestArgs.COMPRESSION, compression);
+        return new(CommandCategories.WriteChecked, TDIGEST.CREATE, key, TdigestArgs.COMPRESSION, compression);
     }
 
     public static SerializedCommand Info(RedisKey key)
     {
-        return new(TDIGEST.INFO, key);
+        return new(CommandCategories.ReadOnly, TDIGEST.INFO, key);
     }
 
     public static SerializedCommand Max(RedisKey key)
     {
-        return new(TDIGEST.MAX, key);
+        return new(CommandCategories.ReadOnly, TDIGEST.MAX, key);
     }
 
     public static SerializedCommand Min(RedisKey key)
     {
-        return new(TDIGEST.MIN, key);
+        return new(CommandCategories.ReadOnly, TDIGEST.MIN, key);
     }
 
     public static SerializedCommand Merge(RedisKey destinationKey, long compression = default(long), bool overide = false, params RedisKey[] sourceKeys)
@@ -67,7 +67,7 @@ public static class TdigestCommandBuilder
             args.Add("OVERRIDE");
         }
 
-        return new(TDIGEST.MERGE, args);
+        return new(CommandCategories.WriteAccumulating, TDIGEST.MERGE, args);
     }
 
     public static SerializedCommand Quantile(RedisKey key, params double[] quantile)
@@ -77,7 +77,7 @@ public static class TdigestCommandBuilder
         var args = new List<object> { key };
         foreach (var q in quantile) args.Add(q);
 
-        return new(TDIGEST.QUANTILE, args);
+        return new(CommandCategories.ReadOnly, TDIGEST.QUANTILE, args);
     }
 
     public static SerializedCommand Rank(RedisKey key, params long[] values)
@@ -86,7 +86,7 @@ public static class TdigestCommandBuilder
 
         var args = new List<object>(values.Length + 1) { key };
         foreach (var v in values) args.Add(v);
-        return new(TDIGEST.RANK, args);
+        return new(CommandCategories.ReadOnly, TDIGEST.RANK, args);
     }
 
     public static SerializedCommand RevRank(RedisKey key, params long[] values)
@@ -95,7 +95,7 @@ public static class TdigestCommandBuilder
 
         var args = new List<object>(values.Length + 1) { key };
         foreach (var v in values) args.Add(v);
-        return new(TDIGEST.REVRANK, args);
+        return new(CommandCategories.ReadOnly, TDIGEST.REVRANK, args);
     }
 
     public static SerializedCommand ByRank(RedisKey key, params long[] ranks)
@@ -104,7 +104,7 @@ public static class TdigestCommandBuilder
 
         var args = new List<object>(ranks.Length + 1) { key };
         foreach (var v in ranks) args.Add(v);
-        return new(TDIGEST.BYRANK, args);
+        return new(CommandCategories.ReadOnly, TDIGEST.BYRANK, args);
     }
 
     public static SerializedCommand ByRevRank(RedisKey key, params long[] ranks)
@@ -113,16 +113,16 @@ public static class TdigestCommandBuilder
 
         var args = new List<object>(ranks.Length + 1) { key };
         foreach (var v in ranks) args.Add(v);
-        return new(TDIGEST.BYREVRANK, args);
+        return new(CommandCategories.ReadOnly, TDIGEST.BYREVRANK, args);
     }
 
     public static SerializedCommand Reset(RedisKey key)
     {
-        return new(TDIGEST.RESET, key);
+        return new(CommandCategories.WriteLastWins, TDIGEST.RESET, key);
     }
 
     public static SerializedCommand TrimmedMean(RedisKey key, double lowCutQuantile, double highCutQuantile)
     {
-        return new(TDIGEST.TRIMMED_MEAN, key, lowCutQuantile, highCutQuantile);
+        return new(CommandCategories.ReadOnly, TDIGEST.TRIMMED_MEAN, key, lowCutQuantile, highCutQuantile);
     }
 }

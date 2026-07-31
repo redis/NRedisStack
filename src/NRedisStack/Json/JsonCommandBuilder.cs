@@ -14,8 +14,8 @@ public static class JsonCommandBuilder
     public static SerializedCommand Resp(RedisKey key, string? path = null)
     {
         return string.IsNullOrEmpty(path)
-            ? new(JSON.RESP, key)
-            : new SerializedCommand(JSON.RESP, key, path!);
+            ? new(CommandCategories.ReadOnly, JSON.RESP, key)
+            : new SerializedCommand(CommandCategories.ReadOnly, JSON.RESP, key, path!);
     }
 
 #if DEBUG // avoid internal use
@@ -52,7 +52,10 @@ public static class JsonCommandBuilder
             };
         }
         Debug.Assert(i == count, $"Arg count mismatch; check {nameof(JsonCommandBuilder)}.{nameof(Set)}");
-        return new(JSON.SET, args);
+        // NX/XX make this conditional, so a replay is rejected rather than overwriting
+        var category = when is When.Exists or When.NotExists
+            ? CommandCategories.WriteChecked : CommandCategories.WriteLastWins;
+        return new(category, JSON.SET, args);
     }
 
     public static SerializedCommand MSet(KeyPathValue[] KeyPathValueList)
@@ -61,47 +64,47 @@ public static class JsonCommandBuilder
             throw new ArgumentOutOfRangeException(nameof(KeyPathValueList));
 
         var args = KeyPathValueList.SelectMany(x => x.ToArray()).ToArray();
-        return new(JSON.MSET, args);
+        return new(CommandCategories.WriteLastWins, JSON.MSET, args);
     }
 
     public static SerializedCommand Merge(RedisKey key, RedisValue path, RedisValue json)
     {
-        return new(JSON.MERGE, key, path, json);
+        return new(CommandCategories.WriteLastWins, JSON.MERGE, key, path, json);
     }
 
     public static SerializedCommand StrAppend(RedisKey key, string value, string? path = null)
     {
         return path == null
-            ? new(JSON.STRAPPEND, key, JsonSerializer.Serialize(value))
-            : new SerializedCommand(JSON.STRAPPEND, key, path, JsonSerializer.Serialize(value));
+            ? new(CommandCategories.WriteAccumulating, JSON.STRAPPEND, key, JsonSerializer.Serialize(value))
+            : new SerializedCommand(CommandCategories.WriteAccumulating, JSON.STRAPPEND, key, path, JsonSerializer.Serialize(value));
     }
 
     public static SerializedCommand StrLen(RedisKey key, string? path = null)
     {
         return path != null
-            ? new(JSON.STRLEN, key, path)
-            : new SerializedCommand(JSON.STRLEN, key);
+            ? new(CommandCategories.ReadOnly, JSON.STRLEN, key, path)
+            : new SerializedCommand(CommandCategories.ReadOnly, JSON.STRLEN, key);
     }
 
     public static SerializedCommand Toggle(RedisKey key, string? path = null)
     {
         return path != null
-            ? new(JSON.TOGGLE, key, path)
-            : new SerializedCommand(JSON.TOGGLE, key, "$");
+            ? new(CommandCategories.WriteAccumulating, JSON.TOGGLE, key, path)
+            : new SerializedCommand(CommandCategories.WriteAccumulating, JSON.TOGGLE, key, "$");
     }
 
     public static SerializedCommand Type(RedisKey key, string? path = null)
     {
         return (path != null)
-            ? new(JSON.TYPE, key, path)
-            : new SerializedCommand(JSON.TYPE, key);
+            ? new(CommandCategories.ReadOnly, JSON.TYPE, key, path)
+            : new SerializedCommand(CommandCategories.ReadOnly, JSON.TYPE, key);
     }
 
     public static SerializedCommand DebugMemory(string key, string? path = null)
     {
         return (path != null)
-            ? new(JSON.DEBUG, JSON.MEMORY, (RedisKey)key, path)
-            : new SerializedCommand(JSON.DEBUG, JSON.MEMORY, (RedisKey)key);
+            ? new(CommandCategories.ReadOnly, JSON.DEBUG, JSON.MEMORY, (RedisKey)key, path)
+            : new SerializedCommand(CommandCategories.ReadOnly, JSON.DEBUG, JSON.MEMORY, (RedisKey)key);
     }
 
     public static SerializedCommand ArrAppend(RedisKey key, string? path = null, params object[] values)
@@ -117,7 +120,7 @@ public static class JsonCommandBuilder
 
         args.AddRange(values.Select(x => JsonSerializer.Serialize(x)));
 
-        return new(JSON.ARRAPPEND, args.ToArray());
+        return new(CommandCategories.WriteAccumulating, JSON.ARRAPPEND, args.ToArray());
     }
 
     public static SerializedCommand ArrIndex(RedisKey key, string path, object value, long? start = null,
@@ -127,7 +130,7 @@ public static class JsonCommandBuilder
             throw new ArgumentException("stop cannot be defined without start");
 
         var args = AssembleNonNullArguments(key, path, JsonSerializer.Serialize(value), start, stop);
-        return new(JSON.ARRINDEX, args);
+        return new(CommandCategories.ReadOnly, JSON.ARRINDEX, args);
     }
 
     public static SerializedCommand ArrInsert(RedisKey key, string path, long index, params object[] values)
@@ -137,13 +140,13 @@ public static class JsonCommandBuilder
         var args = new List<object> { key, path, index };
         args.AddRange(values.Select(val => JsonSerializer.Serialize(val)));
 
-        return new(JSON.ARRINSERT, args);
+        return new(CommandCategories.WriteAccumulating, JSON.ARRINSERT, args);
     }
 
     public static SerializedCommand ArrLen(RedisKey key, string? path = null)
     {
         var args = AssembleNonNullArguments(key, path);
-        return new(JSON.ARRLEN, args);
+        return new(CommandCategories.ReadOnly, JSON.ARRLEN, args);
     }
 
     public static SerializedCommand ArrPop(RedisKey key, string? path = null, long? index = null)
@@ -152,22 +155,22 @@ public static class JsonCommandBuilder
             throw new ArgumentException("index cannot be defined without path");
 
         var args = AssembleNonNullArguments(key, path, index);
-        return new(JSON.ARRPOP, args);
+        return new(CommandCategories.WriteAccumulating, JSON.ARRPOP, args);
     }
 
     public static SerializedCommand ArrTrim(RedisKey key, string path, long start, long stop) =>
-        new(JSON.ARRTRIM, key, path, start, stop);
+        new(CommandCategories.WriteAccumulating, JSON.ARRTRIM, key, path, start, stop);
 
     public static SerializedCommand Clear(RedisKey key, string? path = null)
     {
         var args = AssembleNonNullArguments(key, path);
-        return new(JSON.CLEAR, args);
+        return new(CommandCategories.WriteLastWins, JSON.CLEAR, args);
     }
 
     public static SerializedCommand Del(RedisKey key, string? path = null)
     {
         var args = AssembleNonNullArguments(key, path);
-        return new(JSON.DEL, args);
+        return new(CommandCategories.WriteLastWins, JSON.DEL, args);
     }
 
     public static SerializedCommand Get(RedisKey key, RedisValue? indent = null, RedisValue? newLine = null,
@@ -198,7 +201,7 @@ public static class JsonCommandBuilder
             args.Add(path);
         }
 
-        return new(JSON.GET, args);
+        return new(CommandCategories.ReadOnly, JSON.GET, args);
     }
 
     public static SerializedCommand Get(RedisKey key, string[] paths, RedisValue? indent = null,
@@ -226,12 +229,12 @@ public static class JsonCommandBuilder
 
         args.AddRange(paths);
 
-        return new(JSON.GET, args);
+        return new(CommandCategories.ReadOnly, JSON.GET, args);
     }
 
     public static SerializedCommand Get<T>(RedisKey key, string path = "$")
     {
-        return new(JSON.GET, key, path);
+        return new(CommandCategories.ReadOnly, JSON.GET, key, path);
     }
 
     public static SerializedCommand MGet(RedisKey[] keys, string path)
@@ -239,23 +242,23 @@ public static class JsonCommandBuilder
         var args = keys.Cast<object>().ToList();
 
         args.Add(path);
-        return new(JSON.MGET, args);
+        return new(CommandCategories.ReadOnly, JSON.MGET, args);
     }
 
     public static SerializedCommand NumIncrby(RedisKey key, string path, double value)
     {
-        return new(JSON.NUMINCRBY, key, path, value);
+        return new(CommandCategories.WriteAccumulating, JSON.NUMINCRBY, key, path, value);
     }
 
     public static SerializedCommand ObjKeys(RedisKey key, string? path = null)
     {
         var args = AssembleNonNullArguments(key, path);
-        return new(JSON.OBJKEYS, args);
+        return new(CommandCategories.ReadOnly, JSON.OBJKEYS, args);
     }
 
     public static SerializedCommand ObjLen(RedisKey key, string? path = null)
     {
         var args = AssembleNonNullArguments(key, path);
-        return new(JSON.OBJLEN, args);
+        return new(CommandCategories.ReadOnly, JSON.OBJLEN, args);
     }
 }

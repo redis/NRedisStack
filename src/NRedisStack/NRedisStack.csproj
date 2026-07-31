@@ -9,6 +9,10 @@
         <!-- don't warn about overload gloop -->
         <Nowarn>$(Nowarn);RS0026</Nowarn>
 
+        <!-- every command we issue must declare its side-effect category; the uncategorized
+             SerializedCommand ctors are [Obsolete] to force that, and internally that is an error -->
+        <WarningsAsErrors>$(WarningsAsErrors);CS0618</WarningsAsErrors>
+
         <Version>1.0.0-beta1</Version>
         <ReleaseVersion>1.0.0-beta1</ReleaseVersion>
         <PackageVersion>1.0.0-beta1</PackageVersion>

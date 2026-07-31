@@ -8,7 +8,7 @@ public static class CmsCommandBuilder
 {
     public static SerializedCommand IncrBy(RedisKey key, RedisValue item, long increment)
     {
-        return new(CMS.INCRBY, key, item, increment);
+        return new(CommandCategories.WriteAccumulating, CMS.INCRBY, key, item, increment);
     }
 
     public static SerializedCommand IncrBy(RedisKey key, Tuple<RedisValue, long>[] itemIncrements)
@@ -23,23 +23,23 @@ public static class CmsCommandBuilder
             args.Add(pair.Item2);
         }
 
-        return new(CMS.INCRBY, args);
+        return new(CommandCategories.WriteAccumulating, CMS.INCRBY, args);
     }
 
     public static SerializedCommand Info(RedisKey key)
     {
-        var info = new SerializedCommand(CMS.INFO, key);
+        var info = new SerializedCommand(CommandCategories.ReadOnly, CMS.INFO, key);
         return info;
     }
 
     public static SerializedCommand InitByDim(RedisKey key, long width, long depth)
     {
-        return new(CMS.INITBYDIM, key, width, depth);
+        return new(CommandCategories.WriteChecked, CMS.INITBYDIM, key, width, depth);
     }
 
     public static SerializedCommand InitByProb(RedisKey key, double error, double probability)
     {
-        return new(CMS.INITBYPROB, key, error, probability);
+        return new(CommandCategories.WriteChecked, CMS.INITBYPROB, key, error, probability);
     }
 
     public static SerializedCommand Merge(RedisValue destination, long numKeys, RedisValue[] source,
@@ -58,7 +58,7 @@ public static class CmsCommandBuilder
             foreach (var w in weight) args.Add(w);
         }
 
-        return new(CMS.MERGE, args);
+        return new(CommandCategories.WriteAccumulating, CMS.MERGE, args);
     }
 
     public static SerializedCommand Query(RedisKey key, params RedisValue[] items)
@@ -69,6 +69,6 @@ public static class CmsCommandBuilder
         List<object> args = [key];
         foreach (var item in items) args.Add(item);
 
-        return new(CMS.QUERY, args);
+        return new(CommandCategories.ReadOnly, CMS.QUERY, args);
     }
 }

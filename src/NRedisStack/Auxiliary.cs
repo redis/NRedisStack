@@ -61,35 +61,33 @@ public static class Auxiliary
         }
     }
 
-#if DEBUG
-    private const CommandFlags Flags = CommandFlags.NoRedirect; // disable redirect, so we spot -MOVED in tests
-#else
-    private const CommandFlags Flags = CommandFlags.None;
-#endif
     public static RedisResult Execute(this IDatabase db, SerializedCommand command)
     {
         db.SetInfoInPipeline();
-        return db.Execute(command.Command, command.Args, flags: Flags);
+        return db.Execute(command.Command, command.Args, flags: command.EffectiveFlags);
     }
 
     internal static RedisResult Execute(this IServer server, int? db, SerializedCommand command)
     {
-        return server.Execute(db, command.Command, command.Args, flags: Flags);
+        return server.Execute(db, command.Command, command.Args, flags: command.EffectiveFlags);
     }
 
     public static async Task<RedisResult> ExecuteAsync(this IDatabaseAsync db, SerializedCommand command)
     {
         ((IDatabase)db).SetInfoInPipeline();
-        return await db.ExecuteAsync(command.Command, command.Args, flags: Flags);
+        return await db.ExecuteAsync(command.Command, command.Args, flags: command.EffectiveFlags);
     }
 
     internal static async Task<RedisResult> ExecuteAsync(this IServer server, int? db, SerializedCommand command)
     {
-        return await server.ExecuteAsync(db, command.Command, command.Args, flags: Flags);
+        return await server.ExecuteAsync(db, command.Command, command.Args, flags: command.EffectiveFlags);
     }
 
     public static List<RedisResult> ExecuteBroadcast(this IDatabase db, string command)
-        => db.ExecuteBroadcast(new SerializedCommand(command));
+        => db.ExecuteBroadcast(CommandFlags.None, command);
+
+    public static List<RedisResult> ExecuteBroadcast(this IDatabase db, CommandFlags category, string command)
+        => db.ExecuteBroadcast(new SerializedCommand(category, command));
 
     public static List<RedisResult> ExecuteBroadcast(this IDatabase db, SerializedCommand command)
     {
@@ -113,7 +111,10 @@ public static class Auxiliary
     }
 
     public static async Task<List<RedisResult>> ExecuteBroadcastAsync(this IDatabaseAsync db, string command)
-        => await db.ExecuteBroadcastAsync(new SerializedCommand(command));
+        => await db.ExecuteBroadcastAsync(CommandFlags.None, command);
+
+    public static async Task<List<RedisResult>> ExecuteBroadcastAsync(this IDatabaseAsync db, CommandFlags category, string command)
+        => await db.ExecuteBroadcastAsync(new SerializedCommand(category, command));
 
     private static async Task<List<RedisResult>> ExecuteBroadcastAsync(this IDatabaseAsync db, SerializedCommand command)
     {

@@ -8,7 +8,7 @@ public static class SearchCommandBuilder
 {
     public static SerializedCommand _List()
     {
-        return new(FT._LIST);
+        return new(CommandCategories.ReadOnly, FT._LIST);
     }
 
     public static SerializedCommand Aggregate(string index, AggregationRequest query)
@@ -16,27 +16,29 @@ public static class SearchCommandBuilder
         List<object> args = [index];
         query.SerializeRedisArgs();
         args.AddRange(query.GetArgs());
-        return new(FT.AGGREGATE, args);
+        // WITHCURSOR leaves a cursor behind on the serving node; replaying elsewhere would both orphan
+        // that cursor and hand back a cursor id the follow-up FT.CURSOR calls cannot use
+        return new(query.IsWithCursor() ? CommandCategories.ReadOnly | CommandCategories.ServerSpecific : CommandCategories.ReadOnly, FT.AGGREGATE, args);
     }
 
     public static SerializedCommand AliasAdd(string alias, string index)
     {
-        return new(FT.ALIASADD, alias, index);
+        return new(CommandCategories.WriteChecked, FT.ALIASADD, alias, index);
     }
 
     public static SerializedCommand AliasDel(string alias)
     {
-        return new(FT.ALIASDEL, alias);
+        return new(CommandCategories.WriteLastWins, FT.ALIASDEL, alias);
     }
 
     public static SerializedCommand AliasUpdate(string alias, string index)
     {
-        return new(FT.ALIASUPDATE, alias, index);
+        return new(CommandCategories.WriteLastWins, FT.ALIASUPDATE, alias, index);
     }
 
     public static SerializedCommand AliasList(string index)
     {
-        return new(FT.ALIASLIST, index);
+        return new(CommandCategories.ReadOnly, FT.ALIASLIST, index);
     }
     public static SerializedCommand Alter(string index, Schema schema, bool skipInitialScan = false)
     {
@@ -48,19 +50,21 @@ public static class SearchCommandBuilder
         {
             f.AddSchemaArgs(args);
         }
-        return new(FT.ALTER, args);
+        return new(CommandCategories.WriteChecked, FT.ALTER, args);
     }
 
     [Obsolete("Starting from Redis 8.0, use db.ConfigGet instead")]
     public static SerializedCommand ConfigGet(string option)
     {
-        return new(FT.CONFIG, "GET", option);
+        // matches how SE.Redis categorizes plain CONFIG: node-local, and GET is not meaningfully safer,
+        // since a different member can be configured differently
+        return new(CommandCategories.ServerAdmin | CommandCategories.ServerSpecific, FT.CONFIG, "GET", option);
     }
 
     [Obsolete("Starting from Redis 8.0, use db.ConfigSet instead")]
     public static SerializedCommand ConfigSet(string option, string value)
     {
-        return new(FT.CONFIG, "SET", option, value);
+        return new(CommandCategories.ServerAdmin | CommandCategories.ServerSpecific, FT.CONFIG, "SET", option, value);
     }
 
     public static SerializedCommand Create(string indexName, FTCreateParams parameters, Schema schema)
@@ -75,18 +79,21 @@ public static class SearchCommandBuilder
             f.AddSchemaArgs(args);
         }
 
-        return new(FT.CREATE, args);
+        return new(CommandCategories.WriteChecked, FT.CREATE, args);
     }
 
     public static SerializedCommand CursorDel(string indexName, long cursorId)
     {
-        return new(FT.CURSOR, "DEL", indexName, cursorId);
+        // deleting an already-deleted cursor is a no-op, but only the node holding it can do it
+        return new(CommandCategories.WriteLastWins | CommandCategories.ServerSpecific, FT.CURSOR, "DEL", indexName, cursorId);
     }
 
     public static SerializedCommand CursorRead(string indexName, long cursorId, int? count = null)
     {
-        return ((count == null) ? new(FT.CURSOR, "READ", indexName, cursorId)
-            : new SerializedCommand(FT.CURSOR, "READ", indexName, cursorId, "COUNT", count));
+        // reading advances the cursor, so a replay silently skips a page rather than re-reading one
+        const CommandFlags Category = CommandCategories.WriteAccumulating | CommandCategories.ServerSpecific;
+        return ((count == null) ? new(Category, FT.CURSOR, "READ", indexName, cursorId)
+            : new SerializedCommand(Category, FT.CURSOR, "READ", indexName, cursorId, "COUNT", count));
     }
 
     public static SerializedCommand DictAdd(string dict, params string[] terms)
@@ -102,7 +109,7 @@ public static class SearchCommandBuilder
             args.Add(t);
         }
 
-        return new(FT.DICTADD, args);
+        return new(CommandCategories.WriteLastWins, FT.DICTADD, args);
     }
 
     public static SerializedCommand DictDel(string dict, params string[] terms)
@@ -118,18 +125,18 @@ public static class SearchCommandBuilder
             args.Add(t);
         }
 
-        return new(FT.DICTDEL, args);
+        return new(CommandCategories.WriteLastWins, FT.DICTDEL, args);
     }
 
     public static SerializedCommand DictDump(string dict)
     {
-        return new(FT.DICTDUMP, dict);
+        return new(CommandCategories.ReadOnly, FT.DICTDUMP, dict);
     }
 
     public static SerializedCommand DropIndex(string indexName, bool dd = false)
     {
-        return ((dd) ? new(FT.DROPINDEX, indexName, "DD")
-            : new SerializedCommand(FT.DROPINDEX, indexName));
+        return ((dd) ? new(CommandCategories.WriteLastWins, FT.DROPINDEX, indexName, "DD")
+            : new SerializedCommand(CommandCategories.WriteLastWins, FT.DROPINDEX, indexName));
     }
 
     public static SerializedCommand Explain(string indexName, string query, int? dialect)
@@ -140,7 +147,7 @@ public static class SearchCommandBuilder
             args.Add("DIALECT");
             args.Add(dialect);
         }
-        return new(FT.EXPLAIN, args);
+        return new(CommandCategories.ReadOnly, FT.EXPLAIN, args);
     }
 
     public static SerializedCommand ExplainCli(string indexName, string query, int? dialect)
@@ -151,17 +158,17 @@ public static class SearchCommandBuilder
             args.Add("DIALECT");
             args.Add(dialect);
         }
-        return new(FT.EXPLAINCLI, args);
+        return new(CommandCategories.ReadOnly, FT.EXPLAINCLI, args);
     }
 
-    public static SerializedCommand Info(RedisValue index) => new(FT.INFO, index);
+    public static SerializedCommand Info(RedisValue index) => new(CommandCategories.ReadOnly, FT.INFO, index);
 
     public static SerializedCommand Search(string indexName, Query q)
     {
         var args = new List<object> { indexName };
         q.SerializeRedisArgs(args);
 
-        return new(FT.SEARCH, args);
+        return new(CommandCategories.ReadOnly, FT.SEARCH, args);
     }
 
     public static SerializedCommand ProfileSearch(string IndexName, Query q, bool limited = false)
@@ -172,7 +179,7 @@ public static class SearchCommandBuilder
                 : new List<object>() { IndexName, SearchArgs.SEARCH, SearchArgs.QUERY };
 
         q.SerializeRedisArgs(args);
-        return new(FT.PROFILE, args);
+        return new(CommandCategories.ReadOnly, FT.PROFILE, args);
     }
 
     public static SerializedCommand ProfileAggregate(string IndexName, AggregationRequest query, bool limited = false)
@@ -183,7 +190,8 @@ public static class SearchCommandBuilder
 
         query.SerializeRedisArgs();
         args.AddRange(query.GetArgs());
-        return new(FT.PROFILE, args);
+        // as for Aggregate: profiling a cursored aggregate still creates the cursor
+        return new(query.IsWithCursor() ? CommandCategories.ReadOnly | CommandCategories.ServerSpecific : CommandCategories.ReadOnly, FT.PROFILE, args);
     }
 
     public static SerializedCommand SpellCheck(string indexName, string query, FTSpellCheckParams? spellCheckParams = null)
@@ -193,10 +201,10 @@ public static class SearchCommandBuilder
             spellCheckParams.SerializeRedisArgs();
             var args = new List<object>(spellCheckParams.GetArgs().Count + 2) { indexName, query }; // TODO: check if this improves performance (create a list with exact size)
             args.AddRange(spellCheckParams.GetArgs());
-            return new(FT.SPELLCHECK, args);
+            return new(CommandCategories.ReadOnly, FT.SPELLCHECK, args);
         }
 
-        return new(FT.SPELLCHECK, indexName, query);
+        return new(CommandCategories.ReadOnly, FT.SPELLCHECK, indexName, query);
     }
 
     public static SerializedCommand SugAdd(string key, string str, double score, bool increment = false, string? payload = null)
@@ -204,12 +212,13 @@ public static class SearchCommandBuilder
         var args = new List<object> { (RedisKey)key, str, score };
         if (increment) { args.Add(SearchArgs.INCR); }
         if (payload != null) { args.Add(SearchArgs.PAYLOAD); args.Add(payload); }
-        return new(FT.SUGADD, args);
+        // INCR adds to the existing score, so a replay inflates it; otherwise the score is just set
+        return new(increment ? CommandCategories.WriteAccumulating : CommandCategories.WriteLastWins, FT.SUGADD, args);
     }
 
     public static SerializedCommand SugDel(string key, string str)
     {
-        return new(FT.SUGDEL, (RedisKey)key, str);
+        return new(CommandCategories.WriteLastWins, FT.SUGDEL, (RedisKey)key, str);
     }
 
     public static SerializedCommand SugGet(string key, string prefix, bool fuzzy = false, bool withScores = false, bool withPayloads = false, int? max = null)
@@ -219,17 +228,17 @@ public static class SearchCommandBuilder
         if (withScores) { args.Add(SearchArgs.WITHSCORES); }
         if (withPayloads) { args.Add(SearchArgs.WITHPAYLOADS); }
         if (max != null) { args.Add(SearchArgs.MAX); args.Add(max); }
-        return new(FT.SUGGET, args);
+        return new(CommandCategories.ReadOnly, FT.SUGGET, args);
     }
 
     public static SerializedCommand SugLen(string key)
     {
-        return new(FT.SUGLEN, (RedisKey)key);
+        return new(CommandCategories.ReadOnly, FT.SUGLEN, (RedisKey)key);
     }
 
     public static SerializedCommand SynDump(string indexName)
     {
-        return new(FT.SYNDUMP, indexName);
+        return new(CommandCategories.ReadOnly, FT.SYNDUMP, indexName);
     }
 
     public static SerializedCommand SynUpdate(string indexName, string synonymGroupId, bool skipInitialScan = false, params string[] terms)
@@ -241,9 +250,9 @@ public static class SearchCommandBuilder
         var args = new List<object> { indexName, synonymGroupId };
         if (skipInitialScan) { args.Add(SearchArgs.SKIPINITIALSCAN); }
         args.AddRange(terms);
-        return new(FT.SYNUPDATE, args);
+        return new(CommandCategories.WriteLastWins, FT.SYNUPDATE, args);
     }
 
     public static SerializedCommand TagVals(string indexName, string fieldName) => //TODO: consider return Set
-        new(FT.TAGVALS, indexName, fieldName);
+        new(CommandCategories.ReadOnly, FT.TAGVALS, indexName, fieldName);
 }

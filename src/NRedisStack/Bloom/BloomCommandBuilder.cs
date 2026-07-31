@@ -7,22 +7,22 @@ public static class BloomCommandBuilder
 {
     public static SerializedCommand Add(RedisKey key, RedisValue item)
     {
-        return new(BF.ADD, key, item);
+        return new(CommandCategories.WriteChecked, BF.ADD, key, item);
     }
 
     public static SerializedCommand Card(RedisKey key)
     {
-        return new(BF.CARD, key);
+        return new(CommandCategories.ReadOnly, BF.CARD, key);
     }
 
     public static SerializedCommand Exists(RedisKey key, RedisValue item)
     {
-        return new(BF.EXISTS, key, item);
+        return new(CommandCategories.ReadOnly, BF.EXISTS, key, item);
     }
 
     public static SerializedCommand Info(RedisKey key)
     {
-        return new(BF.INFO, key);
+        return new(CommandCategories.ReadOnly, BF.INFO, key);
     }
 
     public static SerializedCommand Insert(RedisKey key, RedisValue[] items, int? capacity = null,
@@ -34,12 +34,12 @@ public static class BloomCommandBuilder
 
         var args = BloomAux.BuildInsertArgs(key, items, capacity, error, expansion, nocreate, nonscaling);
 
-        return new(BF.INSERT, args);
+        return new(CommandCategories.WriteChecked, BF.INSERT, args);
     }
 
     public static SerializedCommand LoadChunk(RedisKey key, long iterator, Byte[] data)
     {
-        return new(BF.LOADCHUNK, key, iterator, data);
+        return new(CommandCategories.WriteAccumulating, BF.LOADCHUNK, key, iterator, data);
     }
 
     public static SerializedCommand MAdd(RedisKey key, params RedisValue[] items)
@@ -50,7 +50,7 @@ public static class BloomCommandBuilder
         List<object> args = [key];
         args.AddRange(items.Cast<object>());
 
-        return new(BF.MADD, args);
+        return new(CommandCategories.WriteChecked, BF.MADD, args);
     }
 
     public static SerializedCommand MExists(RedisKey key, RedisValue[] items)
@@ -61,7 +61,7 @@ public static class BloomCommandBuilder
         List<object> args = [key];
         args.AddRange(items.Cast<object>());
 
-        return new(BF.MEXISTS, args);
+        return new(CommandCategories.ReadOnly, BF.MEXISTS, args);
 
     }
 
@@ -80,11 +80,11 @@ public static class BloomCommandBuilder
             args.Add(BloomArgs.NONSCALING);
         }
 
-        return new(BF.RESERVE, args);
+        return new(CommandCategories.WriteChecked, BF.RESERVE, args);
     }
 
     public static SerializedCommand ScanDump(RedisKey key, long iterator)
     {
-        return new(BF.SCANDUMP, key, iterator);
+        return new(CommandCategories.ReadOnly | CommandCategories.ServerSpecific, BF.SCANDUMP, key, iterator);
     }
 }

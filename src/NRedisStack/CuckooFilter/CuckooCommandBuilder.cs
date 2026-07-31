@@ -8,32 +8,32 @@ public static class CuckooCommandBuilder
 
     public static SerializedCommand Add(RedisKey key, RedisValue item)
     {
-        return new(CF.ADD, key, item);
+        return new(CommandCategories.WriteAccumulating, CF.ADD, key, item);
     }
 
     public static SerializedCommand AddNX(RedisKey key, RedisValue item)
     {
-        return new(CF.ADDNX, key, item);
+        return new(CommandCategories.WriteChecked, CF.ADDNX, key, item);
     }
 
     public static SerializedCommand Count(RedisKey key, RedisValue item)
     {
-        return new(CF.COUNT, key, item);
+        return new(CommandCategories.ReadOnly, CF.COUNT, key, item);
     }
 
     public static SerializedCommand Del(RedisKey key, RedisValue item)
     {
-        return new(CF.DEL, key, item);
+        return new(CommandCategories.WriteAccumulating, CF.DEL, key, item);
     }
 
     public static SerializedCommand Exists(RedisKey key, RedisValue item)
     {
-        return new(CF.EXISTS, key, item);
+        return new(CommandCategories.ReadOnly, CF.EXISTS, key, item);
     }
 
     public static SerializedCommand Info(RedisKey key)
     {
-        var info = new SerializedCommand(CF.INFO, key);
+        var info = new SerializedCommand(CommandCategories.ReadOnly, CF.INFO, key);
         return info;
     }
 
@@ -61,7 +61,7 @@ public static class CuckooCommandBuilder
             args.Add(item);
         }
 
-        return new(CF.INSERT, args);
+        return new(CommandCategories.WriteAccumulating, CF.INSERT, args);
     }
 
     public static SerializedCommand InsertNX(RedisKey key, RedisValue[] items, int? capacity = null, bool nocreate = false)
@@ -88,12 +88,12 @@ public static class CuckooCommandBuilder
             args.Add(item);
         }
 
-        return new(CF.INSERTNX, args);
+        return new(CommandCategories.WriteChecked, CF.INSERTNX, args);
     }
 
     public static SerializedCommand LoadChunk(RedisKey key, long iterator, Byte[] data)
     {
-        return new(CF.LOADCHUNK, key, iterator, data);
+        return new(CommandCategories.WriteAccumulating, CF.LOADCHUNK, key, iterator, data);
     }
 
     public static SerializedCommand MExists(RedisKey key, params RedisValue[] items)
@@ -108,7 +108,7 @@ public static class CuckooCommandBuilder
             args.Add(item);
         }
 
-        return new(CF.MEXISTS, args);
+        return new(CommandCategories.ReadOnly, CF.MEXISTS, args);
     }
 
     public static SerializedCommand Reserve(RedisKey key, long capacity,
@@ -134,11 +134,11 @@ public static class CuckooCommandBuilder
             args.Add(expansion);
         }
 
-        return new(CF.RESERVE, args);
+        return new(CommandCategories.WriteChecked, CF.RESERVE, args);
     }
 
     public static SerializedCommand ScanDump(RedisKey key, long iterator)
     {
-        return new(CF.SCANDUMP, key, iterator);
+        return new(CommandCategories.ReadOnly | CommandCategories.ServerSpecific, CF.SCANDUMP, key, iterator);
     }
 }
