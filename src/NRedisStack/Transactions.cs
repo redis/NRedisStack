@@ -9,7 +9,7 @@ public class Transaction
 
     public Transaction(IDatabase db)
     {
-        db.SetInfoInPipeline();
+        db.SetLibraryInfoOnce();
         _transaction = db.CreateTransaction();
     }
 

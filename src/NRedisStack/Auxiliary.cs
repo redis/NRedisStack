@@ -48,22 +48,73 @@ public static class Auxiliary
         return _db;
     }
 
-    internal static void SetInfoInPipeline(this IDatabase db)
+    /// <summary>
+    /// Announce the library name/version on first use, once per process.
+    /// </summary>
+    /// <remarks>
+    /// This takes <see cref="IDatabaseAsync"/> rather than <see cref="IDatabase"/> deliberately: an async-only
+    /// database (such as the retry wrapper from <c>WithRetry</c>) does not implement <see cref="IDatabase"/>, so
+    /// demanding the sync interface here would make every async command fail. The two commands are issued
+    /// fire-and-forget - they are enqueued ahead of the command that triggered this, and overlapped
+    /// fire-and-forget is well-defined - so nothing has to be awaited, and no batch is needed to group them.
+    /// </remarks>
+    internal static void SetLibraryInfoOnce(this IDatabaseAsync db)
     {
-        if (_setInfo)
+        if (!_setInfo) return;
+
+        // ...but never through a transaction: commands there are not sent, they are added to the caller's
+        // MULTI/EXEC, so we would be quietly changing what their transaction contains - and nothing queued in
+        // a transaction can be waited on before EXEC without deadlocking (fire-and-forget dodges the wait,
+        // not the queueing). The latch is deliberately left set, so the next command that isn't part of a
+        // transaction announces instead.
+        //
+        // Tested at the async level to match the parameter: ITransaction : ITransactionAsync, so this covers
+        // the sync-capable transaction as well as the async-only one that CreateTransaction() hands back on a
+        // retry-wrapped database. (Neither is an IDatabase, which is why the cast this replaced could not work
+        // for either.)
+        if (db is ITransactionAsync) return;
+
+        _setInfo = false; // one attempt only, successful or not
+        var libraryName = _libraryName;
+        if (libraryName == null) return;
+
+        try
         {
-            _setInfo = false;
-            if (_libraryName == null) return;
-            Pipeline pipeline = new(db);
-            _ = pipeline.Db.ClientSetInfoAsync(SetInfoAttr.LibraryName, _libraryName);
-            _ = pipeline.Db.ClientSetInfoAsync(SetInfoAttr.LibraryVersion, GetNRedisStackVersion());
-            pipeline.Execute();
+            Observe(db.ClientSetInfoAsync(SetInfoAttr.LibraryName, libraryName, CommandFlags.FireAndForget));
+            Observe(db.ClientSetInfoAsync(SetInfoAttr.LibraryVersion, GetNRedisStackVersion(), CommandFlags.FireAndForget));
+        }
+        catch
+        {
+            // reporting who we are is never worth failing the caller's command over
+        }
+
+        static void Observe(Task pending)
+        {
+            // fire-and-forget should already have completed, on this thread, with nothing to observe;
+            // anything else is unexpected enough to be worth consuming, so that a failure cannot resurface
+            // later as an unobserved task exception unrelated to anything the caller did
+            if (!pending.IsCompletedSuccessfully)
+            {
+                _ = Awaited(pending);
+            }
+        }
+
+        static async Task Awaited(Task pending)
+        {
+            try
+            {
+                await pending.ConfigureAwait(false);
+            }
+            catch
+            {
+                // as above: best-effort
+            }
         }
     }
 
     public static RedisResult Execute(this IDatabase db, SerializedCommand command)
     {
-        db.SetInfoInPipeline();
+        db.SetLibraryInfoOnce();
         return db.Execute(command.Command, command.Args, flags: command.EffectiveFlags);
     }
 
@@ -74,9 +125,18 @@ public static class Auxiliary
 
     public static async Task<RedisResult> ExecuteAsync(this IDatabaseAsync db, SerializedCommand command)
     {
-        ((IDatabase)db).SetInfoInPipeline();
+        db.SetLibraryInfoOnce();
         return await db.ExecuteAsync(command.Command, command.Args, flags: command.EffectiveFlags);
     }
+
+    /// <summary>
+    /// Dispatch a command with additional flags beyond its category.
+    /// </summary>
+    /// <remarks>
+    /// Deliberately does not announce the library name: this overload exists for the announcement itself.
+    /// </remarks>
+    internal static Task<RedisResult> ExecuteAsync(this IDatabaseAsync db, SerializedCommand command, CommandFlags flags)
+        => db.ExecuteAsync(command.Command, command.Args, flags: command.EffectiveFlags | flags);
 
     internal static async Task<RedisResult> ExecuteAsync(this IServer server, int? db, SerializedCommand command)
     {

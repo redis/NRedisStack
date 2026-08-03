@@ -23,7 +23,10 @@
         <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
         <SuppressTfmSupportBuildErrors>true</SuppressTfmSupportBuildErrors>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-        <NoWarn>$(NoWarn);CS1591;NRS003</NoWarn>
+        <!-- SER007: StackExchange.Redis' retry API (WithRetry, RetryPolicy, CommandFlags.CommandRetry*) is
+             [Experimental]; we use it deliberately, and CommandCategories aliases the flags for the rest of
+             the library -->
+        <NoWarn>$(NoWarn);CS1591;NRS003;SER007</NoWarn>
         <IsWindows>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::get_Windows())))</IsWindows>
     </PropertyGroup>
 

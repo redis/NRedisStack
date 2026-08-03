@@ -13,15 +13,50 @@ public static class CoreCommandsAsync //: ICoreCommandsAsync
     /// <param name="value">the attribute value</param>
     /// <returns><see langword="true"/> if the attribute name was successfully set, Error otherwise.</returns>
     /// <remarks><seealso href="https://redis.io/commands/client-setinfo/"/></remarks>
-    public static async Task<bool> ClientSetInfoAsync(this IDatabaseAsync db, SetInfoAttr attr, string value)
+    public static Task<bool> ClientSetInfoAsync(this IDatabaseAsync db, SetInfoAttr attr, string value)
+        => db.ClientSetInfoAsync(attr, value, CommandFlags.None);
+
+    /// <inheritdoc cref="ClientSetInfoAsync(IDatabaseAsync, SetInfoAttr, string)"/>
+    /// <param name="db">the database to query</param>
+    /// <param name="attr">which attribute to set</param>
+    /// <param name="value">the attribute value</param>
+    /// <param name="flags">
+    /// Additional dispatch flags for this send. <see cref="CommandFlags.FireAndForget"/> discards the reply,
+    /// so there is nothing to report and the result is always <see langword="true"/>.
+    /// </param>
+    /// <remarks>
+    /// Internal because the flags here are a dispatch concern, not the command's category; the one-time
+    /// library-name announcement uses this to avoid making the caller's first command wait for a reply.
+    /// </remarks>
+    internal static Task<bool> ClientSetInfoAsync(this IDatabaseAsync db, SetInfoAttr attr, string value, CommandFlags flags)
     {
         var compareVersions = db.Multiplexer.GetServer(db.Multiplexer.GetEndPoints()[0]).Version.CompareTo(new(7, 1, 242));
         if (compareVersions < 0) // the server does not support the CLIENT SETNAME command
         {
-            return false;
+            return _completedFalse;
         }
-        return (await db.ExecuteAsync(CoreCommandBuilder.ClientSetInfo(attr, value))).OKtoBoolean();
+
+        var fireAndForget = (flags & CommandFlags.FireAndForget) != 0;
+        var pending = db.ExecuteAsync(CoreCommandBuilder.ClientSetInfo(attr, value), flags);
+        if (fireAndForget && pending.IsCompletedSuccessfully)
+        {
+            // the expected fire-and-forget path: no reply to interpret and nothing left pending, so the
+            // async machinery is not involved at all
+            return _completedTrue;
+        }
+
+        // interpreting the reply is the only part that needs a state machine; a fire-and-forget send that
+        // did *not* complete synchronously is unexpected, and lands here so that a failure is not dropped
+        return Awaited(pending, fireAndForget);
+
+        static async Task<bool> Awaited(Task<RedisResult> pending, bool fireAndForget)
+        {
+            var result = await pending.ConfigureAwait(false);
+            return fireAndForget || result.OKtoBoolean();
+        }
     }
+
+    private static readonly Task<bool> _completedTrue = Task.FromResult(true), _completedFalse = Task.FromResult(false);
 
     /// <summary>
     /// The BZMPOP command.
