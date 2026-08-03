@@ -13,27 +13,15 @@ namespace NRedisStack.Tests;
 /// </summary>
 public class CommandCategoryTests
 {
-    // NRedisStack keeps a StackExchange.Redis 3.0.x floor, so CommandCategories declares these as casts
-    // rather than referencing the (3.1.0+) named members. That only stays correct while the numbers agree,
-    // and a silent renumbering upstream would silently re-categorize every command we issue - so pin it.
-    // The test project deliberately overrides to 3.1.0 so the named members are available here.
-    [Theory]
-    [InlineData(CommandCategories.Always, CommandFlags.CommandRetryAlways)]
-    [InlineData(CommandCategories.Connection, CommandFlags.CommandRetryConnection)]
-    [InlineData(CommandCategories.ReadOnly, CommandFlags.CommandRetryReadOnly)]
-    [InlineData(CommandCategories.WriteChecked, CommandFlags.CommandRetryWriteChecked)]
-    [InlineData(CommandCategories.WriteLastWins, CommandFlags.CommandRetryWriteLastWins)]
-    [InlineData(CommandCategories.WriteAccumulating, CommandFlags.CommandRetryWriteAccumulating)]
-    [InlineData(CommandCategories.ServerAdmin, CommandFlags.CommandRetryServerAdmin)]
-    [InlineData(CommandCategories.Never, CommandFlags.CommandRetryNever)]
-    public void CategoryMatchesStackExchangeRedis(CommandFlags ours, CommandFlags theirs)
-        => Assert.Equal(theirs, ours);
-
-    // Message.CommandServerSpecific is internal to StackExchange.Redis, so there is no named member to
-    // compare against; assert the bit position instead, which is what their mask actually tests.
+    // The rungs are aliases of the CommandFlags.CommandRetry* members, so there is nothing left to compare
+    // them against. What still needs pinning is the numbering the masks assume, and the one value with no
+    // named member: Message.CommandServerSpecific is internal to StackExchange.Redis, so ServerSpecific is
+    // ours to keep aligned with the bit their mask actually tests.
     [Fact]
     public void ServerSpecificIsBit18() => Assert.Equal(1 << 18, (int)CommandCategories.ServerSpecific);
 
+    // consequently this also pins that the rung ladder still occupies bits 13-17 upstream: a renumbering
+    // there would move Never, and every masking decision built on it
     [Fact]
     public void MaskCoversTheCategoryRegionAndServerSpecificOnly()
         => Assert.Equal((31 << 13) | (1 << 18), (int)CommandCategories.Mask);

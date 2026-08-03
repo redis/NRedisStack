@@ -8,10 +8,10 @@ namespace NRedisStack.RedisStackCommands;
 /// </summary>
 /// <remarks>
 /// <para>
-/// These mirror the <c>CommandFlags.CommandRetry*</c> members added in StackExchange.Redis 3.1.0, but are
-/// declared here as casts so that NRedisStack can keep a 3.0.x floor: on older versions the bits fall
-/// outside the library's user-selectable mask and are silently discarded, which reproduces today's
-/// behaviour exactly. <c>ServerSpecific</c> is accepted by 3.1.0 but is not named on its public enum.
+/// The rungs are aliases for the <c>CommandFlags.CommandRetry*</c> members, so that the categories carry
+/// names that describe the command rather than the retry mechanism, and so that the documentation below has
+/// somewhere to live. <c>ServerSpecific</c> is honoured by StackExchange.Redis but is not named on its
+/// public enum, so that one is still a bit.
 /// </para>
 /// <para>
 /// The ladder runs from least to most side-effecting; a retry policy specifies the most side-effecting
@@ -22,19 +22,19 @@ namespace NRedisStack.RedisStackCommands;
 internal static class CommandCategories
 {
     /// <summary>Always safe to replay, regardless of connection or server state.</summary>
-    internal const CommandFlags Always = (CommandFlags)(1 << 13);
+    internal const CommandFlags Always = CommandFlags.CommandRetryAlways;
 
     /// <summary>Connection-level metadata, e.g. <c>CLIENT SETINFO</c>.</summary>
-    internal const CommandFlags Connection = (CommandFlags)(4 << 13);
+    internal const CommandFlags Connection = CommandFlags.CommandRetryConnection;
 
     /// <summary>Pure read; replay observes state but does not change it.</summary>
-    internal const CommandFlags ReadOnly = (CommandFlags)(8 << 13);
+    internal const CommandFlags ReadOnly = CommandFlags.CommandRetryReadOnly;
 
     /// <summary>Conditional write; a replay is checked against server state and rejected.</summary>
-    internal const CommandFlags WriteChecked = (CommandFlags)(12 << 13);
+    internal const CommandFlags WriteChecked = CommandFlags.CommandRetryWriteChecked;
 
     /// <summary>Unconditional overwrite; a replay lands on the same value (last-writer-wins).</summary>
-    internal const CommandFlags WriteLastWins = (CommandFlags)(16 << 13);
+    internal const CommandFlags WriteLastWins = CommandFlags.CommandRetryWriteLastWins;
 
     /// <summary>Cumulative write; a replay double-applies and changes the result.</summary>
     /// <remarks>
@@ -48,10 +48,10 @@ internal static class CommandCategories
     /// raises the ceiling, while still allowing the known-never-sent replay (see <see cref="Never"/>),
     /// which is the case that matters for riding out <c>-LOADING</c> during setup.
     /// </remarks>
-    internal const CommandFlags WriteAccumulating = (CommandFlags)(20 << 13);
+    internal const CommandFlags WriteAccumulating = CommandFlags.CommandRetryWriteAccumulating;
 
     /// <summary>Server administration, e.g. <c>FT.CONFIG SET</c>.</summary>
-    internal const CommandFlags ServerAdmin = (CommandFlags)(24 << 13);
+    internal const CommandFlags ServerAdmin = CommandFlags.CommandRetryServerAdmin;
 
     /// <summary>Never replay, under any policy.</summary>
     /// <remarks>
@@ -61,7 +61,7 @@ internal static class CommandCategories
     /// far as <c>Never</c> itself. Use it where a replay would corrupt state or report a spurious error
     /// even though the original attempt succeeded, and where forgoing retry entirely is the lesser cost.
     /// </remarks>
-    internal const CommandFlags Never = (CommandFlags)(31 << 13);
+    internal const CommandFlags Never = CommandFlags.CommandRetryNever;
 
     /// <summary>
     /// The command is bound to a particular endpoint (typically because it carries a server-side cursor
