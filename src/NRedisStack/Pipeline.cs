@@ -6,7 +6,7 @@ public class Pipeline
 {
     public Pipeline(IDatabase db)
     {
-        db.SetInfoInPipeline();
+        db.SetLibraryInfoOnce();
         _batch = db.CreateBatch();
     }
 
