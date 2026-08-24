@@ -11,7 +11,6 @@ public class TestMAddAsync(EndpointsFixture endpointsFixture) : AbstractNRedisSt
 {
     [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
-    [Obsolete]
     public async Task TestStarMADD(string endpointId)
     {
         SkipClusterPre8(endpointId);

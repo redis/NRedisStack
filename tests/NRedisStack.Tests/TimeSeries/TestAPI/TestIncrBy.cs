@@ -42,7 +42,6 @@ public class TestIncrBy(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     }
 
     [Fact]
-    [Obsolete]
     public void TestDefaultIncrByWithRetentionTime()
     {
         double value = 5.5;
@@ -56,7 +55,6 @@ public class TestIncrBy(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     }
 
     [Fact]
-    [Obsolete]
     public void TestDefaultIncrByWithLabels()
     {
         double value = 5.5;

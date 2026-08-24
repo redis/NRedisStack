@@ -31,7 +31,6 @@ public class TestRules(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
 
     [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
-    [Obsolete]
     public void TestRulesAdditionDeletion(string endpointId)
     {
         SkipClusterPre8(endpointId);

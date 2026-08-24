@@ -11,7 +11,6 @@ public class TestRulesAsync(EndpointsFixture endpointsFixture) : AbstractNRedisS
 {
     [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
-    [Obsolete]
     public async Task TestRulesAdditionDeletion(string endpointId)
     {
         SkipClusterPre8(endpointId);

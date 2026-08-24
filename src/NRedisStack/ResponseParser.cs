@@ -607,7 +607,6 @@ internal static class ResponseParser
             mergedWeight, unmergedWeight, observations, totalCompressions, memoryUsage);
     }
 
-    [Obsolete]
     public static TimeSeriesInformation ToTimeSeriesInfo(this RedisResult result)
     {
         long totalSamples = -1, memoryUsage = -1, retentionTime = -1, chunkSize = -1, chunkCount = -1;

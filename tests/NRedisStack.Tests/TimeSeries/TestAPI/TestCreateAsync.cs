@@ -18,7 +18,6 @@ public class TestCreateAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
     }
 
     [Fact]
-    [Obsolete]
     public async Task TestCreateRetentionTime()
     {
         var key = CreateKeyName();
@@ -32,7 +31,6 @@ public class TestCreateAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
     }
 
     [Fact]
-    [Obsolete]
     public async Task TestCreateLabels()
     {
         var key = CreateKeyName();
@@ -47,7 +45,6 @@ public class TestCreateAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
     }
 
     [Fact]
-    [Obsolete]
     public async Task TestCreateEmptyLabels()
     {
         var key = CreateKeyName();

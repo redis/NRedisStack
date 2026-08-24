@@ -46,7 +46,6 @@ public class TestDecrByAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
     }
 
     [Fact]
-    [Obsolete]
     public async Task TestDefaultDecrByWithRetentionTime()
     {
         var key = CreateKeyName();
@@ -64,7 +63,6 @@ public class TestDecrByAsync(EndpointsFixture endpointsFixture) : AbstractNRedis
     }
 
     [Fact]
-    [Obsolete]
     public async Task TestDefaultDecrByWithLabels()
     {
         var key = CreateKeyName();

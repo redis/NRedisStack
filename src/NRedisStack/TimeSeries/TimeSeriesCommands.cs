@@ -460,7 +460,6 @@ public class TimeSeriesCommands : TimeSeriesCommandsAsync, ITimeSeriesCommands
     #region General
 
     /// <inheritdoc/>
-    [Obsolete]
     public TimeSeriesInformation Info(string key, bool debug = false)
     {
         return _db.Execute(TimeSeriesCommandsBuilder.Info(key, debug)).ToTimeSeriesInfo();
