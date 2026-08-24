@@ -13,7 +13,6 @@ public class TestCreate(EndpointsFixture endpointsFixture) : AbstractNRedisStack
 
 
     [Fact]
-    [Obsolete]
     public void TestCreateOK()
     {
         IDatabase db = GetCleanDatabase();
@@ -23,7 +22,6 @@ public class TestCreate(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     }
 
     [Fact]
-    [Obsolete]
     public void TestCreateRetentionTime()
     {
         long retentionTime = 5000;
@@ -35,7 +33,6 @@ public class TestCreate(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     }
 
     [Fact]
-    [Obsolete]
     public void TestCreateLabels()
     {
         TimeSeriesLabel label = new("key", "value");
@@ -48,7 +45,6 @@ public class TestCreate(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     }
 
     [Fact]
-    [Obsolete]
     public void TestCreateEmptyLabels()
     {
         var labels = new List<TimeSeriesLabel>();

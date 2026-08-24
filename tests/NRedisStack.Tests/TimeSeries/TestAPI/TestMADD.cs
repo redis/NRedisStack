@@ -14,7 +14,6 @@ public class TestMADD(EndpointsFixture endpointsFixture) : AbstractNRedisStackTe
 
     [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
-    [Obsolete]
     public void TestStarMADD(string endpointId)
     {
         SkipClusterPre8(endpointId);

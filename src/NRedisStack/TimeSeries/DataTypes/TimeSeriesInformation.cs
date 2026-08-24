@@ -80,7 +80,6 @@ public class TimeSeriesInformation
     /// </summary>
     public IReadOnlyList<TimeSeriesChunck>? Chunks { get; private set; }
 
-    [Obsolete]
     internal TimeSeriesInformation(long totalSamples, long memoryUsage,
         TimeStamp? firstTimeStamp, TimeStamp? lastTimeStamp, long retentionTime,
         long chunkCount, long chunkSize, IReadOnlyList<TimeSeriesLabel>? labels,
@@ -97,7 +96,9 @@ public class TimeSeriesInformation
         SourceKey = sourceKey;
         Rules = rules;
         // backwards compatible with RedisTimeSeries < v1.4
+#pragma warning disable CS0618 // MaxSamplesPerChunk is deprecated, but we still need to populate it
         MaxSamplesPerChunk = chunkSize / 16;
+#pragma warning restore CS0618
         ChunkSize = chunkSize;
         // configure what to do on duplicate sample > v1.4
         DuplicatePolicy = policy;

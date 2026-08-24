@@ -43,7 +43,6 @@ public class TestDecrBy(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     }
 
     [Fact]
-    [Obsolete]
     public void TestDefaultDecrByWithRetentionTime()
     {
         double value = 5.5;
@@ -57,7 +56,6 @@ public class TestDecrBy(EndpointsFixture endpointsFixture) : AbstractNRedisStack
     }
 
     [Fact]
-    [Obsolete]
     public void TestDefaultDecrByWithLabels()
     {
         double value = 5.5;

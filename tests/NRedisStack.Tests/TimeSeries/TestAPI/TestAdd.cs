@@ -12,7 +12,6 @@ public class TestAdd(EndpointsFixture endpointsFixture) : AbstractNRedisStackTes
 
 
     [Fact]
-    [Obsolete]
     public void TestAddNotExistingTimeSeries()
     {
         IDatabase db = GetCleanDatabase();
@@ -26,7 +25,6 @@ public class TestAdd(EndpointsFixture endpointsFixture) : AbstractNRedisStackTes
     }
 
     [Fact]
-    [Obsolete]
     public void TestAddExistingTimeSeries()
     {
         IDatabase db = GetCleanDatabase();
@@ -41,7 +39,6 @@ public class TestAdd(EndpointsFixture endpointsFixture) : AbstractNRedisStackTes
     }
 
     [Fact]
-    [Obsolete]
     public void TestAddStar()
     {
         IDatabase db = GetCleanDatabase();
@@ -54,7 +51,6 @@ public class TestAdd(EndpointsFixture endpointsFixture) : AbstractNRedisStackTes
     }
 
     [Fact]
-    [Obsolete]
     public void TestAddWithRetentionTime()
     {
         IDatabase db = GetCleanDatabase();
@@ -69,7 +65,6 @@ public class TestAdd(EndpointsFixture endpointsFixture) : AbstractNRedisStackTes
     }
 
     [Fact]
-    [Obsolete]
     public void TestAddWithLabels()
     {
         IDatabase db = GetCleanDatabase();
@@ -85,7 +80,6 @@ public class TestAdd(EndpointsFixture endpointsFixture) : AbstractNRedisStackTes
     }
 
     [Fact]
-    [Obsolete]
     public void TestAddWithUncompressed()
     {
         IDatabase db = GetCleanDatabase();
@@ -99,7 +93,6 @@ public class TestAdd(EndpointsFixture endpointsFixture) : AbstractNRedisStackTes
     }
 
     [Fact]
-    [Obsolete]
     public void TestAddWithChunkSize()
     {
         IDatabase db = GetCleanDatabase();

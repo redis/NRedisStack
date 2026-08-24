@@ -466,7 +466,6 @@ public class TimeSeriesCommandsAsync : ITimeSeriesCommandsAsync
     #region General
 
     /// <inheritdoc/>
-    [Obsolete]
     public async Task<TimeSeriesInformation> InfoAsync(string key, bool debug = false)
     {
         return (await _db.ExecuteAsync(TimeSeriesCommandsBuilder.Info(key, debug))).ToTimeSeriesInfo();

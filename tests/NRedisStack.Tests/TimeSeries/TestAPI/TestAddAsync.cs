@@ -10,7 +10,6 @@ namespace NRedisStack.Tests.TimeSeries.TestAPI;
 public class TestAddAsync(EndpointsFixture endpointsFixture) : AbstractNRedisStackTest(endpointsFixture)
 {
     [Fact]
-    [Obsolete]
     public async Task TestAddNotExistingTimeSeries()
     {
         var key = CreateKeyName();
@@ -25,7 +24,6 @@ public class TestAddAsync(EndpointsFixture endpointsFixture) : AbstractNRedisSta
     }
 
     [Fact]
-    [Obsolete]
     public async Task TestAddExistingTimeSeries()
     {
         var key = CreateKeyName();
@@ -41,7 +39,6 @@ public class TestAddAsync(EndpointsFixture endpointsFixture) : AbstractNRedisSta
     }
 
     [Fact]
-    [Obsolete]
     public async Task TestAddStar()
     {
         var key = CreateKeyName();
@@ -54,7 +51,6 @@ public class TestAddAsync(EndpointsFixture endpointsFixture) : AbstractNRedisSta
     }
 
     [Fact]
-    [Obsolete]
     public async Task TestAddWithRetentionTime()
     {
         var key = CreateKeyName();
@@ -71,7 +67,6 @@ public class TestAddAsync(EndpointsFixture endpointsFixture) : AbstractNRedisSta
     }
 
     [Fact]
-    [Obsolete]
     public async Task TestAddWithLabels()
     {
         var key = CreateKeyName();
@@ -89,7 +84,6 @@ public class TestAddAsync(EndpointsFixture endpointsFixture) : AbstractNRedisSta
     }
 
     [Fact]
-    [Obsolete]
     public async Task TestAddWithChunkSize()
     {
         var key = CreateKeyName();
@@ -104,7 +98,6 @@ public class TestAddAsync(EndpointsFixture endpointsFixture) : AbstractNRedisSta
     }
 
     [Fact]
-    [Obsolete]
     public async Task TestAddWithUncompressed()
     {
         var key = CreateKeyName();
