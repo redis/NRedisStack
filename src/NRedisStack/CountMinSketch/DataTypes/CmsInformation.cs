@@ -10,11 +10,16 @@ public class CmsInformation
     public long Depth { get; private set; }
     public long Count { get; private set; }
 
+    /// <summary>
+    /// The counter byte width, in bytes. Not reported by older servers, in which case this is -1.
+    /// </summary>
+    public int CellSize { get; private set; }
 
-    internal CmsInformation(long width, long depth, long count)
+    internal CmsInformation(long width, long depth, long count, int cellSize)
     {
         Width = width;
         Depth = depth;
         Count = count;
+        CellSize = cellSize;
     }
 }
