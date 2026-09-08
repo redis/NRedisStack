@@ -494,8 +494,10 @@ internal static class ResponseParser
         ToCmsInfo(this RedisResult result) //TODO: Think about a different implementation, because if the output of CMS.INFO changes or even just the names of the labels then the parsing will not work
     {
         long width, depth, count;
+        int cellSize;
 
         width = depth = count = -1;
+        cellSize = -1;
 
         RedisResult[] redisResults = result.ToArray();
 
@@ -514,10 +516,13 @@ internal static class ResponseParser
                 case "count":
                     count = (long)redisResults[i];
                     break;
+                case "cell size":
+                    cellSize = (int)redisResults[i];
+                    break;
             }
         }
 
-        return new(width, depth, count);
+        return new(width, depth, count, cellSize);
     }
 
     public static TopKInformation

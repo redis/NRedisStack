@@ -4168,7 +4168,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
     // Number of documents indexed by the on-timeout tests. Large enough that scanning, scoring and
     // sorting them cannot complete within the 1ms per-query timeout, so the query engine's
     // on-timeout policy is guaranteed to kick in.
-    private const int TimeoutDocCount = 10_000;
+    private const int TimeoutDocCount = 100_000;
 
     private void PopulateTimeoutIndex(IDatabase db, SearchCommands ft)
     {
