@@ -39,7 +39,7 @@ public class CmsTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTe
         Assert.Equal(0, info.Count);
     }
 
-    [Theory]
+    [SkipIfRedisTheory(Comparison.LessThan, "8.12.0")]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestInitByDimCellSize(string endpointId)
     {
@@ -55,7 +55,7 @@ public class CmsTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTe
         Assert.Equal(1, info.CellSize);
     }
 
-    [Theory]
+    [SkipIfRedisTheory(Comparison.LessThan, "8.12.0")]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestInitByDimCellSizeAsync(string endpointId)
     {
@@ -96,7 +96,7 @@ public class CmsTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTe
         Assert.Equal(0, info.Count);
     }
 
-    [Theory]
+    [SkipIfRedisTheory(Comparison.LessThan, "8.12.0")]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestInitByProbCellSize(string endpointId)
     {
@@ -185,7 +185,7 @@ public class CmsTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTe
 
     }
 
-    [Theory]
+    [SkipIfRedisTheory(Comparison.LessThan, "8.12.0")]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestIncrByNegative(string endpointId)
     {
@@ -201,7 +201,7 @@ public class CmsTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTe
         Assert.Equal(6, info.Count);
     }
 
-    [Theory]
+    [SkipIfRedisTheory(Comparison.LessThan, "8.12.0")]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestIncrByNegativeAsync(string endpointId)
     {
