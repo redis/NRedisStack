@@ -516,7 +516,7 @@ internal static class ResponseParser
                 case "count":
                     count = (long)redisResults[i];
                     break;
-                case "cell size":
+                case "cell_size":
                     cellSize = (int)redisResults[i];
                     break;
             }

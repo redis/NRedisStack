@@ -32,15 +32,15 @@ public class CmsCommandsAsync : ICmsCommandsAsync
     }
 
     /// <inheritdoc/>
-    public async Task<bool> InitByDimAsync(RedisKey key, long width, long depth)
+    public async Task<bool> InitByDimAsync(RedisKey key, long width, long depth, int? cellSize = null)
     {
-        return (await _db.ExecuteAsync(CmsCommandBuilder.InitByDim(key, width, depth))).OKtoBoolean();
+        return (await _db.ExecuteAsync(CmsCommandBuilder.InitByDim(key, width, depth, cellSize))).OKtoBoolean();
     }
 
     /// <inheritdoc/>
-    public async Task<bool> InitByProbAsync(RedisKey key, double error, double probability)
+    public async Task<bool> InitByProbAsync(RedisKey key, double error, double probability, int? cellSize = null)
     {
-        return (await _db.ExecuteAsync(CmsCommandBuilder.InitByProb(key, error, probability))).OKtoBoolean();
+        return (await _db.ExecuteAsync(CmsCommandBuilder.InitByProb(key, error, probability, cellSize))).OKtoBoolean();
     }
 
     /// <inheritdoc/>

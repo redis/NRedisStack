@@ -47,8 +47,8 @@ NRedisStack.CmsCommands.CmsCommands(StackExchange.Redis.IDatabase! db) -> void
 NRedisStack.CmsCommands.IncrBy(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item, long increment) -> long
 NRedisStack.CmsCommands.IncrBy(StackExchange.Redis.RedisKey key, System.Tuple<StackExchange.Redis.RedisValue, long>![]! itemIncrements) -> long[]!
 NRedisStack.CmsCommands.Info(StackExchange.Redis.RedisKey key) -> NRedisStack.CountMinSketch.DataTypes.CmsInformation!
-NRedisStack.CmsCommands.InitByDim(StackExchange.Redis.RedisKey key, long width, long depth) -> bool
-NRedisStack.CmsCommands.InitByProb(StackExchange.Redis.RedisKey key, double error, double probability) -> bool
+NRedisStack.CmsCommands.InitByDim(StackExchange.Redis.RedisKey key, long width, long depth, int? cellSize = null) -> bool
+NRedisStack.CmsCommands.InitByProb(StackExchange.Redis.RedisKey key, double error, double probability, int? cellSize = null) -> bool
 NRedisStack.CmsCommands.Merge(StackExchange.Redis.RedisValue destination, long numKeys, StackExchange.Redis.RedisValue[]! source, long[]? weight = null) -> bool
 NRedisStack.CmsCommands.Query(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> long[]!
 NRedisStack.CmsCommandsAsync
@@ -56,8 +56,8 @@ NRedisStack.CmsCommandsAsync.CmsCommandsAsync(StackExchange.Redis.IDatabaseAsync
 NRedisStack.CmsCommandsAsync.IncrByAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item, long increment) -> System.Threading.Tasks.Task<long>!
 NRedisStack.CmsCommandsAsync.IncrByAsync(StackExchange.Redis.RedisKey key, System.Tuple<StackExchange.Redis.RedisValue, long>![]! itemIncrements) -> System.Threading.Tasks.Task<long[]!>!
 NRedisStack.CmsCommandsAsync.InfoAsync(StackExchange.Redis.RedisKey key) -> System.Threading.Tasks.Task<NRedisStack.CountMinSketch.DataTypes.CmsInformation!>!
-NRedisStack.CmsCommandsAsync.InitByDimAsync(StackExchange.Redis.RedisKey key, long width, long depth) -> System.Threading.Tasks.Task<bool>!
-NRedisStack.CmsCommandsAsync.InitByProbAsync(StackExchange.Redis.RedisKey key, double error, double probability) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.CmsCommandsAsync.InitByDimAsync(StackExchange.Redis.RedisKey key, long width, long depth, int? cellSize = null) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.CmsCommandsAsync.InitByProbAsync(StackExchange.Redis.RedisKey key, double error, double probability, int? cellSize = null) -> System.Threading.Tasks.Task<bool>!
 NRedisStack.CmsCommandsAsync.MergeAsync(StackExchange.Redis.RedisValue destination, long numKeys, StackExchange.Redis.RedisValue[]! source, long[]? weight = null) -> System.Threading.Tasks.Task<bool>!
 NRedisStack.CmsCommandsAsync.QueryAsync(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> System.Threading.Tasks.Task<long[]!>!
 NRedisStack.Core.DataTypes.MinMaxModifier
@@ -191,16 +191,16 @@ NRedisStack.ICmsCommands
 NRedisStack.ICmsCommands.IncrBy(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item, long increment) -> long
 NRedisStack.ICmsCommands.IncrBy(StackExchange.Redis.RedisKey key, System.Tuple<StackExchange.Redis.RedisValue, long>![]! itemIncrements) -> long[]!
 NRedisStack.ICmsCommands.Info(StackExchange.Redis.RedisKey key) -> NRedisStack.CountMinSketch.DataTypes.CmsInformation!
-NRedisStack.ICmsCommands.InitByDim(StackExchange.Redis.RedisKey key, long width, long depth) -> bool
-NRedisStack.ICmsCommands.InitByProb(StackExchange.Redis.RedisKey key, double error, double probability) -> bool
+NRedisStack.ICmsCommands.InitByDim(StackExchange.Redis.RedisKey key, long width, long depth, int? cellSize = null) -> bool
+NRedisStack.ICmsCommands.InitByProb(StackExchange.Redis.RedisKey key, double error, double probability, int? cellSize = null) -> bool
 NRedisStack.ICmsCommands.Merge(StackExchange.Redis.RedisValue destination, long numKeys, StackExchange.Redis.RedisValue[]! source, long[]? weight = null) -> bool
 NRedisStack.ICmsCommands.Query(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> long[]!
 NRedisStack.ICmsCommandsAsync
 NRedisStack.ICmsCommandsAsync.IncrByAsync(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item, long increment) -> System.Threading.Tasks.Task<long>!
 NRedisStack.ICmsCommandsAsync.IncrByAsync(StackExchange.Redis.RedisKey key, System.Tuple<StackExchange.Redis.RedisValue, long>![]! itemIncrements) -> System.Threading.Tasks.Task<long[]!>!
 NRedisStack.ICmsCommandsAsync.InfoAsync(StackExchange.Redis.RedisKey key) -> System.Threading.Tasks.Task<NRedisStack.CountMinSketch.DataTypes.CmsInformation!>!
-NRedisStack.ICmsCommandsAsync.InitByDimAsync(StackExchange.Redis.RedisKey key, long width, long depth) -> System.Threading.Tasks.Task<bool>!
-NRedisStack.ICmsCommandsAsync.InitByProbAsync(StackExchange.Redis.RedisKey key, double error, double probability) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ICmsCommandsAsync.InitByDimAsync(StackExchange.Redis.RedisKey key, long width, long depth, int? cellSize = null) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ICmsCommandsAsync.InitByProbAsync(StackExchange.Redis.RedisKey key, double error, double probability, int? cellSize = null) -> System.Threading.Tasks.Task<bool>!
 NRedisStack.ICmsCommandsAsync.MergeAsync(StackExchange.Redis.RedisValue destination, long numKeys, StackExchange.Redis.RedisValue[]! source, long[]? weight = null) -> System.Threading.Tasks.Task<bool>!
 NRedisStack.ICmsCommandsAsync.QueryAsync(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> System.Threading.Tasks.Task<long[]!>!
 NRedisStack.ICuckooCommands
@@ -1292,8 +1292,8 @@ static NRedisStack.BloomCommandBuilder.ScanDump(StackExchange.Redis.RedisKey key
 static NRedisStack.CmsCommandBuilder.IncrBy(StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item, long increment) -> NRedisStack.RedisStackCommands.SerializedCommand!
 static NRedisStack.CmsCommandBuilder.IncrBy(StackExchange.Redis.RedisKey key, System.Tuple<StackExchange.Redis.RedisValue, long>![]! itemIncrements) -> NRedisStack.RedisStackCommands.SerializedCommand!
 static NRedisStack.CmsCommandBuilder.Info(StackExchange.Redis.RedisKey key) -> NRedisStack.RedisStackCommands.SerializedCommand!
-static NRedisStack.CmsCommandBuilder.InitByDim(StackExchange.Redis.RedisKey key, long width, long depth) -> NRedisStack.RedisStackCommands.SerializedCommand!
-static NRedisStack.CmsCommandBuilder.InitByProb(StackExchange.Redis.RedisKey key, double error, double probability) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CmsCommandBuilder.InitByDim(StackExchange.Redis.RedisKey key, long width, long depth, int? cellSize = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CmsCommandBuilder.InitByProb(StackExchange.Redis.RedisKey key, double error, double probability, int? cellSize = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
 static NRedisStack.CmsCommandBuilder.Merge(StackExchange.Redis.RedisValue destination, long numKeys, StackExchange.Redis.RedisValue[]! source, long[]? weight = null) -> NRedisStack.RedisStackCommands.SerializedCommand!
 static NRedisStack.CmsCommandBuilder.Query(StackExchange.Redis.RedisKey key, params StackExchange.Redis.RedisValue[]! items) -> NRedisStack.RedisStackCommands.SerializedCommand!
 static NRedisStack.Core.DataTypes.MinMaxModifierExtensions.ToMinMax(this StackExchange.Redis.Order order) -> NRedisStack.Core.DataTypes.MinMaxModifier

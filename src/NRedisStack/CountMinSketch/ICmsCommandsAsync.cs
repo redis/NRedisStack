@@ -40,9 +40,10 @@ public interface ICmsCommandsAsync
     /// <param name="width">Number of counters in each array. Reduces the error size.</param>
     /// <param name="depth">Number of counter-arrays. Reduces the probability for an error
     /// of a certain size (percentage of total count).</param>
+    /// <param name="cellSize">The number of bytes per cell (1, 2, 4, or 8). Defaults to 4 on the server.</param>
     /// <returns><see langword="true"/> if if executed correctly, Error otherwise.</returns>
     /// <remarks><seealso href="https://redis.io/commands/cms.initbydim"/></remarks>
-    Task<bool> InitByDimAsync(RedisKey key, long width, long depth);
+    Task<bool> InitByDimAsync(RedisKey key, long width, long depth, int? cellSize = null);
 
     /// <summary>
     /// Initializes a Count-Min Sketch to accommodate requested tolerances.
@@ -50,9 +51,10 @@ public interface ICmsCommandsAsync
     /// <param name="key">The name of the sketch.</param>
     /// <param name="error">Estimate size of error.</param>
     /// <param name="probability">The desired probability for inflated count.</param>
+    /// <param name="cellSize">The number of bytes per cell (1, 2, 4, or 8). Defaults to 4 on the server.</param>
     /// <returns><see langword="true"/> if if executed correctly, Error otherwise.</returns>
     /// <remarks><seealso href="https://redis.io/commands/cms.initbyprob"/></remarks>
-    Task<bool> InitByProbAsync(RedisKey key, double error, double probability);
+    Task<bool> InitByProbAsync(RedisKey key, double error, double probability, int? cellSize = null);
 
     /// <summary>
     /// Merges several sketches into one sketch.
