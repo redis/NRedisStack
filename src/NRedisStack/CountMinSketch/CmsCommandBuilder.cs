@@ -32,7 +32,12 @@ public static class CmsCommandBuilder
         return info;
     }
 
-    public static SerializedCommand InitByDim(RedisKey key, long width, long depth, int? cellSize = null)
+    public static SerializedCommand InitByDim(RedisKey key, long width, long depth)
+    {
+        return new(CommandCategories.WriteAccumulating, CMS.INITBYDIM, key, width, depth);
+    }
+
+    public static SerializedCommand InitByDim(RedisKey key, long width, long depth, int cellSize)
     {
         List<object> args = [key, width, depth];
         AddCellSize(args, cellSize);
@@ -40,7 +45,12 @@ public static class CmsCommandBuilder
         return new(CommandCategories.WriteAccumulating, CMS.INITBYDIM, args);
     }
 
-    public static SerializedCommand InitByProb(RedisKey key, double error, double probability, int? cellSize = null)
+    public static SerializedCommand InitByProb(RedisKey key, double error, double probability)
+    {
+        return new(CommandCategories.WriteAccumulating, CMS.INITBYPROB, key, error, probability);
+    }
+
+    public static SerializedCommand InitByProb(RedisKey key, double error, double probability, int cellSize)
     {
         List<object> args = [key, error, probability];
         AddCellSize(args, cellSize);
@@ -48,15 +58,13 @@ public static class CmsCommandBuilder
         return new(CommandCategories.WriteAccumulating, CMS.INITBYPROB, args);
     }
 
-    private static void AddCellSize(List<object> args, int? cellSize)
+    private static void AddCellSize(List<object> args, int cellSize)
     {
-        if (cellSize is null) return;
-
         if (cellSize is not (1 or 2 or 4 or 8))
             throw new ArgumentOutOfRangeException(nameof(cellSize), cellSize, "Cell size must be 1, 2, 4, or 8.");
 
         args.Add(CmsArgs.CELL_SIZE);
-        args.Add(cellSize.Value);
+        args.Add(cellSize);
     }
 
     public static SerializedCommand Merge(RedisValue destination, long numKeys, RedisValue[] source,

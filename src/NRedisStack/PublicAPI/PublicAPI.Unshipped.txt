@@ -1,2 +1,12 @@
 #nullable enable
 NRedisStack.CountMinSketch.DataTypes.CmsInformation.CellSize.get -> int
+NRedisStack.CmsCommands.InitByDim(StackExchange.Redis.RedisKey key, long width, long depth, int cellSize) -> bool
+NRedisStack.CmsCommands.InitByProb(StackExchange.Redis.RedisKey key, double error, double probability, int cellSize) -> bool
+NRedisStack.CmsCommandsAsync.InitByDimAsync(StackExchange.Redis.RedisKey key, long width, long depth, int cellSize) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.CmsCommandsAsync.InitByProbAsync(StackExchange.Redis.RedisKey key, double error, double probability, int cellSize) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ICmsCommands.InitByDim(StackExchange.Redis.RedisKey key, long width, long depth, int cellSize) -> bool
+NRedisStack.ICmsCommands.InitByProb(StackExchange.Redis.RedisKey key, double error, double probability, int cellSize) -> bool
+NRedisStack.ICmsCommandsAsync.InitByDimAsync(StackExchange.Redis.RedisKey key, long width, long depth, int cellSize) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ICmsCommandsAsync.InitByProbAsync(StackExchange.Redis.RedisKey key, double error, double probability, int cellSize) -> System.Threading.Tasks.Task<bool>!
+static NRedisStack.CmsCommandBuilder.InitByDim(StackExchange.Redis.RedisKey key, long width, long depth, int cellSize) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CmsCommandBuilder.InitByProb(StackExchange.Redis.RedisKey key, double error, double probability, int cellSize) -> NRedisStack.RedisStackCommands.SerializedCommand!

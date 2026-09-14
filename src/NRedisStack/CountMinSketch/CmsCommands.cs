@@ -32,13 +32,25 @@ public class CmsCommands : CmsCommandsAsync, ICmsCommands
     }
 
     /// <inheritdoc/>
-    public bool InitByDim(RedisKey key, long width, long depth, int? cellSize = null)
+    public bool InitByDim(RedisKey key, long width, long depth)
+    {
+        return _db.Execute(CmsCommandBuilder.InitByDim(key, width, depth)).OKtoBoolean();
+    }
+
+    /// <inheritdoc/>
+    public bool InitByDim(RedisKey key, long width, long depth, int cellSize)
     {
         return _db.Execute(CmsCommandBuilder.InitByDim(key, width, depth, cellSize)).OKtoBoolean();
     }
 
     /// <inheritdoc/>
-    public bool InitByProb(RedisKey key, double error, double probability, int? cellSize = null)
+    public bool InitByProb(RedisKey key, double error, double probability)
+    {
+        return _db.Execute(CmsCommandBuilder.InitByProb(key, error, probability)).OKtoBoolean();
+    }
+
+    /// <inheritdoc/>
+    public bool InitByProb(RedisKey key, double error, double probability, int cellSize)
     {
         return _db.Execute(CmsCommandBuilder.InitByProb(key, error, probability, cellSize)).OKtoBoolean();
     }
