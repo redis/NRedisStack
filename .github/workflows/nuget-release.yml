@@ -7,6 +7,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v6
       - name: Set up .NET 9
@@ -58,10 +61,12 @@ jobs:
 
       - name: Build
         run: dotnet pack -c Release --output .
-      - name: Publish
-        uses: alirezanet/publish-nuget@v3.0.3
+
+      - name: NuGet login (OIDC -> temp API key)
+        uses: NuGet/login@v1
+        id: login
         with:
-          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
-          PROJECT_FILE_PATH: src/NRedisStack/NRedisStack.csproj
-          PACKAGE_NAME: NRedisStack
-          TAG_COMMIT: false
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Publish
+        run: dotnet nuget push ./*.nupkg --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
