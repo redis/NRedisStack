@@ -26,12 +26,14 @@ In unattended mode the invoking prompt supplies the inputs a human would give:
 the HLD path (normally `./HLD.md`), the server/module PR reference (`tracks:`),
 the test command (`dotnet test tests/NRedisStack.Tests/NRedisStack.Tests.csproj -f net8.0`),
 and a running standalone Redis plus a 6-node OSS cluster (3 primaries + 3
-replicas) from `redislabs/client-libs-test` (modules included, no password, no
-TLS, no Docker available to you). The environment carries `REDIS_URL`,
-`REDIS_STANDALONE_HOST`/`REDIS_STANDALONE_PORT`, `REDIS_CLUSTER_HOST`,
-`REDIS_CLUSTER_START_PORT`, `REDIS_CLUSTER_NODES`, `REDIS_CLUSTER_URLS`,
-`REDIS_VERSION`, and `REDIS_ENDPOINTS_CONFIG_PATH` (an `endpoints.json` already in
-NRedisStack's format with ids `standalone` and `cluster`). Wherever a step below
+replicas) from `redislabs/client-libs-test` (modules included, password-protected,
+no TLS, no Docker available to you). The environment carries `REDIS_URL` (with
+credentials), `REDIS_STANDALONE_HOST`/`REDIS_STANDALONE_PORT`/`REDIS_STANDALONE_PASSWORD`,
+`REDIS_CLUSTER_HOST`, `REDIS_CLUSTER_START_PORT`, `REDIS_CLUSTER_NODES`,
+`REDIS_CLUSTER_PASSWORD`, `REDIS_CLUSTER_URLS`, `REDIS_VERSION`, and
+`REDIS_ENDPOINTS_CONFIG_PATH` (an `endpoints.json` already in NRedisStack's format
+with ids `standalone` and `cluster`, each with its `password`, which
+`EndpointConfig.CreateConnection` applies). Wherever a step below
 has an **Unattended:** note, follow the note:
 
 | Step | Supervised | Unattended |
@@ -130,7 +132,7 @@ Unattended runs also follow these rules:
    proceed: the tests will be written and gated, not run.
    **Unattended:** no Docker, no image question. Probe what you were given:
    `redis-cli -u "$REDIS_URL" COMMAND INFO <COMMAND>` and
-   `redis-cli -c -h "$REDIS_CLUSTER_HOST" -p "$REDIS_CLUSTER_START_PORT" COMMAND INFO <COMMAND>`.
+   `redis-cli -c -h "$REDIS_CLUSTER_HOST" -p "$REDIS_CLUSTER_START_PORT" -a "$REDIS_CLUSTER_PASSWORD" --no-auth-warning COMMAND INFO <COMMAND>`.
    If missing there, continue with version-gated tests and say so in the report.
 
 4. **Create redis-cli showcase scenarios** from the HLD and the PR, and run them:
