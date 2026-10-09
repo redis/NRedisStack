@@ -33,17 +33,28 @@ namespace NRedisStack;
 /// </remarks>
 public static partial class CountMinSketchCommands
 {
-    // rendered once, not per call: the server does not know these, so without `preform` each call would
-    // re-encode the name
-    private static readonly RespCommand
-        InitByDim = "CMS.INITBYDIM".Command(preform: true),
-        InitByProb = "CMS.INITBYPROB".Command(preform: true),
-        IncrBy = "CMS.INCRBY".Command(preform: true),
-        Query = "CMS.QUERY".Command(preform: true),
-        Merge = "CMS.MERGE".Command(preform: true),
-        Info = "CMS.INFO".Command(preform: true);
+    // the command names, declared once: the generator shipped in the StackExchange.Redis package supplies the
+    // bodies and checks the names at build time. A name the client does not know (all of these) is framed once
+    // at startup; a name it does know would stay deferred, so the command map could still rename it.
+    [Resp("CMS.INITBYDIM")]
+    private static partial RespCommand InitByDim { get; }
 
-    /// <summary>The <c>WEIGHTS</c> operand of <c>CMS.MERGE</c>.</summary>
+    [Resp("CMS.INITBYPROB")]
+    private static partial RespCommand InitByProb { get; }
+
+    [Resp("CMS.INCRBY")]
+    private static partial RespCommand IncrBy { get; }
+
+    [Resp("CMS.QUERY")]
+    private static partial RespCommand Query { get; }
+
+    [Resp("CMS.MERGE")]
+    private static partial RespCommand Merge { get; }
+
+    [Resp("CMS.INFO")]
+    private static partial RespCommand Info { get; }
+
+    /// <summary>The <c>WEIGHTS</c> operand of <c>CMS.MERGE</c>; pre-framed at build time.</summary>
     [Resp]
     private static partial RespFragment Weights { get; }
 
