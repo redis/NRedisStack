@@ -4,6 +4,7 @@ using StackExchange.Redis;
 
 namespace NRedisStack;
 
+[Obsolete("The command builders are superseded by the command groups (db.CountMinSketch); they will be removed in a future version.")]
 public static class CmsCommandBuilder
 {
     public static SerializedCommand IncrBy(RedisKey key, RedisValue item, long increment)
