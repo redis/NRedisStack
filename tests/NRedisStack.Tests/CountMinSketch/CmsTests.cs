@@ -39,6 +39,48 @@ public class CmsTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTe
         Assert.Equal(0, info.Count);
     }
 
+    [SkipIfRedisTheory(Comparison.LessThan, "8.12.0")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestInitByDimCellSize(string endpointId)
+    {
+        var db = GetCleanDatabase(endpointId);
+        var cms = db.CMS();
+
+        cms.InitByDim(key, 16, 4, cellSize: 1);
+        var info = cms.Info(key);
+
+        Assert.Equal(16, info.Width);
+        Assert.Equal(4, info.Depth);
+        Assert.Equal(0, info.Count);
+        Assert.Equal(1, info.CellSize);
+    }
+
+    [SkipIfRedisTheory(Comparison.LessThan, "8.12.0")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestInitByDimCellSizeAsync(string endpointId)
+    {
+        var db = GetCleanDatabase(endpointId);
+        var cms = db.CMS();
+
+        await cms.InitByDimAsync(key, 16, 4, cellSize: 8);
+        var info = await cms.InfoAsync(key);
+
+        Assert.Equal(16, info.Width);
+        Assert.Equal(4, info.Depth);
+        Assert.Equal(0, info.Count);
+        Assert.Equal(8, info.CellSize);
+    }
+
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestInitByDimInvalidCellSize(string endpointId)
+    {
+        var db = GetCleanDatabase(endpointId);
+        var cms = db.CMS();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => cms.InitByDim(key, 16, 4, cellSize: 3));
+    }
+
     [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestInitByProb(string endpointId)
@@ -52,6 +94,22 @@ public class CmsTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTe
         Assert.Equal(200, info.Width);
         Assert.Equal(7, info.Depth);
         Assert.Equal(0, info.Count);
+    }
+
+    [SkipIfRedisTheory(Comparison.LessThan, "8.12.0")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestInitByProbCellSize(string endpointId)
+    {
+        var db = GetCleanDatabase(endpointId);
+        var cms = db.CMS();
+
+        cms.InitByProb(key, 0.01, 0.01, cellSize: 2);
+        var info = cms.Info(key);
+
+        Assert.Equal(200, info.Width);
+        Assert.Equal(7, info.Depth);
+        Assert.Equal(0, info.Count);
+        Assert.Equal(2, info.CellSize);
     }
 
     [Theory]
@@ -125,6 +183,38 @@ public class CmsTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackTe
         Assert.Equal(5, info.Depth);
         Assert.Equal(5, info.Count);
 
+    }
+
+    [SkipIfRedisTheory(Comparison.LessThan, "8.12.0")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestIncrByNegative(string endpointId)
+    {
+        var db = GetCleanDatabase(endpointId);
+        var cms = db.CMS();
+
+        cms.InitByDim(key, 1000, 5);
+        cms.IncrBy(key, "foo", 10);
+        var resp = cms.IncrBy(key, "foo", -4);
+        Assert.Equal(6, resp);
+
+        var info = cms.Info(key);
+        Assert.Equal(6, info.Count);
+    }
+
+    [SkipIfRedisTheory(Comparison.LessThan, "8.12.0")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestIncrByNegativeAsync(string endpointId)
+    {
+        var db = GetCleanDatabase(endpointId);
+        var cms = db.CMS();
+
+        await cms.InitByDimAsync(key, 1000, 5);
+        await cms.IncrByAsync(key, "foo", 10);
+        var resp = await cms.IncrByAsync(key, "foo", -4);
+        Assert.Equal(6, resp);
+
+        var info = await cms.InfoAsync(key);
+        Assert.Equal(6, info.Count);
     }
 
     [Theory]

@@ -45,6 +45,18 @@ public interface ICmsCommandsAsync
     Task<bool> InitByDimAsync(RedisKey key, long width, long depth);
 
     /// <summary>
+    /// Initializes a Count-Min Sketch to dimensions specified by user.
+    /// </summary>
+    /// <param name="key">TThe name of the sketch.</param>
+    /// <param name="width">Number of counters in each array. Reduces the error size.</param>
+    /// <param name="depth">Number of counter-arrays. Reduces the probability for an error
+    /// of a certain size (percentage of total count).</param>
+    /// <param name="cellSize">The number of bytes per cell (1, 2, 4, or 8).</param>
+    /// <returns><see langword="true"/> if if executed correctly, Error otherwise.</returns>
+    /// <remarks><seealso href="https://redis.io/commands/cms.initbydim"/></remarks>
+    Task<bool> InitByDimAsync(RedisKey key, long width, long depth, int cellSize);
+
+    /// <summary>
     /// Initializes a Count-Min Sketch to accommodate requested tolerances.
     /// </summary>
     /// <param name="key">The name of the sketch.</param>
@@ -53,6 +65,17 @@ public interface ICmsCommandsAsync
     /// <returns><see langword="true"/> if if executed correctly, Error otherwise.</returns>
     /// <remarks><seealso href="https://redis.io/commands/cms.initbyprob"/></remarks>
     Task<bool> InitByProbAsync(RedisKey key, double error, double probability);
+
+    /// <summary>
+    /// Initializes a Count-Min Sketch to accommodate requested tolerances.
+    /// </summary>
+    /// <param name="key">The name of the sketch.</param>
+    /// <param name="error">Estimate size of error.</param>
+    /// <param name="probability">The desired probability for inflated count.</param>
+    /// <param name="cellSize">The number of bytes per cell (1, 2, 4, or 8).</param>
+    /// <returns><see langword="true"/> if if executed correctly, Error otherwise.</returns>
+    /// <remarks><seealso href="https://redis.io/commands/cms.initbyprob"/></remarks>
+    Task<bool> InitByProbAsync(RedisKey key, double error, double probability, int cellSize);
 
     /// <summary>
     /// Merges several sketches into one sketch.
