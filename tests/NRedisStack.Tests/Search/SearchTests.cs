@@ -4186,7 +4186,15 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
                 flags: CommandFlags.FireAndForget);
         }
 
-        db.Ping();
+        // A ping is ordered after the fire-and-forget writes on ITS connection only. On a cluster the
+        // writes are spread over every primary, so ping each of them; db.Ping() reaches one node and
+        // leaves the others still draining, which showed up as FT.INFO num_docs short by a few thousand.
+        var muxer = db.Multiplexer;
+        foreach (var endpoint in muxer.GetEndPoints())
+        {
+            var server = muxer.GetServer(endpoint);
+            if (server.IsConnected && !server.IsReplica) server.Ping();
+        }
         AssertIndexSize(ft, index, TimeoutDocCount);
     }
 
