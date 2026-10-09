@@ -15,10 +15,14 @@ namespace NRedisStack;
 public class CmsCommands : CmsCommandsAsync, ICmsCommands
 {
     private readonly IDatabase _db;
+    private readonly RespCountMinSketch _blocking;
 
     public CmsCommands(IDatabase db) : base(db)
     {
         _db = db;
+        // once, not per call: a context is immutable and the database's does not change, and Blocking()
+        // allocates a new one each time it is asked - the same reason RedisDatabase keeps its own
+        _blocking = db.Context.Blocking().CountMinSketch;
     }
 
     private RespCountMinSketch Group
@@ -26,7 +30,7 @@ public class CmsCommands : CmsCommandsAsync, ICmsCommands
         get
         {
             _db.SetLibraryInfoOnce();
-            return _db.Context.Blocking().CountMinSketch;
+            return _blocking;
         }
     }
 

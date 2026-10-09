@@ -19,10 +19,12 @@ namespace NRedisStack;
 public class CmsCommandsAsync : ICmsCommandsAsync
 {
     private readonly IDatabaseAsync _db;
+    private readonly RespCountMinSketch _group;
 
     public CmsCommandsAsync(IDatabaseAsync db)
     {
         _db = db;
+        _group = db.CountMinSketch;
     }
 
     private RespCountMinSketch Group
@@ -30,7 +32,7 @@ public class CmsCommandsAsync : ICmsCommandsAsync
         get
         {
             _db.SetLibraryInfoOnce();
-            return _db.CountMinSketch;
+            return _group;
         }
     }
 
