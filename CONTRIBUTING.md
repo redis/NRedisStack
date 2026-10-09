@@ -135,6 +135,18 @@ e.g. :
 dotnet test --environment "REDIS_CLUSTER=127.0.0.1:16379" --environment "NUM_REDIS_CLUSTER_NODES=6"
 ```
 
+## Agent skills
+
+Repo-specific [Agent Skills](https://agentskills.io/home) (the portable `SKILL.md` standard) live under
+`.agents/skills/`, with `.claude/skills/` symlinked to the same folders for Claude Code:
+
+- `extend-commands-api` - add or extend a Redis / Redis Stack module command end to end (literal, builder with its
+  command category, sync + async interfaces and implementations, PublicAPI tracking, xUnit theories against
+  standalone and cluster).
+- `create-implementation-plan-for-redis-api-change` - write the reviewable implementation plan for such a change
+  from a shared client HLD before any code is written. Read-only: it produces one markdown file and defers to
+  `extend-commands-api` for the conventions.
+
 ## How to Report a Bug
 
 ### Security Vulnerabilities
