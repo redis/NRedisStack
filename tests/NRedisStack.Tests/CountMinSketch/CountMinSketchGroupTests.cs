@@ -62,13 +62,17 @@ public class CountMinSketchGroupTests(EndpointsFixture endpointsFixture) : Abstr
         await cms.InitByDimAsync(key, 1000, 5);
         Assert.Equal(5, await cms.IncrByAsync(key, "foo", 5));
 
-        // xunit's span-based Assert.Equal overloads bind to collection expressions, and a span cannot live
-        // across an await, so the results are hoisted and the expectations typed as arrays
-        long[] counts = await cms.IncrByAsync(key, [("foo", 5), ("bar", 15)]);
-        Assert.Equal<long[]>([10, 15], counts);
+        // multi-value replies are pooled leases: dispose them. (And xunit's span-based Assert.Equal overloads
+        // bind to collection expressions, so the expectations are typed as arrays.)
+        using (var counts = await cms.IncrByAsync(key, [("foo", 5), ("bar", 15)]))
+        {
+            Assert.Equal<long[]>([10, 15], counts.ToArray());
+        }
 
-        long[] queried = await cms.QueryAsync(key, ["foo", "bar", "nope"]);
-        Assert.Equal<long[]>([10, 15, 0], queried);
+        using (var queried = await cms.QueryAsync(key, ["foo", "bar", "nope"]))
+        {
+            Assert.Equal<long[]>([10, 15, 0], queried.ToArray());
+        }
 
         var info = await cms.InfoAsync(key);
         Assert.Equal(1000, info.Width);
@@ -77,15 +81,18 @@ public class CountMinSketchGroupTests(EndpointsFixture endpointsFixture) : Abstr
     }
 
     [Fact]
-    public async Task EmptyArgumentsAreRejectedBeforeSending()
+    public async Task EmptyInputsShortCircuitOrAreRejected()
     {
         var db = GetCleanDatabase();
         var key = CreateKeyName();
         var cms = db.CountMinSketch;
 
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await cms.QueryAsync(key, []));
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await cms.IncrByAsync(key, []));
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await cms.MergeAsync(key, []));
+        // "the counts of no items" is an empty answer, with no round trip - the key need not even exist
+        using (var q = await cms.QueryAsync(key, [])) Assert.True(q.IsEmpty);
+        using (var i = await cms.IncrByAsync(key, [])) Assert.True(i.IsEmpty);
+
+        // merging nothing, or mismatched weights, is malformed
+        await Assert.ThrowsAsync<ArgumentException>(async () => await cms.MergeAsync(key, []));
         await Assert.ThrowsAsync<ArgumentException>(async () => await cms.MergeAsync(key, ["a", "b"], [1]));
     }
 
@@ -106,12 +113,10 @@ public class CountMinSketchGroupTests(EndpointsFixture endpointsFixture) : Abstr
         await cms.IncrByAsync(b, "foo", 15);
 
         await cms.MergeAsync(dest, [a, b]);
-        long[] unweighted = await cms.QueryAsync(dest, ["foo"]);
-        Assert.Equal<long[]>([20], unweighted);
+        using (var unweighted = await cms.QueryAsync(dest, ["foo"])) Assert.Equal<long[]>([20], unweighted.ToArray());
 
         await cms.MergeAsync(dest, [a, b], [1, 2]);
-        long[] weighted = await cms.QueryAsync(dest, ["foo"]);
-        Assert.Equal<long[]>([35], weighted);
+        using (var weighted = await cms.QueryAsync(dest, ["foo"])) Assert.Equal<long[]>([35], weighted.ToArray());
     }
 
     [Fact]
@@ -128,10 +133,8 @@ public class CountMinSketchGroupTests(EndpointsFixture endpointsFixture) : Abstr
 
         Assert.True(await db.KeyExistsAsync("p:" + key));
         Assert.False(await db.KeyExistsAsync(key));
-        long[] viaFullKey = await db.CountMinSketch.QueryAsync("p:" + key, ["foo"]);
-        long[] viaPrefix = await prefixed.CountMinSketch.QueryAsync(key, ["foo"]);
-        Assert.Equal<long[]>([3], viaFullKey);
-        Assert.Equal<long[]>([3], viaPrefix);
+        using (var viaFullKey = await db.CountMinSketch.QueryAsync("p:" + key, ["foo"])) Assert.Equal<long[]>([3], viaFullKey.ToArray());
+        using (var viaPrefix = await prefixed.CountMinSketch.QueryAsync(key, ["foo"])) Assert.Equal<long[]>([3], viaPrefix.ToArray());
     }
 
     [Fact]

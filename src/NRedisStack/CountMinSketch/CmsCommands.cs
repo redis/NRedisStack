@@ -40,7 +40,7 @@ public class CmsCommands : CmsCommandsAsync, ICmsCommands
 
     /// <inheritdoc/>
     public long[] IncrBy(RedisKey key, Tuple<RedisValue, long>[] itemIncrements)
-        => Group.IncrByAsync(key, ToPairs(itemIncrements)).GetAwaiter().GetResult();
+        => ToArray(Group.IncrByAsync(key, ToPairs(itemIncrements)));
 
     /// <inheritdoc/>
     public CmsInformation Info(RedisKey key)
@@ -60,12 +60,19 @@ public class CmsCommands : CmsCommandsAsync, ICmsCommands
 
     /// <inheritdoc/>
     public long[] Query(RedisKey key, params RedisValue[] items)
-        => Group.QueryAsync(key, items).GetAwaiter().GetResult();
+        => ToArray(Group.QueryAsync(key, items));
 
     // the old surface reported "OK" as true, and threw otherwise; the new one just completes or throws
     private static bool True(ValueTask completed)
     {
         completed.GetAwaiter().GetResult();
         return true;
+    }
+
+    // the old surface promised an array the caller owns; the group hands back a pooled lease
+    private static long[] ToArray(ValueTask<ReadOnlyLease<long>> completed)
+    {
+        using var lease = completed.GetAwaiter().GetResult();
+        return lease.ToArray();
     }
 }

@@ -28,6 +28,12 @@ public class CountMinSketchCachingTests(EndpointsFixture endpointsFixture) : Abs
         return GetConnection(options);
     }
 
+    private static async ValueTask<long> Single(RespCountMinSketch cms, RedisKey key)
+    {
+        using var lease = await cms.QueryAsync(key, ["foo"]);
+        return lease.Span[0];
+    }
+
     private static long Calls(IServer server, string command)
     {
         foreach (var group in server.Info("commandstats"))
@@ -62,16 +68,14 @@ public class CountMinSketchCachingTests(EndpointsFixture endpointsFixture) : Abs
         Assert.Contains(Regex.Matches(clientList, @"flags=(\S+)").Cast<Match>(), m => m.Groups[1].Value.Contains('t'));
 
         // warm both entries: one round trip each
-        long[] first = await cms.QueryAsync(key, ["foo"]);
-        Assert.Equal<long[]>([5], first);
+        using (var first = await cms.QueryAsync(key, ["foo"])) Assert.Equal<long[]>([5], first.ToArray());
         Assert.Equal(1000, (await cms.InfoAsync(key)).Width);
 
         var queries = Calls(server, "cms.query");
         var infos = Calls(server, "cms.info");
         for (int i = 0; i < 50; i++)
         {
-            long[] q = await cms.QueryAsync(key, ["foo"]);
-            Assert.Equal<long[]>([5], q);
+            using (var q = await cms.QueryAsync(key, ["foo"])) Assert.Equal<long[]>([5], q.ToArray());
             Assert.Equal(1000, (await cms.InfoAsync(key)).Width);
         }
         Assert.Equal(0, Calls(server, "cms.query") - queries);
@@ -81,14 +85,13 @@ public class CountMinSketchCachingTests(EndpointsFixture endpointsFixture) : Abs
         queries = Calls(server, "cms.query");
         for (int i = 0; i < 50; i++)
         {
-            await cms.QueryAsync(key, ["foo"], CommandFlags.NoClientCache);
+            (await cms.QueryAsync(key, ["foo"], CommandFlags.NoClientCache)).Dispose();
         }
         Assert.Equal(50, Calls(server, "cms.query") - queries);
 
         // the cache key covers the value arguments: a different item is a different entry, not an alias
         queries = Calls(server, "cms.query");
-        long[] other = await cms.QueryAsync(key, ["bar"]);
-        Assert.Equal<long[]>([0], other);
+        using (var other = await cms.QueryAsync(key, ["bar"])) Assert.Equal<long[]>([0], other.ToArray());
         Assert.Equal(1, Calls(server, "cms.query") - queries);
 
         await plain.KeyDeleteAsync(key);
@@ -107,16 +110,13 @@ public class CountMinSketchCachingTests(EndpointsFixture endpointsFixture) : Abs
         var cms = db.CountMinSketch;
 
         Assert.Equal(5, await cms.IncrByAsync(key, "foo", 5));
-        long[] q = await cms.QueryAsync(key, ["foo"]);
-        Assert.Equal<long[]>([5], q);
-        q = await cms.QueryAsync(key, ["foo"]); // cached
-        Assert.Equal<long[]>([5], q);
+        Assert.Equal(5, await Single(cms, key));
+        Assert.Equal(5, await Single(cms, key)); // cached
 
         // read-your-writes: the local write drops the entry, so the next read is a miss with the new value
         var queries = Calls(server, "cms.query");
         Assert.Equal(10, await cms.IncrByAsync(key, "foo", 5));
-        q = await cms.QueryAsync(key, ["foo"]);
-        Assert.Equal<long[]>([10], q);
+        Assert.Equal(10, await Single(cms, key));
         Assert.Equal(1, Calls(server, "cms.query") - queries);
 
         await plain.KeyDeleteAsync(key);
@@ -135,10 +135,8 @@ public class CountMinSketchCachingTests(EndpointsFixture endpointsFixture) : Abs
         using var conn = ConnectCached();
         var cms = conn.GetDatabase().CountMinSketch;
 
-        long[] q = await cms.QueryAsync(key, ["foo"]);
-        Assert.Equal<long[]>([5], q);
-        q = await cms.QueryAsync(key, ["foo"]); // cached
-        Assert.Equal<long[]>([5], q);
+        Assert.Equal(5, await Single(cms, key));
+        Assert.Equal(5, await Single(cms, key)); // cached
 
         await plain.CountMinSketch.IncrByAsync(key, "foo", 5); // another client
 
@@ -147,7 +145,7 @@ public class CountMinSketchCachingTests(EndpointsFixture endpointsFixture) : Abs
         long seen;
         do
         {
-            seen = (await cms.QueryAsync(key, ["foo"]))[0];
+            seen = await Single(cms, key);
             if (seen == 10) break;
             await Task.Delay(20);
         } while (DateTime.UtcNow < deadline);

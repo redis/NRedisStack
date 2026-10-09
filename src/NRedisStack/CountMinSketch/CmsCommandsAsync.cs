@@ -42,7 +42,7 @@ public class CmsCommandsAsync : ICmsCommandsAsync
 
     /// <inheritdoc/>
     public Task<long[]> IncrByAsync(RedisKey key, Tuple<RedisValue, long>[] itemIncrements)
-        => _db.AsTask(Group.IncrByAsync(key, ToPairs(itemIncrements)));
+        => _db.AsTask(ToArray(Group.IncrByAsync(key, ToPairs(itemIncrements))));
 
     /// <inheritdoc/>
     public Task<CmsInformation> InfoAsync(RedisKey key)
@@ -62,13 +62,20 @@ public class CmsCommandsAsync : ICmsCommandsAsync
 
     /// <inheritdoc/>
     public Task<long[]> QueryAsync(RedisKey key, params RedisValue[] items)
-        => _db.AsTask(Group.QueryAsync(key, items));
+        => _db.AsTask(ToArray(Group.QueryAsync(key, items)));
 
     // the old surface reported "OK" as true, and threw otherwise; the new one just completes or throws
     private static async ValueTask<bool> True(ValueTask pending)
     {
         await pending.ConfigureAwait(false);
         return true;
+    }
+
+    // the old surface promised an array the caller owns; the group hands back a pooled lease
+    private static async ValueTask<long[]> ToArray(ValueTask<ReadOnlyLease<long>> pending)
+    {
+        using var lease = await pending.ConfigureAwait(false);
+        return lease.ToArray();
     }
 
     internal static (RedisValue Item, long Increment)[] ToPairs(Tuple<RedisValue, long>[] itemIncrements)

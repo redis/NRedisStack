@@ -18,7 +18,14 @@ namespace NRedisStack;
 /// </para>
 /// <para>
 /// Every command declares its retry category via <c>WithRetryCategory</c>, which is caller-wins: an explicit
-/// category in the <c>flags</c> argument is respected, otherwise the command's own applies.
+/// category in the <c>flags</c> argument is respected, otherwise the command's own applies. The read-only
+/// category is also what makes <c>CMS.QUERY</c> and <c>CMS.INFO</c> eligible for client-side caching; a
+/// <c>CMS.INCRBY</c> invalidates them, because the module marks its write as a key modification.
+/// </para>
+/// <para>
+/// Multi-value replies come back as a <see cref="ReadOnlyLease{T}"/> over a pooled buffer, as the
+/// StackExchange.Redis groups return theirs: <b>dispose it</b>. An empty input yields an empty lease without a
+/// round trip.
 /// </para>
 /// </remarks>
 public static partial class CountMinSketchCommands
@@ -46,7 +53,7 @@ public static partial class CountMinSketchCommands
     /// <param name="depth">Number of counter-arrays. Reduces the probability for an error
     /// of a certain size (percentage of total count).</param>
     /// <param name="flags">Command flags.</param>
-    /// <param name="cancellationToken">Cancels the request.</param>
+    /// <param name="cancellationToken">Cancels the request: one not yet written is never sent; one already written still runs on the server, and its reply is discarded.</param>
     /// <remarks><seealso href="https://redis.io/commands/cms.initbydim"/></remarks>
     public static ValueTask InitByDimAsync(this RespCountMinSketch cms, RedisKey key, long width, long depth,
         CommandFlags flags = CommandFlags.None, CancellationToken cancellationToken = default)
@@ -61,7 +68,7 @@ public static partial class CountMinSketchCommands
     /// <param name="error">Estimate size of error.</param>
     /// <param name="probability">The desired probability for inflated count.</param>
     /// <param name="flags">Command flags.</param>
-    /// <param name="cancellationToken">Cancels the request.</param>
+    /// <param name="cancellationToken">Cancels the request: one not yet written is never sent; one already written still runs on the server, and its reply is discarded.</param>
     /// <remarks><seealso href="https://redis.io/commands/cms.initbyprob"/></remarks>
     public static ValueTask InitByProbAsync(this RespCountMinSketch cms, RedisKey key, double error, double probability,
         CommandFlags flags = CommandFlags.None, CancellationToken cancellationToken = default)
@@ -76,7 +83,7 @@ public static partial class CountMinSketchCommands
     /// <param name="item">The item whose counter is to be increased.</param>
     /// <param name="increment">Amount by which the item counter is to be increased.</param>
     /// <param name="flags">Command flags.</param>
-    /// <param name="cancellationToken">Cancels the request.</param>
+    /// <param name="cancellationToken">Cancels the request: one not yet written is never sent; one already written still runs on the server, and its reply is discarded.</param>
     /// <returns>The count of the item after the increment.</returns>
     /// <remarks><seealso href="https://redis.io/commands/cms.incrby"/></remarks>
     public static ValueTask<long> IncrByAsync(this RespCountMinSketch cms, RedisKey key, RedisValue item, long increment,
@@ -91,14 +98,14 @@ public static partial class CountMinSketchCommands
     /// <param name="key">The name of the sketch.</param>
     /// <param name="increments">The items and the amounts by which to increase them.</param>
     /// <param name="flags">Command flags.</param>
-    /// <param name="cancellationToken">Cancels the request.</param>
-    /// <returns>The count of each item after its increment, in the order given.</returns>
+    /// <param name="cancellationToken">Cancels the request: one not yet written is never sent; one already written still runs on the server, and its reply is discarded.</param>
+    /// <returns>The count of each item after its increment, in the order given; dispose it. Empty when no items were given, without a round trip.</returns>
     /// <remarks><seealso href="https://redis.io/commands/cms.incrby"/></remarks>
-    public static ValueTask<long[]> IncrByAsync(this RespCountMinSketch cms, RedisKey key,
+    public static ValueTask<ReadOnlyLease<long>> IncrByAsync(this RespCountMinSketch cms, RedisKey key,
         ReadOnlySpan<(RedisValue Item, long Increment)> increments,
         CommandFlags flags = CommandFlags.None, CancellationToken cancellationToken = default)
     {
-        if (increments.IsEmpty) throw new ArgumentOutOfRangeException(nameof(increments));
+        if (increments.IsEmpty) return new(ReadOnlyLease<long>.Empty);
 
         // a pair hole does not exist for (value, number), so this is the cumulative form: start the
         // command, then append the pairs
@@ -117,7 +124,7 @@ public static partial class CountMinSketchCommands
             throw;
         }
 
-        return cms.Context.SendAsync<long[]>(ref cmd,
+        return cms.Context.SendAsync<ReadOnlyLease<long>>(ref cmd,
             flags.WithRetryCategory(CommandCategories.WriteAccumulating), cancellationToken: cancellationToken);
     }
 
@@ -126,18 +133,17 @@ public static partial class CountMinSketchCommands
     /// </summary>
     /// <param name="cms">The command group.</param>
     /// <param name="key">The name of the sketch.</param>
-    /// <param name="items">One or more items for which to return the count.</param>
+    /// <param name="items">The items for which to return the count.</param>
     /// <param name="flags">Command flags.</param>
-    /// <param name="cancellationToken">Cancels the request.</param>
-    /// <returns>The min-count of each of the items in the sketch, in the order given.</returns>
+    /// <param name="cancellationToken">Cancels the request: one not yet written is never sent; one already written still runs on the server, and its reply is discarded.</param>
+    /// <returns>The min-count of each of the items in the sketch, in the order given; dispose it. Empty when no items were given, without a round trip.</returns>
     /// <remarks><seealso href="https://redis.io/commands/cms.query"/></remarks>
-    public static ValueTask<long[]> QueryAsync(this RespCountMinSketch cms, RedisKey key, ReadOnlySpan<RedisValue> items,
+    public static ValueTask<ReadOnlyLease<long>> QueryAsync(this RespCountMinSketch cms, RedisKey key, ReadOnlySpan<RedisValue> items,
         CommandFlags flags = CommandFlags.None, CancellationToken cancellationToken = default)
-    {
-        if (items.IsEmpty) throw new ArgumentOutOfRangeException(nameof(items));
-        return cms.Context.SendAsync<long[]>($"{Query}{key}{items}",
-            flags.WithRetryCategory(CommandCategories.ReadOnly), cancellationToken: cancellationToken);
-    }
+        => items.IsEmpty
+            ? new(ReadOnlyLease<long>.Empty)
+            : cms.Context.SendAsync<ReadOnlyLease<long>>($"{Query}{key}{items}",
+                flags.WithRetryCategory(CommandCategories.ReadOnly), cancellationToken: cancellationToken);
 
     /// <summary>
     /// Merges several sketches into one sketch.
@@ -147,12 +153,17 @@ public static partial class CountMinSketchCommands
     /// <param name="sources">The names of the source sketches to be merged.</param>
     /// <param name="weights">A multiplier per source sketch, or empty for a weight of 1 each.</param>
     /// <param name="flags">Command flags.</param>
-    /// <param name="cancellationToken">Cancels the request.</param>
-    /// <remarks><seealso href="https://redis.io/commands/cms.merge"/></remarks>
+    /// <param name="cancellationToken">Cancels the request: one not yet written is never sent; one already written still runs on the server, and its reply is discarded.</param>
+    /// <exception cref="ArgumentException">No sources were given, or the weights do not match the sources one for one.</exception>
+    /// <remarks>
+    /// <seealso href="https://redis.io/commands/cms.merge"/>. Categorized as an accumulating write, which is
+    /// never replayed: a replay would give the same result only if no source changed in between, and nothing
+    /// here can know that.
+    /// </remarks>
     public static ValueTask MergeAsync(this RespCountMinSketch cms, RedisKey destination, ReadOnlySpan<RedisKey> sources,
         ReadOnlySpan<long> weights = default, CommandFlags flags = CommandFlags.None, CancellationToken cancellationToken = default)
     {
-        if (sources.IsEmpty) throw new ArgumentOutOfRangeException(nameof(sources));
+        if (sources.IsEmpty) throw new ArgumentException("At least one source sketch is required.", nameof(sources));
         if (!weights.IsEmpty && weights.Length != sources.Length)
             throw new ArgumentException("When specified, there must be one weight per source.", nameof(weights));
 
@@ -182,7 +193,7 @@ public static partial class CountMinSketchCommands
     /// <param name="cms">The command group.</param>
     /// <param name="key">The name of the sketch.</param>
     /// <param name="flags">Command flags.</param>
-    /// <param name="cancellationToken">Cancels the request.</param>
+    /// <param name="cancellationToken">Cancels the request: one not yet written is never sent; one already written still runs on the server, and its reply is discarded.</param>
     /// <remarks><seealso href="https://redis.io/commands/cms.info"/></remarks>
     public static ValueTask<CmsInformation> InfoAsync(this RespCountMinSketch cms, RedisKey key,
         CommandFlags flags = CommandFlags.None, CancellationToken cancellationToken = default)
