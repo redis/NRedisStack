@@ -20,7 +20,10 @@ namespace NRedisStack;
 /// Every command declares its retry category via <c>WithRetryCategory</c>, which is caller-wins: an explicit
 /// category in the <c>flags</c> argument is respected, otherwise the command's own applies. The read-only
 /// category is also what makes <c>CMS.QUERY</c> and <c>CMS.INFO</c> eligible for client-side caching; a
-/// <c>CMS.INCRBY</c> invalidates them, because the module marks its write as a key modification.
+/// <c>CMS.INCRBY</c> invalidates them, because the module marks its write as a key modification. <b>Not on
+/// Redis Stack 6.2</b>: that module build does not announce its writes, so with a client-side cache enabled a
+/// read there can return another client's superseded count until the cache's <c>TimeToLive</c> retires it.
+/// Your own writes through the same multiplexer are always seen. Redis 7.2 and later announce correctly.
 /// </para>
 /// <para>
 /// Multi-value replies come back as a <see cref="ReadOnlyLease{T}"/> over a pooled buffer, as the

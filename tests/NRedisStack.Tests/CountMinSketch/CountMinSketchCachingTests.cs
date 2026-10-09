@@ -127,11 +127,15 @@ public class CountMinSketchCachingTests(EndpointsFixture endpointsFixture) : Abs
         await plain.KeyDeleteAsync(key);
     }
 
-    [Fact]
+    // Observed: Redis Stack 6.2.6 (RedisBloom 2.2.x) does NOT announce CMS.INCRBY to tracking clients - the cached
+    // value stays stale until the cache's TimeToLive - while 7.2 and later do. So on 6.2 a client-side cache over
+    // CMS reads can serve another client's superseded value for up to TimeToLive; your own writes are still seen.
+    [SkipIfRedisFact(Comparison.LessThan, "7.2.0")]
     public async Task AWriteFromAnotherClientIsAnnouncedForAModuleKey()
     {
         // the module-specific risk: invalidation only happens if the module marks its write as a key modification.
-        // Redis does that when a module closes a key it opened for writing, but it is a thing to verify, not assume.
+        // Redis does that when a module closes a key it opened for writing, but it is a thing to verify, not assume
+        // - and, as the gate above records, older module builds do not.
         var plain = GetCleanDatabase();
         RedisKey key = Prefix + CreateKeyName();
         await plain.CountMinSketch.InitByDimAsync(key, 1000, 5);
