@@ -34,6 +34,11 @@ public class CountMinSketchCachingTests(EndpointsFixture endpointsFixture) : Abs
         return lease.Span[0];
     }
 
+    private static string Render(RedisResult result)
+        => result.Resp3Type is ResultType.Array or ResultType.Map or ResultType.Set
+            ? "[" + string.Join(", ", ((RedisResult[])result!).Select(Render)) + "]"
+            : result.ToString() ?? "(null)";
+
     private static long Calls(IServer server, string command)
     {
         foreach (var group in server.Info("commandstats"))
@@ -133,23 +138,39 @@ public class CountMinSketchCachingTests(EndpointsFixture endpointsFixture) : Abs
         await plain.CountMinSketch.IncrByAsync(key, "foo", 5);
 
         using var conn = ConnectCached();
+        var server = conn.GetServer(conn.GetEndPoints()[0]);
         var cms = conn.GetDatabase().CountMinSketch;
 
         Assert.Equal(5, await Single(cms, key));
         Assert.Equal(5, await Single(cms, key)); // cached
 
-        await plain.CountMinSketch.IncrByAsync(key, "foo", 5); // another client
+        // the write lands on the same server we are reading from: 5 + 5
+        Assert.Equal(10, await plain.CountMinSketch.IncrByAsync(key, "foo", 5)); // another client
 
         // the push arrives shortly after the write, with no fixed bound
-        var deadline = DateTime.UtcNow.AddSeconds(5);
+        var queriesBefore = Calls(server, "cms.query");
+        var started = DateTime.UtcNow;
+        var deadline = started.AddSeconds(5);
         long seen;
+        int polls = 0;
         do
         {
             seen = await Single(cms, key);
+            polls++;
             if (seen == 10) break;
             await Task.Delay(20);
         } while (DateTime.UtcNow < deadline);
-        Assert.Equal(10, seen);
+
+        if (seen != 10)
+        {
+            // distinguish "the entry was never invalidated" (polls were cache hits: the server saw none of
+            // them) from "the server answered 5" (polls reached the server), and show what the server
+            // thinks about tracking on this connection
+            var hits = Calls(server, "cms.query") - queriesBefore;
+            var trackingInfo = Render(server.Execute("CLIENT", "TRACKINGINFO"));
+            var info = string.Join("; ", server.Info().SelectMany(g => g).Where(p => p.Key.StartsWith("tracking_")).Select(p => $"{p.Key}={p.Value}"));
+            Assert.Fail($"still {seen} after {(DateTime.UtcNow - started).TotalMilliseconds:F0}ms and {polls} polls, of which {hits} reached the server; CLIENT TRACKINGINFO: {trackingInfo}; INFO: {info}");
+        }
 
         await plain.KeyDeleteAsync(key);
     }
