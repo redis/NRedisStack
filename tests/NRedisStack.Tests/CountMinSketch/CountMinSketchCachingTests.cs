@@ -72,9 +72,14 @@ public class CountMinSketchCachingTests(EndpointsFixture endpointsFixture) : Abs
         var clientList = (string)server.Execute("CLIENT", "LIST")!;
         Assert.Contains(Regex.Matches(clientList, @"flags=(\S+)").Cast<Match>(), m => m.Groups[1].Value.Contains('t'));
 
-        // warm both entries: one round trip each
-        using (var first = await cms.QueryAsync(key, ["foo"])) Assert.Equal<long[]>([5], first.ToArray());
-        Assert.Equal(1000, (await cms.InfoAsync(key)).Width);
+        // warm both entries. The default admission rule (CacheAdmission.OnRepeatedMiss) stores a reply only once
+        // the same request has missed before - a request read once never costs the cache anything - so the
+        // first read is remembered and the second is the one that fills; from the third on they are hits
+        for (int i = 0; i < 2; i++)
+        {
+            using (var first = await cms.QueryAsync(key, ["foo"])) Assert.Equal<long[]>([5], first.ToArray());
+            Assert.Equal(1000, (await cms.InfoAsync(key)).Width);
+        }
 
         var queries = Calls(server, "cms.query");
         var infos = Calls(server, "cms.info");
@@ -94,10 +99,14 @@ public class CountMinSketchCachingTests(EndpointsFixture endpointsFixture) : Abs
         }
         Assert.Equal(50, Calls(server, "cms.query") - queries);
 
-        // the cache key covers the value arguments: a different item is a different entry, not an alias
+        // the cache key covers the value arguments: a different item is a different entry, not an alias -
+        // so it misses, and (being its first read) misses again before it is admitted
         queries = Calls(server, "cms.query");
         using (var other = await cms.QueryAsync(key, ["bar"])) Assert.Equal<long[]>([0], other.ToArray());
-        Assert.Equal(1, Calls(server, "cms.query") - queries);
+        using (var other = await cms.QueryAsync(key, ["bar"])) Assert.Equal<long[]>([0], other.ToArray());
+        Assert.Equal(2, Calls(server, "cms.query") - queries);
+        using (var other = await cms.QueryAsync(key, ["bar"])) Assert.Equal<long[]>([0], other.ToArray());
+        Assert.Equal(2, Calls(server, "cms.query") - queries); // admitted: served from memory
 
         await plain.KeyDeleteAsync(key);
     }
@@ -115,8 +124,8 @@ public class CountMinSketchCachingTests(EndpointsFixture endpointsFixture) : Abs
         var cms = db.CountMinSketch;
 
         Assert.Equal(5, await cms.IncrByAsync(key, "foo", 5));
-        Assert.Equal(5, await Single(cms, key));
-        Assert.Equal(5, await Single(cms, key)); // cached
+        Assert.Equal(5, await Single(cms, key)); // remembered
+        Assert.Equal(5, await Single(cms, key)); // admitted and cached (OnRepeatedMiss)
 
         // read-your-writes: the local write drops the entry, so the next read is a miss with the new value
         var queries = Calls(server, "cms.query");
@@ -145,8 +154,8 @@ public class CountMinSketchCachingTests(EndpointsFixture endpointsFixture) : Abs
         var server = conn.GetServer(conn.GetEndPoints()[0]);
         var cms = conn.GetDatabase().CountMinSketch;
 
-        Assert.Equal(5, await Single(cms, key));
-        Assert.Equal(5, await Single(cms, key)); // cached
+        Assert.Equal(5, await Single(cms, key)); // remembered
+        Assert.Equal(5, await Single(cms, key)); // admitted and cached (OnRepeatedMiss)
 
         // the write lands on the same server we are reading from: 5 + 5
         Assert.Equal(10, await plain.CountMinSketch.IncrByAsync(key, "foo", 5)); // another client
