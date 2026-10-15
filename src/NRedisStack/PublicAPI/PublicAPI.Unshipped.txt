@@ -1,1 +1,18 @@
 #nullable enable
+NRedisStack.CountMinSketchCommands
+NRedisStack.RedisStackExtensions
+NRedisStack.RedisStackExtensions.extension<TTarget>(TTarget)
+NRedisStack.RedisStackExtensions.extension<TTarget>(TTarget).CountMinSketch.get -> NRedisStack.RespCountMinSketch
+NRedisStack.RespCountMinSketch
+NRedisStack.RespCountMinSketch.RespCountMinSketch() -> void
+NRedisStack.RespCountMinSketch.RespCountMinSketch(StackExchange.Redis.RespContext! context) -> void
+static NRedisStack.CountMinSketchCommands.IncrByAsync(this NRedisStack.RespCountMinSketch cms, StackExchange.Redis.RedisKey key, StackExchange.Redis.RedisValue item, long increment, StackExchange.Redis.CommandFlags flags = StackExchange.Redis.CommandFlags.None, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask<long>
+static NRedisStack.CountMinSketchCommands.InfoAsync(this NRedisStack.RespCountMinSketch cms, StackExchange.Redis.RedisKey key, StackExchange.Redis.CommandFlags flags = StackExchange.Redis.CommandFlags.None, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask<NRedisStack.CountMinSketch.DataTypes.CmsInformation!>
+static NRedisStack.CountMinSketchCommands.InitByDimAsync(this NRedisStack.RespCountMinSketch cms, StackExchange.Redis.RedisKey key, long width, long depth, StackExchange.Redis.CommandFlags flags = StackExchange.Redis.CommandFlags.None, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask
+static NRedisStack.CountMinSketchCommands.InitByProbAsync(this NRedisStack.RespCountMinSketch cms, StackExchange.Redis.RedisKey key, double error, double probability, StackExchange.Redis.CommandFlags flags = StackExchange.Redis.CommandFlags.None, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask
+static NRedisStack.CountMinSketchCommands.MergeAsync(this NRedisStack.RespCountMinSketch cms, StackExchange.Redis.RedisKey destination, System.ReadOnlySpan<StackExchange.Redis.RedisKey> sources, System.ReadOnlySpan<long> weights = default(System.ReadOnlySpan<long>), StackExchange.Redis.CommandFlags flags = StackExchange.Redis.CommandFlags.None, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask
+static NRedisStack.RedisStackExtensions.get_CountMinSketch<TTarget>(TTarget target) -> NRedisStack.RespCountMinSketch
+NRedisStack.Downlevel.RedisStackGroups
+static NRedisStack.CountMinSketchCommands.IncrByAsync(this NRedisStack.RespCountMinSketch cms, StackExchange.Redis.RedisKey key, System.ReadOnlySpan<(StackExchange.Redis.RedisValue Item, long Increment)> increments, StackExchange.Redis.CommandFlags flags = StackExchange.Redis.CommandFlags.None, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask<StackExchange.Redis.ReadOnlyLease<long>!>
+static NRedisStack.CountMinSketchCommands.QueryAsync(this NRedisStack.RespCountMinSketch cms, StackExchange.Redis.RedisKey key, System.ReadOnlySpan<StackExchange.Redis.RedisValue> items, StackExchange.Redis.CommandFlags flags = StackExchange.Redis.CommandFlags.None, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask<StackExchange.Redis.ReadOnlyLease<long>!>
+static NRedisStack.Downlevel.RedisStackGroups.CountMinSketch<TTarget>(this TTarget target) -> NRedisStack.RespCountMinSketch

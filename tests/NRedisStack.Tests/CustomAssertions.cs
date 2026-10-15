@@ -27,13 +27,15 @@ public static class CustomAssertions
     public static void AssertIndexSize(ISearchCommands ft, string index, long expected)
     {
         long indexed = -1;
-        // allow search time to catch up
+        // allow search time to catch up: indexing is asynchronous on the server, so a re-read that follows
+        // the previous one immediately sees nothing new
         for (int i = 0; i < 10; i++)
         {
             indexed = ft.Info(index).NumDocs;
 
             if (indexed == expected)
                 break;
+            Thread.Sleep(50);
         }
         Assert.Equal(expected, indexed);
     }
@@ -42,13 +44,14 @@ public static class CustomAssertions
     public static async Task AssertIndexSizeAsync(ISearchCommandsAsync ft, string index, long expected)
     {
         long indexed = -1;
-        // allow search time to catch up
+        // allow search time to catch up; see the synchronous form
         for (int i = 0; i < 10; i++)
         {
             indexed = (await ft.InfoAsync(index)).NumDocs;
 
             if (indexed == expected)
                 break;
+            await Task.Delay(50);
         }
         Assert.Equal(expected, indexed);
     }
