@@ -25,6 +25,20 @@ public class CountMinSketchGroupTests(EndpointsFixture endpointsFixture) : Abstr
         Assert.Equal(0, info.Count);
     }
 
+    [SkipIfRedisTheory(Comparison.LessThan, "8.12.0")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task InfoReportsCellSize(string endpointId)
+    {
+        // the server labels this "cell_size" (underscore); 4 is the default width per counter
+        var db = GetCleanDatabase(endpointId);
+        var key = CreateKeyName();
+
+        await db.CountMinSketch.InitByDimAsync(key, 16, 4);
+        var info = await db.CountMinSketch.InfoAsync(key);
+
+        Assert.Equal(4, info.CellSize);
+    }
+
     [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task InitByProbAndInfo(string endpointId)

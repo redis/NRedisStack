@@ -248,7 +248,7 @@ public static partial class CountMinSketchCommands
                 if (label.Is("width"u8)) width = value.ReadInt64();
                 else if (label.Is("depth"u8)) depth = value.ReadInt64();
                 else if (label.Is("count"u8)) count = value.ReadInt64();
-                else if (label.Is("cell size"u8)) cellSize = value.ReadInt32();
+                else if (label.Is("cell_size"u8)) cellSize = value.ReadInt32();
             }
 
             return new(width, depth, count, cellSize);
