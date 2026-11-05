@@ -1,1 +1,8 @@
 #nullable enable
+NRedisStack.Search.Schema.AddHnswVectorField(NRedisStack.Search.FieldName! name, NRedisStack.Search.Schema.VectorField.VectorType type, int dimensions, NRedisStack.Search.Schema.VectorField.VectorDistanceMetric distanceMetric, int maxOutgoingConnections = 16, int maxConnectedNeighbors = 200, int maxTopCandidates = 10, double boundaryFactor = 0.01, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false, NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm compressionAlgorithm = NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm.NotSpecified, int trainingThreshold = 0) -> NRedisStack.Search.Schema!
+NRedisStack.Search.Schema.HnswVectorField.CompressionAlgorithm.get -> NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm
+NRedisStack.Search.Schema.HnswVectorField.CompressionAlgorithm.set -> void
+NRedisStack.Search.Schema.HnswVectorField.TrainingThreshold.get -> int
+NRedisStack.Search.Schema.HnswVectorField.TrainingThreshold.set -> void
+NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm.SQ8 = 7 -> NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm
+*REMOVED*NRedisStack.Search.Schema.AddHnswVectorField(NRedisStack.Search.FieldName! name, NRedisStack.Search.Schema.VectorField.VectorType type, int dimensions, NRedisStack.Search.Schema.VectorField.VectorDistanceMetric distanceMetric, int maxOutgoingConnections = 16, int maxConnectedNeighbors = 200, int maxTopCandidates = 10, double boundaryFactor = 0.01, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false) -> NRedisStack.Search.Schema!
