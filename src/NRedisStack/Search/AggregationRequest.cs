@@ -7,6 +7,7 @@ public class AggregationRequest : IDialectAwareParam
 {
     private readonly List<object> args = []; // Check if Readonly
     private bool isWithCursor = false;
+    private bool hasCountOption = false;
 
     public int? dialect { get; private set; } = null;
 
@@ -21,6 +22,41 @@ public class AggregationRequest : IDialectAwareParam
     public AggregationRequest Verbatim()
     {
         args.Add(SearchArgs.VERBATIM);
+        return this;
+    }
+
+    /// <summary>
+    /// Counts every result (<c>WITHCOUNT</c>), so that the total is exact.
+    /// </summary>
+    /// <remarks>
+    /// The server only accepts the option before the first pipeline step, so it is sent right after the
+    /// query wherever in the chain this is called; a later <see cref="WithoutCount"/> replaces it.
+    /// </remarks>
+    public AggregationRequest WithCount() => SetCountOption(SearchArgs.WITHCOUNT);
+
+    /// <summary>
+    /// Does not count every result (<c>WITHOUTCOUNT</c>), which lets an aggregation sorted by a numeric
+    /// field stop once it has enough results. The total is then not exact.
+    /// </summary>
+    /// <seealso href="https://redis.io/docs/latest/commands/ft.aggregate/"/>
+    /// <remarks>
+    /// The server only accepts the option before the first pipeline step, so it is sent right after the
+    /// query wherever in the chain this is called; a later <see cref="WithCount"/> replaces it.
+    /// </remarks>
+    public AggregationRequest WithoutCount() => SetCountOption(SearchArgs.WITHOUTCOUNT);
+
+    private AggregationRequest SetCountOption(string option)
+    {
+        // The query is always the first argument, and every other option or step is appended after it.
+        if (hasCountOption)
+        {
+            args[1] = option;
+        }
+        else
+        {
+            args.Insert(1, option);
+            hasCountOption = true;
+        }
         return this;
     }
 

@@ -160,6 +160,72 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(0, res.TotalResults);
     }
 
+    [SkipIfRedisTheory(Comparison.LessThan, "7.2.0")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestCountOptionsSortedByNumericField(string endpointId)
+    {
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ft = db.FT();
+        Schema sc = new Schema().AddNumericField("n", sortable: true);
+        ft.Create(index, FTCreateParams.CreateParams(), sc);
+        for (int i = 0; i < 100; i++)
+        {
+            AddDocument(db, new Document($"doc{i}").Set("n", i));
+        }
+        AssertIndexSize(ft, index, 100);
+
+        Query Page() => new Query("@n:[(50 +inf]").SetSortBy("n", ascending: true).Limit(0, 3).SetNoContent()
+            .Dialect(2);
+        var counted = ft.Search(index, Page().SetWithCount());
+        Assert.Equal(49, counted.TotalResults);
+        Assert.Equal(["doc51", "doc52", "doc53"], counted.Documents.Select(doc => doc.Id));
+        var uncounted = ft.Search(index, Page().SetWithoutCount());
+        Assert.Equal(["doc51", "doc52", "doc53"], uncounted.Documents.Select(doc => doc.Id));
+
+        // Set after SORTBY and LOAD, where the server would reject it, to show that it is sent right
+        // after the query regardless.
+        var aggregation = ft.Aggregate(index, new AggregationRequest("@n:[(50 +inf]")
+            .SortBy(3, SortedField.Asc("@n"))
+            .Load(FieldName.Of("@n"))
+            .WithoutCount()
+            .Dialect(2));
+        Assert.Equal([51L, 52L, 53L], Enumerable.Range(0, 3).Select(i => aggregation.GetRow(i).GetLong("n")));
+    }
+
+    [SkipIfRedisTheory(Comparison.LessThan, "7.2.0")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestCountOptionsSortedByNumericFieldAsync(string endpointId)
+    {
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ft = db.FT();
+        Schema sc = new Schema().AddNumericField("n", sortable: true);
+        await ft.CreateAsync(index, FTCreateParams.CreateParams(), sc);
+        for (int i = 0; i < 100; i++)
+        {
+            AddDocument(db, new Document($"doc{i}").Set("n", i));
+        }
+        AssertIndexSize(ft, index, 100);
+
+        Query Page() => new Query("@n:[(50 +inf]").SetSortBy("n", ascending: true).Limit(0, 3).SetNoContent()
+            .Dialect(2);
+        var counted = await ft.SearchAsync(index, Page().SetWithCount());
+        Assert.Equal(49, counted.TotalResults);
+        Assert.Equal(["doc51", "doc52", "doc53"], counted.Documents.Select(doc => doc.Id));
+        var uncounted = await ft.SearchAsync(index, Page().SetWithoutCount());
+        Assert.Equal(["doc51", "doc52", "doc53"], uncounted.Documents.Select(doc => doc.Id));
+
+        // Set after SORTBY and LOAD, where the server would reject it, to show that it is sent right
+        // after the query regardless.
+        var aggregation = await ft.AggregateAsync(index, new AggregationRequest("@n:[(50 +inf]")
+            .SortBy(3, SortedField.Asc("@n"))
+            .Load(FieldName.Of("@n"))
+            .WithoutCount()
+            .Dialect(2));
+        Assert.Equal([51L, 52L, 53L], Enumerable.Range(0, 3).Select(i => aggregation.GetRow(i).GetLong("n")));
+    }
+
     [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAggregationRequestVerbatimAsync(string endpointId)

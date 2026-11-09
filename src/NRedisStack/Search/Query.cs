@@ -149,6 +149,14 @@ public sealed class Query : IDialectAwareParam
     /// Set the query to return object payloads, if any were given
     /// </summary>
     public bool WithPayloads { get; set; }
+    /// <summary>
+    /// Whether the query counts every result: <c>true</c> sends <c>WITHCOUNT</c>, which returns an exact
+    /// total; <c>false</c> sends <c>WITHOUTCOUNT</c>, which lets a query sorted by a numeric field stop
+    /// once it has enough results, at the cost of an exact total; <c>null</c> (the default) sends neither
+    /// and leaves it to the server, which counts unless the query uses <c>DIALECT 4</c>.
+    /// </summary>
+    /// <seealso href="https://redis.io/docs/latest/commands/ft.search/"/>
+    public bool? WithCount { get; set; }
 
     /// <summary>
     /// Set the query language, for stemming purposes; see http://redisearch.io for documentation on languages and stemming
@@ -236,6 +244,10 @@ public sealed class Query : IDialectAwareParam
         if (WithPayloads)
         {
             args.Add(SearchArgs.WITHPAYLOADS);
+        }
+        if (WithCount.HasValue)
+        {
+            args.Add(WithCount.Value ? SearchArgs.WITHCOUNT : SearchArgs.WITHOUTCOUNT);
         }
         if (Language != null)
         {
@@ -488,6 +500,27 @@ public sealed class Query : IDialectAwareParam
     public Query SetWithPayloads()
     {
         WithPayloads = true;
+        return this;
+    }
+
+    /// <summary>
+    /// Set the query to count every result (<c>WITHCOUNT</c>), so that the total is exact.
+    /// </summary>
+    /// <returns>the query itself</returns>
+    public Query SetWithCount()
+    {
+        WithCount = true;
+        return this;
+    }
+
+    /// <summary>
+    /// Set the query not to count every result (<c>WITHOUTCOUNT</c>), which lets a query sorted by a
+    /// numeric field stop once it has enough results. The total is then not exact.
+    /// </summary>
+    /// <returns>the query itself</returns>
+    public Query SetWithoutCount()
+    {
+        WithCount = false;
         return this;
     }
 
