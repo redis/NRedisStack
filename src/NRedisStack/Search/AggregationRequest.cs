@@ -7,6 +7,7 @@ public class AggregationRequest : IDialectAwareParam
 {
     private readonly List<object> args = []; // Check if Readonly
     private bool isWithCursor = false;
+    private bool? withCount = null;
 
     public int? dialect { get; private set; } = null;
 
@@ -21,6 +22,23 @@ public class AggregationRequest : IDialectAwareParam
     public AggregationRequest Verbatim()
     {
         args.Add(SearchArgs.VERBATIM);
+        return this;
+    }
+
+    /// <summary>
+    /// Whether the aggregation counts every result: <c>true</c> sends <c>WITHCOUNT</c>, which keeps the total
+    /// exact; <c>false</c> sends <c>WITHOUTCOUNT</c>, which lets an aggregation sorted by a numeric field stop
+    /// once it has enough results, at the cost of an exact total; <c>null</c> sends neither and leaves it to
+    /// the server.
+    /// </summary>
+    /// <seealso href="https://redis.io/docs/latest/commands/ft.aggregate/"/>
+    /// <remarks>
+    /// The server only accepts the option before the first pipeline step, so it is sent right after the
+    /// query wherever in the chain this is called; a later call replaces an earlier one.
+    /// </remarks>
+    public AggregationRequest WithCount(bool? value = true)
+    {
+        withCount = value;
         return this;
     }
 
@@ -182,6 +200,21 @@ public class AggregationRequest : IDialectAwareParam
             args.Add(SearchArgs.DIALECT);
             args.Add(dialect);
         }
+    }
+
+    /// <summary>
+    /// Adds the request's arguments to <paramref name="target"/>, with the count option right after the query,
+    /// since the server rejects it after a pipeline step. The request's own arguments are left as they are,
+    /// so building the command again reflects the current option.
+    /// </summary>
+    internal void AddArgsTo(List<object> target)
+    {
+        target.Add(args[0]);
+        if (withCount.HasValue)
+        {
+            target.Add(withCount.Value ? SearchArgs.WITHCOUNT : SearchArgs.WITHOUTCOUNT);
+        }
+        target.AddRange(args.Skip(1));
     }
 
     public List<object> GetArgs()
