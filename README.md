@@ -10,7 +10,7 @@
 
 ## Note
 
-This project builds on [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis), and seeks to bring native support for Redis Stack commands to the C# ecosystem.
+This project builds on [StackExchange.Redis](https://github.com/seredis/StackExchange.Redis), and seeks to bring native support for Redis Stack commands to the C# ecosystem.
 
 ## How do I Redis?
 
@@ -30,7 +30,7 @@ The complete documentation for Redis  module commands can be found at the [Redis
 
 ### Redis OSS commands
 
-You can use Redis OSS commands in the same way as you use them in [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis).
+You can use Redis OSS commands in the same way as you use them in [StackExchange.Redis](https://github.com/seredis/StackExchange.Redis).
 
 ### Stack commands
 
@@ -70,7 +70,7 @@ Before writing any code, you'll need a Redis instance with the appropriate Redis
 docker run -p 6379:6379 --name redis redis:latest
 ```
 
-Now, you need to connect to Redis, exactly the same way you do it in [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis):
+Now, you need to connect to Redis, exactly the same way you do it in [StackExchange.Redis](https://github.com/seredis/StackExchange.Redis):
 ```csharp
 using NRedisStack;
 using NRedisStack.RedisStackCommands;
