@@ -160,7 +160,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(0, res.TotalResults);
     }
 
-    [SkipIfRedisTheory(Comparison.LessThan, "7.2.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.2.0")]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestCountOptionsSortedByNumericField(string endpointId)
     {
@@ -180,7 +180,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         var counted = ft.Search(index, Page().SetWithCount());
         Assert.Equal(49, counted.TotalResults);
         Assert.Equal(["doc51", "doc52", "doc53"], counted.Documents.Select(doc => doc.Id));
-        var uncounted = ft.Search(index, Page().SetWithoutCount());
+        var uncounted = ft.Search(index, Page().SetWithCount(false));
         Assert.Equal(["doc51", "doc52", "doc53"], uncounted.Documents.Select(doc => doc.Id));
 
         // Set after SORTBY and LOAD, where the server would reject it, to show that it is sent right
@@ -188,12 +188,12 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         var aggregation = ft.Aggregate(index, new AggregationRequest("@n:[(50 +inf]")
             .SortBy(3, SortedField.Asc("@n"))
             .Load(FieldName.Of("@n"))
-            .WithoutCount()
+            .WithCount(false)
             .Dialect(2));
         Assert.Equal([51L, 52L, 53L], Enumerable.Range(0, 3).Select(i => aggregation.GetRow(i).GetLong("n")));
     }
 
-    [SkipIfRedisTheory(Comparison.LessThan, "7.2.0")]
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.2.0")]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestCountOptionsSortedByNumericFieldAsync(string endpointId)
     {
@@ -213,7 +213,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         var counted = await ft.SearchAsync(index, Page().SetWithCount());
         Assert.Equal(49, counted.TotalResults);
         Assert.Equal(["doc51", "doc52", "doc53"], counted.Documents.Select(doc => doc.Id));
-        var uncounted = await ft.SearchAsync(index, Page().SetWithoutCount());
+        var uncounted = await ft.SearchAsync(index, Page().SetWithCount(false));
         Assert.Equal(["doc51", "doc52", "doc53"], uncounted.Documents.Select(doc => doc.Id));
 
         // Set after SORTBY and LOAD, where the server would reject it, to show that it is sent right
@@ -221,7 +221,7 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         var aggregation = await ft.AggregateAsync(index, new AggregationRequest("@n:[(50 +inf]")
             .SortBy(3, SortedField.Asc("@n"))
             .Load(FieldName.Of("@n"))
-            .WithoutCount()
+            .WithCount(false)
             .Dialect(2));
         Assert.Equal([51L, 52L, 53L], Enumerable.Range(0, 3).Select(i => aggregation.GetRow(i).GetLong("n")));
     }

@@ -14,6 +14,9 @@ public class CountOptionTests
     private static string[] SearchArgs(Query query) =>
         SearchCommandBuilder.Search("idx", query).Args.Select(arg => arg.ToString()!).ToArray();
 
+    private static object[] AggregateArgs(AggregationRequest request) =>
+        SearchCommandBuilder.Aggregate("idx", request).Args.Skip(1).ToArray();
+
     [Fact]
     public void QuerySendsNoCountOptionByDefault()
     {
@@ -35,10 +38,19 @@ public class CountOptionTests
     [Fact]
     public void QueryWithoutCount()
     {
-        var args = SearchArgs(new Query("foo").SetWithoutCount());
+        var args = SearchArgs(new Query("foo").SetWithCount(false));
 
         Assert.Contains("WITHOUTCOUNT", args);
         Assert.DoesNotContain("WITHCOUNT", args);
+    }
+
+    [Fact]
+    public void QueryCountOptionCanBeCleared()
+    {
+        var args = SearchArgs(new Query("foo").SetWithCount(false).SetWithCount(null));
+
+        Assert.DoesNotContain("WITHCOUNT", args);
+        Assert.DoesNotContain("WITHOUTCOUNT", args);
     }
 
     [Fact]
@@ -49,7 +61,7 @@ public class CountOptionTests
         var request = new AggregationRequest("@n:[0 10]")
             .Load(FieldName.Of("@n"))
             .SortBy(10, SortedField.Asc("@n"))
-            .WithoutCount();
+            .WithCount(false);
 
         object[] expected =
         [
@@ -58,19 +70,44 @@ public class CountOptionTests
             "SORTBY", 2, "@n", "ASC", "MAX", 10
         ];
 
-        Assert.Equal(expected, request.GetArgs());
+        Assert.Equal(expected, AggregateArgs(request));
     }
 
     [Fact]
     public void AggregationLaterCountOptionReplacesEarlierOne()
     {
         var request = new AggregationRequest("*")
-            .WithoutCount()
+            .WithCount(false)
             .SortBy(SortedField.Asc("@n"))
             .WithCount();
 
         object[] expected = ["*", "WITHCOUNT", "SORTBY", 2, "@n", "ASC"];
 
-        Assert.Equal(expected, request.GetArgs());
+        Assert.Equal(expected, AggregateArgs(request));
+    }
+
+    [Fact]
+    public void AggregationCountOptionCanBeCleared()
+    {
+        var request = new AggregationRequest("*")
+            .WithCount(false)
+            .SortBy(SortedField.Asc("@n"))
+            .WithCount(null);
+
+        object[] expected = ["*", "SORTBY", 2, "@n", "ASC"];
+
+        Assert.Equal(expected, AggregateArgs(request));
+    }
+
+    [Fact]
+    public void AggregationCountOptionLeavesCallerInsertedArgsIntact()
+    {
+        var request = new AggregationRequest("*").WithCount();
+        request.GetArgs().Insert(1, "VERBATIM");
+        request.WithCount(false);
+
+        object[] expected = ["*", "WITHOUTCOUNT", "VERBATIM"];
+
+        Assert.Equal(expected, AggregateArgs(request));
     }
 }

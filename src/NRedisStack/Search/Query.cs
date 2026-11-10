@@ -504,23 +504,14 @@ public sealed class Query : IDialectAwareParam
     }
 
     /// <summary>
-    /// Set the query to count every result (<c>WITHCOUNT</c>), so that the total is exact.
+    /// Set whether the query counts every result; see <see cref="WithCount"/>.
     /// </summary>
+    /// <seealso href="https://redis.io/docs/latest/commands/ft.search/"/>
+    /// <param name="value"><c>true</c> for <c>WITHCOUNT</c>, <c>false</c> for <c>WITHOUTCOUNT</c>, <c>null</c> for neither</param>
     /// <returns>the query itself</returns>
-    public Query SetWithCount()
+    public Query SetWithCount(bool? value = true)
     {
-        WithCount = true;
-        return this;
-    }
-
-    /// <summary>
-    /// Set the query not to count every result (<c>WITHOUTCOUNT</c>), which lets a query sorted by a
-    /// numeric field stop once it has enough results. The total is then not exact.
-    /// </summary>
-    /// <returns>the query itself</returns>
-    public Query SetWithoutCount()
-    {
-        WithCount = false;
+        WithCount = value;
         return this;
     }
 

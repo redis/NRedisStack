@@ -7,7 +7,7 @@ public class AggregationRequest : IDialectAwareParam
 {
     private readonly List<object> args = []; // Check if Readonly
     private bool isWithCursor = false;
-    private bool hasCountOption = false;
+    private bool? withCount = null;
 
     public int? dialect { get; private set; } = null;
 
@@ -26,37 +26,19 @@ public class AggregationRequest : IDialectAwareParam
     }
 
     /// <summary>
-    /// Counts every result (<c>WITHCOUNT</c>), so that the total is exact.
-    /// </summary>
-    /// <remarks>
-    /// The server only accepts the option before the first pipeline step, so it is sent right after the
-    /// query wherever in the chain this is called; a later <see cref="WithoutCount"/> replaces it.
-    /// </remarks>
-    public AggregationRequest WithCount() => SetCountOption(SearchArgs.WITHCOUNT);
-
-    /// <summary>
-    /// Does not count every result (<c>WITHOUTCOUNT</c>), which lets an aggregation sorted by a numeric
-    /// field stop once it has enough results. The total is then not exact.
+    /// Whether the aggregation counts every result: <c>true</c> sends <c>WITHCOUNT</c>, which keeps the total
+    /// exact; <c>false</c> sends <c>WITHOUTCOUNT</c>, which lets an aggregation sorted by a numeric field stop
+    /// once it has enough results, at the cost of an exact total; <c>null</c> sends neither and leaves it to
+    /// the server.
     /// </summary>
     /// <seealso href="https://redis.io/docs/latest/commands/ft.aggregate/"/>
     /// <remarks>
     /// The server only accepts the option before the first pipeline step, so it is sent right after the
-    /// query wherever in the chain this is called; a later <see cref="WithCount"/> replaces it.
+    /// query wherever in the chain this is called; a later call replaces an earlier one.
     /// </remarks>
-    public AggregationRequest WithoutCount() => SetCountOption(SearchArgs.WITHOUTCOUNT);
-
-    private AggregationRequest SetCountOption(string option)
+    public AggregationRequest WithCount(bool? value = true)
     {
-        // The query is always the first argument, and every other option or step is appended after it.
-        if (hasCountOption)
-        {
-            args[1] = option;
-        }
-        else
-        {
-            args.Insert(1, option);
-            hasCountOption = true;
-        }
+        withCount = value;
         return this;
     }
 
@@ -220,6 +202,15 @@ public class AggregationRequest : IDialectAwareParam
         }
     }
 
+    private void CountOption()
+    {
+        if (withCount.HasValue)
+        {
+            // The query is always the first argument, and the server rejects the option after a pipeline step.
+            args.Insert(1, withCount.Value ? SearchArgs.WITHCOUNT : SearchArgs.WITHOUTCOUNT);
+        }
+    }
+
     public List<object> GetArgs()
     {
         return args;
@@ -227,6 +218,7 @@ public class AggregationRequest : IDialectAwareParam
 
     public void SerializeRedisArgs()
     {
+        CountOption();
         Dialect();
     }
 
