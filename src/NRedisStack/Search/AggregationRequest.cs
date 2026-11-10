@@ -202,13 +202,19 @@ public class AggregationRequest : IDialectAwareParam
         }
     }
 
-    private void CountOption()
+    /// <summary>
+    /// Adds the request's arguments to <paramref name="target"/>, with the count option right after the query,
+    /// since the server rejects it after a pipeline step. The request's own arguments are left as they are,
+    /// so building the command again reflects the current option.
+    /// </summary>
+    internal void AddArgsTo(List<object> target)
     {
+        target.Add(args[0]);
         if (withCount.HasValue)
         {
-            // The query is always the first argument, and the server rejects the option after a pipeline step.
-            args.Insert(1, withCount.Value ? SearchArgs.WITHCOUNT : SearchArgs.WITHOUTCOUNT);
+            target.Add(withCount.Value ? SearchArgs.WITHCOUNT : SearchArgs.WITHOUTCOUNT);
         }
+        target.AddRange(args.Skip(1));
     }
 
     public List<object> GetArgs()
@@ -218,7 +224,6 @@ public class AggregationRequest : IDialectAwareParam
 
     public void SerializeRedisArgs()
     {
-        CountOption();
         Dialect();
     }
 

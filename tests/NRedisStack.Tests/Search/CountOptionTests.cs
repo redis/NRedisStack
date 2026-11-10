@@ -100,6 +100,21 @@ public class CountOptionTests
     }
 
     [Fact]
+    public void AggregationCountOptionChangesTakeEffectWhenRequestIsReused()
+    {
+        var request = new AggregationRequest("*").WithCount(false);
+        AggregateArgs(request);
+
+        request.WithCount(null);
+        object[] cleared = ["*"];
+        Assert.Equal(cleared, AggregateArgs(request));
+
+        request.WithCount();
+        object[] counted = ["*", "WITHCOUNT"];
+        Assert.Equal(counted, AggregateArgs(request));
+    }
+
+    [Fact]
     public void AggregationCountOptionLeavesCallerInsertedArgsIntact()
     {
         var request = new AggregationRequest("*").WithCount();

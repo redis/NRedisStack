@@ -15,7 +15,7 @@ public static class SearchCommandBuilder
     {
         List<object> args = [index];
         query.SerializeRedisArgs();
-        args.AddRange(query.GetArgs());
+        query.AddArgsTo(args);
         return new(AggregateCategory(query), FT.AGGREGATE, args);
     }
 
@@ -207,7 +207,7 @@ public static class SearchCommandBuilder
             : new List<object> { IndexName, SearchArgs.AGGREGATE, SearchArgs.QUERY };
 
         query.SerializeRedisArgs();
-        args.AddRange(query.GetArgs());
+        query.AddArgsTo(args);
         // profiling a cursored aggregate still allocates the cursor, so it carries the same category
         return new(AggregateCategory(query), FT.PROFILE, args);
     }
