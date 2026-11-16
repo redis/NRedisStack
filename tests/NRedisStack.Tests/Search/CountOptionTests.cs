@@ -6,7 +6,7 @@ namespace NRedisStack.Tests.Search;
 
 /// <summary>
 /// Unit tests for the <c>WITHCOUNT</c> / <c>WITHOUTCOUNT</c> options of <see cref="Query"/> and
-/// <see cref="AggregationRequest"/> — verify where the builders put them. These tests do not require a
+/// <see cref="AggregationRequest"/> - verify where the builders put them. These tests do not require a
 /// running server.
 /// </summary>
 public class CountOptionTests

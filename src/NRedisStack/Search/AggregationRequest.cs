@@ -26,15 +26,27 @@ public class AggregationRequest : IDialectAwareParam
     }
 
     /// <summary>
-    /// Whether the aggregation counts every result: <c>true</c> sends <c>WITHCOUNT</c>, which keeps the total
-    /// exact; <c>false</c> sends <c>WITHOUTCOUNT</c>, which lets an aggregation sorted by a numeric field stop
-    /// once it has enough results, at the cost of an exact total; <c>null</c> sends neither and leaves it to
-    /// the server.
+    /// Whether the aggregation counts every result: <c>true</c> sends <c>WITHCOUNT</c>, which makes
+    /// <see cref="AggregationResult.TotalResults"/> the exact total for the whole aggregation;
+    /// <c>false</c> sends <c>WITHOUTCOUNT</c>, which lets an aggregation sorted by a numeric field stop
+    /// once it has enough results; <c>null</c> (the default) sends neither.
     /// </summary>
     /// <seealso href="https://redis.io/docs/latest/commands/ft.aggregate/"/>
     /// <remarks>
+    /// <para>
+    /// Sending neither is not the same as either option before <c>DIALECT 4</c>: the server neither
+    /// counts nor stops early. From <c>DIALECT 4</c> it behaves like <c>WITHOUTCOUNT</c>. Unless
+    /// <c>WITHCOUNT</c> is sent, <see cref="AggregationResult.TotalResults"/> is the number of rows returned.
+    /// </para>
+    /// <para>
+    /// <c>WITHCOUNT</c> gives an exact total from Redis 8.6, and can be combined with a cursor from
+    /// Redis 8.10. Earlier servers accept it without counting, except some 8.2 and 8.4 patch releases,
+    /// which reject it unless unstable features are enabled.
+    /// </para>
+    /// <para>
     /// The server only accepts the option before the first pipeline step, so it is sent right after the
     /// query wherever in the chain this is called; a later call replaces an earlier one.
+    /// </para>
     /// </remarks>
     public AggregationRequest WithCount(bool? value = true)
     {
@@ -216,6 +228,8 @@ public class AggregationRequest : IDialectAwareParam
         }
         target.AddRange(args.Skip(1));
     }
+
+    internal bool UsesServerTotal => withCount == true;
 
     public List<object> GetArgs()
     {
