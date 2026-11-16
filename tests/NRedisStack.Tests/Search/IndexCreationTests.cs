@@ -380,6 +380,94 @@ public class IndexCreationTests(EndpointsFixture endpointsFixture, ITestOutputHe
     }
 
     [Fact]
+    public void TestIndexingCreation_Hnsw_Sq8()
+    {
+        // COMPRESSION and TRAINING_THRESHOLD are emitted only when set, after the graph parameters
+        Schema sc = new Schema()
+            .AddHnswVectorField("v1", Schema.VectorField.VectorType.FLOAT32, 4,
+                Schema.VectorField.VectorDistanceMetric.EuclideanDistance,
+                compressionAlgorithm: Schema.VectorField.VectorCompressionAlgorithm.SQ8)
+            .AddHnswVectorField("v2", Schema.VectorField.VectorType.FLOAT16, 4,
+                Schema.VectorField.VectorDistanceMetric.CosineDistance,
+                maxOutgoingConnections: 8,
+                compressionAlgorithm: Schema.VectorField.VectorCompressionAlgorithm.SQ8, trainingThreshold: 2048);
+
+        var cmd = SearchCommandBuilder.Create("IDX_NAME", FTCreateParams.CreateParams(), sc).ToString();
+
+        Assert.Equal(
+            "FT.CREATE IDX_NAME SCHEMA v1 VECTOR HNSW 8 DIM 4 TYPE FLOAT32 DISTANCE_METRIC L2 COMPRESSION SQ8 " +
+            "v2 VECTOR HNSW 12 DIM 4 TYPE FLOAT16 DISTANCE_METRIC COSINE M 8 COMPRESSION SQ8 TRAINING_THRESHOLD 2048",
+            cmd);
+    }
+
+    // HNSW SQ8 compression (RediSearch MOD-14958): FLOAT32/FLOAT16 with L2/IP/COSINE; the server owns the validation.
+    [SkipIfRedisTheory(Comparison.LessThan, "8.12.0")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestCreate_Hnsw_Sq8(string endpointId)
+    {
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ft = db.FT();
+        var schema = new Schema()
+            .AddHnswVectorField("v", Schema.VectorField.VectorType.FLOAT32, 4,
+                Schema.VectorField.VectorDistanceMetric.EuclideanDistance,
+                compressionAlgorithm: Schema.VectorField.VectorCompressionAlgorithm.SQ8)
+            .AddHnswVectorField("v2", Schema.VectorField.VectorType.FLOAT16, 4,
+                Schema.VectorField.VectorDistanceMetric.CosineDistance,
+                compressionAlgorithm: Schema.VectorField.VectorCompressionAlgorithm.SQ8, trainingThreshold: 2048)
+            .AddHnswVectorField("plain", Schema.VectorField.VectorType.FLOAT32, 4,
+                Schema.VectorField.VectorDistanceMetric.EuclideanDistance);
+
+        Assert.True(ft.Create("idx", new FTCreateParams(), schema));
+
+        // FT.INFO reports the stored configuration; the server default threshold is 10240, and an
+        // uncompressed field carries neither key
+        var attrs = ft.Info("idx").Attributes.ToDictionary(a => a["identifier"].ToString()!);
+        Assert.Equal("SQ8", attrs["v"]["compression"].ToString());
+        Assert.Equal(10240, (long)attrs["v"]["training_threshold"]);
+        Assert.Equal("SQ8", attrs["v2"]["compression"].ToString());
+        Assert.Equal(2048, (long)attrs["v2"]["training_threshold"]);
+        Assert.False(attrs["plain"].ContainsKey("compression"));
+        Assert.False(attrs["plain"].ContainsKey("training_threshold"));
+
+        // vectors are searchable while still below the training threshold
+        byte[] vec = MemoryMarshal.AsBytes(stackalloc float[] { 1, 2, 3, 4 }).ToArray();
+        byte[] vec16 = MemoryMarshal.AsBytes(stackalloc short[] { 1, 2, 3, 4 }).ToArray();
+        for (int i = 0; i < 3; i++)
+        {
+            db.HashSet($"doc:{i}", [new("v", vec), new("v2", vec16), new("plain", vec)]);
+        }
+        var res = ft.Search("idx", new Query("*=>[KNN 2 @v $vec]").ReturnFields("__v_score").AddParam("vec", vec));
+        Assert.Equal(2, res.TotalResults);
+        res = ft.Search("idx", new Query("*=>[KNN 2 @v2 $vec]").ReturnFields("__v2_score").AddParam("vec", vec16));
+        Assert.Equal(2, res.TotalResults);
+    }
+
+    [SkipIfRedisTheory(Comparison.LessThan, "8.12.0")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestCreate_Hnsw_Sq8_ServerRejectsInvalidCombinations(string endpointId)
+    {
+        // the client does not validate type/metric/threshold combinations; these are the server's errors, surfaced
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ft = db.FT();
+
+        var float64 = new Schema().AddHnswVectorField("v", Schema.VectorField.VectorType.FLOAT64, 4,
+            Schema.VectorField.VectorDistanceMetric.EuclideanDistance,
+            compressionAlgorithm: Schema.VectorField.VectorCompressionAlgorithm.SQ8);
+        var ex = Assert.Throws<RedisServerException>(() => ft.Create("idx64", new FTCreateParams(), float64));
+        Assert.Contains("COMPRESSION is only supported for FLOAT32 and FLOAT16", ex.Message);
+
+        var thresholdOnly = new Schema().AddHnswVectorField("v", Schema.VectorField.VectorType.FLOAT32, 4,
+            Schema.VectorField.VectorDistanceMetric.EuclideanDistance, trainingThreshold: 100);
+        ex = Assert.Throws<RedisServerException>(() => ft.Create("idxThreshold", new FTCreateParams(), thresholdOnly));
+        Assert.Contains("TRAINING_THRESHOLD is irrelevant when compression was not requested", ex.Message);
+
+        var svsOnlyValue = new Schema().AddHnswVectorField("v", Schema.VectorField.VectorType.FLOAT32, 4,
+            Schema.VectorField.VectorDistanceMetric.EuclideanDistance,
+            compressionAlgorithm: Schema.VectorField.VectorCompressionAlgorithm.LVQ8);
+        Assert.Throws<RedisServerException>(() => ft.Create("idxLvq", new FTCreateParams(), svsOnlyValue));
+    }
+
+    [Fact]
     public void TestIndexingCreation_Default()
     {
         Schema sc = new Schema()

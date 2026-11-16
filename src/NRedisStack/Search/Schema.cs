@@ -426,7 +426,9 @@ public sealed class Schema
         }
 
         /// <summary>
-        /// The distance metric to use for vector similarity search.
+        /// The vector compression ("COMPRESSION") to apply to stored vectors. Which values an algorithm accepts is
+        /// decided by the server: the LVQ and LeanVec values are for <see cref="VectorAlgo.SVS_VAMANA"/>, and
+        /// <see cref="SQ8"/> is for <see cref="VectorAlgo.HNSW"/>; the client sends what it is given.
         /// </summary>
         public enum VectorCompressionAlgorithm
         {
@@ -444,7 +446,26 @@ public sealed class Schema
             LeanVec4x8 = 5,
             // ReSharper disable once InconsistentNaming
             LeanVec8x8 = 6,
+            /// <summary>
+            /// 8-bit scalar quantization of the stored vectors, for <see cref="VectorAlgo.HNSW"/> fields of type
+            /// <see cref="VectorType.FLOAT32"/> or <see cref="VectorType.FLOAT16"/> (Redis 8.12). An optional mean is
+            /// learned from the first vectors indexed; see <see cref="HnswVectorField.TrainingThreshold"/>.
+            /// </summary>
+            SQ8 = 7,
         }
+
+        /// <summary>The "COMPRESSION" token for a <see cref="VectorCompressionAlgorithm"/>.</summary>
+        internal static string CompressionToken(VectorCompressionAlgorithm compression) => compression switch
+        {
+            VectorCompressionAlgorithm.LVQ8 => "LVQ8",
+            VectorCompressionAlgorithm.LVQ4 => "LVQ4",
+            VectorCompressionAlgorithm.LVQ4x4 => "LVQ4x4",
+            VectorCompressionAlgorithm.LVQ4x8 => "LVQ4x8",
+            VectorCompressionAlgorithm.LeanVec4x8 => "LeanVec4x8",
+            VectorCompressionAlgorithm.LeanVec8x8 => "LeanVec8x8",
+            VectorCompressionAlgorithm.SQ8 => "SQ8",
+            _ => compression.ToString(), // fallback
+        };
     }
 
 
@@ -493,6 +514,22 @@ public sealed class Schema
         /// </summary>
         public double BoundaryFactor { get; set; } = DEFAULT_EPSILON;
 
+        /// <summary>
+        /// "COMPRESSION"; how stored vectors are compressed. HNSW accepts <see cref="VectorCompressionAlgorithm.SQ8"/>
+        /// (Redis 8.12), for <see cref="VectorType.FLOAT32"/> and <see cref="VectorType.FLOAT16"/> with the L2, IP or
+        /// cosine metric; anything else is rejected by the server. Not sent when <see cref="VectorCompressionAlgorithm.NotSpecified"/>.
+        /// </summary>
+        public VectorCompressionAlgorithm CompressionAlgorithm { get; set; } = VectorCompressionAlgorithm.NotSpecified;
+
+        /// <summary>
+        /// "TRAINING_THRESHOLD"; with <see cref="CompressionAlgorithm"/>, how many vectors are collected before the
+        /// quantization mean is learned and vectors migrate into the compressed graph. Vectors remain searchable
+        /// meanwhile. The server's default is 10240 and its maximum 102400; zero on the server means "do not train".
+        /// Not sent when zero here - set <see cref="VectorField.Attributes"/> to send an explicit zero. Only valid
+        /// together with a compression; the server rejects it otherwise.
+        /// </summary>
+        public int TrainingThreshold { get; set; }
+
         internal const int DEFAULT_M = 16, DEFAULT_EF_CONSTRUCTION = 200, DEFAULT_EF_RUNTIME = 10;
         internal const double DEFAULT_EPSILON = 0.01;
         internal override int DirectAttributeCount
@@ -501,7 +538,9 @@ public sealed class Schema
                + (MaxConnectedNeighbors == DEFAULT_EF_CONSTRUCTION ? 0 : 1)
                + (MaxTopCandidates == DEFAULT_EF_RUNTIME ? 0 : 1)
                // ReSharper disable once CompareOfFloatsByEqualityOperator
-               + (BoundaryFactor == DEFAULT_EPSILON ? 0 : 1);
+               + (BoundaryFactor == DEFAULT_EPSILON ? 0 : 1)
+               + (CompressionAlgorithm == VectorCompressionAlgorithm.NotSpecified ? 0 : 1)
+               + (TrainingThreshold == 0 ? 0 : 1);
 
         internal override void AddDirectAttributes(List<object> args)
         {
@@ -526,6 +565,16 @@ public sealed class Schema
             {
                 args.Add("EPSILON");
                 args.Add(BoundaryFactor);
+            }
+            if (CompressionAlgorithm != VectorCompressionAlgorithm.NotSpecified)
+            {
+                args.Add("COMPRESSION");
+                args.Add(CompressionToken(CompressionAlgorithm));
+            }
+            if (TrainingThreshold != 0)
+            {
+                args.Add("TRAINING_THRESHOLD");
+                args.Add(TrainingThreshold);
             }
         }
     }
@@ -560,16 +609,7 @@ public sealed class Schema
             if (CompressionAlgorithm != VectorCompressionAlgorithm.NotSpecified)
             {
                 args.Add("COMPRESSION");
-                args.Add(CompressionAlgorithm switch
-                {
-                    VectorCompressionAlgorithm.LVQ8 => "LVQ8",
-                    VectorCompressionAlgorithm.LVQ4 => "LVQ4",
-                    VectorCompressionAlgorithm.LVQ4x4 => "LVQ4x4",
-                    VectorCompressionAlgorithm.LVQ4x8 => "LVQ4x8",
-                    VectorCompressionAlgorithm.LeanVec4x8 => "LeanVec4x8",
-                    VectorCompressionAlgorithm.LeanVec8x8 => "LeanVec8x8",
-                    _ => CompressionAlgorithm.ToString(), // fallback
-                });
+                args.Add(CompressionToken(CompressionAlgorithm));
             }
             base.AddDirectAttributes(args);
             if (ConstructionWindowSize != DEFAULT_CONSTRUCTION_WINDOW_SIZE)
@@ -874,7 +914,9 @@ public sealed class Schema
         int maxConnectedNeighbors = HnswVectorField.DEFAULT_EF_CONSTRUCTION,
         int maxTopCandidates = HnswVectorField.DEFAULT_EF_RUNTIME,
         double boundaryFactor = HnswVectorField.DEFAULT_EPSILON,
-        Dictionary<string, object>? attributes = null, bool missingIndex = false)
+        Dictionary<string, object>? attributes = null, bool missingIndex = false,
+        VectorCompressionAlgorithm compressionAlgorithm = VectorCompressionAlgorithm.NotSpecified,
+        int trainingThreshold = 0)
     {
         Fields.Add(new HnswVectorField(name, type, dimensions, distanceMetric, attributes, missingIndex)
         {
@@ -882,6 +924,8 @@ public sealed class Schema
             MaxConnectedNeighbors = maxConnectedNeighbors,
             MaxTopCandidates = maxTopCandidates,
             BoundaryFactor = boundaryFactor,
+            CompressionAlgorithm = compressionAlgorithm,
+            TrainingThreshold = trainingThreshold,
         });
         return this;
     }
