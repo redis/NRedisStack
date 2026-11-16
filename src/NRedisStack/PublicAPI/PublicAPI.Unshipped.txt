@@ -1,1 +1,5 @@
 #nullable enable
+NRedisStack.Search.AggregationRequest.WithCount(bool? value = true) -> NRedisStack.Search.AggregationRequest!
+NRedisStack.Search.Query.SetWithCount(bool? value = true) -> NRedisStack.Search.Query!
+NRedisStack.Search.Query.WithCount.get -> bool?
+NRedisStack.Search.Query.WithCount.set -> void

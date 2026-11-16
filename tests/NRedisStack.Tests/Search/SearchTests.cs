@@ -160,6 +160,133 @@ public class SearchTests(EndpointsFixture endpointsFixture, ITestOutputHelper lo
         Assert.Equal(0, res.TotalResults);
     }
 
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.2.0")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestCountOptionsSortedByNumericField(string endpointId)
+    {
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ft = db.FT();
+        Schema sc = new Schema().AddNumericField("n", sortable: true);
+        ft.Create(index, FTCreateParams.CreateParams(), sc);
+        for (int i = 0; i < 100; i++)
+        {
+            AddDocument(db, new Document($"doc{i}").Set("n", i));
+        }
+        AssertIndexSize(ft, index, 100);
+
+        Query Page() => new Query("@n:[(50 +inf]").SetSortBy("n", ascending: true).Limit(0, 3).SetNoContent()
+            .Dialect(2);
+        var counted = ft.Search(index, Page().SetWithCount());
+        Assert.Equal(49, counted.TotalResults);
+        Assert.Equal(["doc51", "doc52", "doc53"], counted.Documents.Select(doc => doc.Id));
+        var uncounted = ft.Search(index, Page().SetWithCount(false));
+        Assert.Equal(["doc51", "doc52", "doc53"], uncounted.Documents.Select(doc => doc.Id));
+
+        // Set after SORTBY and LOAD, where the server would reject it, to show that it is sent right
+        // after the query regardless.
+        var aggregation = ft.Aggregate(index, new AggregationRequest("@n:[(50 +inf]")
+            .SortBy(3, SortedField.Asc("@n"))
+            .Load(FieldName.Of("@n"))
+            .WithCount(false)
+            .Dialect(2));
+        Assert.Equal([51L, 52L, 53L], Enumerable.Range(0, 3).Select(i => aggregation.GetRow(i).GetLong("n")));
+    }
+
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.2.0")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestCountOptionsSortedByNumericFieldAsync(string endpointId)
+    {
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ft = db.FT();
+        Schema sc = new Schema().AddNumericField("n", sortable: true);
+        await ft.CreateAsync(index, FTCreateParams.CreateParams(), sc);
+        for (int i = 0; i < 100; i++)
+        {
+            AddDocument(db, new Document($"doc{i}").Set("n", i));
+        }
+        AssertIndexSize(ft, index, 100);
+
+        Query Page() => new Query("@n:[(50 +inf]").SetSortBy("n", ascending: true).Limit(0, 3).SetNoContent()
+            .Dialect(2);
+        var counted = await ft.SearchAsync(index, Page().SetWithCount());
+        Assert.Equal(49, counted.TotalResults);
+        Assert.Equal(["doc51", "doc52", "doc53"], counted.Documents.Select(doc => doc.Id));
+        var uncounted = await ft.SearchAsync(index, Page().SetWithCount(false));
+        Assert.Equal(["doc51", "doc52", "doc53"], uncounted.Documents.Select(doc => doc.Id));
+
+        // Set after SORTBY and LOAD, where the server would reject it, to show that it is sent right
+        // after the query regardless.
+        var aggregation = await ft.AggregateAsync(index, new AggregationRequest("@n:[(50 +inf]")
+            .SortBy(3, SortedField.Asc("@n"))
+            .Load(FieldName.Of("@n"))
+            .WithCount(false)
+            .Dialect(2));
+        Assert.Equal([51L, 52L, 53L], Enumerable.Range(0, 3).Select(i => aggregation.GetRow(i).GetLong("n")));
+    }
+
+    private ISearchCommands CreateCountIndex(IDatabase db)
+    {
+        var ft = db.FT();
+        ft.Create(index, FTCreateParams.CreateParams(), new Schema().AddNumericField("n", sortable: true));
+        for (int i = 0; i < 100; i++)
+        {
+            AddDocument(db, new Document($"doc{i}").Set("n", i));
+        }
+        AssertIndexSize(ft, index, 100);
+        return ft;
+    }
+
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.6.0")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestAggregateWithCountReportsServerTotal(string endpointId)
+    {
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ft = CreateCountIndex(db);
+
+        AggregationRequest Page() => new AggregationRequest("@n:[(50 +inf]").Limit(0, 3).Dialect(2);
+
+        // without WITHCOUNT, the total is the number of rows returned
+        Assert.Equal(3, ft.Aggregate(index, Page()).TotalResults);
+
+        var counted = ft.Aggregate(index, Page().WithCount());
+        Assert.Equal(49, counted.TotalResults);
+        Assert.Equal(3, counted.GetResults().Count);
+
+        counted = await db.FT().AggregateAsync(index, Page().WithCount());
+        Assert.Equal(49, counted.TotalResults);
+        Assert.Equal(3, counted.GetResults().Count);
+
+        var profiled = ft.ProfileOnAggregate(index, Page().WithCount());
+        Assert.Equal(49, profiled.Item1.TotalResults);
+        Assert.Equal(3, profiled.Item1.GetResults().Count);
+    }
+
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "8.10.0")]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestAggregateWithCountAndCursor(string endpointId)
+    {
+        SkipClusterPre8(endpointId);
+        IDatabase db = GetCleanDatabase(endpointId);
+        var ft = CreateCountIndex(db);
+
+        AggregationRequest Paged() => new AggregationRequest("@n:[(50 +inf]").WithCount().Cursor(10).Dialect(2);
+
+        // every page reports the total for the whole aggregation, not its own size
+        var page = ft.Aggregate(index, Paged());
+        Assert.Equal(49, page.TotalResults);
+        Assert.Equal(10, page.GetResults().Count);
+        page = ft.CursorRead(page, 10);
+        Assert.Equal(49, page.TotalResults);
+        Assert.Equal(10, page.GetResults().Count);
+        ft.CursorDel(page);
+
+        // and enumerating walks the rows of each page, not the total
+        Assert.Equal(49, ft.AggregateEnumerable(index, Paged()).Count());
+    }
+
     [SkipIfRedisTheory(Is.Enterprise)]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public async Task TestAggregationRequestVerbatimAsync(string endpointId)
