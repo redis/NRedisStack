@@ -10,8 +10,8 @@
     </PackageVersion>
     <!-- primary library -->
     <PackageVersion Include="NetTopologySuite" Version="2.6.0" />
-    <PackageVersion Include="System.Text.Json" Version="10.0.14" />
-    <PackageVersion Include="StackExchange.Redis" Version="3.4.31" />
+    <PackageVersion Include="System.Text.Json" Version="11.0.0" />
+    <PackageVersion Include="StackExchange.Redis" Version="3.4.35" />
     <!-- tests, etc -->
     <PackageVersion Include="BouncyCastle.Cryptography" Version="2.7.0" />
     <PackageVersion Include="coverlet.collector" Version="10.1.0" />
@@ -20,8 +20,8 @@
     <!-- there seem to be bumps in GHATL 3.x making it not work with the test SDK -->
     <PackageVersion Include="GitHubActionsTestLogger" Version="2.4.1" />
     <PackageVersion Include="Microsoft.Azure.StackExchangeRedis" Version="3.3.1" />
-    <PackageVersion Include="Microsoft.Bcl.Memory" Version="10.0.14" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
+    <PackageVersion Include="Microsoft.Bcl.Memory" Version="11.0.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.12.0" />
     <PackageVersion Include="Validation" Version="2.6.68" />
     <PackageVersion Include="xunit.v3" Version="3.2.2" />
     <PackageVersion Include="xunit.v3.runner.console" Version="3.0.0" />
