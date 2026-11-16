@@ -39,10 +39,10 @@ jobs:
         fail-fast: false
         matrix:
           # Full version set runs only on the nightly schedule; PRs and pushes
-          # test a reduced set (7.2 LTS, 7.4 LTS, 8.2 LTS, 8.8, 8.10 current stable) to keep CI fast.
+          # test a reduced set (7.2 LTS, 7.4 LTS, 8.2 LTS, 8.8, 8.10 current stable, 8.12 preview) to keep CI fast.
           redis-version: ${{ fromJSON(github.event_name == 'schedule'
-            && '["8.10", "8.8", "8.6", "8.4", "8.2", "7.4", "7.2", "6.2"]'
-            || '["8.10", "8.8", "8.2", "7.4", "7.2"]') }}
+            && '["8.12", "8.10", "8.8", "8.6", "8.4", "8.2", "7.4", "7.2", "6.2"]'
+            || '["8.12", "8.10", "8.8", "8.2", "7.4", "7.2"]') }}
           dotnet-version: ['8.0', '9.0', '10.0']
       name: Redis ${{ matrix.redis-version }}; .NET ${{ matrix.dotnet-version }};
       steps:
