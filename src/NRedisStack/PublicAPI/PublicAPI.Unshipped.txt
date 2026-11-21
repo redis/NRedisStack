@@ -3,3 +3,11 @@ NRedisStack.Search.AggregationRequest.WithCount(bool? value = true) -> NRedisSta
 NRedisStack.Search.Query.SetWithCount(bool? value = true) -> NRedisStack.Search.Query!
 NRedisStack.Search.Query.WithCount.get -> bool?
 NRedisStack.Search.Query.WithCount.set -> void
+static NRedisStack.RedisStackCommands.ModulePrefixes.BF(this StackExchange.Redis.IDatabaseAsync! db) -> NRedisStack.BloomCommandsAsync!
+static NRedisStack.RedisStackCommands.ModulePrefixes.CF(this StackExchange.Redis.IDatabaseAsync! db) -> NRedisStack.CuckooCommandsAsync!
+static NRedisStack.RedisStackCommands.ModulePrefixes.CMS(this StackExchange.Redis.IDatabaseAsync! db) -> NRedisStack.CmsCommandsAsync!
+static NRedisStack.RedisStackCommands.ModulePrefixes.FT(this StackExchange.Redis.IDatabaseAsync! db, int? searchDialect = 2) -> NRedisStack.SearchCommandsAsync!
+static NRedisStack.RedisStackCommands.ModulePrefixes.JSON(this StackExchange.Redis.IDatabaseAsync! db) -> NRedisStack.JsonCommandsAsync!
+static NRedisStack.RedisStackCommands.ModulePrefixes.TDIGEST(this StackExchange.Redis.IDatabaseAsync! db) -> NRedisStack.TdigestCommandsAsync!
+static NRedisStack.RedisStackCommands.ModulePrefixes.TOPK(this StackExchange.Redis.IDatabaseAsync! db) -> NRedisStack.TopKCommandsAsync!
+static NRedisStack.RedisStackCommands.ModulePrefixes.TS(this StackExchange.Redis.IDatabaseAsync! db) -> NRedisStack.TimeSeriesCommandsAsync!
