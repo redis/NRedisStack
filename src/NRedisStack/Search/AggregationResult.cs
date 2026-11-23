@@ -10,7 +10,7 @@ public class AggregationResult
     internal sealed class WithCursorAggregationResult : AggregationResult
     {
         internal WithCursorAggregationResult(string indexName, RedisResult result, long cursorId, IServer? server,
-            int? database) : base(result, cursorId)
+            int? database, bool useServerTotal = false) : base(result, cursorId, useServerTotal)
         {
             IndexName = indexName;
             Server = server;
@@ -21,7 +21,18 @@ public class AggregationResult
         public int? Database { get; }
     }
 
+    /// <summary>
+    /// The number of rows in this result, unless the request asked for an exact count with
+    /// <see cref="AggregationRequest.WithCount"/>, in which case it is the total the server reported
+    /// for the whole aggregation (which can be more than the rows in this page).
+    /// </summary>
     public long TotalResults { get; }
+
+    // whether TotalResults is the server's total; carried over to follow-up cursor reads
+    internal bool UsesServerTotal { get; }
+
+    // the number of rows in this page, whatever TotalResults reports
+    internal int RowCount => _results.Length;
     private readonly Dictionary<string, object>[] _results;
     private Dictionary<string, RedisValue>[]? _resultsAsRedisValues;
 
@@ -34,21 +45,21 @@ public class AggregationResult
     /// </summary>
     public string[] Warnings { get; } = [];
 
-    internal AggregationResult(RedisResult result, long cursorId = -1)
+    internal AggregationResult(RedisResult result, long cursorId = -1, bool useServerTotal = false)
     {
         var arr = (RedisResult[])result!;
         Dictionary<string, object>[]? results = null;
+        long serverTotal = 0;
         if (result.Resp3Type is ResultType.Map)
         {
-            results = ResponseParser.ParseSearchResultsMap(result, ParseRecordFromMap, out long totalResults);
-            // TotalResults = totalResults; // we ignore this in RESP3 mode for consistent API behaviour
+            results = ResponseParser.ParseSearchResultsMap(result, ParseRecordFromMap, out serverTotal);
             Warnings = ResponseParser.ParseWarnings(result);
         }
         else
         {
-            //  this statement below is not true as explained in the document https://redis.io/docs/latest/commands/ft.aggregate/#return
-            // // the first element is always the number of results
-            // TotalResults = (long)arr[0];
+            // the first element is only an exact total when the request used WITHCOUNT; otherwise it is
+            // whatever the pipeline happened to read, see https://redis.io/docs/latest/commands/ft.aggregate/#return
+            if (useServerTotal && arr.Length > 0) serverTotal = (long)arr[0];
 
             results = new Dictionary<string, object>[arr.Length - 1];
             for (int i = 1; i < arr.Length; i++)
@@ -65,7 +76,10 @@ public class AggregationResult
                 results[i - 1] = cur;
             }
         }
-        TotalResults = results.Length;
+        // without WITHCOUNT the server's number is not meaningful, so report the rows we have; with it,
+        // never report fewer than that (servers before 8.6 accept WITHCOUNT here but do not count)
+        UsesServerTotal = useServerTotal;
+        TotalResults = useServerTotal ? Math.Max(serverTotal, results.Length) : results.Length;
         CursorId = cursorId;
         _results = results ?? []; // if we didn't get results, make an empty array
 

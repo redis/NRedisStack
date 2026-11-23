@@ -121,11 +121,25 @@ public abstract class AbstractNRedisStackTest : IClassFixture<EndpointsFixture>,
 
         if (endpointId == EndpointsFixture.Env.Cluster)
         {
-            foreach (var endPoint in redis.GetEndPoints())
+            // Fail fast if any node is unreachable. Skipping a disconnected node here would leave its keys
+            // and indices in place, so the *next* test fails on "index already exists" or a wrong doc
+            // count, and one connectivity blip becomes hundreds of misattributed failures. Allow a short
+            // grace period for the multiplexer to reconnect, then throw naming the dead nodes.
+            var servers = redis.GetEndPoints().Select(ep => redis.GetServer(ep)).ToArray();
+            for (int attempt = 0; attempt < 10 && servers.Any(s => !s.IsConnected); attempt++)
             {
-                var server = redis.GetServer(endPoint);
+                Thread.Sleep(200);
+            }
+            var disconnected = servers.Where(s => !s.IsConnected).Select(s => s.EndPoint).ToArray();
+            if (disconnected.Length != 0)
+            {
+                throw new InvalidOperationException(
+                    $"Cluster node(s) not connected; refusing to clean a partial cluster: {string.Join(", ", disconnected.AsEnumerable())}");
+            }
 
-                if (server.IsReplica || !server.IsConnected) continue;
+            foreach (var server in servers)
+            {
+                if (server.IsReplica) continue;
 
                 server.Execute("FLUSHALL");
             }

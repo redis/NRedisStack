@@ -1,4 +1,16 @@
 #nullable enable
+NRedisStack.Search.AggregationRequest.WithCount(bool? value = true) -> NRedisStack.Search.AggregationRequest!
+NRedisStack.Search.Query.SetWithCount(bool? value = true) -> NRedisStack.Search.Query!
+NRedisStack.Search.Query.WithCount.get -> bool?
+NRedisStack.Search.Query.WithCount.set -> void
+static NRedisStack.RedisStackCommands.ModulePrefixes.BF(this StackExchange.Redis.IDatabaseAsync! db) -> NRedisStack.BloomCommandsAsync!
+static NRedisStack.RedisStackCommands.ModulePrefixes.CF(this StackExchange.Redis.IDatabaseAsync! db) -> NRedisStack.CuckooCommandsAsync!
+static NRedisStack.RedisStackCommands.ModulePrefixes.CMS(this StackExchange.Redis.IDatabaseAsync! db) -> NRedisStack.CmsCommandsAsync!
+static NRedisStack.RedisStackCommands.ModulePrefixes.FT(this StackExchange.Redis.IDatabaseAsync! db, int? searchDialect = 2) -> NRedisStack.SearchCommandsAsync!
+static NRedisStack.RedisStackCommands.ModulePrefixes.JSON(this StackExchange.Redis.IDatabaseAsync! db) -> NRedisStack.JsonCommandsAsync!
+static NRedisStack.RedisStackCommands.ModulePrefixes.TDIGEST(this StackExchange.Redis.IDatabaseAsync! db) -> NRedisStack.TdigestCommandsAsync!
+static NRedisStack.RedisStackCommands.ModulePrefixes.TOPK(this StackExchange.Redis.IDatabaseAsync! db) -> NRedisStack.TopKCommandsAsync!
+static NRedisStack.RedisStackCommands.ModulePrefixes.TS(this StackExchange.Redis.IDatabaseAsync! db) -> NRedisStack.TimeSeriesCommandsAsync!
 NRedisStack.Search.Schema.AddHnswVectorField(NRedisStack.Search.FieldName! name, NRedisStack.Search.Schema.VectorField.VectorType type, int dimensions, NRedisStack.Search.Schema.VectorField.VectorDistanceMetric distanceMetric, int maxOutgoingConnections = 16, int maxConnectedNeighbors = 200, int maxTopCandidates = 10, double boundaryFactor = 0.01, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false, NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm compressionAlgorithm = NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm.NotSpecified, int trainingThreshold = 0) -> NRedisStack.Search.Schema!
 NRedisStack.Search.Schema.HnswVectorField.CompressionAlgorithm.get -> NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm
 NRedisStack.Search.Schema.HnswVectorField.CompressionAlgorithm.set -> void
