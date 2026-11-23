@@ -671,6 +671,7 @@ public interface ITimeSeriesCommandsAsync
     /// <param name="batchSize">Optional: page size (per underlying <c>MAX_COUNT</c>); when omitted, everything is read in one call.</param>
     /// <param name="cancellationToken">Cancellation token, checked between pages.</param>
     /// <returns>A lazy async sequence of samples; enumeration ends when a non-full page is reached.</returns>
+    /// <exception cref="NotSupportedException">Thrown when called on a batch or transaction, as paged reading issues multiple commands sequentially.</exception>
     /// <remarks><seealso href="https://redis.io/commands/ts.read"/></remarks>
     IAsyncEnumerable<TimeSeriesTuple> ReadAsyncEnumerable(string key, TimeStamp fromTimeStamp,
         long? batchSize = null, CancellationToken cancellationToken = default);

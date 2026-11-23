@@ -84,7 +84,14 @@ public class SearchCommandsAsync : ISearchCommandsAsync
         return result.ToAggregationResult(index, query, server, database);
     }
 
-    public async IAsyncEnumerable<Row> AggregateAsyncEnumerable(string index, AggregationRequest query)
+    /// <inheritdoc/>
+    public IAsyncEnumerable<Row> AggregateAsyncEnumerable(string index, AggregationRequest query)
+    {
+        _db.ThrowIfDeferred(nameof(AggregateAsyncEnumerable));
+        return AggregateAsyncEnumerableCore(index, query);
+    }
+
+    private async IAsyncEnumerable<Row> AggregateAsyncEnumerableCore(string index, AggregationRequest query)
     {
         if (!query.IsWithCursor()) query.Cursor();
 

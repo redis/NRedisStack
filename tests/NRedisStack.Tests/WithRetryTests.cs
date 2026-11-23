@@ -81,6 +81,30 @@ public class WithRetryTests(EndpointsFixture endpointsFixture) : AbstractNRedisS
             db.WithRetry(RetryPolicy.Default).CreateTransaction(), "retry-tran-announce-json");
     }
 
+    // the announcement must not be queued into someone else's batch either: that changes what their batch
+    // contains, and if the batch is never executed, clearing the latch would mean the library name is never
+    // announced at all
+    [SkipIfRedisTheory(Is.Enterprise, Comparison.LessThan, "7.1.242")]
+    [MemberData(nameof(EndpointsFixture.Env.StandaloneOnly), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task BatchesDoNotCarryTheAnnouncement(string endpointId)
+    {
+        var db = FirstUseDatabase(endpointId);
+        var batch = db.CreateBatch();
+
+        var pending = batch.JSON().SetAsync("batch-announce-json", "$", "{\"Age\":23}");
+        batch.Execute();
+        Assert.True(await pending);
+
+        var info = (await db.ExecuteAsync("CLIENT", "INFO")).ToString();
+        Assert.DoesNotContain("lib-name=NRedisStack", info);
+
+        // the announcement is still owed, so the next command outside a batch performs it
+        await db.ExecuteAsync(new SerializedCommand(CommandCategories.Always, "PING"));
+
+        info = (await db.ExecuteAsync("CLIENT", "INFO")).ToString();
+        Assert.Contains($"lib-name=NRedisStack(.NET_v{Environment.Version}) lib-ver={GetNRedisStackVersion()}", info);
+    }
+
     // ITransaction and the retry-wrapped transaction have ITransactionAsync in common, so both shapes are
     // held to the same standard here
     private async Task AssertTransactionCarriesNoAnnouncement(IDatabase db, ITransactionAsync transaction, RedisKey key)

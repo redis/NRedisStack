@@ -259,6 +259,7 @@ public interface IJsonCommandsAsync
     /// <param name="filesPath">The path of the file to set.</param>
     /// <param name="when">When to set the value.</param>
     /// <returns>The number of files that have been set</returns>
+    /// <exception cref="NotSupportedException">Thrown when called on a batch or transaction, as this method issues multiple commands sequentially.</exception>
     /// <remarks><seealso href="https://redis.io/commands/json.set"/></remarks>
     Task<int> SetFromDirectoryAsync(RedisValue path, string filesPath, When when = When.Always);
 
