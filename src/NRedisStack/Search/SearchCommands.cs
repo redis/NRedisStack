@@ -51,7 +51,7 @@ public class SearchCommands(IDatabase db, int? defaultDialect = 2)
         {
             while (true)
             {
-                var count = checked((int)result.TotalResults);
+                var count = result.RowCount; // not TotalResults, which can be the server's total
                 for (int i = 0; i < count; i++)
                 {
                     yield return result.GetRow(i);
@@ -170,7 +170,7 @@ public class SearchCommands(IDatabase db, int? defaultDialect = 2)
             ? server.Execute(withCursor.Database, command)
             : db.Execute(command);
         var resp = rawResult.ToArray();
-        return new AggregationResult.WithCursorAggregationResult(withCursor.IndexName, resp[0], (long)resp[1], withCursor.Server, withCursor.Database);
+        return new AggregationResult.WithCursorAggregationResult(withCursor.IndexName, resp[0], (long)resp[1], withCursor.Server, withCursor.Database, withCursor.UsesServerTotal);
     }
 
     /// <inheritdoc/>

@@ -1095,11 +1095,11 @@ internal static class ResponseParser
         {
             var results = (RedisResult[])result!;
 
-            return new(results[0], (long)results[1]);
+            return new(results[0], (long)results[1], query.UsesServerTotal);
         }
         else
         {
-            return new(result);
+            return new(result, useServerTotal: query.UsesServerTotal);
         }
     }
 
@@ -1109,11 +1109,11 @@ internal static class ResponseParser
         {
             var results = (RedisResult[])result!;
 
-            return new AggregationResult.WithCursorAggregationResult(indexName, results[0], (long)results[1], server, database);
+            return new AggregationResult.WithCursorAggregationResult(indexName, results[0], (long)results[1], server, database, query.UsesServerTotal);
         }
         else
         {
-            return new(result);
+            return new(result, useServerTotal: query.UsesServerTotal);
         }
     }
 

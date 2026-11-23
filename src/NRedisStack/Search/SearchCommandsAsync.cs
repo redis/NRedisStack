@@ -84,7 +84,14 @@ public class SearchCommandsAsync : ISearchCommandsAsync
         return result.ToAggregationResult(index, query, server, database);
     }
 
-    public async IAsyncEnumerable<Row> AggregateAsyncEnumerable(string index, AggregationRequest query)
+    /// <inheritdoc/>
+    public IAsyncEnumerable<Row> AggregateAsyncEnumerable(string index, AggregationRequest query)
+    {
+        _db.ThrowIfDeferred(nameof(AggregateAsyncEnumerable));
+        return AggregateAsyncEnumerableCore(index, query);
+    }
+
+    private async IAsyncEnumerable<Row> AggregateAsyncEnumerableCore(string index, AggregationRequest query)
     {
         if (!query.IsWithCursor()) query.Cursor();
 
@@ -93,7 +100,7 @@ public class SearchCommandsAsync : ISearchCommandsAsync
         {
             while (true)
             {
-                var count = checked((int)result.TotalResults);
+                var count = result.RowCount; // not TotalResults, which can be the server's total
                 for (int i = 0; i < count; i++)
                 {
                     yield return result.GetRow(i);
@@ -211,7 +218,7 @@ public class SearchCommandsAsync : ISearchCommandsAsync
             ? server.ExecuteAsync(withCursor.Database, command)
             : _db.ExecuteAsync(command);
         var resp = (await pending).ToArray();
-        return new AggregationResult.WithCursorAggregationResult(withCursor.IndexName, resp[0], (long)resp[1], withCursor.Server, withCursor.Database);
+        return new AggregationResult.WithCursorAggregationResult(withCursor.IndexName, resp[0], (long)resp[1], withCursor.Server, withCursor.Database, withCursor.UsesServerTotal);
     }
 
     /// <inheritdoc/>

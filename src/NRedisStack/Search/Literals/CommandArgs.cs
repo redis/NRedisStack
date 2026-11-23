@@ -68,7 +68,9 @@ internal class SearchArgs
     public const string UNF = "UNF";
     public const string VERBATIM = "VERBATIM";
     public const string WEIGHT = "WEIGHT";
+    public const string WITHCOUNT = "WITHCOUNT";
     public const string WITHCURSOR = "WITHCURSOR";
+    public const string WITHOUTCOUNT = "WITHOUTCOUNT";
     public const string WITHPAYLOADS = "WITHPAYLOADS";
     public const string WITHSCORES = "WITHSCORES";
     public const string WITHSUFFIXTRIE = "WITHSUFFIXTRIE";
