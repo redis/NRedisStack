@@ -62,17 +62,18 @@ public static class Auxiliary
     {
         if (!_setInfo) return;
 
-        // ...but never through a transaction: commands there are not sent, they are added to the caller's
-        // MULTI/EXEC, so we would be quietly changing what their transaction contains - and nothing queued in
-        // a transaction can be waited on before EXEC without deadlocking (fire-and-forget dodges the wait,
-        // not the queueing). The latch is deliberately left set, so the next command that isn't part of a
-        // transaction announces instead.
+        // ...but never through a transaction or batch: commands there are not sent immediately, they are
+        // queued into the caller's MULTI/EXEC or batch, so we would be quietly changing what their
+        // transaction/batch contains - and if a batch is never executed, clearing the latch would mean the
+        // library name is never announced at all. (Nothing queued in a transaction or batch can be waited on
+        // before Execute without deadlocking; fire-and-forget dodges the wait, not the queueing.) The latch
+        // is deliberately left set, so the next command outside a transaction or batch announces instead.
         //
         // Tested at the async level to match the parameter: ITransaction : ITransactionAsync, so this covers
         // the sync-capable transaction as well as the async-only one that CreateTransaction() hands back on a
-        // retry-wrapped database. (Neither is an IDatabase, which is why the cast this replaced could not work
-        // for either.)
-        if (db is ITransactionAsync) return;
+        // retry-wrapped database, alongside IBatch. (None of them is an IDatabase, which is why the cast this
+        // replaced could not work for any of them.)
+        if (db is ITransactionAsync or IBatch) return;
 
         _setInfo = false; // one attempt only, successful or not
         var libraryName = _libraryName;
@@ -109,6 +110,15 @@ public static class Auxiliary
             {
                 // as above: best-effort
             }
+        }
+    }
+
+    internal static void ThrowIfDeferred(this IDatabaseAsync db, string methodName)
+    {
+        if (db is IBatch or ITransactionAsync)
+        {
+            throw new NotSupportedException(
+                $"{methodName} issues multiple commands sequentially and cannot be used on a batch or transaction.");
         }
     }
 

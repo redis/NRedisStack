@@ -532,8 +532,15 @@ public class TimeSeriesCommandsAsync : ITimeSeriesCommandsAsync
     }
 
     /// <inheritdoc/>
-    public async IAsyncEnumerable<TimeSeriesTuple> ReadAsyncEnumerable(string key, TimeStamp fromTimeStamp,
-        long? batchSize = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<TimeSeriesTuple> ReadAsyncEnumerable(string key, TimeStamp fromTimeStamp,
+        long? batchSize = null, CancellationToken cancellationToken = default)
+    {
+        _db.ThrowIfDeferred(nameof(ReadAsyncEnumerable));
+        return ReadAsyncEnumerableCore(key, fromTimeStamp, batchSize, cancellationToken);
+    }
+
+    private async IAsyncEnumerable<TimeSeriesTuple> ReadAsyncEnumerableCore(string key, TimeStamp fromTimeStamp,
+        long? batchSize, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         TimeStamp cursor = fromTimeStamp;
         while (true)

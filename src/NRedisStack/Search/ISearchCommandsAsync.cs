@@ -33,6 +33,7 @@ public interface ISearchCommandsAsync
     /// <param name="index">The index name.</param>
     /// <param name="query">The query.</param>
     /// <returns>A sequence of <see langword="Row"/> values.</returns>
+    /// <exception cref="NotSupportedException">Thrown when called on a batch or transaction, as cursor iteration issues multiple commands sequentially.</exception>
     /// <remarks><seealso href="https://redis.io/commands/ft.aggregate"/></remarks>
     IAsyncEnumerable<Row> AggregateAsyncEnumerable(string index, AggregationRequest query);
 

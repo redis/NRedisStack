@@ -179,7 +179,14 @@ public class JsonCommandsAsync(IDatabaseAsync db) : IJsonCommandsAsync
         return await SetAsync(key, path, fileContent, when);
     }
 
-    public async Task<int> SetFromDirectoryAsync(RedisValue path, string filesPath, When when = When.Always)
+    /// <inheritdoc/>
+    public Task<int> SetFromDirectoryAsync(RedisValue path, string filesPath, When when = When.Always)
+    {
+        db.ThrowIfDeferred(nameof(SetFromDirectoryAsync));
+        return SetFromDirectoryCoreAsync(path, filesPath, when);
+    }
+
+    private async Task<int> SetFromDirectoryCoreAsync(RedisValue path, string filesPath, When when)
     {
         int inserted = 0;
         string key;
@@ -195,7 +202,7 @@ public class JsonCommandsAsync(IDatabaseAsync db) : IJsonCommandsAsync
 
         foreach (var dirPath in Directory.EnumerateDirectories(filesPath))
         {
-            inserted += await SetFromDirectoryAsync(path, dirPath, when);
+            inserted += await SetFromDirectoryCoreAsync(path, dirPath, when);
         }
 
         return inserted;
