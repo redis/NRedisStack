@@ -40,6 +40,15 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.False(await bf.ExistsAsync(key, "item2"));
     }
 
+    [Fact]
+    public void TestReserveWithExpansionArgs()
+    {
+        var command = BloomCommandBuilder.Reserve(key, 0.01, 1000, expansion: 4);
+
+        Assert.Equal("BF.RESERVE", command.Command);
+        Assert.Equal(new object[] { (RedisKey)key, 0.01, 1000L, "EXPANSION", 4 }, command.Args);
+    }
+
     [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAddWhenExist(string endpointId)
