@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using NRedisStack.Search.Literals;
 using static NRedisStack.Search.Schema.GeoShapeField;
 using static NRedisStack.Search.Schema.VectorField;
@@ -929,6 +931,18 @@ public sealed class Schema
         });
         return this;
     }
+
+    // retained for binary compatibility with releases before compressionAlgorithm / trainingThreshold existed;
+    // no optional parameters, de-prioritised and hidden so the overload above always wins for new callers.
+    [Obsolete]
+    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [OverloadResolutionPriority(-1)]
+    public Schema AddHnswVectorField(FieldName name, VectorType type, int dimensions, VectorDistanceMetric distanceMetric,
+        int maxOutgoingConnections, int maxConnectedNeighbors, int maxTopCandidates, double boundaryFactor,
+        Dictionary<string, object>? attributes, bool missingIndex)
+        => AddHnswVectorField(name, type, dimensions, distanceMetric, maxOutgoingConnections, maxConnectedNeighbors,
+            maxTopCandidates, boundaryFactor, attributes, missingIndex, VectorCompressionAlgorithm.NotSpecified, 0);
 
     /// <summary>
     /// Add a <see href="VectorAlgo.SVS_VAMANA"/> vector to the schema.
