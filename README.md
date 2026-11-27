@@ -3,83 +3,50 @@
 [![codecov](https://codecov.io/gh/redis/NRedisStack/branch/master/graph/badge.svg?token=4B0KCNK12D)](https://codecov.io/gh/redis/NRedisStack)
 [![NRedisStack NuGet release](https://img.shields.io/nuget/v/NRedisStack.svg?label=nuget&logo=nuget)](https://www.nuget.org/packages/NRedisStack)
 
-
 # NRedisStack
 
-.NET Client for Redis
+NRedisStack is the .NET client for the Redis module commands: [Search](https://redis.io/commands/?group=search),
+[JSON](https://redis.io/commands/?group=json), [TimeSeries](https://redis.io/commands/?group=timeseries),
+[Bloom filter](https://redis.io/commands/?group=bf), [Cuckoo filter](https://redis.io/commands/?group=cf),
+[T-Digest](https://redis.io/commands/?group=tdigest), [Count-min Sketch](https://redis.io/commands/?group=cms) and
+[Top-K](https://redis.io/commands/?group=topk). It builds on
+[StackExchange.Redis](https://github.com/seredis/StackExchange.Redis), which provides the connection and the core
+Redis commands; NRedisStack adds the module commands on top. It is developed and maintained by
+[Redis Inc](https://redis.io).
 
-## Note
-
-This project builds on [StackExchange.Redis](https://github.com/seredis/StackExchange.Redis), and seeks to bring native support for Redis Stack commands to the C# ecosystem.
-
-## How do I Redis?
-
-[Learn for free at Redis University](https://university.redis.io/academy/)
-
-[Try the Redis Cloud](https://redis.io/try-free/)
-
-[Dive in developer tutorials](https://redis.io/learn/)
-
-[Join the Redis community](https://redis.io/community/)
-
-[Work at Redis](https://redis.io/careers/jobs/)
-
-## API
-
-The complete documentation for Redis  module commands can be found at the [Redis commands website](https://redis.io/commands/).
-
-### Redis OSS commands
-
-You can use Redis OSS commands in the same way as you use them in [StackExchange.Redis](https://github.com/seredis/StackExchange.Redis).
-
-### Stack commands
-
-Each module has a command class with its own commands.
-
-The supported modules are [Search](https://redis.io/commands/?group=search), [JSON](https://redis.io/commands/?group=json), [TimeSeries](https://redis.io/commands/?group=timeseries), [Bloom Filter](https://redis.io/commands/?group=bf), [Cuckoo Filter](https://redis.io/commands/?group=cf), [T-Digest](https://redis.io/commands/?group=tdigest), [Count-min Sketch](https://redis.io/commands/?group=cms), and [Top-K](https://redis.io/commands/?group=topk).
-
-**Note:** RedisGraph support has been deprecated starting from Redis Stack version 7.2. For more information, please refer to [this blog post](https://redis.com/blog/redisgraph-eol/).<br>
-**IMPORTANT:** NRedisStack will end the support for Graph functionalities with version 0.13.x<br>
-**IMPORTANT:** Starting from version **1.0.0-beta1**, by default, the client now overrides the [server-side dialect](https://redis.io/docs/latest/develop/interact/search-and-query/advanced-concepts/dialects/) with version 2, automatically appending `DIALECT 2` to commands like **FT.AGGREGATE** and **FT.SEARCH**. Be aware that the query dialect may impact the results returned. If needed, you can revert to a different dialect version by configuring the client accordingly. Please see [release notes](https://github.com/redis/NRedisStack/releases/tag/v1.0.0-beta1).
-
-# Usage
-
-## 💻 Installation
-
-Using the dotnet cli, run:
+## Installation
 
 ```text
 dotnet add package NRedisStack
 ```
 
-## 🏁 Getting started
-
-### Supported Redis versions
-
-The most recent version of this library supports Redis version 
-[7.2](https://github.com/redis/redis/blob/7.2/00-RELEASENOTES),
-[7.4](https://github.com/redis/redis/blob/7.4/00-RELEASENOTES),
-[8.0](https://github.com/redis/redis/blob/8.0/00-RELEASENOTES) and
-[8.2](https://github.com/redis/redis/blob/8.2/00-RELEASENOTES).
-
-### Starting Redis
-
-Before writing any code, you'll need a Redis instance with the appropriate Redis modules. The quickest way to get this is with Docker:
+This also brings in StackExchange.Redis. You need a Redis server that has the modules; Redis 8 includes them:
 
 ```sh
 docker run -p 6379:6379 --name redis redis:latest
 ```
 
-Now, you need to connect to Redis, exactly the same way you do it in [StackExchange.Redis](https://github.com/seredis/StackExchange.Redis):
+## Quick start
+
+Connecting is StackExchange.Redis' job, so every kind of connection it supports works here, and the module
+commands hang off the `IDatabase` it gives you.
+
+### Standalone
+
 ```csharp
 using NRedisStack;
 using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
-//...
+
 ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
 IDatabase db = redis.GetDatabase();
+
+JsonCommands json = db.JSON();
+json.Set("user:1", "$", new { Age = 35, Name = "Alice" });
 ```
-Now you can create a variable from any type of module in the following way:
+
+Each module has an accessor:
+
 ```csharp
 BloomCommands bf = db.BF();
 CuckooCommands cf = db.CF();
@@ -90,81 +57,122 @@ SearchCommands ft = db.FT();
 JsonCommands json = db.JSON();
 TimeSeriesCommands ts = db.TS();
 ```
-Then, that variable will allow you to call all the commands of that module.
 
-## Examples
+Every command has an async twin on the same object, for example `await json.SetAsync(...)`. Core Redis commands
+are used exactly as in StackExchange.Redis, for example `db.StringSet("key", "value")`.
 
-### Store a JSON object in Redis
+### Cluster
 
-To store a json object in Redis:
+List one or more cluster nodes; the rest are discovered, and commands are routed by key:
 
 ```csharp
-ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
+ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("127.0.0.1:16379,127.0.0.1:16380");
 IDatabase db = redis.GetDatabase();
-
-JsonCommands json = db.JSON();
-var key = "myKey";
-json.Set(key, "$", new { Age = 35, Name = "Alice" });
+SearchCommands ft = db.FT();
 ```
 
-### Index and search
-Now, to execute a search  for objects, we need to index them on the server, and run a query:
+### Sentinel
 
-Setup:
+Name the sentinel endpoints and the service; the connection follows the current primary:
+
+```csharp
+ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost:26379,serviceName=mymaster");
+IDatabase db = redis.GetDatabase();
+```
+
+### Pub/sub
+
+NRedisStack adds nothing to pub/sub. Use the StackExchange.Redis subscriber on the same multiplexer:
+
+```csharp
+ISubscriber sub = redis.GetSubscriber();
+sub.Subscribe(RedisChannel.Literal("news"), (channel, message) => Console.WriteLine(message));
+```
+
+### Pipelines and transactions
+
+`Pipeline` and `Transaction` expose the async module commands over a StackExchange.Redis batch or transaction:
+
+```csharp
+var pipeline = new Pipeline(db);
+_ = pipeline.Json.SetAsync("user:2", "$", new { Age = 28, Name = "Bob" });
+_ = pipeline.Json.SetAsync("user:3", "$", new { Age = 41, Name = "Carol" });
+pipeline.Execute();
+```
+
+## Index and search
+
+To search for documents, create an index and run a query:
 
 ```csharp
 using NRedisStack.Search;
 using NRedisStack.Search.Literals.Enums;
-//...
-ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
-IDatabase db = redis.GetDatabase();
 
 SearchCommands ft = db.FT();
-JsonCommands json = db.JSON();
-```
 
-Create an index with fields and weights:
-```csharp
-// FT.CREATE myIdx ON HASH PREFIX 1 doc: SCHEMA title TEXT WEIGHT 5.0 body TEXT url TEXT
+// FT.CREATE myIndex ON HASH PREFIX 1 doc: SCHEMA title TEXT WEIGHT 5.0 body TEXT url TEXT
 ft.Create("myIndex", new FTCreateParams().On(IndexDataType.HASH)
                                          .Prefix("doc:"),
                      new Schema().AddTextField("title", 5.0)
                                  .AddTextField("body")
                                  .AddTextField("url"));
-```
 
-After creating the index, future documents with the ```doc:``` prefix will be automatically indexed when created or modified.
-
-To create a new hash document and add it to the index, use the HSET command:
-```csharp
+// Documents with the doc: prefix are indexed automatically when created or modified.
 // HSET doc:1 title "hello world" body "lorem ipsum" url "http://redis.io"
 db.HashSet("doc:1", new HashEntry[] { new("title", "hello world"),
                                       new("body", "lorem ipsum"),
                                       new("url", "http://redis.io") });
-```
-Search the index for documents that contain "hello world":
-```csharp
+
 // FT.SEARCH myIndex "hello world" LIMIT 0 10
 ft.Search("myIndex", new Query("hello world").Limit(0, 10));
-```
-Drop the index:
-```csharp
+
 // FT.DROPINDEX myIndex
 ft.DropIndex("myIndex");
 ```
 
-More examples can be found in the [examples folder](Examples).
+## Search dialect
 
-## For Contributors
-To contribute NRedisStack, please see :point_right: [Contribution notes](CONTRIBUTING.md)
+By default the client sends `DIALECT 2` with commands such as `FT.SEARCH` and `FT.AGGREGATE`, overriding the
+[server-side default dialect](https://redis.io/docs/latest/develop/interact/search-and-query/advanced-concepts/dialects/).
+The dialect can change the results a query returns. To use a different one, pass it to the accessor, for example
+`db.FT(3)`.
 
-------
+## More examples
 
-# Author
+The [Examples folder](https://github.com/redis/NRedisStack/tree/master/Examples) has longer walk-throughs: JSON,
+query operations, pipelines, transactions and combining modules.
 
-NRedisStack is developed and maintained by [Redis Inc](https://redis.com). It can be found [here](
-https://github.com/redis/NRedisStack), or downloaded from [NuGet](https://www.nuget.org/packages/NRedisStack).
+## Documentation
 
----
+- [NRedisStack guide on redis.io](https://redis.io/docs/latest/develop/clients/dotnet/)
+- [Redis command reference](https://redis.io/commands/)
+- [StackExchange.Redis documentation](https://seredis.dev/), for connections, configuration, cluster, sentinel
+  and pub/sub
+- There is no hosted API reference; the XML documentation ships in the package and shows in your IDE.
 
-[![Redis](./docs/logo-redis.png)](https://www.redis.com)
+New to Redis? [Redis University](https://university.redis.io/academy/) is free, the
+[developer tutorials](https://redis.io/learn/) cover common use cases, and
+[Redis Cloud](https://redis.io/try-free/) has a free tier.
+
+## Getting help and contributing
+
+- Questions and ideas: [GitHub Discussions](https://github.com/redis/NRedisStack/discussions), or the
+  [Redis Discord](https://discord.gg/redis). Discussions is the support channel maintainers watch.
+- Bugs and feature requests: [GitHub Issues](https://github.com/redis/NRedisStack/issues).
+- Security vulnerabilities: see the [security policy](https://github.com/redis/NRedisStack/blob/master/SECURITY.md).
+  Do not open a public issue.
+- To contribute a change, read [CONTRIBUTING.md](https://github.com/redis/NRedisStack/blob/master/CONTRIBUTING.md).
+
+## Supported versions
+
+- **Redis.** Each release is tested against the Redis versions in the
+  [CI matrix](https://github.com/redis/NRedisStack/blob/master/.github/workflows/integration.yml): the current
+  stable release and the long-term-support releases on every pull request, and a wider set nightly. A command
+  that an older server does not have fails with that server's error.
+- **.NET.** The package targets .NET Standard 2.0, so it runs on .NET Framework and on every modern .NET. It
+  also has builds for the .NET versions listed in
+  [NRedisStack.csproj](https://github.com/redis/NRedisStack/blob/master/src/NRedisStack/NRedisStack.csproj).
+
+## License
+
+NRedisStack is released under the [MIT license](https://github.com/redis/NRedisStack/blob/master/LICENSE).

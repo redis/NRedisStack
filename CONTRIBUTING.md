@@ -1,194 +1,166 @@
 # Contributing
 
-## Introduction
+We appreciate your interest in contributing to NRedisStack. Community contributions mean a lot to us, whether
+that is a fix for a bug you hit, a feature your team needs, better documentation, or help triaging issues.
 
-We appreciate your interest in contributing to NRedisStack.
-Community contributions mean a lot to us.
+If you do not know where to start, look through the
+[help-wanted issues](https://github.com/redis/NRedisStack/labels/help-wanted).
 
-## Contributions we need
+## Before you start
 
-You may already know how you'd like to contribute, whether it's a fix for a bug you
-encountered, or a new feature your team wants to use.
+For anything bigger than a small bug fix, a typo or a docs change, open an
+[issue](https://github.com/redis/NRedisStack/issues) or a
+[discussion](https://github.com/redis/NRedisStack/discussions) first. Describe the problem and the change you
+plan, and wait for a maintainer to agree with the approach before you write the code. This avoids work on
+changes we cannot accept, for example one that breaks the public API or duplicates work already in progress.
 
-If you don't know where to start, consider improving
-documentation, triaging bugs, or writing tutorials. These are all examples of
-helpful contributions that mean less work for you.
+Search the open issues and pull requests first; someone may already be working on the same thing.
 
-## Your First Contribution
+NRedisStack covers the Redis module commands. Connections, routing, pub/sub and core commands belong to
+[StackExchange.Redis](https://github.com/seredis/StackExchange.Redis), so a change to those goes there.
 
-Unsure where to begin contributing? You can start by looking through
-[help-wanted
-issues](https://github.com/redis/NRedisStack/labels/help-wanted).
+When you file a bug, answer these five questions:
 
-Never contributed to open source before? Here are a couple of friendly
-tutorials:
+1. What version of NRedisStack are you using?
+2. What version of Redis are you using?
+3. What did you do?
+4. What did you expect to see?
+5. What did you see instead?
 
--   <http://makeapullrequest.com/>
--   <http://www.firsttimersonly.com/>
+## Development setup
 
-## Getting Started
+You need:
 
-Here's how to get started with your code contribution:
+- A **.NET 10 SDK**. The projects use C# 14, so it is needed whichever target framework you build.
+- **Docker**, to run the Redis servers the integration tests talk to.
+- Python 3, only if you change the public API (see [Code style and linting](#code-style-and-linting)).
 
-1.  Create your own fork of NRedisStack
-2.  Do the changes in your fork
-3.  Write your tests
+Fork the repository, clone your fork, and build:
 
-4.  Use the `docker run -p 6379:6379 -it redis/redis-stack-server:edge` as your local environment for running the functional tests. You can also use Development Container as described below.
-5.  Run `dotnet format` to make sure your code is formatted
-6.  Make sure your tests pass using `dotnet test`
-7.  Open a pull request
-
-## Development Container
-
-Development Containers are an easy way to define and setup a reproducible development environment by using containers.
-NRedisStack provides a [development container environment](https://containers.dev/) that can be used to get running relatively fast without focusing on the different Redis deployments.
-
-The development container comes packed with .NET 6 and 7, required by the testing suite, as well as the currently supported Redis versions that are run as part of the CI pipeline.
-
-Development containers are supported in a few [editors](https://containers.dev/supporting#editors) or by using the [`devcontainer-cli` tool](https://github.com/devcontainers/cli).
-
-This guide explains how to use the existing development container setup for this project.
-
-### Prerequisites
-
-Before you start, make sure you have the following installed:
-
-- [Visual Studio Code](https://code.visualstudio.com/)
-- [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) for VS Code
-
-### Steps to Use the Existing Development Container Setup
-
-1. **Clone the Project:** Start by cloning the project's repository to your local machine using Git.
-
-2. **Install Prerequisites:** Ensure you have Visual Studio Code and the Dev Containers extension installed.
-
-3. **Open in Development Container:**
-
-   a. Open the cloned project directory using Visual Studio Code.
-
-   b. VS Code should detect the `.devcontainer` folder and the associated configuration files.
-
-   c. You will likely see a notification suggesting reopening the project in a development container:
-   ![devcontainer notification](./docs/devcontainerNotification.png)
-
-   Click on this notification or press `Ctrl + Shift + P` (or `Cmd + Shift + P` on Mac) and type _"Dev Containers: Reopen in Container"_. Select the suggestion that appears.
-
-   d. Visual Studio Code will build the Docker image according to the configuration and start a container using the specified setup.
-
-4. **Develop Inside the DevContainer:**
-
-   You're now working within the development container environment. Access extensions, dependencies, and settings specified in `devcontainer.json`. Edit code, use the integrated terminal, and run commands as usual.
-
-5. **Save and Commit:**
-
-   Changes made within the development container will be saved to your local repository. Use Git within the container to manage changes, create branches, commit, and push code.
-
-6. **Stop the DevContainer:**
-
-   Close the development container by clicking the "Close Remote Connection" button in the bottom-left corner of the VS Code window. This stops the container while preserving changes.
-
-7. **Resume Work:**
-
-   Reopen the project in the development container to work on it again using the same steps.
-
-By using the existing `.devcontainer` setup, you benefit from a consistent development environment tailored to the project's requirements. For specific configuration details or issues, consult the project documentation or ask maintainers for assistance.
-
-
-## Testing
-
-Call `dotnet test` to run all tests
-
-to test specific test you can use `--filter` flag:
 ```bash
-dotnet test --filter <YourTestName>
+dotnet restore
+dotnet build
 ```
 
-If you want to run your tests against a specific host and port, you can do it thus:
-```bash
-dotnet test --environment="REDIS=<redisServer:port>"
-```
-e.g:
-```bash
-dotnet test --environment="REDIS=127.17.0.1:6379"
-```
+### Starting Redis
 
-Most of the integration tests rely on specific server capabilities,
-so, to be able run matching test cases properly you will need to set `REDIS_VERSION` variable with your actual server version that tests running against.
+The tests use two topologies, both started from one compose file: a standalone server on `6379` and a six-node
+cluster (three primaries, three replicas) on `16379`-`16384`. The image includes the modules.
+
 ```bash
-dotnet test --environment="REDIS=<redisServer:port>" --environment="REDIS_VERSION=<redisServerVersion>"
-```
-e.g:
-```bash
-dotnet test --environment="REDIS=127.17.0.1:6379" --environment="REDIS_VERSION=7.4.0"
+docker compose --env-file tests/dockers/.env.v8.10 --profile all -f tests/dockers/docker-compose.yml up -d --wait
 ```
 
-If you are relying on an IDE to run the tests, then you can set these parameters in [.runsettings](.vscode/.runsettings) file. 
-You also need to check if your IDE supports [settings.json](.vscode/settings.json) for this to work.
+- `--env-file` picks the Redis version. There is one `tests/dockers/.env.v<X.Y>` per version CI tests.
+- `--profile` is `all`, `standalone` or `cluster`.
+- To try an image that has no env file, set it directly:
+  `CLIENT_LIBS_TEST_IMAGE=redislabs/client-libs-test:<tag> docker compose --profile all -f tests/dockers/docker-compose.yml up -d --wait`
 
-To run your tests against an oss cluster:
+Stop it with:
+
 ```bash
-dotnet test --environment "REDIS_CLUSTER=<redisServer:port>" --environment "NUM_REDIS_CLUSTER_NODES=<number of nodes in the cluster>"
+docker compose --profile all -f tests/dockers/docker-compose.yml down
 ```
-e.g. :
+
+There is no sentinel topology in the test suite.
+
+The repository also has a [dev container](.devcontainer/) definition. It predates the compose topology above
+and targets older .NET and Redis Stack images, so prefer the steps in this section.
+
+## Running tests
+
 ```bash
-dotnet test --environment "REDIS_CLUSTER=127.0.0.1:16379" --environment "NUM_REDIS_CLUSTER_NODES=6"
+REDIS_VERSION=8.10.0 dotnet test tests/NRedisStack.Tests/NRedisStack.Tests.csproj -f net10.0
 ```
 
-## Agent skills
+Always pass a framework with `-f` (`net8.0`, `net9.0` or `net10.0`); `net481` runs only on Windows.
 
-Repo-specific [Agent Skills](https://agentskills.io/home) (the portable `SKILL.md` standard) live under
-`.agents/skills/`, with `.claude/skills/` symlinked to the same folders for Claude Code:
+**Unit and integration tests** live in the same project. Unit tests need no server. Integration tests are
+theories that run once per topology, so each shows a `standalone` row and a `cluster` row.
 
-- `extend-commands-api` - add or extend a Redis / Redis Stack module command end to end (literal, builder with its
-  command category, sync + async interfaces and implementations, PublicAPI tracking, xUnit theories against
-  standalone and cluster).
-- `create-implementation-plan-for-redis-api-change` - write the reviewable implementation plan for such a change
-  from a shared client HLD before any code is written. Read-only: it produces one markdown file and defers to
-  `extend-commands-api` for the conventions.
+**A single test.** Filter by name. `~` is a substring match, so this also runs `TestAliasListAsync`:
 
-## How to Report a Bug
+```bash
+REDIS_VERSION=8.10.0 dotnet test tests/NRedisStack.Tests/NRedisStack.Tests.csproj -f net10.0 \
+  --filter "FullyQualifiedName~NRedisStack.Tests.Search.SearchTests.TestAliasList"
+```
 
-### Security Vulnerabilities
+**Environment variables.**
 
-**NOTE**: If you find a security vulnerability, do NOT open an issue.
-Email [Redis Open Source (<oss@redis.com>)](mailto:oss@redis.com) instead.
+| Variable | Meaning |
+|---|---|
+| `REDIS_VERSION` | The version of the server you are testing against. Tests for newer commands are gated on it. It defaults to `0.0.0`, which skips every gated test without failing, so always set it and check the skipped count. |
+| `REDIS_ENDPOINTS_CONFIG_PATH` | Path to an endpoints file, to test against servers other than the compose ones. It defaults to [`tests/dockers/endpoints.json`](tests/dockers/endpoints.json), which is copied next to the test binaries. A topology missing from the file is skipped. |
+| `IS_ENTERPRISE` | Set to `true` when the server is Redis Enterprise, which skips tests that do not apply there. |
 
-In order to determine whether you are dealing with a security issue, ask
-yourself these two questions:
+In an IDE, set these in [.runsettings](.vscode/.runsettings).
 
--   Can I access something that's not mine, or something I shouldn't
-    have access to?
--   Can I disable something for other people?
+`tests/Doc/` holds the code samples published on redis.io. They are compiled and run as tests, so keep them
+working when you change the API they use.
 
-If the answer to either of those two questions are *yes*, then you're
-probably dealing with a security issue. Note that even if you answer
-*no*  to both questions, you may still be dealing with a security
-issue, so if you're unsure, just email [us](mailto:oss@redis.com).
+## Code style and linting
 
-### Everything Else
+Formatting is checked in CI by running `dotnet format` and failing if it changes anything. Run it before you
+push:
 
-When filing an issue, make sure to answer these five questions:
+```bash
+dotnet format
+```
 
-1.  What version of NRedisStack are you using?
-2.  What version of Redis are you using?
-3.  What did you do?
-4.  What did you expect to see?
-5.  What did you see instead?
+Other rules the build or the reviewers enforce:
 
-## Suggest a feature or enhancement
+- **Public API is tracked.** Every public member is listed in `src/NRedisStack/PublicAPI/`. Add new members to
+  `PublicAPI.Unshipped.txt` (the build prints the exact line in an `RS0016` warning; it is a warning, not an
+  error, so look for it), then sort the file with `python3 eng/public-api.py`. Do not edit
+  `PublicAPI.Shipped.txt`.
+- **No breaking changes to shipped API.** Adding a parameter to an existing method, even an optional one,
+  breaks callers compiled against the previous version. Add an overload and mark the old one `[Obsolete]`.
+- **Sync and async together.** Every command exists on both the sync and the async interface.
+- **XML docs** on new interface members, with a link to the command's page on redis.io.
+- Nullable reference types are on. The library also targets `netstandard2.0`, so use only APIs available there.
 
-If you'd like to contribute a new feature, make sure you check our
-issue list to see if someone has already proposed it. Work may already
-be underway on the feature you want or we may have rejected a
-feature like it already.
+## Pull request process
 
-If you don't see anything, open a new issue that describes the feature
-you would like and how it should work.
+- **Title.** We squash-merge pull requests, so the PR title becomes the commit message on `master`. Write it as
+  one sentence that describes the user-visible change, for example
+  `Support WITHCOUNT / WITHOUTCOUNT on FT.SEARCH and FT.AGGREGATE`.
+- **Description.** Fill in the PR template. Explain what changed and why, and link the issue the PR fixes, for
+  example `Fixes #1234`. For a new server feature, link the server-side change and say which Redis version
+  first has it.
+- **Tests.** Every behavior change needs tests, for the sync and async API, on standalone and cluster where the
+  command applies to both.
+- **Changelog.** There is no changelog file to edit. Maintainers label each PR, and the release notes are
+  generated from the merged PRs and their labels.
+- **Compatibility.** If your change breaks the public API, say so in the description. Expect it to be reworked
+  into an additive change or to wait for a major release.
 
-## Code review process
+### Code review
 
-The core team regularly looks at pull requests. We will provide
-feedback as as soon as possible. After receiving our feedback, please respond
-within two weeks. After that time, we may close your PR if it isn't
-showing any activity.
+The core team regularly looks at pull requests and will give feedback as soon as possible. Reviewers check that
+the change is correct, matches Redis semantics, works on cluster, keeps the sync and async API aligned, does
+not break the public API, and is tested and documented.
+
+After receiving our feedback, please respond within two weeks. After that time, we may close your PR if it is
+not showing any activity. Separately, the [stale workflow](.github/workflows/stale.yml) marks issues and pull
+requests stale after a year without activity and closes them 30 days later. Issues labeled
+`waiting-for-feedback` are marked stale after 30 days and closed 7 days later. The `no-stale` label exempts an
+issue or pull request.
+
+## AI-assisted contributions
+
+AI tools are welcome. Whatever tools you use, you are the author: you are responsible for every line you
+submit and must be able to explain it in review. Tick the AI disclosure box in the PR template if AI tools
+helped write the change.
+
+If you work with a coding agent, [AGENTS.md](AGENTS.md) gives it the commands, conventions and boundaries for
+this repository, and lists the agent skills in `.agents/skills/` (for example, adding a command end to end).
+Agents draft; you review, commit and post. Please do not point an autonomous agent at this repository to open
+issues or pull requests on its own.
+
+## Code of conduct, security and license
+
+- Be respectful and constructive in issues, discussions and reviews.
+- Report security vulnerabilities as described in the [security policy](SECURITY.md). Do not open a public
+  issue for them.
+- NRedisStack is released under the [MIT license](LICENSE). By submitting a pull request you agree to
+  contribute your change under it.
