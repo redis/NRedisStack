@@ -49,6 +49,32 @@ public class BloomTests : AbstractNRedisStackTest, IDisposable
         Assert.Equal(new object[] { (RedisKey)key, 0.01, 1000L, "EXPANSION", 4 }, command.Args);
     }
 
+    // The server only finds EXPANSION by its keyword and silently ignores a stray value, so the args test above
+    // cannot tell whether the option took effect: read it back. 4 is used because the server default is 2.
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestReserveWithExpansion(string endpointId)
+    {
+        IDatabase db = GetCleanDatabase(endpointId);
+        var bf = db.BF();
+
+        Assert.True(bf.Reserve(key, 0.001, 100L, expansion: 4));
+
+        Assert.Equal(4, bf.Info(key).ExpansionRate);
+    }
+
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestReserveWithExpansionAsync(string endpointId)
+    {
+        IDatabase db = GetCleanDatabase(endpointId);
+        var bf = db.BF();
+
+        Assert.True(await bf.ReserveAsync(key, 0.001, 100L, expansion: 4));
+
+        Assert.Equal(4, (await bf.InfoAsync(key)).ExpansionRate);
+    }
+
     [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestAddWhenExist(string endpointId)
