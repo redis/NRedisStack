@@ -11,6 +11,16 @@ static NRedisStack.RedisStackCommands.ModulePrefixes.JSON(this StackExchange.Red
 static NRedisStack.RedisStackCommands.ModulePrefixes.TDIGEST(this StackExchange.Redis.IDatabaseAsync! db) -> NRedisStack.TdigestCommandsAsync!
 static NRedisStack.RedisStackCommands.ModulePrefixes.TOPK(this StackExchange.Redis.IDatabaseAsync! db) -> NRedisStack.TopKCommandsAsync!
 static NRedisStack.RedisStackCommands.ModulePrefixes.TS(this StackExchange.Redis.IDatabaseAsync! db) -> NRedisStack.TimeSeriesCommandsAsync!
+NRedisStack.CmsCommands.InitByDim(StackExchange.Redis.RedisKey key, long width, long depth, int cellSize) -> bool
+NRedisStack.CmsCommands.InitByProb(StackExchange.Redis.RedisKey key, double error, double probability, int cellSize) -> bool
+NRedisStack.CmsCommandsAsync.InitByDimAsync(StackExchange.Redis.RedisKey key, long width, long depth, int cellSize) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.CmsCommandsAsync.InitByProbAsync(StackExchange.Redis.RedisKey key, double error, double probability, int cellSize) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ICmsCommands.InitByDim(StackExchange.Redis.RedisKey key, long width, long depth, int cellSize) -> bool
+NRedisStack.ICmsCommands.InitByProb(StackExchange.Redis.RedisKey key, double error, double probability, int cellSize) -> bool
+NRedisStack.ICmsCommandsAsync.InitByDimAsync(StackExchange.Redis.RedisKey key, long width, long depth, int cellSize) -> System.Threading.Tasks.Task<bool>!
+NRedisStack.ICmsCommandsAsync.InitByProbAsync(StackExchange.Redis.RedisKey key, double error, double probability, int cellSize) -> System.Threading.Tasks.Task<bool>!
+static NRedisStack.CmsCommandBuilder.InitByDim(StackExchange.Redis.RedisKey key, long width, long depth, int cellSize) -> NRedisStack.RedisStackCommands.SerializedCommand!
+static NRedisStack.CmsCommandBuilder.InitByProb(StackExchange.Redis.RedisKey key, double error, double probability, int cellSize) -> NRedisStack.RedisStackCommands.SerializedCommand!
 NRedisStack.Search.Schema.AddHnswVectorField(NRedisStack.Search.FieldName! name, NRedisStack.Search.Schema.VectorField.VectorType type, int dimensions, NRedisStack.Search.Schema.VectorField.VectorDistanceMetric distanceMetric, int maxOutgoingConnections = 16, int maxConnectedNeighbors = 200, int maxTopCandidates = 10, double boundaryFactor = 0.01, System.Collections.Generic.Dictionary<string!, object!>? attributes = null, bool missingIndex = false, NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm compressionAlgorithm = NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm.NotSpecified, int trainingThreshold = 0) -> NRedisStack.Search.Schema!
 NRedisStack.Search.Schema.HnswVectorField.CompressionAlgorithm.get -> NRedisStack.Search.Schema.VectorField.VectorCompressionAlgorithm
 NRedisStack.Search.Schema.HnswVectorField.CompressionAlgorithm.set -> void
