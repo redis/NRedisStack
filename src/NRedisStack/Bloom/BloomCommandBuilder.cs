@@ -72,6 +72,7 @@ public static class BloomCommandBuilder
 
         if (expansion != null)
         {
+            args.Add(BloomArgs.EXPANSION);
             args.Add(expansion);
         }
 
