@@ -83,7 +83,7 @@ public class JsonCommands(IDatabase db) : JsonCommandsAsync(db), IJsonCommands
         var files = Directory.EnumerateFiles(filesPath, "*.json");
         foreach (var filePath in files)
         {
-            key = filePath.Substring(0, filePath.IndexOf("."));
+            key = Path.ChangeExtension(filePath, null);
             if (SetFromFile(key, path, filePath, when))
             {
                 inserted++;
