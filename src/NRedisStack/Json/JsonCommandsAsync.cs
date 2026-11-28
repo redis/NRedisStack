@@ -193,7 +193,7 @@ public class JsonCommandsAsync(IDatabaseAsync db) : IJsonCommandsAsync
         var files = Directory.EnumerateFiles(filesPath, "*.json");
         foreach (var filePath in files)
         {
-            key = filePath.Substring(0, filePath.IndexOf(".", StringComparison.Ordinal));
+            key = Path.ChangeExtension(filePath, null);
             if (await SetFromFileAsync(key, path, filePath, when))
             {
                 inserted++;

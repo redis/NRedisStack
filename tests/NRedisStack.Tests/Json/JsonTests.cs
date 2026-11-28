@@ -100,6 +100,33 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
 
     [Theory]
     [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public void TestSetFromDirectoryWithDotsInPath(string endpointId)
+    {
+        //arrange
+        var db = GetCleanDatabase(endpointId);
+        var commands = new JsonCommands(db);
+
+        string json = JsonSerializer.Serialize(new Person { Name = "Person1", Age = 10 });
+        string dir = Path.Combine("Base.Dir.Sync", "v1.2");
+        Directory.CreateDirectory(dir);
+        try
+        {
+            File.WriteAllText(Path.Combine(dir, "json.File1.json"), json);
+
+            Assert.Equal(1, commands.SetFromDirectory("$", "Base.Dir.Sync"));
+
+            // only the ".json" extension is removed from the file path
+            var actual = commands.Get(Path.Combine(dir, "json.File1"));
+            Assert.Equal(json, actual.ToString());
+        }
+        finally
+        {
+            Directory.Delete("Base.Dir.Sync", true);
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
     public void TestJsonSetNotExist(string endpointId)
     {
         //arrange
@@ -1178,6 +1205,33 @@ public class JsonTests(EndpointsFixture endpointsFixture) : AbstractNRedisStackT
         var actual = await commands.GetAsync(Path.Combine("BaseDir", "DirNumber2", "DirNumber3", $"jsonFile7"));
         Assert.Equal(jsons[6], actual.ToString());
         Directory.Delete("BaseDir", true);
+    }
+
+    [Theory]
+    [MemberData(nameof(EndpointsFixture.Env.AllEnvironments), MemberType = typeof(EndpointsFixture.Env))]
+    public async Task TestSetFromDirectoryWithDotsInPathAsync(string endpointId)
+    {
+        //arrange
+        var db = GetCleanDatabase(endpointId);
+        var commands = new JsonCommands(db);
+
+        string json = JsonSerializer.Serialize(new Person { Name = "Person1", Age = 10 });
+        string dir = Path.Combine("Base.Dir.Async", "v1.2");
+        Directory.CreateDirectory(dir);
+        try
+        {
+            File.WriteAllText(Path.Combine(dir, "json.File1.json"), json);
+
+            Assert.Equal(1, await commands.SetFromDirectoryAsync("$", "Base.Dir.Async"));
+
+            // only the ".json" extension is removed from the file path
+            var actual = await commands.GetAsync(Path.Combine(dir, "json.File1"));
+            Assert.Equal(json, actual.ToString());
+        }
+        finally
+        {
+            Directory.Delete("Base.Dir.Async", true);
+        }
     }
 
     [Fact]
